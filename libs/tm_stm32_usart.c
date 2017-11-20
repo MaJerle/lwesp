@@ -937,23 +937,23 @@ void UART4_IRQHandler(void) {
 }
 #endif
 
-#ifdef UART5
-void UART5_IRQHandler(void) {
-	/* Check if interrupt was because data is received */
-	if (UART5->USART_STATUS_REG & USART_ISR_RXNE) {
-#ifdef TM_UART5_USE_CUSTOM_IRQ
-		/* Call user function */
-		TM_UART5_ReceiveHandler(USART_READ_DATA(UART5));
-#else
-		/* Put received data into internal buffer */
-		TM_USART_INT_InsertToBuffer(&TM_UART5, USART_READ_DATA(UART5));
-#endif
-	}
-	
-	/* Clear all USART flags */
-	TM_USART_INT_ClearAllFlags(UART5, IRQ_UART5);
-}
-#endif
+//#ifdef UART5
+//void UART5_IRQHandler(void) {
+//	/* Check if interrupt was because data is received */
+//	if (UART5->USART_STATUS_REG & USART_ISR_RXNE) {
+//#ifdef TM_UART5_USE_CUSTOM_IRQ
+//		/* Call user function */
+//		TM_UART5_ReceiveHandler(USART_READ_DATA(UART5));
+//#else
+//		/* Put received data into internal buffer */
+//		TM_USART_INT_InsertToBuffer(&TM_UART5, USART_READ_DATA(UART5));
+//#endif
+//	}
+//	
+//	/* Clear all USART flags */
+//	TM_USART_INT_ClearAllFlags(UART5, IRQ_UART5);
+//}
+//#endif
 
 #ifdef USART6
 void USART6_IRQHandler(void) {

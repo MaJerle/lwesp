@@ -4,8 +4,6 @@
  */
 
 /*
- * Contains list of functions to parse different input strings
- *
  * Copyright (c) 2017, Tilen MAJERLE
  * All rights reserved.
  *
@@ -39,12 +37,45 @@
 #include "esp_input.h"
 
 #include "tm_stm32_usart.h"
+#include "tm_stm32_disco.h"
+
+#if defined(STM32F7xx)
+#include "stm32f7xx_ll_usart.h"
+#include "stm32f7xx_ll_gpio.h"
+#include "stm32f7xx_ll_dma.h"
+#else /* defined(STM32F769_DISCOVERY) */
 #include "stm32f4xx_ll_usart.h"
 #include "stm32f4xx_ll_gpio.h"
 #include "stm32f4xx_ll_dma.h"
+#endif /* !defined(STM32F769_DISCOVERY) */
 
-static uint8_t usart_mem[0x200];
+#if defined(STM32F769_DISCOVERY)
+#define ESP_USART                   UART5
+#define ESP_USART_CLK               __HAL_RCC_UART5_CLK_ENABLE
+#define ESP_USART_IRQ               UART5_IRQn
+#define ESP_USART_IRQHANDLER        UART5_IRQHandler
 
+#define ESP_USART_TX_PORT_CLK       __HAL_RCC_GPIOC_CLK_ENABLE
+#define ESP_USART_TX_PORT           GPIOC
+#define ESP_USART_TX_PIN            LL_GPIO_PIN_12
+#define ESP_USART_TX_PIN_AF         LL_GPIO_AF_8
+#define ESP_USART_RX_PORT_CLK       __HAL_RCC_GPIOD_CLK_ENABLE
+#define ESP_USART_RX_PORT           GPIOD
+#define ESP_USART_RX_PIN            LL_GPIO_PIN_2
+#define ESP_USART_RX_PIN_AF         LL_GPIO_AF_8
+
+#define ESP_USART_DMA               DMA1
+#define ESP_USART_DMA_CLK           __HAL_RCC_DMA1_CLK_ENABLE
+#define ESP_USART_DMA_RX_STREAM     LL_DMA_STREAM_0
+#define ESP_USART_DMA_RX_CH         LL_DMA_CHANNEL_4
+#define ESP_USART_DMA_RX_STREAM_IRQ DMA1_Stream0_IRQn
+#define ESP_USART_DMA_RX_STREAM_IRQHANDLER  DMA1_Stream0_IRQHandler
+
+#define IS_DMA_RX_STREAM_TC         LL_DMA_IsActiveFlag_TC0(ESP_USART_DMA)
+#define IS_DMA_RX_STREAM_HT         LL_DMA_IsActiveFlag_HT0(ESP_USART_DMA)
+#define DMA_RX_STREAM_CLEAR_TC      LL_DMA_ClearFlag_TC0(ESP_USART_DMA)
+#define DMA_RX_STREAM_CLEAR_HT      LL_DMA_ClearFlag_HT0(ESP_USART_DMA)
+#else /* defined(STM32F769_DISCOVERY) */
 #define ESP_USART                   USART1
 #define ESP_USART_CLK               __HAL_RCC_USART1_CLK_ENABLE
 #define ESP_USART_IRQ               USART1_IRQn
@@ -53,9 +84,11 @@ static uint8_t usart_mem[0x200];
 #define ESP_USART_TX_PORT_CLK       __HAL_RCC_GPIOA_CLK_ENABLE
 #define ESP_USART_TX_PORT           GPIOA
 #define ESP_USART_TX_PIN            LL_GPIO_PIN_9
+#define ESP_USART_TX_PIN_AF         LL_GPIO_AF_7
 #define ESP_USART_RX_PORT_CLK       __HAL_RCC_GPIOA_CLK_ENABLE
 #define ESP_USART_RX_PORT           GPIOA
 #define ESP_USART_RX_PIN            LL_GPIO_PIN_10
+#define ESP_USART_RX_PIN_AF         LL_GPIO_AF_7
 
 #define ESP_USART_DMA               DMA2
 #define ESP_USART_DMA_CLK           __HAL_RCC_DMA2_CLK_ENABLE
@@ -66,9 +99,12 @@ static uint8_t usart_mem[0x200];
 
 #define IS_DMA_RX_STREAM_TC         LL_DMA_IsActiveFlag_TC5(ESP_USART_DMA)
 #define IS_DMA_RX_STREAM_HT         LL_DMA_IsActiveFlag_HT5(ESP_USART_DMA)
-#define DMA_RX_STREAM_CLEAR_TC      LL_DMA_ClearFlag_TC5(ESP_USART_DMA);
-#define DMA_RX_STREAM_CLEAR_HT      LL_DMA_ClearFlag_HT5(ESP_USART_DMA);
+#define DMA_RX_STREAM_CLEAR_TC      LL_DMA_ClearFlag_TC5(ESP_USART_DMA)
+#define DMA_RX_STREAM_CLEAR_HT      LL_DMA_ClearFlag_HT5(ESP_USART_DMA)
+#endif /* !defined(STM32F769_DISCOVERY) */
 
+static uint8_t usart_mem[0x200];
+uint16_t old_pos;
 
 /**
  * \brief           Send data to ESP device
@@ -78,7 +114,7 @@ static uint8_t usart_mem[0x200];
  */
 static uint16_t
 send_data(const uint8_t* data, uint16_t len) {
-    TM_USART_Send(USART1, data, len);           /* Send actual data via UART using blocking method */
+    TM_USART_Send(ESP_USART, data, len);        /* Send actual data via UART using blocking method */
     return len;
 }
 
@@ -97,18 +133,20 @@ configure_uart(uint32_t baudrate) {
     ESP_USART_DMA_CLK();
     
     /* Configure GPIO pins */
-    gpio_init.Alternate = LL_GPIO_AF_7;
     gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
     gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
     gpio_init.Pull = LL_GPIO_PULL_UP;
-    gpio_init.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+    gpio_init.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
     
+    gpio_init.Alternate = ESP_USART_TX_PIN_AF;
     gpio_init.Pin = ESP_USART_TX_PIN;
     LL_GPIO_Init(ESP_USART_TX_PORT, &gpio_init);
+    gpio_init.Alternate = ESP_USART_RX_PIN_AF;
     gpio_init.Pin = ESP_USART_RX_PIN;
     LL_GPIO_Init(ESP_USART_RX_PORT, &gpio_init);
     
     /* Configure UART */
+    LL_USART_DeInit(ESP_USART);
     usart_init.BaudRate = baudrate;
     usart_init.DataWidth = LL_USART_DATAWIDTH_8B;
     usart_init.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
@@ -123,8 +161,13 @@ configure_uart(uint32_t baudrate) {
     LL_USART_EnableIT_IDLE(ESP_USART);
     
     /* Set DMA_InitStruct fields to default values */
+    LL_DMA_DeInit(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
     dma_init.Channel = ESP_USART_DMA_RX_CH;
+#if defined(STM32F769_DISCOVERY)
+    dma_init.PeriphOrM2MSrcAddress = (uint32_t)&ESP_USART->RDR;
+#else /* defined(STM32F769_DISCOVERY) */
     dma_init.PeriphOrM2MSrcAddress = (uint32_t)&ESP_USART->DR;
+#endif /* !defined(STM32F769_DISCOVERY) */
     dma_init.MemoryOrM2MDstAddress = (uint32_t)usart_mem;
     dma_init.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
     dma_init.Mode = LL_DMA_MODE_CIRCULAR;
@@ -148,9 +191,9 @@ configure_uart(uint32_t baudrate) {
     
     HAL_NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, 1, 0);
     HAL_NVIC_EnableIRQ(ESP_USART_DMA_RX_STREAM_IRQ);
+    
+    old_pos = 0;
 }
-
-uint16_t old_pos;
 
 /**
  * \brief           UART global interrupt handler

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.1.2
-  * @date    23-September-2016 
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -72,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -673,9 +671,11 @@ static void FLASH_Program_DoubleWord(uint32_t Address, uint64_t Data)
   FLASH->CR &= CR_PSIZE_MASK;
   FLASH->CR |= FLASH_PSIZE_DOUBLE_WORD;
   FLASH->CR |= FLASH_CR_PG;
-  
-  *(__IO uint64_t*)Address = Data;
-  
+
+  /* Program the double-word */
+  *(__IO uint32_t*)Address = (uint32_t)Data;
+  *(__IO uint32_t*)(Address+4) = (uint32_t)(Data >> 32);
+
   /* Data synchronous Barrier (DSB) Just after the write operation
      This will force the CPU to respect the sequence of instruction (no optimization).*/
   __DSB();
@@ -800,6 +800,13 @@ static void FLASH_SetErrorCode(void)
   {
     pFlash.ErrorCode |= HAL_FLASH_ERROR_ERS;
   }
+  
+#if defined (FLASH_OPTCR2_PCROP)
+  if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR) != RESET)
+  { 
+   pFlash.ErrorCode |= HAL_FLASH_ERROR_RD;
+  }  
+#endif /* FLASH_OPTCR2_PCROP */
   
   /* Clear error programming flags */
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);

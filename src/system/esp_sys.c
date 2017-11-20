@@ -1,6 +1,12 @@
 #define esp_INTERNAL
 #include "esp_sys.h"
+#if defined(STM32F769_DISCOVERY)
+#include "stm32f7xx_hal.h"
+#else /* defined(STM32F769_DISCOVERY) */
 #include "stm32f4xx_hal.h"
+#endif /* !defined(STM32F769_DISCOVERY) */
+
+#include "cmsis_os.h"
 
 #define VAL_MUTEX_INVALID           (osMutexId)0
 #define VAL_SEM_INVALID             (osSemaphoreId)0
@@ -164,8 +170,9 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
     return 1;
 }
     
-esp_sys_thread_t
-esp_sys_thread_create(const char* name, void (*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
+uint8_t
+esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void (*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
     const osThreadDef_t thread_def = {(char *)name, (os_pthread)thread_func, (osPriority)prio, 0, stack_size};  /* Create thread description */
-    return osThreadCreate(&thread_def, arg);    /* Create thread */
+    *t = osThreadCreate(&thread_def, arg);      /* Create thread */
+    return !!*t;
 }

@@ -4,7 +4,6 @@
  */
  
 /*
- * Contains list of functions to parse different input strings
  *
  * Copyright (c) 2017, Tilen MAJERLE
  * All rights reserved.
@@ -185,6 +184,7 @@ typedef struct esp_msg {
             const char* host;                   /*!< Host to use for connection */
             uint16_t port;                      /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
+            uint8_t num;                        /*!< Connection number used for start */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection to close */
@@ -232,10 +232,13 @@ typedef struct {
  * \brief           List of possible callback types received to user
  */
 typedef enum {
+    ESP_CB_INIT_FINISH,                         /*!< Initialization has been finished at this point */
+    
     ESP_CB_DATA_RECV,                           /*!< Connection data received */
     ESP_CB_DATA_SENT,                           /*!< Data were successfully sent */
     ESP_CB_DATA_SENT_ERR,                       /*!< Error trying to send data */
     ESP_CB_CONN_ACTIVE,                         /*!< Connection just became active */
+    ESP_CB_CONN_ERROR,                          /*!< Client connection start was not successful */
     ESP_CB_CONN_CLOSED,                         /*!< Connection was just closed */
 } esp_cb_type_t;
 
@@ -256,6 +259,11 @@ typedef struct {
         struct {
             esp_conn_t* conn;                   /*!< Connection where data were sent */
         } conn_data_sent_err;                   /*!< Data were not sent */
+        struct {
+            const char* host;                   /*!< Host to use for connection */
+            uint16_t port;                      /*!< Remote port used for connection */
+            esp_conn_type_t type;               /*!< Connection type */
+        } conn_error;                           /*!< Client connection start error */
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection */
         } conn_active_closed;                   /*!< Process active and closed statuses at the same time. Use with \ref ESP_CB_CONN_ACTIVE or \ref ESP_CB_CONN_CLOSED events */
@@ -298,8 +306,6 @@ typedef struct {
     } status;                                   /*!< Status structure */
 } esp_t;
 
-#define ESP_DEBUG(fmt, ...)     printf(fmt, ##__VA_ARGS__)
-
 #include "esp_init.h"
 
 extern esp_t esp;
@@ -311,6 +317,13 @@ extern esp_t esp;
 #define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
 #define ESP_MIN(x, y)                       ((x) < (y) ? (x) : (y))
 #define ESP_MAX(x, y)                       ((x) > (y) ? (x) : (y))
+
+#define ESP_ASSERT(c)   do {        \
+    if (!(c)) {                     \
+        ESP_DEBUGF(ESP_DBG_ASSERT, "Wrong parameters on file %s and line %d\r\n", __FILE__, __LINE__); \
+        return espPARERR;           \
+    }                               \
+} while (0)
 
 /**
  * \brief           Align x value to specific number of bits, provided from \ref GUI_MEM_ALIGNMENT configuration
@@ -342,10 +355,16 @@ espr_t      esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* 
 espr_t      esp_conn_close(esp_conn_t* conn, uint32_t blocking);
 espr_t      esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32_t blocking);
 espr_t      esp_conn_set_ssl_buffer(size_t size, uint32_t blocking);
+espr_t      esp_conn_is_client(esp_conn_t* conn);
+espr_t      esp_conn_is_server(esp_conn_t* conn);
+espr_t      esp_conn_is_active(esp_conn_t* conn);
+espr_t      esp_conn_is_closed(esp_conn_t* conn);
  
 /**
  * \}
  */
+ 
+const char * espi_dbg_msg_to_string(esp_cmd_t cmd);
 
 #ifdef __cplusplus
 }

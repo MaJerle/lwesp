@@ -57,6 +57,9 @@ size_t      esp_buff_read(esp_buff_t* buff, void* data, size_t count);
 size_t      esp_buff_get_free(esp_buff_t* buff);
 size_t      esp_buff_get_full(esp_buff_t* buff);
 void        esp_buff_reset(esp_buff_t* buff);
+size_t      esp_buff_peek(esp_buff_t* buff, size_t skip_count, void* data, size_t count);
+void *      esp_buff_get_linear_block_address(esp_buff_t* buff, size_t max_len, size_t* block_len);
+uint8_t     esp_buff_skip(esp_buff_t* buff, size_t len);
 
 /* C++ detection */
 #ifdef __cplusplus

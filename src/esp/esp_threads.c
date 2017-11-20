@@ -54,8 +54,7 @@ esp_thread_producer(void* const arg) {
         esp_sys_unprotect();                    /* Unprotect system */
         time = esp_sys_mbox_get(&esp.mbox_producer, (void **)&msg, 0);  /* Get message from queue */
         esp_sys_protect();                      /* Protect system */
-        
-        if (time == ESP_SYS_TIMEOUT) {          /* Check valid message */
+        if (time == ESP_SYS_TIMEOUT || !msg) {  /* Check valid message */
             continue;
         }
         
@@ -65,14 +64,16 @@ esp_thread_producer(void* const arg) {
          */
         esp.msg = msg;
         if (msg->fn) {                          /* Check for callback processing function */
+            esp_sys_unprotect();                /* Release protection */
             esp_sys_sem_wait(&e->sem_sync, 0);  /* Lock semaphore, should be unlocked before! */
+            esp_sys_protect();                  /* Protect system again */
             res = msg->fn(msg);                 /* Process this message */
             if (res == espOK) {                 /* We have valid data and data were sent */
                 esp.cmd = msg->cmd;             /* Save command type */
                 esp_sys_unprotect();            /* Release protection */
                 time = esp_sys_sem_wait(&e->sem_sync, 0);   /* Wait for synchronization semaphore */
-                esp_sys_sem_release(&e->sem_sync);  /* Release protection and start over later */
                 esp_sys_protect();              /* Protect system again */
+                esp_sys_sem_release(&e->sem_sync);  /* Release protection and start over later */
             }
         } else {
             res = espERR;                       /* Simply set error message */
@@ -86,6 +87,9 @@ esp_thread_producer(void* const arg) {
         if (msg->block_time) {
             esp_sys_sem_release(&msg->sem);     /* Release semaphore */
         } else {
+            /* TODO: Process callback call what happened with result and then free message */
+            
+            
             ESP_MSG_VAR_FREE(msg);              /* Release message structure */
         }
         esp.msg = NULL;

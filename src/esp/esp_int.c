@@ -4,8 +4,6 @@
  */
 
 /*
- * Contains list of functions to parse different input strings
- *
  * Copyright (c) 2017, Tilen MAJERLE
  * All rights reserved.
  *
@@ -155,7 +153,10 @@ static void
 espi_parse_received(esp_recv_t* rcv) {
     uint8_t is_ok = 0, is_error = 0, is_ready = 0;
     
-    //printf("Rcv! AC: %d, s: %s\r\n", (int)esp.cmd, (char *)rcv->data);
+    if (rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n') {
+        return;
+    }
+    printf("Rcv! AC: %d, s: %s\r\n", (int)esp.cmd, (char *)rcv->data);
     
     /**
      * Detect most common responses from device
@@ -164,9 +165,12 @@ espi_parse_received(esp_recv_t* rcv) {
     if (!is_ok) {
         is_error = !strcmp(rcv->data, "ERROR\r\n"); /* Check if received string is error */
         if (!is_error) {
-            is_ready = !strcmp(rcv->data, "ready\r\n"); /* Check if received string is ready */
-            if (is_ready) {
-                esp.status.f.r_rdy = 1;
+            is_error = !strcmp(rcv->data, "FAIL\r\n");  /* Check for FAIL error message */
+            if (!is_error) {
+                is_ready = !strcmp(rcv->data, "ready\r\n"); /* Check if received string is ready */
+                if (is_ready) {
+                    esp.status.f.r_rdy = 1;
+                }
             }
         } else {
             esp.status.f.r_err = 1;
@@ -209,8 +213,9 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
                 espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
             }
-        } else if (!strncmp("SEND FAIL", rcv->data, 9)) {
-            is_error = espi_tcpip_process_data_sent(0); /* Data were not sent */
+        } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
+            printf("SEND ERROR\r\n");
+            is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
             if (is_error) {
                 esp.cb.type = ESP_CB_DATA_SENT_ERR; /* Error sending data */
                 esp.cb.cb.conn_data_sent_err.conn = esp.msg->msg.conn_send.conn;
@@ -219,7 +224,7 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     } else if (esp.cmd == ESP_CMD_UART) {       /* In case of UART command */
         if (is_ok) {                            /* We have valid OK result */
-            //esp_ll_init(&esp.ll, esp.msg->msg.uart.baudrate);   /* Set new baudrate */
+            esp_ll_init(&esp.ll, esp.msg->msg.uart.baudrate);   /* Set new baudrate */
         }
     }
     
@@ -244,12 +249,32 @@ espi_parse_received(esp_recv_t* rcv) {
         if (num < ESP_MAX_CONNS) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
             conn->num = num;                    /* Set connection number */
-            conn->status.f.active = 0;          /* Connection was just closed */
-            
-            esp.cb.type = ESP_CB_CONN_CLOSED;   /* Connection just active */
-            esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
-            espi_send_conn_cb(conn);            /* Send event */
+            if (conn->status.f.active) {        /* Is connection actually active? */
+                conn->status.f.active = 0;      /* Connection was just closed */
+                
+                esp.cb.type = ESP_CB_CONN_CLOSED;   /* Connection just active */
+                esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
+                espi_send_conn_cb(conn);        /* Send event */
+                
+                /**
+                 * In case we received x,CLOSED on connection we are currently sending data,
+                 * terminate sending of connection with failure
+                 */
+                if (esp.cmd == ESP_CMD_TCPIP_CIPSEND) {
+                    if (esp.msg->msg.conn_send.conn == conn) {
+                        is_error = 1;           /* Set as error to stop processing or waiting for connection */
+                    }
+                }
+            }
         }
+    } else if (is_error && esp.cmd == ESP_CMD_TCPIP_CIPSTART) {
+        esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
+        /* TODO: Get last connection number we used to start the connection */
+        esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection just active */
+        esp.cb.cb.conn_error.host = esp.msg->msg.conn_start.host;
+        esp.cb.cb.conn_error.port = esp.msg->msg.conn_start.port;
+        esp.cb.cb.conn_error.type = esp.msg->msg.conn_start.type;
+        espi_send_conn_cb(conn);                /* Send event */
     }
     
     /**
@@ -264,6 +289,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.msg->res = espERR;
             }
         }
+        esp.cmd = ESP_CMD_IDLE;
         esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore */
     }
 }
@@ -325,7 +351,7 @@ espi_process(void) {
             /**
              * If we are waiting for "\n> " sequence when CIPSEND command is active
              */
-            if (esp.msg && esp.msg->cmd == ESP_CMD_TCPIP_CIPSEND) {
+            if (esp.cmd == ESP_CMD_TCPIP_CIPSEND) {
                 if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
                     RECV_RESET();               /* Reset received object */
                     
@@ -377,7 +403,7 @@ espr_t
 espi_basic_uart(esp_msg_t* msg) {
     char str[8];
     number_to_str(msg->msg.uart.baudrate, str); /* Get string from number */
-    ESP_AT_PORT_SEND_STR("AT+UART_DEF=");
+    ESP_AT_PORT_SEND_STR("AT+UART_CUR=");
     ESP_AT_PORT_SEND_STR(str);
     ESP_AT_PORT_SEND_STR(",8,1,0,0");
     ESP_AT_PORT_SEND_STR("\r\n");
@@ -532,10 +558,12 @@ espi_tcpip_conn(esp_msg_t* msg) {
     char str[6];
     
     if (msg->cmd == ESP_CMD_TCPIP_CIPSTART) {   /* In case user wants to start a new connection */
+        msg->msg.conn_start.num = 0;            /* Reset to make sure default value is set */
         for (i = ESP_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
             if (!esp.conns[i].status.f.active || !(esp.active_conns & (1 << i))) {
                 c = &esp.conns[i];
                 c->num = i;
+                msg->msg.conn_start.num = i;    /* Set connection number for message structure */
                 break;
             }
         }
@@ -543,7 +571,9 @@ espi_tcpip_conn(esp_msg_t* msg) {
             return espERR;
         }
         c->status.f.client = 1;                 /* Set as client mode */
-        *msg->msg.conn_start.conn = c;          /* Save connection for user */
+        if (msg->msg.conn_start.conn) {         /* Is user interested about connection info? */
+            *msg->msg.conn_start.conn = c;      /* Save connection for user */
+        }
         
         ESP_AT_PORT_SEND_STR("AT+CIPSTART=");
         str[0] = c->num + '0';

@@ -37,6 +37,7 @@
 #include "esp_buff.h"
 
 uint32_t esp_recv_total_len;
+uint32_t esp_recv_calls;
 
 /**
  * \brief           Write data to input buffer
@@ -49,5 +50,6 @@ esp_input(const void* data, size_t len) {
     esp_buff_write(&esp.buff, data, len);           /* Write data to buffer */
     esp_sys_mbox_putnow(&esp.mbox_consumer, NULL);  /* Write empty box */
     esp_recv_total_len += len;                      /* Update total number of received bytes */
+    esp_recv_calls++;
     return espOK;
 }

@@ -4,8 +4,6 @@
  */
 
 /*
- * Contains list of functions to parse different input strings
- *
  * Copyright (c) 2017, Tilen MAJERLE
  * All rights reserved.
  *

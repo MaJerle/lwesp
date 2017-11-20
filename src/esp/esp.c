@@ -4,8 +4,6 @@
  */
 
 /*
- * Contains list of functions to parse different input strings
- *
  * Copyright (c) 2017, Tilen MAJERLE
  * All rights reserved.
  *
@@ -57,8 +55,14 @@ send_msg_to_producer_queue(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), ui
     }
     msg->block_time = block_time;               /* Set blocking status if necessary */
     msg->fn = process_fn;                       /* Save processing function to be called as callback */
-    esp_sys_mbox_put(&esp.mbox_producer, msg);  /* Write message to producer queue */
-    if (block_time) {                           /* In case we have blocking request */
+    if (block_time) {
+        esp_sys_mbox_put(&esp.mbox_producer, msg);  /* Write message to producer queue and wait forever */
+    } else {
+        if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
+            res = espERR;
+        }
+    }
+    if (block_time && res == espOK) {           /* In case we have blocking request */
         uint32_t time;
         time = esp_sys_sem_wait(&msg->sem, 0);  /* Wait forever for access to semaphore */
         if (ESP_SYS_TIMEOUT == time) {          /* If semaphore was not accessed in given time */
@@ -116,15 +120,15 @@ espi_set_dinfo(uint8_t info, uint32_t blocking) {
 espr_t
 esp_init(esp_cb_func_t cb_func) {
     esp_sys_init();                             /* Init low-level system */
-    esp_ll_init(&esp.ll, 921600);               /* Init low-level communication */
+    esp_ll_init(&esp.ll, 115200);               /* Init low-level communication */
     
     esp.cb_func = cb_func ? cb_func : def_callback; /* Set callback function */
     
     esp_sys_sem_create(&esp.sem_sync, 1);       /* Create new semaphore with unlocked state */
     esp_sys_mbox_create(&esp.mbox_consumer, 20);/* Consumer message queue */
     esp_sys_mbox_create(&esp.mbox_producer, 20);/* Producer message queue */
-    esp.thread_producer = esp_sys_thread_create("producer", esp_thread_producer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
-    esp.thread_consumer = esp_sys_thread_create("consumer", esp_thread_consumer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
+    esp_sys_thread_create(&esp.thread_producer, "producer", esp_thread_producer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
+    esp_sys_thread_create(&esp.thread_consumer, "consumer", esp_thread_consumer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
     
     esp_buff_init(&esp.buff, 0x400);            /* Init buffer for input data */
     
@@ -133,6 +137,9 @@ esp_init(esp_cb_func_t cb_func) {
     esp_set_mux(1, 0);                          /* Go to multiple connections mode */
     espi_set_dinfo(1, 0);                       /* Enable additional data on +IPD */
     esp_get_conns_status(0);                    /* Get connection status */
+    
+    esp.cb.type = ESP_CB_INIT_FINISH;           /* Init was successful */
+    esp.cb_func(&esp.cb);                       /* Call callback function */
     
     return espOK;
 }
@@ -341,6 +348,15 @@ esp_conn_close(esp_conn_t* conn, uint32_t blocking) {
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_tcpip_conn, blocking);    /* Send message to producer queue */
 }
 
+/**
+ * \brief           Send data on already active connection either as client or server
+ * \param[in]       conn: Pointer to connection to send data
+ * \param[in]       data: Pointer to data to send
+ * \param[in]       btw: Number of bytes to send
+ * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
 espr_t
 esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
@@ -356,6 +372,30 @@ esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32
     ESP_MSG_VAR_REF(msg).msg.conn_send.bw = bw;
     
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_tcpip_conn, blocking);    /* Send message to producer queue */
+}
+
+espr_t
+esp_conn_is_client(esp_conn_t* conn) {
+    ESP_ASSERT(conn != NULL);                   /* Assert input parameters */
+    return conn->status.f.client ? espOK : espERR;  /* Return client status */
+}
+
+espr_t
+esp_conn_is_server(esp_conn_t* conn) {
+    ESP_ASSERT(conn != NULL);                   /* Assert input parameters */
+    return !conn->status.f.client ? espOK : espERR; /* Return server status */
+}
+
+espr_t
+esp_conn_is_active(esp_conn_t* conn) {
+    ESP_ASSERT(conn != NULL);                   /* Assert input parameters */
+    return conn->status.f.active ? espOK : espERR;  /* Return active status */
+}
+
+espr_t
+esp_conn_is_closed(esp_conn_t* conn) {
+    ESP_ASSERT(conn != NULL);                   /* Assert input parameters */
+    return !conn->status.f.active ? espOK : espERR; /* Return closed status */
 }
 
 espr_t
