@@ -217,8 +217,8 @@ espi_parse_received(esp_recv_t* rcv) {
             printf("SEND ERROR\r\n");
             is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
             if (is_error) {
-                esp.cb.type = ESP_CB_DATA_SENT_ERR; /* Error sending data */
-                esp.cb.cb.conn_data_sent_err.conn = esp.msg->msg.conn_send.conn;
+                esp.cb.type = ESP_CB_DATA_SEND_ERR; /* Error sending data */
+                esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
                 espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
             }
         }
@@ -319,7 +319,7 @@ espi_process(void) {
             }
             
             /**
-             * Did we reach end of buffer or no more data*
+             * Did we reach end of buffer or no more data?
              */
             if (!esp.ipd.rem_len || esp.ipd.buff_ptr == esp.ipd.buff_len) {
                 /**
@@ -519,7 +519,7 @@ espi_sta_join_quit(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\"");
         }
         ESP_AT_PORT_SEND_STR("\r\n");
-    } else {
+    } else if (msg->cmd == ESP_CMD_WIFI_CWQAP) {/* In case we want to quit */
         ESP_AT_PORT_SEND_STR("AT+CWQAP\r\n");   /* Quit from access point */ 
     }
 

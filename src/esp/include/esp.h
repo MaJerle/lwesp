@@ -236,7 +236,7 @@ typedef enum {
     
     ESP_CB_DATA_RECV,                           /*!< Connection data received */
     ESP_CB_DATA_SENT,                           /*!< Data were successfully sent */
-    ESP_CB_DATA_SENT_ERR,                       /*!< Error trying to send data */
+    ESP_CB_DATA_SEND_ERR,                       /*!< Error trying to send data */
     ESP_CB_CONN_ACTIVE,                         /*!< Connection just became active */
     ESP_CB_CONN_ERROR,                          /*!< Client connection start was not successful */
     ESP_CB_CONN_CLOSED,                         /*!< Connection was just closed */
@@ -258,7 +258,7 @@ typedef struct {
         } conn_data_sent;                       /*!< Data successfully sent */
         struct {
             esp_conn_t* conn;                   /*!< Connection where data were sent */
-        } conn_data_sent_err;                   /*!< Data were not sent */
+        } conn_data_send_err;                   /*!< Data were not sent */
         struct {
             const char* host;                   /*!< Host to use for connection */
             uint16_t port;                      /*!< Remote port used for connection */
