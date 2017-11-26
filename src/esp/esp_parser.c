@@ -71,6 +71,37 @@ espi_parse_number(const char** str) {
 }
 
 /**
+ * \brief           Parse number from string as hex
+ * \note            Input string pointer is changed and number is skipped
+ * \param[in]       Pointer to pointer to string to parse
+ * \return          Parsed number
+ */
+uint32_t
+espi_parse_hexnumber(const char** str) {
+    int32_t val = 0;
+    const char* p = *str;                       /*  */
+    
+    if (*p == '"') {                            /* Skip leading quotes */
+        p++;
+    }
+    if (*p == ',') {                            /* Skip leading comma */
+        p++;
+    }
+    if (*p == '"') {                            /* Skip leading quotes */
+        p++;
+    }
+    while (ESP_CHARISHEXNUM(*p)) {              /* Parse until character is valid number */
+        val = val * 16 + ESP_CHARHEXTONUM(*p);
+        p++;
+    }
+    if (*p == ',') {                            /* Go to next entry if possible */
+        p++;
+    }
+    *str = p;                                   /* Save new pointer with new offset */
+    return val;
+}
+
+/**
  * \brief           Parse input string as string part of AT command
  * \param[in,out]   src: Pointer to pointer to string to parse from
  * \param[in]       dst: Destination pointer. Use NULL in case you want only skip string in source
@@ -117,6 +148,26 @@ espi_parse_ip(const char** src, uint8_t* ip) {
     ip[1] = espi_parse_number(&p); p++;
     ip[2] = espi_parse_number(&p); p++;
     ip[3] = espi_parse_number(&p);
+    *src = p;                                   /* Set new pointer */
+    return 1;
+}
+
+/**
+ * \brief           Parse string as MAC address
+ * \param[in,out]   src: Pointer to pointer to string to parse from
+ * \param[in]       dst: Destination pointer. Use NULL in case you want only skip string in source
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+espi_parse_mac(const char** src, uint8_t* mac) {
+    const char* p = *src;
+    
+    mac[0] = espi_parse_hexnumber(&p); p++;
+    mac[1] = espi_parse_hexnumber(&p); p++;
+    mac[2] = espi_parse_hexnumber(&p); p++;
+    mac[3] = espi_parse_hexnumber(&p); p++;
+    mac[4] = espi_parse_hexnumber(&p); p++;
+    mac[5] = espi_parse_hexnumber(&p);
     *src = p;                                   /* Set new pointer */
     return 1;
 }

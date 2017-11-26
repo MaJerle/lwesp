@@ -141,6 +141,13 @@ typedef enum {
     ESP_CONN_TYPE_SSL,                          /*!< Connection type is SSL */
 } esp_conn_type_t;
 
+struct esp_cb_t;
+
+/**
+ * \brief           Data type for callback function
+ */
+typedef espr_t  (*esp_cb_func_t)(struct esp_cb_t* cb);
+
 /**
  * \brief           Connection structure
  */
@@ -149,6 +156,7 @@ typedef struct {
     uint8_t         remote_ip[4];               /*!< Remote IP address */
     uint16_t        remote_port;                /*!< Remote port number */
     uint16_t        local_port;                 /*!< Local IP address */
+    esp_cb_func_t   cb_func;                    /*!< Callback function for connection */
     union {
         struct {
             uint8_t active:1;                   /*!< Status whether connection is active */
@@ -156,6 +164,20 @@ typedef struct {
         } f;
     } status;
 } esp_conn_t;
+
+/**
+ * \brief           Incoming network data read structure
+ */
+typedef struct {
+    uint8_t             read;                   /*!< Set to 1 when we should process input data as connection data */
+    size_t              tot_len;                /*!< Total length of packet */
+    size_t              rem_len;                /*!< Remaining bytes to read in current +IPD statement */
+    esp_conn_t*         conn;                   /*!< Pointer to connection for network data */
+    
+    size_t              buff_ptr;               /*!< Buffer pointer to save data to */
+    size_t              buff_len;               /*!< Length of entire buffer */
+    uint8_t*            buff;                   /*!< Pointer to data buffer used for receiving data */
+} esp_ipd_t;
 
 /**
  * \brief           Message queue structure to share between threads
@@ -180,10 +202,36 @@ typedef struct esp_msg {
             const uint8_t* mac;                 /*!< Specific MAC address to use when connecting to AP */
         } sta_join;                             /*!< Message for joining to access point */
         struct {
+            uint8_t* ip;                        /*!< Pointer to IP variable */
+            uint8_t* gw;                        /*!< Pointer to gateway variable */
+            uint8_t* nm;                        /*!< Pointer to netmask variable */
+            uint8_t def;                        /*!< Value for receiving default or current settings  */
+        } sta_ap_getip;                         /*!< Message for reading station or access point IP */
+        struct {
+            uint8_t* mac;                       /*!< Pointer to MAC variable */
+            uint8_t def;                        /*!< Value for receiving default or current settings  */
+        } sta_ap_getmac;                        /*!< Message for reading station or access point MAC address */
+        struct {
+            const uint8_t* ip;                  /*!< Pointer to IP variable */
+            const uint8_t* gw;                  /*!< Pointer to gateway variable */
+            const uint8_t* nm;                  /*!< Pointer to netmask variable */
+            uint8_t def;                        /*!< Value for receiving default or current settings  */
+        } sta_ap_setip;                         /*!< Message for setting station or access point IP */
+        struct {
+            const uint8_t* mac;                 /*!< Pointer to MAC variable */
+            uint8_t def;                        /*!< Value for receiving default or current settings  */
+        } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
+        
+        /**
+         * Connection based commands
+         */
+        
+        struct {
             esp_conn_t** conn;                  /*!< Pointer to pointer to save connection used */
             const char* host;                   /*!< Host to use for connection */
             uint16_t port;                      /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
+            esp_cb_func_t cb_func;              /*!< Callback function to use on connection */
             uint8_t num;                        /*!< Connection number used for start */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
@@ -215,20 +263,6 @@ typedef struct esp_msg {
 } esp_msg_t;
 
 /**
- * \brief           Incoming network data read structure
- */
-typedef struct {
-    uint8_t             read;                   /*!< Set to 1 when we should process input data as connection data */
-    size_t              tot_len;                /*!< Total length of packet */
-    size_t              rem_len;                /*!< Remaining bytes to read in current +IPD statement */
-    esp_conn_t*         conn;                   /*!< Pointer to connection for network data */
-    
-    size_t              buff_ptr;               /*!< Buffer pointer to save data to */
-    size_t              buff_len;               /*!< Length of entire buffer */
-    uint8_t*            buff;                   /*!< Pointer to data buffer used for receiving data */
-} esp_ipd_t;
-
-/**
  * \brief           List of possible callback types received to user
  */
 typedef enum {
@@ -245,7 +279,7 @@ typedef enum {
 /**
  * \brief           Global callback structure to pass as parameter to callback function
  */
-typedef struct {
+typedef struct esp_cb_t {
     esp_cb_type_t       type;                   /*!< Callback type */
     union {
         struct {
@@ -271,23 +305,19 @@ typedef struct {
 } esp_cb_t;
 
 /**
- * \brief           Data type for callback function
+ * \brief           IP and MAC structure with netmask and gateway addresses
  */
-typedef espr_t  (*esp_cb_func_t)(esp_cb_t* cb);
+typedef struct {
+    uint8_t             ip[4];                  /*!< IP address */
+    uint8_t             gw[4];                  /*!< Gateway address */
+    uint8_t             nm[4];                  /*!< Netmask address */
+    uint8_t             mac[6];                 /*!< MAC address */
+} esp_ip_mac_t;
 
 /**
  * \brief           ESP global structure
  */
-typedef struct {
-    uint8_t             active_conns;           /*!< Bit field of currently active connections */
-    uint8_t             active_conns_last;      /*!< The same as previous but status before last check */
-    
-    esp_conn_t          conns[ESP_MAX_CONNS];   /*!< Array of all connection structures */
-    
-    esp_ipd_t           ipd;                    /*!< Incoming data structure */
-    esp_cb_t            cb;                     /*!< Callback processing structure */
-    esp_cb_func_t       cb_func;                /*!< Default callback function */
-    
+typedef struct {    
     esp_sys_sem_t       sem_sync;               /*!< Synchronization semaphore between threads */
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
     esp_sys_mbox_t      mbox_consumer;          /*!< Consumer message queue handle */
@@ -297,6 +327,21 @@ typedef struct {
     esp_buff_t          buff;                   /*!< Input processing buffer */
     esp_cmd_t           cmd;                    /*!< Current active command */
     esp_msg_t*          msg;                    /*!< Pointer to current user message being executed */
+    
+    uint8_t             active_conns;           /*!< Bit field of currently active connections */
+    uint8_t             active_conns_last;      /*!< The same as previous but status before last check */
+    
+    esp_conn_t          conns[ESP_MAX_CONNS];   /*!< Array of all connection structures */
+    
+    esp_ipd_t           ipd;                    /*!< Incoming data structure */
+    esp_cb_t            cb;                     /*!< Callback processing structure */
+    
+    esp_cb_func_t       cb_func;                /*!< Default callback function */
+    esp_cb_func_t       cb_server;              /*!< Default callback function for server connections */
+    
+    esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */
+    esp_ip_mac_t        ap;                     /*!< Access point IP and MAC addressed */
+    
     union {
         struct {
             uint8_t     r_ok:1;                 /*!< Set to 1 when OK response is received */
@@ -318,7 +363,7 @@ extern esp_t esp;
 #define ESP_MIN(x, y)                       ((x) < (y) ? (x) : (y))
 #define ESP_MAX(x, y)                       ((x) > (y) ? (x) : (y))
 
-#define ESP_ASSERT(c)   do {        \
+#define ESP_ASSERT(msg, c)   do {   \
     if (!(c)) {                     \
         ESP_DEBUGF(ESP_DBG_ASSERT, "Wrong parameters on file %s and line %d\r\n", __FILE__, __LINE__); \
         return espPARERR;           \
@@ -339,11 +384,21 @@ espr_t      esp_get_conns_status(uint32_t blocking);
 espr_t      esp_set_mux(uint8_t mux, uint32_t blocking);
 
 espr_t      esp_set_server(uint16_t port, uint32_t blocking);
+espr_t      esp_set_default_server_callback(esp_cb_func_t cb_func);
 
 espr_t      esp_sta_join(const char* name, const char* pass, const uint8_t* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_quit(uint32_t blocking);
-espr_t      esp_sta_getip(uint32_t blocking);
 
+
+espr_t      esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking);
+
+espr_t      esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
+espr_t      esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
+espr_t      esp_ap_getmac(void* mac, uint8_t def, uint32_t blocking);
+espr_t      esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking);
 
 /**
  * \defgroup        ESP_API_CONN Connection API
@@ -351,14 +406,14 @@ espr_t      esp_sta_getip(uint32_t blocking);
  * \{
  */
  
-espr_t      esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16_t port, uint32_t blocking);
+espr_t      esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16_t port, esp_cb_func_t cb_func, uint32_t blocking);
 espr_t      esp_conn_close(esp_conn_t* conn, uint32_t blocking);
 espr_t      esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32_t blocking);
 espr_t      esp_conn_set_ssl_buffer(size_t size, uint32_t blocking);
-espr_t      esp_conn_is_client(esp_conn_t* conn);
-espr_t      esp_conn_is_server(esp_conn_t* conn);
-espr_t      esp_conn_is_active(esp_conn_t* conn);
-espr_t      esp_conn_is_closed(esp_conn_t* conn);
+uint8_t     esp_conn_is_client(esp_conn_t* conn);
+uint8_t     esp_conn_is_server(esp_conn_t* conn);
+uint8_t     esp_conn_is_active(esp_conn_t* conn);
+uint8_t     esp_conn_is_closed(esp_conn_t* conn);
  
 /**
  * \}

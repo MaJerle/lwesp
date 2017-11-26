@@ -47,6 +47,8 @@ typedef enum {
     espOK = 0,                                  /*!< Function returned OK */
     espERR,
     espPARERR,                                  /*!< Wrong parameters on function call */
+    espTIMEOUT,                                 /*!< Timeout occurred on command */
+    espNOFREECONN,                              /*!< There is no free connection available to start */
 } espr_t;
 
 /**

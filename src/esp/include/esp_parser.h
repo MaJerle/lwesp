@@ -48,6 +48,7 @@ espr_t      espi_parse_ipd(const char* str);
 int32_t     espi_parse_number(const char** str);
 uint8_t     espi_parse_string(const char** src, char* dst);
 uint8_t     espi_parse_ip(const char** src, uint8_t* ip);
+uint8_t     espi_parse_mac(const char** src, uint8_t* mac);
 
 #if defined(__cplusplus)
 }
