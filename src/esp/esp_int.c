@@ -75,22 +75,6 @@ number_to_str(uint32_t num, char* str) {
 }
 
 /**
- * \brief           Escape special characters and sends them directly to AT port
- * \param[in]       str: Input string to escape
- */
-static void
-escape_and_send(const char* str) {
-    char special = '\\';
-    
-    while (*str) {                              /* Go through string */
-        if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */    
-            ESP_AT_PORT_SEND_CHR(&special);     /* Send special character */
-        }
-        ESP_AT_PORT_SEND_CHR(str++);            /* Send character */
-    }
-}
-
-/**
  * \brief           Send IP or MAC address to AT port
  * \param[in]       d: Pointer to IP or MAC address
  * \param[in]       is_ip: Set to 1 when sending IP, or 0 when MAC
@@ -121,6 +105,34 @@ send_ip_mac(const uint8_t* d, uint8_t is_ip, uint8_t q) {
     }
     if (q) {
         ESP_AT_PORT_SEND_STR("\"");             /* Send ending quote character */
+    }
+}
+
+/**
+ * \brief           Send string to AT port, either plain or escaped
+ * \param[in]       str: Pointer to input string to string
+ * \param[in]       e: Value to indicate string send format, escaped (1) or plain (0)
+ * \param[in]       q: Value to indicate starting and ending quotes, enabled (1) or disabled (0)
+ */
+static void
+send_string(const char* str, uint8_t e, uint8_t q) {
+    char special = '\\';
+    if (q) {
+        ESP_AT_PORT_SEND_STR("\"");
+    }
+    if (e) {                                    /* Do we have to escape string? */
+        while (*str) {                          /* Go through string */
+            if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */    
+                ESP_AT_PORT_SEND_CHR(&special); /* Send special character */
+            }
+            ESP_AT_PORT_SEND_CHR(str);          /* Send character */
+            str++;
+        }
+    } else {
+        ESP_AT_PORT_SEND_STR(str);              /* Send plain string */
+    }
+    if (q) {
+        ESP_AT_PORT_SEND_STR("\"");
     }
 }
 
@@ -292,6 +304,8 @@ espi_parse_received(esp_recv_t* rcv) {
                     memcpy(b, ip, 4);           /* Copy to user variable */
                 }
             }
+        } else if (esp.cmd == ESP_CMD_WIFI_CWLAP && !strncmp(rcv->data, "+CWLAP", 6)) {
+            espi_parse_cwlap(rcv->data, esp.msg);   /* Parse CWLAP entry */
         }
     }
     
@@ -614,9 +628,9 @@ espi_sta_join_quit(esp_msg_t* msg) {
         } else {
             ESP_AT_PORT_SEND_STR("CUR=\"");
         }
-        escape_and_send(msg->msg.sta_join.name);
+        send_string(msg->msg.sta_join.name, 1, 0);
         ESP_AT_PORT_SEND_STR("\",\"");
-        escape_and_send(msg->msg.sta_join.pass);
+        send_string(msg->msg.sta_join.pass, 1, 0);
         ESP_AT_PORT_SEND_STR("\"");
         if (msg->msg.sta_join.mac) {
             uint8_t ch = ':', i;
@@ -725,6 +739,28 @@ espi_cip_sta_ap_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+        default:
+            return espERR;
+    }
+    return espOK;
+}
+
+/**
+ * \brief           Process access point related functions
+ * \param[in]       msg: Pointer to \ref esp_msg_t with data
+ * \return          Member of \ref espr_t enumeration
+ */
+espr_t
+espi_ap_cmd(esp_msg_t* msg) {
+    switch (msg->cmd) {
+        case ESP_CMD_WIFI_CWLAP:                /* List access points */
+            ESP_AT_PORT_SEND_STR("AT+CWLAP");
+            if (msg->msg.ap_list.ssid) {        /* Do we want to filter by SSID? */   
+                ESP_AT_PORT_SEND_STR("=");
+                send_string(msg->msg.ap_list.ssid, 1, 1);
+            }
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
         default:
             return espERR;
     }

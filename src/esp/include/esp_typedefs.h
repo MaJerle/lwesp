@@ -41,7 +41,7 @@ extern "C" {
 #include "stdio.h"
 
 /**
- * \brief           Library result enumeration used across application functions
+ * \brief           Result enumeration used across application functions
  */
 typedef enum {
     espOK = 0,                                  /*!< Function returned OK */
@@ -52,10 +52,22 @@ typedef enum {
 } espr_t;
 
 /**
+ * \brief           List of encryptions of access point
+ */
+typedef enum {
+    ESP_ECN_OPEN = 0x00,                        /*!< No encryption on access point */
+    ESP_ECN_WEP,
+    ESP_ECN_WPA_PSK,
+    ESP_ECN_WPA2_PSK,
+    ESP_ECN_WPA_WPA2_PSK,
+    ESP_ECN_WPA2_Enterprise                     /*!< Enterprise encryption. ESP is not able to connect to AP of this encryption type */
+} esp_ecn_t;
+
+/**
  * \brief           Access point data structure
  */
 typedef struct {
-    uint8_t ecn;                                /*!<  */
+    esp_ecn_t ecn;                              /*!< Ecryption mode */
     char ssid[21];                              /*!< Access point name */
     int16_t rssi;                               /*!< Received signal strength indicator */
     uint8_t mac[6];                             /*!< MAC physical address */

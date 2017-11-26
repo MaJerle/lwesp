@@ -222,6 +222,14 @@ typedef struct esp_msg {
             uint8_t def;                        /*!< Value for receiving default or current settings  */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
         
+        struct {
+            const char* ssid;                   /*!< Pointer to optional filter SSID name to search */
+            esp_ap_t* aps;                      /*!< Pointer to array to save access points */
+            size_t apsl;                        /*!< Length of input array of access points */
+            size_t apsi;                        /*!< Current access point array */
+            size_t* apf;                        /*!< Pointer to output variable holding number of access points found */
+        } ap_list;                              /*!< List for access points */
+        
         /**
          * Connection based commands
          */
@@ -399,6 +407,8 @@ espr_t      esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blo
 espr_t      esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
 espr_t      esp_ap_getmac(void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking);
+
+espr_t      esp_ap_list(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);
 
 /**
  * \defgroup        ESP_API_CONN Connection API

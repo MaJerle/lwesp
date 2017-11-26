@@ -105,11 +105,14 @@ espi_parse_hexnumber(const char** str) {
  * \brief           Parse input string as string part of AT command
  * \param[in,out]   src: Pointer to pointer to string to parse from
  * \param[in]       dst: Destination pointer. Use NULL in case you want only skip string in source
+ * \param[in]       dst_len: Length of distance buffer, including memory for NULL termination
+ * \param[in]       trim: Set to 1 to process entire string, even if no memory anymore
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-espi_parse_string(const char** src, char* dst) {
+espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
     const char* p = *src;
+    size_t i;
     
     if (*p == ',') {
         p++;
@@ -117,13 +120,22 @@ espi_parse_string(const char** src, char* dst) {
     if (*p == '"') {
         p++;
     }
+    i = 0;
+    if (dst_len) {
+        dst_len--;
+    }
     while (*p) {
         if (*p == '"' && (p[1] == ',' || p[1] == '\r' || p[1] == '\n')) {
             p++;
             break;
         }
         if (dst) {
-            *dst++ = *p;
+            if (i < dst_len) {
+                *dst++ = *p;
+                i++;
+            } else if (!trim) {
+                break;
+            }
         }
         p++;
     }
@@ -144,10 +156,17 @@ uint8_t
 espi_parse_ip(const char** src, uint8_t* ip) {
     const char* p = *src;
     
+    if (*p == '"') {
+        p++;
+    }
     ip[0] = espi_parse_number(&p); p++;
     ip[1] = espi_parse_number(&p); p++;
     ip[2] = espi_parse_number(&p); p++;
     ip[3] = espi_parse_number(&p);
+    if (*p == '"') {
+        p++;
+    }
+    
     *src = p;                                   /* Set new pointer */
     return 1;
 }
@@ -162,12 +181,21 @@ uint8_t
 espi_parse_mac(const char** src, uint8_t* mac) {
     const char* p = *src;
     
+    if (*p == '"') {                            /* Go to next entry if possible */
+        p++;
+    }
     mac[0] = espi_parse_hexnumber(&p); p++;
     mac[1] = espi_parse_hexnumber(&p); p++;
     mac[2] = espi_parse_hexnumber(&p); p++;
     mac[3] = espi_parse_hexnumber(&p); p++;
     mac[4] = espi_parse_hexnumber(&p); p++;
     mac[5] = espi_parse_hexnumber(&p);
+    if (*p == '"') {                            /* Skip quotes if possible */
+        p++;
+    }
+    if (*p == ',') {                            /* Go to next entry if possible */
+        p++;
+    }
     *src = p;                                   /* Set new pointer */
     return 1;
 }
@@ -184,7 +212,7 @@ espi_parse_cipstatus(const char* str) {
     cn_num = espi_parse_number(&str);           /* Parse connection number */
     esp.active_conns |= 1 << cn_num;            /* Set flag as active */
     
-    espi_parse_string(&str, NULL);              /* Parse string and ignore result */
+    espi_parse_string(&str, NULL, 0, 1);        /* Parse string and ignore result */
    
     for (i = 0; i < 4; i++) {                   /* Process connection IP */
         esp.conns[cn_num].remote_ip[i] = espi_parse_number(&str);
@@ -218,4 +246,38 @@ espi_parse_ipd(const char* str) {
     esp.ipd.conn = &esp.conns[conn];            /* Pointer to connection where data are received */
     
     return espOK;
+}
+
+/**
+ * \brief           Parse received message for list access points
+ * \param[in]       
+ */
+uint8_t
+espi_parse_cwlap(const char* str, esp_msg_t* msg) {
+    if (!msg || msg->cmd != ESP_CMD_WIFI_CWLAP ||   /* Do we have valid message here and enough memory to save everything? */
+        !msg->msg.ap_list.aps || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl) {   
+        return 0;
+    }
+    if (*str == '+') {                          /* Does string contain '+' as first character */
+        str += 7;                               /* Skip this part */
+    }
+    if (*str++ != '(') {                        /* We must start with opening bracket */
+        return 0;
+    }
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (esp_ecn_t)espi_parse_number(&str);
+    
+    espi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = espi_parse_number(&str);
+    espi_parse_mac(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = espi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = espi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = espi_parse_number(&str);
+    if (*str++ != ')') {                        /* We must end with closing bracket */
+        return 0;
+    }
+    msg->msg.ap_list.apsi++;                    /* Increase number of found elements */
+    if (msg->msg.ap_list.apf) {                 /* Set pointer if necessary */
+        *msg->msg.ap_list.apf = msg->msg.ap_list.apsi;
+    }
+    return 1;
 }

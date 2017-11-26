@@ -424,6 +424,32 @@ esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking) {
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_cip_sta_ap_cmd, blocking); /* Send message to producer queue */
 }
 
+/**
+ * \brief           List for available access points ESP can connect to
+ * \param[in]       ssid: Optional SSID name to search for. Set to NULL to disable filter
+ * \param[in]       aps: Pointer to array of available access point parameters
+ * \param[in]       apsl: Length of aps array
+ * \param[out]      apf: Pointer to output variable to save number of access points found
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_ap_list(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    
+    if (apf) {
+        *apf = 0;
+    }
+    
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_WIFI_CWLAP;
+    ESP_MSG_VAR_REF(msg).msg.ap_list.ssid = ssid;
+    ESP_MSG_VAR_REF(msg).msg.ap_list.aps = aps;
+    ESP_MSG_VAR_REF(msg).msg.ap_list.apsl = apsl;
+    ESP_MSG_VAR_REF(msg).msg.ap_list.apf = apf;
+    
+    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_ap_cmd, blocking);    /* Send message to producer queue */
+}
 
 /**
  * \brief           Sets baudrate of AT port (usually UART)

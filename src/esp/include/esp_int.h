@@ -51,6 +51,7 @@ espr_t      espi_get_conns_status(esp_msg_t* msg);
 espr_t      espi_sta_join_quit(esp_msg_t* msg);
     
 espr_t      espi_cip_sta_ap_cmd(esp_msg_t* msg);
+espr_t      espi_ap_cmd(esp_msg_t* msg);
     
 espr_t      espi_tcpip_misc(esp_msg_t* msg);
 espr_t      espi_tcpip_server(esp_msg_t* msg);
