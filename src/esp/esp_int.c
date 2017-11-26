@@ -55,22 +55,6 @@ static esp_recv_t recv;
 uint8_t ipd_buff[1452];
 
 /**
- * \brief           Escapes special characters and sends them directly to AT port
- * \param[in]       str: Input string to escape
- */
-static void
-escape_and_send(const char* str) {
-    char special = '\\';
-    
-    while (*str) {                              /* Go through string */
-        if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */    
-            ESP_AT_PORT_SEND_CHR(&special);     /* Send special character */
-        }
-        ESP_AT_PORT_SEND_CHR(str++);            /* Send character */
-    }
-}
-
-/**
  * \brief           Create 2-characters long hex from byte
  * \param[in]       num: Number to convert to string
  * \param[out]      str: Pointer to string to save result to
@@ -88,6 +72,66 @@ byte_to_str(uint8_t num, char* str) {
 static void
 number_to_str(uint32_t num, char* str) {
     sprintf(str, "%u", (unsigned)num);          /* Currently use sprintf only */
+}
+
+/**
+ * \brief           Escape special characters and sends them directly to AT port
+ * \param[in]       str: Input string to escape
+ */
+static void
+escape_and_send(const char* str) {
+    char special = '\\';
+    
+    while (*str) {                              /* Go through string */
+        if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */    
+            ESP_AT_PORT_SEND_CHR(&special);     /* Send special character */
+        }
+        ESP_AT_PORT_SEND_CHR(str++);            /* Send character */
+    }
+}
+
+/**
+ * \brief           Send IP or MAC address to AT port
+ * \param[in]       d: Pointer to IP or MAC address
+ * \param[in]       is_ip: Set to 1 when sending IP, or 0 when MAC
+ * \param[in]       q: Set to 1 to include start and ending quotes
+ */
+static void
+send_ip_mac(const uint8_t* d, uint8_t is_ip, uint8_t q) {
+    uint8_t i, ch;
+    char str[4];
+    
+    if (!d) {
+        return;
+    }
+    if (q) {
+        ESP_AT_PORT_SEND_STR("\"");             /* Send starting quote character */
+    }
+    ch = is_ip ? '.' : ':';                     /* Get delimiter character */
+    for (i = 0; i < (is_ip ? 4 : 6); i++) {     /* Process byte by byte */
+        if (is_ip) {                            /* In case of IP ... */
+            number_to_str(d[i], str);           /* ... go to decimal format ... */
+        } else {                                /* ... in case of MAC ... */
+            byte_to_str(d[i], str);             /* ... go to HEX format */
+        }
+        ESP_AT_PORT_SEND_STR(str);              /* Send str */
+        if (i < (is_ip ? 4 : 6) - 1) {          /* Check end if characters */
+            ESP_AT_PORT_SEND_CHR(&ch);          /* Send character */
+        }
+    }
+    if (q) {
+        ESP_AT_PORT_SEND_STR("\"");             /* Send ending quote character */
+    }
+}
+
+/**
+ * \brief           Check if received string includes "_CUR" or "_DEF" as current or default setup
+ * \param[in]       str: Pointer to string to test
+ * \return          1 if current setting, 0 if default setting
+ */
+static uint8_t
+is_received_current_setting(const char* str) {
+    return !strstr(str, "_DEF");                /* In case there is no "_DEF", we have current setting active */
 }
 
 /**
@@ -141,7 +185,11 @@ espi_tcpip_process_data_sent(uint8_t sent) {
  */
 static espr_t
 espi_send_conn_cb(esp_conn_t* conn) {
-    esp.cb_func(&esp.cb);                       /* Send callback function */
+    if (conn->cb_func) {                        /* Connection custom callback? */
+        conn->cb_func(&esp.cb);                 /* Process callback function */
+    } else {
+        esp.cb_func(&esp.cb);                   /* Process default callback function */
+    }
     return espOK;
 }
 
@@ -156,21 +204,18 @@ espi_parse_received(esp_recv_t* rcv) {
     if (rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n') {
         return;
     }
-    printf("Rcv! AC: %d, s: %s\r\n", (int)esp.cmd, (char *)rcv->data);
+    //printf("Rcv! AC: %d, s: %s", (int)esp.cmd, (char *)rcv->data);
     
     /**
      * Detect most common responses from device
      */
     is_ok = !strcmp(rcv->data, "OK\r\n");       /* Check if received string is OK */
     if (!is_ok) {
-        is_error = !strcmp(rcv->data, "ERROR\r\n"); /* Check if received string is error */
+        is_error = !strcmp(rcv->data, "ERROR\r\n") || !strcmp(rcv->data, "FAIL\r\n");   /* Check if received string is error */
         if (!is_error) {
-            is_error = !strcmp(rcv->data, "FAIL\r\n");  /* Check for FAIL error message */
-            if (!is_error) {
-                is_ready = !strcmp(rcv->data, "ready\r\n"); /* Check if received string is ready */
-                if (is_ready) {
-                    esp.status.f.r_rdy = 1;
-                }
+            is_ready = !strcmp(rcv->data, "ready\r\n"); /* Check if received string is ready */
+            if (is_ready) {
+                esp.status.f.r_rdy = 1;
             }
         } else {
             esp.status.f.r_err = 1;
@@ -185,6 +230,68 @@ espi_parse_received(esp_recv_t* rcv) {
     if (rcv->data[0] == '+') {
         if (!strncmp("+IPD", rcv->data, 4)) {   /* Check received network data */
             espi_parse_ipd(rcv->data + 5);      /* Parse IPD statement and start receiving network data */
+        } else if ( (esp.cmd == ESP_CMD_WIFI_CIPSTAMAC_GET && !strncmp(rcv->data, "+CIPSTAMAC", 10)) || 
+                    (esp.cmd == ESP_CMD_WIFI_CIPAPMAC_GET && !strncmp(rcv->data, "+CIPAPMAC", 9))) {
+            const char* tmp;
+            uint8_t mac[6];
+            
+            if (rcv->data[9] == '_') {          /* Do we have "_CUR" or "_DEF" included? */
+                tmp = &rcv->data[14];
+            } else if (rcv->data[10] == '_') {
+                tmp = &rcv->data[15];
+            } else if (rcv->data[9] == ':') {
+                tmp = &rcv->data[10];
+            } else if (rcv->data[10] == ':') {
+                tmp = &rcv->data[11];
+            }
+            
+            espi_parse_mac(&tmp, mac);          /* Save as current MAC address */
+            if (is_received_current_setting(rcv->data)) {
+                memcpy(esp.cmd == ESP_CMD_WIFI_CIPSTAMAC_GET ? esp.sta.mac : esp.ap.mac, mac, 6);   /* Copy to current setup */
+            }
+            if (esp.msg->msg.sta_ap_getmac.mac) {
+                memcpy(esp.msg->msg.sta_ap_getmac.mac, mac, 6); /* Copy to current setup */
+            }
+        } else if ( (esp.cmd == ESP_CMD_WIFI_CIPSTA_GET && !strncmp(rcv->data, "+CIPSTA", 7)) ||
+                    (esp.cmd == ESP_CMD_WIFI_CIPAP_GET && !strncmp(rcv->data, "+CIPAP", 6))) {
+            const char* tmp = NULL;
+            uint8_t *a = NULL, *b = NULL;
+            uint8_t ip[4], ch;
+            esp_ip_mac_t* im;
+                        
+            im = (esp.cmd == ESP_CMD_WIFI_CIPSTA_GET) ? &esp.sta : &esp.ap; /* Get IP and MAC structure first */
+            
+            /* We expect "+CIPSTA_CUR:" or "+CIPSTA_DEF:" or "+CIPAP_CUR:" or "+CIPAP_DEF:" or "+CIPSTA:" or "+CIPAP:" ... */
+            if (rcv->data[6] == '_') {
+                ch = rcv->data[11];
+            } else if (rcv->data[7] == '_') {
+                ch = rcv->data[12];
+            } else if (rcv->data[6] == ':') {
+                ch = rcv->data[7];
+            } else if (rcv->data[7] == ':') {
+                ch = rcv->data[8];
+            }
+            switch (ch) {
+                case 'i': tmp = &rcv->data[10]; a = im->ip; b = esp.msg->msg.sta_ap_getip.ip; break;
+                case 'g': tmp = &rcv->data[15]; a = im->gw; b = esp.msg->msg.sta_ap_getip.gw; break;
+                case 'n': tmp = &rcv->data[15]; a = im->nm; b = esp.msg->msg.sta_ap_getip.nm; break;
+                default: tmp = NULL; a = NULL; b = NULL; break;
+            }
+            if (tmp) {                          /* Do we have temporary string? */
+                if (rcv->data[6] == '_' || rcv->data[7] == '_') {   /* Do we have "_CUR" or "_DEF" included? */
+                    tmp += 4;                   /* Skip it */
+                }
+                if (*tmp == ':') {
+                    tmp++;
+                }
+                espi_parse_ip(&tmp, ip);        /* Parse IP address */
+                if (is_received_current_setting(rcv->data)) {
+                    memcpy(a, ip, 4);           /* Copy to current setup */
+                }
+                if (b) {
+                    memcpy(b, ip, 4);           /* Copy to user variable */
+                }
+            }
         }
     }
     
@@ -211,10 +318,9 @@ espi_parse_received(esp_recv_t* rcv) {
             if (is_ok) {
                 esp.cb.type = ESP_CB_DATA_SENT; /* Data were fully sent */
                 esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
-                espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
+                espi_send_conn_cb(esp.msg->msg.conn_send.conn); /* Send connection callback */
             }
         } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
-            printf("SEND ERROR\r\n");
             is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
             if (is_error) {
                 esp.cb.type = ESP_CB_DATA_SEND_ERR; /* Error sending data */
@@ -238,6 +344,13 @@ espi_parse_received(esp_recv_t* rcv) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
             conn->num = num;                    /* Set connection number */
             conn->status.f.active = 1;          /* Connection just active */
+            if (esp.cmd == ESP_CMD_TCPIP_CIPSTART && num == esp.msg->msg.conn_start.num) {  /* Did we start connection on our own? */
+                conn->status.f.client = 1;      /* Go to client mode */
+                conn->cb_func = esp.msg->msg.conn_start.cb_func;    /* Set callback function */
+            } else {                            /* Server connection start */
+                conn->status.f.client = 0;
+                conn->cb_func = esp.cb_server;  /* Set server default callback */
+            }
             
             esp.cb.type = ESP_CB_CONN_ACTIVE;   /* Connection just active */
             esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
@@ -533,14 +646,87 @@ espi_sta_join_quit(esp_msg_t* msg) {
  */
 espr_t
 espi_cip_sta_ap_cmd(esp_msg_t* msg) {
-    if (msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) {  /* Get IP address of station */
-        ESP_AT_PORT_SEND_STR("AT+CIPSTA_CUR?\r\n");
-    } else if (msg->cmd == ESP_CMD_WIFI_CIPAP_GET) {/* Get IP address of access point */
-        ESP_AT_PORT_SEND_STR("AT+CIPAP_CUR?\r\n");
-    } else if (msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_GET) {/* Get MAC address of station */
-        ESP_AT_PORT_SEND_STR("AT+CIPSTAMAC_CUR?\r\n");
-    } else if (msg->cmd == ESP_CMD_WIFI_CIPAPMAC_GET) { /* Get MAC address of access point */
-        ESP_AT_PORT_SEND_STR("AT+CIPSTAMAC_CUR?\r\n");
+    switch (msg->cmd) {
+        case ESP_CMD_WIFI_CIPSTA_GET:           /* Get station IP address */
+        case ESP_CMD_WIFI_CIPAP_GET: {          /* Get access point IP address */
+            ESP_AT_PORT_SEND_STR("AT+CIP");
+            if (msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) {
+                ESP_AT_PORT_SEND_STR("STA");
+            } else {
+                ESP_AT_PORT_SEND_STR("AP");
+            }
+            if (msg->msg.sta_ap_getip.def) {
+                ESP_AT_PORT_SEND_STR("_DEF");
+            } else {
+                ESP_AT_PORT_SEND_STR("_CUR");
+            }
+            ESP_AT_PORT_SEND_STR("?\r\n");
+            break;
+        }
+        case ESP_CMD_WIFI_CIPSTAMAC_GET:        /* Get station MAC address */
+        case ESP_CMD_WIFI_CIPAPMAC_GET: {       /* Get access point MAC address */
+            ESP_AT_PORT_SEND_STR("AT+CIP");
+            if (msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_GET) {
+                ESP_AT_PORT_SEND_STR("STA");
+            } else {
+                ESP_AT_PORT_SEND_STR("AP");
+            }
+            ESP_AT_PORT_SEND_STR("MAC");
+            if (msg->msg.sta_ap_getmac.def) {
+                ESP_AT_PORT_SEND_STR("_DEF");
+            } else {
+                ESP_AT_PORT_SEND_STR("_CUR");
+            }
+            ESP_AT_PORT_SEND_STR("?\r\n");
+            break;
+        }
+        case ESP_CMD_WIFI_CIPSTA_SET:           /* Set station IP address */
+        case ESP_CMD_WIFI_CIPAP_SET: {          /* Set access point IP address */
+            ESP_AT_PORT_SEND_STR("AT+CIP");
+            if (msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
+                ESP_AT_PORT_SEND_STR("STA");
+            } else {
+                ESP_AT_PORT_SEND_STR("AP");
+            }
+            if (msg->msg.sta_ap_setip.def) {
+                ESP_AT_PORT_SEND_STR("_DEF");
+            } else {
+                ESP_AT_PORT_SEND_STR("_CUR");
+            }
+            ESP_AT_PORT_SEND_STR("=");
+            send_ip_mac(msg->msg.sta_ap_setip.ip, 1, 1);    /* Send IP address */
+            if (msg->msg.sta_ap_setip.gw) {     /* Is gateway set? */
+                ESP_AT_PORT_SEND_STR(",");
+                send_ip_mac(msg->msg.sta_ap_setip.gw, 1, 1);    /* Send gateway address */
+                if (msg->msg.sta_ap_setip.nm) { /* Is netmask set ? */
+                    ESP_AT_PORT_SEND_STR(",");
+                    send_ip_mac(msg->msg.sta_ap_setip.nm, 1, 1);    /* Send netmask address */
+                }
+            }
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
+        case ESP_CMD_WIFI_CIPSTAMAC_SET:        /* Set station MAC address */
+        case ESP_CMD_WIFI_CIPAPMAC_SET: {       /* Set access point MAC address */
+            ESP_AT_PORT_SEND_STR("AT+CIP");
+            if (msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_SET) {
+                ESP_AT_PORT_SEND_STR("STA");
+            } else {
+                ESP_AT_PORT_SEND_STR("AP");
+            }
+            ESP_AT_PORT_SEND_STR("MAC");
+            if (msg->msg.sta_ap_setmac.def) {
+                ESP_AT_PORT_SEND_STR("_DEF");
+            } else {
+                ESP_AT_PORT_SEND_STR("_CUR");
+            }
+            ESP_AT_PORT_SEND_STR("=");
+            send_ip_mac(msg->msg.sta_ap_setmac.mac, 0, 1);  /* Send MAC address */
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
+        default:
+            return espERR;
     }
     return espOK;
 }
@@ -568,9 +754,9 @@ espi_tcpip_conn(esp_msg_t* msg) {
             }
         }
         if (!c) {
-            return espERR;
+            return espNOFREECONN;               /* We don't have available connection */
         }
-        c->status.f.client = 1;                 /* Set as client mode */
+        
         if (msg->msg.conn_start.conn) {         /* Is user interested about connection info? */
             *msg->msg.conn_start.conn = c;      /* Save connection for user */
         }

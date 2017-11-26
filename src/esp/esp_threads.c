@@ -65,15 +65,20 @@ esp_thread_producer(void* const arg) {
         esp.msg = msg;
         if (msg->fn) {                          /* Check for callback processing function */
             esp_sys_unprotect();                /* Release protection */
-            esp_sys_sem_wait(&e->sem_sync, 0);  /* Lock semaphore, should be unlocked before! */
+            esp_sys_sem_wait(&e->sem_sync, 0000);  /* Lock semaphore, should be unlocked before! */
             esp_sys_protect();                  /* Protect system again */
-            res = msg->fn(msg);                 /* Process this message */
+            res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
                 esp.cmd = msg->cmd;             /* Save command type */
                 esp_sys_unprotect();            /* Release protection */
-                time = esp_sys_sem_wait(&e->sem_sync, 0);   /* Wait for synchronization semaphore */
+                time = esp_sys_sem_wait(&e->sem_sync, 0000);   /* Wait for synchronization semaphore */
                 esp_sys_protect();              /* Protect system again */
                 esp_sys_sem_release(&e->sem_sync);  /* Release protection and start over later */
+                if (time == ESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
+                    res = espTIMEOUT;           /* Timeout on command */
+                }
+            } else {
+                esp_sys_sem_release(&e->sem_sync);  /* We failed, release semaphore automatically */
             }
         } else {
             res = espERR;                       /* Simply set error message */

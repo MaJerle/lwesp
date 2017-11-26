@@ -21,7 +21,7 @@ typedef osPriority          esp_sys_thread_prio_t;
 #define ESP_SYS_SEM_NULL    (osSemaphoreId)0
 #define ESP_SYS_TIMEOUT     ((uint32_t)osWaitForever)
 #define ESP_SYS_THREAD_PRIO (osPriorityNormal)
-#define ESP_SYS_THREAD_SS   (512)
+#define ESP_SYS_THREAD_SS   (1024)
 
 uint8_t     esp_sys_init(void);
 uint8_t     esp_sys_protect(void);

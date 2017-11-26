@@ -63,6 +63,9 @@
 #define ESP_USART_RX_PORT           GPIOD
 #define ESP_USART_RX_PIN            LL_GPIO_PIN_2
 #define ESP_USART_RX_PIN_AF         LL_GPIO_AF_8
+#define ESP_USART_RS_PORT_CLK       __HAL_RCC_GPIOD_CLK_ENABLE
+#define ESP_USART_RS_PORT           GPIOD
+#define ESP_USART_RS_PIN            LL_GPIO_PIN_2
 
 #define ESP_USART_DMA               DMA1
 #define ESP_USART_DMA_CLK           __HAL_RCC_DMA1_CLK_ENABLE
@@ -89,6 +92,9 @@
 #define ESP_USART_RX_PORT           GPIOA
 #define ESP_USART_RX_PIN            LL_GPIO_PIN_10
 #define ESP_USART_RX_PIN_AF         LL_GPIO_AF_7
+#define ESP_USART_RS_PORT_CLK       __HAL_RCC_GPIOA_CLK_ENABLE
+#define ESP_USART_RS_PORT           GPIOA
+#define ESP_USART_RS_PIN            LL_GPIO_PIN_0
 
 #define ESP_USART_DMA               DMA2
 #define ESP_USART_DMA_CLK           __HAL_RCC_DMA2_CLK_ENABLE
@@ -103,8 +109,14 @@
 #define DMA_RX_STREAM_CLEAR_HT      LL_DMA_ClearFlag_HT5(ESP_USART_DMA)
 #endif /* !defined(STM32F769_DISCOVERY) */
 
-static uint8_t usart_mem[0x200];
+#define USART_USE_DMA               1
+
+#if USART_USE_DMA
+static uint8_t usart_mem[0x400];
 uint16_t old_pos;
+#endif /* USART_USE_DMA */
+
+static uint8_t initialized = 0;
 
 /**
  * \brief           Send data to ESP device
@@ -123,21 +135,33 @@ send_data(const uint8_t* data, uint16_t len) {
  */
 static void
 configure_uart(uint32_t baudrate) {
-    LL_DMA_InitTypeDef dma_init;
     LL_USART_InitTypeDef usart_init;
     LL_GPIO_InitTypeDef gpio_init;
+#if USART_USE_DMA
+    LL_DMA_InitTypeDef dma_init;
+#endif /* USART_USE_DMA */
     
     ESP_USART_CLK();              
     ESP_USART_TX_PORT_CLK();
     ESP_USART_RX_PORT_CLK();
+    ESP_USART_RS_PORT_CLK();
+#if USART_USE_DMA
     ESP_USART_DMA_CLK();
+#endif /* USART_USE_DMA */
     
-    /* Configure GPIO pins */
-    gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
+    /* Global pin configuration */
     gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
     gpio_init.Pull = LL_GPIO_PULL_UP;
     gpio_init.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
     
+    /* Configure reset pin */
+    gpio_init.Mode = LL_GPIO_MODE_OUTPUT;
+    gpio_init.Pin = ESP_USART_RS_PIN;
+    gpio_init.Pin = ESP_USART_RS_PIN;
+    LL_GPIO_Init(ESP_USART_RS_PORT, &gpio_init);
+    
+    /* Configure GPIO pins */
+    gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
     gpio_init.Alternate = ESP_USART_TX_PIN_AF;
     gpio_init.Pin = ESP_USART_TX_PIN;
     LL_GPIO_Init(ESP_USART_TX_PORT, &gpio_init);
@@ -157,6 +181,11 @@ configure_uart(uint32_t baudrate) {
     LL_USART_Init(ESP_USART, &usart_init);
     
     LL_USART_Enable(ESP_USART);
+#if !USART_USE_DMA
+    LL_USART_EnableIT_RXNE(ESP_USART);
+#endif /* USART_USE_DMA */
+
+#if USART_USE_DMA
     LL_USART_EnableDMAReq_RX(ESP_USART);
     LL_USART_EnableIT_IDLE(ESP_USART);
     
@@ -186,13 +215,21 @@ configure_uart(uint32_t baudrate) {
     LL_DMA_EnableIT_TC(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
     LL_DMA_EnableStream(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
     
-    HAL_NVIC_SetPriority(ESP_USART_IRQ, 1, 1);
-    HAL_NVIC_EnableIRQ(ESP_USART_IRQ);
-    
     HAL_NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, 1, 0);
     HAL_NVIC_EnableIRQ(ESP_USART_DMA_RX_STREAM_IRQ);
     
     old_pos = 0;
+#endif /* USART_USE_DMA */
+    
+    HAL_NVIC_SetPriority(ESP_USART_IRQ, 1, 1);
+    HAL_NVIC_EnableIRQ(ESP_USART_IRQ);
+    
+    if (!initialized) {
+        LL_GPIO_ResetOutputPin(ESP_USART_RS_PORT, ESP_USART_RS_PIN);
+        osDelay(1);
+        LL_GPIO_SetOutputPin(ESP_USART_RS_PORT, ESP_USART_RS_PIN);
+        osDelay(200);
+    }
 }
 
 /**
@@ -200,6 +237,7 @@ configure_uart(uint32_t baudrate) {
  */
 void
 ESP_USART_IRQHANDLER(void) {
+#if USART_USE_DMA
     uint16_t ndtr, curr_pos, to_read, start_pos;
     
     if (LL_USART_IsActiveFlag_IDLE(ESP_USART)) {
@@ -212,8 +250,15 @@ ESP_USART_IRQHANDLER(void) {
         old_pos += to_read;                     /* Set new position of new valid data */
         esp_input(&usart_mem[start_pos], to_read);  /* Send to stack */
     }
+#else /* USART_USE_DMA */
+    if (LL_USART_IsActiveFlag_RXNE(ESP_USART)) {
+        uint8_t val = LL_USART_ReceiveData8(ESP_USART);
+        esp_input(&val, 1);
+    }
+#endif /* !USART_USE_DMA */
 }
 
+#if USART_USE_DMA
 /**
  * \brief           UART DMA stream handler
  */
@@ -227,18 +272,18 @@ ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
         ndtr = 0;
     }
     curr_pos = sizeof(usart_mem) - ndtr;        /* Current position in receive buffer array */
+    to_read = curr_pos - old_pos;               /* Number of bytes to read */
     
     if (IS_DMA_RX_STREAM_TC) {
         DMA_RX_STREAM_CLEAR_TC;                 /* Clear flag */
-        to_read = curr_pos - old_pos;           /* Number of bytes to read */
         old_pos = 0;                            /* Set new position of new valid data */
     } else if (IS_DMA_RX_STREAM_HT) {
         DMA_RX_STREAM_CLEAR_HT;
-        to_read = curr_pos - old_pos;           /* Number of bytes to read */
-        old_pos += to_read;                     /* Set new position of new valid data */
+        old_pos = curr_pos;                     /* Set new position of new valid data */
     }
     esp_input(&usart_mem[start_pos], to_read);  /* Send to stack */
 }
+#endif /* USART_USE_DMA */
 
 /**
  * \brief           Callback function called from initialization process
@@ -251,7 +296,6 @@ esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
     esp_mem_region_t mem_regions[] = {
         {memory, sizeof(memory)}
     };
-    static uint8_t initialized = 0;
     
     if (!initialized) {
         ll->send = send_data;                   /* Set callback function to send data */

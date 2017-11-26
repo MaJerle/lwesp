@@ -47,6 +47,9 @@ uint32_t esp_recv_calls;
  */
 espr_t
 esp_input(const void* data, size_t len) {
+    if (!esp.buff.buff) {
+        return espERR;
+    }
     esp_buff_write(&esp.buff, data, len);           /* Write data to buffer */
     esp_sys_mbox_putnow(&esp.mbox_consumer, NULL);  /* Write empty box */
     esp_recv_total_len += len;                      /* Update total number of received bytes */
