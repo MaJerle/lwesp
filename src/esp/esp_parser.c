@@ -264,14 +264,15 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     if (*str++ != '(') {                        /* We must start with opening bracket */
         return 0;
     }
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (esp_ecn_t)espi_parse_number(&str);
     
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (esp_ecn_t)espi_parse_number(&str);
     espi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = espi_parse_number(&str);
     espi_parse_mac(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = espi_parse_number(&str);
+    
     if (*str++ != ')') {                        /* We must end with closing bracket */
         return 0;
     }
