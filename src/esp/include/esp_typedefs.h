@@ -49,6 +49,7 @@ typedef enum {
     espPARERR,                                  /*!< Wrong parameters on function call */
     espTIMEOUT,                                 /*!< Timeout occurred on command */
     espNOFREECONN,                              /*!< There is no free connection available to start */
+    espCONT,                                    /*!< There is still some command to be processed in current command */
 } espr_t;
 
 /**

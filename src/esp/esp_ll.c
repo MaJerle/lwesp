@@ -1,6 +1,6 @@
 /**
- * \file            esp_int.c
- * \brief           Internal function shared between modules
+ * \file            esp_ll.c
+ * \brief           Low-level communication with ESP device
  */
 
 /*

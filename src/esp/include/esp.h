@@ -183,12 +183,13 @@ typedef struct {
  * \brief           Message queue structure to share between threads
  */
 typedef struct esp_msg {
-    esp_cmd_t       cmd;                        /*!< Message type received from queue */
+    esp_cmd_t       cmd_def;                    /*!< Default message type received from queue */
+    esp_cmd_t       cmd;                        /*!< Since some commands can have different subcommands, sub command is used here */
+    uint8_t         i;
     esp_sys_sem_t   sem;                        /*!< Semaphore for the message */
     uint32_t        block_time;                 /*!< Maximal blocking time in units of milliseconds. Use 0 to for non-blocking call */
     espr_t          res;                        /*!< Result of message operation */
     espr_t          (*fn)(struct esp_msg *);    /*!< Processing callback function to process packet */
-    uint8_t         def;                        /*!< Since some commands allow default mode saved to flash, value here indicates if command should be saved to flash */
     union {
         struct {
             uint32_t baudrate;                  /*!< Baudrate for AT port */
@@ -200,26 +201,27 @@ typedef struct esp_msg {
             const char* name;                   /*!< AP name */
             const char* pass;                   /*!< AP password */
             const uint8_t* mac;                 /*!< Specific MAC address to use when connecting to AP */
+            uint8_t def;                        /*!< Value indicates to connect as current only or as default */
         } sta_join;                             /*!< Message for joining to access point */
         struct {
             uint8_t* ip;                        /*!< Pointer to IP variable */
             uint8_t* gw;                        /*!< Pointer to gateway variable */
             uint8_t* nm;                        /*!< Pointer to netmask variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings  */
+            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_getip;                         /*!< Message for reading station or access point IP */
         struct {
             uint8_t* mac;                       /*!< Pointer to MAC variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings  */
+            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_getmac;                        /*!< Message for reading station or access point MAC address */
         struct {
             const uint8_t* ip;                  /*!< Pointer to IP variable */
             const uint8_t* gw;                  /*!< Pointer to gateway variable */
             const uint8_t* nm;                  /*!< Pointer to netmask variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings  */
+            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setip;                         /*!< Message for setting station or access point IP */
         struct {
             const uint8_t* mac;                 /*!< Pointer to MAC variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings  */
+            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
         
         struct {
@@ -333,7 +335,7 @@ typedef struct {
     esp_sys_thread_t    thread_consumer;        /*!< Consumer thread handle */
     esp_ll_t            ll;                     /*!< Low level functions */
     esp_buff_t          buff;                   /*!< Input processing buffer */
-    esp_cmd_t           cmd;                    /*!< Current active command */
+    
     esp_msg_t*          msg;                    /*!< Pointer to current user message being executed */
     
     uint8_t             active_conns;           /*!< Bit field of currently active connections */
@@ -351,10 +353,10 @@ typedef struct {
     esp_ip_mac_t        ap;                     /*!< Access point IP and MAC addressed */
     
     union {
-        struct {
-            uint8_t     r_ok:1;                 /*!< Set to 1 when OK response is received */
-            uint8_t     r_err:1;                /*!< Set to 1 when error response is received */
-            uint8_t     r_rdy:1;                /*!< Set to 1 when ready response is received */
+        struct {            
+            uint8_t     r_got_ip:1;             /*!< Flag indicating ESP has IP */
+            uint8_t     r_w_conn:1;             /*!< Flag indicating ESP is connected to wifi */
+            
         } f;                                    /*!< Flags structure */
     } status;                                   /*!< Status structure */
 } esp_t;

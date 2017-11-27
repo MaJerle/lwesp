@@ -69,7 +69,6 @@ esp_thread_producer(void* const arg) {
             esp_sys_protect();                  /* Protect system again */
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
-                esp.cmd = msg->cmd;             /* Save command type */
                 esp_sys_unprotect();            /* Release protection */
                 time = esp_sys_sem_wait(&e->sem_sync, 0000);   /* Wait for synchronization semaphore */
                 esp_sys_protect();              /* Protect system again */

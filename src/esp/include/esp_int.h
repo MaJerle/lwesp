@@ -41,24 +41,7 @@ extern "C" {
 #ifdef ESP_INTERNAL
 
 espr_t      espi_process(void);
-    
-espr_t      espi_basic_uart(esp_msg_t* msg);
-    
-espr_t      espi_set_wifi_mode(esp_msg_t* msg);
-espr_t      espi_reset(esp_msg_t* msg);
-espr_t      espi_get_conns_status(esp_msg_t* msg);
-    
-espr_t      espi_sta_join_quit(esp_msg_t* msg);
-    
-espr_t      espi_cip_sta_ap_cmd(esp_msg_t* msg);
-espr_t      espi_ap_cmd(esp_msg_t* msg);
-    
-espr_t      espi_tcpip_misc(esp_msg_t* msg);
-espr_t      espi_tcpip_server(esp_msg_t* msg);
-    
-espr_t      espi_tcpip_conn(esp_msg_t* msg);
-    
-espr_t      espi_tcpip_process_send_data(void);
+espr_t      espi_initiate_cmd(esp_msg_t* msg);
     
 #endif /* ESP_INTERNAL */
 

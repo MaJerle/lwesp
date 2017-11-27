@@ -213,7 +213,7 @@ espi_parse_cipstatus(const char* str) {
     esp.active_conns |= 1 << cn_num;            /* Set flag as active */
     
     espi_parse_string(&str, NULL, 0, 1);        /* Parse string and ignore result */
-   
+    
     for (i = 0; i < 4; i++) {                   /* Process connection IP */
         esp.conns[cn_num].remote_ip[i] = espi_parse_number(&str);
         str++;
@@ -250,12 +250,15 @@ espi_parse_ipd(const char* str) {
 
 /**
  * \brief           Parse received message for list access points
- * \param[in]       
+ * \param[in]       str: Pointer to input string starting with +CWLAP
+ * \param[in]       msg: Pointer to message
+ * \return          1 on success, 0 otherwise
  */
 uint8_t
 espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     if (!msg || msg->cmd != ESP_CMD_WIFI_CWLAP ||   /* Do we have valid message here and enough memory to save everything? */
-        !msg->msg.ap_list.aps || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl) {   
+        !msg->msg.ap_list.aps || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl ||
+        msg->cmd_def != msg->cmd) {   
         return 0;
     }
     if (*str == '+') {                          /* Does string contain '+' as first character */
