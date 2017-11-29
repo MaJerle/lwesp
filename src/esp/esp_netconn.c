@@ -67,7 +67,7 @@ esp_cb(esp_cb_t* cb) {
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
                     if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
                         if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
-                            ESP_DEBUGF(ESP_DBG_NETCONN, "API: cannot put server connection to accept mbox\r\n");
+                            ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Cannot put server connection to accept mbox\r\n");
                             close = 1;
                         }
                     } else {
@@ -99,10 +99,10 @@ esp_cb(esp_cb_t* cb) {
             nc = conn->arg;                     /* Get API from connection */
             if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
                 !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
-                ESP_DEBUGF(ESP_DBG_NETCONN, "API: Ignoring more data for receive\r\n");
+                ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Ignoring more data for receive\r\n");
                 return espOKIGNOREMORE;         /* Return OK to free the memory */
             }
-            ESP_DEBUGF(ESP_DBG_NETCONN, "API: written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
+            ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
             return espOKMEM;                    /* Return ok but do not release memory */
         }
         
@@ -139,11 +139,11 @@ esp_netconn_new(void) {
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a) {
         if (!esp_sys_mbox_create(&a->mbox_accept, 5)) { /* Allocate memory for accepting message box */
-            ESP_DEBUGF(ESP_DBG_NETCONN, "API: cannot create accept MBOX\r\n");
+            ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Cannot create accept MBOX\r\n");
             goto free_ret;
         }
         if (!esp_sys_mbox_create(&a->mbox_receive, 10)) {   /* Allocate memory for receiving message box */
-            ESP_DEBUGF(ESP_DBG_NETCONN, "API: cannot create receive MBOX\r\n");
+            ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Cannot create receive MBOX\r\n");
             goto free_ret;
         }
     }
@@ -268,7 +268,7 @@ espr_t
 esp_netconn_receive(esp_netconn_t* nc, esp_pbuf_t** pbuf) {
     uint32_t time = esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
     if ((uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
-        //*pbuf = NULL;
+        *pbuf = NULL;
         return espCLOSED;
     }
     return espOK;
