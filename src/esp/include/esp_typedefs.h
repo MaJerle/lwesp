@@ -52,6 +52,7 @@ typedef enum {
     espTIMEOUT,                                 /*!< Timeout occurred on command */
     espNOFREECONN,                              /*!< There is no free connection available to start */
     espCONT,                                    /*!< There is still some command to be processed in current command */
+    espCLOSED,                                  /*!< Connection just closed */
 } espr_t;
 
 /**
