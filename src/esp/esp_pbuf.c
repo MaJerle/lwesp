@@ -42,7 +42,7 @@ esp_pbuf_alloc(size_t len) {
     esp_pbuf_t* p;
     
     p = esp_mem_calloc(1, ESP_MEM_ALIGN(sizeof(*p)) + len); /* Allocate memory for packet buffer */
-    if (p) {                                    
+    if (p) {
         p->len = len;                           /* Set payload length */
         p->payload = (uint8_t *)(((char *)p) + ESP_MEM_ALIGN(sizeof(*p)));  /* Set pointer to payload data */
     }
