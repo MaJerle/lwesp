@@ -384,6 +384,7 @@ espi_parse_received(esp_recv_t* rcv) {
             
             esp.cb.type = ESP_CB_CONN_ACTIVE;   /* Connection just active */
             esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
+            esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
             espi_send_conn_cb(conn);            /* Send event */
         }
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
@@ -397,6 +398,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 
                 esp.cb.type = ESP_CB_CONN_CLOSED;   /* Connection just active */
                 esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
+                esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
                 espi_send_conn_cb(conn);        /* Send event */
                 
                 /**
@@ -837,7 +839,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
-        } 
+        }
         case ESP_CMD_TCPIP_CIPMUX: {            /* Set multiple connections */
             ESP_AT_PORT_SEND_STR("AT+CIPMUX=");
             if (msg->msg.tcpip_mux.mux) {
