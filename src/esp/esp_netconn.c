@@ -113,6 +113,10 @@ esp_cb(esp_cb_t* cb) {
             conn = cb->cb.conn_active_closed.conn;  /* Get connection */
             nc = conn->arg;                     /* Get API from connection */
             
+            /**
+             * In case we have a netconn available, 
+             * simply write pointer to received variable to indicate closed state
+             */
             if (nc && esp_sys_mbox_isvalid(&nc->mbox_receive)) {
                 esp_sys_mbox_putnow(&nc->mbox_receive, (void *)&recv_closed);
             }
@@ -134,11 +138,11 @@ esp_netconn_new(void) {
     esp_netconn_t* a;
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a) {
-        if (!esp_sys_mbox_create(&a->mbox_accept, 5)) {
+        if (!esp_sys_mbox_create(&a->mbox_accept, 5)) { /* Allocate memory for accepting message box */
             ESP_DEBUGF(ESP_DBG_NETCONN, "API: cannot create accept MBOX\r\n");
             goto free_ret;
         }
-        if (!esp_sys_mbox_create(&a->mbox_receive, 10)) {
+        if (!esp_sys_mbox_create(&a->mbox_receive, 10)) {   /* Allocate memory for receiving message box */
             ESP_DEBUGF(ESP_DBG_NETCONN, "API: cannot create receive MBOX\r\n");
             goto free_ret;
         }
@@ -213,7 +217,9 @@ esp_netconn_bind(esp_netconn_t* nc, uint16_t port) {
  */
 espr_t
 esp_netconn_listen(esp_netconn_t* nc) {
+    esp_sys_protect();
     listen_api = nc;                           /* Set current main API in listening state */
+    esp_sys_unprotect();
     return espOK;
 }
 

@@ -263,6 +263,7 @@ typedef struct esp_msg {
             const uint8_t* data;                /*!< Data to send */
             size_t sent;                        /*!< Number of bytes sent in last packet */
             uint8_t tries;                      /*!< Number of tries used for last packet */
+            uint8_t wait_send_ok_err;           /*!< Set to 1 when we wait for SEND OK or SEND ERROR */
         } conn_send;                            /*!< Structure to send data on connection */
         
         /*
