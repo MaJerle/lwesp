@@ -1,5 +1,5 @@
 /**
- * \file            esp_api.c
+ * \file            esp_netconn.c
  * \brief           API functions for sequential calls
  */
 
@@ -35,7 +35,9 @@
 #include "esp_netconn.h"
 #include "esp_mem.h"
 
-espi_netconn_t* listen_api;                     /* Main connection in listening mode */
+static uint8_t recv_closed = 0xFF;
+static esp_netconn_t* listen_api;              /* Main connection in listening mode */
+
 
 /**
  * \brief           Callback function for every server connection
@@ -45,22 +47,27 @@ espi_netconn_t* listen_api;                     /* Main connection in listening 
 static espr_t
 esp_cb(esp_cb_t* cb) {
     esp_conn_t* conn;
-    espi_netconn_t* api;
+    esp_netconn_t* nc;
     uint8_t close = 0;
     
     switch (cb->type) {
         case ESP_CB_CONN_ACTIVE: {              /* A new connection active as server */
-            conn = cb->cb.conn_active_closed.conn;
-            if (!esp_conn_is_server(conn)) {    /* Connection must be in server mode */
-                return espERR;
-            }
-            if (listen_api) {                   /* Do we have known listening API? */
-                api = espi_netconn_new();       /* Create new API */
-                if (api) {
-                    api->conn = conn;           /* Set connection callback */
-                    esp_conn_set_arg(conn, api);/* Set argument for connection */
+            conn = cb->cb.conn_active_closed.conn;  /* Get connection */
+            if (esp_conn_is_client(conn)) {     /* Was connection started by us? */
+                nc = conn->arg;                 /* Argument should be ready already */
+                if (nc) {                       /* Is netconn set? Should be already by us */
+                    nc->conn = conn;            /* Save actual connection */
+                } else {
+                    close = 1;                  /* Close this connection, invalid netconn */
+                }
+            } else if (esp_conn_is_server(conn) && listen_api) {    /* Is the connection server type and we have known listening API? */
+                nc = esp_netconn_new();         /* Create new API */
+                if (nc) {
+                    nc->conn = conn;            /* Set connection callback */
+                    esp_conn_set_arg(conn, nc); /* Set argument for connection */
                     if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
-                        if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, api)) {
+                        if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
+                            ESP_DEBUGF(ESP_DBG_NETCONN, "API: cannot put server connection to accept mbox\r\n");
                             close = 1;
                         }
                     } else {
@@ -74,8 +81,8 @@ esp_cb(esp_cb_t* cb) {
             }
             if (close) {
                 esp_conn_close(conn, 0);        /* Close the connection */
-                if (api) {
-                    espi_netconn_delete(api);   /* Free memory for API */
+                if (nc) {
+                    esp_netconn_delete(nc);     /* Free memory for API */
                 }
             }
             break;
@@ -87,20 +94,29 @@ esp_cb(esp_cb_t* cb) {
          * and should have netconn structure as argument
          */
         case ESP_CB_DATA_RECV: {
+            esp_pbuf_t* pbuf = (esp_pbuf_t *)cb->cb.conn_data_recv.buff;
             conn = cb->cb.conn_data_recv.conn;  /* Get connection */
-            api = conn->arg;                    /* Get API from connection */
-            if (!api || !esp_sys_mbox_isvalid(&api->mbox_receive) || 
-                !esp_sys_mbox_putnow(&api->mbox_receive, (void *)cb->cb.conn_data_recv.buff)) {
+            nc = conn->arg;                     /* Get API from connection */
+            if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
+                !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
+                ESP_DEBUGF(ESP_DBG_NETCONN, "API: Ignoring more data for receive\r\n");
                 return espOKIGNOREMORE;         /* Return OK to free the memory */
             }
+            ESP_DEBUGF(ESP_DBG_NETCONN, "API: written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
             return espOKMEM;                    /* Return ok but do not release memory */
         }
+        
+        /**
+         * Connection was just closed
+         */
         case ESP_CB_CONN_CLOSED: {
             conn = cb->cb.conn_active_closed.conn;  /* Get connection */
-            api = conn->arg;                    /* Get API from connection */
-            if (api) {
-                espi_netconn_delete(api);       /* Delete API */
+            nc = conn->arg;                     /* Get API from connection */
+            
+            if (nc && esp_sys_mbox_isvalid(&nc->mbox_receive)) {
+                esp_sys_mbox_putnow(&nc->mbox_receive, (void *)&recv_closed);
             }
+            
             break;
         }
         default:
@@ -109,17 +125,21 @@ esp_cb(esp_cb_t* cb) {
     return espOK;
 }
 
-espi_netconn_t*
-espi_netconn_new(void) {
-    espi_netconn_t* a;
+/**
+ * \brief           Create new netconn connection
+ * \return          New netconn connection
+ */
+esp_netconn_t*
+esp_netconn_new(void) {
+    esp_netconn_t* a;
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a) {
         if (!esp_sys_mbox_create(&a->mbox_accept, 5)) {
-            ESP_DEBUGF(ESP_DBG_API, "API: cannot create accept MBOX\r\n");
+            ESP_DEBUGF(ESP_DBG_NETCONN, "API: cannot create accept MBOX\r\n");
             goto free_ret;
         }
         if (!esp_sys_mbox_create(&a->mbox_receive, 10)) {
-            ESP_DEBUGF(ESP_DBG_API, "API: cannot create receive MBOX\r\n");
+            ESP_DEBUGF(ESP_DBG_NETCONN, "API: cannot create receive MBOX\r\n");
             goto free_ret;
         }
     }
@@ -137,22 +157,47 @@ free_ret:
     return NULL;
 }
 
+/**
+ * \brief           Delete netconn connection
+ * \param[in]       nc: Pointer to netconn structure
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
-espi_netconn_delete(espi_netconn_t* api) {
-    if (esp_sys_mbox_isvalid(&api->mbox_accept)) {
-        esp_sys_mbox_delete(&api->mbox_accept);
+esp_netconn_delete(esp_netconn_t* nc) {
+    ESP_ASSERT("netconn != NULL", nc != NULL);  /* Assert input parameters */
+    
+    if (esp_sys_mbox_isvalid(&nc->mbox_accept)) {
+        esp_sys_mbox_delete(&nc->mbox_accept);
     }
-    if (esp_sys_mbox_isvalid(&api->mbox_receive)) {
-        esp_sys_mbox_delete(&api->mbox_receive);
+    if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
+        esp_sys_mbox_delete(&nc->mbox_receive);
     }
-    if (api) {
-        esp_mem_free(api);
-    }
+    esp_mem_free(nc);
     return espOK;
 }
 
+/**
+ * \brief           Connect to server as client
+ * \param[in]       nc: Pointer to netconn structure
+ * \param[in]       host: Pointer to host, such as domain name or IP address in string format
+ * \param[in]       port: Target port to use
+ * \return          espOK if successfully connected, member of \ref espr_t otherwise
+ */
 espr_t
-espi_netconn_bind(espi_netconn_t* api, uint16_t port) {
+esp_netconn_connect(esp_netconn_t* nc, const char* host, uint16_t port) {
+    espr_t res ;
+    res = esp_conn_start(NULL, ESP_CONN_TYPE_TCP, host, port, nc, esp_cb, 1);
+    return res;
+}
+
+/**
+ * \brief           Bind a connection to specific port
+ * \param[in]       nc: Pointer to netconn structure
+ * \param[in]       port: Port used to bind a connection to
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_netconn_bind(esp_netconn_t* nc, uint16_t port) {
     if (esp_set_server(port, 1) != espOK) {     /* Enable server on selected port */
         return espERR;
     }
@@ -161,50 +206,85 @@ espi_netconn_bind(espi_netconn_t* api, uint16_t port) {
     return espOK;
 }
 
+/**
+ * \brief           Listen on previously binded connection
+ * \param[in]       nc: Pointer to netconn used as base connection
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
-espi_netconn_listen(espi_netconn_t* api) {
-    listen_api = api;                           /* Set current main API in listening state */
+esp_netconn_listen(esp_netconn_t* nc) {
+    listen_api = nc;                           /* Set current main API in listening state */
     return espOK;
 }
 
+/**
+ * \brief           Accept a new connection
+ * \param[in]       nc: Pointer to netconn used as base connection
+ * \param[in]       new_nc: Pointer to pointer to netconn to save new connection
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
-espi_netconn_accept(espi_netconn_t* api, espi_netconn_t** new_api) {
-    espi_netconn_t* tmp;
+esp_netconn_accept(esp_netconn_t* nc, esp_netconn_t** new_nc) {
+    esp_netconn_t* tmp;
     uint32_t time;
-    if (api != listen_api) {                    /* Currently only one API is allowed in listening state */
+    if (nc != listen_api) {                     /* Currently only one API is allowed in listening state */
         return espERR;
     }
     
-    *new_api = NULL;
-    time = esp_sys_mbox_get(&api->mbox_accept, (void **)&tmp, 0);
+    *new_nc = NULL;
+    time = esp_sys_mbox_get(&nc->mbox_accept, (void **)&tmp, 0);
     if (time == ESP_SYS_TIMEOUT) {
         return espERR;
     }
-    *new_api = tmp;                             /* Set new pointer */
+    *new_nc = tmp;                              /* Set new pointer */
     return espOK;                               /* We have a new connection */
 }
 
+/**
+ * \brief           Write data to connection
+ * \param[in]       nc: Netconn connection used to write to
+ * \param[in]       data: Pointer to data to write
+ * \param[in]       btw: Number of bytes to write
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
-espi_netconn_write(espi_netconn_t* api, const void* data, size_t btw) {
-    return esp_conn_send(api->conn, data, btw, NULL, 1);
+esp_netconn_write(esp_netconn_t* nc, const void* data, size_t btw) {
+    return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }
 
+/**
+ * \brief           Receive data from connection
+ * \param[in]       nc: Netconn connection used to receive from
+ * \param[in]       pbuf: Pointer to pointer to save new receive buffer to
+ * \return          espOK on new data, espCLOSED when connection closed or member of \ref espr_t otherwise
+ */
 espr_t
-espi_netconn_receive(espi_netconn_t* api, esp_pbuf_t** pbuf) {
-    return esp_sys_mbox_get(&api->mbox_receive, (void **)pbuf, 0) ? espOK : espERR;
-}
-
-espr_t
-espi_netconn_close(espi_netconn_t* api) {
-    esp_pbuf_t* pbuf;
-    if (esp_conn_close(api->conn, 1) == espOK) {    /* Close the connection */
-        while (1) {                             /* Connection was closed, flush now entire mbox */
-            if (!esp_sys_mbox_getnow(&api->mbox_receive, (void *)&pbuf)) {
-                break;
-            }
-            esp_pbuf_free(pbuf);                /* Free the packet buffer memory */
-        }
-    }               
+esp_netconn_receive(esp_netconn_t* nc, esp_pbuf_t** pbuf) {
+    uint32_t time = esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
+    if ((uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
+        //*pbuf = NULL;
+        return espCLOSED;
+    }
     return espOK;
 }
 
+/**
+ * \brief           Close a netconn connection
+ * \param[in]       nc: Netconn connection to close
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_netconn_close(esp_netconn_t* nc) {
+    esp_pbuf_t* pbuf;
+    esp_conn_set_arg(nc->conn, NULL);       /* Reset argument */
+    esp_conn_close(nc->conn, 1);            /* Close the connection */
+    while (1) {
+        if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
+            break;
+        }
+        if (pbuf && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
+            esp_pbuf_free(pbuf);
+        }
+    }
+    return espOK;
+}

@@ -318,6 +318,7 @@ typedef struct esp_cb_t {
         } conn_error;                           /*!< Client connection start error */
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection */
+            uint8_t client;                     /*!< Set to 1 if connection is (was) client or 0 if server */
         } conn_active_closed;                   /*!< Process active and closed statuses at the same time. Use with \ref ESP_CB_CONN_ACTIVE or \ref ESP_CB_CONN_CLOSED events */
     } cb;
 } esp_cb_t;
@@ -425,7 +426,7 @@ espr_t      esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_ap_list(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);
 
 /**
- * \defgroup        espi_netconn_CONN Connection API
+ * \defgroup        esp_netconn_CONN Connection API
  * \brief           Connection API functions
  * \{
  */
