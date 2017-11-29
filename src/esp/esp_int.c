@@ -222,6 +222,7 @@ espi_tcpip_process_data_sent(uint8_t sent) {
 static void
 espi_parse_received(esp_recv_t* rcv) {
     uint8_t is_ok = 0, is_error = 0, is_ready = 0;
+    const char* s;
     
     if (rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n') {
         return;
@@ -340,19 +341,23 @@ espi_parse_received(esp_recv_t* rcv) {
             if (is_ok) {                        /* Check for OK and clear as we have to check for "> " statement */
                 is_ok = 0;                      /* Do not reach on OK */
             }
-            if (!strncmp("SEND OK", rcv->data, 7)) {    /* Data were sent successfully */
-                is_ok = espi_tcpip_process_data_sent(1);    /* Process as data were sent */
-                if (is_ok) {
-                    esp.cb.type = ESP_CB_DATA_SENT; /* Data were fully sent */
-                    esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
-                    espi_send_conn_cb(esp.msg->msg.conn_send.conn); /* Send connection callback */
-                }
-            } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
-                is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
-                if (is_error) {
-                    esp.cb.type = ESP_CB_DATA_SEND_ERR; /* Error sending data */
-                    esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
-                    espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
+            if (esp.msg->msg.conn_send.wait_send_ok_err) {
+                if (!strncmp("SEND OK", rcv->data, 7)) {    /* Data were sent successfully */
+                    esp.msg->msg.conn_send.wait_send_ok_err = 0;
+                    is_ok = espi_tcpip_process_data_sent(1);    /* Process as data were sent */
+                    if (is_ok) {
+                        esp.cb.type = ESP_CB_DATA_SENT; /* Data were fully sent */
+                        esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
+                        espi_send_conn_cb(esp.msg->msg.conn_send.conn); /* Send connection callback */
+                    }
+                } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
+                    esp.msg->msg.conn_send.wait_send_ok_err = 0;
+                    is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
+                    if (is_error) {
+                        esp.cb.type = ESP_CB_DATA_SEND_ERR; /* Error sending data */
+                        esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
+                        espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
+                    }
                 }
             }
         } else if (esp.msg->cmd == ESP_CMD_UART) {  /* In case of UART command */
@@ -365,8 +370,11 @@ espi_parse_received(esp_recv_t* rcv) {
     /**
      * Check if connection is just active or just closed
      */
+    /*
     if (!strncmp(",CONNECT", &rcv->data[1], 8)) {
-        const char* tmp = rcv->data;
+        const char* tmp = rcv->data; */
+    if ((s = strstr(rcv->data, ",CONNECT\r\n")) != NULL) {
+        const char* tmp = s - 1;
         uint8_t num = espi_parse_number(&tmp);
         if (num < ESP_MAX_CONNS) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
@@ -387,8 +395,11 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
             espi_send_conn_cb(conn);            /* Send event */
         }
+    /*
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
-        const char* tmp = rcv->data;
+        const char* tmp = rcv->data; */
+    } else if ((s = strstr(rcv->data, ",CLOSED\r\n")) != NULL || (s = strstr(rcv->data, ",CONNECT FAIL\r\n")) != NULL) {
+        const char* tmp = s - 1;
         uint8_t num = espi_parse_number(&tmp);
         if (num < ESP_MAX_CONNS) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
@@ -539,6 +550,7 @@ espi_process(void) {
                      * Now actually send the data prepared before
                      */
                     ESP_AT_PORT_SEND(esp.msg->msg.conn_send.data, esp.msg->msg.conn_send.sent);
+                    esp.msg->msg.conn_send.wait_send_ok_err = 1;    /* Now we are waiting for "SEND OK" or "SEND ERROR" */
                 }
             }
             
@@ -550,7 +562,11 @@ espi_process(void) {
                 espi_parse_received(&recv);     /* Parse received string */
                 if (esp.ipd.read) {             /* Are we going into read mode? */
                     size_t len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
-                    esp.ipd.buff = esp_pbuf_alloc(len); /* Allocate new packet buffer */
+                    if (esp.ipd.conn->status.f.active) {
+                        esp.ipd.buff = esp_pbuf_alloc(len); /* Allocate new packet buffer */
+                    } else {
+                        esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
+                    }
                     ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)len);
                 }
                 esp.ipd.buff_ptr = 0;
@@ -654,7 +670,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
-        } 
+        }
         case ESP_CMD_WIFI_CWQAP: {              /* Quit from access point */
             ESP_AT_PORT_SEND_STR("AT+CWQAP\r\n");
             break;
@@ -815,6 +831,9 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_TCPIP_CIPCLOSE: {          /* Close the connection */
             char ch;
+            if (!esp_conn_is_active(msg->msg.conn_close.conn)) {
+                return espERR;
+            }
             ESP_AT_PORT_SEND_STR("AT+CIPCLOSE=");
             ch = msg->msg.conn_close.conn ? msg->msg.conn_close.conn->num + '0' : '5';
             ESP_AT_PORT_SEND_CHR(&ch);
