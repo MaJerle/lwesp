@@ -114,9 +114,10 @@ esp_thread_consumer(void* const arg) {
         time = esp_sys_mbox_get(&esp.mbox_consumer, (void **)&msg, 10);  /* Get message from queue */
         esp_sys_protect();                      /* Protect system */
         
-        //TODO: Handle NULL message
+        if (time == ESP_SYS_TIMEOUT || !msg) {
+            ESP_UNUSED(time);                   /* Unused variable */
+        }
         
         espi_process();                         /* Process input data */
-        //espi_process_pt();                      /* Process protothreads */
     }
 }

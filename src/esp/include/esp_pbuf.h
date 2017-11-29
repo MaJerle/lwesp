@@ -1,6 +1,6 @@
 /**	
- * \file            esp_mem.h
- * \brief           Memory manager
+ * \file            esp_pbuf.h
+ * \brief           Packet buffer manager
  */
  
 /*
@@ -28,38 +28,33 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_MEM_H
-#define __ESP_MEM_H
+#ifndef __ESP_PBUF_H
+#define __ESP_PBUF_H
 
 /* C++ detection */
 #ifdef __cplusplus
 extern "C" {
-#endif /* __cplusplus */
+#endif
 
 #include "esp.h"
 
 /**
- * \brief           Single memory region descriptor
+ * \addtogroup      ESP
+ * \{
  */
-typedef struct mem_region_t {
-    void* StartAddress;                 /*!< Start address of region */
-    size_t Size;                        /*!< Size in units of bytes of region */
-} mem_region_t;
-
+    
 /**
- * \brief           Wrapper for memory region for GUI
+ * \defgroup        ESP_PBUF Packet buffer
+ * \brief           Packet buffer manager
+ * \{
  */
-typedef mem_region_t esp_mem_region_t;
-
-void*   esp_mem_alloc(uint32_t size);
-void*   esp_mem_realloc(void* ptr, size_t size);
-void*   esp_mem_calloc(size_t num, size_t size);
-void    esp_mem_free(void* ptr);
-size_t  esp_mem_getfree(void);
-size_t  esp_mem_getfull(void);
-size_t  esp_mem_getminfree(void);
-
-uint8_t esp_mem_assignmemory(const esp_mem_region_t* regions, size_t size);
+    
+esp_pbuf_t*     esp_pbuf_alloc(size_t len);
+uint8_t         esp_pbuf_free(esp_pbuf_t* pbuf);
+    
+/**
+ * \}
+ */
     
 /**
  * \}
@@ -68,6 +63,6 @@ uint8_t esp_mem_assignmemory(const esp_mem_region_t* regions, size_t size);
 /* C++ detection */
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
-#endif /* __ESP_MEM_H */
+#endif /* __ESP_PBUF_H */

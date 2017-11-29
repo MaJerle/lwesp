@@ -37,6 +37,10 @@
 #include "esp_parser.h"
 #include "esp_ll.h"
 
+#define IPD_MAX_BUFF_SIZE       1452
+
+#define IS_CURR_CMD(c)        (esp.msg && esp.msg->cmd == (c))
+
 typedef struct {
     char data[128];
     uint8_t len;
@@ -51,8 +55,6 @@ static esp_recv_t recv;
 #define ESP_AT_PORT_SEND_STR(str)       esp.ll.send((const uint8_t *)(str), strlen(str))
 #define ESP_AT_PORT_SEND_CHR(str)       esp.ll.send((const uint8_t *)(str), 1)
 #define ESP_AT_PORT_SEND(d, l)          esp.ll.send((const uint8_t *)(d), l)
-    
-uint8_t ipd_buff[1452];
 
 static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready);
 
@@ -157,11 +159,10 @@ is_received_current_setting(const char* str) {
 static espr_t
 espi_send_conn_cb(esp_conn_t* conn) {
     if (conn->cb_func) {                        /* Connection custom callback? */
-        conn->cb_func(&esp.cb);                 /* Process callback function */
+        return conn->cb_func(&esp.cb);          /* Process callback function */
     } else {
-        esp.cb_func(&esp.cb);                   /* Process default callback function */
+        return esp.cb_func(&esp.cb);            /* Process default callback function */
     }
-    return espOK;
 }
 
 /**
@@ -194,8 +195,10 @@ static uint8_t
 espi_tcpip_process_data_sent(uint8_t sent) {
     if (sent) {                                 /* Data were successfully sent */
         esp.msg->msg.conn_send.btw -= esp.msg->msg.conn_send.sent;
-        *esp.msg->msg.conn_send.bw += esp.msg->msg.conn_send.sent;
         esp.msg->msg.conn_send.data += esp.msg->msg.conn_send.sent;
+        if (esp.msg->msg.conn_send.bw) {
+            *esp.msg->msg.conn_send.bw += esp.msg->msg.conn_send.sent;
+        }
         esp.msg->msg.conn_send.tries = 0;
     } else {
         esp.msg->msg.conn_send.tries++;         /* Increase number of tries */
@@ -243,8 +246,8 @@ espi_parse_received(esp_recv_t* rcv) {
         if (!strncmp("+IPD", rcv->data, 4)) {   /* Check received network data */
             espi_parse_ipd(rcv->data + 5);      /* Parse IPD statement and start receiving network data */
         } else if (esp.msg) {
-            if ( (esp.msg && esp.msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_GET && !strncmp(rcv->data, "+CIPSTAMAC", 10)) || 
-                    (esp.msg && esp.msg->cmd == ESP_CMD_WIFI_CIPAPMAC_GET && !strncmp(rcv->data, "+CIPAPMAC", 9))) {
+            if ((IS_CURR_CMD(ESP_CMD_WIFI_CIPSTAMAC_GET) && !strncmp(rcv->data, "+CIPSTAMAC", 10)) || 
+                (IS_CURR_CMD(ESP_CMD_WIFI_CIPAPMAC_GET) && !strncmp(rcv->data, "+CIPAPMAC", 9))) {
                 const char* tmp;
                 uint8_t mac[6];
                 
@@ -265,8 +268,8 @@ espi_parse_received(esp_recv_t* rcv) {
                 if (esp.msg->msg.sta_ap_getmac.mac && esp.msg->cmd == esp.msg->cmd_def) {
                     memcpy(esp.msg->msg.sta_ap_getmac.mac, mac, 6); /* Copy to current setup */
                 }
-            } else if ( (esp.msg && esp.msg->cmd == ESP_CMD_WIFI_CIPSTA_GET && !strncmp(rcv->data, "+CIPSTA", 7)) ||
-                        (esp.msg && esp.msg->cmd== ESP_CMD_WIFI_CIPAP_GET && !strncmp(rcv->data, "+CIPAP", 6))) {
+            } else if ( (IS_CURR_CMD(ESP_CMD_WIFI_CIPSTA_GET) && !strncmp(rcv->data, "+CIPSTA", 7)) ||
+                        (IS_CURR_CMD(ESP_CMD_WIFI_CIPAP_GET) && !strncmp(rcv->data, "+CIPAP", 6))) {
                 const char* tmp = NULL;
                 uint8_t *a = NULL, *b = NULL;
                 uint8_t ip[4], ch;
@@ -301,7 +304,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     if (is_received_current_setting(rcv->data)) {
                         memcpy(a, ip, 4);       /* Copy to current setup */
                     }
-                    if (b && esp.msg && esp.msg->cmd == esp.msg->cmd_def) {
+                    if (b && IS_CURR_CMD(esp.msg->cmd_def)) {   /* Is current command the same as default one? */
                         memcpy(b, ip, 4);       /* Copy to user variable */
                     }
                 }
@@ -369,12 +372,14 @@ espi_parse_received(esp_recv_t* rcv) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
             conn->num = num;                    /* Set connection number */
             conn->status.f.active = 1;          /* Connection just active */
-            if (esp.msg && esp.msg->cmd_def == ESP_CMD_TCPIP_CIPSTART && num == esp.msg->msg.conn_start.num) {  /* Did we start connection on our own? */
+            if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART) && num == esp.msg->msg.conn_start.num) {    /* Did we start connection on our own? */
                 conn->status.f.client = 1;      /* Go to client mode */
                 conn->cb_func = esp.msg->msg.conn_start.cb_func;    /* Set callback function */
+                conn->arg = esp.msg->msg.conn_start.arg;    /* Set argument for function */
             } else {                            /* Server connection start */
                 conn->status.f.client = 0;
                 conn->cb_func = esp.cb_server;  /* Set server default callback */
+                conn->arg = NULL;
             }
             
             esp.cb.type = ESP_CB_CONN_ACTIVE;   /* Connection just active */
@@ -398,14 +403,14 @@ espi_parse_received(esp_recv_t* rcv) {
                  * In case we received x,CLOSED on connection we are currently sending data,
                  * terminate sending of connection with failure
                  */
-                if (esp.msg && esp.msg->cmd == ESP_CMD_TCPIP_CIPSEND) {
+                if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
                     if (esp.msg->msg.conn_send.conn == conn) {
                         is_error = 1;           /* Set as error to stop processing or waiting for connection */
                     }
                 }
             }
         }
-    } else if (is_error && esp.msg && esp.msg->cmd == ESP_CMD_TCPIP_CIPSTART) {
+    } else if (is_error && IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)) {
         esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
         /* TODO: Get last connection number we used to start the connection */
         esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection just active */
@@ -450,14 +455,26 @@ espi_process(void) {
     
     while (esp_buff_read(&esp.buff, &ch, 1)) {  /* Read entire set of characters from buffer */
         if (esp.ipd.read) {                     /* Do we have to read incoming IPD data? */
-            esp.ipd.buff[esp.ipd.buff_ptr] = ch;/* Save data character */
+            if (esp.ipd.buff) {                 /* Do we have active buffer? */
+                esp.ipd.buff->payload[esp.ipd.buff_ptr] = ch;   /* Save data character */
+            }
             esp.ipd.buff_ptr++;
             esp.ipd.rem_len--;
             
             /**
              * Try to read more data directly from buffer
              */
-            len = esp_buff_read(&esp.buff, &esp.ipd.buff[esp.ipd.buff_ptr], ESP_MIN(esp.ipd.rem_len, esp.ipd.buff_len - esp.ipd.buff_ptr));
+            len = ESP_MIN(esp.ipd.rem_len, esp.ipd.buff ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len);
+            ESP_DEBUGF(ESP_DBG_IPD, "IPD New length: %d bytes\r\n", (int)len);
+            if (len) {
+                if (esp.ipd.buff) {             /* Is buffer valid? */
+                    len = esp_buff_read(&esp.buff, &esp.ipd.buff->payload[esp.ipd.buff_ptr], len);
+                    ESP_DEBUGF(ESP_DBG_IPD, "IPD Bytes read: %d\r\n", (int)len);
+                } else {                        /* Simply skip the data in buffer */
+                    len = esp_buff_skip(&esp.buff, len);
+                    ESP_DEBUGF(ESP_DBG_IPD, "IPD Bytes skipped: %d\r\n", (int)len);
+                }
+            }
             if (len) {                          /* Check if we did read anything more */
                 esp.ipd.buff_ptr += len;
                 esp.ipd.rem_len -= len;
@@ -466,16 +483,32 @@ espi_process(void) {
             /**
              * Did we reach end of buffer or no more data?
              */
-            if (!esp.ipd.rem_len || esp.ipd.buff_ptr == esp.ipd.buff_len) {
+            if (!esp.ipd.rem_len || (esp.ipd.buff && esp.ipd.buff_ptr == esp.ipd.buff->len)) {
+                espr_t res = espOK;
+                
                 /**
                  * Call user callback function with received data
                  */
-                esp.cb.type = ESP_CB_DATA_RECV; /* We have received data */
-                esp.cb.cb.conn_data_recv.buff = esp.ipd.buff;
-                esp.cb.cb.conn_data_recv.len = esp.ipd.buff_ptr;
-                esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
-                espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
-                
+                if (esp.ipd.buff) {             /* Do we have valid buffer? */
+                    esp.cb.type = ESP_CB_DATA_RECV; /* We have received data */
+                    esp.cb.cb.conn_data_recv.buff = esp.ipd.buff;
+                    esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
+                    res = espi_send_conn_cb(esp.ipd.conn);  /* Send connection callback */
+                    if (res != espOKMEM) {      /* Do we want to skip free operation? */
+                        ESP_DEBUGF(ESP_DBG_IPD, "Free packet buffer\r\n");
+                        esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer */
+                        if (res == espOKIGNOREMORE) {   /* We should ignore more data */
+                            ESP_DEBUGF(ESP_DBG_IPD, "Ignoring more data from this IPD if available\r\n");
+                            esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
+                        }
+                    }
+                    if (esp.ipd.buff && esp.ipd.rem_len) {  /* Anything more to read? */
+                        size_t new_len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);   /* Calculate new buffer length */
+                        ESP_DEBUGF(ESP_DBG_IPD, "Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
+                        esp.ipd.buff = esp_pbuf_alloc(new_len); /* Allocate new packet buffer */
+                        ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)new_len);
+                    }
+                }
                 if (!esp.ipd.rem_len) {         /* Check if we read everything */
                     esp.ipd.read = 0;           /* Stop reading data */
                 }
@@ -496,7 +529,7 @@ espi_process(void) {
             /**
              * If we are waiting for "\n> " sequence when CIPSEND command is active
              */
-            if (esp.msg && esp.msg->cmd == ESP_CMD_TCPIP_CIPSEND) {
+            if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
                 if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
                     RECV_RESET();               /* Reset received object */
                     
@@ -513,8 +546,11 @@ espi_process(void) {
              */
             if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv.data, "+IPD", 4)) {
                 espi_parse_received(&recv);     /* Parse received string */
-                esp.ipd.buff = ipd_buff;
-                esp.ipd.buff_len = sizeof(ipd_buff);
+                if (esp.ipd.read) {             /* Are we going into read mode? */
+                    size_t len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
+                    esp.ipd.buff = esp_pbuf_alloc(len); /* Allocate new packet buffer */
+                    ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)len);
+                }
                 esp.ipd.buff_ptr = 0;
                 RECV_RESET();                   /* Reset received buffer */
             }

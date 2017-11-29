@@ -412,9 +412,7 @@ esp_mem_alloc(uint32_t size) {
     void* ptr;
     esp_sys_protect();
     ptr = mem_alloc(size);                          /* Allocate memory and return pointer */
-    if (!ptr) {
-        ESP_DEBUGF(ESP_DBG_MEM, "Allocation failed: %d bytes\r\n", (int)size);
-    }
+    ESP_DEBUGW(ESP_DBG_MEM, ptr == NULL, "(A)llocation failed: %d bytes\r\n", (int)size);
     esp_sys_unprotect();
     return ptr;
 }
@@ -433,9 +431,7 @@ void*
 esp_mem_realloc(void* ptr, size_t size) {
     esp_sys_protect();
     ptr = mem_realloc(ptr, size);                   /* Reallocate and return pointer */
-    if (!ptr) {
-        ESP_DEBUGF(ESP_DBG_MEM, "Reallocation failed: %d bytes\r\n", (int)size);
-    }
+    ESP_DEBUGW(ESP_DBG_MEM, ptr == NULL, "(Re)allocation failed: %d bytes\r\n", (int)size);
     esp_sys_unprotect();
     return ptr;
 }
@@ -453,9 +449,7 @@ esp_mem_calloc(size_t num, size_t size) {
     void* ptr;
     esp_sys_protect();
     ptr = mem_calloc(num, size);                   /* Allocate memory and clear it to 0. Then return pointer */
-    if (!ptr) {
-        ESP_DEBUGF(ESP_DBG_MEM, "(C)Allocation failed: %d bytes\r\n", (int)(size * num));
-    }
+    ESP_DEBUGW(ESP_DBG_MEM, ptr == NULL, "(C)allocation failed: %d bytes\r\n", (int)size);
     esp_sys_unprotect();
     return ptr;
 }

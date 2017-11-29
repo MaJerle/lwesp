@@ -45,6 +45,8 @@ extern "C" {
  */
 typedef enum {
     espOK = 0,                                  /*!< Function returned OK */
+    espOKMEM,                                   /*!< Status is OK, but do not free memory after execution. This result is possible on connection data receive callback */
+    espOKIGNOREMORE,                            /*!< Function succedded, should continue as espOK but ignore sending more data. This result is possible on connection data receive callback */
     espERR,
     espPARERR,                                  /*!< Wrong parameters on function call */
     espTIMEOUT,                                 /*!< Timeout occurred on command */

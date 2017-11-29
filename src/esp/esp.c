@@ -495,12 +495,13 @@ esp_set_default_server_callback(esp_cb_func_t cb_func) {
  * \param[in]       type: Connection type. This parameter can be a value of \ref esp_conn_type_t enumeration
  * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
  * \param[in]       host: Connection port
+ * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
  * \param[in]       cb_func: Callback function for this connection. Set to NULL in case of default user callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16_t port, esp_cb_func_t cb_func, uint32_t blocking) {
+esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16_t port, void* arg, esp_cb_func_t cb_func, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -511,6 +512,7 @@ esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16
     ESP_MSG_VAR_REF(msg).msg.conn_start.host = host;
     ESP_MSG_VAR_REF(msg).msg.conn_start.port = port;
     ESP_MSG_VAR_REF(msg).msg.conn_start.cb_func = cb_func;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
     
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
@@ -550,9 +552,10 @@ esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
     ESP_ASSERT("conn > 0", btw > 0);            /* Assert input parameters */
-    ESP_ASSERT("bw != NULL", bw != NULL);       /* Assert input parameters */
     
-    *bw = 0;
+    if (bw) {
+        *bw = 0;
+    }
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
@@ -563,6 +566,20 @@ esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32
     ESP_MSG_VAR_REF(msg).msg.conn_send.bw = bw;
     
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+}
+
+/**
+ * \brief           Set argument variable for connection
+ * \param[in]       conn: Pointer to connection to set argument
+ * \param[in]       arg: Pointer to argument
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_conn_set_arg(esp_conn_t* conn, void* arg) {
+    esp_sys_protect();
+    conn->arg = arg;                            /* Set argument for connection */
+    esp_sys_unprotect();
+    return espOK;
 }
 
 /**

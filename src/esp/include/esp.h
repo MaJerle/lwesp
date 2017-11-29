@@ -157,6 +157,7 @@ typedef struct {
     uint16_t        remote_port;                /*!< Remote port number */
     uint16_t        local_port;                 /*!< Local IP address */
     esp_cb_func_t   cb_func;                    /*!< Callback function for connection */
+    void*           arg;                        /*!< User custom argument */
     union {
         struct {
             uint8_t active:1;                   /*!< Status whether connection is active */
@@ -164,6 +165,14 @@ typedef struct {
         } f;
     } status;
 } esp_conn_t;
+
+/**
+ * \brief           IPD data structure
+ */
+typedef struct {
+    size_t len;                                 /*!< Length of payload */
+    uint8_t* payload;                           /*!< Pointer to payload memory */
+} esp_pbuf_t;
 
 /**
  * \brief           Incoming network data read structure
@@ -175,8 +184,7 @@ typedef struct {
     esp_conn_t*         conn;                   /*!< Pointer to connection for network data */
     
     size_t              buff_ptr;               /*!< Buffer pointer to save data to */
-    size_t              buff_len;               /*!< Length of entire buffer */
-    uint8_t*            buff;                   /*!< Pointer to data buffer used for receiving data */
+    esp_pbuf_t*         buff;                   /*!< Pointer to data buffer used for receiving data */
 } esp_ipd_t;
 
 /**
@@ -241,6 +249,7 @@ typedef struct esp_msg {
             const char* host;                   /*!< Host to use for connection */
             uint16_t port;                      /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
+            void* arg;                          /*!< Connection custom argument */
             esp_cb_func_t cb_func;              /*!< Callback function to use on connection */
             uint8_t num;                        /*!< Connection number used for start */
         } conn_start;                           /*!< Structure for starting new connection */
@@ -294,8 +303,7 @@ typedef struct esp_cb_t {
     union {
         struct {
             esp_conn_t* conn;                   /*!< Connection where data were received */
-            const uint8_t* buff;                /*!< Pointer to received data */
-            size_t      len;                    /*!< Number of data bytes received. Use when \ref ESP_CB_DATA_RECV event is received */
+            const esp_pbuf_t* buff;             /*!< Pointer to received data */
         } conn_data_recv;                       /*!< Network data received */
         struct {
             esp_conn_t* conn;                   /*!< Connection where data were sent */
@@ -362,6 +370,8 @@ typedef struct {
 } esp_t;
 
 #include "esp_init.h"
+#include "esp_pbuf.h"
+#include "esp_netconn.h"
 
 extern esp_t esp;
 
@@ -372,6 +382,8 @@ extern esp_t esp;
 #define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
 #define ESP_MIN(x, y)                       ((x) < (y) ? (x) : (y))
 #define ESP_MAX(x, y)                       ((x) > (y) ? (x) : (y))
+
+#define ESP_UNUSED(x)                       ((void)(x))
 
 #define ESP_ASSERT(msg, c)   do {   \
     if (!(c)) {                     \
@@ -413,15 +425,16 @@ espr_t      esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_ap_list(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);
 
 /**
- * \defgroup        ESP_API_CONN Connection API
+ * \defgroup        espi_netconn_CONN Connection API
  * \brief           Connection API functions
  * \{
  */
  
-espr_t      esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16_t port, esp_cb_func_t cb_func, uint32_t blocking);
+espr_t      esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16_t port, void* arg, esp_cb_func_t cb_func, uint32_t blocking);
 espr_t      esp_conn_close(esp_conn_t* conn, uint32_t blocking);
 espr_t      esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32_t blocking);
 espr_t      esp_conn_set_ssl_buffer(size_t size, uint32_t blocking);
+espr_t      esp_conn_set_arg(esp_conn_t* conn, void* arg);
 uint8_t     esp_conn_is_client(esp_conn_t* conn);
 uint8_t     esp_conn_is_server(esp_conn_t* conn);
 uint8_t     esp_conn_is_active(esp_conn_t* conn);

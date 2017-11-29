@@ -1,6 +1,6 @@
 /**	
- * \file            esp_mem.h
- * \brief           Memory manager
+ * \file            esp_pbuf.c
+ * \brief           Packet buffer manager
  */
  
 /*
@@ -28,46 +28,37 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_MEM_H
-#define __ESP_MEM_H
-
-/* C++ detection */
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-#include "esp.h"
+#define ESP_INTERNAL
+#include "esp_pbuf.h"
+#include "esp_mem.h"
 
 /**
- * \brief           Single memory region descriptor
+ * \brief           Allocate packet buffer for network data of specific size
+ * \param[in]       len: Lengtg of payload memory to allocate
+ * \return          Pointer to allocated memory or NULL in case of failure
  */
-typedef struct mem_region_t {
-    void* StartAddress;                 /*!< Start address of region */
-    size_t Size;                        /*!< Size in units of bytes of region */
-} mem_region_t;
-
-/**
- * \brief           Wrapper for memory region for GUI
- */
-typedef mem_region_t esp_mem_region_t;
-
-void*   esp_mem_alloc(uint32_t size);
-void*   esp_mem_realloc(void* ptr, size_t size);
-void*   esp_mem_calloc(size_t num, size_t size);
-void    esp_mem_free(void* ptr);
-size_t  esp_mem_getfree(void);
-size_t  esp_mem_getfull(void);
-size_t  esp_mem_getminfree(void);
-
-uint8_t esp_mem_assignmemory(const esp_mem_region_t* regions, size_t size);
+esp_pbuf_t *
+esp_pbuf_alloc(size_t len) {
+    esp_pbuf_t* p;
     
-/**
- * \}
- */
-
-/* C++ detection */
-#ifdef __cplusplus
+    p = esp_mem_calloc(1, ESP_MEM_ALIGN(sizeof(*p)) + len); /* Allocate memory for packet buffer */
+    if (p) {                                    
+        p->len = len;                           /* Set payload length */
+        p->payload = (uint8_t *)(((char *)p) + ESP_MEM_ALIGN(sizeof(*p)));  /* Set pointer to payload data */
+    }
+    return p;
 }
-#endif /* __cplusplus */
 
-#endif /* __ESP_MEM_H */
+/**
+ * \brief           Free previously allocated packet buffer
+ * \param[in]       pbuf: Packet buffer to free
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+esp_pbuf_free(esp_pbuf_t* pbuf) {
+    if (pbuf) {
+        esp_mem_free(pbuf);
+        return 1;
+    }
+    return 0;
+}

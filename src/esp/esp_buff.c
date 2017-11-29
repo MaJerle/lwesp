@@ -300,18 +300,18 @@ buff_get_linear_block_address(esp_buff_t* buff, size_t max_len, size_t* block_le
  * \note            Useful at the end of streaming transfer such as DMA
  * \param[in]       buff: Pointer to buffer structure
  * \param[in]       len: Length of bytes we want to skip
- * \return          1 on success, 0 otherwise
+ * \return          Number of bytes skipped
  */
-uint8_t
+size_t
 esp_buff_skip(esp_buff_t* buff, size_t len) {
     size_t full;
     full = esp_buff_get_full(buff);             /* Get buffer used length */
     if (len > full) {
-        return 0;
+        len = full;
     }
     buff->out += len;                           /* Advance buffer */
     if (buff->out >= buff->size) {              /* Subtract possible overflow */
         buff->out -= buff->size;                /* Do subtract */
     }
-    return 1;
+    return len;
 }

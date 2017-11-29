@@ -52,19 +52,36 @@ extern "C" {
 
 #define ESP_DBG                     ESP_DBG_ON    
 
-#define ESP_DEBUG_INT(fmt, ...)      printf(fmt, ##__VA_ARGS__)
+#define ESP_DEBUG_INT(fmt, ...)     printf(fmt, ## __VA_ARGS__)
     
-/**
- * \brief           Debug message to window
- */
 #if ESP_DBG || defined(__DOXYGEN__)
-#define ESP_DEBUGF(c, fmt, ...)   do {    \
+/**
+ * \brief           Print message to the debug "window" if enabled
+ * \param[in]       c: Condition if debug of specific type is enabled
+ * \param[in]       fmt: Formatted string for debug
+ * \param[in]       ...: Variable parameters for formatted string
+ */
+#define ESP_DEBUGF(c, fmt, ...)         do {\
     if (((c) & ESP_DBG_ON) && ((c) & ESP_DBG_LVL_MASK) >= ESP_DBG_LVL_MIN) {    \
-        ESP_DEBUG_INT(fmt, ##__VA_ARGS__);         \
-    }                               \
+        ESP_DEBUG_INT(fmt, ## __VA_ARGS__); \
+    }                                       \
+} while (0)
+
+/**
+ * \brief           Print message to the debug "window" if enabled when specific condition is met
+ * \param[in]       c: Condition if debug of specific type is enabled
+ * \param[in]       cond: Debug only if this condition is true
+ * \param[in]       fmt: Formatted string for debug
+ * \param[in]       ...: Variable parameters for formatted string
+ */
+#define ESP_DEBUGW(c, cond, fmt, ...)   do {\
+    if (cond) {                             \
+        ESP_DEBUGF(c, fmt, ## __VA_ARGS__); \
+    }                                       \
 } while (0)
 #else
 #define ESP_DEBUGF(c, fmt, ...)
+#define ESP_DEBUGW(c, cond, fmt, ...)
 #endif
 
 /* C++ detection */
