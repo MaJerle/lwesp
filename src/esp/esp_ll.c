@@ -116,7 +116,8 @@ static uint8_t usart_mem[0x400];
 uint16_t old_pos;
 #endif /* USART_USE_DMA */
 
-static uint8_t initialized = 0;
+static uint8_t initialized;
+static uint8_t is_running;
 
 /**
  * \brief           Send data to ESP device
@@ -190,6 +191,7 @@ configure_uart(uint32_t baudrate) {
     LL_USART_EnableIT_IDLE(ESP_USART);
     
     /* Set DMA_InitStruct fields to default values */
+    is_running = 0;
     LL_DMA_DeInit(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
     dma_init.Channel = ESP_USART_DMA_RX_CH;
 #if defined(STM32F769_DISCOVERY)
@@ -219,6 +221,7 @@ configure_uart(uint32_t baudrate) {
     HAL_NVIC_EnableIRQ(ESP_USART_DMA_RX_STREAM_IRQ);
     
     old_pos = 0;
+    is_running = 1;
 #endif /* USART_USE_DMA */
     
     HAL_NVIC_SetPriority(ESP_USART_IRQ, 1, 1);
@@ -238,17 +241,16 @@ configure_uart(uint32_t baudrate) {
 void
 ESP_USART_IRQHANDLER(void) {
 #if USART_USE_DMA
-    uint16_t ndtr, curr_pos, to_read, start_pos;
+    uint16_t pos;
     
-    if (LL_USART_IsActiveFlag_IDLE(ESP_USART)) {
-        start_pos = old_pos;
-        ndtr = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);    /* Remaining data to receive */
-        curr_pos = sizeof(usart_mem) - ndtr;    /* Current position in receive buffer array */
-        
+    if (LL_USART_IsActiveFlag_IDLE(ESP_USART) && is_running) {
         LL_USART_ClearFlag_IDLE(ESP_USART);
-        to_read = curr_pos - old_pos;           /* Number of bytes to read */
-        old_pos += to_read;                     /* Set new position of new valid data */
-        esp_input(&usart_mem[start_pos], to_read);  /* Send to stack */
+        pos = sizeof(usart_mem) - LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Remaining data to receive */
+        
+        if ((pos - old_pos) > 0) {
+            esp_input(&usart_mem[old_pos], pos - old_pos);  /* Send to stack */
+        }
+        old_pos = pos;
     }
 #else /* USART_USE_DMA */
     if (LL_USART_IsActiveFlag_RXNE(ESP_USART)) {
@@ -264,24 +266,28 @@ ESP_USART_IRQHANDLER(void) {
  */
 void
 ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
-    uint16_t ndtr, curr_pos, to_read, start_pos;
+    uint16_t pos;
     
-    start_pos = old_pos;
-    ndtr = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);    /* Remaining data to receive */
-    if (IS_DMA_RX_STREAM_TC && ndtr == sizeof(usart_mem)) {
-        ndtr = 0;
+    if (!is_running) {                          /* Ignore if not running */
+        DMA_RX_STREAM_CLEAR_TC;
+        DMA_RX_STREAM_CLEAR_HT;
     }
-    curr_pos = sizeof(usart_mem) - ndtr;        /* Current position in receive buffer array */
-    to_read = curr_pos - old_pos;               /* Number of bytes to read */
+    if (IS_DMA_RX_STREAM_TC) {
+        pos = 0;
+    } else {
+        pos = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Remaining data to receive */
+    }
+    pos = sizeof(usart_mem) - pos;              /* Current position in receive buffer array */
     
     if (IS_DMA_RX_STREAM_TC) {
-        DMA_RX_STREAM_CLEAR_TC;                 /* Clear flag */
+        DMA_RX_STREAM_CLEAR_TC;
+        esp_input(&usart_mem[old_pos], pos - old_pos);  /* Send to stack */
         old_pos = 0;                            /* Set new position of new valid data */
     } else if (IS_DMA_RX_STREAM_HT) {
         DMA_RX_STREAM_CLEAR_HT;
-        old_pos = curr_pos;                     /* Set new position of new valid data */
+        esp_input(&usart_mem[old_pos], pos - old_pos);  /* Send to stack */
+        old_pos = pos;                          /* Set new position of new valid data */
     }
-    esp_input(&usart_mem[start_pos], to_read);  /* Send to stack */
 }
 #endif /* USART_USE_DMA */
 
@@ -292,7 +298,7 @@ ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
  */
 espr_t
 esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
-    static uint8_t memory[0x1000];
+    static uint8_t memory[0x10000];
     esp_mem_region_t mem_regions[] = {
         {memory, sizeof(memory)}
     };
