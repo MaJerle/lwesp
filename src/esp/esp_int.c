@@ -311,6 +311,11 @@ espi_parse_received(esp_recv_t* rcv) {
                 }
             } else if (esp.msg->cmd == ESP_CMD_WIFI_CWLAP && !strncmp(rcv->data, "+CWLAP", 6)) {
                 espi_parse_cwlap(rcv->data, esp.msg);   /* Parse CWLAP entry */
+            } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPDOMAIN && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
+                espi_parse_cipdomain(rcv->data, esp.msg);   /* Parse CIPDOMAIN entry */
+            } else if (esp.msg->cmd == ESP_CMD_TCPIP_PING && ESP_CHARISNUM(rcv->data[1])) {
+                const char* tmp = &rcv->data[1];
+                *esp.msg->msg.tcpip_ping.time = espi_parse_number(&tmp);
             }
         }
     } else if (!strncmp(rcv->data, "WIFI CONNECTED", 14)) {
@@ -866,6 +871,18 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else {
                 ESP_AT_PORT_SEND_STR("0");
             }
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
+        case ESP_CMD_TCPIP_CIPDOMAIN: {         /* DNS function */
+            ESP_AT_PORT_SEND_STR("AT+CIPDOMAIN=");
+            send_string(msg->msg.dns_getbyhostname.host, 1, 1);
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
+        case ESP_CMD_TCPIP_PING: {              /* Pinging hostname or IP address */
+            ESP_AT_PORT_SEND_STR("AT+PING=");
+            send_string(msg->msg.tcpip_ping.host, 1, 1);
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }

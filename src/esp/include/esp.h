@@ -279,6 +279,14 @@ typedef struct esp_msg {
         struct {
             uint8_t info;                       /*!< New info status */
         } tcpip_dinfo;                          /*!< Structure to enable more info on +IPD command */
+        struct {
+            const char* host;                   /*!< Hostname to ping */
+            uint32_t* time;                     /*!< Pointer to time variable */
+        } tcpip_ping;                           /*!< Pinging structure */
+        struct {
+            const char* host;                   /*!< Hostname to resolve IP address for */
+            uint8_t* ip;                        /*!< Pointer to IP address to save result */
+        } dns_getbyhostname;                    /*!< DNS function */
     } msg;                                      /*!< Group of different possible message contents */
 } esp_msg_t;
 
@@ -425,6 +433,10 @@ espr_t      esp_ap_getmac(void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking);
 
 espr_t      esp_ap_list(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);
+
+espr_t      esp_dns_getbyhostname(const char* host, uint8_t* ip, uint32_t blocking);
+
+espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
 
 /**
  * \defgroup        esp_netconn_CONN Connection API

@@ -286,3 +286,22 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     }
     return 1;
 }
+
+/**
+ * \brief           Parse received message domain DNS name
+ * \param[in]       str: Pointer to input string starting with +CWLAP
+ * \param[in]       msg: Pointer to message
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
+    if (!msg || msg->cmd != ESP_CMD_TCPIP_CIPDOMAIN ||  /* Do we have valid message here and enough memory to save everything? */
+        msg->cmd_def != msg->cmd) {   
+        return 0;
+    }
+    if (*str == '+') {
+        str += 11;
+    }
+    espi_parse_ip(&str, msg->msg.dns_getbyhostname.ip); /* Parse IP address */
+    return 1;
+}

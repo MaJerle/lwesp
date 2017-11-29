@@ -644,3 +644,47 @@ esp_conn_is_closed(esp_conn_t* conn) {
 espr_t
 esp_conn_set_ssl_buffer(size_t size, uint32_t blocking);
 
+/**
+ * \brief           Get IP address from host name
+ * \param[in]       host: Pointer to host name to get IP for
+ * \param[out]      ip: Pointer to output variable to save result. At least 4 bytes required
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_dns_getbyhostname(const char* host, uint8_t* ip, uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    
+    ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
+    ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
+    
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDOMAIN;
+    ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
+    ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
+    
+    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+}
+
+/**
+ * \brief           Ping external host
+ * \param[in]       host: Host name to ping
+ * \param[out]      time: Pointer to output variable to save ping time
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    
+    ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
+    ESP_ASSERT("time != NULL", time != NULL);   /* Assert input parameters */
+    
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_PING;
+    ESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
+    ESP_MSG_VAR_REF(msg).msg.tcpip_ping.time = time;
+    
+    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+}
+

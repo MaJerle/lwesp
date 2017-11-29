@@ -51,6 +51,7 @@ uint8_t     espi_parse_ip(const char** src, uint8_t* ip);
 uint8_t     espi_parse_mac(const char** src, uint8_t* mac);
     
 uint8_t     espi_parse_cwlap(const char* src, esp_msg_t* msg);
+uint8_t     espi_parse_cipdomain(const char* src, esp_msg_t* msg);
 
 #if defined(__cplusplus)
 }
