@@ -619,17 +619,21 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 res = espi_initiate_cmd(msg);   /* Start connection */
                 if (res == espOK) {
                     return espCONT;
+                } else {
+                    return espERR;
                 }
             }
         } else if (msg->i == 1 && msg->cmd == ESP_CMD_TCPIP_CIPSTART) {
             msg->cmd = ESP_CMD_TCPIP_CIPSTATUS; /* Go to status mode */
-            espi_initiate_cmd(msg);             /* Get connection status */
-            return espCONT;
+            if (is_ok) {
+                espi_initiate_cmd(msg);         /* Get connection status */
+                return espCONT;
+            }
         } else if (msg->i == 2 && msg->cmd == ESP_CMD_TCPIP_CIPSTATUS) {
             
         }
     }
-    return espOK;
+    return is_ok || is_ready ? espOK : espERR;
 }
 
 /**
