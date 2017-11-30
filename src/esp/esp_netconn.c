@@ -38,6 +38,28 @@
 static uint8_t recv_closed = 0xFF;
 static esp_netconn_t* listen_api;              /* Main connection in listening mode */
 
+static void
+flush_mboxes(esp_netconn_t* nc) {
+    esp_pbuf_t* pbuf;
+    esp_netconn_t* new_nc;
+    if (esp_sys_sem_isvalid(&nc->mbox_receive)) {
+        do {
+            if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
+                break;
+            }
+            if (pbuf && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
+                esp_pbuf_free(pbuf);
+            }
+        } while (1);
+    }
+    if (esp_sys_sem_isvalid(&nc->mbox_accept)) {
+        do {
+            if (!esp_sys_mbox_getnow(&nc->mbox_accept, (void *)&nc)) {
+                esp_netconn_close(nc);          /* Close netconn connection */
+            }
+        } while (1);
+    }
+}
 
 /**
  * \brief           Callback function for every server connection
@@ -61,7 +83,7 @@ esp_cb(esp_cb_t* cb) {
                     close = 1;                  /* Close this connection, invalid netconn */
                 }
             } else if (esp_conn_is_server(conn) && listen_api) {    /* Is the connection server type and we have known listening API? */
-                nc = esp_netconn_new();         /* Create new API */
+                nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Create new API */
                 if (nc) {
                     nc->conn = conn;            /* Set connection callback */
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
@@ -134,10 +156,11 @@ esp_cb(esp_cb_t* cb) {
  * \return          New netconn connection
  */
 esp_netconn_t*
-esp_netconn_new(void) {
+esp_netconn_new(esp_netconn_type_t type) {
     esp_netconn_t* a;
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a) {
+        a->type = type;                         /* Save netconn type */
         if (!esp_sys_mbox_create(&a->mbox_accept, 5)) { /* Allocate memory for accepting message box */
             ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Cannot create accept MBOX\r\n");
             goto free_ret;
@@ -189,8 +212,18 @@ esp_netconn_delete(esp_netconn_t* nc) {
  */
 espr_t
 esp_netconn_connect(esp_netconn_t* nc, const char* host, uint16_t port) {
-    espr_t res ;
-    res = esp_conn_start(NULL, ESP_CONN_TYPE_TCP, host, port, nc, esp_cb, 1);
+    espr_t res;
+    esp_conn_type_t type;
+    
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    
+    switch (nc->type) {
+        case ESP_NETCONN_TYPE_TCP: type = ESP_CONN_TYPE_TCP; break;
+        case ESP_NETCONN_TYPE_UDP: type = ESP_CONN_TYPE_UDP; break;
+        case ESP_NETCONN_TYPE_SSL: type = ESP_CONN_TYPE_SSL; break;
+        default: return espERR;
+    }
+    res = esp_conn_start(NULL, type, host, port, nc, esp_cb, 1);
     return res;
 }
 
@@ -202,6 +235,8 @@ esp_netconn_connect(esp_netconn_t* nc, const char* host, uint16_t port) {
  */
 espr_t
 esp_netconn_bind(esp_netconn_t* nc, uint16_t port) {
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    
     if (esp_set_server(port, 1) != espOK) {     /* Enable server on selected port */
         return espERR;
     }
@@ -217,6 +252,8 @@ esp_netconn_bind(esp_netconn_t* nc, uint16_t port) {
  */
 espr_t
 esp_netconn_listen(esp_netconn_t* nc) {
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    
     esp_sys_protect();
     listen_api = nc;                           /* Set current main API in listening state */
     esp_sys_unprotect();
@@ -231,6 +268,9 @@ esp_netconn_listen(esp_netconn_t* nc) {
  */
 espr_t
 esp_netconn_accept(esp_netconn_t* nc, esp_netconn_t** new_nc) {
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    ESP_ASSERT("new_nc != NULL", new_nc != NULL);   /* Assert input parameters */
+    
     esp_netconn_t* tmp;
     uint32_t time;
     if (nc != listen_api) {                     /* Currently only one API is allowed in listening state */
@@ -247,7 +287,7 @@ esp_netconn_accept(esp_netconn_t* nc, esp_netconn_t** new_nc) {
 }
 
 /**
- * \brief           Write data to connection
+ * \brief           Write data to connection, only applicable for TCP and SSL connections
  * \param[in]       nc: Netconn connection used to write to
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
@@ -255,7 +295,23 @@ esp_netconn_accept(esp_netconn_t* nc, esp_netconn_t** new_nc) {
  */
 espr_t
 esp_netconn_write(esp_netconn_t* nc, const void* data, size_t btw) {
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
+}
+
+espr_t
+esp_netconn_send(esp_netconn_t* nc, const void* data, size_t btw) {
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    
+    return esp_conn_send(nc->conn, data, btw, NULL, 1);
+}
+
+espr_t
+esp_netconn_sendto(esp_netconn_t* nc, const void* ip, uint16_t port, const void* data, size_t btw) {
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    
+    return esp_conn_sendto(nc->conn, ip, port, data, btw, NULL, 1);
 }
 
 /**
@@ -266,7 +322,12 @@ esp_netconn_write(esp_netconn_t* nc, const void* data, size_t btw) {
  */
 espr_t
 esp_netconn_receive(esp_netconn_t* nc, esp_pbuf_t** pbuf) {
-    uint32_t time = esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
+    uint32_t time;
+    
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
+    
+    time = esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
     if ((uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
         *pbuf = NULL;
         return espCLOSED;
@@ -282,15 +343,10 @@ esp_netconn_receive(esp_netconn_t* nc, esp_pbuf_t** pbuf) {
 espr_t
 esp_netconn_close(esp_netconn_t* nc) {
     esp_pbuf_t* pbuf;
-    esp_conn_set_arg(nc->conn, NULL);       /* Reset argument */
-    esp_conn_close(nc->conn, 1);            /* Close the connection */
-    while (1) {
-        if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
-            break;
-        }
-        if (pbuf && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
-            esp_pbuf_free(pbuf);
-        }
-    }
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    
+    esp_conn_set_arg(nc->conn, NULL);           /* Reset argument */
+    esp_conn_close(nc->conn, 1);                /* Close the connection */
+    flush_mboxes(nc);                           /* Flush message queues */
     return espOK;
 }
