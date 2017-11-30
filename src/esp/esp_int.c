@@ -182,6 +182,20 @@ espi_tcpip_process_send_data(void) {
     esp.msg->msg.conn_send.sent = esp.msg->msg.conn_send.btw > 2048 ? 2048 : esp.msg->msg.conn_send.btw;
     number_to_str(esp.msg->msg.conn_send.sent, str);
     ESP_AT_PORT_SEND_STR(str);
+    
+    if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {
+        const uint8_t* ip = esp.msg->msg.conn_send.remote_ip;   /* Get remote IP */
+        uint16_t port = esp.msg->msg.conn_send.remote_port;
+        
+        if (ip && port) {
+            ESP_AT_PORT_SEND_STR(",");
+            send_ip_mac(ip, 1, 1);              /* Send IP address including quotes */
+            ESP_AT_PORT_SEND_STR(",");
+            
+            number_to_str(port, str);
+            ESP_AT_PORT_SEND_STR(str);
+        }
+    }
     ESP_AT_PORT_SEND_STR("\r\n");
     return espOK;
 }
@@ -389,10 +403,12 @@ espi_parse_received(esp_recv_t* rcv) {
                 conn->status.f.client = 1;      /* Go to client mode */
                 conn->cb_func = esp.msg->msg.conn_start.cb_func;    /* Set callback function */
                 conn->arg = esp.msg->msg.conn_start.arg;    /* Set argument for function */
+                conn->type = esp.msg->msg.conn_start.type;  /* Set connection type */
             } else {                            /* Server connection start */
                 conn->status.f.client = 0;
                 conn->cb_func = esp.cb_server;  /* Set server default callback */
                 conn->arg = NULL;
+                conn->type = ESP_CONN_TYPE_TCP; /* Set connection type to TCP */
             }
             
             esp.cb.type = ESP_CB_CONN_ACTIVE;   /* Connection just active */
@@ -469,7 +485,7 @@ espr_t
 espi_process(void) {
     uint8_t ch;
     size_t len;
-    static uint8_t ch_prev1, ch_prev2;
+    static uint8_t ch_prev1, ch_prev2, utf8_ch[4], utf8_len;
     
     while (esp_buff_read(&esp.buff, &ch, 1)) {  /* Read entire set of characters from buffer */
         if (esp.ipd.read) {                     /* Do we have to read incoming IPD data? */
@@ -532,53 +548,64 @@ espi_process(void) {
                 }
                 esp.ipd.buff_ptr = 0;           /* Reset input buffer pointer */
             }
-        } else if (ESP_ISVALIDASCII(ch)) {      /* Check for ASCII characters only */
-            switch (ch) {
-                case '\n':
-                    RECV_ADD(ch);               /* Add character to input buffer */
-                    espi_parse_received(&recv); /* Parse received string */
-                    RECV_RESET();               /* Reset received string */
-                    break;
-                default:
-                    RECV_ADD(ch);               /* Any ASCII valid character */
-                    break;
+        } else {
+            uint8_t process = 0, len = 0;
+            if (ESP_ISVALIDASCII(ch)) {         /* Check for valid character */
+                process = 1;
+                len = 1;
+            } else if (1) {                     /* Add support for UTF-8 valid characters */
+                RECV_RESET();                   /* Reset received string */
             }
-            
-            /**
-             * If we are waiting for "\n> " sequence when CIPSEND command is active
-             */
-            if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
-                if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
-                    RECV_RESET();               /* Reset received object */
+            if (process) {                      /* Can we process the character(s) */
+                if (len == 1) {
+                    switch (ch) {
+                        case '\n':
+                            RECV_ADD(ch);       /* Add character to input buffer */
+                            espi_parse_received(&recv); /* Parse received string */
+                            RECV_RESET();           /* Reset received string */
+                            break;
+                        default:
+                            RECV_ADD(ch);           /* Any ASCII valid character */
+                            break;
+                    }
                     
                     /**
-                     * Now actually send the data prepared before
+                     * If we are waiting for "\n> " sequence when CIPSEND command is active
                      */
-                    ESP_AT_PORT_SEND(esp.msg->msg.conn_send.data, esp.msg->msg.conn_send.sent);
-                    esp.msg->msg.conn_send.wait_send_ok_err = 1;    /* Now we are waiting for "SEND OK" or "SEND ERROR" */
-                }
-            }
-            
-            /**
-             * Check if "+IPD" statement is in array and now we received colon,
-             * indicating end of +IPD and start of actual data
-             */
-            if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv.data, "+IPD", 4)) {
-                espi_parse_received(&recv);     /* Parse received string */
-                if (esp.ipd.read) {             /* Are we going into read mode? */
-                    size_t len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
-                    if (esp.ipd.conn->status.f.active) {
-                        esp.ipd.buff = esp_pbuf_alloc(len); /* Allocate new packet buffer */
-                    } else {
-                        esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
+                    if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
+                        if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
+                            RECV_RESET();           /* Reset received object */
+                            
+                            /**
+                             * Now actually send the data prepared before
+                             */
+                            ESP_AT_PORT_SEND(esp.msg->msg.conn_send.data, esp.msg->msg.conn_send.sent);
+                            esp.msg->msg.conn_send.wait_send_ok_err = 1;    /* Now we are waiting for "SEND OK" or "SEND ERROR" */
+                        }
                     }
-                    ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)len);
+                    
+                    /**
+                     * Check if "+IPD" statement is in array and now we received colon,
+                     * indicating end of +IPD and start of actual data
+                     */
+                    if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv.data, "+IPD", 4)) {
+                        espi_parse_received(&recv); /* Parse received string */
+                        if (esp.ipd.read) {         /* Are we going into read mode? */
+                            size_t len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
+                            if (esp.ipd.conn->status.f.active) {
+                                esp.ipd.buff = esp_pbuf_alloc(len); /* Allocate new packet buffer */
+                            } else {
+                                esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
+                            }
+                            ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)len);
+                        }
+                        esp.ipd.buff_ptr = 0;
+                        RECV_RESET();           /* Reset received buffer */
+                    }
+                } else {                        /* In case of UTF-8 sequence, you can only add them to receive */
+                
                 }
-                esp.ipd.buff_ptr = 0;
-                RECV_RESET();                   /* Reset received buffer */
             }
-        } else {
-            RECV_RESET();                       /* Invalidate received data */
         }
         
         ch_prev2 = ch_prev1;                    /* Save previous character to previous previous */
