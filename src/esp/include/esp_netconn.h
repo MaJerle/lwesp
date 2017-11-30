@@ -47,33 +47,25 @@ typedef enum {
     ESP_NETCONN_TYPE_SSL,
 } esp_netconn_type_t;
 
-/**
- * \brief           Sequential API structure
- */
-typedef struct {
-    esp_netconn_type_t type;                    /*!< Netconn type */
-    uint16_t listen_port;                       /*!< Port on which we are listening */
-    esp_conn_t* conn;                           /*!< Pointer to actual connection */
-    
-    esp_sys_sem_t mbox_accept;                  /*!< List of active connections waiting to be processed */
-    esp_sys_sem_t mbox_receive;                 /*!< Message queue for receive mbox */
-} esp_netconn_t;
+struct esp_netconn_t;
+typedef struct esp_netconn_t* esp_netconn_p;
 
-esp_netconn_t*  esp_netconn_new(esp_netconn_type_t type);
-espr_t          esp_netconn_delete(esp_netconn_t* nc);
-espr_t          esp_netconn_bind(esp_netconn_t* nc, uint16_t port);
-espr_t          esp_netconn_connect(esp_netconn_t* nc, const char* host, uint16_t port);
-espr_t          esp_netconn_receive(esp_netconn_t* nc, esp_pbuf_t** pbuf);
-espr_t          esp_netconn_close(esp_netconn_t* nc);
+esp_netconn_p   esp_netconn_new(esp_netconn_type_t type);
+espr_t          esp_netconn_delete(esp_netconn_p nc);
+espr_t          esp_netconn_bind(esp_netconn_p nc, uint16_t port);
+espr_t          esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port);
+espr_t          esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf);
+espr_t          esp_netconn_close(esp_netconn_p nc);
+uint8_t         esp_netconn_getconnnum(esp_netconn_p nc);
 
 /* TCP only */
-espr_t          esp_netconn_listen(esp_netconn_t* nc);
-espr_t          esp_netconn_accept(esp_netconn_t* nc, esp_netconn_t** new_api);
-espr_t          esp_netconn_write(esp_netconn_t* nc, const void* data, size_t btw);
+espr_t          esp_netconn_listen(esp_netconn_p nc);
+espr_t          esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_api);
+espr_t          esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw);
 
 /* UDP only */
-espr_t          esp_netconn_send(esp_netconn_t* nc, const void* data, size_t btw);
-espr_t          esp_netconn_sendto(esp_netconn_t* nc, const void* ip, uint16_t port, const void* data, size_t btw);
+espr_t          esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw);
+espr_t          esp_netconn_sendto(esp_netconn_p nc, const void* ip, uint16_t port, const void* data, size_t btw);
 
 #ifdef __cplusplus
 }

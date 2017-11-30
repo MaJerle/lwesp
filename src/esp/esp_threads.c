@@ -32,12 +32,14 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp_threads.h"
-#include "esp_parser.h"
+#include "include/esp_private.h"
+#include "include/esp_threads.h"
+#include "include/esp_parser.h"
+#include "include/esp_int.h"
+#include "include/esp.h"
+#include "include/esp_mem.h"
+
 #include "esp_sys.h"
-#include "esp_int.h"
-#include "esp.h"
-#include "esp_mem.h"
 
 /**
  * \brief           User input thread to process inputs packets from API functions

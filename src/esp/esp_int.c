@@ -32,9 +32,10 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp.h"
-#include "esp_int.h"
-#include "esp_parser.h"
+#include "include/esp_private.h"
+#include "include/esp.h"
+#include "include/esp_int.h"
+#include "include/esp_parser.h"
 #include "esp_ll.h"
 
 #define IPD_MAX_BUFF_SIZE       1452

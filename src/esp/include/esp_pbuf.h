@@ -49,8 +49,10 @@ extern "C" {
  * \{
  */
     
-esp_pbuf_t*     esp_pbuf_alloc(size_t len);
-uint8_t         esp_pbuf_free(esp_pbuf_t* pbuf);
+esp_pbuf_p      esp_pbuf_alloc(size_t len);
+espr_t          esp_pbuf_free(esp_pbuf_p pbuf);
+const void*     esp_pbuf_data(esp_pbuf_p pbuf);
+size_t          esp_pbuf_length(esp_pbuf_p pbuf);
     
 /**
  * \}

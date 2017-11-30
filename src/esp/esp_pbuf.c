@@ -29,6 +29,7 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
+#include "esp_private.h"
 #include "esp_pbuf.h"
 #include "esp_mem.h"
 
@@ -37,9 +38,9 @@
  * \param[in]       len: Lengtg of payload memory to allocate
  * \return          Pointer to allocated memory or NULL in case of failure
  */
-esp_pbuf_t *
+esp_pbuf_p
 esp_pbuf_alloc(size_t len) {
-    esp_pbuf_t* p;
+    esp_pbuf_p p;
     
     p = esp_mem_calloc(1, ESP_MEM_ALIGN(sizeof(*p)) + len); /* Allocate memory for packet buffer */
     if (p) {
@@ -52,13 +53,33 @@ esp_pbuf_alloc(size_t len) {
 /**
  * \brief           Free previously allocated packet buffer
  * \param[in]       pbuf: Packet buffer to free
- * \return          1 on success, 0 otherwise
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
-uint8_t
-esp_pbuf_free(esp_pbuf_t* pbuf) {
+espr_t
+esp_pbuf_free(esp_pbuf_p pbuf) {
     if (pbuf) {
         esp_mem_free(pbuf);
-        return 1;
+        return espOK;
     }
-    return 0;
+    return espERR;
+}
+
+/**
+ * \brief           Get data pointer from packet buffer
+ * \param[in]       pbuf: Packet buffer
+ * \return          Pointer to data buffer or NULL if invalid buffer
+ */
+const void *
+esp_pbuf_data(esp_pbuf_p pbuf) {
+    return pbuf ? pbuf->payload : NULL;
+}
+
+/**
+ * \brief           Get length of packet buffer
+ * \param[in]       pbuf: Packet buffer
+ * \return          Length of data in units of bytes
+ */
+size_t
+esp_pbuf_length(esp_pbuf_p pbuf) {
+    return pbuf ? pbuf->len : 0;
 }

@@ -32,8 +32,9 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp_netconn.h"
-#include "esp_mem.h"
+#include "include/esp_netconn.h"
+#include "include/esp_private.h"
+#include "include/esp_mem.h"
 
 static uint8_t recv_closed = 0xFF;
 static esp_netconn_t* listen_api;              /* Main connection in listening mode */
@@ -54,7 +55,7 @@ flush_mboxes(esp_netconn_t* nc) {
     }
     if (esp_sys_sem_isvalid(&nc->mbox_accept)) {
         do {
-            if (!esp_sys_mbox_getnow(&nc->mbox_accept, (void *)&nc)) {
+            if (!esp_sys_mbox_getnow(&nc->mbox_accept, (void *)&new_nc)) {
                 esp_netconn_close(nc);          /* Close netconn connection */
             }
         } while (1);
@@ -155,7 +156,7 @@ esp_cb(esp_cb_t* cb) {
  * \brief           Create new netconn connection
  * \return          New netconn connection
  */
-esp_netconn_t*
+esp_netconn_p
 esp_netconn_new(esp_netconn_type_t type) {
     esp_netconn_t* a;
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
@@ -190,7 +191,7 @@ free_ret:
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_delete(esp_netconn_t* nc) {
+esp_netconn_delete(esp_netconn_p nc) {
     ESP_ASSERT("netconn != NULL", nc != NULL);  /* Assert input parameters */
     
     if (esp_sys_mbox_isvalid(&nc->mbox_accept)) {
@@ -211,7 +212,7 @@ esp_netconn_delete(esp_netconn_t* nc) {
  * \return          espOK if successfully connected, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_connect(esp_netconn_t* nc, const char* host, uint16_t port) {
+esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
     espr_t res;
     esp_conn_type_t type;
     
@@ -234,7 +235,7 @@ esp_netconn_connect(esp_netconn_t* nc, const char* host, uint16_t port) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_bind(esp_netconn_t* nc, uint16_t port) {
+esp_netconn_bind(esp_netconn_p nc, uint16_t port) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
     if (esp_set_server(port, 1) != espOK) {     /* Enable server on selected port */
@@ -251,7 +252,7 @@ esp_netconn_bind(esp_netconn_t* nc, uint16_t port) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_listen(esp_netconn_t* nc) {
+esp_netconn_listen(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
     esp_sys_protect();
@@ -267,7 +268,7 @@ esp_netconn_listen(esp_netconn_t* nc) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_accept(esp_netconn_t* nc, esp_netconn_t** new_nc) {
+esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("new_nc != NULL", new_nc != NULL);   /* Assert input parameters */
     
@@ -294,21 +295,21 @@ esp_netconn_accept(esp_netconn_t* nc, esp_netconn_t** new_nc) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_write(esp_netconn_t* nc, const void* data, size_t btw) {
+esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }
 
 espr_t
-esp_netconn_send(esp_netconn_t* nc, const void* data, size_t btw) {
+esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }
 
 espr_t
-esp_netconn_sendto(esp_netconn_t* nc, const void* ip, uint16_t port, const void* data, size_t btw) {
+esp_netconn_sendto(esp_netconn_p nc, const void* ip, uint16_t port, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
     return esp_conn_sendto(nc->conn, ip, port, data, btw, NULL, 1);
@@ -321,14 +322,14 @@ esp_netconn_sendto(esp_netconn_t* nc, const void* ip, uint16_t port, const void*
  * \return          espOK on new data, espCLOSED when connection closed or member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_receive(esp_netconn_t* nc, esp_pbuf_t** pbuf) {
+esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
     uint32_t time;
     
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
     
     time = esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
-    if ((uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
+    if (time == ESP_SYS_TIMEOUT || (uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
         *pbuf = NULL;
         return espCLOSED;
     }
@@ -341,12 +342,19 @@ esp_netconn_receive(esp_netconn_t* nc, esp_pbuf_t** pbuf) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_close(esp_netconn_t* nc) {
-    esp_pbuf_t* pbuf;
+esp_netconn_close(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
     esp_conn_set_arg(nc->conn, NULL);           /* Reset argument */
     esp_conn_close(nc->conn, 1);                /* Close the connection */
     flush_mboxes(nc);                           /* Flush message queues */
     return espOK;
+}
+
+uint8_t
+esp_netconn_getconnnum(esp_netconn_p nc) {
+    if (nc && nc->conn) {
+        return nc->conn->num;
+    }
+    return 0;
 }

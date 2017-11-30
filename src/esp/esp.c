@@ -524,7 +524,7 @@ esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_close(esp_conn_t* conn, uint32_t blocking) {
+esp_conn_close(esp_conn_p conn, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
@@ -546,7 +546,7 @@ esp_conn_close(esp_conn_t* conn, uint32_t blocking) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
+esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
@@ -580,7 +580,7 @@ esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_sendto(esp_conn_t* conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
+esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
@@ -613,7 +613,7 @@ esp_conn_sendto(esp_conn_t* conn, const void* ip, uint16_t port, const void* dat
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_set_arg(esp_conn_t* conn, void* arg) {
+esp_conn_set_arg(esp_conn_p conn, void* arg) {
     esp_sys_protect();
     conn->arg = arg;                            /* Set argument for connection */
     esp_sys_unprotect();
@@ -641,7 +641,7 @@ esp_get_conns_status(uint32_t blocking) {
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-esp_conn_is_client(esp_conn_t* conn) {
+esp_conn_is_client(esp_conn_p conn) {
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     return conn->status.f.active && conn->status.f.client;  /* Return client status */
 }
@@ -652,7 +652,7 @@ esp_conn_is_client(esp_conn_t* conn) {
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-esp_conn_is_server(esp_conn_t* conn) {
+esp_conn_is_server(esp_conn_p conn) {
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     return conn->status.f.active && !conn->status.f.client; /* Return server status */
 }
@@ -663,7 +663,7 @@ esp_conn_is_server(esp_conn_t* conn) {
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-esp_conn_is_active(esp_conn_t* conn) {
+esp_conn_is_active(esp_conn_p conn) {
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     return conn->status.f.active;               /* Return active status */
 }
@@ -674,9 +674,15 @@ esp_conn_is_active(esp_conn_t* conn) {
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-esp_conn_is_closed(esp_conn_t* conn) {
+esp_conn_is_closed(esp_conn_p conn) {
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     return !conn->status.f.active;              /* Return closed status */
+}
+
+uint8_t
+esp_conn_getnum(esp_conn_p conn) {
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
+    return conn->num;
 }
 
 espr_t
@@ -726,3 +732,15 @@ esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
+/**
+ * \brief           Check if ESP got IP from access point
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_sta_has_ip(void) {
+    uint8_t res;
+    esp_sys_protect();
+    res = esp.status.f.r_got_ip;
+    esp_sys_unprotect();
+    return res ? espOK : espERR;
+}

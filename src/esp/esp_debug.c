@@ -29,8 +29,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp.h"
-#include "esp_debug.h"
+#include "include/esp_private.h"
+#include "include/esp.h"
+#include "include/esp_debug.h"
 
 #if ESP_DBG || defined(__DOXYGEN__)
     

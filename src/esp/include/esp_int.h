@@ -1,6 +1,6 @@
 /**
- * \file            esp_at.h
- * \brief           AT commands parser
+ * \file            esp_int.h
+ * \brief           Internal functions
  */
 
 /*
@@ -31,14 +31,16 @@
  *
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_AT_H
-#define __ESP_AT_H
+#ifndef __ESP_INT_H
+#define __ESP_INT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 #ifdef ESP_INTERNAL
+
+#include "esp_private.h"
 
 espr_t      espi_process(void);
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
@@ -49,4 +51,4 @@ espr_t      espi_initiate_cmd(esp_msg_t* msg);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_AT_H */
+#endif /* __ESP_INT_H */
