@@ -152,6 +152,7 @@ typedef espr_t  (*esp_cb_func_t)(struct esp_cb_t* cb);
  * \brief           Connection structure
  */
 typedef struct {
+    esp_conn_type_t type;                       /*!< Connection type */
     uint8_t         num;                        /*!< Connection number */
     uint8_t         remote_ip[4];               /*!< Remote IP address */
     uint16_t        remote_port;                /*!< Remote port number */
@@ -264,6 +265,8 @@ typedef struct esp_msg {
             size_t sent;                        /*!< Number of bytes sent in last packet */
             uint8_t tries;                      /*!< Number of tries used for last packet */
             uint8_t wait_send_ok_err;           /*!< Set to 1 when we wait for SEND OK or SEND ERROR */
+            const uint8_t* remote_ip;           /*!< Remote IP address for UDP connection */
+            uint16_t remote_port;               /*!< Remote port address for UDP connection */
         } conn_send;                            /*!< Structure to send data on connection */
         
         /*
@@ -389,10 +392,9 @@ extern esp_t esp;
 #define ESP_CHARISHEXNUM(x)                 (((x) >= '0' && (x) <= '9') || ((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F'))
 #define ESP_CHARTONUM(x)                    ((x) - '0')
 #define ESP_CHARHEXTONUM(x)                 (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (((x) >= 'a' && (x) <= 'f') ? ((x) - 'a' + 10) : (((x) >= 'A' && (x) <= 'F') ? ((x) - 'A' + 10) : 0)))
-#define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
 #define ESP_MIN(x, y)                       ((x) < (y) ? (x) : (y))
 #define ESP_MAX(x, y)                       ((x) > (y) ? (x) : (y))
-
+#define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
 #define ESP_UNUSED(x)                       ((void)(x))
 
 #define ESP_ASSERT(msg, c)   do {   \
@@ -447,6 +449,7 @@ espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
 espr_t      esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16_t port, void* arg, esp_cb_func_t cb_func, uint32_t blocking);
 espr_t      esp_conn_close(esp_conn_t* conn, uint32_t blocking);
 espr_t      esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32_t blocking);
+espr_t      esp_conn_sendto(esp_conn_t* conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking);
 espr_t      esp_conn_set_ssl_buffer(size_t size, uint32_t blocking);
 espr_t      esp_conn_set_arg(esp_conn_t* conn, void* arg);
 uint8_t     esp_conn_is_client(esp_conn_t* conn);

@@ -569,6 +569,44 @@ esp_conn_send(esp_conn_t* conn, const void* data, size_t btw, size_t* bw, uint32
 }
 
 /**
+ * \brief           Send data on already active connection of type UDP to specific remote IP and port
+ * \param[in]       conn: Pointer to connection to send data
+ * \param[in]       ip: Remote IP address for UDP connection
+ * \param[in]       ip: Remote port connection
+ * \param[in]       data: Pointer to data to send
+ * \param[in]       btw: Number of bytes to send
+ * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_conn_sendto(esp_conn_t* conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
+    ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
+    ESP_ASSERT("conn > 0", btw > 0);            /* Assert input parameters */
+    ESP_ASSERT("IP != 0", ip != NULL);          /* Assert input parameters */
+    ESP_ASSERT("PORT != 0", port);              /* Assert input parameters */
+    
+    if (bw) {
+        *bw = 0;
+    }
+    
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
+    
+    ESP_MSG_VAR_REF(msg).msg.conn_send.conn = conn;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.data = data;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.btw = btw;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.bw = bw;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
+    
+    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+}
+
+/**
  * \brief           Set argument variable for connection
  * \param[in]       conn: Pointer to connection to set argument
  * \param[in]       arg: Pointer to argument
