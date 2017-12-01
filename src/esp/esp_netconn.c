@@ -39,6 +39,10 @@
 static uint8_t recv_closed = 0xFF;
 static esp_netconn_t* listen_api;              /* Main connection in listening mode */
 
+/**
+ * \brief           Flush all mboxes and clear possible used memories
+ * \param[in]       nc: Pointer to netconn to flush
+ */
 static void
 flush_mboxes(esp_netconn_t* nc) {
     esp_pbuf_t* pbuf;
@@ -56,7 +60,10 @@ flush_mboxes(esp_netconn_t* nc) {
     if (esp_sys_sem_isvalid(&nc->mbox_accept)) {
         do {
             if (!esp_sys_mbox_getnow(&nc->mbox_accept, (void *)&new_nc)) {
-                esp_netconn_close(nc);          /* Close netconn connection */
+                break;
+            }
+            if (new_nc) {
+                esp_netconn_close(new_nc);      /* Close netconn connection */
             }
         } while (1);
     }
