@@ -153,6 +153,7 @@ espr_t      esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t bl
 espr_t      esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_copy_ip(void* ip);
 
 espr_t      esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
 espr_t      esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);

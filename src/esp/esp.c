@@ -32,11 +32,11 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp.h"
-#include "esp_int.h"
-#include "esp_mem.h"
-#include "esp_ll.h"
-#include "esp_threads.h"
+#include "include/esp.h"
+#include "include/esp_int.h"
+#include "include/esp_mem.h"
+#include "include/esp_ll.h"
+#include "include/esp_threads.h"
 
 esp_t esp;
 
@@ -723,7 +723,7 @@ esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
     
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("time != NULL", time != NULL);   /* Assert input parameters */
-    
+		
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_PING;
     ESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
@@ -743,4 +743,16 @@ esp_sta_has_ip(void) {
     res = esp.status.f.r_got_ip;
     esp_sys_unprotect();
     return res ? espOK : espERR;
+}
+
+espr_t
+esp_sta_copy_ip(void* ip) {
+    uint8_t res = espERR;
+    esp_sys_protect();
+    if (esp_sta_has_ip() == espOK) {
+        memcpy(ip, esp.sta.ip, 4);
+        res = espOK;
+    }
+    esp_sys_unprotect();
+    return res;
 }

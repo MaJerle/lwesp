@@ -464,9 +464,9 @@ espi_parse_received(esp_recv_t* rcv) {
         if (esp.msg) {                          /* Do we have active message? */
             res = espi_process_sub_cmd(esp.msg, is_ok, is_error, is_ready);
             if (res != espCONT) {
-                if (is_ok || is_ready) {            /* Check ready or ok status */
+                if (is_ok || is_ready) {        /* Check ready or ok status */
                     res = esp.msg->res = espOK;
-                } else {                            /* Or error status */
+                } else {                        /* Or error status */
                     res = esp.msg->res = espERR;
                 }
             } else {
@@ -563,10 +563,10 @@ espi_process(void) {
                         case '\n':
                             RECV_ADD(ch);       /* Add character to input buffer */
                             espi_parse_received(&recv); /* Parse received string */
-                            RECV_RESET();           /* Reset received string */
+                            RECV_RESET();       /* Reset received string */
                             break;
                         default:
-                            RECV_ADD(ch);           /* Any ASCII valid character */
+                            RECV_ADD(ch);       /* Any ASCII valid character */
                             break;
                     }
                     
@@ -575,7 +575,7 @@ espi_process(void) {
                      */
                     if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
                         if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
-                            RECV_RESET();           /* Reset received object */
+                            RECV_RESET();       /* Reset received object */
                             
                             /**
                              * Now actually send the data prepared before
@@ -591,7 +591,7 @@ espi_process(void) {
                      */
                     if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv.data, "+IPD", 4)) {
                         espi_parse_received(&recv); /* Parse received string */
-                        if (esp.ipd.read) {         /* Are we going into read mode? */
+                        if (esp.ipd.read) {     /* Are we going into read mode? */
                             size_t len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
                             if (esp.ipd.conn->status.f.active) {
                                 esp.ipd.buff = esp_pbuf_alloc(len); /* Allocate new packet buffer */
@@ -600,7 +600,7 @@ espi_process(void) {
                             }
                             ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)len);
                         }
-                        esp.ipd.buff_ptr = 0;
+                        esp.ipd.buff_ptr = 0;   /* Reset buffer write pointer */
                         RECV_RESET();           /* Reset received buffer */
                     }
                 } else {                        /* In case of UTF-8 sequence, you can only add them to receive */
