@@ -256,6 +256,9 @@ typedef struct esp_msg {
             uint32_t* time;                     /*!< Pointer to time variable */
         } tcpip_ping;                           /*!< Pinging structure */
         struct {
+            size_t size;                        /*!< Size for SSL in uints of bytes */
+        } tcpip_sslsize;                        /*!< TCP SSL size for SSL connections */
+        struct {
             const char* host;                   /*!< Hostname to resolve IP address for */
             uint8_t* ip;                        /*!< Pointer to IP address to save result */
         } dns_getbyhostname;                    /*!< DNS function */
@@ -321,6 +324,16 @@ typedef struct {
     } status;                                   /*!< Status structure */
 } esp_t;
 
+/**
+ * \brief           Unicode support structure
+ */
+typedef struct esp_unicode_t {
+    uint8_t ch[4];                              /*!< UTF-8 max characters */
+    uint8_t t;                                  /*!< Total expected length in UTF-8 sequence */
+    uint8_t r;                                  /*!< Remaining bytes in UTF-8 sequence */
+    espr_t res;                                 /*!< Current result of processing */
+} esp_unicode_t;
+
 extern esp_t esp;
 
 #define ESP_CHARISNUM(x)                    ((x) >= '0' && (x) <= '9')
@@ -339,7 +352,18 @@ extern esp_t esp;
     }                               \
 } while (0)
 
+/**
+ * System protection macros
+ */
+#define ESP_CORE_UNPROTECT()                esp_sys_unprotect()
+#define ESP_CORE_PROTECT()                  esp_sys_protect()
+
 const char * espi_dbg_msg_to_string(esp_cmd_t cmd);
+
+espr_t      espi_process(void);
+espr_t      espi_initiate_cmd(esp_msg_t* msg);
+
+uint8_t     espi_is_valid_conn_ptr(esp_conn_p conn);
 
 #endif /* ESP_INTERNAL */
 

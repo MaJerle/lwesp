@@ -1,5 +1,5 @@
 /**
- * \file            esp_init.h
+ * \file            esp_input.h
  * \brief           Initialization process
  */
 
@@ -46,4 +46,4 @@ espr_t      esp_input(const void* data, size_t len);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_INIT_H */
+#endif /* __ESP_INPUT_H */

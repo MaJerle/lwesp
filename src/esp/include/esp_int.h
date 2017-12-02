@@ -41,9 +41,6 @@ extern "C" {
 #ifdef ESP_INTERNAL
 
 #include "esp_private.h"
-
-espr_t      espi_process(void);
-espr_t      espi_initiate_cmd(esp_msg_t* msg);
     
 #endif /* ESP_INTERNAL */
 
