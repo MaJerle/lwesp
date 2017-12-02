@@ -29,8 +29,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp_buff.h"
-#include "esp_mem.h"
+#include "include/esp_buff.h"
+#include "include/esp_mem.h"
 
 /**
  * \brief           Initialize buffer

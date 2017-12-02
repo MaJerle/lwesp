@@ -29,9 +29,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp_private.h"
-#include "esp_pbuf.h"
-#include "esp_mem.h"
+#include "include/esp_private.h"
+#include "include/esp_pbuf.h"
+#include "include/esp_mem.h"
 
 /**
  * \brief           Allocate packet buffer for network data of specific size

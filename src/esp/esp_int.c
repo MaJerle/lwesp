@@ -36,6 +36,7 @@
 #include "include/esp.h"
 #include "include/esp_int.h"
 #include "include/esp_parser.h"
+#include "include/esp_unicode.h"
 #include "esp_ll.h"
 
 #define IPD_MAX_BUFF_SIZE       1452
@@ -142,9 +143,28 @@ send_string(const char* str, uint8_t e, uint8_t q) {
 }
 
 /**
+ * \brief           Send number (decimal) to AT port
+ * \param[in]       num: Number to send to AT port
+ * \param[in]       q: Value to indicate starting and ending quotes, enabled (1) or disabled (0)
+ */
+static void
+send_number(uint32_t num, uint8_t q) {
+    char str[11];
+    
+    number_to_str(num, str);                    /* Convert digit to decimal string */
+    if (q) {
+        ESP_AT_PORT_SEND_STR("\"");
+    }
+    ESP_AT_PORT_SEND_STR(str);                  /* Send string with number */
+    if (q) {
+        ESP_AT_PORT_SEND_STR("\"");
+    }
+}
+
+/**
  * \brief           Check if received string includes "_CUR" or "_DEF" as current or default setup
  * \param[in]       str: Pointer to string to test
- * \return          1 if current setting, 0 if default setting
+ * \return          1 if current setting, 0 otherwise
  */
 static uint8_t
 is_received_current_setting(const char* str) {
@@ -172,17 +192,17 @@ espi_send_conn_cb(esp_conn_t* conn) {
  */
 static espr_t
 espi_tcpip_process_send_data(void) {
-    char str[6];
+    char ch;
+    
     if (!esp_conn_is_active(esp.msg->msg.conn_send.conn)) {
         return espERR;
     }
-    str[0] = esp.msg->msg.conn_send.conn->num + '0';
+    ch = esp.msg->msg.conn_send.conn->num + '0';
     ESP_AT_PORT_SEND_STR("AT+CIPSEND=");
-    ESP_AT_PORT_SEND_CHR(str);
+    ESP_AT_PORT_SEND_CHR(&ch);
     ESP_AT_PORT_SEND_STR(",");
     esp.msg->msg.conn_send.sent = esp.msg->msg.conn_send.btw > 2048 ? 2048 : esp.msg->msg.conn_send.btw;
-    number_to_str(esp.msg->msg.conn_send.sent, str);
-    ESP_AT_PORT_SEND_STR(str);
+    send_number(esp.msg->msg.conn_send.sent, 0);    /* Send length number */
     
     if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {
         const uint8_t* ip = esp.msg->msg.conn_send.remote_ip;   /* Get remote IP */
@@ -192,9 +212,7 @@ espi_tcpip_process_send_data(void) {
             ESP_AT_PORT_SEND_STR(",");
             send_ip_mac(ip, 1, 1);              /* Send IP address including quotes */
             ESP_AT_PORT_SEND_STR(",");
-            
-            number_to_str(port, str);
-            ESP_AT_PORT_SEND_STR(str);
+            send_number(port, 0);               /* Send length number */
         }
     }
     ESP_AT_PORT_SEND_STR("\r\n");
@@ -485,11 +503,17 @@ espi_parse_received(esp_recv_t* rcv) {
 espr_t
 espi_process(void) {
     uint8_t ch;
-    size_t len;
-    static uint8_t ch_prev1, ch_prev2, utf8_ch[4], utf8_len;
+    static uint8_t ch_prev1, ch_prev2;
+    static esp_unicode_t unicode;
     
     while (esp_buff_read(&esp.buff, &ch, 1)) {  /* Read entire set of characters from buffer */
+        /**
+         * First check if we are in IPD mode and process plain data
+         * without checking for valid ASCII or unicode format
+         */
         if (esp.ipd.read) {                     /* Do we have to read incoming IPD data? */
+            size_t len;
+            
             if (esp.ipd.buff) {                 /* Do we have active buffer? */
                 esp.ipd.buff->payload[esp.ipd.buff_ptr] = ch;   /* Save data character */
             }
@@ -549,16 +573,26 @@ espi_process(void) {
                 }
                 esp.ipd.buff_ptr = 0;           /* Reset input buffer pointer */
             }
+            
+        /**
+         * We are in command mode where we have to process byte by byte
+         * Simply check for ASCII and unicode format and process data accordingly
+         */
         } else {
-            uint8_t process = 0, len = 0;
-            if (ESP_ISVALIDASCII(ch)) {         /* Check for valid character */
-                process = 1;
-                len = 1;
-            } else if (1) {                     /* Add support for UTF-8 valid characters */
-                RECV_RESET();                   /* Reset received string */
+            espr_t res = espERR;
+            if (ESP_ISVALIDASCII(ch)) {         /* Manually check if valid ASCII character */
+                res = espOK;
+                unicode.t = 1;                  /* Manually set total to 1 */
+                unicode.r = 0;                  /* Reset remaining bytes */
+            } else if (ch >= 0x80) {            /* Process only if more than ASCII can hold */
+                res = espi_unicode_decode(&unicode, ch);    /* Try to decode unicode format */
             }
-            if (process) {                      /* Can we process the character(s) */
-                if (len == 1) {
+            
+            if (res == espERR) {                /* In case of an ERROR */
+                unicode.r = 0;
+            }
+            if (res == espOK) {                 /* Can we process the character(s) */
+                if (unicode.t == 1) {           /* Totally 1 character? */
                     switch (ch) {
                         case '\n':
                             RECV_ADD(ch);       /* Add character to input buffer */
@@ -603,9 +637,14 @@ espi_process(void) {
                         esp.ipd.buff_ptr = 0;   /* Reset buffer write pointer */
                         RECV_RESET();           /* Reset received buffer */
                     }
-                } else {                        /* In case of UTF-8 sequence, you can only add them to receive */
-                
+                } else {                        /* We have sequence of unicode characters */
+                    uint8_t i;
+                    for (i = 0; i < unicode.t; i++) {
+                        RECV_ADD(unicode.ch[i]);    /* Add character to receive array */
+                    }
                 }
+            } else if (res != espINPROG) {      /* Not in progress? */
+                RECV_RESET();                   /* Invalid character in sequence */
             }
         }
         
@@ -654,11 +693,21 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         } else if (msg->i == 1 && msg->cmd == ESP_CMD_TCPIP_CIPSTART) {
             msg->cmd = ESP_CMD_TCPIP_CIPSTATUS; /* Go to status mode */
             if (is_ok) {
-                espi_initiate_cmd(msg);         /* Get connection status */
-                return espCONT;
+                if (espi_initiate_cmd(msg) == espOK) {  /* Get connection status */
+                    return espCONT;
+                }
             }
         } else if (msg->i == 2 && msg->cmd == ESP_CMD_TCPIP_CIPSTATUS) {
             
+        }
+    } else if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_SET) {
+        if (msg->i == 0 && msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
+            if (is_ok) {
+                msg->cmd = ESP_CMD_WIFI_CIPSTA_GET;
+                if (espi_initiate_cmd(msg) == espOK) {
+                    return espCONT;
+                }
+            }
         }
     }
     return is_ok || is_ready ? espOK : espERR;
@@ -918,9 +967,33 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+        case ESP_CMD_TCPIP_CIPSSLSIZE: {        /* Set SSL size */
+            char str[12];
+            ESP_AT_PORT_SEND_STR("AT+CIPSSLSIZE=");
+            number_to_str(msg->msg.tcpip_sslsize.size, str);
+            ESP_AT_PORT_SEND_STR(str);
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
         
         default: 
             return espERR;                      /* Invalid command */
     }
     return espOK;                               /* Valid command */
+}
+
+/**
+ * \brief           Checks if connection pointer has valid address
+ * \param[in]       conn: Address to check if valid connection ptr
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+espi_is_valid_conn_ptr(esp_conn_p conn) {
+    uint8_t i = 0;
+    for (i = 0; i < sizeof(esp.conns) / sizeof(esp.conns[0]); i++) {
+        if (conn == &esp.conns[i]) {
+            return 1;
+        }
+    }
+    return 0;
 }

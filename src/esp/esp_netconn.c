@@ -262,9 +262,9 @@ espr_t
 esp_netconn_listen(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
-    esp_sys_protect();
-    listen_api = nc;                           /* Set current main API in listening state */
-    esp_sys_unprotect();
+    ESP_CORE_PROTECT();
+    listen_api = nc;                            /* Set current main API in listening state */
+    ESP_CORE_UNPROTECT();
     return espOK;
 }
 

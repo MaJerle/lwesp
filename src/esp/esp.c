@@ -184,6 +184,12 @@ esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking) {
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
+/******************************************************************************/
+/******************************************************************************/
+/***                        Station related functions                        **/
+/******************************************************************************/
+/******************************************************************************/
+
 /**
  * \brief           Quit (disconnect) from access point
  * \param[in]       blocking: Status whether command should be blocking or not
@@ -308,6 +314,51 @@ esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking) {
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
+/**
+ * \brief           Check if ESP got IP from access point
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_sta_has_ip(void) {
+    uint8_t res;
+    ESP_CORE_PROTECT();
+    res = esp.status.f.r_got_ip;
+    ESP_CORE_UNPROTECT();
+    return res ? espOK : espERR;
+}
+
+/**
+ * \brief           Copies IP address from internal value for user
+ * \note            In case you want to refresh actual value from ESP device, use \ref esp_sta_getip function
+ * \param[out]      ip: Pointer to output IP variable. Set to NULL if not interested in IP address
+ * \param[out]      gw: Pointer to output gateway variable. Set to NULL if not interested in gateway address
+ * \param[out]      nm: Pointer to output netmask variable. Set to NULL if not interested in netmask address
+ */
+espr_t
+esp_sta_copy_ip(void* ip, void* gw, void* nm) {
+    espr_t res = espERR;
+    if ((ip || gw || nm) && esp_sta_has_ip() == espOK) {    /* Do we have a valid IP address? */
+        ESP_CORE_PROTECT();                     /* Protect ESP core */
+        if (ip) {
+            memcpy(ip, esp.sta.ip, 4);          /* Copy IP address */
+        }
+        if (gw) {
+            memcpy(gw, esp.sta.gw, 4);          /* Copy gateway address */
+        }
+        if (nm) {
+            memcpy(nm, esp.sta.nm, 4);          /* Copy netmask address */
+        }
+        res = espOK;
+        ESP_CORE_UNPROTECT();                   /* Unprotect ESP core */
+    }
+    return res;
+}
+
+/******************************************************************************/
+/******************************************************************************/
+/***                      Access point related functions                     **/
+/******************************************************************************/
+/******************************************************************************/
 
 /**
  * \brief           Get access point IP address
@@ -483,11 +534,17 @@ esp_set_server(uint16_t port, uint32_t blocking) {
  */
 espr_t
 esp_set_default_server_callback(esp_cb_func_t cb_func) {
-    esp_sys_protect();                          /* Protect system */
+    ESP_CORE_PROTECT();                         /* Protect system */
     esp.cb_server = cb_func ? cb_func : esp.cb_func;    /* Set default callback */
-    esp_sys_unprotect();                        /* Release system */
+    ESP_CORE_UNPROTECT();                       /* Unprotect system */
     return espOK;
 }
+
+/******************************************************************************/
+/******************************************************************************/
+/***                       Connection related functions                      **/
+/******************************************************************************/
+/******************************************************************************/
 
 /**
  * \brief           Starts a new connection of specific type
@@ -537,39 +594,8 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
 }
 
 /**
- * \brief           Send data on already active connection either as client or server
- * \param[in]       conn: Pointer to connection to send data
- * \param[in]       data: Pointer to data to send
- * \param[in]       btw: Number of bytes to send
- * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
- * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
- */
-espr_t
-esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
-    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
-    ESP_ASSERT("conn > 0", btw > 0);            /* Assert input parameters */
-    
-    if (bw) {
-        *bw = 0;
-    }
-    
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
-    
-    ESP_MSG_VAR_REF(msg).msg.conn_send.conn = conn;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.data = data;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.btw = btw;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.bw = bw;
-    
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
-}
-
-/**
  * \brief           Send data on already active connection of type UDP to specific remote IP and port
+ * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP too)
  * \param[in]       conn: Pointer to connection to send data
  * \param[in]       ip: Remote IP address for UDP connection
  * \param[in]       ip: Remote port connection
@@ -586,8 +612,6 @@ esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
     ESP_ASSERT("conn > 0", btw > 0);            /* Assert input parameters */
-    ESP_ASSERT("IP != 0", ip != NULL);          /* Assert input parameters */
-    ESP_ASSERT("PORT != 0", port);              /* Assert input parameters */
     
     if (bw) {
         *bw = 0;
@@ -607,6 +631,20 @@ esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data
 }
 
 /**
+ * \brief           Send data on already active connection either as client or server
+ * \param[in]       conn: Pointer to connection to send data
+ * \param[in]       data: Pointer to data to send
+ * \param[in]       btw: Number of bytes to send
+ * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
+    return esp_conn_sendto(conn, NULL, 0, data, btw, bw, blocking);
+}
+
+/**
  * \brief           Set argument variable for connection
  * \param[in]       conn: Pointer to connection to set argument
  * \param[in]       arg: Pointer to argument
@@ -614,9 +652,9 @@ esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data
  */
 espr_t
 esp_conn_set_arg(esp_conn_p conn, void* arg) {
-    esp_sys_protect();
+    ESP_CORE_PROTECT();
     conn->arg = arg;                            /* Set argument for connection */
-    esp_sys_unprotect();
+    ESP_CORE_UNPROTECT();
     return espOK;
 }
 
@@ -642,8 +680,13 @@ esp_get_conns_status(uint32_t blocking) {
  */
 uint8_t
 esp_conn_is_client(esp_conn_p conn) {
-    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    return conn->status.f.active && conn->status.f.client;  /* Return client status */
+    uint8_t res = 0;
+    if (conn && espi_is_valid_conn_ptr(conn)) {
+        ESP_CORE_PROTECT();
+        res = conn->status.f.active && conn->status.f.client;
+        ESP_CORE_UNPROTECT();
+    }
+    return res;
 }
 
 /**
@@ -653,8 +696,13 @@ esp_conn_is_client(esp_conn_p conn) {
  */
 uint8_t
 esp_conn_is_server(esp_conn_p conn) {
-    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    return conn->status.f.active && !conn->status.f.client; /* Return server status */
+    uint8_t res = 0;
+    if (conn && espi_is_valid_conn_ptr(conn)) {
+        ESP_CORE_PROTECT();
+        res = conn->status.f.active && !conn->status.f.client;
+        ESP_CORE_UNPROTECT();
+    }
+    return res;
 }
 
 /**
@@ -664,8 +712,13 @@ esp_conn_is_server(esp_conn_p conn) {
  */
 uint8_t
 esp_conn_is_active(esp_conn_p conn) {
-    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    return conn->status.f.active;               /* Return active status */
+    uint8_t res = 0;
+    if (conn && espi_is_valid_conn_ptr(conn)) {
+        ESP_CORE_PROTECT();
+        res = conn->status.f.active;
+        ESP_CORE_UNPROTECT();
+    }
+    return res;
 }
 
 /**
@@ -675,18 +728,46 @@ esp_conn_is_active(esp_conn_p conn) {
  */
 uint8_t
 esp_conn_is_closed(esp_conn_p conn) {
-    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    return !conn->status.f.active;              /* Return closed status */
+    uint8_t res = 0;
+    if (conn && espi_is_valid_conn_ptr(conn)) {
+        ESP_CORE_PROTECT();
+        res = !conn->status.f.active;
+        ESP_CORE_UNPROTECT();
+    }
+    return res;
 }
 
-uint8_t
+/**
+ * \brief           Get the number from connection
+ * \param[in]       conn: Connection pointer
+ * \return          Connection number in case of success or -1 on failure
+ */
+int8_t
 esp_conn_getnum(esp_conn_p conn) {
-    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    return conn->num;
+    int8_t res = -1;
+    if (conn && espi_is_valid_conn_ptr(conn)) {
+        /* Protection not needed as every connection has always the same number */
+        res = conn->num;                        /* Get number */
+    }
+    return res;
 }
 
+/**
+ * \brief           Set internal buffer size for SSL connection on ESP device
+ * \note            Use this function first before you initialize first SSL connection
+ * \param[in]       size: Size of buffer in units of bytes. Valid range is between 2048 and 4096 bytes
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
-esp_conn_set_ssl_buffer(size_t size, uint32_t blocking);
+esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLSIZE;
+    ESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
+    
+    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+}
 
 /**
  * \brief           Get IP address from host name
@@ -696,7 +777,7 @@ esp_conn_set_ssl_buffer(size_t size, uint32_t blocking);
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_dns_getbyhostname(const char* host, uint8_t* ip, uint32_t blocking) {
+esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
@@ -730,29 +811,4 @@ esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.tcpip_ping.time = time;
     
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
-}
-
-/**
- * \brief           Check if ESP got IP from access point
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
- */
-espr_t
-esp_sta_has_ip(void) {
-    uint8_t res;
-    esp_sys_protect();
-    res = esp.status.f.r_got_ip;
-    esp_sys_unprotect();
-    return res ? espOK : espERR;
-}
-
-espr_t
-esp_sta_copy_ip(void* ip) {
-    uint8_t res = espERR;
-    esp_sys_protect();
-    if (esp_sta_has_ip() == espOK) {
-        memcpy(ip, esp.sta.ip, 4);
-        res = espOK;
-    }
-    esp_sys_unprotect();
-    return res;
 }

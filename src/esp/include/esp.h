@@ -139,7 +139,6 @@ typedef struct esp_cb_t {
 espr_t      esp_reset(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
-espr_t      esp_get_conns_status(uint32_t blocking);
 espr_t      esp_set_mux(uint8_t mux, uint32_t blocking);
 
 espr_t      esp_set_server(uint16_t port, uint32_t blocking);
@@ -153,7 +152,8 @@ espr_t      esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t bl
 espr_t      esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_copy_ip(void* ip);
+espr_t      esp_sta_has_ip(void);
+espr_t      esp_sta_copy_ip(void* ip, void* gw, void* nm);
 
 espr_t      esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
 espr_t      esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
@@ -162,11 +162,10 @@ espr_t      esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking);
 
 espr_t      esp_ap_list(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);
 
-espr_t      esp_dns_getbyhostname(const char* host, uint8_t* ip, uint32_t blocking);
+espr_t      esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking);
 
 espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
 
-espr_t      esp_sta_has_ip(void);
 
 /**
  * \defgroup        esp_netconn_CONN Connection API
@@ -178,13 +177,14 @@ espr_t      esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* h
 espr_t      esp_conn_close(esp_conn_p conn, uint32_t blocking);
 espr_t      esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking);
 espr_t      esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking);
-espr_t      esp_conn_set_ssl_buffer(size_t size, uint32_t blocking);
 espr_t      esp_conn_set_arg(esp_conn_p conn, void* arg);
 uint8_t     esp_conn_is_client(esp_conn_p conn);
 uint8_t     esp_conn_is_server(esp_conn_p conn);
 uint8_t     esp_conn_is_active(esp_conn_p conn);
 uint8_t     esp_conn_is_closed(esp_conn_p conn);
-uint8_t     esp_conn_getnum(esp_conn_p conn);
+int8_t      esp_conn_getnum(esp_conn_p conn);
+espr_t      esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking);
+espr_t      esp_get_conns_status(uint32_t blocking);
  
 /**
  * \}
