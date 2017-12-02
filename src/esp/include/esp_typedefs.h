@@ -1,5 +1,5 @@
 /**
-* \file            esp_init.h
+* \file            esp_typedef.h
 *
 * Copyright (c) 2017, Tilen MAJERLE
 * All rights reserved.
@@ -53,6 +53,7 @@ typedef enum {
     espNOFREECONN,                              /*!< There is no free connection available to start */
     espCONT,                                    /*!< There is still some command to be processed in current command */
     espCLOSED,                                  /*!< Connection just closed */
+    espINPROG,                                  /*!< Operation is in progress */
 } espr_t;
 
 /**
