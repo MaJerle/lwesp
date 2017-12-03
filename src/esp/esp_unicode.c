@@ -34,7 +34,11 @@
 
 /**
  * \brief           Decode single character for unicode (UTF-8 only) format
- *
+ * \param[in,out]   s: Pointer to unicode decode control structure
+ * \param[in]       c: UTF-8 character sequence to test for device
+ * \retval          espOK: Function succedded, there is a valid UTF-8 sequence
+ * \retval          espINPROG: Function continues well but expects some more data to finish sequence
+ * \retval          espERR: Error in UTF-8 sequence
  */
 espr_t
 espi_unicode_decode(esp_unicode_t* s, uint8_t c) {

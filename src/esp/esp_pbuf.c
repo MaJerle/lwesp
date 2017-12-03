@@ -35,7 +35,7 @@
 
 /**
  * \brief           Allocate packet buffer for network data of specific size
- * \param[in]       len: Lengtg of payload memory to allocate
+ * \param[in]       len: Length of payload memory to allocate
  * \return          Pointer to allocated memory or NULL in case of failure
  */
 esp_pbuf_p
@@ -43,8 +43,8 @@ esp_pbuf_alloc(size_t len) {
     esp_pbuf_p p;
     
     p = esp_mem_calloc(1, ESP_MEM_ALIGN(sizeof(*p)) + len); /* Allocate memory for packet buffer */
-    ESP_DEBUGW(ESP_DBG_PBUF, p == NULL, "Failed to allocate pbuf %d bytes\r\n", (int)len);
-    ESP_DEBUGW(ESP_DBG_PBUF, p != NULL, "Allocated pbuf %d bytes\r\n", (int)len);
+    ESP_DEBUGW(ESP_DBG_PBUF, p == NULL, "PBUF: Failed to allocate %d bytes\r\n", (int)len);
+    ESP_DEBUGW(ESP_DBG_PBUF, p != NULL, "PBUF: Allocated %d bytes\r\n", (int)len);
     if (p) {
         p->len = len;                           /* Set payload length */
         p->payload = (uint8_t *)(((char *)p) + ESP_MEM_ALIGN(sizeof(*p)));  /* Set pointer to payload data */
@@ -60,7 +60,7 @@ esp_pbuf_alloc(size_t len) {
 espr_t
 esp_pbuf_free(esp_pbuf_p pbuf) {
     if (pbuf) {
-        ESP_DEBUGF(ESP_DBG_PBUF, "Freeing pbuf len %d bytes\r\n", (int)pbuf->len);
+        ESP_DEBUGF(ESP_DBG_PBUF, "PBUF: Free pbuf len %d bytes\r\n", (int)pbuf->len);
         esp_mem_free(pbuf);
         return espOK;
     }

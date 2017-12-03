@@ -151,7 +151,7 @@ typedef struct {
     uint8_t             read;                   /*!< Set to 1 when we should process input data as connection data */
     size_t              tot_len;                /*!< Total length of packet */
     size_t              rem_len;                /*!< Remaining bytes to read in current +IPD statement */
-    esp_conn_p         conn;                    /*!< Pointer to connection for network data */
+    esp_conn_p          conn;                   /*!< Pointer to connection for network data */
     
     size_t              buff_ptr;               /*!< Buffer pointer to save data to */
     esp_pbuf_p          buff;                   /*!< Pointer to data buffer used for receiving data */

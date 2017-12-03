@@ -41,10 +41,31 @@ extern "C" {
 
 #include "esp.h"
 
+/**
+ * \addtogroup      ESP
+ * \{
+ */
+
+/**
+ * \defgroup        ESP_NETCONN Network connection
+ * \brief           Network connection
+ * \{
+ *
+ * Netconn provides sequential API to work with connection 
+ * in either server or client mode.
+ *
+ * To use netconn API, RTOS support is mandatory,
+ * because entire communication is done using RTOS
+ * message queues and semaphores.
+ */
+ 
+/**
+ * \brief           Netconn connection type
+ */
 typedef enum {
-    ESP_NETCONN_TYPE_TCP,
-    ESP_NETCONN_TYPE_UDP,
-    ESP_NETCONN_TYPE_SSL,
+    ESP_NETCONN_TYPE_TCP,                       /*!< TCP connection */
+    ESP_NETCONN_TYPE_SSL,                       /*!< SSL connection */
+    ESP_NETCONN_TYPE_UDP,                       /*!< UDP connection */
 } esp_netconn_type_t;
 
 struct esp_netconn_t;
@@ -56,7 +77,7 @@ espr_t          esp_netconn_bind(esp_netconn_p nc, uint16_t port);
 espr_t          esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port);
 espr_t          esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf);
 espr_t          esp_netconn_close(esp_netconn_p nc);
-uint8_t         esp_netconn_getconnnum(esp_netconn_p nc);
+int8_t          esp_netconn_getconnnum(esp_netconn_p nc);
 
 /* TCP only */
 espr_t          esp_netconn_listen(esp_netconn_p nc);
@@ -66,6 +87,14 @@ espr_t          esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw
 /* UDP only */
 espr_t          esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw);
 espr_t          esp_netconn_sendto(esp_netconn_p nc, const void* ip, uint16_t port, const void* data, size_t btw);
+
+/**
+ * \}
+ */
+ 
+/**
+ * \}
+ */
 
 #ifdef __cplusplus
 }

@@ -166,6 +166,7 @@ esp_cb(esp_cb_t* cb) {
 esp_netconn_p
 esp_netconn_new(esp_netconn_type_t type) {
     esp_netconn_t* a;
+    
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a) {
         a->type = type;                         /* Save netconn type */
@@ -224,13 +225,20 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
     esp_conn_type_t type;
     
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
+    ESP_ASSERT("port > NULL", port);            /* Assert input parameters */
     
-    switch (nc->type) {
+    switch (nc->type) {                         /* Check which connection type is suitable for us */
         case ESP_NETCONN_TYPE_TCP: type = ESP_CONN_TYPE_TCP; break;
         case ESP_NETCONN_TYPE_UDP: type = ESP_CONN_TYPE_UDP; break;
         case ESP_NETCONN_TYPE_SSL: type = ESP_CONN_TYPE_SSL; break;
         default: return espERR;
     }
+    /**
+     * Start a new connection as client and immediatelly
+     * set current netconn structure as argument
+     * and netconn callback function for connection management
+     */
     res = esp_conn_start(NULL, type, host, port, nc, esp_cb, 1);
     return res;
 }
@@ -243,14 +251,16 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
  */
 espr_t
 esp_netconn_bind(esp_netconn_p nc, uint16_t port) {
+    espr_t res;
+    
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
-    if (esp_set_server(port, 1) != espOK) {     /* Enable server on selected port */
-        return espERR;
+    if ((res = esp_set_server(port, 1)) == espOK) { /* Enable server on selected port */
+        ESP_CORE_PROTECT();
+        esp_set_default_server_callback(esp_cb);    /* Set callback function for server connections */
+        ESP_CORE_UNPROTECT();
     }
-    esp_set_default_server_callback(esp_cb);    /* Set callback function for server connections */
-    
-    return espOK;
+    return res;
 }
 
 /**
@@ -308,6 +318,12 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }
 
+/**
+ * \brief           Send packet to specific IP and port
+ * \param[in]       nc: Netconn connection used to send
+ * \param[in]       data: Pointer to data to write
+ * \param[in]       btw: Number of bytes to write
+ */
 espr_t
 esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
@@ -315,6 +331,15 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }
 
+/**
+ * \brief           Send packet to specific IP and port
+ * \note            Use this function in case of UDP type netconn
+ * \param[in]       nc: Netconn connection used to send
+ * \param[in]       ip: Pointer to IP address
+ * \param[in]       port: Port number used to send data
+ * \param[in]       data: Pointer to data to write
+ * \param[in]       btw: Number of bytes to write
+ */
 espr_t
 esp_netconn_sendto(esp_netconn_p nc, const void* ip, uint16_t port, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
@@ -358,10 +383,15 @@ esp_netconn_close(esp_netconn_p nc) {
     return espOK;
 }
 
-uint8_t
+/**
+ * \brief           Get connection number used for netconn
+ * \param[in]       nc: Pointer to netconn for connection
+ * \return          -1 on failure, number otherwise
+ */
+int8_t
 esp_netconn_getconnnum(esp_netconn_p nc) {
     if (nc && nc->conn) {
-        return nc->conn->num;
+        return esp_conn_getnum(nc->conn);
     }
-    return 0;
+    return -1;
 }
