@@ -268,18 +268,22 @@ esp_buff_reset(esp_buff_t* buff) {
 }
 
 /**
- * \brief           Get linear block address
- * \note            This is useful in case you have streaming transfer such as DMA
- *                  and you want to get address and length of linear block before buffer overflows to beginning
- * 
- * \note            This function will not modify buffer internal structure.
- * \param[in]       buff: Pointer to buffer structure
- * \param[in]       max_len: Maximal length of block we want to receive
- * \param[out]      block_len: Pointer to variable to save actual block length
- * \return          Pointer to start of block
+ * \brief           Get linear address for buffer for fast read
+ * \param[in]       buff: Pointer to buffer
+ * \return          Pointer to start of linear address
  */
 void *
-buff_get_linear_block_address(esp_buff_t* buff, size_t max_len, size_t* block_len) {
+esp_buff_get_linear_block_address(esp_buff_t* buff) {
+    return &buff->buff[buff->out];              /* Return read address */
+}
+
+/**
+ * \brief           Get length of linear block address before it overflows
+ * \param[in]       buff: Pointer to buffer
+ * \return          Length of linear address
+ */
+size_t
+esp_buff_get_linear_block_length(esp_buff_t* buff) {
     size_t len;
     if (buff->in > buff->out) {
         len = buff->in - buff->out;
@@ -288,11 +292,7 @@ buff_get_linear_block_address(esp_buff_t* buff, size_t max_len, size_t* block_le
     } else {
         len = 0;
     }
-    if (len > max_len) {
-        len = max_len;
-    }
-    *block_len = len;                           /* Save block length */
-    return &buff->buff[buff->out];              /* Return read address */
+    return len;
 }
 
 /**
