@@ -142,6 +142,8 @@ typedef struct esp_conn_t {
 typedef struct esp_pbuf_t {
     size_t len;                                 /*!< Length of payload */
     uint8_t* payload;                           /*!< Pointer to payload memory */
+    uint8_t ip[4];                              /*!< Remote address for received IPD data */
+    uint16_t port;                              /*!< Remote port for received IPD data */
 } esp_pbuf_t;
 
 /**
@@ -152,6 +154,8 @@ typedef struct {
     size_t              tot_len;                /*!< Total length of packet */
     size_t              rem_len;                /*!< Remaining bytes to read in current +IPD statement */
     esp_conn_p          conn;                   /*!< Pointer to connection for network data */
+    uint8_t             ip[4];                  /*!< Remote IP address on from IPD data */
+    uint16_t            port;                   /*!< Remote port on IPD data */
     
     size_t              buff_ptr;               /*!< Buffer pointer to save data to */
     esp_pbuf_p          buff;                   /*!< Pointer to data buffer used for receiving data */

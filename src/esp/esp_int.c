@@ -566,6 +566,9 @@ espi_process(void) {
                         ESP_DEBUGF(ESP_DBG_IPD, "Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
                         esp.ipd.buff = esp_pbuf_alloc(new_len); /* Allocate new packet buffer */
                         ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)new_len);
+                        if (esp.ipd.buff) {
+                            esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
+                        }
                     }
                 }
                 if (!esp.ipd.rem_len) {         /* Check if we read everything */
@@ -629,6 +632,9 @@ espi_process(void) {
                             size_t len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
                             if (esp.ipd.conn->status.f.active) {
                                 esp.ipd.buff = esp_pbuf_alloc(len); /* Allocate new packet buffer */
+                                if (esp.ipd.buff) {
+                                    esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
+                                }
                             } else {
                                 esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
                             }

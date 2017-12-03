@@ -86,3 +86,17 @@ size_t
 esp_pbuf_length(esp_pbuf_p pbuf) {
     return pbuf ? pbuf->len : 0;
 }
+
+/**
+ * \brief           Set IP address and port number for received data
+ * \param[in]       pbuf: Packet buffer
+ * \param[in]       ip: IP to assing to packet buffer
+ * \param[in]       port: Port number to assign to packet buffer
+ */
+void
+esp_pbuf_set_ip(esp_pbuf_p pbuf, void* ip, uint16_t port) {
+    if (pbuf && ip) {
+        memcpy(pbuf->ip, ip, 4);
+        pbuf->port = port;
+    }
+}
