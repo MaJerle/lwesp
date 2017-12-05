@@ -38,6 +38,10 @@
 #include "include/esp_ll.h"
 #include "include/esp_threads.h"
 
+#if ESP_OS != 1
+#error ESP_OS must be set to 1!
+#endif
+
 esp_t esp;
 
 /**
@@ -132,10 +136,10 @@ esp_init(esp_cb_func_t cb_func) {
     esp.cb_server = esp.cb_func;                /* Set default server callback function */
     
     esp_sys_sem_create(&esp.sem_sync, 1);       /* Create new semaphore with unlocked state */
-    esp_sys_mbox_create(&esp.mbox_consumer, 20);/* Consumer message queue */
-    esp_sys_mbox_create(&esp.mbox_producer, 20);/* Producer message queue */
+    esp_sys_mbox_create(&esp.mbox_producer, ESP_THREAD_PRODUCER_MBOX_SIZE); /* Producer message queue */
+    esp_sys_mbox_create(&esp.mbox_process, ESP_THREAD_PROCESS_MBOX_SIZE);   /* Consumer message queue */
     esp_sys_thread_create(&esp.thread_producer, "producer", esp_thread_producer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
-    esp_sys_thread_create(&esp.thread_consumer, "consumer", esp_thread_consumer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
+    esp_sys_thread_create(&esp.thread_process,  "process", esp_thread_consumer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
     
     esp_buff_init(&esp.buff, 0x400);            /* Init buffer for input data */
     
@@ -769,6 +773,7 @@ esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
+#if ESP_DNS || __DOXYGEN__
 /**
  * \brief           Get IP address from host name
  * \param[in]       host: Pointer to host name to get IP for
@@ -790,7 +795,9 @@ esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking) {
     
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
+#endif /* ESP_DNS || __DOXYGEN__ */
 
+#if ESP_PING || __DOXYGEN__
 /**
  * \brief           Ping external host
  * \param[in]       host: Host name to ping
@@ -812,3 +819,4 @@ esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
     
     return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
+#endif /* ESP_PING || __DOXYGEN__ */

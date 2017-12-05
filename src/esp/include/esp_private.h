@@ -99,7 +99,9 @@ typedef enum {
      * TCP/IP related commands
      */
     ESP_CMD_TCPIP_CIPSTATUS,                    /*!< Get status of connections */
+#if ESP_DNS || __DOXYGEN__
     ESP_CMD_TCPIP_CIPDOMAIN,                    /*!< Get IP address from domain name = DNS function */
+#endif /* ESP_DNS || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIPSTART,                     /*!< Start client connection */
     ESP_CMD_TCPIP_CIPSSLSIZE,                   /*!< Set SSL buffer size for SSL connection */
     ESP_CMD_TCPIP_CIPSEND,                      /*!< Send network data */
@@ -109,10 +111,14 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSERVER,                    /*!< Enables/Disables server mode */
     ESP_CMD_TCPIP_CIPMODE,                      /*!< Transmission mode, either transparent or normal one */
     ESP_CMD_TCPIP_CIPSTO,                       /*!< Sets connection timeout */
+#if ESP_PING || __DOXYGEN__
     ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
+#endif /* ESP_PING || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIUPDATE,                     /*!< Perform self-update */
+#if ESP_SNTP || __DOXYGEN__
     ESP_CMD_TCPIP_CIPSNTPCFG,                   /*!< Configure SNTP servers */
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
+#endif /* ESP_SNT || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIPDNS,                       /*!< Configure user specific DNS servers */
     ESP_CMD_TCPIP_CIPDINFO,                     /*!< Configure what data are received on +IPD statement */
 } esp_cmd_t;
@@ -297,9 +303,9 @@ typedef struct {
 typedef struct {    
     esp_sys_sem_t       sem_sync;               /*!< Synchronization semaphore between threads */
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
-    esp_sys_mbox_t      mbox_consumer;          /*!< Consumer message queue handle */
+    esp_sys_mbox_t      mbox_process;           /*!< Consumer message queue handle */
     esp_sys_thread_t    thread_producer;        /*!< Producer thread handle */
-    esp_sys_thread_t    thread_consumer;        /*!< Consumer thread handle */
+    esp_sys_thread_t    thread_process;         /*!< Processing thread handle */
     esp_ll_t            ll;                     /*!< Low level functions */
     esp_buff_t          buff;                   /*!< Input processing buffer */
     
@@ -348,6 +354,10 @@ extern esp_t esp;
 #define ESP_MAX(x, y)                       ((x) > (y) ? (x) : (y))
 #define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
 #define ESP_UNUSED(x)                       ((void)(x))
+    
+#ifndef ESP_DBG_ASSERT
+#define ESP_DBG_ASSERT                      ESP_DBG_OFF
+#endif /* ESP_DBG_ASSERT */
 
 #define ESP_ASSERT(msg, c)   do {   \
     if (!(c)) {                     \

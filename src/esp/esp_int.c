@@ -39,7 +39,9 @@
 #include "include/esp_unicode.h"
 #include "esp_ll.h"
 
-#define IPD_MAX_BUFF_SIZE       1452
+#ifndef ESP_DBG_IPD
+#define ESP_DBG_IPD                         ESP_DBG_OFF
+#endif /* ESP_DBG_IPD */
 
 #define IS_CURR_CMD(c)        (esp.msg && esp.msg->cmd == (c))
 
@@ -344,11 +346,15 @@ espi_parse_received(esp_recv_t* rcv) {
                 }
             } else if (esp.msg->cmd == ESP_CMD_WIFI_CWLAP && !strncmp(rcv->data, "+CWLAP", 6)) {
                 espi_parse_cwlap(rcv->data, esp.msg);   /* Parse CWLAP entry */
+#if ESP_DNS || __DOXYGEN__
             } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPDOMAIN && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 espi_parse_cipdomain(rcv->data, esp.msg);   /* Parse CIPDOMAIN entry */
+#endif /* ESP_DNS || __DOXYGEN__ */
+#if ESP_PING || __DOXYGEN__
             } else if (esp.msg->cmd == ESP_CMD_TCPIP_PING && ESP_CHARISNUM(rcv->data[1])) {
                 const char* tmp = &rcv->data[1];
                 *esp.msg->msg.tcpip_ping.time = espi_parse_number(&tmp);
+#endif /* ESP_PING || __DOXYGEN__ */
             }
         }
     } else if (!strncmp(rcv->data, "WIFI CONNECTED", 14)) {
@@ -961,18 +967,22 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+#if ESP_DNS || __DOXYGEN__
         case ESP_CMD_TCPIP_CIPDOMAIN: {         /* DNS function */
             ESP_AT_PORT_SEND_STR("AT+CIPDOMAIN=");
             send_string(msg->msg.dns_getbyhostname.host, 1, 1);
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+#endif /* ESP_DNS || __DOXYGEN */
+#if ESP_PING || __DOXYGEN__
         case ESP_CMD_TCPIP_PING: {              /* Pinging hostname or IP address */
             ESP_AT_PORT_SEND_STR("AT+PING=");
             send_string(msg->msg.tcpip_ping.host, 1, 1);
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+#endif /* ESP_PING || __DOXYGEN */
         case ESP_CMD_TCPIP_CIPSSLSIZE: {        /* Set SSL size */
             char str[12];
             ESP_AT_PORT_SEND_STR("AT+CIPSSLSIZE=");

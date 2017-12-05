@@ -113,7 +113,7 @@ esp_thread_consumer(void* const arg) {
     ESP_CORE_PROTECT();                         /* Protect system */
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
-        time = esp_sys_mbox_get(&esp.mbox_consumer, (void **)&msg, 10);  /* Get message from queue */
+        time = esp_sys_mbox_get(&esp.mbox_process, (void **)&msg, 10);  /* Get message from queue */
         ESP_CORE_PROTECT();                     /* Protect system */
         
         if (time == ESP_SYS_TIMEOUT || !msg) {

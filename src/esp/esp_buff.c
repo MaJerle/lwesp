@@ -32,6 +32,10 @@
 #include "include/esp_buff.h"
 #include "include/esp_mem.h"
 
+#ifndef ESP_DBG_BUFF
+#define ESP_DBG_BUFF        ESP_DBG_OFF
+#endif
+
 /**
  * \brief           Initialize buffer
  * \param[in]       buff: Pointer to buffer structure

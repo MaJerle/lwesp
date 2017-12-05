@@ -33,6 +33,10 @@
 #include "include/esp_mem.h"
 #include "include/esp_debug.h"
 
+#ifndef ESP_DBG_MEM
+#define ESP_DBG_MEM                         ESP_DBG_ON
+#endif /* ESP_DBG_MEM */
+
 /******************************************************************************/
 /******************************************************************************/
 /***                           Private structures                            **/

@@ -36,6 +36,8 @@
 #include "include/esp_private.h"
 #include "include/esp_mem.h"
 
+#if ESP_NETCONN || __DOXYGEN__
+
 static uint8_t recv_closed = 0xFF;
 static esp_netconn_t* listen_api;              /* Main connection in listening mode */
 
@@ -119,9 +121,8 @@ esp_cb(esp_cb_t* cb) {
         }
         
         /**
-         * We have a new data received 
-         * on a conection which should be of type server
-         * and should have netconn structure as argument
+         * We have a new data received which
+         * should have netconn structure as argument
          */
         case ESP_CB_DATA_RECV: {
             esp_pbuf_t* pbuf = (esp_pbuf_t *)cb->cb.conn_data_recv.buff;
@@ -130,7 +131,7 @@ esp_cb(esp_cb_t* cb) {
             if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
                 !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
                 ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Ignoring more data for receive\r\n");
-                return espOKIGNOREMORE;         /* Return OK to free the memory */
+                return espOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
             }
             ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
             return espOKMEM;                    /* Return ok but do not release memory */
@@ -161,6 +162,7 @@ esp_cb(esp_cb_t* cb) {
 
 /**
  * \brief           Create new netconn connection
+ * \param[in]       type: Type of netconn. This parameter can be a value of \ref esp_netconn_type_t enumeration
  * \return          New netconn connection
  */
 esp_netconn_p
@@ -234,6 +236,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
         case ESP_NETCONN_TYPE_SSL: type = ESP_CONN_TYPE_SSL; break;
         default: return espERR;
     }
+    
     /**
      * Start a new connection as client and immediatelly
      * set current netconn structure as argument
@@ -244,7 +247,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
 }
 
 /**
- * \brief           Bind a connection to specific port
+ * \brief           Bind a connection to specific port, can be only used for server connections
  * \param[in]       nc: Pointer to netconn structure
  * \param[in]       port: Port used to bind a connection to
  * \return          espOK on success, member of \ref espr_t otherwise
@@ -323,6 +326,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
  * \param[in]       nc: Netconn connection used to send
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
@@ -339,6 +343,7 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
  * \param[in]       port: Port number used to send data
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 esp_netconn_sendto(esp_netconn_p nc, const void* ip, uint16_t port, const void* data, size_t btw) {
@@ -395,3 +400,5 @@ esp_netconn_getconnnum(esp_netconn_p nc) {
     }
     return -1;
 }
+
+#endif /* ESP_NETCONN || __DOXYGEN__ */

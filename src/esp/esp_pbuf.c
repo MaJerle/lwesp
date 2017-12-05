@@ -33,6 +33,10 @@
 #include "include/esp_pbuf.h"
 #include "include/esp_mem.h"
 
+#ifndef ESP_DBG_PBUF
+#define ESP_DBG_PBUF                        ESP_DBG_ON
+#endif /* ESP_DBG_PBUF */
+
 /**
  * \brief           Allocate packet buffer for network data of specific size
  * \param[in]       len: Length of payload memory to allocate
