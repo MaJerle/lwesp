@@ -224,25 +224,17 @@ esp_netconn_delete(esp_netconn_p nc) {
 espr_t
 esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
     espr_t res;
-    esp_conn_type_t type;
     
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("port > NULL", port);            /* Assert input parameters */
     
-    switch (nc->type) {                         /* Check which connection type is suitable for us */
-        case ESP_NETCONN_TYPE_TCP: type = ESP_CONN_TYPE_TCP; break;
-        case ESP_NETCONN_TYPE_UDP: type = ESP_CONN_TYPE_UDP; break;
-        case ESP_NETCONN_TYPE_SSL: type = ESP_CONN_TYPE_SSL; break;
-        default: return espERR;
-    }
-    
     /**
-     * Start a new connection as client and immediatelly
+     * Start a new connection as client and immediately
      * set current netconn structure as argument
      * and netconn callback function for connection management
      */
-    res = esp_conn_start(NULL, type, host, port, nc, esp_cb, 1);
+    res = esp_conn_start(NULL, (esp_conn_type_t)nc->type, host, port, nc, esp_cb, 1);
     return res;
 }
 
@@ -274,6 +266,7 @@ esp_netconn_bind(esp_netconn_p nc, uint16_t port) {
 espr_t
 esp_netconn_listen(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP\r\n", nc->type != ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
     
     ESP_CORE_PROTECT();
     listen_api = nc;                            /* Set current main API in listening state */
@@ -291,6 +284,7 @@ espr_t
 esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("new_nc != NULL", new_nc != NULL);   /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP\r\n", nc->type != ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
     
     esp_netconn_t* tmp;
     uint32_t time;
@@ -317,6 +311,7 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
 espr_t
 esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP\r\n", nc->type != ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
     
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }
@@ -331,6 +326,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 espr_t
 esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    ESP_ASSERT("nc->type must be UDP\r\n", nc->type != ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
     
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }
@@ -348,6 +344,7 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
 espr_t
 esp_netconn_sendto(esp_netconn_p nc, const void* ip, uint16_t port, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    ESP_ASSERT("nc->type must be UDP\r\n", nc->type != ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
     
     return esp_conn_sendto(nc->conn, ip, port, data, btw, NULL, 1);
 }
