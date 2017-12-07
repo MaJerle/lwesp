@@ -91,6 +91,29 @@ TM_DELAY_1msHandler(void) {
     osSystickHandler();                         /* Kernel systick handler processing */
 }
 
+static void
+test_pbuf(void) {
+    esp_pbuf_p pbuf_a, pbuf_b, pbuf_c;
+    
+    printf("PBUF TEST: START\r\n");
+    
+    pbuf_a = esp_pbuf_new(100);
+    pbuf_b = esp_pbuf_new(100);
+    pbuf_c = esp_pbuf_new(100);
+    
+    if (pbuf_a && pbuf_b && pbuf_c) {
+        esp_pbuf_cat(pbuf_a, pbuf_b);               /* Combine packet buffers together to one big buffer */
+        esp_pbuf_chain(pbuf_a, pbuf_c);             /* Combine packet buffers together to one big buffer */
+        
+        esp_pbuf_free(pbuf_a);
+        esp_pbuf_free(pbuf_c);                      /* We have to manually free it since we used _chain function */
+    } else {
+        printf("Pbufs not initialized!\r\n");
+    }
+    
+    printf("PBUF TEST: END\r\n");
+}
+
 static espr_t esp_cb(esp_cb_t* cb);
 static espr_t esp_conn_client_cb(esp_cb_t* cb);
 static espr_t esp_conn_server_cb(esp_cb_t* cb);
@@ -145,6 +168,8 @@ init_thread(void const* arg) {
     esp_init(esp_cb);                           /* Init ESP stack */
     
     time = osKernelSysTick();
+    
+    test_pbuf();
   
     /**
      * Scan for network access points
@@ -218,45 +243,45 @@ size_t sent;
  */
 void
 server_thread(void const* arg) {
-    esp_netconn_p conn, new_conn;
+    esp_netconn_p server, client;
     espr_t res;
     esp_pbuf_p pbuf;
     
     printf("API server thread started\r\n");
     
-    conn = esp_netconn_new(ESP_NETCONN_TYPE_TCP);   /* Prepare a new connection */
-    if (conn) {
+    server = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Prepare a new connection */
+    if (server) {
         printf("API connection created\r\n");
-        res = esp_netconn_bind(conn, 80);       /* Bind a connection on port 80 */
+        res = esp_netconn_bind(server, 80);     /* Bind a connection on port 80 */
         if (res == espOK) {
             printf("API connection binded\r\n");
-            res = esp_netconn_listen(conn);     /* Start listening on a connection */
+            res = esp_netconn_listen(server);   /* Start listening on a connection */
             
             while (1) {
                 printf("API waiting connection\r\n");
-                res = esp_netconn_accept(conn, &new_conn);  /* Accept for a new connection */
+                res = esp_netconn_accept(server, &client);  /* Accept for a new connection */
                 if (res == espOK) {             /* Do we have a new connection? */
-                    printf("API new connection accepted: %d\r\n", (int)esp_netconn_getconnnum(new_conn));
+                    printf("API new connection accepted: %d\r\n", (int)esp_netconn_getconnnum(client));
                     
                     /**
                      * Receive data blocking from network
                      * We assume everything will be received in single packet
                      */
-                    res = esp_netconn_receive(new_conn, &pbuf);
+                    res = esp_netconn_receive(client, &pbuf);
                     if (res == espOK) {         /* Do we have actual packet of data? */
-                        printf("API data read: %d\r\n", (int)esp_netconn_getconnnum(new_conn));
+                        printf("API data read: %d\r\n", (int)esp_netconn_getconnnum(client));
                         fs_file_t* file = fs_data_open_file(pbuf);
                         if (file) {
-                            esp_netconn_write(new_conn, file->data, file->len);
+                            esp_netconn_write(client, file->data, file->len);
                             fs_data_close_file(file);
                         }
                         esp_pbuf_free(pbuf);    /* Free used memory */
-                        esp_netconn_close(new_conn);    /* And close connection */
+                        esp_netconn_close(client);  /* And close connection */
                     } else if (res == espCLOSED) {  /* Or was connection closed by remote automatically? */
                         printf("Connection already closed!\r\n");
                     }
-                    esp_netconn_close(new_conn);    /* And close connection */
-                    esp_netconn_delete(new_conn);   /* Delete everything */
+                    esp_netconn_close(client);  /* And close connection */
+                    esp_netconn_delete(client); /* Delete everything */
                 }
             }
         }
@@ -281,41 +306,43 @@ client_thread(void const* arg) {
     while (TM_DISCO_ButtonPressed()) {
         osDelay(1);
     }
+    
+    
                                                 
     conn = esp_netconn_new(ESP_NETCONN_TYPE_TCP);   /* Create new instance */
     if (conn) {
-        while (1) {                                 /* Infinite loop */            
+        while (1) {                             /* Infinite loop */            
             /**
              * Connect to external server as client
              */
             res = esp_netconn_connect(conn, CONN_HOST, CONN_PORT);
-            if (res == espOK) {                     /* Are we successfully connected? */
+            if (res == espOK) {                 /* Are we successfully connected? */
                 printf("API client: connected! Writing data...\r\n");
                 res = esp_netconn_write(conn, requestData, sizeof(requestData) - 1);    /* Send data to server */
-                if (res == espOK) {                 /* Were data sent? */
+                if (res == espOK) {             /* Were data sent? */
                     printf("API client: data were written, waiting response\r\n");
                     uint32_t time = osKernelSysTick();
                     do {
                         res = esp_netconn_receive(conn, &pbuf); /* Receive single packet of data from +IPD response */
-                        if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
+                        if (res == espCLOSED) { /* Was the connection closed? This can be checked by return status of receive function */
                             printf("API client: connection closed by remote server!\r\n");
                             break;
                         }
-                        esp_pbuf_free(pbuf);        /* Free processed data, must be done by user to clear memory leaks */
+                        esp_pbuf_free(pbuf);    /* Free processed data, must be done by user to clear memory leaks */
                     } while (1);
                     printf("Total receive time: %d ms\r\n", (int)(osKernelSysTick() - time));
                 } else {
                     printf("API client: data write error!\r\n");
                 }
-                if (res != espCLOSED) {             /* If it was not closed by server, close it manually */
-                    esp_netconn_close(conn);        /* Close the connection */
+                if (res != espCLOSED) {         /* If it was not closed by server, close it manually */
+                    esp_netconn_close(conn);    /* Close the connection */
                 }
             } else {
                 printf("API client: cannot connect!\r\n");
             }
             
             
-            osDelay(1000);                          /* Wait a little before starting a new connection */
+            osDelay(1000);                      /* Wait a little before starting a new connection */
         }
     }
 }
@@ -348,7 +375,7 @@ esp_conn_client_cb(esp_cb_t* cb) {
             size_t pbuf_len;
             const uint8_t* pbuf_data;
             
-            pbuf_len = esp_pbuf_length(cb->cb.conn_data_recv.buff);
+            pbuf_len = esp_pbuf_length(cb->cb.conn_data_recv.buff, 0);
             pbuf_data = esp_pbuf_data(cb->cb.conn_data_recv.buff);
             
             //printf("Data received: N: %d; L: %d\r\n", cb->cb.conn_data_recv.conn->num, cb->cb.conn_data_recv.buff->len);
@@ -389,7 +416,7 @@ esp_conn_server_cb(esp_cb_t* cb) {
             break;
         }
         case ESP_CB_DATA_RECV: {
-            printf("Server data received: N: %d; L: %d\r\n", esp_conn_getnum(cb->cb.conn_data_recv.conn), esp_pbuf_length(cb->cb.conn_data_recv.buff));
+            printf("Server data received: N: %d; L: %d\r\n", esp_conn_getnum(cb->cb.conn_data_recv.conn), esp_pbuf_length(cb->cb.conn_data_recv.buff, 0));
             if (!strncmp((const char *)cb->cb.conn_data_recv.buff, "GET /favicon.ico", 16)) {
                 esp_conn_close(cb->cb.conn_data_recv.conn, 0);
 //            } else if (!strncmp((const char *)cb->cb.conn_data_recv.buff, "GET /style.css", 14)) {
