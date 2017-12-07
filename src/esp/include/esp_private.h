@@ -146,7 +146,10 @@ typedef struct esp_conn_t {
  * \brief           Packet buffer structure
  */
 typedef struct esp_pbuf_t {
+    struct esp_pbuf_t* next;                    /*!< Next pbuf in chain list */
+    size_t tot_len;                             /*!< Total length of pbuf chain */
     size_t len;                                 /*!< Length of payload */
+    uint16_t ref;                               /*!< Number of references to this structure */
     uint8_t* payload;                           /*!< Pointer to payload memory */
     uint8_t ip[4];                              /*!< Remote address for received IPD data */
     uint16_t port;                              /*!< Remote port for received IPD data */

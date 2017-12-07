@@ -126,6 +126,8 @@ typedef struct esp_cb_t {
     } cb;
 } esp_cb_t;
 
+#define ESP_SIZET_MAX                           ((size_t)(-1))
+
 #include "esp_init.h"
 #include "esp_pbuf.h"
 #include "esp_netconn.h"

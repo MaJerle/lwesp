@@ -417,7 +417,7 @@ espi_parse_received(esp_recv_t* rcv) {
     /*
     if (!strncmp(",CONNECT", &rcv->data[1], 8)) {
         const char* tmp = rcv->data; */
-    if ((s = strstr(rcv->data, ",CONNECT\r\n")) != NULL) {
+    if (rcv->len > 10 && (s = strstr(rcv->data, ",CONNECT\r\n")) != NULL) {
         const char* tmp = s - 1;
         uint8_t num = espi_parse_number(&tmp);
         if (num < ESP_MAX_CONNS) {
@@ -444,7 +444,7 @@ espi_parse_received(esp_recv_t* rcv) {
     /*
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
         const char* tmp = rcv->data; */
-    } else if ((s = strstr(rcv->data, ",CLOSED\r\n")) != NULL || (s = strstr(rcv->data, ",CONNECT FAIL\r\n")) != NULL) {
+    } else if ((rcv->len > 9 && (s = strstr(rcv->data, ",CLOSED\r\n")) != NULL) || (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL\r\n")) != NULL)) {
         const char* tmp = s - 1;
         uint8_t num = espi_parse_number(&tmp);
         if (num < ESP_MAX_CONNS) {
@@ -570,7 +570,7 @@ espi_process(void) {
                     if (esp.ipd.buff && esp.ipd.rem_len) {  /* Anything more to read? */
                         size_t new_len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);   /* Calculate new buffer length */
                         ESP_DEBUGF(ESP_DBG_IPD, "Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
-                        esp.ipd.buff = esp_pbuf_alloc(new_len); /* Allocate new packet buffer */
+                        esp.ipd.buff = esp_pbuf_new(new_len);   /* Allocate new packet buffer */
                         ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)new_len);
                         if (esp.ipd.buff) {
                             esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
@@ -637,7 +637,7 @@ espi_process(void) {
                         if (esp.ipd.read) {     /* Are we going into read mode? */
                             size_t len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
                             if (esp.ipd.conn->status.f.active) {
-                                esp.ipd.buff = esp_pbuf_alloc(len); /* Allocate new packet buffer */
+                                esp.ipd.buff = esp_pbuf_new(len);   /* Allocate new packet buffer */
                                 if (esp.ipd.buff) {
                                     esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
                                 }
