@@ -49,10 +49,15 @@ extern "C" {
  * \{
  */
     
-esp_pbuf_p      esp_pbuf_alloc(size_t len);
-espr_t          esp_pbuf_free(esp_pbuf_p pbuf);
+esp_pbuf_p      esp_pbuf_new(size_t len);
+uint16_t        esp_pbuf_free(esp_pbuf_p pbuf);
 const void*     esp_pbuf_data(esp_pbuf_p pbuf);
-size_t          esp_pbuf_length(esp_pbuf_p pbuf);
+size_t          esp_pbuf_length(esp_pbuf_p pbuf, uint8_t tot);
+
+espr_t          esp_pbuf_cat(esp_pbuf_p head, esp_pbuf_p tail);
+espr_t          esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail);
+espr_t          esp_pbuf_ref(esp_pbuf_p pbuf);
+
 void            esp_pbuf_set_ip(esp_pbuf_p pbuf, void* ip, uint16_t port);
     
 /**
