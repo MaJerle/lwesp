@@ -94,6 +94,7 @@ esp_cb(esp_cb_t* cb) {
                 }
             } else if (esp_conn_is_server(conn) && listen_api) {    /* Is the connection server type and we have known listening API? */
                 nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Create new API */
+                ESP_DEBUGW(ESP_DBG_NETCONN, nc == NULL, "NETCONN: Cannot create new structure for incoming server connection!\r\n");
                 if (nc) {
                     nc->conn = conn;            /* Set connection callback */
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
@@ -103,12 +104,14 @@ esp_cb(esp_cb_t* cb) {
                             close = 1;
                         }
                     } else {
+                        ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Invalid accept mbox\r\n");
                         close = 1;
                     }
                 } else {
                     close = 1;
                 }
             } else {
+                ESP_DEBUGW(ESP_DBG_NETCONN, nc == NULL, "NETCONN: Closing connection as there is no listening API in netconn!\r\n");
                 close = 1;                      /* Close the connection at this point */
             }
             if (close) {
@@ -250,6 +253,11 @@ esp_netconn_bind(esp_netconn_p nc, uint16_t port) {
     
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
+    /**
+     * First try to enable server on user selected PORT
+     * and in case it is successful,
+     * set default callback for server in netconn mode
+     */
     if ((res = esp_set_server(port, 1)) == espOK) { /* Enable server on selected port */
         ESP_CORE_PROTECT();
         esp_set_default_server_callback(esp_cb);    /* Set callback function for server connections */
@@ -266,7 +274,7 @@ esp_netconn_bind(esp_netconn_p nc, uint16_t port) {
 espr_t
 esp_netconn_listen(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    ESP_ASSERT("nc->type must be TCP\r\n", nc->type != ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
     
     ESP_CORE_PROTECT();
     listen_api = nc;                            /* Set current main API in listening state */
@@ -284,7 +292,7 @@ espr_t
 esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("new_nc != NULL", new_nc != NULL);   /* Assert input parameters */
-    ESP_ASSERT("nc->type must be TCP\r\n", nc->type != ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
     
     esp_netconn_t* tmp;
     uint32_t time;
