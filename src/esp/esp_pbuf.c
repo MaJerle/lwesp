@@ -34,6 +34,32 @@
 #include "include/esp_mem.h"
 
 /**
+ * \brief           Skip pbufs for desired offset
+ * \param[in]       p: Source pbuf to skip
+ * \param[in]       off: Offset in units of bytes to skip
+ * \param[out]      new_off: New offset on new returned pbuf
+ * \return          New pbuf where offset was found or NULL if offset too big for pbuf chain
+ */
+static esp_pbuf_p
+pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
+    if (!p || p->tot_len < off) {               /* Check valid parameters */
+        return NULL;
+    }
+    
+    /**
+     * Skip pbufs until we reach pbuf where offset is placed
+     */
+    for (; p && p->len <= off; p = p->next) {
+        off -= p->len;                          /* Decrease offset by current pbuf length */
+    }
+    
+    if (new_off) {                              /* Check new offset */
+        *new_off = off;                         /* Set offset to output variable */
+    }
+    return p;
+}
+
+/**
  * \brief           Allocate packet buffer for network data of specific size
  * \param[in]       len: Length of payload memory to allocate
  * \return          Pointer to allocated memory or NULL in case of failure
@@ -75,13 +101,13 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
     for (p = pbuf; p;) {
         ref = --p->ref;                         /* Decrease current value and save it */
         if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
-            ESP_DEBUGF(ESP_DBG_PBUF, "PBUF: Deallocating %p\r\n", p);
+            ESP_DEBUGF(ESP_DBG_PBUF, "PBUF: Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
             pn = p->next;                       /* Save next entry */
             esp_mem_free(p);                    /* Free memory for pbuf */
             p = pn;                             /* Restore with next entry */
             cnt++;                              /* Increase number of freed pbufs */
         } else {
-            p = NULL;                           /* Stop at this point */
+            break;
         }
     }
     return cnt;
@@ -90,12 +116,13 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
 /**
  * \brief           Contencate 2 packet buffers together to one big packet
  * \note            After tail pbuf has been added to head pbuf chain,
- *                  it must not be referenced by user anymore as it is now completelly replaced by head pbuf.
- *                  In simple words, when user calls this function, it should not call any esp_pbuf_* function anymore,
- *                  not even \ref esp_pbuf_free as it will make memory undefined for head pbuf.
+ *                  it must not be referenced by user anymore as it is now completelly controlled by head pbuf.
+ *                  In simple words, when user calls this function, it should not call esp_pbuf_free function anymore,
+ *                  as it might make memory undefined for head pbuf.
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
  * \return          espOK on success, member of \ref espr_t otherwise
+ * \sa              esp_pbuf_chain
  */
 espr_t
 esp_pbuf_cat(esp_pbuf_p head, esp_pbuf_p tail) {
@@ -116,10 +143,14 @@ esp_pbuf_cat(esp_pbuf_p head, esp_pbuf_p tail) {
 }
 
 /**
- * \brief           Chain 2 pbufs together. Similar to \ref esp_pbuf_chain
+ * \brief           Chain 2 pbufs together. Similar to \ref esp_pbuf_cat
  *                  but now new reference is done from head pbuf to tail pbuf.
  * \note            After this function call, user must call \ref esp_pbuf_free(tail) to remove
  *                  its reference to tail pbuf and allow control to head pbuf
+ * \param[in]       head: Head packet buffer to append new pbuf to
+ * \param[in]       tail: Tail packet buffer to append to head pbuf
+ * \return          espOK on success, member of \ref espr_t otherwise
+ * \sa              esp_pbuf_cat
  */
 espr_t
 esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
@@ -144,19 +175,137 @@ esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
 espr_t
 esp_pbuf_ref(esp_pbuf_p pbuf) {
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
+    
     pbuf->ref++;                                /* Increase reference count for pbuf */
     return espOK;
+}
+
+/**
+ * \brief           Copy user data to chain of pbufs
+ * \param[in]       pbuf: First pbuf in chain to start copying to
+ */
+espr_t
+esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
+    const uint8_t* d = data;
+    size_t copy_len;
+    
+    ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
+    ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
+    ESP_ASSERT("len > 0", len > 0);             /* Assert input parameters */
+    ESP_ASSERT("pbuf->tot_len >= len", pbuf->tot_len >= len);   /* Assert input parameters */
+    
+    /**
+     * Skip if necessary and check if we are in valid range
+     */
+    if (offset) {
+        pbuf = pbuf_skip(pbuf, offset, &offset);    /* Offset and check for new length */
+    }
+    if (pbuf->tot_len < (len + offset)) {
+        return espPARERR;
+    }
+    
+    /**
+     * First only copy in case we have some offset from first pbuf
+     */
+    if (offset) {
+        size_t l = ESP_MIN(pbuf->len - offset, len);    /* Get length to copy to current pbuf */
+        memcpy(pbuf->payload + offset, d, l);   /* Copy to memory with offset */
+        len -= l;                               /* Decrease remaining bytes to copy */
+        d += l;                                 /* Increase data pointer */
+        pbuf = pbuf->next;                      /* Go to next pbuf */
+    }
+    
+    /**
+     * Copy user memory to sequence of pbufs
+     */
+    for (; len; pbuf = pbuf->next) {
+        copy_len = len > pbuf->len ? pbuf->len : len;   /* Get copy length */
+        memcpy(pbuf->payload, d, copy_len);     /* Copy memory to pbuf payload */
+        len -= copy_len;                        /* Decrease number of remaining bytes to send */
+        d += copy_len;                          /* Increase data pointer */
+    }
+    return espOK;
+}
+
+/**
+ * \brief           Copy memory from pbuf to user linear memory
+ * \param[in]       pbuf: Pbuf to copy from
+ * \param[out]      data: User linear memory to copy to
+ * \param[in]       len: Length of data in units of bytes
+ * \param[in]       offset: Possible start offset in pbuf
+ * \param[out]      copied: Pointer to output variable to save number of bytes copied to user memory
+ * \return          Number of bytes copied
+ */
+size_t
+esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
+    size_t tot, tc;
+    uint8_t* d = data;
+    
+    if (!pbuf || !data || !len || pbuf->tot_len < offset) { /* Assert input parameters */
+        return 0;
+    }
+    
+    /**
+     * In case user wants offset, 
+     * skip to necessary pbuf
+     */
+    if (offset) {
+        pbuf = pbuf_skip(pbuf, offset, &offset);    /* Skip offset if necessary */
+    }
+    
+    /**
+     * Copy data from pbufs to memory
+     * with checking for initial offset (only one can have offset)
+     */
+    tot = 0;
+    for (; pbuf && len; pbuf = pbuf->next) {
+        tc = ESP_MIN(pbuf->len - offset, len);      /* Get length of data to copy */
+        memcpy(d, pbuf->payload + offset, tc);      /* Copy data from pbuf */
+        d += tc;
+        len -= tc;
+        tot += tc;
+        offset = 0;                                 /* No more offset in this case */
+    }
+    return tot;
 }
 
 /**
  * \brief           Get value from pbuf at specific position
  * \param[in]       pbuf: Pbuf used to get data from
  * \param[in]       pos: Position at which to get element
- * \return          Element at position
+ * \param[out]      el: Output variable to save element value at desired position
+ * \return          1 on success, 0 otherwise
  */
 uint8_t
-pbuf_get_at(esp_pbuf_p pbuf, size_t pos) {
-    return 0;
+esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
+    esp_pbuf_p p;
+    size_t off;
+    
+    if (pbuf) {
+        p = pbuf_skip(pbuf, pos, &off);         /* Skip pbufs to desired position and get new offset from new pbuf */
+        if (p) {                                /* Do we have new pbuf? */
+            *el = p->payload[off];              /* Return memory at desired new offset from latest pbuf */
+            return 1;
+        }
+    }
+    return 0;                                   /* Invalid character */
+}
+
+size_t
+esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* data, size_t len, size_t off) {
+    size_t i;
+    if (pbuf && data && pbuf->tot_len >= (len + off)) { /* Check if valid entries */
+        /**
+         * Try entire buffer element by element
+         * and in case we have a match, report it
+         */
+        for (i = off; i <= pbuf->tot_len - len; i++) {
+            if (!esp_pbuf_memcmp(pbuf, i, data, len)) { /* CHeck if identical */
+                return i;                       /* We have a match! */
+            }
+        }
+    }
+    return ESP_SIZET_MAX;                       /* Return maximal value of size_t variable to indicate error */
 }
 
 /**
@@ -172,6 +321,7 @@ size_t
 esp_pbuf_memcmp(const esp_pbuf_p pbuf, size_t offset, const void* data, size_t len) {
     esp_pbuf_p p;
     size_t i;
+    uint8_t el;
     const uint8_t* d = data;
     
     if (pbuf == NULL || data == NULL || !len || /* Input parameters check */
@@ -194,7 +344,7 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, size_t offset, const void* data, size_t l
      * Use byte by byte read function to inspect bytes separatelly
      */
     for (i = 0; i < len; i++) {
-        if (pbuf_get_at(p, offset + i) != d[i]) {   /* Get value from pbuf at specific offset */
+        if (!esp_pbuf_get_at(p, offset + i, &el) || el != d[i]) {   /* Get value from pbuf at specific offset */
             return offset + 1;                  /* Return value from offset where it failed */
         }
     }
@@ -229,7 +379,7 @@ esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot) {
  * \param[in]       port: Port number to assign to packet buffer
  */
 void
-esp_pbuf_set_ip(esp_pbuf_p pbuf, void* ip, uint16_t port) {
+esp_pbuf_set_ip(esp_pbuf_p pbuf, const void* ip, uint16_t port) {
     if (pbuf && ip) {
         memcpy(pbuf->ip, ip, 4);
         pbuf->port = port;

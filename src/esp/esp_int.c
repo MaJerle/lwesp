@@ -559,19 +559,19 @@ espi_process(void) {
                     esp.cb.cb.conn_data_recv.buff = esp.ipd.buff;
                     esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
                     res = espi_send_conn_cb(esp.ipd.conn);  /* Send connection callback */
-                    if (res != espOKMEM) {      /* Do we want to skip free operation? */
-                        ESP_DEBUGF(ESP_DBG_IPD, "Free packet buffer\r\n");
-                        esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer */
-                        if (res == espOKIGNOREMORE) {   /* We should ignore more data */
-                            ESP_DEBUGF(ESP_DBG_IPD, "Ignoring more data from this IPD if available\r\n");
-                            esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
-                        }
+                    
+                    ESP_DEBUGF(ESP_DBG_IPD, "IPD: Free packet buffer\r\n");
+                    esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer */
+                    if (res == espOKIGNOREMORE) {   /* We should ignore more data */
+                        ESP_DEBUGF(ESP_DBG_IPD, "IPD: Ignoring more data from this IPD if available\r\n");
+                        esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
                     }
+                        
                     if (esp.ipd.buff && esp.ipd.rem_len) {  /* Anything more to read? */
                         size_t new_len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);   /* Calculate new buffer length */
-                        ESP_DEBUGF(ESP_DBG_IPD, "Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
+                        ESP_DEBUGF(ESP_DBG_IPD, "IPD: Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
                         esp.ipd.buff = esp_pbuf_new(new_len);   /* Allocate new packet buffer */
-                        ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)new_len);
+                        ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d bytes\r\n", (int)new_len);
                         if (esp.ipd.buff) {
                             esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
                         }
