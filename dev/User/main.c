@@ -170,13 +170,12 @@ cont:
     /**
      * Determine if this nucleo is client or server
      */
-//  client_thread_id = osThreadCreate(osThread(client_thread), NULL);
     if (TM_GPIO_GetInputPinValue(GPIOC, GPIO_PIN_3)) {  
         client_thread_id = osThreadCreate(osThread(client_thread), NULL);
         printf("Client mode!\r\n");
     } else {
         uint8_t ip[] = {192, 168, 0, 201};
-        esp_sta_setip(ip, NULL, NULL, 0, 1);
+        //esp_sta_setip(ip, NULL, NULL, 0, 1);
         server_thread_id = osThreadCreate(osThread(server_thread), NULL);
         printf("Server mode!\r\n");
     }
