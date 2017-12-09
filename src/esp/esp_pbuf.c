@@ -309,6 +309,30 @@ esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* data, size_t len, size_t off
 }
 
 /**
+ * \brief           Get linear offset address for pbuf from specific offset
+ * \note            Since pbuf memory can be fragmentized in chain,
+ *                  you may need to call function multiple times to get memory for entire pbuf at different
+ * \param[in]       pbuf: Pbuf to get linear address
+ * \parma[in]       offset: Start offset from where to start
+ * \param[out]      new_len: Length of memory returned by function
+ * \return          Pointer to memory on success, NULL on failure
+ */
+const void *
+esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) {
+    esp_pbuf_p p = pbuf;
+    if (!pbuf || pbuf->tot_len < offset) {      /* Check input parameters */
+        return NULL;
+    }
+    if (offset) {                               /* Is there any offset? */
+        p = pbuf_skip(pbuf, offset, &offset);   /* Skip pbuf to desired length */
+    }
+    if (new_len) {
+        *new_len = p->len - offset;             /* Save memory length user can use */
+    }
+    return &p->payload[offset];                 /* Return memory at desired offset */
+}
+
+/**
  * \brief           Compare pbuf memory with memory from data
  * \note            Compare is done on entire pbuf chain
  * \param[in]       pbuf: Pbuf used to compare with data memory
