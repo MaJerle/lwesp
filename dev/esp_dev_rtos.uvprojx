@@ -686,6 +686,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\fs_data.c</FilePath>
             </File>
+            <File>
+              <FileName>server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\server.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1644,6 +1649,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\fs_data.c</FilePath>
             </File>
+            <File>
+              <FileName>server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\server.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2601,6 +2611,11 @@
               <FileName>fs_data.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\fs_data.c</FilePath>
+            </File>
+            <File>
+              <FileName>server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\server.c</FilePath>
             </File>
           </Files>
         </Group>
