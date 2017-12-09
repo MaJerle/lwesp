@@ -4,7 +4,7 @@
 #include "fs_data.h"
 #include "ctype.h"
 
-#define ESP_DBG_SERVER              ESP_DBG_OFF
+#define ESP_DBG_SERVER              ESP_DBG_ON
 
 /**
  * \brief           Server a client connection
@@ -21,8 +21,8 @@ server_serve(esp_netconn_p client) {
     
     do {
         /**
-         * Receive HTTP data from client
-         * packet by packet until we have \r\n\r\n
+         * Receive HTTP data from client,
+         * packet by packet until we have \r\n\r\n,
          * indicating end of headers.
          */
         res = esp_netconn_receive(client, &pbuf_tmp);
@@ -32,10 +32,12 @@ server_serve(esp_netconn_p client) {
                 pbuf = pbuf_tmp;                /* Set it as first */
             } else {                            /* If not first packet */
                 esp_pbuf_cat(pbuf, pbuf_tmp);   /* Connect buffers together */
+                pbuf_tmp = NULL;                /* We do not reference to previous buffer anymore */
             }
+            
             /*
              * Try to find \r\n\r\n sequence
-             * which indicates end of headers
+             * which indicates end of headers in HTTP request
              */
             if ((pos = esp_pbuf_memfind(pbuf, "\r\n\r\n", 4, 0)) != ESP_SIZET_MAX) {
                 /**
@@ -46,7 +48,7 @@ server_serve(esp_netconn_p client) {
                 
                 /**
                  * Check method type we are dealing with
-                 * either GET or POST are supported
+                 * either GET or POST are supported currently
                  */
                 if (!esp_pbuf_memcmp(pbuf, 0, "GET", 3)) {
                     is_get = 1;                 /* We are operating in GET method */
@@ -63,6 +65,10 @@ server_serve(esp_netconn_p client) {
                     if (((pos = esp_pbuf_memfind(pbuf, "Content-Length:", 15, 0)) != ESP_SIZET_MAX) ||
                         (pos = esp_pbuf_memfind(pbuf, "content-length:", 15, 0)) != ESP_SIZET_MAX
                     ) {
+                        /**
+                         * We have found content-length header
+                         * Now we need to calculate actual length of POST data
+                         */
                         ESP_DEBUGF(ESP_DBG_SERVER, "POST: Found Content length entry\r\n");
                         pos += 15;
                         if (esp_pbuf_get_at(pbuf, pos, &ch) && ch == ' ') {
@@ -77,19 +83,80 @@ server_serve(esp_netconn_p client) {
                                 break;
                             }
                         }
-                        ESP_DEBUGF(ESP_DBG_SERVER, "Content length: %d\r\n", (int)cont_len);
+                        ESP_DEBUGF(ESP_DBG_SERVER, "POST: Content length: %d\r\n", (int)cont_len);
                         pbuf_tot_len = esp_pbuf_length(pbuf, 1);    /* Get total length of pbuf */
+                        
+                        /**
+                         * Check if we have some data already in current pbufs
+                         * and call user function in case we have some data
+                         */
+                        if (pbuf_tot_len > data_pos) {
+                            size_t post_data_len;
+                            const uint8_t* post_data;
+                            
+                            /**
+                             * Get linear memory address and length from post data
+                             * to send to user space application
+                             */
+                            post_data = esp_pbuf_get_linear_addr(pbuf, data_pos, &post_data_len);
+                            (void)(post_data);
+                            
+                            /**
+                             * @todo: Call user function with POST data here
+                             */
+                            ESP_DEBUGF(ESP_DBG_SERVER, "POST DATA: %.*s\r\n", post_data_len, post_data);
+                            
+                            /**
+                             * Check if we have content length set and in case we have, 
+                             * set new content length variable
+                             */
+                            if (cont_len > post_data_len) {
+                                cont_len -= post_data_len;
+                            } else {
+                                cont_len = 0;   /* Clear length to zero immediatelly */
+                            }
+                        }
                         
                         /**
                          * Do we still have some data to be received?
                          * In this case wait blocked until all data are received
                          */
-                        while (cont_len > (pbuf_tot_len - data_pos)) {
+                        while (cont_len) {
                             ESP_DEBUGF(ESP_DBG_SERVER, "Waiting for more POST data\r\n");
+                            
                             res = esp_netconn_receive(client, &pbuf_tmp);   /* Wait for next packet */
+                            
                             if (res == espOK) { /* Do we have more data? */
-                                esp_pbuf_cat(pbuf, pbuf_tmp);   /* Connect them together */
-                                pbuf_tot_len = esp_pbuf_length(pbuf, 1);    /* Get new length */
+                                size_t len, tot_len, offset;
+                                const uint8_t* data;
+                                
+                                /**
+                                 * Get memory address and new length.
+                                 * Since there is no offset, 
+                                 * entire memory should be returned and length is the entire pbuf length
+                                 */
+                                tot_len = esp_pbuf_length(pbuf_tmp, 1); /* Get total length of pbuf chain (if exists) */
+                                offset = 0;
+                                len = 0;
+                                do {
+                                    offset += len;  /* Set new offset */
+                                    data = esp_pbuf_get_linear_addr(pbuf_tmp, offset, &len);
+                                    if (!data) {    /* End of pbuf reached? */
+                                        break;
+                                    }
+                                    
+                                    /**
+                                     * @todo: Call user function with POST data here
+                                     */
+                                    ESP_DEBUGF(ESP_DBG_SERVER, "POST DATA: %.*s\r\n", len, data);
+                                } while ((len + offset) < tot_len);
+                                
+                                if (cont_len > tot_len) {
+                                    cont_len -= tot_len;
+                                } else {
+                                    cont_len = 0;
+                                }
+                                esp_pbuf_free(pbuf_tmp);    /* Free unused memory */
                             } else {
                                 break;          /* Something went wrong, maybe connection closed */
                             }
@@ -98,6 +165,9 @@ server_serve(esp_netconn_p client) {
                     } else {
                         ESP_DEBUGF(ESP_DBG_SERVER, "POST: No content length entry found in header! We are not expecting more data\r\n");
                     }
+                    break;
+                } else {
+                    res = espERR;               /* Invalid method received */
                     break;
                 }
             }
@@ -111,12 +181,14 @@ server_serve(esp_netconn_p client) {
      * Output depends on request header in pbuf chain
      */
     if (res == espOK) {                         /* Everything ready to start? */
-        fs_file_t* file = fs_data_open_file(pbuf, is_get);  /* Open file */
+        const fs_file_t* file = fs_data_open_file(pbuf, is_get);    /* Open file */
         if (file) {                             /* Do we have a file to write? */
             esp_netconn_write(client, file->data, file->len);   /* Write file data to user */
         }
     }
-    esp_pbuf_free(pbuf);                        /* Free received memory after usage */
+    if (pbuf) {
+        esp_pbuf_free(pbuf);                    /* Free received memory after usage */
+    }
     if (res != espCLOSED) {                     /* Should we close a connection? */
         esp_netconn_close(client);              /* Manually close the connection */
     }
