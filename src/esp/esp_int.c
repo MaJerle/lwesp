@@ -262,7 +262,7 @@ espi_parse_received(esp_recv_t* rcv) {
     if (rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n') {
         return;
     }
-    //printf("Rcv! AC: %d, s: %s", (int)esp.cmd, (char *)rcv->data);
+    //printf("Rcv! s: %s", (char *)rcv->data);
     
     /**
      * Detect most common responses from device
@@ -422,6 +422,7 @@ espi_parse_received(esp_recv_t* rcv) {
         uint8_t num = espi_parse_number(&tmp);
         if (num < ESP_MAX_CONNS) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
+            memset(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
             conn->num = num;                    /* Set connection number */
             conn->status.f.active = 1;          /* Connection just active */
             if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART) && num == esp.msg->msg.conn_start.num) {    /* Did we start connection on our own? */
@@ -430,10 +431,10 @@ espi_parse_received(esp_recv_t* rcv) {
                 conn->arg = esp.msg->msg.conn_start.arg;    /* Set argument for function */
                 conn->type = esp.msg->msg.conn_start.type;  /* Set connection type */
             } else {                            /* Server connection start */
-                conn->status.f.client = 0;
+                conn->status.f.client = 0;      /* We are in server mode this time */
                 conn->cb_func = esp.cb_server;  /* Set server default callback */
                 conn->arg = NULL;
-                conn->type = ESP_CONN_TYPE_TCP; /* Set connection type to TCP */
+                conn->type = ESP_CONN_TYPE_TCP; /* Set connection type to TCP. @todo: Wait for ESP team to upgrade AT commands to set other type */
             }
             
             esp.cb.type = ESP_CB_CONN_ACTIVE;   /* Connection just active */
@@ -530,14 +531,14 @@ espi_process(void) {
              * Try to read more data directly from buffer
              */
             len = ESP_MIN(esp.ipd.rem_len, esp.ipd.buff ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len);
-            ESP_DEBUGF(ESP_DBG_IPD, "IPD New length: %d bytes\r\n", (int)len);
+            ESP_DEBUGF(ESP_DBG_IPD, "IPD: New length: %d bytes\r\n", (int)len);
             if (len) {
                 if (esp.ipd.buff) {             /* Is buffer valid? */
                     len = esp_buff_read(&esp.buff, &esp.ipd.buff->payload[esp.ipd.buff_ptr], len);
-                    ESP_DEBUGF(ESP_DBG_IPD, "IPD Bytes read: %d\r\n", (int)len);
+                    ESP_DEBUGF(ESP_DBG_IPD, "IPD: Bytes read: %d\r\n", (int)len);
                 } else {                        /* Simply skip the data in buffer */
                     len = esp_buff_skip(&esp.buff, len);
-                    ESP_DEBUGF(ESP_DBG_IPD, "IPD Bytes skipped: %d\r\n", (int)len);
+                    ESP_DEBUGF(ESP_DBG_IPD, "IPD: Bytes skipped: %d\r\n", (int)len);
                 }
             }
             if (len) {                          /* Check if we did read anything more */
@@ -635,16 +636,21 @@ espi_process(void) {
                     if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv.data, "+IPD", 4)) {
                         espi_parse_received(&recv); /* Parse received string */
                         if (esp.ipd.read) {     /* Are we going into read mode? */
-                            size_t len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
-                            if (esp.ipd.conn->status.f.active) {
+                            size_t len;
+                            ESP_DEBUGF(ESP_DBG_IPD, "IPD: Data on connection %d with total size %d byte(s)\r\n", (int)esp.ipd.conn->num, esp.ipd.tot_len);
+                            
+                            len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);
+                            if (esp.ipd.conn->status.f.active) {    /* If connection is not active, doesn't make sense to read anything */
                                 esp.ipd.buff = esp_pbuf_new(len);   /* Allocate new packet buffer */
                                 if (esp.ipd.buff) {
                                     esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
                                 }
+                                ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d byte(s)\r\n", (int)len);
                             } else {
                                 esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
+                                ESP_DEBUGF(ESP_DBG_IPD, "IPD: Connection %d already closed, skipping %d byte(s)\r\n", esp.ipd.conn->num, (int)len);
                             }
-                            ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "Buffer allocation failed for %d bytes\r\n", (int)len);
+                            esp.ipd.conn->status.f.data_received = 1;   /* We have first received data */
                         }
                         esp.ipd.buff_ptr = 0;   /* Reset buffer write pointer */
                         RECV_RESET();           /* Reset received buffer */

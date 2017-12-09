@@ -138,6 +138,7 @@ typedef struct esp_conn_t {
         struct {
             uint8_t active:1;                   /*!< Status whether connection is active */
             uint8_t client:1;                   /*!< Status whether connection is in client mode */
+            uint8_t data_received:1;            /*!< Status whether first data were received on connection */
         } f;
     } status;
 } esp_conn_t;
@@ -284,6 +285,8 @@ typedef struct esp_msg {
 typedef struct esp_netconn_t {
     esp_netconn_type_t type;                    /*!< Netconn type */
     uint16_t listen_port;                       /*!< Port on which we are listening */
+    
+    size_t rcv_packets;                         /*!< Number of received packets so far on this connection */
     esp_conn_t* conn;                           /*!< Pointer to actual connection */
     
     esp_sys_sem_t mbox_accept;                  /*!< List of active connections waiting to be processed */

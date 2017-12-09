@@ -54,8 +54,9 @@ CTS         PA3                 RTS from ST to CTS from ESP
 //#include "cmsis_os.h"
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX5
 
+#include "server.h"
+
 void init_thread(void const* arg);
-void server_thread(void const* arg);
 void client_thread(void const* arg);
 
 osThreadId init_thread_id, server_thread_id, client_thread_id;
@@ -91,36 +92,13 @@ TM_DELAY_1msHandler(void) {
     osSystickHandler();                         /* Kernel systick handler processing */
 }
 
-static void
-test_pbuf(void) {
-    esp_pbuf_p pbuf_a, pbuf_b, pbuf_c;
-    
-    printf("PBUF TEST: START\r\n");
-    
-    pbuf_a = esp_pbuf_new(100);
-    pbuf_b = esp_pbuf_new(100);
-    pbuf_c = esp_pbuf_new(100);
-    
-    if (pbuf_a && pbuf_b && pbuf_c) {
-        esp_pbuf_cat(pbuf_a, pbuf_b);               /* Combine packet buffers together to one big buffer */
-        esp_pbuf_chain(pbuf_a, pbuf_c);             /* Combine packet buffers together to one big buffer */
-        
-        esp_pbuf_free(pbuf_a);
-        esp_pbuf_free(pbuf_c);                      /* We have to manually free it since we used _chain function */
-    } else {
-        printf("Pbufs not initialized!\r\n");
-    }
-    
-    printf("PBUF TEST: END\r\n");
-}
-
 static espr_t esp_cb(esp_cb_t* cb);
 static espr_t esp_conn_client_cb(esp_cb_t* cb);
 static espr_t esp_conn_server_cb(esp_cb_t* cb);
 
 uint32_t time;
 
-#define CONN_HOST       "192.168.0.201"
+#define CONN_HOST       "example.org"
 #define CONN_PORT       80
 
 esp_ap_t aps[100];
@@ -156,11 +134,7 @@ const uint8_t requestData[] = ""
  */
 static void
 init_thread(void const* arg) {
-    size_t sent, i, j;
-    int val;
-    esp_conn_p conn;
-    uint8_t is_default = 0;
-    uint8_t ip[4];
+    size_t i, j;
     
     TM_GPIO_Init(GPIOC, GPIO_PIN_3, TM_GPIO_Mode_IN, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_Low);
     
@@ -169,8 +143,6 @@ init_thread(void const* arg) {
     
     time = osKernelSysTick();
     
-    test_pbuf();
-  
     /**
      * Scan for network access points
      * In case we have access point,
@@ -198,6 +170,7 @@ cont:
     /**
      * Determine if this nucleo is client or server
      */
+//  client_thread_id = osThreadCreate(osThread(client_thread), NULL);
     if (TM_GPIO_GetInputPinValue(GPIOC, GPIO_PIN_3)) {  
         client_thread_id = osThreadCreate(osThread(client_thread), NULL);
         printf("Client mode!\r\n");
@@ -239,56 +212,6 @@ size_t resp_sent;
 size_t sent;
 
 /**
- * \brief           Thread for processing connections acting as server
- */
-void
-server_thread(void const* arg) {
-    esp_netconn_p server, client;
-    espr_t res;
-    esp_pbuf_p pbuf;
-    
-    printf("API server thread started\r\n");
-    
-    server = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Prepare a new connection */
-    if (server) {
-        printf("API connection created\r\n");
-        res = esp_netconn_bind(server, 80);     /* Bind a connection on port 80 */
-        if (res == espOK) {
-            printf("API connection binded\r\n");
-            res = esp_netconn_listen(server);   /* Start listening on a connection */
-            
-            while (1) {
-                printf("API waiting connection\r\n");
-                res = esp_netconn_accept(server, &client);  /* Accept for a new connection */
-                if (res == espOK) {             /* Do we have a new connection? */
-                    printf("API new connection accepted: %d\r\n", (int)esp_netconn_getconnnum(client));
-                    
-                    /**
-                     * Receive data blocking from network
-                     * We assume everything will be received in single packet
-                     */
-                    res = esp_netconn_receive(client, &pbuf);
-                    if (res == espOK) {         /* Do we have actual packet of data? */
-                        printf("API data read: %d\r\n", (int)esp_netconn_getconnnum(client));
-                        fs_file_t* file = fs_data_open_file(pbuf);
-                        if (file) {
-                            esp_netconn_write(client, file->data, file->len);
-                            fs_data_close_file(file);
-                        }
-                        esp_pbuf_free(pbuf);    /* Free used memory */
-                        esp_netconn_close(client);  /* And close connection */
-                    } else if (res == espCLOSED) {  /* Or was connection closed by remote automatically? */
-                        printf("Connection already closed!\r\n");
-                    }
-                    esp_netconn_close(client);  /* And close connection */
-                    esp_netconn_delete(client); /* Delete everything */
-                }
-            }
-        }
-    }
-}
-
-/**
  * \brief           Client netconn thread
  */
 void
@@ -306,8 +229,6 @@ client_thread(void const* arg) {
     while (TM_DISCO_ButtonPressed()) {
         osDelay(1);
     }
-    
-    
                                                 
     conn = esp_netconn_new(ESP_NETCONN_TYPE_TCP);   /* Create new instance */
     if (conn) {
@@ -328,6 +249,7 @@ client_thread(void const* arg) {
                             printf("API client: connection closed by remote server!\r\n");
                             break;
                         }
+                        printf("Received PBUF: %d\r\n", (int)esp_pbuf_length(pbuf, 0));
                         esp_pbuf_free(pbuf);    /* Free processed data, must be done by user to clear memory leaks */
                     } while (1);
                     printf("Total receive time: %d ms\r\n", (int)(osKernelSysTick() - time));
@@ -382,7 +304,7 @@ esp_conn_client_cb(esp_cb_t* cb) {
             for (i = 0; i < pbuf_len; i++) {
                 printf("%c", pbuf_data[i]);
             }
-            return espOKMEM;
+            return espOK;
         }
         case ESP_CB_DATA_SENT: {
             //printf("Data sent: N: %d\r\n", cb->cb.conn_data_recv.conn->num);

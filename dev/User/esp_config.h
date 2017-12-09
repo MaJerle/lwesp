@@ -41,6 +41,8 @@
  */
  
 #define ESP_NETCONN                         1
+#define ESP_DBG_IPD                         ESP_DBG_ON
+#define ESP_RCV_BUFF_SIZE                   0x1000
 
 /* Include default configuration setup */
 #include "esp_config_default.h"

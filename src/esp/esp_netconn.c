@@ -98,15 +98,6 @@ esp_cb(esp_cb_t* cb) {
                 if (nc) {
                     nc->conn = conn;            /* Set connection callback */
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
-                    if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
-                        if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
-                            ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Cannot put server connection to accept mbox\r\n");
-                            close = 1;
-                        }
-                    } else {
-                        ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Invalid accept mbox\r\n");
-                        close = 1;
-                    }
                 } else {
                     close = 1;
                 }
@@ -131,14 +122,29 @@ esp_cb(esp_cb_t* cb) {
             esp_pbuf_t* pbuf = (esp_pbuf_t *)cb->cb.conn_data_recv.buff;
             conn = cb->cb.conn_data_recv.conn;  /* Get connection */
             nc = conn->arg;                     /* Get API from connection */
-            if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
-                !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
-                ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Ignoring more data for receive\r\n");
-                return espOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
+            if (!nc->rcv_packets) {             /* Is this our first packet? */
+                if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
+                    if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
+                        ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Cannot put server connection to accept mbox\r\n");
+                        close = 1;
+                    }
+                } else {
+                    ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Invalid accept mbox\r\n");
+                    close = 1;
+                }
+            }
+            nc->rcv_packets++;                  /* Increase number of received packets */
+            if (!close) {
+                if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
+                    !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
+                    ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Ignoring more data for receive\r\n");
+                    return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
+                } else {
+                    esp_pbuf_ref(pbuf);         /* Increase current reference count by 1 as system mbox is referencing our pbuf */
+                }
             }
             ESP_DEBUGF(ESP_DBG_NETCONN, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
-            esp_pbuf_ref(pbuf);                 /* Increase current reference count by 1 as system mbox is referencing our pbuf */
-            return espOK;                       /* Return OK */
+            break;
         }
         
         /**
@@ -160,6 +166,12 @@ esp_cb(esp_cb_t* cb) {
         }
         default:
             return espERR;
+    }
+    if (close) {
+        esp_conn_close(conn, 0);                /* Close the connection */
+        if (nc) {
+            esp_netconn_delete(nc);             /* Free memory for API */
+        }
     }
     return espOK;
 }

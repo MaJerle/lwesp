@@ -130,7 +130,7 @@ espi_set_dinfo(uint8_t info, uint32_t blocking) {
 espr_t
 esp_init(esp_cb_func_t cb_func) {
     esp_sys_init();                             /* Init low-level system */
-    esp_ll_init(&esp.ll, 115200);               /* Init low-level communication */
+    esp_ll_init(&esp.ll, ESP_AT_PORT_BAUDRATE); /* Init low-level communication */
     
     esp.cb_func = cb_func ? cb_func : def_callback; /* Set callback function */
     esp.cb_server = esp.cb_func;                /* Set default server callback function */
@@ -141,7 +141,7 @@ esp_init(esp_cb_func_t cb_func) {
     esp_sys_thread_create(&esp.thread_producer, "producer", esp_thread_producer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
     esp_sys_thread_create(&esp.thread_process,  "process", esp_thread_consumer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
     
-    esp_buff_init(&esp.buff, 0x400);            /* Init buffer for input data */
+    esp_buff_init(&esp.buff, ESP_RCV_BUFF_SIZE);    /* Init buffer for input data */
     
     esp_reset(0);                               /* Reset ESP device */
     esp_set_wifi_mode(ESP_MODE_STA, 0);         /* Set WiFi mode after reset */

@@ -50,7 +50,7 @@
  *
  * \note            Value must be set to 1 in the current revision
  *
- * \note            Check \ref ESP_CONF_OS for more configuration related to operating system
+ * \note            Check \ref ESP_CONF_OS group for more configuration related to operating system
  */
 #ifndef ESP_OS
 #define ESP_OS                              1
@@ -90,13 +90,34 @@
 #endif
 
 /**
- * \brief           Maximal buffer of receive buffer for +IPD statement
- * 
- *                  In case there is more data in single +IPD statement,
- *                  multiple records will be created
+ * \brief           Maximal buffer size for entries in +IPD statement from ESP
+ *                  If +IPD length is larger that this settings, 
+ *                  multiple pbuf entries will be created to hold entire +IPD
  */
 #ifndef ESP_IPD_MAX_BUFF_SIZE
 #define ESP_IPD_MAX_BUFF_SIZE               1460
+#endif
+
+/**
+ * \brief           Buffer size for received data waiting to be processed
+ * \note            When server mode is active and a lot of connections are in queue
+ *                  this should be set high otherwise your buffer may overflow
+ * 
+ * \note            Buffer size also depends on TX user driver if it uses DMA or blocking mode
+ *                  In case of DMA (CPU can work other tasks), buffer may be smaller as CPU
+ *                  will have more time to process all the incoming bytes
+ */
+#ifndef ESP_RCV_BUFF_SIZE
+#define ESP_RCV_BUFF_SIZE                   0x400
+#endif
+
+/**
+ * \brief           Default baudrate used for AT port
+ *
+ * \note            Later, user may call API function to change to desired baudrate if necessary
+ */
+#ifndef ESP_AT_PORT_BAUDRATE
+#define ESP_AT_PORT_BAUDRATE                115200
 #endif
 
 /**
@@ -118,7 +139,7 @@
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_DBG_INPUT
-#define ESP_DBG_INPUT                       ESP_DBG_ON
+#define ESP_DBG_INPUT                       ESP_DBG_OFF
 #endif
 
 /**
@@ -126,7 +147,7 @@
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_DBG_THREAD
-#define ESP_DBG_THREAD                      ESP_DBG_ON
+#define ESP_DBG_THREAD                      ESP_DBG_OFF
 #endif
 
 /**
@@ -134,7 +155,7 @@
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_DBG_ASSERT
-#define ESP_DBG_ASSERT                      ESP_DBG_ON
+#define ESP_DBG_ASSERT                      ESP_DBG_OFF
 #endif
 
 /**
@@ -150,7 +171,7 @@
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_DBG_NETCONN
-#define ESP_DBG_NETCONN                     ESP_DBG_ON
+#define ESP_DBG_NETCONN                     ESP_DBG_OFF
 #endif
 
 /**
@@ -158,7 +179,7 @@
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_DBG_PBUF
-#define ESP_DBG_PBUF                        ESP_DBG_ON
+#define ESP_DBG_PBUF                        ESP_DBG_OFF
 #endif
  
 /**
@@ -167,7 +188,7 @@
 
 /**
  * \defgroup        ESP_CONF_OS
- * \brief           OS dependant config
+ * \brief           Operating system dependant configuration
  * \{
  */
  
@@ -186,21 +207,26 @@
 #ifndef ESP_THREAD_PROCESS_MBOX_SIZE
 #define ESP_THREAD_PROCESS_MBOX_SIZE        10
 #endif
-
+ 
 /**
- * \brief           Enables (1) or disables (0) NETCONN sequential API support for OS systems
- *
- * \note            To use this feature, OS support is mandatory
+ * \}
  */
-#ifndef ESP_NETCONN
-#define ESP_NETCONN                         0
-#endif
 
 /**
  * \defgroup        ESP_CONF_MODULES
  * \brief           Configuration of specific modules
  * \{
  */
+
+/**
+ * \brief           Enables (1) or disables (0) NETCONN sequential API support for OS systems
+ *
+ * \note            To use this feature, OS support is mandatory. 
+ * \sa              ESP_OS
+ */
+#ifndef ESP_NETCONN
+#define ESP_NETCONN                         0
+#endif
  
 /**
  * \brief           Enables (1) or disables (0) support for DNS functions
@@ -220,6 +246,7 @@
 
 /**
  * \brief           Enables (1) or disables (0) support for SNTP protocol with AT commands
+ *
  */
 #ifndef ESP_SNTP
 #define ESP_SNTP                            0
@@ -228,10 +255,6 @@
 /**
  * \}
  */
- 
-/**
- * \}
- */
 
 /**
  * \}
@@ -241,4 +264,4 @@
  * \}
  */
 
-#endif /* __ESP_CONFIG_H */
+#endif /* __ESP_DEFAULT_CONFIG_H */

@@ -332,6 +332,7 @@ mem_free(void* ptr) {
          */
         block->Size &= ~MemAllocBit;                /* Clear allocated bit */
         MemAvailableBytes += block->Size;           /* Increase available bytes back */
+        /* memset(ptr, 0x00, block->Size - MEMBLOCK_METASIZE); */ 
         mem_insertfreeblock(block);                 /* Insert block to list of free blocks */
     }
     mem_allocations--;

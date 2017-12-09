@@ -12,6 +12,8 @@ const uint8_t responseData[] = ""
 "       <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n"
 "       <script src=\"js1.js\" type=\"text/javascript\"></script>\n"
 "       <script src=\"js2.js\" type=\"text/javascript\"></script>\n"
+"       <script src=\"js3.js\" type=\"text/javascript\"></script>\n"
+"       <script src=\"js4.js\" type=\"text/javascript\"></script>\n"
 "       <link rel=\"stylesheet\" type=\"text/css\" href=\"style1.css\">\n"
 "   </head>\n"
 "   <body>\n"
@@ -69,25 +71,41 @@ const uint8_t responseData_js2[] = ""
 
 const uint8_t responseData_404[] = ""
 "HTTP/1.1 404 Not Found\r\n"
-"Content-Type: text/css\r\n"
+"Content-Type: text/html\r\n"
 "Connection: close\r\n"
 "\r\n"
-"Web page NOT FOUND!\r\n"
-"";
+"<html>\n"
+"   <head>\n"
+"       <meta http-equiv=\"Refresh\" content=\"2; url=/\" />\n"
+"       <link rel=\"stylesheet\" type=\"text/css\" href=\"style1.css\">\n"
+"   </head>\n"
+"   <body>\n"
+"       <div id=\"maindiv\">\n"
+"           <h1>Page not found!</h1>\n"
+"       </div>\n"
+"       <footer>\n"
+"           <div id=\"footerdiv\">\n"
+"               Copyright &copy; 2017. All rights reserved. Webserver is hosted on ESP8266.\n"
+"           </div>\n"
+"       </footer>\n"
+"   </body>\n"
+"</html>\n";
 
 fs_file_t files[] = {
-    {"GET / ", responseData, sizeof(responseData) - 1, 0},
-    {"GET /style1.css ", responseData_css, sizeof(responseData_css) - 1, 0},
-    {"GET /style2.css ", responseData_css, sizeof(responseData_css) - 1, 0},
-    {"GET /style3.css ", responseData_css, sizeof(responseData_css) - 1, 0},
-    {"GET /style4.css ", responseData_css, sizeof(responseData_css) - 1, 0},
-    {"GET /js1.js ", responseData_js1, sizeof(responseData_js1) - 1, 0},
-    {"GET /js2.js ", responseData_js2, sizeof(responseData_js2) - 1, 0},
-    {"404", responseData_404, sizeof(responseData_404) - 1, 1}
+    {"GET / ",              responseData, sizeof(responseData) - 1, 0},
+    {"GET /style1.css ",    responseData_css, sizeof(responseData_css) - 1, 0},
+    {"GET /style2.css ",    responseData_css, sizeof(responseData_css) - 1, 0},
+    {"GET /style3.css ",    responseData_css, sizeof(responseData_css) - 1, 0},
+    {"GET /style4.css ",    responseData_css, sizeof(responseData_css) - 1, 0},
+    {"GET /js1.js ",        responseData_js1, sizeof(responseData_js1) - 1, 0},
+    {"GET /js2.js ",        responseData_js2, sizeof(responseData_js2) - 1, 0},
+    {"GET /js3.js ",        responseData_js1, sizeof(responseData_js1) - 1, 0},
+    {"GET /js4.js ",        responseData_js2, sizeof(responseData_js2) - 1, 0},
+    {"404",                 responseData_404, sizeof(responseData_404) - 1, 1}
 };
 
 fs_file_t*
-fs_data_open_file(esp_pbuf_p pbuf) {
+fs_data_open_file(esp_pbuf_p pbuf, uint8_t is_get) {
     size_t i;
     if (!pbuf) {
         return NULL;
@@ -95,7 +113,7 @@ fs_data_open_file(esp_pbuf_p pbuf) {
     
     /* Try to find a file according to request */
     for (i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
-        if (!strncmp((const char *)esp_pbuf_data(pbuf), files[i].path, strlen(files[i].path))) {
+        if (!esp_pbuf_memcmp(pbuf, 0, files[i].path, strlen(files[i].path))) {
             return &files[i];
         }
     }

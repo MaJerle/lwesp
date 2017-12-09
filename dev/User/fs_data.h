@@ -10,7 +10,7 @@ typedef struct {
     uint8_t is_404;
 } fs_file_t;
 
-fs_file_t*      fs_data_open_file(esp_pbuf_p pbuf);
+fs_file_t*      fs_data_open_file(esp_pbuf_p pbuf, uint8_t is_get);
 void            fs_data_close_file(fs_file_t* file);
 
 #endif
