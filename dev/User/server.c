@@ -4,14 +4,104 @@
 #include "fs_data.h"
 #include "ctype.h"
 
-#define ESP_DBG_SERVER              ESP_DBG_ON
+#define ESP_DBG_SERVER              ESP_DBG_OFF
+
+#define HTTP_MAX_URI_LEN            256
+char http_uri[HTTP_MAX_URI_LEN + 1];
+
+/**
+ * \brief           List of supported file names for index page
+ */
+static const char*
+http_index_filenames[] = {
+    "/index.html",
+    "/index.htm"
+};
+
+/**
+ * \brief           Parse URI from HTTP request and copy it to linear memory location
+ * \param[in]       p: Chain of pbufs from request
+ * \return          espOK if successfully parsed, member of \ref espr_t otherwise
+ */
+static espr_t
+http_parse_uri(esp_pbuf_p p) {
+    size_t pos_s, pos_e, uri_len;
+                                                
+    pos_s = esp_pbuf_memfind(p, " ", 1, 0);     /* Find first " " in request header */
+    if (pos_s == ESP_SIZET_MAX || (pos_s != 3 && pos_s != 4)) {
+        return espERR;
+    }
+    pos_e = esp_pbuf_memfind(p, " ", 1, pos_s + 1); /* Find second " " in request header */
+    if (pos_e == ESP_SIZET_MAX) {
+        return espERR;
+    }
+    
+    uri_len = pos_e - pos_s - 1;                /* Get length of uri */
+    if (uri_len > HTTP_MAX_URI_LEN) {
+        return espERR;
+    }
+    esp_pbuf_copy(p, http_uri, uri_len, pos_s + 1); /* Copy data from pbuf to linear memory */
+    http_uri[uri_len] = 0;                      /* Set terminating 0 */
+    
+    return espOK;
+}
+
+/**
+ * \brief           Get file from uri in format /folder/file?param1=value1&...
+ * \param[in]       uri: Input uri to get file for
+ * \return          Pointer to file on success or NULL on failure
+ */
+const fs_file_t*
+http_get_file_from_url(char* uri) {
+    size_t uri_len;
+    const fs_file_t* file = NULL;
+    
+    uri_len = strlen(uri);                      /* Get URI total length */
+    if ((uri_len == 1 && uri[0] == '/') ||      /* Index file only requested */
+        (uri_len > 1 && uri[0] == '/' && uri[1] == '?')) {  /* Index file + parameters */
+        size_t i;
+        /**
+         * Scan index files and check if there is one from user
+         * available to return as main file
+         */
+        for (i = 0; i < sizeof(http_index_filenames) / sizeof(http_index_filenames[0]); i++) {
+            file = fs_data_open_file(http_index_filenames[i], 0);   /* Give me a file with desired path */
+            if (file) {                         /* Do we have a file? */
+                break;
+            }
+        }
+    }
+    
+    /**
+     * We still don't have a file,
+     * maybe there was a request for specific file and possible parameters
+     */
+    if (file == NULL) {
+        char* req_params;
+        req_params = strchr(uri, '?');          /* Search for params delimiter */
+        if (req_params) {                       /* We found parameters? */
+            req_params[0] = 0;                  /* Reset everything at this point */
+            req_params++;                       /* Skip NULL part and go to next one */
+        }
+        file = fs_data_open_file(uri, 0);       /* Give me a new file now */
+    }
+    
+    /**
+     * We still don't have a file!
+     * Try with 404 error page if available by user
+     */
+    if (file == NULL) {
+        file = fs_data_open_file(NULL, 1);      /* Get 404 error page */
+    }
+    return file;
+}
 
 /**
  * \brief           Server a client connection
  * \param[in]       client: New connected client
  * \return          espOK on success, member of \ref espr_t otherwise
  */
-espr_t
+static espr_t
 server_serve(esp_netconn_p client) {
     esp_pbuf_p pbuf = NULL, pbuf_tmp = NULL;
     espr_t res;
@@ -181,9 +271,12 @@ server_serve(esp_netconn_p client) {
      * Output depends on request header in pbuf chain
      */
     if (res == espOK) {                         /* Everything ready to start? */
-        const fs_file_t* file = fs_data_open_file(pbuf, is_get);    /* Open file */
-        if (file) {                             /* Do we have a file to write? */
-            esp_netconn_write(client, file->data, file->len);   /* Write file data to user */
+        if (http_parse_uri(pbuf) == espOK) {    /* Try to parse URI from request */
+            const fs_file_t* file = http_get_file_from_url(http_uri);   /* Get file from URI */
+            if (file) {
+                esp_netconn_write(client, file->data, file->len);   /* Write response to client */
+                fs_data_close_file(file);       /* Close file name */
+            }
         }
     }
     if (pbuf) {
