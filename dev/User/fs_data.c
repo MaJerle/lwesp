@@ -10,11 +10,11 @@ const uint8_t responseData[] = ""
 "   <head>\n"
 "       <meta http-equiv=\"Refresh\" content=\"10\" />\n"
 "       <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n"
-"       <script src=\"js1.js\" type=\"text/javascript\"></script>\n"
-"       <script src=\"js2.js\" type=\"text/javascript\"></script>\n"
-"       <script src=\"js3.js\" type=\"text/javascript\"></script>\n"
-"       <script src=\"js4.js\" type=\"text/javascript\"></script>\n"
-"       <link rel=\"stylesheet\" type=\"text/css\" href=\"style1.css\">\n"
+"       <script src=\"/js/js1.js\" type=\"text/javascript\"></script>\n"
+"       <script src=\"/js/js2.js\" type=\"text/javascript\"></script>\n"
+"       <script src=\"/js/js3.js\" type=\"text/javascript\"></script>\n"
+"       <script src=\"/js/js4.js\" type=\"text/javascript\"></script>\n"
+"       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style1.css\">\n"
 "   </head>\n"
 "   <body>\n"
 "       <div id=\"maindiv\">\n"
@@ -77,7 +77,7 @@ const uint8_t responseData_404[] = ""
 "<html>\n"
 "   <head>\n"
 "       <meta http-equiv=\"Refresh\" content=\"2; url=/\" />\n"
-"       <link rel=\"stylesheet\" type=\"text/css\" href=\"style1.css\">\n"
+"       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style1.css\">\n"
 "   </head>\n"
 "   <body>\n"
 "       <div id=\"maindiv\">\n"
@@ -91,36 +91,31 @@ const uint8_t responseData_404[] = ""
 "   </body>\n"
 "</html>\n";
 
-fs_file_t files[] = {
-    {"GET / ",              responseData, sizeof(responseData) - 1, 0},
-    {"GET /style1.css ",    responseData_css, sizeof(responseData_css) - 1, 0},
-    {"GET /style2.css ",    responseData_css, sizeof(responseData_css) - 1, 0},
-    {"GET /style3.css ",    responseData_css, sizeof(responseData_css) - 1, 0},
-    {"GET /style4.css ",    responseData_css, sizeof(responseData_css) - 1, 0},
-    {"GET /js1.js ",        responseData_js1, sizeof(responseData_js1) - 1, 0},
-    {"GET /js2.js ",        responseData_js2, sizeof(responseData_js2) - 1, 0},
-    {"GET /js3.js ",        responseData_js1, sizeof(responseData_js1) - 1, 0},
-    {"GET /js4.js ",        responseData_js2, sizeof(responseData_js2) - 1, 0},
-    {"404",                 responseData_404, sizeof(responseData_404) - 1, 1}
+/**
+ * \brief           List of dummy files for output on user request
+ */
+const fs_file_t
+files[] = {
+    {"/index.html",         responseData,       sizeof(responseData) - 1,       0, 1, 1},
+    {"/css/style1.css",     responseData_css,   sizeof(responseData_css) - 1,   0, 1, 1},
+    {"/css/style2.css",     responseData_css,   sizeof(responseData_css) - 1,   0, 1, 1},
+    {"/css/style3.css",     responseData_css,   sizeof(responseData_css) - 1,   0, 1, 1},
+    {"/css/style4.css",     responseData_css,   sizeof(responseData_css) - 1,   0, 1, 1},
+    {"/js/js1.js",          responseData_js1,   sizeof(responseData_js1) - 1,   0, 1, 1},
+    {"/js/js2.js",          responseData_js2,   sizeof(responseData_js2) - 1,   0, 1, 1},
+    {"/js/js3.js",          responseData_js1,   sizeof(responseData_js1) - 1,   0, 1, 1},
+    {"/js/js4.js",          responseData_js2,   sizeof(responseData_js2) - 1,   0, 1, 1},
+    {"404",                 responseData_404,   sizeof(responseData_404) - 1,   1, 1, 1}
 };
 
-fs_file_t*
-fs_data_open_file(esp_pbuf_p pbuf, uint8_t is_get) {
-    size_t i;
-    if (!pbuf) {
-        return NULL;
-    }
-    
-    /* Try to find a file according to request */
+const fs_file_t*
+fs_data_open_file(const char* path, uint8_t is_404) {
+    uint8_t i;
     for (i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
-        if (!esp_pbuf_memcmp(pbuf, 0, files[i].path, strlen(files[i].path))) {
-            return &files[i];
-        }
-    }
-    
-    /* Find 404 output if exists */
-    for (i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
-        if (files[i].is_404) {
+        if (
+            (is_404 && files[i].is_404) ||
+            (!is_404 && path && !strcmp(files[i].path, path))
+        ) {
             return &files[i];
         }
     }
@@ -128,6 +123,6 @@ fs_data_open_file(esp_pbuf_p pbuf, uint8_t is_get) {
 }
 
 void
-fs_data_close_file(fs_file_t* file) {
+fs_data_close_file(const fs_file_t* file) {
 
 }
