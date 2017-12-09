@@ -25,15 +25,23 @@ http_index_filenames[] = {
  */
 static espr_t
 http_parse_uri(esp_pbuf_p p) {
-    size_t pos_s, pos_e, uri_len;
+    size_t pos_s, pos_e, pos_crlf, uri_len;
                                                 
-    pos_s = esp_pbuf_memfind(p, " ", 1, 0);     /* Find first " " in request header */
+    pos_s = esp_pbuf_strfind(p, " ", 0);        /* Find first " " in request header */
     if (pos_s == ESP_SIZET_MAX || (pos_s != 3 && pos_s != 4)) {
         return espERR;
     }
-    pos_e = esp_pbuf_memfind(p, " ", 1, pos_s + 1); /* Find second " " in request header */
-    if (pos_e == ESP_SIZET_MAX) {
+    pos_crlf = esp_pbuf_strfind(p, "\r\n", 0);  /* Find CRLF position */
+    if (pos_crlf == ESP_SIZET_MAX) {
         return espERR;
+    }
+    pos_e = esp_pbuf_strfind(p, " ", pos_s + 1);/* Find second " " in request header */
+    if (pos_e == ESP_SIZET_MAX) {               /* If there is no second " " */
+        /**
+         * HTTP 0.9 request is "GET /\r\n" without
+         * space between request URI and CRLF
+         */
+        pos_e = pos_crlf;                       /* Use the one from CRLF */
     }
     
     uri_len = pos_e - pos_s - 1;                /* Get length of uri */
@@ -105,9 +113,8 @@ static espr_t
 server_serve(esp_netconn_p client) {
     esp_pbuf_p pbuf = NULL, pbuf_tmp = NULL;
     espr_t res;
-    size_t pos, data_pos;
-    uint8_t is_get = 0, ch;
-    size_t cont_len, pbuf_tot_len;
+    size_t pos, data_pos, cont_len, pbuf_tot_len;
+    uint8_t ch;
     
     do {
         /**
@@ -126,10 +133,10 @@ server_serve(esp_netconn_p client) {
             }
             
             /*
-             * Try to find \r\n\r\n sequence
+             * Try to find first \r\n\r\n sequence
              * which indicates end of headers in HTTP request
              */
-            if ((pos = esp_pbuf_memfind(pbuf, "\r\n\r\n", 4, 0)) != ESP_SIZET_MAX) {
+            if ((pos = esp_pbuf_strfind(pbuf, "\r\n\r\n", 0)) != ESP_SIZET_MAX) {
                 /**
                  * At this point, all headers are received
                  * We can start process them into something useful
@@ -140,11 +147,10 @@ server_serve(esp_netconn_p client) {
                  * Check method type we are dealing with
                  * either GET or POST are supported currently
                  */
-                if (!esp_pbuf_memcmp(pbuf, 0, "GET", 3)) {
-                    is_get = 1;                 /* We are operating in GET method */
+                if (!esp_pbuf_strcmp(pbuf, "GET", 0)) {
                     ESP_DEBUGF(ESP_DBG_SERVER, "We have GET method and we are not expecting more data to be received!\r\n");
                     break;
-                } else if (!esp_pbuf_memcmp(pbuf, 0, "POST", 4)) {
+                } else if (!esp_pbuf_strcmp(pbuf, "POST", 0)) {
                     ESP_DEBUGF(ESP_DBG_SERVER, "We have POST method!\r\n");
                     
                     /**
@@ -152,9 +158,8 @@ server_serve(esp_netconn_p client) {
                      * and parse length to know how much data we should expect on POST
                      * command to be sure everything is received before processed
                      */
-                    if (((pos = esp_pbuf_memfind(pbuf, "Content-Length:", 15, 0)) != ESP_SIZET_MAX) ||
-                        (pos = esp_pbuf_memfind(pbuf, "content-length:", 15, 0)) != ESP_SIZET_MAX
-                    ) {
+                    if (((pos = esp_pbuf_strfind(pbuf, "Content-Length:", 0)) != ESP_SIZET_MAX) ||
+                        (pos = esp_pbuf_strfind(pbuf, "content-length:", 0)) != ESP_SIZET_MAX) {
                         /**
                          * We have found content-length header
                          * Now we need to calculate actual length of POST data

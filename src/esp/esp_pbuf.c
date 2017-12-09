@@ -291,16 +291,25 @@ esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
     return 0;                                   /* Invalid character */
 }
 
+/**
+ * \brief           Find desired needle in a haystack
+ * \param[in]       pbuf: Pbuf used as haystack
+ * \param[in]       data: Data memory used as needle
+ * \param[in]       len: Length of needle memory
+ * \param[in]       off: Starting offset in pbuf memory
+ * \return          ESP_SIZET_MAX if no match or position where in pbuf we have a match
+ * \sa              esp_pbuf_strfind
+ */
 size_t
-esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* data, size_t len, size_t off) {
+esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* needle, size_t len, size_t off) {
     size_t i;
-    if (pbuf && data && pbuf->tot_len >= (len + off)) { /* Check if valid entries */
+    if (pbuf && needle && pbuf->tot_len >= (len + off)) {   /* Check if valid entries */
         /**
          * Try entire buffer element by element
          * and in case we have a match, report it
          */
         for (i = off; i <= pbuf->tot_len - len; i++) {
-            if (!esp_pbuf_memcmp(pbuf, i, data, len)) { /* CHeck if identical */
+            if (!esp_pbuf_memcmp(pbuf, needle, len, i)) {   /* Check if identical */
                 return i;                       /* We have a match! */
             }
         }
@@ -309,40 +318,30 @@ esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* data, size_t len, size_t off
 }
 
 /**
- * \brief           Get linear offset address for pbuf from specific offset
- * \note            Since pbuf memory can be fragmentized in chain,
- *                  you may need to call function multiple times to get memory for entire pbuf at different
- * \param[in]       pbuf: Pbuf to get linear address
- * \parma[in]       offset: Start offset from where to start
- * \param[out]      new_len: Length of memory returned by function
- * \return          Pointer to memory on success, NULL on failure
+ * \brief           Find desired needle (str) in a haystack (pbuf)
+ * \param[in]       pbuf: Pbuf used as haystack
+ * \param[in]       data: String to search for in pbuf
+ * \param[in]       off: Starting offset in pbuf memory
+ * \return          ESP_SIZET_MAX if no match or position where in pbuf we have a match
+ * \sa              esp_pbuf_memfind
  */
-const void *
-esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) {
-    esp_pbuf_p p = pbuf;
-    if (!pbuf || pbuf->tot_len < offset) {      /* Check input parameters */
-        return NULL;
-    }
-    if (offset) {                               /* Is there any offset? */
-        p = pbuf_skip(pbuf, offset, &offset);   /* Skip pbuf to desired length */
-    }
-    if (new_len) {
-        *new_len = p->len - offset;             /* Save memory length user can use */
-    }
-    return &p->payload[offset];                 /* Return memory at desired offset */
+size_t
+esp_pbuf_strfind(const esp_pbuf_p pbuf, const char* str, size_t off) {
+    return esp_pbuf_memfind(pbuf, str, strlen(str), off);
 }
 
 /**
  * \brief           Compare pbuf memory with memory from data
  * \note            Compare is done on entire pbuf chain
  * \param[in]       pbuf: Pbuf used to compare with data memory
- * \param[in]       offset: Start offset to use when comparing data
  * \param[in]       data: Actual data to compare with
  * \param[in]       len: Length of input data in units of bytes
+ * \param[in]       offset: Start offset to use when comparing data
  * \return          0 if equal, ESP_SIZET_MAX if memory/offset too big or anything between if not equal
+ * \sa              esp_pbuf_strcmp
  */
 size_t
-esp_pbuf_memcmp(const esp_pbuf_p pbuf, size_t offset, const void* data, size_t len) {
+esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
     esp_pbuf_p p;
     size_t i;
     uint8_t el;
@@ -373,6 +372,45 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, size_t offset, const void* data, size_t l
         }
     }
     return 0;                                   /* Memory matches at this point */
+}
+
+
+/**
+ * \brief           Compare pbuf memory with input string
+ * \note            Compare is done on entire pbuf chain
+ * \param[in]       pbuf: Pbuf used to compare with data memory
+ * \param[in]       str: String to be compared with pbuf
+ * \param[in]       offset: Start memory offset in pbuf
+ * \return          0 if equal, ESP_SIZET_MAX if memory/offset too big or anything between if not equal
+ * \sa              esp_pbuf_memcmp
+ */
+size_t
+esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t offset) {
+    return esp_pbuf_memcmp(pbuf, str, strlen(str), offset);
+}
+
+/**
+ * \brief           Get linear offset address for pbuf from specific offset
+ * \note            Since pbuf memory can be fragmentized in chain,
+ *                  you may need to call function multiple times to get memory for entire pbuf at different
+ * \param[in]       pbuf: Pbuf to get linear address
+ * \parma[in]       offset: Start offset from where to start
+ * \param[out]      new_len: Length of memory returned by function
+ * \return          Pointer to memory on success, NULL on failure
+ */
+const void *
+esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) {
+    esp_pbuf_p p = pbuf;
+    if (!pbuf || pbuf->tot_len < offset) {      /* Check input parameters */
+        return NULL;
+    }
+    if (offset) {                               /* Is there any offset? */
+        p = pbuf_skip(pbuf, offset, &offset);   /* Skip pbuf to desired length */
+    }
+    if (new_len) {
+        *new_len = p->len - offset;             /* Save memory length user can use */
+    }
+    return &p->payload[offset];                 /* Return memory at desired offset */
 }
 
 /**

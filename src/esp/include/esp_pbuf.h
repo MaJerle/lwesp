@@ -61,8 +61,10 @@ espr_t          esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail);
 espr_t          esp_pbuf_ref(esp_pbuf_p pbuf);
 
 uint8_t         esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el);
-size_t          esp_pbuf_memcmp(const esp_pbuf_p pbuf, size_t offset, const void* data, size_t len);
+size_t          esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offset);
+size_t          esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t offset);
 size_t          esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* data, size_t len, size_t off);
+size_t          esp_pbuf_strfind(const esp_pbuf_p pbuf, const char* str, size_t off);
 
 const void *    esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len);
 
