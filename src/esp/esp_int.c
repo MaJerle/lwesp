@@ -727,6 +727,33 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 }
             }
         }
+    } else if (msg->cmd_def == ESP_CMD_RESET) { /* Device is in reset mode */
+        esp_cmd_t n_cmd = ESP_CMD_IDLE;
+        switch (msg->cmd) {
+            case ESP_CMD_RESET: {
+                n_cmd = ESP_CMD_WIFI_CWMODE;    /* Set Wifi mode */
+                break;
+            }
+            case ESP_CMD_WIFI_CWMODE: {
+                n_cmd = ESP_CMD_TCPIP_CIPMUX;   /* Set multiple connections mode */
+                break;
+            }
+            case ESP_CMD_TCPIP_CIPMUX: {
+                n_cmd = ESP_CMD_TCPIP_CIPDINFO; /* Set data info */
+                break;
+            }
+            case ESP_CMD_TCPIP_CIPDINFO: {
+                n_cmd = ESP_CMD_TCPIP_CIPSTATUS;    /* Get connection status */
+                break;
+            }
+            default: break;
+        }
+        if (n_cmd != ESP_CMD_IDLE) {            /* Is there a change of command? */
+            msg->cmd = n_cmd;
+            if (espi_initiate_cmd(msg) == espOK) {  /* Try to start with new connection */
+                return espCONT;
+            }
+        }
     }
     return is_ok || is_ready ? espOK : espERR;
 }
@@ -788,8 +815,16 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
-        case ESP_CMD_WIFI_CWMODE: {
-            char c = (char)msg->msg.wifi_mode.mode + '0';   /* Go to ASCII */
+        case ESP_CMD_WIFI_CWMODE: {             /* Set WIFI mode */
+            esp_mode_t m;
+            char c;
+            
+            if (msg->cmd_def == ESP_CMD_RESET) {/* Is this command part of reset sequence? */
+                m = ESP_MODE_STA;               /* Set station mode */
+            } else {
+                m = msg->msg.wifi_mode.mode;    /* Set user defined mode */
+            }
+            c = (char)m + '0';                  /* Continue to ASCII mode */
     
             ESP_AT_PORT_SEND_STR("AT+CWMODE=");
             ESP_AT_PORT_SEND_CHR(&c);
@@ -955,7 +990,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_TCPIP_CIPDINFO: {          /* Set info data on +IPD command */
             ESP_AT_PORT_SEND_STR("AT+CIPDINFO=");
-            if (msg->msg.tcpip_dinfo.info) {
+            if (msg->cmd_def == ESP_CMD_RESET || msg->msg.tcpip_dinfo.info) {   /* In case of reset mode */
                 ESP_AT_PORT_SEND_STR("1");
             } else {
                 ESP_AT_PORT_SEND_STR("0");
@@ -965,7 +1000,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_TCPIP_CIPMUX: {            /* Set multiple connections */
             ESP_AT_PORT_SEND_STR("AT+CIPMUX=");
-            if (msg->msg.tcpip_mux.mux) {
+            if (msg->cmd_def == ESP_CMD_RESET || msg->msg.tcpip_mux.mux) {  /* If reset command is active, enable CIPMUX */
                 ESP_AT_PORT_SEND_STR("1");
             } else {
                 ESP_AT_PORT_SEND_STR("0");

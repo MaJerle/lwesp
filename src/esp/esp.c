@@ -143,11 +143,7 @@ esp_init(esp_cb_func_t cb_func) {
     
     esp_buff_init(&esp.buff, ESP_RCV_BUFF_SIZE);    /* Init buffer for input data */
     
-    esp_reset(0);                               /* Reset ESP device */
-    esp_set_wifi_mode(ESP_MODE_STA, 0);         /* Set WiFi mode after reset */
-    esp_set_mux(1, 0);                          /* Go to multiple connections mode */
-    espi_set_dinfo(1, 0);                       /* Enable additional data on +IPD */
-    esp_get_conns_status(0);                    /* Get connection status */
+    esp_reset(0);                               /* Reset ESP device and set default setup */
     
     esp.cb.type = ESP_CB_INIT_FINISH;           /* Init was successful */
     esp.cb_func(&esp.cb);                       /* Call callback function */
