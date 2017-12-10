@@ -126,7 +126,7 @@ static uint8_t is_running;
  * \return          Number of bytes sent
  */
 static uint16_t
-send_data(const uint8_t* data, uint16_t len) {
+send_data(const void* data, uint16_t len) {
     TM_USART_Send(ESP_USART, data, len);        /* Send actual data via UART using blocking method */
     return len;
 }
@@ -304,7 +304,7 @@ esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
     };
     
     if (!initialized) {
-        ll->send = send_data;                   /* Set callback function to send data */
+        ll->fn_send = send_data;                /* Set callback function to send data */
     
         esp_mem_assignmemory(mem_regions, 1);   /* Assign memory for allocations */
     }

@@ -45,50 +45,6 @@
 esp_t esp;
 
 /**
- * \brief           Sends message from API function to producer queue for further processing
- * \param[in]       msg: New message to process
- * \param[in]       process_fn: callback function used to process message
- * \param[in]       block_time: Time used to block function. Use 0 for non-blocking call
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
- */
-static espr_t
-send_msg_to_producer_queue(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block_time) {
-    espr_t res = msg->res = espOK;
-    if (block_time) {                           /* In case message is blocking */
-        if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */
-            ESP_MSG_VAR_FREE(msg);              /* Release memory and return */
-            return espERR;
-        }
-    }
-    if (!msg->cmd) {                            /* Set start command if not set by user */
-        msg->cmd = msg->cmd_def;                /* Set it as default */
-    }
-    msg->block_time = block_time;               /* Set blocking status if necessary */
-    msg->fn = process_fn;                       /* Save processing function to be called as callback */
-    if (block_time) {
-        esp_sys_mbox_put(&esp.mbox_producer, msg);  /* Write message to producer queue and wait forever */
-    } else {
-        if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
-            res = espERR;
-        }
-    }
-    if (block_time && res == espOK) {           /* In case we have blocking request */
-        uint32_t time;
-        time = esp_sys_sem_wait(&msg->sem, 0000);  /* Wait forever for access to semaphore */
-        if (ESP_SYS_TIMEOUT == time) {          /* If semaphore was not accessed in given time */
-            res = espERR;                       /* Semaphore not released in time */
-        } else {
-            res = msg->res;                     /* Set response status from message response */
-        }
-        if (esp_sys_sem_isvalid(&msg->sem)) {   /* In case we have valid semaphore */
-            esp_sys_sem_delete(&msg->sem);      /* Delete semaphore object */
-        }
-        ESP_MSG_VAR_FREE(msg);                  /* Release message */
-    }
-    return res;
-}
-
-/**
  * \brief           Default callback function for events
  * \param[in]       cb: Pointer to callback data structure
  * \return          Member of \ref espr_t enumeration
@@ -116,7 +72,7 @@ espi_set_dinfo(uint8_t info, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDINFO;
     ESP_MSG_VAR_REF(msg).msg.tcpip_dinfo.info = info;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -143,10 +99,13 @@ esp_init(esp_cb_func_t cb_func) {
     
     esp_buff_init(&esp.buff, ESP_RCV_BUFF_SIZE);    /* Init buffer for input data */
     
-    esp_reset(0);                               /* Reset ESP device and set default setup */
+    /**
+     * Call reset command and call default
+     * AT commands to prepare basic setup for device
+     */
+    esp_reset(1);
     
-    esp.cb.type = ESP_CB_INIT_FINISH;           /* Init was successful */
-    esp.cb_func(&esp.cb);                       /* Call callback function */
+    espi_send_cb(ESP_CB_INIT_FINISH);           /* Call user callback function */
     
     return espOK;
 }
@@ -164,7 +123,7 @@ esp_reset(uint32_t blocking) {
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -181,7 +140,7 @@ esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode; /* Set desired mode */
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /******************************************************************************/
@@ -202,7 +161,7 @@ esp_sta_quit(uint32_t blocking) {
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWQAP;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -223,7 +182,7 @@ esp_sta_join(const char* name, const char* pass, const uint8_t* mac, uint8_t def
     ESP_MSG_VAR_REF(msg).msg.sta_join.pass = pass;
     ESP_MSG_VAR_REF(msg).msg.sta_join.mac = mac;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -246,7 +205,7 @@ esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.nm = nm;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.def = def;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -271,7 +230,7 @@ esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint3
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm = nm;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.def = def;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -290,7 +249,7 @@ esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.def = def;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -311,7 +270,7 @@ esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.def = def;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -380,7 +339,7 @@ esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.nm = nm;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.def = def;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -405,7 +364,7 @@ esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm = nm;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.def = def;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -424,7 +383,7 @@ esp_ap_getmac(void* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.def = def;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -446,7 +405,7 @@ esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.def = def;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -473,7 +432,7 @@ esp_ap_list(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t 
     ESP_MSG_VAR_REF(msg).msg.ap_list.apsl = apsl;
     ESP_MSG_VAR_REF(msg).msg.ap_list.apf = apf;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -490,7 +449,7 @@ esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_UART;
     ESP_MSG_VAR_REF(msg).msg.uart.baudrate = baud;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -507,7 +466,7 @@ esp_set_mux(uint8_t mux, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPMUX;
     ESP_MSG_VAR_REF(msg).msg.tcpip_mux.mux = mux;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -524,7 +483,7 @@ esp_set_server(uint16_t port, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSERVER;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.port = port;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -571,7 +530,7 @@ esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16
     ESP_MSG_VAR_REF(msg).msg.conn_start.cb_func = cb_func;
     ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -590,7 +549,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPCLOSE;
     ESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -627,7 +586,7 @@ esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data
     ESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
     ESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -670,7 +629,7 @@ esp_get_conns_status(uint32_t blocking) {
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTATUS;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 /**
@@ -766,7 +725,7 @@ esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLSIZE;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
 #if ESP_DNS || __DOXYGEN__
@@ -789,7 +748,7 @@ esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 #endif /* ESP_DNS || __DOXYGEN__ */
 
@@ -813,6 +772,6 @@ esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
     ESP_MSG_VAR_REF(msg).msg.tcpip_ping.time = time;
     
-    return send_msg_to_producer_queue(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 #endif /* ESP_PING || __DOXYGEN__ */

@@ -51,7 +51,7 @@ extern "C" {
  * \brief           Low level user specific functions
  */
 typedef struct {
-    uint16_t            (*send)(const uint8_t *, uint16_t); /*!< Callback function to transmit data */
+    uint16_t            (*fn_send)(const void *, uint16_t); /*!< Callback function to transmit data */
 } esp_ll_t;
 
 /**
