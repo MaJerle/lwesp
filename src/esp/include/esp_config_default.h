@@ -80,6 +80,14 @@
 #endif
 
 /**
+ * \brief           Maximal number of bytes we can send at single command to ESP
+ * \note            Value can not exceed 2048 bytes or no data will be ever send
+ */
+#ifndef ESP_CONN_MAX_DATA_LEN
+#define ESP_CONN_MAX_DATA_LEN               2048
+#endif
+
+/**
  * \brief           Set number of retries for send data command.
  *
  *                  Sometimes can happen that AT+SEND fails due to different problems.
@@ -91,7 +99,7 @@
 
 /**
  * \brief           Maximal buffer size for entries in +IPD statement from ESP
- *                  If +IPD length is larger that this settings, 
+ *                  If +IPD length is larger that this setting, 
  *                  multiple pbuf entries will be created to hold entire +IPD
  */
 #ifndef ESP_IPD_MAX_BUFF_SIZE
@@ -181,6 +189,14 @@
 #ifndef ESP_DBG_PBUF
 #define ESP_DBG_PBUF                        ESP_DBG_OFF
 #endif
+
+/**
+ * \brief           Set debug level for dynamic variable allocations
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ */
+#ifndef ESP_DBG_VAR
+#define ESP_DBG_VAR                         ESP_DBG_OFF
+#endif
  
 /**
  * \}
@@ -251,7 +267,7 @@
 #ifndef ESP_SNTP
 #define ESP_SNTP                            0
 #endif
- 
+
 /**
  * \}
  */

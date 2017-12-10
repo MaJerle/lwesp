@@ -96,13 +96,18 @@ typedef enum esp_cb_type_t {
     ESP_CB_CONN_ACTIVE,                         /*!< Connection just became active */
     ESP_CB_CONN_ERROR,                          /*!< Client connection start was not successful */
     ESP_CB_CONN_CLOSED,                         /*!< Connection was just closed */
+    ESP_CB_CONN_POLL,                           /*!< Poll for connection if there are any changes */
+    
+    ESP_CB_WIFI_CONNECTED,                      /*!< Station just connected to AP */
+    ESP_CB_WIFI_GOT_IP,                         /*!< Station has valid IP */
+    ESP_CB_WIFI_DISCONNECTED,                   /*!< Station just disconnected from AP */
 } esp_cb_type_t;
 
 /**
  * \brief           Global callback structure to pass as parameter to callback function
  */
 typedef struct esp_cb_t {
-    esp_cb_type_t       type;                   /*!< Callback type */
+    esp_cb_type_t type;                         /*!< Callback type */
     union {
         struct {
             struct esp_conn_t* conn;            /*!< Connection where data were received */
@@ -133,7 +138,7 @@ typedef struct esp_cb_t {
 #include "esp_netconn.h"
 
 /**
- * \brief           Align x value to specific number of bits, provided from \ref GUI_MEM_ALIGNMENT configuration
+ * \brief           Align x value to specific number of bytes, provided from \ref ESP_MEM_ALIGNMENT configuration
  * \param[in]       x: Input value to align
  * \retval          Input value aligned to specific number of bytes
  */
@@ -149,7 +154,6 @@ espr_t      esp_set_default_server_callback(esp_cb_func_t cb_func);
 
 espr_t      esp_sta_join(const char* name, const char* pass, const uint8_t* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_quit(uint32_t blocking);
-
 
 espr_t      esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
@@ -171,7 +175,7 @@ espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
 
 
 /**
- * \defgroup        esp_netconn_CONN Connection API
+ * \defgroup        ESP_CONN Connection API
  * \brief           Connection API functions
  * \{
  */

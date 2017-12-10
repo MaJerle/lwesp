@@ -39,10 +39,6 @@
 #include "include/esp_unicode.h"
 #include "esp_ll.h"
 
-#ifndef ESP_DBG_IPD
-#define ESP_DBG_IPD                         ESP_DBG_OFF
-#endif /* ESP_DBG_IPD */
-
 #define IS_CURR_CMD(c)        (esp.msg && esp.msg->cmd == (c))
 
 typedef struct {
@@ -174,7 +170,7 @@ is_received_current_setting(const char* str) {
 }
 
 /**
- * \brief           Send connection callback
+ * \brief           Process connection callback
  * \note            Before calling function, callback structure must be prepared
  * \param[in]       conn: Pointer to connection to use as callback
  * \return          Member of \ref espr_t enumeration
@@ -186,6 +182,17 @@ espi_send_conn_cb(esp_conn_t* conn) {
     } else {
         return esp.cb_func(&esp.cb);            /* Process default callback function */
     }
+}
+
+/**
+ * \brief           Process callback function to user with specific type
+ * \param[in]       type: Callback event type
+ * \return          Member of \ref espr_t enumeration
+ */
+static espr_t
+espi_send_cb(esp_cb_type_t type) {
+    esp.cb.type = type;                         /* Set callback type to process */
+    return esp.cb_func(&esp.cb);                /* Call function and return status */
 }
 
 /**
@@ -203,7 +210,7 @@ espi_tcpip_process_send_data(void) {
     ESP_AT_PORT_SEND_STR("AT+CIPSEND=");
     ESP_AT_PORT_SEND_CHR(&ch);
     ESP_AT_PORT_SEND_STR(",");
-    esp.msg->msg.conn_send.sent = esp.msg->msg.conn_send.btw > 2048 ? 2048 : esp.msg->msg.conn_send.btw;
+    esp.msg->msg.conn_send.sent = esp.msg->msg.conn_send.btw > ESP_CONN_MAX_DATA_LEN ? ESP_CONN_MAX_DATA_LEN : esp.msg->msg.conn_send.btw;
     send_number(esp.msg->msg.conn_send.sent, 0);    /* Send length number */
     
     if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {
@@ -359,11 +366,14 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     } else if (!strncmp(rcv->data, "WIFI CONNECTED", 14)) {
         esp.status.f.r_w_conn = 1;              /* Wifi is connected */
+        espi_send_cb(ESP_CB_WIFI_CONNECTED);    /* Call user callback function */
     } else if (!strncmp(rcv->data, "WIFI DISCONNECT", 15)) {
         esp.status.f.r_w_conn = 0;              /* Wifi is disconnected */
         esp.status.f.r_got_ip = 0;              /* There is no valid IP */
+        espi_send_cb(ESP_CB_WIFI_DISCONNECTED); /* Call user callback function */
     } else if (!strncmp(rcv->data, "WIFI GOT IP", 11)) {
         esp.status.f.r_got_ip = 1;              /* Wifi got IP address */
+        espi_send_cb(ESP_CB_WIFI_GOT_IP);       /* Call user callback function */
     }
     
     /**
