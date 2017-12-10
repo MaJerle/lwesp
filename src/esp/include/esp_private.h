@@ -382,8 +382,11 @@ const char * espi_dbg_msg_to_string(esp_cmd_t cmd);
 
 espr_t      espi_process(void);
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
-
 uint8_t     espi_is_valid_conn_ptr(esp_conn_p conn);
+espr_t      espi_send_cb(esp_cb_type_t type);
+
+espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block_time);
+
 
 #endif /* ESP_INTERNAL */
 

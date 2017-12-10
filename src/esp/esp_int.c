@@ -52,9 +52,9 @@ static esp_recv_t recv;
 #define RECV_LEN()          recv.len
 #define RECV_IDX(index)     recv.data[index]
 
-#define ESP_AT_PORT_SEND_STR(str)       esp.ll.send((const uint8_t *)(str), strlen(str))
-#define ESP_AT_PORT_SEND_CHR(str)       esp.ll.send((const uint8_t *)(str), 1)
-#define ESP_AT_PORT_SEND(d, l)          esp.ll.send((const uint8_t *)(d), l)
+#define ESP_AT_PORT_SEND_STR(str)       esp.ll.fn_send((const uint8_t *)(str), strlen(str))
+#define ESP_AT_PORT_SEND_CHR(str)       esp.ll.fn_send((const uint8_t *)(str), 1)
+#define ESP_AT_PORT_SEND(d, l)          esp.ll.fn_send((const uint8_t *)(d), l)
 
 static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready);
 
@@ -182,17 +182,6 @@ espi_send_conn_cb(esp_conn_t* conn) {
     } else {
         return esp.cb_func(&esp.cb);            /* Process default callback function */
     }
-}
-
-/**
- * \brief           Process callback function to user with specific type
- * \param[in]       type: Callback event type
- * \return          Member of \ref espr_t enumeration
- */
-static espr_t
-espi_send_cb(esp_cb_type_t type) {
-    esp.cb.type = type;                         /* Set callback type to process */
-    return esp.cb_func(&esp.cb);                /* Call function and return status */
 }
 
 /**
@@ -1063,4 +1052,59 @@ espi_is_valid_conn_ptr(esp_conn_p conn) {
         }
     }
     return 0;
+}
+
+/**
+ * \brief           Process callback function to user with specific type
+ * \param[in]       type: Callback event type
+ * \return          Member of \ref espr_t enumeration
+ */
+espr_t
+espi_send_cb(esp_cb_type_t type) {
+    esp.cb.type = type;                         /* Set callback type to process */
+    return esp.cb_func(&esp.cb);                /* Call function and return status */
+}
+
+/**
+ * \brief           Send message from API function to producer queue for further processing
+ * \param[in]       msg: New message to process
+ * \param[in]       process_fn: callback function used to process message
+ * \param[in]       block_time: Time used to block function. Use 0 for non-blocking call
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block_time) {
+    espr_t res = msg->res = espOK;
+    if (block_time) {                           /* In case message is blocking */
+        if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */
+            ESP_MSG_VAR_FREE(msg);              /* Release memory and return */
+            return espERR;
+        }
+    }
+    if (!msg->cmd) {                            /* Set start command if not set by user */
+        msg->cmd = msg->cmd_def;                /* Set it as default */
+    }
+    msg->block_time = block_time;               /* Set blocking status if necessary */
+    msg->fn = process_fn;                       /* Save processing function to be called as callback */
+    if (block_time) {
+        esp_sys_mbox_put(&esp.mbox_producer, msg);  /* Write message to producer queue and wait forever */
+    } else {
+        if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
+            res = espERR;
+        }
+    }
+    if (block_time && res == espOK) {           /* In case we have blocking request */
+        uint32_t time;
+        time = esp_sys_sem_wait(&msg->sem, 0000);  /* Wait forever for access to semaphore */
+        if (ESP_SYS_TIMEOUT == time) {          /* If semaphore was not accessed in given time */
+            res = espERR;                       /* Semaphore not released in time */
+        } else {
+            res = msg->res;                     /* Set response status from message response */
+        }
+        if (esp_sys_sem_isvalid(&msg->sem)) {   /* In case we have valid semaphore */
+            esp_sys_sem_delete(&msg->sem);      /* Delete semaphore object */
+        }
+        ESP_MSG_VAR_FREE(msg);                  /* Release message */
+    }
+    return res;
 }
