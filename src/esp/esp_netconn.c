@@ -323,7 +323,8 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
 }
 
 /**
- * \brief           Write data to connection, only applicable for TCP and SSL connections
+ * \brief           Write data to connection output buffers
+ * \note            Only you can only use it on TCP or SSL connections
  * \param[in]       nc: Netconn connection used to write to
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
@@ -332,7 +333,7 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
 espr_t
 esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP or SSL\r\n", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
     
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }

@@ -4,10 +4,18 @@
 #include "fs_data.h"
 #include "ctype.h"
 
+typedef struct {
+    const char* name;
+    const char* value;
+} http_param_t;
+
 #define ESP_DBG_SERVER              ESP_DBG_OFF
 
 #define HTTP_MAX_URI_LEN            256
+#define HTTP_MAX_PARAMS             16
+
 char http_uri[HTTP_MAX_URI_LEN + 1];
+http_param_t http_params[HTTP_MAX_PARAMS];
 
 /**
  * \brief           List of supported file names for index page
@@ -55,6 +63,52 @@ http_parse_uri(esp_pbuf_p p) {
 }
 
 /**
+ * \brief           Extract parameters from user request URI
+ * \param[in]       params: RAM variable with parameters
+ * \return          Number of parameters extracted
+ */
+static size_t
+http_get_params(char* params) {
+    size_t cnt = 0, i;
+    char *amp, *eq;
+    
+    if (params) {
+        for (i = 0; params && i < HTTP_MAX_PARAMS; i++, cnt++) {
+            http_params[i].name = params;
+            
+            eq = params;
+            amp = strchr(params, '&');          /* Find next & in a sequence */
+            if (amp) {                          /* In case we have it */
+                *amp = 0;                       /* Replace it with 0 to end current param */
+                params = ++amp;                 /* Go to next one */
+            } else {
+                params = NULL;
+            }
+            
+            eq = strchr(eq, '=');               /* Find delimiter */
+            if (eq) {
+                *eq = 0;
+                http_params[i].value = eq + 1;
+            } else {
+                http_params[i].value = NULL;
+            }
+        }
+    }
+    return cnt;
+}
+
+/**
+ * \brief           Handle parameters from GET request
+ * \param[in]       params: Pointer to array of params
+ * \param[in]       params_len: Length of parameters available to read and process
+ * \return          New URI used as output file
+ */
+const char*
+cgi_handler(const http_param_t* params, size_t params_len) {
+    return "/index.html";                       /* Show index.html file in this case */
+}
+
+/**
  * \brief           Get file from uri in format /folder/file?param1=value1&...
  * \param[in]       uri: Input uri to get file for
  * \return          Pointer to file on success or NULL on failure
@@ -86,11 +140,19 @@ http_get_file_from_url(char* uri) {
      */
     if (file == NULL) {
         char* req_params;
+        size_t params_len;
         req_params = strchr(uri, '?');          /* Search for params delimiter */
         if (req_params) {                       /* We found parameters? */
             req_params[0] = 0;                  /* Reset everything at this point */
             req_params++;                       /* Skip NULL part and go to next one */
         }
+        
+        (void)params_len;
+//        params_len = http_get_params(req_params);   /* Get request params from request */
+//        if (params_len) {
+//            uri = (char *)cgi_handler(http_params, params_len);
+//        }
+        
         file = fs_data_open_file(uri, 0);       /* Give me a new file now */
     }
     
@@ -162,9 +224,8 @@ server_serve(esp_netconn_p client) {
                         (pos = esp_pbuf_strfind(pbuf, "content-length:", 0)) != ESP_SIZET_MAX) {
                         /**
                          * We have found content-length header
-                         * Now we need to calculate actual length of POST data
+                         * Now we need to calculate actual length of data
                          */
-                        ESP_DEBUGF(ESP_DBG_SERVER, "POST: Found Content length entry\r\n");
                         pos += 15;
                         if (esp_pbuf_get_at(pbuf, pos, &ch) && ch == ' ') {
                             pos++;
@@ -178,7 +239,7 @@ server_serve(esp_netconn_p client) {
                                 break;
                             }
                         }
-                        ESP_DEBUGF(ESP_DBG_SERVER, "POST: Content length: %d\r\n", (int)cont_len);
+                        ESP_DEBUGF(ESP_DBG_SERVER, "POST: Found content length: %d bytes\r\n", (int)cont_len);
                         pbuf_tot_len = esp_pbuf_length(pbuf, 1);    /* Get total length of pbuf */
                         
                         /**
@@ -295,8 +356,6 @@ server_serve(esp_netconn_p client) {
     return res;
 }
 
-
-
 /**
  * \brief           Thread for processing connections acting as server
  * \param[in]       arg: Thread argument
@@ -354,4 +413,3 @@ server_thread(void const* arg) {
         }
     }
 }
-
