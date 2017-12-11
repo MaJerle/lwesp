@@ -50,16 +50,26 @@ extern "C" {
  */
 
 /**
+ * \brief           Timeout callback function prototype
+ */
+typedef void (*esp_timeout_fn_t)(void *);
+
+/**
  * \brief           Timeout structure
  */
 typedef struct esp_timeout_t {
     struct esp_timeout_t* next;                 /*!< Pointer to next timeout entry */
     uint32_t time;                              /*!< Time difference from previous entry */
     void* arg;                                  /*!< Argument to pass to callback function */
-    void (*cb)(void* arg);                      /*!< Callback function for timeout */
+    esp_timeout_fn_t fn;                        /*!< Callback function for timeout */
 } esp_timeout_t;
 
-uint32_t        espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m);
+#ifdef ESP_INTERNAL
+uint32_t        espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout);
+#endif /* ESP_INTERNAL */
+
+espr_t          esp_timeout_add(uint32_t time, void (*cb)(void *), void* arg);
+espr_t          esp_timeout_remove(esp_timeout_fn_t fn);
     
 /**
  * \}
