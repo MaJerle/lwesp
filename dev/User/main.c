@@ -191,7 +191,9 @@ cont:
     } else {
         printf("Could not connect to any WiFi network!\r\n");
         printf("Closing down!\r\n");
-        while (1);
+        while (1) {
+            osDelay(1000);
+        }
     }
     
     printf("Init finished!\r\n");

@@ -831,6 +831,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_debug.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_timeout.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_timeout.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1794,6 +1799,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_debug.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_timeout.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_timeout.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2756,6 +2766,11 @@
               <FileName>esp_debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_timeout.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_timeout.c</FilePath>
             </File>
           </Files>
         </Group>
