@@ -55,7 +55,7 @@ esp_thread_producer(void* const arg) {
     ESP_CORE_PROTECT();                         /* Protect system */
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
-        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_producer, (void **)&msg);   /* Get message from queue */
+        time = esp_sys_mbox_get(&esp.mbox_producer, (void **)&msg, 0);  /* Get message from queue */
         ESP_CORE_PROTECT();                     /* Protect system */
         if (time == ESP_SYS_TIMEOUT || !msg) {  /* Check valid message */
             continue;
@@ -94,7 +94,7 @@ esp_thread_producer(void* const arg) {
         if (msg->block_time) {
             esp_sys_sem_release(&msg->sem);     /* Release semaphore */
         } else {
-            /* TODO: Process callback call what happened with result and then free message */
+            /* TODO: Process callback what happened with result and then free message */
             
             
             ESP_MSG_VAR_FREE(msg);              /* Release message structure */
@@ -114,7 +114,7 @@ esp_thread_consumer(void* const arg) {
     ESP_CORE_PROTECT();                         /* Protect system */
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
-        time = esp_sys_mbox_get(&esp.mbox_process, (void **)&msg, 10);  /* Get message from queue */
+        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 10);  /* Get message from queue */
         ESP_CORE_PROTECT();                     /* Protect system */
         
         if (time == ESP_SYS_TIMEOUT || !msg) {
