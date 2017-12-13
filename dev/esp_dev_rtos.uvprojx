@@ -836,6 +836,21 @@
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_timeout.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_sta.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_sta.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_ap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_ap.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_conn.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_conn.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1804,6 +1819,21 @@
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_timeout.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_sta.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_sta.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_ap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_ap.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_conn.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_conn.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2771,6 +2801,21 @@
               <FileName>esp_timeout.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_timeout.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_sta.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_sta.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_ap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_ap.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_conn.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_conn.c</FilePath>
             </File>
           </Files>
         </Group>

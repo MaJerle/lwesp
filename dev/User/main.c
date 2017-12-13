@@ -121,6 +121,7 @@ ap_entry_t ap_list[] = {
     { "scandic_easy", "" },
     { "HOTEL-VEGA", "hotelvega" },
     { "Slikop.", "slikop2012" },
+    { "Danai Hotel", "danai2017!" },
 };
 
 const uint8_t requestData[] = ""
@@ -143,12 +144,13 @@ init_thread(void const* arg) {
     
     time = osKernelSysTick();
     
+    
     /**
      * Scan for network access points
      * In case we have access point,
      * try to connect to known Ap
      */
-    if (esp_ap_list(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
+    if (esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
         for (i = 0; i < apf; i++) {
             printf("AP found: %s\r\n", aps[i].ssid);
         }
@@ -373,6 +375,10 @@ esp_conn_server_cb(esp_cb_t* cb) {
 static espr_t
 esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
+        case ESP_CB_RESET: {
+            printf("Device reset!\r\n");
+            break;
+        }
         case ESP_CB_INIT_FINISH:
             esp_set_at_baudrate(115200, 0);     /* Init ESP stack */
                                                 
