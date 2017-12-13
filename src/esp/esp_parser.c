@@ -254,6 +254,7 @@ espi_parse_ipd(const char* str) {
     return espOK;
 }
 
+#if ESP_MODE_STATION || __DOXYGEN__
 /**
  * \brief           Parse received message for list access points
  * \param[in]       str: Pointer to input string starting with +CWLAP
@@ -291,6 +292,7 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     }
     return 1;
 }
+#endif /* ESP_MODE_STATION || __DOXYGEN__ */
 
 #if ESP_DNS || __DOXYGEN__
 /**

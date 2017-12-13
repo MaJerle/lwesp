@@ -129,6 +129,24 @@
 #endif
 
 /**
+ * \brief           Enables (1) or disables (1) ESP acting as station
+ * 
+ * \note            When device is in station mode, it can connect to other access points
+ */
+#ifndef ESP_MODE_STATION
+#define ESP_MODE_STATION                    1
+#endif
+
+/**
+ * \brief           Enables (1) or disables (1) ESP acting as access point
+ * 
+ * \note            When device is in access point mode, it can accept connections from other stations
+ */
+#ifndef ESP_MODE_ACCESS_POINT
+#define ESP_MODE_ACCESS_POINT               0
+#endif
+
+/**
  * \defgroup        ESP_CONF_DBG Debugging
  * \brief           Debugging configurations
  * \{
@@ -279,5 +297,17 @@
 /**
  * \}
  */
+ 
+#if !__DOXYGEN__
+
+/* Define group mode value */
+#define ESP_MODE_STATION_ACCESS_POINT   (ESP_MODE_STATION && ESP_MODE_ACCESS_POINT)
+
+/* At least one of them must be enabled */
+#if !ESP_MODE_STATION && !ESP_MODE_ACCESS_POINT
+#error "Invalid ESP configuration. ESP_MODE_STATION and ESP_MODE_STATION cannot be disabled at the same time!"
+#endif
+
+#endif /* !__DOXYGEN__ */
 
 #endif /* __ESP_DEFAULT_CONFIG_H */

@@ -58,9 +58,15 @@ typedef struct {
  * \brief           List of possible WiFi modes
  */
 typedef enum {
+#if ESP_MODE_STATION || __DOXYGEN__
     ESP_MODE_STA = 1,                           /*!< Set WiFi mode to station only */
-    ESP_MODE_AP,                                /*!< Set WiFi mode to access point only */
-    ESP_MODE_STA_AP                             /*!< Set WiFi mode to station and access point */
+#endif /* ESP_MODE_STATION || __DOXYGEN__ */
+#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
+    ESP_MODE_AP = 2,                            /*!< Set WiFi mode to access point only */
+#endif /* ESP_MODE_ACCESS_POINT || __DOXYGEN__ */
+#if (ESP_MODE_STATION_ACCESS_POINT) || __DOXYGEN__
+    ESP_MODE_STA_AP = 3,                        /*!< Set WiFi mode to station and access point */
+#endif /* (ESP_MODE_STATION_ACCESS_POINT) || __DOXYGEN__ */
 } esp_mode_t;
 
 /**
@@ -88,6 +94,8 @@ typedef espr_t  (*esp_cb_func_t)(struct esp_cb_t* cb);
  * \brief           List of possible callback types received to user
  */
 typedef enum esp_cb_type_t {
+    ESP_CB_RESET,                               /*!< Device reset detected */
+    
     ESP_CB_INIT_FINISH,                         /*!< Initialization has been finished at this point */
     
     ESP_CB_DATA_RECV,                           /*!< Connection data received */
@@ -135,6 +143,9 @@ typedef struct esp_cb_t {
 
 #include "esp_init.h"
 #include "esp_pbuf.h"
+#include "esp_conn.h"
+#include "esp_sta.h"
+#include "esp_ap.h"
 #include "esp_netconn.h"
 
 /**
@@ -152,50 +163,10 @@ espr_t      esp_set_mux(uint8_t mux, uint32_t blocking);
 espr_t      esp_set_server(uint16_t port, uint32_t blocking);
 espr_t      esp_set_default_server_callback(esp_cb_func_t cb_func);
 
-espr_t      esp_sta_join(const char* name, const char* pass, const uint8_t* mac, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_quit(uint32_t blocking);
-
-espr_t      esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_has_ip(void);
-espr_t      esp_sta_copy_ip(void* ip, void* gw, void* nm);
-
-espr_t      esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
-espr_t      esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
-espr_t      esp_ap_getmac(void* mac, uint8_t def, uint32_t blocking);
-espr_t      esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking);
-
-espr_t      esp_ap_list(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);
-
 espr_t      esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking);
 
 espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
 
-
-/**
- * \defgroup        ESP_CONN Connection API
- * \brief           Connection API functions
- * \{
- */
- 
-espr_t      esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, uint16_t port, void* arg, esp_cb_func_t cb_func, uint32_t blocking);
-espr_t      esp_conn_close(esp_conn_p conn, uint32_t blocking);
-espr_t      esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking);
-espr_t      esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking);
-espr_t      esp_conn_set_arg(esp_conn_p conn, void* arg);
-uint8_t     esp_conn_is_client(esp_conn_p conn);
-uint8_t     esp_conn_is_server(esp_conn_p conn);
-uint8_t     esp_conn_is_active(esp_conn_p conn);
-uint8_t     esp_conn_is_closed(esp_conn_p conn);
-int8_t      esp_conn_getnum(esp_conn_p conn);
-espr_t      esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking);
-espr_t      esp_get_conns_status(uint32_t blocking);
- 
-/**
- * \}
- */
 
 #ifdef __cplusplus
 }

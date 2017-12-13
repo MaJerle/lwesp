@@ -124,16 +124,18 @@ send_string(const char* str, uint8_t e, uint8_t q) {
     if (q) {
         ESP_AT_PORT_SEND_STR("\"");
     }
-    if (e) {                                    /* Do we have to escape string? */
-        while (*str) {                          /* Go through string */
-            if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */    
-                ESP_AT_PORT_SEND_CHR(&special); /* Send special character */
+    if (str) {
+        if (e) {                                /* Do we have to escape string? */
+            while (*str) {                      /* Go through string */
+                if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */    
+                    ESP_AT_PORT_SEND_CHR(&special); /* Send special character */
+                }
+                ESP_AT_PORT_SEND_CHR(str);      /* Send character */
+                str++;
             }
-            ESP_AT_PORT_SEND_CHR(str);          /* Send character */
-            str++;
+        } else {
+            ESP_AT_PORT_SEND_STR(str);          /* Send plain string */
         }
-    } else {
-        ESP_AT_PORT_SEND_STR(str);              /* Send plain string */
     }
     if (q) {
         ESP_AT_PORT_SEND_STR("\"");
@@ -272,14 +274,41 @@ espi_parse_received(esp_recv_t* rcv) {
     }
     
     /**
+     * In case ready is received, there was a reset on device,
+     * either forced by us or problem on device itself
+     */
+    if (is_ready) {
+        if (IS_CURR_CMD(ESP_CMD_RESET)) {       /* Did we force reset? */
+            
+        } else {                                /* Reset due unknown error */
+            espi_send_cb(ESP_CB_RESET);         /* Call user callback function */
+        }
+        /**
+         * \todo: Put stack to default state:
+         *          - Close all the connection in memory
+         *          - Clear entire data memory
+         *          - Reset eso structure with IP and everything else
+         */
+    }
+    
+    /**
      * Read and process statements starting with '+' character
      */
     if (rcv->data[0] == '+') {
         if (!strncmp("+IPD", rcv->data, 4)) {   /* Check received network data */
             espi_parse_ipd(rcv->data + 5);      /* Parse IPD statement and start receiving network data */
         } else if (esp.msg) {
-            if ((IS_CURR_CMD(ESP_CMD_WIFI_CIPSTAMAC_GET) && !strncmp(rcv->data, "+CIPSTAMAC", 10)) || 
-                (IS_CURR_CMD(ESP_CMD_WIFI_CIPAPMAC_GET) && !strncmp(rcv->data, "+CIPAPMAC", 9))) {
+            if (
+#if ESP_MODE_STATION
+                (IS_CURR_CMD(ESP_CMD_WIFI_CIPSTAMAC_GET) && !strncmp(rcv->data, "+CIPSTAMAC", 10))
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_STATION_ACCESS_POINT
+                    || 
+#endif /* ESP_MODE_STATION_ACCESS_POINT */
+#if ESP_MODE_ACCESS_POINT
+                (IS_CURR_CMD(ESP_CMD_WIFI_CIPAPMAC_GET) && !strncmp(rcv->data, "+CIPAPMAC", 9))
+#endif /* ESP_MODE_ACCESS_POINT */
+            ) {
                 const char* tmp;
                 uint8_t mac[6];
                 
@@ -295,19 +324,40 @@ espi_parse_received(esp_recv_t* rcv) {
                 
                 espi_parse_mac(&tmp, mac);      /* Save as current MAC address */
                 if (is_received_current_setting(rcv->data)) {
+#if ESP_MODE_STATION_ACCESS_POINT
                     memcpy(esp.msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_GET ? esp.sta.mac : esp.ap.mac, mac, 6);   /* Copy to current setup */
+#elif ESP_MODE_STATION
+                    memcpy(esp.sta.mac, mac, 6);    /* Copy to current setup */
+#else
+                    memcpy(esp.ap.mac, mac, 6); /* Copy to current setup */
+#endif /* ESP_MODE_STATION_ACCESS_POINT */
                 }
                 if (esp.msg->msg.sta_ap_getmac.mac && esp.msg->cmd == esp.msg->cmd_def) {
                     memcpy(esp.msg->msg.sta_ap_getmac.mac, mac, 6); /* Copy to current setup */
                 }
-            } else if ( (IS_CURR_CMD(ESP_CMD_WIFI_CIPSTA_GET) && !strncmp(rcv->data, "+CIPSTA", 7)) ||
-                        (IS_CURR_CMD(ESP_CMD_WIFI_CIPAP_GET) && !strncmp(rcv->data, "+CIPAP", 6))) {
+            } else if (
+#if ESP_MODE_STATION
+                (IS_CURR_CMD(ESP_CMD_WIFI_CIPSTA_GET) && !strncmp(rcv->data, "+CIPSTA", 7))
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_STATION_ACCESS_POINT
+                    || 
+#endif /* ESP_MODE_STATION_ACCESS_POINT */
+#if ESP_MODE_ACCESS_POINT
+                (IS_CURR_CMD(ESP_CMD_WIFI_CIPAP_GET) && !strncmp(rcv->data, "+CIPAP", 6))
+#endif /* ESP_MODE_ACCESS_POINT */
+            ) {
                 const char* tmp = NULL;
                 uint8_t *a = NULL, *b = NULL;
                 uint8_t ip[4], ch;
                 esp_ip_mac_t* im;
-                            
+                         
+#if ESP_MODE_STATION_ACCESS_POINT              
                 im = (esp.msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) ? &esp.sta : &esp.ap;    /* Get IP and MAC structure first */
+#elif ESP_MODE_STATION
+                im = &esp.sta;                  /* Get IP and MAC structure first */
+#else
+                im = &esp.ap;                   /* Get IP and MAC structure first */
+#endif /* ESP_MODE_STATION_ACCESS_POINT */
                 
                 /* We expect "+CIPSTA_CUR:" or "+CIPSTA_DEF:" or "+CIPAP_CUR:" or "+CIPAP_DEF:" or "+CIPSTA:" or "+CIPAP:" ... */
                 if (rcv->data[6] == '_') {
@@ -340,8 +390,10 @@ espi_parse_received(esp_recv_t* rcv) {
                         memcpy(b, ip, 4);       /* Copy to user variable */
                     }
                 }
+#if ESP_MODE_STATION
             } else if (esp.msg->cmd == ESP_CMD_WIFI_CWLAP && !strncmp(rcv->data, "+CWLAP", 6)) {
                 espi_parse_cwlap(rcv->data, esp.msg);   /* Parse CWLAP entry */
+#endif /* ESP_MODE_STATION */
 #if ESP_DNS || __DOXYGEN__
             } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPDOMAIN && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 espi_parse_cipdomain(rcv->data, esp.msg);   /* Parse CIPDOMAIN entry */
@@ -655,6 +707,11 @@ espi_process(void) {
                         RECV_RESET();           /* Reset received buffer */
                     }
                 } else {                        /* We have sequence of unicode characters */
+                    /**
+                     * Unicode sequence characters are not "meta" characters
+                     * so it is safe to just add them to receive array without checking
+                     * what are the actual values
+                     */
                     uint8_t i;
                     for (i = 0; i < unicode.t; i++) {
                         RECV_ADD(unicode.ch[i]);    /* Add character to receive array */
@@ -681,6 +738,7 @@ espi_process(void) {
  */
 static espr_t
 espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready) {
+#if ESP_MODE_STATION
     if (msg->cmd_def == ESP_CMD_WIFI_CWJAP) {   /* Is our intention to join to access point? */
         if (msg->cmd == ESP_CMD_WIFI_CWJAP) {   /* Is the current command join? */
             if (is_ok) {                        /* Did we join successfully? */
@@ -695,7 +753,9 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 return espCONT;                 /* Return to continue and not to stop command */
             }
         }
-    } else if (msg->cmd_def == ESP_CMD_TCPIP_CIPSTART) {    /* Is our intention to join to access point? */
+    }
+#endif /* ESP_MODE_STATION */
+    if (msg->cmd_def == ESP_CMD_TCPIP_CIPSTART) {   /* Is our intention to join to access point? */
         if (msg->i == 0 && msg->cmd == ESP_CMD_TCPIP_CIPSTATUS) {   /* Was the current command status info? */
             if (is_ok) {
                 espr_t res;
@@ -717,7 +777,9 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         } else if (msg->i == 2 && msg->cmd == ESP_CMD_TCPIP_CIPSTATUS) {
             
         }
-    } else if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_SET) {
+    }
+#if ESP_MODE_STATION
+    if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_SET) {
         if (msg->i == 0 && msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
             if (is_ok) {
                 msg->cmd = ESP_CMD_WIFI_CIPSTA_GET;
@@ -726,7 +788,9 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 }
             }
         }
-    } else if (msg->cmd_def == ESP_CMD_RESET) { /* Device is in reset mode */
+    } 
+#endif /* ESP_MODE_STATION */
+    if (msg->cmd_def == ESP_CMD_RESET) {        /* Device is in reset mode */
         esp_cmd_t n_cmd = ESP_CMD_IDLE;
         switch (msg->cmd) {
             case ESP_CMD_RESET: {
@@ -782,7 +846,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
         /**
          * WiFi related commands
          */
-        
+ 
+#if ESP_MODE_STATION       
         case ESP_CMD_WIFI_CWJAP: {              /* Try to join to access point */
             ESP_AT_PORT_SEND_STR("AT+CWJAP_");
             if (msg->msg.sta_join.def) {
@@ -814,12 +879,19 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+#endif /* ESP_MODE_STATION */
         case ESP_CMD_WIFI_CWMODE: {             /* Set WIFI mode */
             esp_mode_t m;
             char c;
             
             if (msg->cmd_def == ESP_CMD_RESET) {/* Is this command part of reset sequence? */
+#if ESP_MODE_STATION_ACCESS_POINT
+                m = ESP_MODE_STA;               /* Set station and access point mode */
+#elif ESP_MODE_STATION
                 m = ESP_MODE_STA;               /* Set station mode */
+#else
+                m = ESP_MODE_AP;                /* Set access point mode */
+#endif /* ESP_MODE_STATION_ACCESS_POINT */
             } else {
                 m = msg->msg.wifi_mode.mode;    /* Set user defined mode */
             }
@@ -830,14 +902,24 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+#if ESP_MODE_STATION
         case ESP_CMD_WIFI_CIPSTA_GET:           /* Get station IP address */
-        case ESP_CMD_WIFI_CIPAP_GET: {          /* Get access point IP address */
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+        case ESP_CMD_WIFI_CIPAP_GET:            /* Get access point IP address */
+#endif /* ESP_MODE_ACCESS_POINT */
+        {
             ESP_AT_PORT_SEND_STR("AT+CIP");
+#if ESP_MODE_STATION
             if (msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) {
                 ESP_AT_PORT_SEND_STR("STA");
-            } else {
+            }
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+            if (msg->cmd == ESP_CMD_WIFI_CIPAP_GET) {
                 ESP_AT_PORT_SEND_STR("AP");
             }
+#endif /* ESP_MODE_ACCESS_POINT */
             if (msg->cmd_def == msg->cmd && msg->msg.sta_ap_getip.def) {
                 ESP_AT_PORT_SEND_STR("_DEF");
             } else {
@@ -846,14 +928,24 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("?\r\n");
             break;
         }
+#if ESP_MODE_STATION
         case ESP_CMD_WIFI_CIPSTAMAC_GET:        /* Get station MAC address */
-        case ESP_CMD_WIFI_CIPAPMAC_GET: {       /* Get access point MAC address */
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+        case ESP_CMD_WIFI_CIPAPMAC_GET:         /* Get access point MAC address */
+#endif /* ESP_MODE_ACCESS_POINT */
+        {
             ESP_AT_PORT_SEND_STR("AT+CIP");
+#if ESP_MODE_STATION
             if (msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_GET) {
                 ESP_AT_PORT_SEND_STR("STA");
-            } else {
+            }
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+            if (msg->cmd == ESP_CMD_WIFI_CIPAPMAC_GET) {
                 ESP_AT_PORT_SEND_STR("AP");
             }
+#endif /* ESP_MODE_ACCESS_POINT */
             ESP_AT_PORT_SEND_STR("MAC");
             if (msg->cmd_def == msg->cmd && msg->msg.sta_ap_getmac.def) {
                 ESP_AT_PORT_SEND_STR("_DEF");
@@ -863,14 +955,24 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("?\r\n");
             break;
         }
+#if ESP_MODE_STATION
         case ESP_CMD_WIFI_CIPSTA_SET:           /* Set station IP address */
-        case ESP_CMD_WIFI_CIPAP_SET: {          /* Set access point IP address */
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+        case ESP_CMD_WIFI_CIPAP_SET:            /* Set access point IP address */
+#endif /* ESP_MODE_ACCESS_POINT */
+        {
             ESP_AT_PORT_SEND_STR("AT+CIP");
+#if ESP_MODE_STATION
             if (msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
                 ESP_AT_PORT_SEND_STR("STA");
-            } else {
+            }
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+            if (msg->cmd == ESP_CMD_WIFI_CIPAP_SET) {
                 ESP_AT_PORT_SEND_STR("AP");
             }
+#endif /* ESP_MODE_ACCESS_POINT */
             if (msg->cmd_def == msg->cmd && msg->msg.sta_ap_setip.def) {
                 ESP_AT_PORT_SEND_STR("_DEF");
             } else {
@@ -889,14 +991,24 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+#if ESP_MODE_STATION
         case ESP_CMD_WIFI_CIPSTAMAC_SET:        /* Set station MAC address */
-        case ESP_CMD_WIFI_CIPAPMAC_SET: {       /* Set access point MAC address */
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+        case ESP_CMD_WIFI_CIPAPMAC_SET:         /* Set access point MAC address */
+#endif /* ESP_MODE_ACCESS_POINT */
+        {
             ESP_AT_PORT_SEND_STR("AT+CIP");
+#if ESP_MODE_STATION
             if (msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_SET) {
                 ESP_AT_PORT_SEND_STR("STA");
-            } else {
+            }
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+            if (msg->cmd == ESP_CMD_WIFI_CIPAPMAC_SET) {
                 ESP_AT_PORT_SEND_STR("AP");
             }
+#endif /* ESP_MODE_ACCESS_POINT */
             ESP_AT_PORT_SEND_STR("MAC");
             if (msg->cmd_def == msg->cmd && msg->msg.sta_ap_setmac.def) {
                 ESP_AT_PORT_SEND_STR("_DEF");
@@ -908,6 +1020,31 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+        
+#if ESP_MODE_ACCESS_POINT
+        case ESP_CMD_WIFI_CWSAP_SET: {          /* Set access point parameters */
+            ESP_AT_PORT_SEND_STR("AT+CWSAP");
+            if (msg->msg.ap_conf.def) {
+                ESP_AT_PORT_SEND_STR("_DEF");
+            } else {
+                ESP_AT_PORT_SEND_STR("_CUR");
+            }
+            ESP_AT_PORT_SEND_STR("=");
+            send_string(msg->msg.ap_conf.ssid, 1, 1);   /* Send escaped string */
+            ESP_AT_PORT_SEND_STR(",");
+            send_string(msg->msg.ap_conf.pwd, 1, 1);    /* Send escaped string */
+            ESP_AT_PORT_SEND_STR(",");
+            send_number((uint32_t)msg->msg.ap_conf.ch, 0);
+            ESP_AT_PORT_SEND_STR(",");
+            send_number((uint32_t)msg->msg.ap_conf.ecn, 0);
+            ESP_AT_PORT_SEND_STR(",");
+            send_number((uint32_t)msg->msg.ap_conf.max_sta, 0);
+            ESP_AT_PORT_SEND_STR(",");
+            send_number((uint32_t)(!!msg->msg.ap_conf.hid), 0);
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
+#endif /* ESP_MODE_ACCESS_POINT */
         
         /**
          * TCP/IP related commands

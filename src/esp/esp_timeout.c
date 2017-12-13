@@ -33,8 +33,8 @@
 #include "include/esp_timeout.h"
 #include "include/esp_mem.h"
 
-esp_timeout_t* first_timeout;
-uint32_t last_timeout_time;
+static esp_timeout_t* first_timeout;
+static uint32_t last_timeout_time;
 
 /**
  * \brief           Get time we have to wait before we can process next timeout

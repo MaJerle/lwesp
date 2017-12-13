@@ -80,17 +80,23 @@ typedef enum {
      * WiFi based commands
      */
     ESP_CMD_WIFI_CWMODE,                        /*!< Set/Get wifi mode */
+#if ESP_MODE_STATION || __DOXYGEN__
     ESP_CMD_WIFI_CWJAP,                         /*!< Connect to access point */
     ESP_CMD_WIFI_CWQAP,                         /*!< Disconnect from access point */
     ESP_CMD_WIFI_CWLAP,                         /*!< List available access points */
     ESP_CMD_WIFI_CIPSTAMAC_GET,                 /*!< Get MAC address of ESP station */
     ESP_CMD_WIFI_CIPSTAMAC_SET,                 /*!< Set MAC address of ESP station */
-    ESP_CMD_WIFI_CIPAPMAC_GET,                  /*!< Get MAC address of ESP access point */
-    ESP_CMD_WIFI_CIPAPMAC_SET,                  /*!< Set MAC address of ESP access point */
     ESP_CMD_WIFI_CIPSTA_GET,                    /*!< Get IP address of ESP station */
     ESP_CMD_WIFI_CIPSTA_SET,                    /*!< Set IP address of ESP station */
+#endif /* ESP_MODE_STATION || __DOXYGEN__ */
+#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
+    ESP_CMD_WIFI_CWSAP_GET,                     /*!< Get software access point configuration */
+    ESP_CMD_WIFI_CWSAP_SET,                     /*!< Set software access point configuration */
+    ESP_CMD_WIFI_CIPAPMAC_GET,                  /*!< Get MAC address of ESP access point */
+    ESP_CMD_WIFI_CIPAPMAC_SET,                  /*!< Set MAC address of ESP access point */
     ESP_CMD_WIFI_CIPAP_GET,                     /*!< Get IP address of ESP access point */
     ESP_CMD_WIFI_CIPAP_SET,                     /*!< Set IP address of ESP access point */
+#endif /* ESP_MODE_STATION || __DOXYGEN__ */
     ESP_CMD_WIFI_WPS,                           /*!< Set WPS option */
     ESP_CMD_WIFI_MDNS,                          /*!< Configure MDNS function */
     ESP_CMD_WIFI_CWHOSTNAME,                    /*!< Set/Get device hostname */
@@ -224,10 +230,19 @@ typedef struct esp_msg {
             size_t* apf;                        /*!< Pointer to output variable holding number of access points found */
         } ap_list;                              /*!< List for access points */
         
+        struct {
+            const char* ssid;                   /*!< Name of access point */
+            const char* pwd;                    /*!< Password of access point */
+            esp_ecn_t ecn;                      /*!< Ecryption used */
+            uint8_t ch;                         /*!< RF Channel used */
+            uint8_t max_sta;                    /*!< Max allowed connected stations */
+            uint8_t hid;                        /*!< Configuration if network is hidden or visible */
+            uint8_t def;                        /*!< Save as default configuration */
+        } ap_conf;                              /*!< Parameters to configura access point */
+        
         /**
          * Connection based commands
          */
-        
         struct {
             esp_conn_t** conn;                  /*!< Pointer to pointer to save connection used */
             const char* host;                   /*!< Host to use for connection */
@@ -255,7 +270,6 @@ typedef struct esp_msg {
         /*
          * TCP/IP based commands
          */
-        
         struct {
             uint8_t mux;                        /*!< Mux status, either enabled or disabled */
         } tcpip_mux;                            /*!< Used for setting up multiple connections */
@@ -328,14 +342,17 @@ typedef struct {
     esp_cb_func_t       cb_func;                /*!< Default callback function */
     esp_cb_func_t       cb_server;              /*!< Default callback function for server connections */
     
+#if ESP_MODE_STATION || __DOXYGEN__
     esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */
+#endif /* ESP_MODE_STATION || __DOXYGEN__ */
+#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
     esp_ip_mac_t        ap;                     /*!< Access point IP and MAC addressed */
+#endif /* ESP_MODE_ACCESS_POINT || __DOXYGEN__ */
     
     union {
         struct {            
             uint8_t     r_got_ip:1;             /*!< Flag indicating ESP has IP */
             uint8_t     r_w_conn:1;             /*!< Flag indicating ESP is connected to wifi */
-            
         } f;                                    /*!< Flags structure */
     } status;                                   /*!< Status structure */
 } esp_t;
@@ -367,7 +384,7 @@ extern esp_t esp;
 
 #define ESP_ASSERT(msg, c)   do {   \
     if (!(c)) {                     \
-        ESP_DEBUGF(ESP_DBG_ASSERT, "Wrong parameters on file %s and line %d\r\n", __FILE__, __LINE__); \
+        ESP_DEBUGF(ESP_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, __LINE__, msg); \
         return espPARERR;           \
     }                               \
 } while (0)
