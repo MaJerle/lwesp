@@ -743,14 +743,36 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         if (msg->cmd == ESP_CMD_WIFI_CWJAP) {   /* Is the current command join? */
             if (is_ok) {                        /* Did we join successfully? */
                 msg->cmd = ESP_CMD_WIFI_CIPSTA_GET; /* Go to next command to get IP address */
-                espi_initiate_cmd(msg);         /* Start command */
-                return espCONT;                 /* Return to continue and not to stop command */
+                if (espi_initiate_cmd(msg) == espOK) {
+                    return espCONT;             /* Return to continue and not to stop command */
+                }
             }
         } else if (msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) {
             if (is_ok) {
-                msg->cmd = ESP_CMD_WIFI_CIPSTAMAC_GET;  /* Go to next command to get IP address */
-                espi_initiate_cmd(msg);         /* Start command */
-                return espCONT;                 /* Return to continue and not to stop command */
+                msg->cmd = ESP_CMD_WIFI_CIPSTAMAC_GET;  /* Go to next command to get MAC address */
+                if (espi_initiate_cmd(msg) == espOK) {
+                    return espCONT;             /* Return to continue and not to stop command */
+                }
+            }
+        }
+    }
+#endif /* ESP_MODE_STATION */
+#if ESP_MODE_ACCESS_POINT
+    if (msg->cmd_def == ESP_CMD_WIFI_CWMODE &&
+        (msg->msg.wifi_mode.mode == ESP_MODE_AP || msg->msg.wifi_mode.mode == ESP_MODE_STA_AP)) {
+        if (msg->cmd == ESP_CMD_WIFI_CWMODE) {
+            if (is_ok) {
+                msg->cmd = ESP_CMD_WIFI_CIPAP_GET;  /* Go to next command to get IP address */
+                if (espi_initiate_cmd(msg) == espOK) {
+                    return espCONT;             /* Return to continue and not to stop command */
+                }
+            }
+        } else if (msg->cmd == ESP_CMD_WIFI_CIPAP_GET) {
+            if (is_ok) {
+                msg->cmd = ESP_CMD_WIFI_CIPAPMAC_GET;   /* Go to next command to get IP address */
+                if (espi_initiate_cmd(msg) == espOK) {
+                    return espCONT;             /* Return to continue and not to stop command */
+                }
             }
         }
     }
@@ -886,7 +908,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             
             if (msg->cmd_def == ESP_CMD_RESET) {/* Is this command part of reset sequence? */
 #if ESP_MODE_STATION_ACCESS_POINT
-                m = ESP_MODE_STA;               /* Set station and access point mode */
+                m = ESP_MODE_STA_AP;            /* Set station and access point mode */
 #elif ESP_MODE_STATION
                 m = ESP_MODE_STA;               /* Set station mode */
 #else

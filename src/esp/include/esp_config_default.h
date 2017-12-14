@@ -143,7 +143,7 @@
  * \note            When device is in access point mode, it can accept connections from other stations
  */
 #ifndef ESP_MODE_ACCESS_POINT
-#define ESP_MODE_ACCESS_POINT               0
+#define ESP_MODE_ACCESS_POINT               1
 #endif
 
 /**
