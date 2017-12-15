@@ -776,7 +776,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             }
         }
     }
-#endif /* ESP_MODE_STATION */
+#endif /* ESP_MODE_ACCESS_POINT */
     if (msg->cmd_def == ESP_CMD_TCPIP_CIPSTART) {   /* Is our intention to join to access point? */
         if (msg->i == 0 && msg->cmd == ESP_CMD_TCPIP_CIPSTATUS) {   /* Was the current command status info? */
             if (is_ok) {
@@ -828,9 +828,19 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 break;
             }
             case ESP_CMD_TCPIP_CIPDINFO: {
-                n_cmd = ESP_CMD_TCPIP_CIPSTATUS;    /* Get connection status */
+                n_cmd = ESP_CMD_TCPIP_CIPSTATUS;/* Get connection status */
                 break;
             }
+#if ESP_MODE_ACCESS_POINT
+            case ESP_CMD_TCPIP_CIPSTATUS: {
+                n_cmd = ESP_CMD_WIFI_CIPAP_GET; /* Get access point IP */
+                break;
+            }
+            case ESP_CMD_WIFI_CIPAP_GET: {
+                n_cmd = ESP_CMD_WIFI_CIPAPMAC_GET;  /* Get access point MAC */
+                break;
+            }
+#endif /* ESP_MODE_ACCESS_POINT */
             default: break;
         }
         if (n_cmd != ESP_CMD_IDLE) {            /* Is there a change of command? */
