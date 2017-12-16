@@ -325,9 +325,11 @@ typedef struct {
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
     esp_sys_mbox_t      mbox_process;           /*!< Consumer message queue handle */
     esp_sys_thread_t    thread_producer;        /*!< Producer thread handle */
+#if !ESP_INPUT_USE_PROCESS || __DOXYGEN__
     esp_sys_thread_t    thread_process;         /*!< Processing thread handle */
-    esp_ll_t            ll;                     /*!< Low level functions */
     esp_buff_t          buff;                   /*!< Input processing buffer */
+#endif /* !ESP_INPUT_USE_PROCESS || __DOXYGEN__ */
+    esp_ll_t            ll;                     /*!< Low level functions */
     
     esp_msg_t*          msg;                    /*!< Pointer to current user message being executed */
     
@@ -350,7 +352,8 @@ typedef struct {
 #endif /* ESP_MODE_ACCESS_POINT || __DOXYGEN__ */
     
     union {
-        struct {            
+        struct {
+            uint8_t     initialized:1;          /*!< Flag indicating ESP library is initialized */
             uint8_t     r_got_ip:1;             /*!< Flag indicating ESP has IP */
             uint8_t     r_w_conn:1;             /*!< Flag indicating ESP is connected to wifi */
         } f;                                    /*!< Flags structure */
@@ -397,7 +400,9 @@ extern esp_t esp;
 
 const char * espi_dbg_msg_to_string(esp_cmd_t cmd);
 
-espr_t      espi_process(void);
+espr_t      espi_process(const void* data, size_t len);
+espr_t      espi_process_buffer(void);
+
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
 uint8_t     espi_is_valid_conn_ptr(esp_conn_p conn);
 espr_t      espi_send_cb(esp_cb_type_t type);

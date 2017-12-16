@@ -39,8 +39,10 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include "string.h"
+#include "esp.h"
     
 espr_t      esp_input(const void* data, size_t len);
+espr_t      esp_input_process(const void* data, size_t len);
 
 #ifdef __cplusplus
 }

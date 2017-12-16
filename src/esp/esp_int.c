@@ -555,16 +555,65 @@ espi_parse_received(esp_recv_t* rcv) {
     }
 }
 
+#if !ESP_INPUT_USE_PROCESS || __DOXYGEN__
 /**
- * \brief           Process input data received from ESP device
+ * \brief           Process data from input buffer
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-espi_process(void) {
+espi_process_buffer(void) {
+    void* data;
+    size_t len;
+    
+    do {
+        /**
+         * Get length of linear memory in buffer
+         * we can process directly as memory
+         */
+        len = esp_buff_get_linear_block_length(&esp.buff);
+        if (len) {
+            /**
+             * Get memory address of first element
+             * in linear block to process
+             */
+            data = esp_buff_get_linear_block_address(&esp.buff);
+            
+            /**
+             * Process actual received data
+             */
+            espi_process(data, len);
+            
+            /**
+             * Once they are processed, simply skip
+             * the buffer memory and start over
+             */
+            esp_buff_skip(&esp.buff, len);
+        }
+    } while (len);
+    return espOK;
+}
+#endif /* !ESP_INPUT_USE_PROCESS || __DOXYGEN__ */
+
+/**
+ * \brief           Process input data received from ESP device
+ * \param[in]       data: Pointer to data to process
+ * \param[in]       len: Length of data to process in units of bytes
+ * \return          ospOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+espi_process(const void* data, size_t data_len) {
     uint8_t ch;
+    size_t d_len = data_len;
+    const uint8_t* d;
     static uint8_t ch_prev1, ch_prev2;
     static esp_unicode_t unicode;
     
-    while (esp_buff_read(&esp.buff, &ch, 1)) {  /* Read entire set of characters from buffer */
+    d = data;                                   /* Go to byte format */
+    d_len = data_len;
+    while (d_len) {                             /* Read entire set of characters from buffer */
+        ch = *d++;                              /* Get next character */
+        d_len--;                                /* Decrease remaining length */
+        
         /**
          * First check if we are in IPD mode and process plain data
          * without checking for valid ASCII or unicode format
@@ -581,20 +630,30 @@ espi_process(void) {
             /**
              * Try to read more data directly from buffer
              */
-            len = ESP_MIN(esp.ipd.rem_len, esp.ipd.buff ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len);
+            if (d_len) {
+                len = ESP_MIN(esp.ipd.rem_len, esp.ipd.buff ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len);
+                len = ESP_MIN(len, d_len);      /* Get number of bytes we can read/skip */
+            } else {
+                len = 0;                        /* No data to process more */
+            }
             ESP_DEBUGF(ESP_DBG_IPD, "IPD: New length: %d bytes\r\n", (int)len);
             if (len) {
                 if (esp.ipd.buff) {             /* Is buffer valid? */
-                    len = esp_buff_read(&esp.buff, &esp.ipd.buff->payload[esp.ipd.buff_ptr], len);
+                    /** 
+                     * Copy data to connection payload buffer.
+                     * Call if ok, even if new length is 0
+                     */
+                    memcpy(&esp.ipd.buff->payload[esp.ipd.buff_ptr], d, len);
                     ESP_DEBUGF(ESP_DBG_IPD, "IPD: Bytes read: %d\r\n", (int)len);
                 } else {                        /* Simply skip the data in buffer */
-                    len = esp_buff_skip(&esp.buff, len);
                     ESP_DEBUGF(ESP_DBG_IPD, "IPD: Bytes skipped: %d\r\n", (int)len);
                 }
+                d_len -= len;                   /* Decrease effective length */
+                d += len;                       /* Skip remaining length */
             }
-            if (len) {                          /* Check if we did read anything more */
-                esp.ipd.buff_ptr += len;
-                esp.ipd.rem_len -= len;
+            if (len) {                          /* Check if we did read/skip anything */
+                esp.ipd.buff_ptr += len;        /* Forward buffer pointer */
+                esp.ipd.rem_len -= len;         /* Decrease remaining length */
             }
             
             /**

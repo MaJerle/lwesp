@@ -147,6 +147,17 @@
 #endif
 
 /**
+ * \brief           Enables (1) or disables (0) direct support for processing input data
+ *                  When this mode is enabled, no overhead is included for copying data
+ *                  to receive data buffer because bytes are processed directly
+ *
+ * \note            This mode can only be used when \ref ESP_OS is enabled
+ */
+#ifndef ESP_INPUT_USE_PROCESS
+#define ESP_INPUT_USE_PROCESS               0
+#endif
+
+/**
  * \defgroup        ESP_CONF_DBG Debugging
  * \brief           Debugging configurations
  * \{
@@ -307,6 +318,12 @@
 #if !ESP_MODE_STATION && !ESP_MODE_ACCESS_POINT
 #error "Invalid ESP configuration. ESP_MODE_STATION and ESP_MODE_STATION cannot be disabled at the same time!"
 #endif
+
+#if !ESP_OS
+    #if ESP_INPUT_USE_PROCESS
+    #error "ESP_INPUT_USE_PROCESS may only be enabled when OS is used"
+    #endif /* ESP_INPUT_USE_PROCESS */
+#endif /* !ESP_OS */
 
 #endif /* !__DOXYGEN__ */
 

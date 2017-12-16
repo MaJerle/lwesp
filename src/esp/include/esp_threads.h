@@ -41,7 +41,7 @@ extern "C" {
 #include "esp.h"
 
 void    esp_thread_producer(void* const arg);
-void    esp_thread_consumer(void* const arg);
+void    esp_thread_process(void* const arg);
 
 #ifdef __cplusplus
 }

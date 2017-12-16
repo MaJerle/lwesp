@@ -37,8 +37,10 @@
 #include "include/esp_input.h"
 #include "include/esp_buff.h"
 
-uint32_t esp_recv_total_len;
-uint32_t esp_recv_calls;
+static uint32_t esp_recv_total_len;
+static uint32_t esp_recv_calls;
+
+#if !ESP_INPUT_USE_PROCESS || __DOXYGEN__
 
 /**
  * \brief           Write data to input buffer
@@ -51,9 +53,37 @@ esp_input(const void* data, size_t len) {
     if (!esp.buff.buff) {
         return espERR;
     }
-    esp_buff_write(&esp.buff, data, len);           /* Write data to buffer */
+    esp_buff_write(&esp.buff, data, len);       /* Write data to buffer */
     esp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write empty box */
-    esp_recv_total_len += len;                      /* Update total number of received bytes */
-    esp_recv_calls++;
+    esp_recv_total_len += len;                  /* Update total number of received bytes */
+    esp_recv_calls++;                           /* Update number of calls */
     return espOK;
 }
+
+#endif /* !ESP_INPUT_USE_PROCESS || __DOXYGEN__ */
+
+#if ESP_INPUT_USE_PROCESS || __DOXYGEN__
+
+/**
+ * \brief           Process input data directly without writing it to input buffer
+ * \note            This function may only be used when OS is used
+ *                  where single thread is dedicated for input read of AT receive
+ * \param[in]       data: Pointer to received data to be processed
+ * \param[in]       len: Length of data to process in units of bytes
+ */
+espr_t
+esp_input_process(const void* data, size_t len) {
+    espr_t res;
+    esp_recv_total_len += len;                  /* Update total number of received bytes */
+    esp_recv_calls++;                           /* Update number of calls */
+    
+    if (!esp.status.f.initialized) {
+        return espERR;
+    }
+    ESP_CORE_PROTECT();                         /* Protect core */
+    res = espi_process(data, len);              /* Process input data */
+    ESP_CORE_UNPROTECT();                       /* Release core */
+    return res;
+}
+
+#endif /* ESP_OS || __DOXYGEN__ */

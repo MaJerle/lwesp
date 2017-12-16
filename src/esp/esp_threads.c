@@ -103,11 +103,14 @@ esp_thread_producer(void* const arg) {
     }
 }
 
+#if !ESP_INPUT_USE_PROCESS || __DOXYGEN__
 /**
  * \brief           Thread for processing received data from device
+ * \note            It is used only when direct processing mode is disabled
+ * \sa              ESP_INPUT_USE_PROCESS
  */
 void
-esp_thread_consumer(void* const arg) {
+esp_thread_process(void* const arg) {
     esp_msg_t* msg;
     uint32_t time;
     
@@ -121,6 +124,7 @@ esp_thread_consumer(void* const arg) {
             ESP_UNUSED(time);                   /* Unused variable */
         }
         
-        espi_process();                         /* Process input data */
+        espi_process_buffer();                  /* Process input data */
     }
 }
+#endif /* !ESP_INPUT_USE_PROCESS || __DOXYGEN__ */

@@ -86,19 +86,24 @@ espi_set_dinfo(uint8_t info, uint32_t blocking) {
  */
 espr_t
 esp_init(esp_cb_func_t cb_func) {
-    esp_sys_init();                             /* Init low-level system */
-    esp_ll_init(&esp.ll, ESP_AT_PORT_BAUDRATE); /* Init low-level communication */
-    
+    esp.status.f.initialized = 0;               /* Clear possible init flag */
     esp.cb_func = cb_func ? cb_func : def_callback; /* Set callback function */
     esp.cb_server = esp.cb_func;                /* Set default server callback function */
     
+    esp_sys_init();                             /* Init low-level system */
+    esp_ll_init(&esp.ll, ESP_AT_PORT_BAUDRATE); /* Init low-level communication */
+    
     esp_sys_sem_create(&esp.sem_sync, 1);       /* Create new semaphore with unlocked state */
     esp_sys_mbox_create(&esp.mbox_producer, ESP_THREAD_PRODUCER_MBOX_SIZE); /* Producer message queue */
-    esp_sys_mbox_create(&esp.mbox_process, ESP_THREAD_PROCESS_MBOX_SIZE);   /* Consumer message queue */
     esp_sys_thread_create(&esp.thread_producer, "producer", esp_thread_producer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
-    esp_sys_thread_create(&esp.thread_process,  "process", esp_thread_consumer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
+    
+#if !ESP_INPUT_USE_PROCESS
+    esp_sys_mbox_create(&esp.mbox_process, ESP_THREAD_PROCESS_MBOX_SIZE);   /* Consumer message queue */
+    esp_sys_thread_create(&esp.thread_process,  "process", esp_thread_process, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
     
     esp_buff_init(&esp.buff, ESP_RCV_BUFF_SIZE);    /* Init buffer for input data */
+#endif /* !ESP_INPUT_USE_PROCESS */
+    esp.status.f.initialized = 1;               /* We are initialized now */
     
     /**
      * Call reset command and call default
