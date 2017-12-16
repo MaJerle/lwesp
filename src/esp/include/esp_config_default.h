@@ -107,19 +107,6 @@
 #endif
 
 /**
- * \brief           Buffer size for received data waiting to be processed
- * \note            When server mode is active and a lot of connections are in queue
- *                  this should be set high otherwise your buffer may overflow
- * 
- * \note            Buffer size also depends on TX user driver if it uses DMA or blocking mode
- *                  In case of DMA (CPU can work other tasks), buffer may be smaller as CPU
- *                  will have more time to process all the incoming bytes
- */
-#ifndef ESP_RCV_BUFF_SIZE
-#define ESP_RCV_BUFF_SIZE                   0x400
-#endif
-
-/**
  * \brief           Default baudrate used for AT port
  *
  * \note            Later, user may call API function to change to desired baudrate if necessary
@@ -147,14 +134,18 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) direct support for processing input data
- *                  When this mode is enabled, no overhead is included for copying data
- *                  to receive data buffer because bytes are processed directly
+ * \brief           Buffer size for received data waiting to be processed
+ * \note            When server mode is active and a lot of connections are in queue
+ *                  this should be set high otherwise your buffer may overflow
+ * 
+ * \note            Buffer size also depends on TX user driver if it uses DMA or blocking mode
+ *                  In case of DMA (CPU can work other tasks), buffer may be smaller as CPU
+ *                  will have more time to process all the incoming bytes
  *
- * \note            This mode can only be used when \ref ESP_OS is enabled
+ * \note            This parameter has no meaning when \ref ESP_INPUT_USE_PROCESS is enabled
  */
-#ifndef ESP_INPUT_USE_PROCESS
-#define ESP_INPUT_USE_PROCESS               0
+#ifndef ESP_RCV_BUFF_SIZE
+#define ESP_RCV_BUFF_SIZE                   0x400
 #endif
 
 /**
@@ -248,9 +239,27 @@
 /**
  * \brief           Set number of message queue entries for processing thread
  *                  Message queue is used to notify processing thread about new received data on AT port
+ *
+ * \note            This parameter has no meaning when \ref ESP_INPUT_USE_PROCESS is enabled
  */
 #ifndef ESP_THREAD_PROCESS_MBOX_SIZE
 #define ESP_THREAD_PROCESS_MBOX_SIZE        10
+#endif
+
+/**
+ * \brief           Enables (1) or disables (0) direct support for processing input data
+ *                  When this mode is enabled, no overhead is included for copying data
+ *                  to receive buffer because bytes are processed directly.
+ *
+ * \note            This mode can only be used when \ref ESP_OS is enabled
+ *
+ * \note            When using this mode, separate thread must be dedicated only 
+ *                  for reading data on AT port
+ *
+ * \note            Best case for using this mode is if DMA receive is supported by host device
+ */
+#ifndef ESP_INPUT_USE_PROCESS
+#define ESP_INPUT_USE_PROCESS               0
 #endif
  
 /**
