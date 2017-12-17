@@ -45,7 +45,7 @@ http_parse_uri(esp_pbuf_p p) {
     }
     pos_e = esp_pbuf_strfind(p, " ", pos_s + 1);/* Find second " " in request header */
     if (pos_e == ESP_SIZET_MAX) {               /* If there is no second " " */
-        /**
+        /*
          * HTTP 0.9 request is "GET /\r\n" without
          * space between request URI and CRLF
          */
