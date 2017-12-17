@@ -39,12 +39,20 @@
 /**
  * User specific config which overwrites setup from esp_config_default.h file
  */
- 
+
+#if !__DOXYGEN__
 #define ESP_NETCONN                         1
 #define ESP_DBG_IPD                         ESP_DBG_OFF
 #define ESP_RCV_BUFF_SIZE                   0x1000
 
 #define ESP_IPD_MAX_BUFF_SIZE               1460
+
+#define ESP_INPUT_USE_PROCESS               0
+
+#define ESP_AT_ECHO                         1
+
+#define ESP_SNTP                            1
+#endif /* !__DOXYGEN__ */
 
 /* Include default configuration setup */
 #include "esp_config_default.h"

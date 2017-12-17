@@ -796,6 +796,11 @@
                 </FileArmAds>
               </FileOption>
             </File>
+            <File>
+              <FileName>cpu_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\FreeRTOS\CMSIS_RTOS\cpu_utils.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -851,6 +856,16 @@
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_conn.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_sntp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_sntp.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_ping.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_ping.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -897,9 +912,9 @@
               <FilePath>..\src\system\esp_sys.c</FilePath>
             </File>
             <File>
-              <FileName>esp_ll.c</FileName>
+              <FileName>esp_ll_dev.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\esp\esp_ll.c</FilePath>
+              <FilePath>..\src\system\esp_ll_dev.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1779,6 +1794,11 @@
                 </FileArmAds>
               </FileOption>
             </File>
+            <File>
+              <FileName>cpu_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\FreeRTOS\CMSIS_RTOS\cpu_utils.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1834,6 +1854,16 @@
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_conn.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_sntp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_sntp.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_ping.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_ping.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1880,9 +1910,9 @@
               <FilePath>..\src\system\esp_sys.c</FilePath>
             </File>
             <File>
-              <FileName>esp_ll.c</FileName>
+              <FileName>esp_ll_dev.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\esp\esp_ll.c</FilePath>
+              <FilePath>..\src\system\esp_ll_dev.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2762,6 +2792,11 @@
               <FileType>1</FileType>
               <FilePath>..\libs\FreeRTOS\portable\RVDS\ARM_CM7\port_cm7.c</FilePath>
             </File>
+            <File>
+              <FileName>cpu_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\FreeRTOS\CMSIS_RTOS\cpu_utils.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2817,6 +2852,16 @@
               <FileType>1</FileType>
               <FilePath>..\src\esp\esp_conn.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_sntp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_sntp.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_ping.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\esp\esp_ping.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2863,9 +2908,9 @@
               <FilePath>..\src\system\esp_sys.c</FilePath>
             </File>
             <File>
-              <FileName>esp_ll.c</FileName>
+              <FileName>esp_ll_dev.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\esp\esp_ll.c</FilePath>
+              <FilePath>..\src\system\esp_ll_dev.c</FilePath>
             </File>
           </Files>
         </Group>

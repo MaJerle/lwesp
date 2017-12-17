@@ -50,9 +50,11 @@ CTS         PA3                 RTS from ST to CTS from ESP
 #include "tm_stm32_delay.h"
 #include "tm_stm32_usart.h"
 #include "esp.h"
+#include "esp_sntp.h"
 #include "fs_data.h"
 //#include "cmsis_os.h"
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX5
+#include "cpu_utils.h"
 
 #include "server.h"
 
@@ -103,6 +105,9 @@ uint32_t time;
 
 esp_ap_t aps[100];
 size_t apf;
+esp_sta_t stas[20];
+size_t staf;
+esp_datetime_t dt;
 
 typedef struct {
     const char* ssid;
@@ -144,6 +149,7 @@ init_thread(void const* arg) {
     
     time = osKernelSysTick();
     
+    esp_ap_configure("Tilenov WiFi", "ni dostopa", 5, ESP_ECN_WPA_WPA2_PSK, 8, 0, 1, 1);
     
     /**
      * Scan for network access points
@@ -200,9 +206,29 @@ cont:
     
     printf("Init finished!\r\n");
     
+    if (esp_sntp_configure(1, -1, NULL, NULL, NULL, 1) == espOK) {
+        if (esp_sntp_gettime(&dt, 1) == espOK) {
+            printf("SNTP Time: %d.%d.%d %d:%d:%d\r\n",
+                (int)dt.date, (int)dt.month, (int)dt.year,
+                (int)dt.hours, (int)dt.minutes, (int)dt.seconds
+            );
+        }
+    }
+    
     while (1) {
       
-        osDelay(50);
+        if (esp_ap_list_sta(stas, sizeof(stas) / sizeof(stas[0]), &staf, 1) == espOK) {
+            printf("- - - - - - - - -\r\n");
+            for (i = 0; i < staf; i++) {
+                printf("STA: IP: %d.%d.%d.%d; MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+                    stas[i].ip[0], stas[i].ip[1], stas[i].ip[2], stas[i].ip[3], 
+                    stas[i].mac[0], stas[i].mac[1], stas[i].mac[2], 
+                    stas[i].mac[3], stas[i].mac[4], stas[i].mac[5]
+                );
+            }
+        }
+        osDelay(1000);
+        //printf("CPU USAGE: %d\r\n", (int)osGetCPUUsage());
         
 //        if (TM_DISCO_ButtonOnPressed()) {
 //            //esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "example.net", CONN_PORT, NULL, esp_conn_client_cb, 0);
