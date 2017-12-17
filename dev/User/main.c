@@ -56,15 +56,22 @@ CTS         PA3                 RTS from ST to CTS from ESP
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX5
 #include "cpu_utils.h"
 
-#include "server.h"
+#include "../apps/include/esp_netconn_server.h"
 
 void init_thread(void const* arg);
 void client_thread(void const* arg);
 
 osThreadId init_thread_id, server_thread_id, client_thread_id;
 osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
-osThreadDef(server_thread, server_thread, osPriorityNormal, 0, 512);
 osThreadDef(client_thread, client_thread, osPriorityNormal, 0, 512);
+
+char* led_cgi_handler(http_param_t* params, size_t params_len);
+char* usart_cgi_handler(http_param_t* params, size_t params_len);
+
+const http_cgi_t cgi_handlers[] = {
+    { "/led.cgi", led_cgi_handler },
+    { "/usart.cgi", usart_cgi_handler },
+};
 
 int
 main(void) {
@@ -184,7 +191,7 @@ cont:
     } else {
         uint8_t ip[] = {192, 168, 0, 201};
         //esp_sta_setip(ip, NULL, NULL, 0, 1);
-        server_thread_id = osThreadCreate(osThread(server_thread), NULL);
+        esp_netconn_server_init(cgi_handlers, sizeof(cgi_handlers) / sizeof(cgi_handlers[0]));
         printf("Server mode!\r\n");
     }
     
@@ -216,8 +223,7 @@ cont:
     }
     
     while (1) {
-      
-        if (esp_ap_list_sta(stas, sizeof(stas) / sizeof(stas[0]), &staf, 1) == espOK) {
+        if (0 && esp_ap_list_sta(stas, sizeof(stas) / sizeof(stas[0]), &staf, 1) == espOK) {
             printf("- - - - - - - - -\r\n");
             for (i = 0; i < staf; i++) {
                 printf("STA: IP: %d.%d.%d.%d; MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
@@ -391,6 +397,46 @@ esp_conn_server_cb(esp_cb_t* cb) {
             break;
     }
     return espOK;
+}
+
+char *
+led_cgi_handler(http_param_t* params, size_t params_len) {
+    size_t i;
+    int type = -1, value = -1;
+    while (params_len--) {
+        if (!strcmp(params->name, "led")) {
+            if (!strcmp(params->value, "green")) {
+                type = 0;
+            } else if (!strcmp(params->value, "red")) {
+                type = 1;
+            }
+        } else if (!strcmp(params->name, "val")) {
+            if (!strcmp(params->value, "on")) {
+                value = 1;
+            } else if (!strcmp(params->value, "off")) {
+                value = 0;
+            } else if (!strcmp(params->value, "toggle")) {
+                value = 2;
+            }
+        }
+        params++;
+    }
+    if (type >= 0 && value >= 0) {
+        if (value == 0) {
+            TM_DISCO_LedOff(type == 0 ? LED_GREEN : LED_RED);
+        } else if (value == 1) {
+            TM_DISCO_LedOn(type == 0 ? LED_GREEN : LED_RED);
+        } else if (value == 2) {
+            TM_DISCO_LedToggle(type == 0 ? LED_GREEN : LED_RED);
+        }
+    }
+    return "/index.html";
+}
+
+char *
+usart_cgi_handler(http_param_t* params, size_t params_len) {
+    printf("USART!\r\n");
+    return "/index.html";
 }
 
 /**

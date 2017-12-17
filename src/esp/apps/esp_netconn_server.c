@@ -1,13 +1,36 @@
-#include "main.h"
-#include "server.h"
-#include "esp.h"
+/**	
+ * \file            esp_netconn_server.c
+ * \brief           HTTP server based on netconn API
+ */
+ 
+/*
+ * Copyright (c) 2017 Tilen Majerle
+ *  
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, 
+ * and to permit persons to whom the Software is furnished to do so, 
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Author:          Tilen MAJERLE <tilen@majerle.eu>
+ */
+#include "include/esp_netconn_server.h"
 #include "fs_data.h"
 #include "ctype.h"
-
-typedef struct {
-    const char* name;
-    const char* value;
-} http_param_t;
 
 #define ESP_DBG_SERVER              ESP_DBG_OFF
 
@@ -16,6 +39,10 @@ typedef struct {
 
 char http_uri[HTTP_MAX_URI_LEN + 1];
 http_param_t http_params[HTTP_MAX_PARAMS];
+
+/* CGI parameters */
+static const http_cgi_t* cgi_list;
+static size_t cgi_size;
 
 /**
  * \brief           List of supported file names for index page
@@ -98,17 +125,6 @@ http_get_params(char* params) {
 }
 
 /**
- * \brief           Handle parameters from GET request
- * \param[in]       params: Pointer to array of params
- * \param[in]       params_len: Length of parameters available to read and process
- * \return          New URI used as output file
- */
-const char*
-cgi_handler(const http_param_t* params, size_t params_len) {
-    return "/index.html";                       /* Show index.html file in this case */
-}
-
-/**
  * \brief           Get file from uri in format /folder/file?param1=value1&...
  * \param[in]       uri: Input uri to get file for
  * \return          Pointer to file on success or NULL on failure
@@ -122,7 +138,7 @@ http_get_file_from_url(char* uri) {
     if ((uri_len == 1 && uri[0] == '/') ||      /* Index file only requested */
         (uri_len > 1 && uri[0] == '/' && uri[1] == '?')) {  /* Index file + parameters */
         size_t i;
-        /**
+        /*
          * Scan index files and check if there is one from user
          * available to return as main file
          */
@@ -134,7 +150,7 @@ http_get_file_from_url(char* uri) {
         }
     }
     
-    /**
+    /*
      * We still don't have a file,
      * maybe there was a request for specific file and possible parameters
      */
@@ -147,16 +163,20 @@ http_get_file_from_url(char* uri) {
             req_params++;                       /* Skip NULL part and go to next one */
         }
         
-        (void)params_len;
-//        params_len = http_get_params(req_params);   /* Get request params from request */
-//        if (params_len) {
-//            uri = (char *)cgi_handler(http_params, params_len);
-//        }
-        
+        params_len = http_get_params(req_params);   /* Get request params from request */
+        if (cgi_list) {                         /* Check if any user specific controls to process */
+            size_t i;
+            for (i = 0; i < cgi_size; i++) {
+                if (!strcmp(cgi_list[i].uri, uri)) {
+                    uri = cgi_list[i].fn(http_params, params_len);
+                    break;
+                }
+            }
+        }
         file = fs_data_open_file(uri, 0);       /* Give me a new file now */
     }
     
-    /**
+    /*
      * We still don't have a file!
      * Try with 404 error page if available by user
      */
@@ -179,7 +199,7 @@ server_serve(esp_netconn_p client) {
     uint8_t ch;
     
     do {
-        /**
+        /*
          * Receive HTTP data from client,
          * packet by packet until we have \r\n\r\n,
          * indicating end of headers.
@@ -199,13 +219,13 @@ server_serve(esp_netconn_p client) {
              * which indicates end of headers in HTTP request
              */
             if ((pos = esp_pbuf_strfind(pbuf, "\r\n\r\n", 0)) != ESP_SIZET_MAX) {
-                /**
+                /*
                  * At this point, all headers are received
                  * We can start process them into something useful
                  */
                 data_pos = pos + 4;             /* Ignore 4 bytes of CR LF sequence */
                 
-                /**
+                /*
                  * Check method type we are dealing with
                  * either GET or POST are supported currently
                  */
@@ -215,14 +235,14 @@ server_serve(esp_netconn_p client) {
                 } else if (!esp_pbuf_strcmp(pbuf, "POST", 0)) {
                     ESP_DEBUGF(ESP_DBG_SERVER, "We have POST method!\r\n");
                     
-                    /**
+                    /*
                      * Try to read content length parameter
                      * and parse length to know how much data we should expect on POST
                      * command to be sure everything is received before processed
                      */
                     if (((pos = esp_pbuf_strfind(pbuf, "Content-Length:", 0)) != ESP_SIZET_MAX) ||
                         (pos = esp_pbuf_strfind(pbuf, "content-length:", 0)) != ESP_SIZET_MAX) {
-                        /**
+                        /*
                          * We have found content-length header
                          * Now we need to calculate actual length of data
                          */
@@ -242,7 +262,7 @@ server_serve(esp_netconn_p client) {
                         ESP_DEBUGF(ESP_DBG_SERVER, "POST: Found content length: %d bytes\r\n", (int)cont_len);
                         pbuf_tot_len = esp_pbuf_length(pbuf, 1);    /* Get total length of pbuf */
                         
-                        /**
+                        /*
                          * Check if we have some data already in current pbufs
                          * and call user function in case we have some data
                          */
@@ -250,19 +270,19 @@ server_serve(esp_netconn_p client) {
                             size_t post_data_len;
                             const uint8_t* post_data;
                             
-                            /**
+                            /*
                              * Get linear memory address and length from post data
                              * to send to user space application
                              */
                             post_data = esp_pbuf_get_linear_addr(pbuf, data_pos, &post_data_len);
                             (void)(post_data);
                             
-                            /**
+                            /*
                              * @todo: Call user function with POST data here
                              */
                             ESP_DEBUGF(ESP_DBG_SERVER, "POST DATA: %.*s\r\n", post_data_len, post_data);
                             
-                            /**
+                            /*
                              * Check if we have content length set and in case we have, 
                              * set new content length variable
                              */
@@ -273,7 +293,7 @@ server_serve(esp_netconn_p client) {
                             }
                         }
                         
-                        /**
+                        /*
                          * Do we still have some data to be received?
                          * In this case wait blocked until all data are received
                          */
@@ -286,7 +306,7 @@ server_serve(esp_netconn_p client) {
                                 size_t len, tot_len, offset;
                                 const uint8_t* data;
                                 
-                                /**
+                                /*
                                  * Get memory address and new length.
                                  * Since there is no offset, 
                                  * entire memory should be returned and length is the entire pbuf length
@@ -332,7 +352,7 @@ server_serve(esp_netconn_p client) {
         }
     } while (1);
     
-    /**
+    /*
      * Take care of output to be sent back to user
      * Output depends on request header in pbuf chain
      */
@@ -340,7 +360,18 @@ server_serve(esp_netconn_p client) {
         if (http_parse_uri(pbuf) == espOK) {    /* Try to parse URI from request */
             const fs_file_t* file = http_get_file_from_url(http_uri);   /* Get file from URI */
             if (file) {
-                esp_netconn_write(client, file->data, file->len);   /* Write response to client */
+                size_t i = 0, k;
+                const uint8_t* d = file->data;
+                while (i < file->len) {
+                    k = file->len - i;
+                    k = k > 40 ? 40 : k;
+                    if (esp_netconn_write(client, d, k) != espOK) {
+                        break;
+                    }
+                    i += k;
+                    d += k;
+                }
+                esp_netconn_flush(client);      /* Flush data and send them */
                 fs_data_close_file(file);       /* Close file name */
             }
         }
@@ -361,13 +392,13 @@ server_serve(esp_netconn_p client) {
  * \param[in]       arg: Thread argument
  */
 void
-server_thread(void const* arg) {
+server_thread(void* arg) {
     esp_netconn_p server, client;
     espr_t res;
     
     ESP_DEBUGF(ESP_DBG_SERVER, "API server thread started\r\n");
     
-    /**
+    /*
      * Create a new netconn base connection
      * acting as mother of all clients
      */
@@ -375,26 +406,26 @@ server_thread(void const* arg) {
     if (server) {
         ESP_DEBUGF(ESP_DBG_SERVER, "API connection created\r\n");
         
-        /**
+        /*
          * Bind base connection to port 80
          */
         res = esp_netconn_bind(server, 80);     /* Bind a connection on port 80 */
         if (res == espOK) {
             ESP_DEBUGF(ESP_DBG_SERVER, "API connection binded\r\n");
             
-            /**
+            /*
              * Start listening on a server
              * for incoming client connections
              */
             res = esp_netconn_listen(server);   /* Start listening on a connection */
             
-            /**
+            /*
              * Process unlimited time
              */
             while (1) {
                 ESP_DEBUGF(ESP_DBG_SERVER, "API waiting connection\r\n");
                 
-                /**
+                /*
                  * Wait for client to connect to server.
                  * Function will block thread until we reach a new client
                  */
@@ -402,7 +433,7 @@ server_thread(void const* arg) {
                 if (res == espOK) {             /* Do we have a new connection? */
                     ESP_DEBUGF(ESP_DBG_SERVER, "API new connection accepted: %d\r\n", (int)esp_netconn_getconnnum(client));
                     
-                    /**
+                    /*
                      * Process client and serve according to request
                      * It will make sure to close connection and to delete
                      * connection data from memory
@@ -412,4 +443,20 @@ server_thread(void const* arg) {
             }
         }
     }
+}
+
+/**
+ * \brief           Initialize server using NETCONN API (RTOS required)
+ * \param[in]       cgi: Pointer to list of CGI handlers. Set to NULL if not used
+ * \param[in]       Length of CGI handlers. Set to 0 if not used
+ */
+espr_t
+esp_netconn_server_init(const http_cgi_t* cgi, size_t cgi_len) {
+    esp_sys_thread_t thread;
+    
+    cgi_list = cgi;
+    cgi_size = cgi_len;
+    esp_sys_thread_create(&thread, "netconn_server", server_thread, NULL, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
+    
+    return espOK;
 }
