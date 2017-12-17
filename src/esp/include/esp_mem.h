@@ -39,6 +39,17 @@ extern "C" {
 #include "esp.h"
 
 /**
+ * \addtogroup      ESP
+ * \{
+ */
+
+/**
+ * \defgroup        ESP_MEM Memory manager
+ * \brief           Dynamic memory manager
+ * \{
+ */
+
+/**
  * \brief           Single memory region descriptor
  */
 typedef struct mem_region_t {
@@ -60,6 +71,10 @@ size_t  esp_mem_getfull(void);
 size_t  esp_mem_getminfree(void);
 
 uint8_t esp_mem_assignmemory(const esp_mem_region_t* regions, size_t size);
+    
+/**
+ * \}
+ */
     
 /**
  * \}

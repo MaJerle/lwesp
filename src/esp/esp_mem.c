@@ -42,10 +42,12 @@
 /***                           Private structures                            **/
 /******************************************************************************/
 /******************************************************************************/
+#if !__DOXYGEN__
 typedef struct MemBlock {
     struct MemBlock* NextFreeBlock;                 /*!< Pointer to next free block */
     size_t Size;                                    /*!< Size of block */
 } MemBlock_t;
+#endif /* !__DOXYGEN__ */
 
 /**
  * \brief           Memory alignment bits and absolute number

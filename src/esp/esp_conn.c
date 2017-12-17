@@ -38,14 +38,14 @@
  * \param[out]      conn: Pointer to pointer to \ref esp_conn_t structure to set new connection reference
  * \param[in]       type: Connection type. This parameter can be a value of \ref esp_conn_type_t enumeration
  * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
- * \param[in]       host: Connection port
+ * \param[in]       port: Connection port
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
  * \param[in]       cb_func: Callback function for this connection. Set to NULL in case of default user callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_start(esp_conn_t** conn, esp_conn_type_t type, const char* host, uint16_t port, void* arg, esp_cb_func_t cb_func, uint32_t blocking) {
+esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, uint16_t port, void* arg, esp_cb_func_t cb_func, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -85,7 +85,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
  * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP too)
  * \param[in]       conn: Pointer to connection to send data
  * \param[in]       ip: Remote IP address for UDP connection
- * \param[in]       ip: Remote port connection
+ * \param[in]       port: Remote port connection
  * \param[in]       data: Pointer to data to send
  * \param[in]       btw: Number of bytes to send
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent

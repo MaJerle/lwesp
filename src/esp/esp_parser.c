@@ -294,6 +294,32 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
 }
 #endif /* ESP_MODE_STATION || __DOXYGEN__ */
 
+#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
+/**
+ * \brief           Parse received message for list stations
+ * \param[in]       str: Pointer to input string starting with +CWLAP
+ * \param[in]       msg: Pointer to message
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+espi_parse_cwlif(const char* str, esp_msg_t* msg) {
+    if (!msg || msg->cmd != ESP_CMD_WIFI_CWLIF ||   /* Do we have valid message here and enough memory to save everything? */
+        !msg->msg.sta_list.stas || msg->msg.sta_list.stai >= msg->msg.sta_list.stal ||
+        msg->cmd_def != msg->cmd) {   
+        return 0;
+    }
+    
+    espi_parse_ip(&str, msg->msg.sta_list.stas[msg->msg.sta_list.stai].ip);
+    espi_parse_mac(&str, msg->msg.sta_list.stas[msg->msg.sta_list.stai].mac);
+
+    msg->msg.sta_list.stai++;                   /* Increase number of found elements */
+    if (msg->msg.sta_list.staf) {               /* Set pointer if necessary */
+        *msg->msg.sta_list.staf = msg->msg.sta_list.stai;
+    }
+    return 1;
+}
+#endif /* ESP_MODE_ACCESS_POINT || __DOXYGEN__ */
+
 #if ESP_DNS || __DOXYGEN__
 /**
  * \brief           Parse received message domain DNS name
@@ -314,3 +340,83 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
     return 1;
 }
 #endif /* ESP_DNS || __DOXYGEN__ */
+
+#if ESP_SNTP || __DOXYGEN__
+
+/**
+ * \brief           Parse received message for SNTP time
+ * \param[in]       str: Pointer to input string starting with +CWLAP
+ * \param[in]       msg: Pointer to message
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
+    if (!msg || msg->cmd_def != ESP_CMD_TCPIP_CIPSNTPTIME) {
+        return 0;
+    }
+    if (*str == '+') {                              /* Check input string */
+        str += 13;
+    }
+    /**
+     * Scan for day in a week
+     */
+    if (!strncmp(str, "Mon", 3)) {
+        msg->msg.tcpip_sntp_time.dt->day = 1;
+    } else if (!strncmp(str, "Tue", 3)) {
+        msg->msg.tcpip_sntp_time.dt->day = 2;
+    } else if (!strncmp(str, "Wed", 3)) {
+        msg->msg.tcpip_sntp_time.dt->day = 3;
+    } else if (!strncmp(str, "Thu", 3)) {
+        msg->msg.tcpip_sntp_time.dt->day = 4;
+    } else if (!strncmp(str, "Fri", 3)) {
+        msg->msg.tcpip_sntp_time.dt->day = 5;
+    } else if (!strncmp(str, "Sat", 3)) {
+        msg->msg.tcpip_sntp_time.dt->day = 6;
+    } else if (!strncmp(str, "Sun", 3)) {
+        msg->msg.tcpip_sntp_time.dt->day = 7;
+    }
+    str += 4;
+    
+    /**
+     * Scan for month in a year
+     */
+    if (!strncmp(str, "Jan", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 1;
+    } else if (!strncmp(str, "Feb", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 2;
+    } else if (!strncmp(str, "Mar", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 3;
+    } else if (!strncmp(str, "Apr", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 4;
+    } else if (!strncmp(str, "May", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 5;
+    } else if (!strncmp(str, "Jun", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 6;
+    } else if (!strncmp(str, "Jul", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 7;
+    } else if (!strncmp(str, "Aug", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 8;
+    } else if (!strncmp(str, "Sep", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 9;
+    } else if (!strncmp(str, "Oct", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 10;
+    } else if (!strncmp(str, "Nov", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 11;
+    } else if (!strncmp(str, "Dec", 3)) {
+        msg->msg.tcpip_sntp_time.dt->month = 12;
+    }
+    str += 4;
+    
+    msg->msg.tcpip_sntp_time.dt->date = espi_parse_number(&str);
+    str++;
+    msg->msg.tcpip_sntp_time.dt->hours = espi_parse_number(&str);
+    str++;
+    msg->msg.tcpip_sntp_time.dt->minutes = espi_parse_number(&str);
+    str++;
+    msg->msg.tcpip_sntp_time.dt->seconds = espi_parse_number(&str);
+    str++;
+    msg->msg.tcpip_sntp_time.dt->year = espi_parse_number(&str);
+    return 1;
+}
+
+#endif /* ESP_SNTP || __DOXYGEN__ */

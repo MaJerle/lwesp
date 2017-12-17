@@ -93,7 +93,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
     
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
     
-    /**
+    /*
      * Free all pbufs until first ->ref > 1 is reached
      * which means somebody has reference to part of pbuf and we have to keep it as is
      */
@@ -129,7 +129,7 @@ esp_pbuf_cat(esp_pbuf_p head, esp_pbuf_p tail) {
     ESP_ASSERT("head != NULL", head != NULL);   /* Assert input parameters */
     ESP_ASSERT("tail != NULL", tail != NULL);   /* Assert input parameters */
     
-    /**
+    /*
      * For all pbuf packets in head,
      * increase total length parameter of all next entries
      */
@@ -156,7 +156,7 @@ espr_t
 esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
     espr_t res;
     
-    /**
+    /*
      * First contencate them together
      * Second create a new reference from head buffer to tail buffer
      * so user can normally use tail pbuf and free it when it wants    
@@ -183,6 +183,10 @@ esp_pbuf_ref(esp_pbuf_p pbuf) {
 /**
  * \brief           Copy user data to chain of pbufs
  * \param[in]       pbuf: First pbuf in chain to start copying to
+ * \param[in]       data: Input data to copy to pbuf memory
+ * \param[in]       len: Length of input data to copy
+ * \param[in]       offset: Start offset in pbuf where to start copying
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
@@ -194,7 +198,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
     ESP_ASSERT("len > 0", len > 0);             /* Assert input parameters */
     ESP_ASSERT("pbuf->tot_len >= len", pbuf->tot_len >= len);   /* Assert input parameters */
     
-    /**
+    /*
      * Skip if necessary and check if we are in valid range
      */
     if (offset) {
@@ -204,7 +208,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
         return espPARERR;
     }
     
-    /**
+    /*
      * First only copy in case we have some offset from first pbuf
      */
     if (offset) {
@@ -215,7 +219,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
         pbuf = pbuf->next;                      /* Go to next pbuf */
     }
     
-    /**
+    /*
      * Copy user memory to sequence of pbufs
      */
     for (; len; pbuf = pbuf->next) {
@@ -233,7 +237,6 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
  * \param[out]      data: User linear memory to copy to
  * \param[in]       len: Length of data in units of bytes
  * \param[in]       offset: Possible start offset in pbuf
- * \param[out]      copied: Pointer to output variable to save number of bytes copied to user memory
  * \return          Number of bytes copied
  */
 size_t
@@ -245,7 +248,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
         return 0;
     }
     
-    /**
+    /*
      * In case user wants offset, 
      * skip to necessary pbuf
      */
@@ -253,7 +256,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
         pbuf = pbuf_skip(pbuf, offset, &offset);    /* Skip offset if necessary */
     }
     
-    /**
+    /*
      * Copy data from pbufs to memory
      * with checking for initial offset (only one can have offset)
      */
@@ -294,7 +297,7 @@ esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
 /**
  * \brief           Find desired needle in a haystack
  * \param[in]       pbuf: Pbuf used as haystack
- * \param[in]       data: Data memory used as needle
+ * \param[in]       needle: Data memory used as needle
  * \param[in]       len: Length of needle memory
  * \param[in]       off: Starting offset in pbuf memory
  * \return          ESP_SIZET_MAX if no match or position where in pbuf we have a match
@@ -304,7 +307,7 @@ size_t
 esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* needle, size_t len, size_t off) {
     size_t i;
     if (pbuf && needle && pbuf->tot_len >= (len + off)) {   /* Check if valid entries */
-        /**
+        /*
          * Try entire buffer element by element
          * and in case we have a match, report it
          */
@@ -320,7 +323,7 @@ esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* needle, size_t len, size_t o
 /**
  * \brief           Find desired needle (str) in a haystack (pbuf)
  * \param[in]       pbuf: Pbuf used as haystack
- * \param[in]       data: String to search for in pbuf
+ * \param[in]       str: String to search for in pbuf
  * \param[in]       off: Starting offset in pbuf memory
  * \return          ESP_SIZET_MAX if no match or position where in pbuf we have a match
  * \sa              esp_pbuf_memfind
@@ -352,7 +355,7 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
         return ESP_SIZET_MAX;                   /* Invalid check here */
     }
     
-    /**
+    /*
      * Find start pbuf to have more optimized search at the end
      * Since we had a check on beginning, we must pass this for loop without any problems
      */
@@ -360,7 +363,7 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
         offset -= p->len;                       /* Decrease offset by length of pbuf */
     }
     
-    /**
+    /*
      * We have known starting pbuf.
      * Now it is time to check byte by byte from pbuf and memory
      *
@@ -394,7 +397,7 @@ esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t offset) {
  * \note            Since pbuf memory can be fragmentized in chain,
  *                  you may need to call function multiple times to get memory for entire pbuf at different
  * \param[in]       pbuf: Pbuf to get linear address
- * \parma[in]       offset: Start offset from where to start
+ * \param[in]       offset: Start offset from where to start
  * \param[out]      new_len: Length of memory returned by function
  * \return          Pointer to memory on success, NULL on failure
  */

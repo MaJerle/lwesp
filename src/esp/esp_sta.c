@@ -51,7 +51,11 @@ esp_sta_quit(uint32_t blocking) {
 }
 
 /**
- * \brief           Joins as station to access point
+ * \brief           Join as station to access point
+ * \param[in]       name: SSID of access point to connect to
+ * \param[in]       pass: Password of access point. Use NULL if AP does not have password
+ * \param[in]       mac: Pointer to MAC address of AP. If you have APs with same name, you can use MAC to select proper one. Use NULL if not needed
+ * \param[in]       def: Status whether this is default SSID or only current one
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */

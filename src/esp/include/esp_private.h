@@ -42,8 +42,7 @@ extern "C" {
 #include "stdlib.h"
 #include "string.h"
 
-#define ESP_INTERNAL
-#ifdef ESP_INTERNAL
+#if defined(ESP_INTERNAL) || __DOXYGEN__
 
 #include "esp.h"
 
@@ -58,10 +57,11 @@ typedef enum {
      * Basic AT commands
      */
     ESP_CMD_RESET,                              /*!< Reset device */
-    ESP_CMD_GMR,
-    ESP_CMD_GSLP,
-    ESP_CMD_ECHO,
-    ESP_CMD_RESTORE,
+    ESP_CMD_ATE0,                               /*!< Disable ECHO mode on AT commands */
+    ESP_CMD_ATE1,                               /*!< Enable ECHO mode on AT commands */
+    ESP_CMD_GMR,                                /*!< Get AT commands version */
+    ESP_CMD_GSLP,                               /*!< Set ESP to sleep mode */
+    ESP_CMD_RESTORE,                            /*!< Restore ESP internal settings to default values */
     ESP_CMD_UART,
     ESP_CMD_SLEEP,
     ESP_CMD_WAKEUPGPIO,
@@ -96,10 +96,12 @@ typedef enum {
     ESP_CMD_WIFI_CIPAPMAC_SET,                  /*!< Set MAC address of ESP access point */
     ESP_CMD_WIFI_CIPAP_GET,                     /*!< Get IP address of ESP access point */
     ESP_CMD_WIFI_CIPAP_SET,                     /*!< Set IP address of ESP access point */
+    ESP_CMD_WIFI_CWLIF,                         /*!< Get connected stations on access point */
 #endif /* ESP_MODE_STATION || __DOXYGEN__ */
     ESP_CMD_WIFI_WPS,                           /*!< Set WPS option */
     ESP_CMD_WIFI_MDNS,                          /*!< Configure MDNS function */
-    ESP_CMD_WIFI_CWHOSTNAME,                    /*!< Set/Get device hostname */
+    ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
+    ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
     
     /**
      * TCP/IP related commands
@@ -194,7 +196,7 @@ typedef struct esp_msg {
         } uart;
         struct {
             esp_mode_t mode;                    /*!< Mode of operation */                    
-        } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_MODE is used */
+        } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
         struct {
             const char* name;                   /*!< AP name */
             const char* pass;                   /*!< AP password */
@@ -229,6 +231,13 @@ typedef struct esp_msg {
             size_t apsi;                        /*!< Current access point array */
             size_t* apf;                        /*!< Pointer to output variable holding number of access points found */
         } ap_list;                              /*!< List for access points */
+        
+        struct {
+            esp_sta_t* stas;                    /*!< Pointer to array to save access points */
+            size_t stal;                        /*!< Length of input array of access points */
+            size_t stai;                        /*!< Current access point array */
+            size_t* staf;                       /*!< Pointer to output variable holding number of access points found */
+        } sta_list;                             /*!< List for stations */
         
         struct {
             const char* ssid;                   /*!< Name of access point */
@@ -290,6 +299,16 @@ typedef struct esp_msg {
             const char* host;                   /*!< Hostname to resolve IP address for */
             uint8_t* ip;                        /*!< Pointer to IP address to save result */
         } dns_getbyhostname;                    /*!< DNS function */
+        struct {
+            uint8_t en;                         /*!< Status if SNTP is enabled or not */
+            int8_t tz;                          /*!< Timezone setup */
+            const char* h1;                     /*!< Optional server 1 */
+            const char* h2;                     /*!< Optional server 2 */
+            const char* h3;                     /*!< Optional server 3 */
+        } tcpip_sntp_cfg;                       /*!< SNTP configuration */
+        struct {
+            esp_datetime_t* dt;                 /*!< Pointer to datetime structure */
+        } tcpip_sntp_time;                      /*!< SNTP get time */
     } msg;                                      /*!< Group of different possible message contents */
 } esp_msg_t;
 
@@ -410,7 +429,7 @@ espr_t      espi_send_cb(esp_cb_type_t type);
 espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block_time);
 
 
-#endif /* ESP_INTERNAL */
+#endif /* ESP_INTERNAL || __DOXYGEN__ */
 
 #ifdef __cplusplus
 }

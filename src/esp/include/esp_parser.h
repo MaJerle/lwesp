@@ -40,8 +40,6 @@ extern "C" {
 
 #include "esp.h"
 
-espr_t      espi_parse_cwjap(const char* in, esp_ap_t* ap);
-espr_t      espi_parse_cwlif(const char* in, esp_ap_t* ap);
 espr_t      espi_parse_cipstatus(const char* str);
 espr_t      espi_parse_ipd(const char* str);
     
@@ -51,7 +49,9 @@ uint8_t     espi_parse_ip(const char** src, uint8_t* ip);
 uint8_t     espi_parse_mac(const char** src, uint8_t* mac);
     
 uint8_t     espi_parse_cwlap(const char* src, esp_msg_t* msg);
+espr_t      espi_parse_cwlif(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_cipdomain(const char* src, esp_msg_t* msg);
+uint8_t     espi_parse_cipsntptime(const char* str, esp_msg_t* msg);
 
 #if defined(__cplusplus)
 }

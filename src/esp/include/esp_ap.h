@@ -47,6 +47,10 @@ extern "C" {
  * \defgroup        ESP_AP Access point
  * \brief           Access point
  * \{
+ *
+ * Functions to manage access point (AP) on ESP device.
+ * 
+ * In order to be able to use AP feature, \ref ESP_MODE_ACCESS_POINT must be enabled.
  */
 
 espr_t      esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
@@ -54,9 +58,9 @@ espr_t      esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t
 espr_t      esp_ap_getmac(void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking);
 
-espr_t      esp_ap_set(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, uint8_t max_sta, uint8_t hid, uint8_t def, uint32_t blocking);
+espr_t      esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, uint8_t max_sta, uint8_t hid, uint8_t def, uint32_t blocking);
 
-espr_t      esp_ap_list_sta(uint32_t blocking);
+espr_t      esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, uint32_t blocking);
 
 /**
  * \}

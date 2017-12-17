@@ -62,7 +62,7 @@ process_next_timeout(void) {
     
     time = esp_sys_now();
     
-    /**
+    /*
      * Before calling timeout callback, update variable
      * to make sure we have correct timing in case 
      * callback creates timeout value again
@@ -72,7 +72,7 @@ process_next_timeout(void) {
     if (first_timeout) {
         esp_timeout_t* to = first_timeout;
         
-        /**
+        /*
          * Before calling callback remove current timeout from list
          * to make sure we are safe in case callback function
          * adds a new timeout entry to list
@@ -110,7 +110,8 @@ espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t tim
  * \brief           Add new timeout to processing list
  * \param[in]       time: Time in units of milliseconds for timeout execution
  * \param[in]       fn: Callback function to call when timeout expires
- * \return          espOK on success, member of \res espr_t enumeration otherwise
+ * \param[in]       arg: Pointer to user specific argument to call when timeout callback function is executed
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
@@ -127,7 +128,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
         diff = now - last_timeout_time;         /* Get difference between current and last processed time */
     }
     
-    /**
+    /*
      * Since we want timeout value to start from NOW,
      * we have to add time when we last processed our timeouts
      */
@@ -135,7 +136,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
     to->arg = arg;
     to->fn = fn;
     
-    /**
+    /*
      * Add new timeout to proper place on linked list
      * and align times to have correct values between timeouts
      */
@@ -144,7 +145,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
         last_timeout_time = esp_sys_now();      /* Reset last timeout time to current time */
     } else {                                    /* Find where to place a new timeout */
         esp_timeout_t* t;
-        /**
+        /*
          * First check if we have to put new timeout
          * to beginning of linked list.
          * In this case just align new value for current first element
@@ -156,7 +157,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
         } else {                                /* Go somewhere in between current list */
             for (t = first_timeout; t; t = t->next) {
                 to->time -= t->time;            /* Decrease new timeout time by time in a linked list */
-                /**
+                /*
                  * Enter between 2 entries on a list in case:
                  * 
                  * - We reached end of linked list
@@ -178,6 +179,11 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
     return espOK;
 }
 
+/**
+ * \brief           Remove callback from timeout list
+ * \param[in]       fn: Callback function to identify timeout to remove
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
 esp_timeout_remove(esp_timeout_fn_t fn) {
     esp_timeout_t *t, *t_prev;
@@ -186,7 +192,7 @@ esp_timeout_remove(esp_timeout_fn_t fn) {
             t_prev = t, t = t->next) {          /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
             
-            /**
+            /*
              * We have to first increase
              * difference time between current and next one
              * to be aligned for correct wait time
@@ -195,7 +201,7 @@ esp_timeout_remove(esp_timeout_fn_t fn) {
                 t->next->time += t->time;       /* Increase timeout time for next element */
             }
             
-            /**
+            /*
              * In case we have previous element on a list,
              * set next element of previous to next of current one
              * otherwise we were first element so simply set 

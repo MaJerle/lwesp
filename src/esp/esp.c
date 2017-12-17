@@ -236,27 +236,3 @@ esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 #endif /* ESP_DNS || __DOXYGEN__ */
-
-#if ESP_PING || __DOXYGEN__
-/**
- * \brief           Ping external host
- * \param[in]       host: Host name to ping
- * \param[out]      time: Pointer to output variable to save ping time
- * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
- */
-espr_t
-esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
-    ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
-    ESP_ASSERT("time != NULL", time != NULL);   /* Assert input parameters */
-		
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_PING;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ping.time = time;
-    
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
-}
-#endif /* ESP_PING || __DOXYGEN__ */

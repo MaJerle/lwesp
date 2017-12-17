@@ -51,6 +51,7 @@
  * \note            Value must be set to 1 in the current revision
  *
  * \note            Check \ref ESP_CONF_OS group for more configuration related to operating system
+ *
  */
 #ifndef ESP_OS
 #define ESP_OS                              1
@@ -217,13 +218,23 @@
 #ifndef ESP_DBG_VAR
 #define ESP_DBG_VAR                         ESP_DBG_OFF
 #endif
+
+/**
+ * \brief           Enables (1) or disables (0) echo mode on AT commands
+ *                  sent to ESP device.
+ *
+ * \note            This mode is useful when debugging ESP communication
+ */
+#ifndef ESP_AT_ECHO
+#define ESP_AT_ECHO                         0
+#endif
  
 /**
  * \}
  */
 
 /**
- * \defgroup        ESP_CONF_OS
+ * \defgroup        ESP_CONF_OS OS configuration
  * \brief           Operating system dependant configuration
  * \{
  */
@@ -267,7 +278,7 @@
  */
 
 /**
- * \defgroup        ESP_CONF_MODULES
+ * \defgroup        ESP_CONF_MODULES Modules
  * \brief           Configuration of specific modules
  * \{
  */

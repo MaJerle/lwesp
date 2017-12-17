@@ -165,9 +165,6 @@ espr_t      esp_set_default_server_callback(esp_cb_func_t cb_func);
 
 espr_t      esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking);
 
-espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
-
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
