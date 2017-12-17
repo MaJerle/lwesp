@@ -1,27 +1,95 @@
+/**	
+ * \file            esp_sys.h
+ * \brief           System functions
+ */
+ 
+/*
+ * Copyright (c) 2017 Tilen Majerle
+ *  
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software, 
+ * and to permit persons to whom the Software is furnished to do so, 
+ * subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Author:          Tilen MAJERLE <tilen@majerle.eu>
+ */
 #ifndef __ESP_SYSTEM_H
 #define __ESP_SYSTEM_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 #include "stdint.h"
 #include "stdlib.h"
 
 #include "esp_config.h"
+
+/**
+ * \addtogroup          ESP
+ * \{
+ */
+ 
+/**
+ * \defgroup            ESP_SYS System functions
+ * \brief               System based function for OS management, timings, etc
+ * \{
+ */
+#if ESP_OS || __DOXYGEN__
 #include "cmsis_os.h"
 
+/**
+ * \brief           ESP system mutex ID type
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
 typedef osMutexId           esp_sys_mutex_t;
+
+/**
+ * \brief           ESP system semaphore ID type
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
 typedef osSemaphoreId       esp_sys_sem_t;
+
+/**
+ * \brief           ESP system message queue ID type
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
 typedef osMessageQId        esp_sys_mbox_t;
+
+/**
+ * \brief           ESP system thread ID type
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
 typedef osThreadId          esp_sys_thread_t;
+
+/**
+ * \brief           ESP system thread priority type
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
 typedef osPriority          esp_sys_thread_prio_t;
 
 #define ESP_SYS_MBOX_NULL   (osMessageQId)0
 #define ESP_SYS_SEM_NULL    (osSemaphoreId)0
+#define ESP_SYS_MUTEX_NULL  (osMutexId)0
 #define ESP_SYS_TIMEOUT     ((uint32_t)osWaitForever)
 #define ESP_SYS_THREAD_PRIO (osPriorityNormal)
 #define ESP_SYS_THREAD_SS   (1024)
+#endif /* ESP_OS || __DOXYGEN__ */
 
 uint8_t     esp_sys_init(void);
 uint8_t     esp_sys_protect(void);
@@ -51,7 +119,15 @@ uint8_t     esp_sys_mbox_invalid(esp_sys_mbox_t* b);
 
 uint8_t     esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void(*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio);
 
-uint32_t esp_sys_now(void);
+uint32_t    esp_sys_now(void);
+ 
+/**
+ * \}
+ */
+ 
+/**
+ * \}
+ */
 
 #ifdef __cplusplus
 };
