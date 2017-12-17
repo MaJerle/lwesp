@@ -80,6 +80,27 @@ typedef struct {
     uint8_t cal;                                /*!< Calibration value */
 } esp_ap_t;
 
+/**
+ * \brief           Station data structure
+ */
+typedef struct {
+    uint8_t ip[4];                              /*!< IP address of connected station */
+    uint8_t mac[6];                             /*!< MAC address of connected station */
+} esp_sta_t;
+
+/**
+ * \brief           Date and time structure
+ */
+typedef struct {
+    uint8_t date;                               /*!< Day in a month, from 1 to up to 31 */
+    uint8_t month;                              /*!< Month in a year, from 1 to 12 */
+    uint16_t year;                              /*!< Year */
+    uint8_t day;                                /*!< Day in a week, from 1 to 7 */
+    uint8_t hours;                              /*!< Hours in a day, from 0 to 23 */
+    uint8_t minutes;                            /*!< Minutes in a hour, from 0 to 59 */
+    uint8_t seconds;                            /*!< Seconds in a minute, from 0 to 59 */
+} esp_datetime_t;
+
 #if defined(ESP_INTERNAL) || defined(__DOXYGEN__)
 
 #if 0
