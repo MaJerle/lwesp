@@ -89,6 +89,7 @@ int8_t          esp_netconn_getconnnum(esp_netconn_p nc);
 espr_t          esp_netconn_listen(esp_netconn_p nc);
 espr_t          esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_api);
 espr_t          esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw);
+espr_t          esp_netconn_flush(esp_netconn_p nc);
 
 /* UDP only */
 espr_t          esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw);

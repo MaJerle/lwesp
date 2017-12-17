@@ -324,6 +324,10 @@ typedef struct esp_netconn_t {
     
     esp_sys_sem_t mbox_accept;                  /*!< List of active connections waiting to be processed */
     esp_sys_sem_t mbox_receive;                 /*!< Message queue for receive mbox */
+    
+    uint8_t* buff;                              /*!< Pointer to buffer for \ref esp_netconn_write function. used only on TCP connection */
+    size_t buff_len;                            /*!< Total length of buffer */
+    size_t buff_ptr;                            /*!< Current buffer pointer for write mode */
 } esp_netconn_t;
 
 /**

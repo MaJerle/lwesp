@@ -333,10 +333,111 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
  */
 espr_t
 esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
+    size_t max_buff_len, len, sent;
+    const uint8_t* d = data;
+    espr_t res;
+    
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP or SSL\r\n", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
     
-    return esp_conn_send(nc->conn, data, btw, NULL, 1);
+    max_buff_len = 2048;
+    
+    /*
+     * Several steps are done in write process
+     *
+     * 1. Check if buffer is set and check if there is something to write to it.
+     *    1. In case buffer will be full after copy, send it and free memory.
+     * 2. Check how many bytes we can write directly without needed to copy
+     * 3. Try to allocate a new buffer and copy remaining input data to it
+     * 4. In case buffer allocation fails, send data directly (may affect on speed and effectivenes)
+     */
+    
+    /*
+     * Step 1
+     */
+    if (nc->buff != NULL) {                     /* Is there a write buffer ready to be written? */
+        len = ESP_MIN(nc->buff_len - nc->buff_ptr, btw);    /* Get number of bytes we can write to buffer */
+        if (len) {
+            memcpy(&nc->buff[nc->buff_ptr], data, len); /* Copy memory to temporary write buffer */
+        }
+        d += len;
+        nc->buff_ptr += len;
+        btw -= len;
+        
+        /*
+         * Step 1.1
+         */
+        if (nc->buff_ptr == nc->buff_len) {
+            res = esp_conn_send(nc->conn, nc->buff, nc->buff_len, &sent, 1);
+            if (res != espOK) {
+                return res;
+            }
+            
+            esp_mem_free(nc->buff);             /* Free memory */
+            nc->buff = NULL;                    /* Invalidate buffer */
+        } else {
+            return espOK;                       /* Buffer is not yet full yet */
+        }
+    }
+    
+    /*
+     * Step 2
+     */
+    while (btw >= max_buff_len) {
+        res = esp_conn_send(nc->conn, d, max_buff_len, &sent, 1);   /* Write data directly */
+        if (res != espOK) {
+            return res;
+        }
+        d += sent;                              /* Advance in data pointer */
+        btw -= sent;                            /* Decrease remaining data to send */
+    }
+    
+    if (!btw) {                                 /* Sent everything? */
+        return espOK;
+    }
+    
+    /*
+     * Step 3
+     */
+    if (nc->buff == NULL) {                     /* Check if we should allocate a new buffer */
+        nc->buff = esp_mem_alloc(max_buff_len * sizeof(*nc->buff));
+        nc->buff_len = max_buff_len;            /* Save buffer length */
+        nc->buff_ptr = 0;                       /* Save buffer pointer */
+    }
+    
+    /*
+     * Step 4
+     */
+    if (nc->buff != NULL) {                     /* Memory available? */
+        memcpy(&nc->buff[nc->buff_ptr], d, btw);    /* Copy data to buffer */
+        nc->buff_ptr += btw;
+    } else {                                    /* Still no memory available? */
+        return esp_conn_send(nc->conn, data, btw, NULL, 1); /* Simply send the blocking way */
+    }
+    return espOK;
+}
+
+/**
+ * \brief           Flush buffered data on netconn TCP connection
+ * \note            Only you can only use it on TCP or SSL connections
+ * \param[in]       nc: Netconn connection to flush data
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_netconn_flush(esp_netconn_p nc) {
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP or SSL\r\n", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
+
+    /*
+     * In case we have data in write buffer,
+     * flush them out to network
+     */
+    if (nc->buff) {                             /* Check remaining data */
+        esp_conn_send(nc->conn, nc->buff, nc->buff_ptr, NULL, 1);   /* Send data */
+        esp_mem_free(nc->buff);                 /* Free memory */
+        nc->buff = NULL;                        /* Invalid memory */
+    }
+    return espOK;
 }
 
 /**
@@ -402,6 +503,7 @@ espr_t
 esp_netconn_close(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
+    esp_netconn_flush(nc);                      /* Flush data and ignore result */
     esp_conn_set_arg(nc->conn, NULL);           /* Reset argument */
     esp_conn_close(nc->conn, 1);                /* Close the connection */
     flush_mboxes(nc);                           /* Flush message queues */
