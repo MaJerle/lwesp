@@ -136,6 +136,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
  * \param[in]       conn: Pointer to connection to set argument
  * \param[in]       arg: Pointer to argument
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \sa              esp_conn_get_arg
  */
 espr_t
 esp_conn_set_arg(esp_conn_p conn, void* arg) {
@@ -143,6 +144,21 @@ esp_conn_set_arg(esp_conn_p conn, void* arg) {
     conn->arg = arg;                            /* Set argument for connection */
     ESP_CORE_UNPROTECT();
     return espOK;
+}
+
+/**
+ * \brief           Get user defined connection argument
+ * \param[in]       conn: Pointer to connection to set argument
+ * \return          User argument
+ * \sa              esp_conn_set_arg
+ */
+void *
+esp_conn_get_arg(esp_conn_p conn) {
+    void* arg;
+    ESP_CORE_PROTECT();
+    arg = conn->arg;                            /* Set argument for connection */
+    ESP_CORE_UNPROTECT();
+    return arg;
 }
 
 /**
@@ -254,4 +270,23 @@ esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+}
+
+/**
+ * \brief           Get connection from connection based event
+ * \param[in]       evt: Event which happened for connection
+ * \return          Connection pointer on success or NULL on failure
+ */
+esp_conn_p
+esp_conn_get_from_evt(esp_cb_t* evt) {
+    if (evt->type == ESP_CB_CONN_ACTIVE || evt->type == ESP_CB_CONN_CLOSED) {
+        return evt->cb.conn_active_closed.conn;
+    } else if (evt->type == ESP_CB_CONN_DATA_RECV) {
+        return evt->cb.conn_data_recv.conn;
+    } else if (evt->type == ESP_CB_CONN_DATA_SEND_ERR) {
+        return evt->cb.conn_data_send_err.conn;
+    } else if (evt->type == ESP_CB_CONN_DATA_SENT) {
+        return evt->cb.conn_data_sent.conn;
+    }
+    return NULL;
 }
