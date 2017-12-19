@@ -119,7 +119,7 @@ esp_cb(esp_cb_t* cb) {
          * We have a new data received which
          * should have netconn structure as argument
          */
-        case ESP_CB_DATA_RECV: {
+        case ESP_CB_CONN_DATA_RECV: {
             esp_pbuf_t* pbuf = (esp_pbuf_t *)cb->cb.conn_data_recv.buff;
             conn = cb->cb.conn_data_recv.conn;  /* Get connection */
             nc = conn->arg;                     /* Get API from connection */
@@ -369,12 +369,12 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
          */
         if (nc->buff_ptr == nc->buff_len) {
             res = esp_conn_send(nc->conn, nc->buff, nc->buff_len, &sent, 1);
-            if (res != espOK) {
-                return res;
-            }
             
             esp_mem_free(nc->buff);             /* Free memory */
             nc->buff = NULL;                    /* Invalidate buffer */
+            if (res != espOK) {
+                return res;
+            }
         } else {
             return espOK;                       /* Buffer is not yet full yet */
         }
@@ -383,8 +383,10 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     /*
      * Step 2
      */
-    while (btw >= max_buff_len) {
-        res = esp_conn_send(nc->conn, d, max_buff_len, &sent, 1);   /* Write data directly */
+    if (btw >= max_buff_len) {
+        size_t rem;
+        rem = btw % max_buff_len;               /* Get remaining bytes after sending everything */
+        res = esp_conn_send(nc->conn, d, btw - rem, &sent, 1);  /* Write data directly */
         if (res != espOK) {
             return res;
         }

@@ -478,7 +478,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_ok = espi_tcpip_process_data_sent(1);    /* Process as data were sent */
                     if (is_ok) {
-                        esp.cb.type = ESP_CB_DATA_SENT; /* Data were fully sent */
+                        esp.cb.type = ESP_CB_CONN_DATA_SENT;    /* Data were fully sent */
                         esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
                         espi_send_conn_cb(esp.msg->msg.conn_send.conn); /* Send connection callback */
                     }
@@ -486,7 +486,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
                     if (is_error) {
-                        esp.cb.type = ESP_CB_DATA_SEND_ERR; /* Error sending data */
+                        esp.cb.type = ESP_CB_CONN_DATA_SEND_ERR;/* Error sending data */
                         esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
                         espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
                     }
@@ -510,8 +510,12 @@ espi_parse_received(esp_recv_t* rcv) {
     if (!strncmp(",CONNECT", &rcv->data[1], 8)) {
         const char* tmp = rcv->data; */
     if (rcv->len > 10 && (s = strstr(rcv->data, ",CONNECT\r\n")) != NULL) {
-        const char* tmp = s - 1;
-        uint8_t num = espi_parse_number(&tmp);
+        const char* tmp = s;
+        uint32_t num = 0;
+        while (tmp >= rcv->data && ESP_CHARISNUM(tmp[-1])) {
+            tmp--;
+        }
+        num = espi_parse_number(&tmp);          /* Parse connection number */
         if (num < ESP_MAX_CONNS) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
             memset(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
@@ -538,8 +542,11 @@ espi_parse_received(esp_recv_t* rcv) {
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
         const char* tmp = rcv->data; */
     } else if ((rcv->len > 9 && (s = strstr(rcv->data, ",CLOSED\r\n")) != NULL) || (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL\r\n")) != NULL)) {
-        const char* tmp = s - 1;
-        uint8_t num = espi_parse_number(&tmp);
+        const char* tmp = s;
+        uint32_t num = 0;
+        while (tmp >= rcv->data && ESP_CHARISNUM(tmp[-1])) {
+            tmp--;
+        }
         if (num < ESP_MAX_CONNS) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
             conn->num = num;                    /* Set connection number */
@@ -707,7 +714,7 @@ espi_process(const void* data, size_t data_len) {
                  * Call user callback function with received data
                  */
                 if (esp.ipd.buff) {             /* Do we have valid buffer? */
-                    esp.cb.type = ESP_CB_DATA_RECV; /* We have received data */
+                    esp.cb.type = ESP_CB_CONN_DATA_RECV;/* We have received data */
                     esp.cb.cb.conn_data_recv.buff = esp.ipd.buff;
                     esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
                     res = espi_send_conn_cb(esp.ipd.conn);  /* Send connection callback */

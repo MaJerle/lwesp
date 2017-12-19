@@ -98,9 +98,9 @@ typedef enum esp_cb_type_t {
     
     ESP_CB_INIT_FINISH,                         /*!< Initialization has been finished at this point */
     
-    ESP_CB_DATA_RECV,                           /*!< Connection data received */
-    ESP_CB_DATA_SENT,                           /*!< Data were successfully sent */
-    ESP_CB_DATA_SEND_ERR,                       /*!< Error trying to send data */
+    ESP_CB_CONN_DATA_RECV,                      /*!< Connection data received */
+    ESP_CB_CONN_DATA_SENT,                      /*!< Data were successfully sent */
+    ESP_CB_CONN_DATA_SEND_ERR,                  /*!< Error trying to send data */
     ESP_CB_CONN_ACTIVE,                         /*!< Connection just became active */
     ESP_CB_CONN_ERROR,                          /*!< Client connection start was not successful */
     ESP_CB_CONN_CLOSED,                         /*!< Connection was just closed */
