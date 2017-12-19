@@ -130,7 +130,7 @@ http_get_params(char* params) {
  * \return          Pointer to file on success or NULL on failure
  */
 const fs_file_t*
-http_get_file_from_url(char* uri) {
+http_get_file_from_uri(char* uri) {
     size_t uri_len;
     const fs_file_t* file = NULL;
     
@@ -358,19 +358,9 @@ server_serve(esp_netconn_p client) {
      */
     if (res == espOK) {                         /* Everything ready to start? */
         if (http_parse_uri(pbuf) == espOK) {    /* Try to parse URI from request */
-            const fs_file_t* file = http_get_file_from_url(http_uri);   /* Get file from URI */
+            const fs_file_t* file = http_get_file_from_uri(http_uri);   /* Get file from URI */
             if (file) {
-                size_t i = 0, k;
-                const uint8_t* d = file->data;
-                while (i < file->len) {
-                    k = file->len - i;
-                    k = k > 40 ? 40 : k;
-                    if (esp_netconn_write(client, d, k) != espOK) {
-                        break;
-                    }
-                    i += k;
-                    d += k;
-                }
+                esp_netconn_write(client, file->data, file->len);
                 esp_netconn_flush(client);      /* Flush data and send them */
                 fs_data_close_file(file);       /* Close file name */
             }
