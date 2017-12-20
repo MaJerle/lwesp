@@ -263,21 +263,12 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
  */
 espr_t
 esp_netconn_bind(esp_netconn_p nc, uint16_t port) {
-    espr_t res;
-    
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
-    /**
-     * First try to enable server on user selected PORT
-     * and in case it is successful,
-     * set default callback for server in netconn mode
+    /*
+     * Enable server on port and set default callback
      */
-    if ((res = esp_set_server(port, 1)) == espOK) { /* Enable server on selected port */
-        ESP_CORE_PROTECT();
-        esp_set_default_server_callback(esp_cb);    /* Set callback function for server connections */
-        ESP_CORE_UNPROTECT();
-    }
-    return res;
+    return esp_set_server(port, ESP_MAX_CONNS, 100, esp_cb, 1);
 }
 
 /**

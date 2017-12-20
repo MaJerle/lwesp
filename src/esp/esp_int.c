@@ -966,6 +966,28 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             }
         }
     }
+    
+    /*
+     * Are we enabling server mode for some reason?
+     */
+    if (msg->cmd_def == ESP_CMD_TCPIP_CIPSERVER && msg->msg.tcpip_server.port > 0) {
+        if (msg->cmd == ESP_CMD_TCPIP_CIPSERVERMAXCONN) {
+            if (is_ok) {
+                msg->cmd = ESP_CMD_TCPIP_CIPSERVER;
+                if (espi_initiate_cmd(msg) == espOK) {  /* Try to start with new connection */
+                    return espCONT;
+                }
+            }
+        } else if (msg->cmd == ESP_CMD_TCPIP_CIPSERVER) {
+            if (is_ok) {
+                esp.cb_server = msg->msg.tcpip_server.cb;   /* Set server callback function */
+//                msg->cmd = ESP_CMD_TCPIP_CIPSTO;
+//                if (espi_initiate_cmd(msg) == espOK) {  /* Try to start with new connection */
+//                    return espCONT;
+//                }
+            }
+        }
+    }
     return is_ok || is_ready ? espOK : espERR;
 }
 
@@ -1210,20 +1232,42 @@ espi_initiate_cmd(esp_msg_t* msg) {
          * TCP/IP related commands
          */
         
-        case ESP_CMD_TCPIP_CIPSERVER: {         /* Enable or disable a server */
-            char str[6];
-    
+        case ESP_CMD_TCPIP_CIPSERVER: {         /* Enable or disable a server */    
             ESP_AT_PORT_SEND_STR("AT+CIPSERVER=");
             if (msg->msg.tcpip_server.port) {   /* Do we have valid port? */
-                number_to_str(msg->msg.tcpip_server.port, str);
                 ESP_AT_PORT_SEND_STR("1,");
-                ESP_AT_PORT_SEND_STR(str);
+                send_number(msg->msg.tcpip_server.port, 0);
             } else {                            /* Disable server */
                 ESP_AT_PORT_SEND_STR("0");
             }
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+        case ESP_CMD_TCPIP_CIPSERVERMAXCONN: {  /* Maximal number of connections */
+            uint16_t max_conn;
+            if (msg->cmd_def == ESP_CMD_TCPIP_CIPSERVER) {
+                max_conn = ESP_MIN(msg->msg.tcpip_server.max_conn, ESP_MAX_CONNS);
+            } else {
+                max_conn = ESP_MAX_CONNS;
+            }
+            ESP_AT_PORT_SEND_STR("AT+CIPSERVERMAXCONN=");
+            send_number(max_conn, 0);
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
+        case ESP_CMD_TCPIP_CIPSTO: {            /* Set server connection timeout */
+            uint16_t timeout;
+            if (msg->cmd_def == ESP_CMD_TCPIP_CIPSERVER) {
+                timeout = msg->msg.tcpip_server.timeout;
+            } else {
+                timeout = 100;
+            }
+            ESP_AT_PORT_SEND_STR("AT+CIPSTO=");
+            send_number(timeout, 0);
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
+        
         case ESP_CMD_TCPIP_CIPSTART: {          /* Start a new connection */
             int8_t i = 0;
             esp_conn_t* c = NULL;
@@ -1246,8 +1290,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
             
             ESP_AT_PORT_SEND_STR("AT+CIPSTART=");
-            str[0] = c->num + '0';
-            ESP_AT_PORT_SEND_CHR(str);
+            send_number(i, 0);
             ESP_AT_PORT_SEND_STR(",\"");
             if (msg->msg.conn_start.type == ESP_CONN_TYPE_SSL) {
                 ESP_AT_PORT_SEND_STR("SSL");

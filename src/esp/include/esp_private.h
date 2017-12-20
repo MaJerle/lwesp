@@ -117,6 +117,7 @@ typedef enum {
     ESP_CMD_TCPIP_CIFSR,                        /*!< Get local IP */
     ESP_CMD_TCPIP_CIPMUX,                       /*!< Set single or multiple connections */
     ESP_CMD_TCPIP_CIPSERVER,                    /*!< Enables/Disables server mode */
+    ESP_CMD_TCPIP_CIPSERVERMAXCONN,             /*!< Sets maximal number of connections allowed for server population */
     ESP_CMD_TCPIP_CIPMODE,                      /*!< Transmission mode, either transparent or normal one */
     ESP_CMD_TCPIP_CIPSTO,                       /*!< Sets connection timeout */
 #if ESP_PING || __DOXYGEN__
@@ -284,6 +285,9 @@ typedef struct esp_msg {
         } tcpip_mux;                            /*!< Used for setting up multiple connections */
         struct {
             uint16_t port;                      /*!< Server port number */
+            uint16_t max_conn;                  /*!< Maximal number of connections available for server */
+            uint16_t timeout;                   /*!< Connection timeout */
+            esp_cb_func_t cb;                   /*!< Server default callback function */
         } tcpip_server;
         struct {
             uint8_t info;                       /*!< New info status */
@@ -356,8 +360,8 @@ typedef struct {
     
     esp_msg_t*          msg;                    /*!< Pointer to current user message being executed */
     
-    uint8_t             active_conns;           /*!< Bit field of currently active connections */
-    uint8_t             active_conns_last;      /*!< The same as previous but status before last check */
+    uint32_t            active_conns;           /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
+    uint32_t            active_conns_last;      /*!< The same as previous but status before last check */
     
     esp_conn_t          conns[ESP_MAX_CONNS];   /*!< Array of all connection structures */
     

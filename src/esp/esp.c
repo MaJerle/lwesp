@@ -186,16 +186,23 @@ esp_set_mux(uint8_t mux, uint32_t blocking) {
 /**
  * \brief           Enables or disables server mode
  * \param[in]       port: Set port number to enable server on. Use 0 to disable server mode
+ * \param[in]       max_conn: Number of maximal connections populated by server
+ * \param[in]       timeout: Time used to automatically close the connection in units of seconds. Use 0 to disable timeout feature (not recommended)
+ * \param[in]       cb: Connection callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_server(uint16_t port, uint32_t blocking) {
+esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_func_t cb, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSERVER;
+    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSERVERMAXCONN;  /* First command is to set maximal number of connections for server */
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.port = port;
+    ESP_MSG_VAR_REF(msg).msg.tcpip_server.max_conn = max_conn;
+    ESP_MSG_VAR_REF(msg).msg.tcpip_server.timeout = timeout;
+    ESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = cb;
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }

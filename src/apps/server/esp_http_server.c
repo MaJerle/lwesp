@@ -446,8 +446,5 @@ http_evt_cb(esp_cb_t* cb) {
  */
 espr_t
 esp_http_server_init(uint16_t port) {
-    if (esp_set_server(port, 1) == espOK) {     /* Set server at user port */
-        esp_set_default_server_callback(http_evt_cb);
-    }
-    return espOK;
+    return esp_set_server(port, ESP_MAX_CONNS / 2, 80, http_evt_cb, 1);
 }
