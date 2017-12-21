@@ -412,13 +412,6 @@ extern esp_t esp;
 #define ESP_DBG_ASSERT                      ESP_DBG_OFF
 #endif /* ESP_DBG_ASSERT */
 
-#define ESP_ASSERT(msg, c)   do {   \
-    if (!(c)) {                     \
-        ESP_DEBUGF(ESP_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, __LINE__, msg); \
-        return espPARERR;           \
-    }                               \
-} while (0)
-
 /**
  * System protection macros
  */
@@ -433,6 +426,9 @@ espr_t      espi_process_buffer(void);
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
 uint8_t     espi_is_valid_conn_ptr(esp_conn_p conn);
 espr_t      espi_send_cb(esp_cb_type_t type);
+espr_t      espi_send_conn_cb(esp_conn_t* conn);
+
+void        espi_conn_init(void);
 
 espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block_time);
 

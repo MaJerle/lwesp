@@ -208,7 +208,7 @@ is_received_current_setting(const char* str) {
  * \param[in]       conn: Pointer to connection to use as callback
  * \return          Member of \ref espr_t enumeration
  */
-static espr_t
+espr_t
 espi_send_conn_cb(esp_conn_t* conn) {
     if (conn->cb_func) {                        /* Connection custom callback? */
         return conn->cb_func(&esp.cb);          /* Process callback function */
@@ -223,14 +223,11 @@ espi_send_conn_cb(esp_conn_t* conn) {
  */
 static espr_t
 espi_tcpip_process_send_data(void) {
-    char ch;
-    
     if (!esp_conn_is_active(esp.msg->msg.conn_send.conn)) {
         return espERR;
     }
-    ch = esp.msg->msg.conn_send.conn->num + '0';
     ESP_AT_PORT_SEND_STR("AT+CIPSEND=");
-    ESP_AT_PORT_SEND_CHR(&ch);
+    send_number(esp.msg->msg.conn_send.conn->num, 0);
     ESP_AT_PORT_SEND_STR(",");
     esp.msg->msg.conn_send.sent = esp.msg->msg.conn_send.btw > ESP_CONN_MAX_DATA_LEN ? ESP_CONN_MAX_DATA_LEN : esp.msg->msg.conn_send.btw;
     send_number(esp.msg->msg.conn_send.sent, 0);    /* Send length number */
@@ -536,17 +533,20 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.cb.type = ESP_CB_CONN_ACTIVE;   /* Connection just active */
             esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
             esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
+            esp.cb.cb.conn_active_closed.forced = conn->status.f.client;    /* Set if action was forced = if client mode */
             espi_send_conn_cb(conn);            /* Send event */
         }
     /*
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
         const char* tmp = rcv->data; */
-    } else if ((rcv->len > 9 && (s = strstr(rcv->data, ",CLOSED\r\n")) != NULL) || (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL\r\n")) != NULL)) {
+    } else if ( (rcv->len > 9  && (s = strstr(rcv->data, ",CLOSED\r\n")) != NULL) || 
+                (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL\r\n")) != NULL)) {
         const char* tmp = s;
         uint32_t num = 0;
         while (tmp >= rcv->data && ESP_CHARISNUM(tmp[-1])) {
             tmp--;
         }
+        num = espi_parse_number(&tmp);          /* Parse connection number */
         if (num < ESP_MAX_CONNS) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
             conn->num = num;                    /* Set connection number */
@@ -556,6 +556,8 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.cb.type = ESP_CB_CONN_CLOSED;   /* Connection just active */
                 esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
                 esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
+                /** @todo: Check if we really tried to close connection which was just closed */
+                esp.cb.cb.conn_active_closed.forced = IS_CURR_CMD(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
                 espi_send_conn_cb(conn);        /* Send event */
                 
                 /**
@@ -1308,13 +1310,11 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
         case ESP_CMD_TCPIP_CIPCLOSE: {          /* Close the connection */
-            char ch;
-            if (!esp_conn_is_active(msg->msg.conn_close.conn)) {
+            if (msg->msg.conn_close.conn && !esp_conn_is_active(msg->msg.conn_close.conn)) {
                 return espERR;
             }
             ESP_AT_PORT_SEND_STR("AT+CIPCLOSE=");
-            ch = msg->msg.conn_close.conn ? msg->msg.conn_close.conn->num + '0' : '5';
-            ESP_AT_PORT_SEND_CHR(&ch);
+            send_number((uint32_t)(msg->msg.conn_close.conn ? msg->msg.conn_close.conn->num : ESP_MAX_CONNS), 0);
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }

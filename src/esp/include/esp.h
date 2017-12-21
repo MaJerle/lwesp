@@ -118,11 +118,11 @@ typedef struct esp_cb_t {
     esp_cb_type_t type;                         /*!< Callback type */
     union {
         struct {
-            struct esp_conn_t* conn;            /*!< Connection where data were received */
+            esp_conn_p conn;                    /*!< Connection where data were received */
             esp_pbuf_p buff;                    /*!< Pointer to received data */
         } conn_data_recv;                       /*!< Network data received */
         struct {
-            struct esp_conn_t* conn;            /*!< Connection where data were sent */
+            esp_conn_p conn;                    /*!< Connection where data were sent */
         } conn_data_sent;                       /*!< Data successfully sent */
         struct {
             struct esp_conn_t* conn;            /*!< Connection where data were sent */
@@ -133,9 +133,13 @@ typedef struct esp_cb_t {
             esp_conn_type_t type;               /*!< Connection type */
         } conn_error;                           /*!< Client connection start error */
         struct {
-            struct esp_conn_t* conn;            /*!< Pointer to connection */
-            uint8_t client;                     /*!< Set to 1 if connection is (was) client or 0 if server */
+            esp_conn_p conn;                    /*!< Pointer to connection */
+            uint8_t client;                     /*!< Set to 1 if connection is/was client mode */
+            uint8_t forced;                     /*!< Set to 1 if connection action was forced (when active, 1 = CLIENT, 0 = SERVER; when closed, 1 = CMD, 0 = REMOTE) */
         } conn_active_closed;                   /*!< Process active and closed statuses at the same time. Use with \ref ESP_CB_CONN_ACTIVE or \ref ESP_CB_CONN_CLOSED events */
+        struct {
+            esp_conn_p conn;                    /*!< Set connection pointer */
+        } conn_poll;
     } cb;
 } esp_cb_t;
 
@@ -147,6 +151,13 @@ typedef struct esp_cb_t {
 #include "esp_sta.h"
 #include "esp_ap.h"
 #include "esp_netconn.h"
+
+#define ESP_ASSERT(msg, c)   do {   \
+    if (!(c)) {                     \
+        ESP_DEBUGF(ESP_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, __LINE__, msg); \
+        return espPARERR;           \
+    }                               \
+} while (0)
 
 /**
  * \brief           Align x value to specific number of bytes, provided from \ref ESP_MEM_ALIGNMENT configuration
