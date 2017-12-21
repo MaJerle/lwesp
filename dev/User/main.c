@@ -56,7 +56,8 @@ CTS         PA3                 RTS from ST to CTS from ESP
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX5
 #include "cpu_utils.h"
 
-#include "../apps/include/esp_netconn_server.h"
+#include "apps/server/include/esp_http_server.h"
+#include "apps/mqtt/include/esp_mqtt_client.h"
 
 void init_thread(void const* arg);
 void client_thread(void const* arg);
@@ -102,8 +103,6 @@ TM_DELAY_1msHandler(void) {
 }
 
 static espr_t esp_cb(esp_cb_t* cb);
-static espr_t esp_conn_client_cb(esp_cb_t* cb);
-static espr_t esp_conn_server_cb(esp_cb_t* cb);
 
 uint32_t time;
 
@@ -141,6 +140,8 @@ const uint8_t requestData[] = ""
 "Host: " CONN_HOST "\r\n"
 "Connection: close\r\n"
 "\r\n";
+
+mqtt_client_t* mqtt_client;
 
 /**
  * \brief           Initialization thread for entire process
@@ -189,9 +190,7 @@ cont:
         client_thread_id = osThreadCreate(osThread(client_thread), NULL);
         printf("Client mode!\r\n");
     } else {
-        uint8_t ip[] = {192, 168, 0, 201};
-        //esp_sta_setip(ip, NULL, NULL, 0, 1);
-        esp_netconn_server_init(cgi_handlers, sizeof(cgi_handlers) / sizeof(cgi_handlers[0]));
+        esp_http_server_init(80);
         printf("Server mode!\r\n");
     }
     
@@ -211,16 +210,8 @@ cont:
         }
     }
     
-    printf("Init finished!\r\n");
-    
-    if (esp_sntp_configure(1, -1, NULL, NULL, NULL, 1) == espOK) {
-        if (esp_sntp_gettime(&dt, 1) == espOK) {
-            printf("SNTP Time: %d.%d.%d %d:%d:%d\r\n",
-                (int)dt.date, (int)dt.month, (int)dt.year,
-                (int)dt.hours, (int)dt.minutes, (int)dt.seconds
-            );
-        }
-    }
+    mqtt_client = mqtt_client_new(256);
+    mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883);
     
     while (1) {
         if (0 && esp_ap_list_sta(stas, sizeof(stas) / sizeof(stas[0]), &staf, 1) == espOK) {
@@ -304,104 +295,8 @@ client_thread(void const* arg) {
     }
 }
 
-/**
- * \brief           Client connection based callback
- * \param[in]       cb: Pointer to callback data
- * \return          espOK on success, member of \ref espr_t otherwise
- */
-static espr_t
-esp_conn_client_cb(esp_cb_t* cb) {
-    switch (cb->type) {
-        case ESP_CB_CONN_ACTIVE: {
-            //printf("Conn active: N: %d\r\n", cb->cb.conn_active_closed.conn->num);
-            esp_conn_send(cb->cb.conn_active_closed.conn, requestData, sizeof(requestData), &sent, 0);
-            break;
-        }
-        case ESP_CB_CONN_ERROR: {
-            //printf("Could not connect to server %s:%d\r\n", cb->cb.conn_error.host, (int)cb->cb.conn_error.port);
-            //esp_conn_start(NULL, ESP_CONN_TYPE_TCP, CONN_HOST, CONN_PORT, NULL, esp_conn_client_cb, 0);  
-            break;
-        }
-        case ESP_CB_CONN_CLOSED: {
-            printf("Conn closed: N: %d\r\n", esp_conn_getnum(cb->cb.conn_active_closed.conn));
-            //esp_conn_start(NULL, ESP_CONN_TYPE_TCP, CONN_HOST, CONN_PORT, NULL, esp_conn_client_cb, 0);
-            break;
-        }
-        case ESP_CB_DATA_RECV: {
-            size_t i;
-            size_t pbuf_len;
-            const uint8_t* pbuf_data;
-            
-            pbuf_len = esp_pbuf_length(cb->cb.conn_data_recv.buff, 0);
-            pbuf_data = esp_pbuf_data(cb->cb.conn_data_recv.buff);
-            
-            //printf("Data received: N: %d; L: %d\r\n", cb->cb.conn_data_recv.conn->num, cb->cb.conn_data_recv.buff->len);
-            for (i = 0; i < pbuf_len; i++) {
-                printf("%c", pbuf_data[i]);
-            }
-            return espOK;
-        }
-        case ESP_CB_DATA_SENT: {
-            //printf("Data sent: N: %d\r\n", cb->cb.conn_data_recv.conn->num);
-            break;
-        }
-        case ESP_CB_DATA_SEND_ERR: {
-            //printf("Data sent error: N: %d\r\n", cb->cb.conn_data_send_err.conn->num);
-            esp_conn_close(cb->cb.conn_data_send_err.conn, 0);
-            break;
-        }
-        default:
-            break;
-    }
-    return espOK;
-}
-
-/**
- * \brief           Server connection based callback
- * \param[in]       cb: Pointer to callback data
- * \return          espOK on success, member of \ref espr_t otherwise
- */
-static espr_t
-esp_conn_server_cb(esp_cb_t* cb) {
-    switch (cb->type) {
-        case ESP_CB_CONN_ACTIVE: {
-            printf("Server conn active: N: %d\r\n", esp_conn_getnum(cb->cb.conn_active_closed.conn));
-            break;
-        }
-        case ESP_CB_CONN_CLOSED: {
-            printf("Server conn closed: N: %d\r\n", esp_conn_getnum(cb->cb.conn_active_closed.conn));
-            break;
-        }
-        case ESP_CB_DATA_RECV: {
-            printf("Server data received: N: %d; L: %d\r\n", esp_conn_getnum(cb->cb.conn_data_recv.conn), esp_pbuf_length(cb->cb.conn_data_recv.buff, 0));
-            if (!strncmp((const char *)cb->cb.conn_data_recv.buff, "GET /favicon.ico", 16)) {
-                esp_conn_close(cb->cb.conn_data_recv.conn, 0);
-//            } else if (!strncmp((const char *)cb->cb.conn_data_recv.buff, "GET /style.css", 14)) {
-//                esp_conn_send(cb->cb.conn_data_recv.conn, responseData_css, sizeof(responseData_css) - 1, &resp_sent, 0);
-//            } else {
-//                esp_conn_send(cb->cb.conn_data_recv.conn, responseData, sizeof(responseData) - 1, &resp_sent, 0);
-            }
-            break;
-        }
-        case ESP_CB_DATA_SENT: {
-            printf("Server data sent: N: %d\r\n", esp_conn_getnum(cb->cb.conn_data_recv.conn));
-            esp_conn_close(cb->cb.conn_data_sent.conn, 0);
-            break;
-        }
-        case ESP_CB_DATA_SEND_ERR: {
-            printf("Data sent error: N: %d\r\n", esp_conn_getnum(cb->cb.conn_data_send_err.conn));
-            esp_conn_close(cb->cb.conn_data_sent.conn, 0);
-            break;
-        }
-        default:
-            break;
-    }
-    return espOK;
-}
-
 char *
 led_cgi_handler(http_param_t* params, size_t params_len) {
-    size_t i;
     int type = -1, value = -1;
     while (params_len--) {
         if (!strcmp(params->name, "led")) {
