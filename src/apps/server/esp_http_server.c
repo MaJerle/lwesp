@@ -33,7 +33,9 @@
 #include "fs_data.h"
 #include "ctype.h"
 
+#ifndef ESP_DBG_SERVER
 #define ESP_DBG_SERVER              ESP_DBG_OFF
+#endif
 
 #define HTTP_MAX_URI_LEN            256
 #define HTTP_MAX_PARAMS             16
@@ -348,6 +350,8 @@ http_evt_cb(esp_cb_t* cb) {
                                     }
                                 }
                             }
+                            esp_pbuf_free(hs->p);   /* Free received memory */
+                            hs->p = NULL;           /* Invalidate pointer */
                         } else if (!esp_pbuf_strcmp(hs->p, "GET", 0)) {
                             hs->req_method = HTTP_METHOD_GET;
                             
@@ -361,6 +365,7 @@ http_evt_cb(esp_cb_t* cb) {
                                 }
                             }
                             esp_pbuf_free(hs->p);   /* Free the headers memory at this point */
+                            hs->p = NULL;           /* Invalidate pointer */
                         }
                     }
                 } else {
@@ -375,19 +380,17 @@ http_evt_cb(esp_cb_t* cb) {
                         hs->content_received += tot_len;
                         
                         http_post_send_to_user(p, 0);   /* Send data directly to user */
-                        esp_pbuf_free(p);       /* Free the memory */
                         
                         /*
                          * Did we receive all the data on POST?
                          */
                         if (hs->content_received >= hs->content_length) {
                             /*
-                             * Start the response part here!
+                             * Stop the response part here!
                              */
                         }
                     } else {
                         /* On anything else (GET) we should not receive more data! Violation of protocol */
-                        esp_pbuf_free(p);       /* Just free the memory and ignore */
                     }
                 }
             } else {
@@ -419,6 +422,14 @@ http_evt_cb(esp_cb_t* cb) {
                 }
                 esp_mem_free(hs);
             }
+            break;
+        }
+        
+        /*
+         * Poll the connection
+         */
+        case ESP_CB_CONN_POLL: {
+            printf("Conn POLL\r\n");
             break;
         }
         default:
