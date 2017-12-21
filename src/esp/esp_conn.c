@@ -32,6 +32,29 @@
 #include "include/esp_private.h"
 #include "include/esp_conn.h"
 #include "include/esp_mem.h"
+#include "include/esp_timeout.h"
+
+static
+void conn_timeout_cb(void* arg) {
+    uint16_t i;
+                                                
+    for (i = 0; i < ESP_MAX_CONNS; i++) {       /* Scan all connections */
+        if (esp.conns[i].status.f.active) {     /* If connection is active */
+            esp.cb.type = ESP_CB_CONN_POLL;     /* Set polling callback type */
+            esp.cb.cb.conn_poll.conn = &esp.conns[i];   /* Set connection pointer */
+            espi_send_conn_cb(&esp.conns[i]);   /* Send connection callback */
+        }
+    }
+    esp_timeout_add(500, conn_timeout_cb, NULL);/* Schedule timeout again */
+}
+
+/**
+ * \brief           Initialize connection module
+ */
+void
+espi_conn_init(void) {
+    esp_timeout_add(500, conn_timeout_cb, NULL);/* Add connection timeout */
+}
 
 /**
  * \brief           Starts a new connection of specific type
@@ -287,6 +310,8 @@ esp_conn_get_from_evt(esp_cb_t* evt) {
         return evt->cb.conn_data_send_err.conn;
     } else if (evt->type == ESP_CB_CONN_DATA_SENT) {
         return evt->cb.conn_data_sent.conn;
+    } else if (evt->type == ESP_CB_CONN_POLL) {
+        return evt->cb.conn_poll.conn;
     }
     return NULL;
 }

@@ -110,7 +110,7 @@ esp_init(esp_cb_func_t cb_func) {
      * AT commands to prepare basic setup for device
      */
     esp_reset(1);
-    
+    espi_conn_init();                           /* Init connection module */
     espi_send_cb(ESP_CB_INIT_FINISH);           /* Call user callback function */
     
     return espOK;
