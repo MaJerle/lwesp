@@ -1,5 +1,5 @@
 /**
- * \file            esp_app_mqtt.c
+ * \file            esp_app_mqtt.h
  * \brief           MQTT client
  */
  
@@ -28,24 +28,43 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#include "include/esp_app_mqtt.h"
-#include "../include/esp_mem.h"
+#ifndef __ESP_APP_MQTT_CLIENT_H
+#define __ESP_APP_MQTT_CLIENT_H
+
+/* C++ detection */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "esp.h"
 
 /**
- * \brief           Allocate a new MQTT client structure
- * \return          Pointer to new allocated MQTT client structure or NULL on failure
+ * \addtogroup      ESP
+ * \{
  */
-mqtt_client_t*
-mqtt_client_new(void) {
-    mqtt_client_t* client;
     
-    client = esp_mem_alloc(sizeof(*client));    /* Allocate memory for client structure */
-    if (client) {
-        memset(client, 0x00, sizeof(*client));  /* Reset memory */
-    }
-    return client;
-}
+/**
+ * \defgroup        ESP_APP_MQTT_CLIENT MQTT Client
+ * \brief           MQTT client
+ * \{
+ */
 
+/**
+ * \brief           MQTT client connection
+ */
+typedef struct {
+    const char* user;                           /*!< Username for authentication */
+    const char* pass;                           /*!< Password for authentication */
+    
+    esp_conn_p conn;                            /*!< Active used connection for MQTT */
+    esp_buff_t buff;                            /*!< Buffer for raw output data to transmit */
+    
+    uint8_t is_sending;                         /*!< Flag if we are sending data currently */
+    size_t last_send_len;                       /*!< Number of bytes we wanted to send by last send command */
+    size_t last_sent_len;                       /*!< Number of bytes actually sent by last send command */
+} mqtt_client_t;
+
+mqtt_client_t*  mqtt_client_new(size_t buff_len);
 espr_t          mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port);
 espr_t          mqtt_client_disconnect(mqtt_client_t* client);
 
@@ -53,4 +72,18 @@ espr_t          mqtt_client_subscribe(mqtt_client_t* client, const char* topic, 
 espr_t          mqtt_client_unsubscribe(mqtt_client_t* client, const char* topic);
 
 espr_t          mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payload, uint16_t len, uint8_t qos, uint8_t retain);
+    
+/**
+ * \}
+ */
+    
+/**
+ * \}
+ */
 
+/* C++ detection */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __ESP_APP_MQTT_CLIENT_H */
