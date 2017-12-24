@@ -324,14 +324,12 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
  */
 espr_t
 esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
-    size_t max_buff_len, len, sent;
+    size_t len, sent;
     const uint8_t* d = data;
     espr_t res;
     
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP or SSL\r\n", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
-    
-    max_buff_len = 2048;
     
     /*
      * Several steps are done in write process
@@ -374,9 +372,9 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     /*
      * Step 2
      */
-    if (btw >= max_buff_len) {
+    if (btw >= ESP_CONN_MAX_DATA_LEN) {
         size_t rem;
-        rem = btw % max_buff_len;               /* Get remaining bytes after sending everything */
+        rem = btw % ESP_CONN_MAX_DATA_LEN;      /* Get remaining bytes after sending everything */
         res = esp_conn_send(nc->conn, d, btw - rem, &sent, 1);  /* Write data directly */
         if (res != espOK) {
             return res;
@@ -393,8 +391,8 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
      * Step 3
      */
     if (nc->buff == NULL) {                     /* Check if we should allocate a new buffer */
-        nc->buff = esp_mem_alloc(max_buff_len * sizeof(*nc->buff));
-        nc->buff_len = max_buff_len;            /* Save buffer length */
+        nc->buff = esp_mem_alloc(ESP_CONN_MAX_DATA_LEN * sizeof(*nc->buff));
+        nc->buff_len = ESP_CONN_MAX_DATA_LEN;   /* Save buffer length */
         nc->buff_ptr = 0;                       /* Save buffer pointer */
     }
     
