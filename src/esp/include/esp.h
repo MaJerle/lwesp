@@ -123,6 +123,7 @@ typedef struct esp_cb_t {
         } conn_data_recv;                       /*!< Network data received */
         struct {
             esp_conn_p conn;                    /*!< Connection where data were sent */
+            size_t sent;                        /*!< Number of bytes sent on connection */
         } conn_data_sent;                       /*!< Data successfully sent */
         struct {
             struct esp_conn_t* conn;            /*!< Connection where data were sent */

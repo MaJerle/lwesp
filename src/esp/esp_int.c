@@ -193,6 +193,50 @@ send_signed_number(int32_t num, uint8_t q) {
 }
 
 /**
+ * \brief           Reset all connections
+ * \note            Used to notify upper layer stack to close everything and reset the memory if necessary
+ * \param[in]       forced: Flag indicating reset was forced by user
+ */
+static void
+reset_connections(uint8_t forced) {
+    size_t i;
+    
+    esp.cb.type = ESP_CB_CONN_CLOSED;
+    esp.cb.cb.conn_active_closed.forced = forced;
+    
+    for (i = 0; i < ESP_MAX_CONNS; i++) {       /* Check all connections */
+        if (esp.conns[i].status.f.active) {
+            esp.conns[i].status.f.active = 0;
+            
+            esp.cb.cb.conn_active_closed.conn = &esp.conns[i];
+            esp.cb.cb.conn_active_closed.client = esp.conns[i].status.f.client;
+            espi_send_conn_cb(&esp.conns[i]);   /* Send callback function */
+        }
+    }
+}
+
+/**
+ * \brief           Reset everything after reset was detected
+ */
+static void
+reset_everything(void) {
+    /**
+     * \todo: Put stack to default state:
+     *          - Close all the connection in memory
+     *          - Clear entire data memory
+     *          - Reset esp structure with IP and everything else
+     */
+    
+    /*
+     * Step 1: Close all connections in memory 
+     */
+    reset_connections(0);
+    
+    esp.status.f.r_got_ip = 0;
+    esp.status.f.r_w_conn = 0;
+}
+
+/**
  * \brief           Check if received string includes "_CUR" or "_DEF" as current or default setup
  * \param[in]       str: Pointer to string to test
  * \return          1 if current setting, 0 otherwise
@@ -256,7 +300,7 @@ static uint8_t
 espi_tcpip_process_data_sent(uint8_t sent) {
     if (sent) {                                 /* Data were successfully sent */
         esp.msg->msg.conn_send.btw -= esp.msg->msg.conn_send.sent;
-        esp.msg->msg.conn_send.data += esp.msg->msg.conn_send.sent;
+        esp.msg->msg.conn_send.ptr += esp.msg->msg.conn_send.sent;
         if (esp.msg->msg.conn_send.bw) {
             *esp.msg->msg.conn_send.bw += esp.msg->msg.conn_send.sent;
         }
@@ -311,12 +355,7 @@ espi_parse_received(esp_recv_t* rcv) {
         } else {                                /* Reset due unknown error */
             espi_send_cb(ESP_CB_RESET);         /* Call user callback function */
         }
-        /**
-         * \todo: Put stack to default state:
-         *          - Close all the connection in memory
-         *          - Clear entire data memory
-         *          - Reset eso structure with IP and everything else
-         */
+        reset_everything();                     /* Put everything to default state */
     }
     
     /**
@@ -475,14 +514,21 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_ok = espi_tcpip_process_data_sent(1);    /* Process as data were sent */
                     if (is_ok) {
+                        if (esp.msg->msg.conn_send.fau) {   /* Do we have to free memory after use? */
+                            esp_mem_free((void *)esp.msg->msg.conn_send.data);  /* Free the memory */
+                        }
                         esp.cb.type = ESP_CB_CONN_DATA_SENT;    /* Data were fully sent */
                         esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
+                        esp.cb.cb.conn_data_sent.sent = esp.msg->msg.conn_send.btw;
                         espi_send_conn_cb(esp.msg->msg.conn_send.conn); /* Send connection callback */
                     }
                 } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
                     if (is_error) {
+                        if (esp.msg->msg.conn_send.fau) {   /* Do we have to free memory after use? */
+                            esp_mem_free((void *)esp.msg->msg.conn_send.data);  /* Free the memory */
+                        }
                         esp.cb.type = ESP_CB_CONN_DATA_SEND_ERR;/* Error sending data */
                         esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
                         espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
@@ -514,10 +560,13 @@ espi_parse_received(esp_recv_t* rcv) {
         }
         num = espi_parse_number(&tmp);          /* Parse connection number */
         if (num < ESP_MAX_CONNS) {
+            uint8_t id;
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
+            id = conn->val_id;
             memset(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
             conn->num = num;                    /* Set connection number */
             conn->status.f.active = 1;          /* Connection just active */
+            conn->val_id = ++id;                /* Set new validation ID */
             if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART) && num == esp.msg->msg.conn_start.num) {    /* Did we start connection on our own? */
                 conn->status.f.client = 1;      /* Go to client mode */
                 conn->cb_func = esp.msg->msg.conn_start.cb_func;    /* Set callback function */
@@ -569,6 +618,12 @@ espi_parse_received(esp_recv_t* rcv) {
                         is_error = 1;           /* Set as error to stop processing or waiting for connection */
                     }
                 }
+            }
+            
+            /* Check if write buffer is set */
+            if (conn->buff != NULL) {
+                esp_mem_free(conn->buff);       /* Free the memory */
+                conn->buff = NULL;
             }
         }
     } else if (is_error && IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)) {
@@ -784,7 +839,7 @@ espi_process(const void* data, size_t data_len) {
                             /**
                              * Now actually send the data prepared before
                              */
-                            ESP_AT_PORT_SEND(esp.msg->msg.conn_send.data, esp.msg->msg.conn_send.sent);
+                            ESP_AT_PORT_SEND(&esp.msg->msg.conn_send.data[esp.msg->msg.conn_send.ptr], esp.msg->msg.conn_send.sent);
                             esp.msg->msg.conn_send.wait_send_ok_err = 1;    /* Now we are waiting for "SEND OK" or "SEND ERROR" */
                         }
                     }

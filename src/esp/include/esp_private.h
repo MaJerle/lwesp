@@ -143,6 +143,12 @@ typedef struct esp_conn_t {
     uint16_t        local_port;                 /*!< Local IP address */
     esp_cb_func_t   cb_func;                    /*!< Callback function for connection */
     void*           arg;                        /*!< User custom argument */
+    uint8_t         val_id;                     /*!< Validation ID number */
+    
+    uint8_t*        buff;                       /*!< Pointer to buffer when using \ref esp_conn_write function */
+    size_t          buff_len;                   /*!< Total length of buffer */
+    size_t          buff_ptr;                   /*!< Current write pointer of buffer */
+    
     union {
         struct {
             uint8_t active:1;                   /*!< Status whether connection is active */
@@ -268,6 +274,7 @@ typedef struct esp_msg {
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection to send data */
             size_t btw;                         /*!< Number of bytes to write */
+            size_t ptr;                         /*!< Current write pointer for data */
             size_t* bw;                         /*!< Number of bytes written so far */
             const uint8_t* data;                /*!< Data to send */
             size_t sent;                        /*!< Number of bytes sent in last packet */
@@ -275,6 +282,7 @@ typedef struct esp_msg {
             uint8_t wait_send_ok_err;           /*!< Set to 1 when we wait for SEND OK or SEND ERROR */
             const uint8_t* remote_ip;           /*!< Remote IP address for UDP connection */
             uint16_t remote_port;               /*!< Remote port address for UDP connection */
+            uint8_t fau;                        /*!< Free after use flag to free memory after data are sent (or not) */
         } conn_send;                            /*!< Structure to send data on connection */
         
         /*
@@ -385,6 +393,9 @@ typedef struct {
             uint8_t     r_w_conn:1;             /*!< Flag indicating ESP is connected to wifi */
         } f;                                    /*!< Flags structure */
     } status;                                   /*!< Status structure */
+    
+    uint8_t conn_val_id;                        /*!< Validation ID increased each time device connects to wifi network or on reset.
+                                                    it is used for connections */
 } esp_t;
 
 /**

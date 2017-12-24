@@ -34,8 +34,12 @@
 #include "include/esp_mem.h"
 #include "include/esp_timeout.h"
 
-static
-void conn_timeout_cb(void* arg) {
+/**
+ * \brief           Timeout callback for connection
+ * \param[in]       arg: Timeout callback custom argument
+ */
+static void
+conn_timeout_cb(void* arg) {
     uint16_t i;
                                                 
     for (i = 0; i < ESP_MAX_CONNS; i++) {       /* Scan all connections */
@@ -46,6 +50,60 @@ void conn_timeout_cb(void* arg) {
         }
     }
     esp_timeout_add(500, conn_timeout_cb, NULL);/* Schedule timeout again */
+}
+
+/**
+ * \brief           Send data on already active connection of type UDP to specific remote IP and port
+ * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP too)
+ * \param[in]       conn: Pointer to connection to send data
+ * \param[in]       ip: Remote IP address for UDP connection
+ * \param[in]       port: Remote port connection
+ * \param[in]       data: Pointer to data to send
+ * \param[in]       btw: Number of bytes to send
+ * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
+ * \param[in]       fau: "Free After Use" flag. Set to 1 if stack should free the memory after data sent
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+static espr_t
+conn_send(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint8_t fau, uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
+    ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
+    ESP_ASSERT("conn > 0", btw > 0);            /* Assert input parameters */
+    
+    if (bw) {
+        *bw = 0;
+    }
+    
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
+    
+    ESP_MSG_VAR_REF(msg).msg.conn_send.conn = conn;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.data = data;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.btw = btw;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.bw = bw;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
+    ESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
+    
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+}
+
+/**
+ * \brief           Flush buffer on connection
+ * \param[in]       conn: Connection to flush buffer on
+ */
+static espr_t
+flush_buff(esp_conn_p conn) {
+    if (conn != NULL && conn->buff != NULL) {   /* Do we have something ready? */
+        if (conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
+            esp_mem_free(conn->buff);           /* Free memory manually */
+        }
+        conn->buff = NULL;
+    }
+    return espOK;
 }
 
 /**
@@ -100,6 +158,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPCLOSE;
     ESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
     
+    flush_buff(conn);                           /* First flush buffer */
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
@@ -117,27 +176,8 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
  */
 espr_t
 esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
-    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
-    ESP_ASSERT("conn > 0", btw > 0);            /* Assert input parameters */
-    
-    if (bw) {
-        *bw = 0;
-    }
-    
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
-    
-    ESP_MSG_VAR_REF(msg).msg.conn_send.conn = conn;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.data = data;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.btw = btw;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.bw = bw;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
-    
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    flush_buff(conn);                           /* Flush currently written memory if exists */
+    return conn_send(conn, ip, port, data, btw, bw, 0, blocking);
 }
 
 /**
@@ -151,7 +191,8 @@ esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data
  */
 espr_t
 esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
-    return esp_conn_sendto(conn, NULL, 0, data, btw, bw, blocking);
+    flush_buff(conn);                           /* Flush currently written memory if exists */
+    return conn_send(conn, NULL, 0, data, btw, bw, 0, blocking);
 }
 
 /**
@@ -314,4 +355,103 @@ esp_conn_get_from_evt(esp_cb_t* evt) {
         return evt->cb.conn_poll.conn;
     }
     return NULL;
+}
+
+/**
+ * \brief           Write data to connection buffer and if it is full, send it non-blocking way
+ * \param[in]       conn: Connection to write
+ * \param[in]       data: Data to copy to write buffer
+ * \param[in]       btw: Number of bytes to write
+ * \param[in]       flush: Flush flag. Set to 1 if you want to send data immediatelly after copying
+ * \param[out]      mem_available: Available memory in current buffer after write was successful.
+ *                  When function returns OK and value is 0, buffer is full and next one will be created next time
+ *                  function is called with size of ESP_CONN_MAX_DATA_LEN bytes
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, size_t* mem_available) {
+    size_t len;
+    
+    const uint8_t* d = data;
+    
+    /*
+     * Steps, performed in write process:
+     * 
+     * 1. Check if we have buffer already allocated and
+     *      write data to the tail of buffer
+     *   1.1. In case buffer is full, send it non-blocking,
+     *      and enable freeing after it is sent
+     * 2. Check how many bytes we can copy as single buffer directly and send
+     * 3. Create last buffer and copy remaining data to it
+     */
+    
+    /*
+     * Step 1
+     */
+    if (conn->buff != NULL) {
+        len = ESP_MIN(conn->buff_len - conn->buff_ptr, btw);
+        memcpy(&conn->buff[conn->buff_ptr], d, len);
+        
+        d += len;
+        btw -= len;
+        conn->buff_ptr += len;
+        
+        /*
+         * Step 1.1
+         */
+        if (conn->buff_ptr == conn->buff_len || flush) {
+            /* Try to send to processing queue in non-blocking way */
+            if (conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
+                esp_mem_free(conn->buff);       /* Manually free memory */
+            }
+            conn->buff = NULL;                  /* Reset pointer */
+        }
+    }
+    
+    /*
+     * Step 2
+     */
+    while (btw >= ESP_CONN_MAX_DATA_LEN) {
+        uint8_t* buff;
+        buff = esp_mem_alloc(ESP_CONN_MAX_DATA_LEN);    /* Allocate memory */
+        if (buff != NULL) {
+            memcpy(buff, d, ESP_CONN_MAX_DATA_LEN); /* Copy data to buffer */
+            if (conn_send(conn, NULL, 0, buff, ESP_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
+                esp_mem_free(buff);             /* Manually free memory */
+            }
+        } else {
+            return espERR;
+        }
+        
+        btw -= ESP_CONN_MAX_DATA_LEN;           /* Decrease remaining length */
+        d += ESP_CONN_MAX_DATA_LEN;             /* Advance data pointer */
+    }
+    
+    /*
+     * Step 3
+     */
+    if (btw) {                                  /* Do we still have some data to process? */
+        conn->buff = esp_mem_alloc(ESP_CONN_MAX_DATA_LEN);  /* Allocate memory for temp buffer */
+        conn->buff_len = ESP_CONN_MAX_DATA_LEN;
+        conn->buff_ptr = 0;
+        
+        if (conn->buff != NULL) {
+            memcpy(conn->buff, d, btw);         /* Copy data to memory */
+            conn->buff_ptr = btw;
+        } else {
+            return espERR;
+        }
+    }
+    
+    if (flush) {
+        flush_buff(conn);
+    }
+    
+    /*
+     * Calculate number of available memory after write operation
+     */
+    if (conn->buff != NULL && mem_available != NULL) {
+        *mem_available = conn->buff_len - conn->buff_ptr;
+    }
+    return espOK;
 }

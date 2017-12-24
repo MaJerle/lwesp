@@ -83,6 +83,10 @@
 /**
  * \brief           Maximal number of bytes we can send at single command to ESP
  * \note            Value can not exceed 2048 bytes or no data will be ever send
+ *
+ * \note            This is limitation of ESP AT commands and on systems where RAM
+ *                  is not an issue, it should be set to maximal value (2048)
+ *                  to optimize speed performance of sending data
  */
 #ifndef ESP_CONN_MAX_DATA_LEN
 #define ESP_CONN_MAX_DATA_LEN               2048
