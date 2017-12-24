@@ -33,6 +33,8 @@
 #include "include/esp_pbuf.h"
 #include "include/esp_mem.h"
 
+#define SIZEOF_PBUF_STRUCT          ESP_MEM_ALIGN(sizeof(esp_pbuf_t))
+
 /**
  * \brief           Skip pbufs for desired offset
  * \param[in]       p: Source pbuf to skip
@@ -42,18 +44,21 @@
  */
 static esp_pbuf_p
 pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
-    if (!p || p->tot_len < off) {               /* Check valid parameters */
+    if (p == NULL || p->tot_len < off) {        /* Check valid parameters */
+        if (new_off != NULL) {                  /* Check new offset */
+            *new_off = 0;                       /* Set offset to output variable */
+        }
         return NULL;
     }
     
     /**
      * Skip pbufs until we reach pbuf where offset is placed
      */
-    for (; p && p->len <= off; p = p->next) {
+    for (; p != NULL && p->len <= off; p = p->next) {
         off -= p->len;                          /* Decrease offset by current pbuf length */
     }
     
-    if (new_off) {                              /* Check new offset */
+    if (new_off != NULL) {                      /* Check new offset */
         *new_off = off;                         /* Set offset to output variable */
     }
     return p;
@@ -68,14 +73,14 @@ esp_pbuf_p
 esp_pbuf_new(size_t len) {
     esp_pbuf_p p;
     
-    p = esp_mem_calloc(1, ESP_MEM_ALIGN(sizeof(*p)) + len); /* Allocate memory for packet buffer */
+    p = esp_mem_calloc(1, SIZEOF_PBUF_STRUCT + len);    /* Allocate memory for packet buffer */
     ESP_DEBUGW(ESP_DBG_PBUF, p == NULL, "PBUF: Failed to allocate %d bytes\r\n", (int)len);
     ESP_DEBUGW(ESP_DBG_PBUF, p != NULL, "PBUF: Allocated %d bytes on %p\r\n", (int)len, p);
-    if (p) {
+    if (p != NULL) {
         p->next = NULL;                         /* No next element in chain */
         p->tot_len = len;                       /* Set total length of pbuf chain */
         p->len = len;                           /* Set payload length */
-        p->payload = (uint8_t *)(((char *)p) + ESP_MEM_ALIGN(sizeof(*p)));  /* Set pointer to payload data */
+        p->payload = (uint8_t *)(((char *)p) + SIZEOF_PBUF_STRUCT); /* Set pointer to payload data */
         p->ref = 1;                             /* Single reference is used on this pbuf */
     }
     return p;
@@ -98,7 +103,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
      * which means somebody has reference to part of pbuf and we have to keep it as is
      */
     cnt = 0;
-    for (p = pbuf; p;) {
+    for (p = pbuf; p != NULL;) {
         ref = --p->ref;                         /* Decrease current value and save it */
         if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
             ESP_DEBUGF(ESP_DBG_PBUF, "PBUF: Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
@@ -203,7 +208,11 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
      */
     if (offset) {
         pbuf = pbuf_skip(pbuf, offset, &offset);    /* Offset and check for new length */
+        if (pbuf == NULL) {
+            return espERR;
+        }
     }
+    
     if (pbuf->tot_len < (len + offset)) {
         return espPARERR;
     }
@@ -244,7 +253,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
     size_t tot, tc;
     uint8_t* d = data;
     
-    if (!pbuf || !data || !len || pbuf->tot_len < offset) { /* Assert input parameters */
+    if (pbuf == NULL || data == NULL || !len || pbuf->tot_len < offset) {   /* Assert input parameters */
         return 0;
     }
     
@@ -254,6 +263,9 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
      */
     if (offset) {
         pbuf = pbuf_skip(pbuf, offset, &offset);    /* Skip offset if necessary */
+        if (pbuf == NULL) {
+            return 0;
+        }
     }
     
     /*
@@ -261,7 +273,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
      * with checking for initial offset (only one can have offset)
      */
     tot = 0;
-    for (; pbuf && len; pbuf = pbuf->next) {
+    for (; pbuf != NULL && len; pbuf = pbuf->next) {
         tc = ESP_MIN(pbuf->len - offset, len);      /* Get length of data to copy */
         memcpy(d, pbuf->payload + offset, tc);      /* Copy data from pbuf */
         d += tc;
@@ -284,9 +296,9 @@ esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
     esp_pbuf_p p;
     size_t off;
     
-    if (pbuf) {
+    if (pbuf != NULL) {
         p = pbuf_skip(pbuf, pos, &off);         /* Skip pbufs to desired position and get new offset from new pbuf */
-        if (p) {                                /* Do we have new pbuf? */
+        if (p != NULL) {                        /* Do we have new pbuf? */
             *el = p->payload[off];              /* Return memory at desired new offset from latest pbuf */
             return 1;
         }
@@ -306,7 +318,7 @@ esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
 size_t
 esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* needle, size_t len, size_t off) {
     size_t i;
-    if (pbuf && needle && pbuf->tot_len >= (len + off)) {   /* Check if valid entries */
+    if (pbuf != NULL && needle != NULL && pbuf->tot_len >= (len + off)) {   /* Check if valid entries */
         /*
          * Try entire buffer element by element
          * and in case we have a match, report it
@@ -377,7 +389,6 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
     return 0;                                   /* Memory matches at this point */
 }
 
-
 /**
  * \brief           Compare pbuf memory with input string
  * \note            Compare is done on entire pbuf chain
@@ -404,13 +415,22 @@ esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t offset) {
 const void *
 esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) {
     esp_pbuf_p p = pbuf;
-    if (!pbuf || pbuf->tot_len < offset) {      /* Check input parameters */
+    if (pbuf == NULL || pbuf->tot_len < offset) {   /* Check input parameters */
+        if (new_len != NULL) {
+            *new_len = 0;
+        }
         return NULL;
     }
     if (offset) {                               /* Is there any offset? */
         p = pbuf_skip(pbuf, offset, &offset);   /* Skip pbuf to desired length */
+        if (p == NULL) {
+            if (new_len != NULL) {
+                *new_len = 0;
+            }
+            return NULL;
+        }
     }
-    if (new_len) {
+    if (new_len != NULL) {
         *new_len = p->len - offset;             /* Save memory length user can use */
     }
     return &p->payload[offset];                 /* Return memory at desired offset */
@@ -423,7 +443,7 @@ esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) 
  */
 const void *
 esp_pbuf_data(const esp_pbuf_p pbuf) {
-    return pbuf ? pbuf->payload : NULL;
+    return pbuf != NULL ? pbuf->payload : NULL;
 }
 
 /**
@@ -434,7 +454,7 @@ esp_pbuf_data(const esp_pbuf_p pbuf) {
  */
 size_t
 esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot) {
-    return pbuf ? (tot ? pbuf->tot_len : pbuf->len) : 0;
+    return pbuf != NULL ? (tot ? pbuf->tot_len : pbuf->len) : 0;
 }
 
 /**
@@ -445,8 +465,56 @@ esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot) {
  */
 void
 esp_pbuf_set_ip(esp_pbuf_p pbuf, const void* ip, uint16_t port) {
-    if (pbuf && ip) {
+    if (pbuf != NULL && ip != NULL) {
         memcpy(pbuf->ip, ip, 4);
         pbuf->port = port;
     }
+}
+
+/**
+ * \brief           Advance pbuf payload pointer by number of \arg len bytes
+ *                  It can only advance single pbuf in a chain
+ *
+ * \note            When other pbufs are referencing current one, 
+ *                  they are not adjusted in length and total length
+ *
+ * \param[in]       pbuf: Pbuf to advance
+ * \param[in]       len: Number of bytes to advance, when negative is used, buffer is increased by only if it was decreased before
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+esp_pbuf_advance(esp_pbuf_p pbuf, int len) {
+    uint8_t process = 0;
+    if (pbuf == NULL || !len) {
+        return 0;
+    }
+    if (len > 0) {                              /* When we want to decrease size */
+        if (len <= pbuf->len) {                 /* Is there space to decrease? */
+            process = 1;
+        }
+    } else {
+        /* Is current payload + new len still higher than pbuf structure? */
+        if (((uint8_t *)pbuf + SIZEOF_PBUF_STRUCT) < (pbuf->payload + len)) {
+            process = 1;
+        }
+    }
+    if (process) {
+        pbuf->payload += len;                   /* Increase payload pointer */
+        pbuf->tot_len -= len;                   /* Decrease length of pbuf chain */
+        pbuf->len -= len;                       /* Decrease length of current pbuf */
+    }
+    return process;
+}
+
+/**
+ * \brief           Skip a list of pbufs for desired offset
+ * \note            Reference is not changed after return and user must not free the memory of new pbuf directly
+ * \param[in]       pbuf: Start of pbuf chain
+ * \param[in]       offset: Offset in units of bytes to skip
+ * \param[out]      new_offset: Pointer to output variable to save new offset in returned pbuf
+ * \return          New pbuf on success or NULL on failure
+ */
+esp_pbuf_p
+esp_pbuf_skip(esp_pbuf_p pbuf, size_t offset, size_t* new_offset) {
+    return pbuf_skip(pbuf, offset, new_offset); /* Skip pbufs with internal function */
 }

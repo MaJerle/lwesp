@@ -66,6 +66,9 @@ size_t          esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t o
 size_t          esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* data, size_t len, size_t off);
 size_t          esp_pbuf_strfind(const esp_pbuf_p pbuf, const char* str, size_t off);
 
+uint8_t         esp_pbuf_advance(esp_pbuf_p pbuf, int len);
+esp_pbuf_p      esp_pbuf_skip(esp_pbuf_p pbuf, size_t offset, size_t* new_offset);
+
 const void *    esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len);
 
 void            esp_pbuf_set_ip(esp_pbuf_p pbuf, const void* ip, uint16_t port);
