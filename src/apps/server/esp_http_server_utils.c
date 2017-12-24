@@ -129,8 +129,8 @@ http_get_params(char* params) {
  * \param[in]       uri: Input uri to get file for
  * \return          Pointer to file on success or NULL on failure
  */
-const fs_file_t*
-http_get_file_from_uri(char* uri) {
+uint8_t
+http_get_file_from_uri(hs, char* uri) {
     size_t uri_len;
     const fs_file_t* file = NULL;
     

@@ -8,16 +8,16 @@ const uint8_t responseData[] = ""
 "\r\n"
 "<html>\n"
 "   <head>\n"
-"       <meta http-equiv=\"Refresh\" content=\"2\" />\n"
+"       <meta http-equiv=\"Refresh\" content=\"1\" />\n"
 "       <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n"
 "       <script src=\"/js/js1.js\" type=\"text/javascript\"></script>\n"
-"       <script src=\"/js/js2.js\" type=\"text/javascript\"></script>\n"
-"       <script src=\"/js/js3.js\" type=\"text/javascript\"></script>\n"
-"       <script src=\"/js/js4.js\" type=\"text/javascript\"></script>\n"
+"       <!--<script src=\"/js/js2.js\" type=\"text/javascript\"></script>-->\n"
+"       <!--<script src=\"/js/js3.js\" type=\"text/javascript\"></script>-->\n"
+"       <!--<script src=\"/js/js4.js\" type=\"text/javascript\"></script>-->\n"
 "       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style1.css\">\n"
-"       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style2.css\">\n"
-"       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style3.css\">\n"
-"       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style4.css\">\n"
+"       <!--<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style2.css\">-->\n"
+"       <!--<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style3.css\">-->\n"
+"       <!--<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style4.css\">-->\n"
 "   </head>\n"
 "   <body>\n"
 "       <div id=\"maindiv\">\n"
@@ -41,8 +41,16 @@ const uint8_t responseData[] = ""
 "               Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate\n"
 "           </p>\n"
 "           <div>\n"
-"               <a href=\"index.cgi?led=1\"><button>LED On</button></a>\n"
-"               <a href=\"index.cgi?led=0\"><button>LED Off</button></a>\n"
+"               <a href=\"led.cgi?led=green&val=on\"><button>LED On</button></a>\n"
+"               <a href=\"led.cgi?led=green&val=off\"><button>LED Off</button></a>\n"
+"           </div>\n"
+"           <div>\n"
+"               <form method=\"post\" enctype=\"multipart/form-data\" action=\"upload.cgi\">\n"
+"                   <input type=\"file\" name=\"file1\" />\n"
+"                   <input type=\"file\" name=\"file2\" />\n"
+"                   <input type=\"file\" name=\"file3\" />\n"
+"                   <button type=\"submit\">Upload</button>\n"
+"               </form>\n"
 "           </div>\n"
 "       </div>\n"
 "       <footer>\n"
@@ -106,7 +114,7 @@ const uint8_t responseData_404[] = ""
 /**
  * \brief           List of dummy files for output on user request
  */
-const fs_file_t
+const fs_file_table_t
 files[] = {
     {"/index.html",         responseData,       sizeof(responseData) - 1,       0, 1, 1},
     {"/css/style1.css",     responseData_css,   sizeof(responseData_css) - 1,   0, 1, 1},
@@ -120,21 +128,46 @@ files[] = {
     {"404",                 responseData_404,   sizeof(responseData_404) - 1,   1, 1, 1}
 };
 
-const fs_file_t*
-fs_data_open_file(const char* path, uint8_t is_404) {
+/**
+ * \brief           Open file from file system
+ * \param[in]       path: File path to open
+ * \param[in]       is_404: Flag indicating we want 404 error message
+ * \return          1 on success or 0 otherwise
+ */
+uint8_t
+fs_data_open_file(fs_file_t* file, const char* path, uint8_t is_404) {
     uint8_t i;
     for (i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
         if (
             (is_404 && files[i].is_404) ||
             (!is_404 && path && !strcmp(files[i].path, path))
         ) {
-            return &files[i];
+            file->len = files[i].len;
+            file->data = (uint8_t *)files[i].data;
+            file->is_static = 1;
+            return 1;
         }
     }
-    return NULL;
+    return 0;
 }
 
+/**
+ * \brief           Read part of file
+ * \param[in]       file: File handle
+ * \param[in]       buff: Pointer to buffer to save read data
+ * \param[in]       btr: Number of bytes to read and write to buffer
+ * \param[out]      br: Pointer to save number of bytes read to buffer
+ */
+uint8_t
+fs_data_read_file(fs_file_t* file, void* buff, size_t btr, size_t* br) {
+    return 1;
+}
+
+/**
+ * \brief           Close file handle
+ * \param[in]       file: Pointer to file handle to close
+ */
 void
-fs_data_close_file(const fs_file_t* file) {
+fs_data_close_file(fs_file_t* file) {
 
 }

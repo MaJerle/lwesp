@@ -1,6 +1,6 @@
 /**	
- * \file            esp_netconn_server.c
- * \brief           HTTP server based on netconn API
+ * \file            esp_http_server.c
+ * \brief           HTTP server based on callback API
  */
  
 /*
@@ -35,37 +35,21 @@
 
 #ifndef ESP_DBG_SERVER
 #define ESP_DBG_SERVER              ESP_DBG_OFF
-#endif
+#endif /* ESP_DBG_SERVER */
+
+#ifndef HTTP_SUPPORT_POST
+#define HTTP_SUPPORT_POST           1
+#endif /* HTTP_SUPPORT_POST */
 
 #define HTTP_MAX_URI_LEN            256
 #define HTTP_MAX_PARAMS             16
 #define CRLF                        "\r\n"
 
-typedef enum {
-    HTTP_METHOD_GET,
-    HTTP_METHOD_POST,
-} http_req_method_t;
-
-/**
- * \brief           HTTP state structure
- */
-typedef struct {
-    esp_pbuf_p p;                               /*!< Header received pbuf starts here */
-    
-    http_req_method_t req_method;               /*!< Used request method */
-    uint8_t headers_received;                   /*!< Did we fully received a headers? */
-    uint32_t content_length;                    /*!< Total expected content length for request (on POST) (without headers) */
-    uint32_t content_received;                  /*!< Content length received so far (without headers) */
-    
-    const fs_file_t* resp_file;                 /*!< Response file name pointer */
-} http_state_t;
-
 char http_uri[HTTP_MAX_URI_LEN + 1];
 http_param_t http_params[HTTP_MAX_PARAMS];
 
-/* CGI parameters */
-static const http_cgi_t* cgi_list;
-static size_t cgi_size;
+/* HTTP init structure with user settings */
+static const http_init_t* hi;
 
 /**
  * \brief           List of supported file names for index page
@@ -149,14 +133,16 @@ http_get_params(char* params) {
 
 /**
  * \brief           Get file from uri in format /folder/file?param1=value1&...
+ * \param[in]       hs: HTTP state
  * \param[in]       uri: Input uri to get file for
- * \return          Pointer to file on success or NULL on failure
+ * \return          1 on success, 0 otherwise
  */
-const fs_file_t*
-http_get_file_from_uri(char* uri) {
+uint8_t
+http_get_file_from_uri(http_state_t* hs, char* uri) {
     size_t uri_len;
-    const fs_file_t* file = NULL;
     
+    
+    memset(&hs->resp_file, 0x00, sizeof(hs->resp_file));
     uri_len = strlen(uri);                      /* Get URI total length */
     if ((uri_len == 1 && uri[0] == '/') ||      /* Index file only requested */
         (uri_len > 1 && uri[0] == '/' && uri[1] == '?')) {  /* Index file + parameters */
@@ -166,8 +152,8 @@ http_get_file_from_uri(char* uri) {
          * available to return as main file
          */
         for (i = 0; i < sizeof(http_index_filenames) / sizeof(http_index_filenames[0]); i++) {
-            file = fs_data_open_file(http_index_filenames[i], 0);   /* Give me a file with desired path */
-            if (file) {                         /* Do we have a file? */
+            hs->resp_file_opened = fs_data_open_file(&hs->resp_file, http_index_filenames[i], 0); /* Give me a file with desired path */
+            if (hs->resp_file_opened) {         /* Do we have a file? */
                 break;
             }
         }
@@ -177,7 +163,7 @@ http_get_file_from_uri(char* uri) {
      * We still don't have a file,
      * maybe there was a request for specific file and possible parameters
      */
-    if (file == NULL) {
+    if (!hs->resp_file_opened) {
         char* req_params;
         size_t params_len;
         req_params = strchr(uri, '?');          /* Search for params delimiter */
@@ -187,53 +173,95 @@ http_get_file_from_uri(char* uri) {
         }
         
         params_len = http_get_params(req_params);   /* Get request params from request */
-        if (cgi_list) {                         /* Check if any user specific controls to process */
+        if (hi != NULL && hi->cgi != NULL) {    /* Check if any user specific controls to process */
             size_t i;
-            for (i = 0; i < cgi_size; i++) {
-                if (!strcmp(cgi_list[i].uri, uri)) {
-                    uri = cgi_list[i].fn(http_params, params_len);
+            for (i = 0; i < hi->cgi_count; i++) {
+                if (!strcmp(hi->cgi[i].uri, uri)) {
+                    uri = hi->cgi[i].fn(http_params, params_len);
                     break;
                 }
             }
         }
-        file = fs_data_open_file(uri, 0);       /* Give me a new file now */
+        hs->resp_file_opened = fs_data_open_file(&hs->resp_file, uri, 0);   /* Give me a new file now */
     }
     
     /*
      * We still don't have a file!
      * Try with 404 error page if available by user
      */
-    if (file == NULL) {
-        file = fs_data_open_file(NULL, 1);      /* Get 404 error page */
+    if (!hs->resp_file_opened) {
+        hs->resp_file_opened = fs_data_open_file(&hs->resp_file, NULL, 1);  /* Get 404 error page */
     }
-    return file;
+    return hs->resp_file_opened;
 }
 
 /**
  * \brief           Send the received pbuf to user space
+ * \param[in]       hs: HTTP state context
  * \param[in]       pbuf: Pbuf with received data
  * \param[in]       offset: Offset in pbuf where to start reading the buffer
  */
-void
-http_post_send_to_user(esp_pbuf_p pbuf, size_t offset) {
-    const uint8_t* post_data;
-    size_t post_data_len = 0;
+static void
+http_post_send_to_user(http_state_t* hs, esp_pbuf_p pbuf, size_t offset) {
+    esp_pbuf_p new_pbuf;
 
+    if (hi == NULL || hi->post_data_fn == NULL) {
+        return;
+    }
+    
+    new_pbuf = esp_pbuf_skip(pbuf, offset, &offset);    /* Skip pbufs and create this one */
+    if (new_pbuf != NULL) {
+        esp_pbuf_advance(new_pbuf, offset);     /* Advance pbuf for remaining bytes */
+    
+        hi->post_data_fn(hs, new_pbuf);         /* Notify user with data */
+    }
+}
+
+/**
+ * \brief           Send response back to connection
+ * \param[in]       hs: HTTP state
+ * \param[in]       ft: Flag indicating function was called first time to send the response
+ */
+static void
+send_response(http_state_t* hs, uint8_t ft) {
+    uint8_t close = 0;
     /*
-     * Process all pbufs with linear addresses
-     * and call user function for each part of pbuf
+     * Do we have a file ready to be send?
      */
-    do {
-        offset += post_data_len;                /* Get next offset */
-        post_data = esp_pbuf_get_linear_addr(pbuf, offset, &post_data_len);
+    if (hs->resp_file_opened) {
+        if (!ft) {
+            hs->resp_file.sent_total += hs->resp_file.sent;
+        }
         
         /*
-         * Call user function with data here
+         * Do we still have some data to send?
          */
-    } while (post_data_len);
-
-    (void)post_data;                            /* Prevent compiler warnings */
-    (void)post_data_len;                        /* Prevent compiler warnings */
+        if (hs->resp_file.sent_total < hs->resp_file.len) {
+            /*
+             * Static files (const array) have data set already
+             * so we can send entire data immediatelly
+             */
+            if (hs->resp_file.is_static) {
+                size_t available;
+                //esp_conn_send(hs->conn, hs->resp_file.data, hs->resp_file.len &hs->resp_file.sent, 0);
+                esp_conn_write(hs->conn, &hs->resp_file.data[0], hs->resp_file.len, 1, NULL);
+                hs->resp_file.sent_total += hs->resp_file.len;
+            } else {
+                /* 
+                 * Todo: Implement read to temporary buffer and send
+                 */
+            }
+        } else {
+            fs_data_close_file(&hs->resp_file); /* Close file */
+            close = 1;
+        }
+    } else {
+        close = 1;
+    }
+    
+    if (close) {
+        esp_conn_close(hs->conn, 0);            /* Close the connection as no file opened in this case */
+    }
 }
 
 static espr_t
@@ -253,6 +281,7 @@ http_evt_cb(esp_cb_t* cb) {
         case ESP_CB_CONN_ACTIVE: {
             hs = esp_mem_calloc(1, sizeof(*hs));
             if (hs != NULL) {
+                hs->conn = conn;                /* Save connection handle */
                 esp_conn_set_arg(conn, hs);     /* Set argument for connection */
             } else {
                 ESP_DEBUGF(ESP_DBG_SERVER, "Cannot allocate memory for http state\r\n");
@@ -288,6 +317,15 @@ http_evt_cb(esp_cb_t* cb) {
                      */
                     if ((pos = esp_pbuf_strfind(hs->p, CRLF CRLF, 0)) != ESP_SIZET_MAX) {
                         ESP_DEBUGF(ESP_DBG_SERVER, "HTTP headers received!\r\n");
+                        hs->headers_received = 1;   /* Flag received headers */
+                        
+                        /*
+                         * Parse the URI, process request and open response file
+                         */
+                        if (http_parse_uri(hs->p) == espOK) {
+                            http_get_file_from_uri(hs, http_uri);   /* Open file */
+                        }
+                        
                         /*
                          * At this point, all headers are received
                          * We can start process them into something useful
@@ -297,13 +335,14 @@ http_evt_cb(esp_cb_t* cb) {
                         /*
                          * Check for request method used on this connection
                          */
-                        if (!esp_pbuf_strcmp(hs->p, "POST", 0)) {
+                        if (!esp_pbuf_strcmp(hs->p, "POST ", 0)) {
                             hs->req_method = HTTP_METHOD_POST;  /* Save a new value as POST method */
                             
                             /*
                              * Try to find content length on this request
                              * search for 2 possible values "Content-Length" or "content-length" parameters
                              */
+                            hs->content_length = 0;
                             if (((pos = esp_pbuf_strfind(hs->p, "Content-Length:", 0)) != ESP_SIZET_MAX) ||
                                 (pos = esp_pbuf_strfind(hs->p, "content-length:", 0)) != ESP_SIZET_MAX) {
                                 
@@ -325,47 +364,42 @@ http_evt_cb(esp_cb_t* cb) {
                              * Check if we are expecting any data on POST request
                              */
                             if (hs->content_length) {
-                                pbuf_total_len = esp_pbuf_length(hs->p, 1); /* Get total length of current received pbuf */
-                                
                                 /*
                                  * Call user POST start method here
                                  * to notify him to prepare himself to receive POST data
                                  */
+                                if (hi != NULL && hi->post_start_fn != NULL) {
+                                    hi->post_start_fn(hs, http_uri, hs->content_length);
+                                }
                                 
                                 /*
                                  * Check if there is anything to send already
                                  * to user from data part of request
                                  */
-                                if (pbuf_total_len > hs->content_length) {
-                                    http_post_send_to_user(hs->p, data_pos);
-                                    hs->content_received = pbuf_total_len - hs->content_length; /* Set already received content length */
+                                pbuf_total_len = esp_pbuf_length(hs->p, 1); /* Get total length of current received pbuf */
+                                if ((pbuf_total_len - data_pos) > 0) {
+                                    hs->content_received = pbuf_total_len - data_pos;
                                     
                                     /*
-                                     * Did we receive everything in single shot?
+                                     * Send data to user
+                                     */
+                                    http_post_send_to_user(hs, hs->p, data_pos);
+                                    
+                                    /*
+                                     * Did we receive everything in single packet?
+                                     * Close POST loop at this point and notify user
                                      */
                                     if (hs->content_received >= hs->content_length) {
-                                        /*
-                                         * Start the response part here!
-                                         */
+                                        hs->process_resp = 1;   /* Process with response to user */
+                                        if (hi != NULL && hi->post_end_fn != NULL) {
+                                            hi->post_end_fn(hs);
+                                        }
                                     }
                                 }
                             }
-                            esp_pbuf_free(hs->p);   /* Free received memory */
-                            hs->p = NULL;           /* Invalidate pointer */
-                        } else if (!esp_pbuf_strcmp(hs->p, "GET", 0)) {
+                        } else if (!esp_pbuf_strcmp(hs->p, "GET ", 0)) {
                             hs->req_method = HTTP_METHOD_GET;
-                            
-                            /*
-                             * Start the response part here
-                             */
-                            if (http_parse_uri(hs->p) == espOK) {   /* Try to parse URI from request */
-                                hs->resp_file = http_get_file_from_uri(http_uri);   /* Get file from URI */
-                                if (hs->resp_file) {
-                                    esp_conn_send(conn, hs->resp_file->data, hs->resp_file->len, NULL, 0);  /* Use non-blocking method */
-                                }
-                            }
-                            esp_pbuf_free(hs->p);   /* Free the headers memory at this point */
-                            hs->p = NULL;           /* Invalidate pointer */
+                            hs->process_resp = 1;   /* Process with response to user */
                         }
                     }
                 } else {
@@ -374,24 +408,39 @@ http_evt_cb(esp_cb_t* cb) {
                      * as headers are already received
                      */
                     if (hs->req_method == HTTP_METHOD_POST) {
-                        size_t tot_len;
-                        
-                        tot_len = esp_pbuf_length(p, 1);    /* Get length of pbuf */
-                        hs->content_received += tot_len;
-                        
-                        http_post_send_to_user(p, 0);   /* Send data directly to user */
-                        
                         /*
                          * Did we receive all the data on POST?
                          */
-                        if (hs->content_received >= hs->content_length) {
-                            /*
-                             * Stop the response part here!
+                        if (hs->content_received < hs->content_length) {
+                            size_t tot_len;
+                            
+                            tot_len = esp_pbuf_length(p, 1);    /* Get length of pbuf */
+                            hs->content_received += tot_len;
+                            
+                            http_post_send_to_user(hs, p, 0);   /* Send data directly to user */
+                            
+                            /**
+                             * Check if everything received
                              */
+                            if (hs->content_received >= hs->content_length) {
+                                hs->process_resp = 1;   /* Process with response to user */
+                                
+                                /*
+                                 * Stop the response part here!
+                                 */
+                                if (hi != NULL && hi->post_end_fn) {
+                                    hi->post_end_fn(hs);
+                                }
+                            }
                         }
                     } else {
                         /* On anything else (GET) we should not receive more data! Violation of protocol */
                     }
+                }
+                
+                /* Do the processing on response */
+                if (hs->process_resp) {
+                    send_response(hs, 1);       /* Send the response data */
                 }
             } else {
                 close = 1;
@@ -404,10 +453,7 @@ http_evt_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_DATA_SENT: {
             if (hs != NULL) {
-                fs_data_close_file(hs->resp_file);  /* Close response file */
-                esp_conn_close(conn, 0);         /* Close a connection at this point */
-            } else {
-                close = 1;
+                send_response(hs, 0);           /* Send more data if required */
             }
             break;
         }
@@ -417,10 +463,21 @@ http_evt_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_CLOSED: {
             if (hs != NULL) {
+#if HTTP_SUPPORT_POST
+                if (hs->req_method == HTTP_METHOD_POST) {
+                    if (hs->content_received < hs->content_length) {
+                        if (hi != NULL && hi->post_end_fn) {
+                            hi->post_end_fn(hs);
+                        }
+                    }
+                }
+#endif /* HTTP_SUPPORT_POST */
                 if (hs->p != NULL) {
                     esp_pbuf_free(hs->p);       /* Free packet buffer */
+                    hs->p = NULL;
                 }
                 esp_mem_free(hs);
+                hs = NULL;
             }
             break;
         }
@@ -429,7 +486,6 @@ http_evt_cb(esp_cb_t* cb) {
          * Poll the connection
          */
         case ESP_CB_CONN_POLL: {
-            printf("Conn POLL\r\n");
             break;
         }
         default:
@@ -437,13 +493,6 @@ http_evt_cb(esp_cb_t* cb) {
     }
     
     if (close) {                                /* Do we have to close a connection? */
-        if (hs != NULL) {
-            if (hs->p != NULL) {
-                esp_pbuf_free(hs->p);           /* Free packet buffer */
-            }
-            esp_mem_free(hs);                   /* Free http state */
-        }
-        esp_conn_set_arg(conn, NULL);           /* Reset connection argument if any exists */
         esp_conn_close(conn, 0);                /* Close a connection */
     }
     
@@ -452,10 +501,15 @@ http_evt_cb(esp_cb_t* cb) {
 
 /**
  * \brief           Initialize HTTP server at specific port
+ * \param[in]       init: Initialization structure for server
  * \param[in]       port: Port for HTTP server, usually 80
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_http_server_init(uint16_t port) {
-    return esp_set_server(port, ESP_MAX_CONNS / 2, 80, http_evt_cb, 1);
+esp_http_server_init(const http_init_t* init, uint16_t port) {
+    espr_t res;
+    if ((res = esp_set_server(port, ESP_MAX_CONNS / 2, 80, http_evt_cb, 1)) == espOK) {
+        hi = init;
+    }
+    return res;
 }
