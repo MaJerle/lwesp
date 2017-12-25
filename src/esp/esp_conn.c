@@ -359,6 +359,7 @@ esp_conn_get_from_evt(esp_cb_t* evt) {
 
 /**
  * \brief           Write data to connection buffer and if it is full, send it non-blocking way
+ * \note            This function may only be called from core (connection callbacks)
  * \param[in]       conn: Connection to write
  * \param[in]       data: Data to copy to write buffer
  * \param[in]       btw: Number of bytes to write
@@ -382,7 +383,9 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
      *   1.1. In case buffer is full, send it non-blocking,
      *      and enable freeing after it is sent
      * 2. Check how many bytes we can copy as single buffer directly and send
-     * 3. Create last buffer and copy remaining data to it
+     * 3. Create last buffer and copy remaining data to it even if no remaining data
+     *      This is useful when calling function with no parameters (len = 0)
+     * 4. Flush (send) current buffer if necessary
      */
     
     /*
@@ -430,11 +433,12 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
     /*
      * Step 3
      */
-    if (btw) {                                  /* Do we still have some data to process? */
+    if (conn->buff == NULL) {
         conn->buff = esp_mem_alloc(ESP_CONN_MAX_DATA_LEN);  /* Allocate memory for temp buffer */
         conn->buff_len = ESP_CONN_MAX_DATA_LEN;
         conn->buff_ptr = 0;
-        
+    }
+    if (btw) {
         if (conn->buff != NULL) {
             memcpy(conn->buff, d, btw);         /* Copy data to memory */
             conn->buff_ptr = btw;
@@ -443,15 +447,22 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         }
     }
     
-    if (flush) {
+    /*
+     * Step 4
+     */
+    if (flush && conn->buff != NULL) {
         flush_buff(conn);
     }
     
     /*
      * Calculate number of available memory after write operation
      */
-    if (conn->buff != NULL && mem_available != NULL) {
-        *mem_available = conn->buff_len - conn->buff_ptr;
+    if (mem_available != NULL) {
+        if (conn->buff != NULL) {
+            *mem_available = conn->buff_len - conn->buff_ptr;
+        } else {
+            *mem_available = 0;
+        }
     }
     return espOK;
 }

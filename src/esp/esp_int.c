@@ -268,6 +268,9 @@ espi_send_conn_cb(esp_conn_t* conn) {
 static espr_t
 espi_tcpip_process_send_data(void) {
     if (!esp_conn_is_active(esp.msg->msg.conn_send.conn)) {
+        if (esp.msg->msg.conn_send.fau) {
+            esp_mem_free((void *)esp.msg->msg.conn_send.data);
+        }
         return espERR;
     }
     ESP_AT_PORT_SEND_STR("AT+CIPSEND=");
@@ -299,6 +302,7 @@ espi_tcpip_process_send_data(void) {
 static uint8_t
 espi_tcpip_process_data_sent(uint8_t sent) {
     if (sent) {                                 /* Data were successfully sent */
+        esp.msg->msg.conn_send.sent_all += esp.msg->msg.conn_send.sent;
         esp.msg->msg.conn_send.btw -= esp.msg->msg.conn_send.sent;
         esp.msg->msg.conn_send.ptr += esp.msg->msg.conn_send.sent;
         if (esp.msg->msg.conn_send.bw) {
@@ -519,7 +523,7 @@ espi_parse_received(esp_recv_t* rcv) {
                         }
                         esp.cb.type = ESP_CB_CONN_DATA_SENT;    /* Data were fully sent */
                         esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
-                        esp.cb.cb.conn_data_sent.sent = esp.msg->msg.conn_send.btw;
+                        esp.cb.cb.conn_data_sent.sent = esp.msg->msg.conn_send.sent;
                         espi_send_conn_cb(esp.msg->msg.conn_send.conn); /* Send connection callback */
                     }
                 } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
@@ -533,6 +537,10 @@ espi_parse_received(esp_recv_t* rcv) {
                         esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
                         espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
                     }
+                }
+            } else if (is_error) {
+                if (esp.msg->msg.conn_send.fau) {   /* Do we have to free memory after use? */
+                    esp_mem_free((void *)esp.msg->msg.conn_send.data);  /* Free the memory */
                 }
             }
         } else if (esp.msg->cmd == ESP_CMD_UART) {  /* In case of UART command */
