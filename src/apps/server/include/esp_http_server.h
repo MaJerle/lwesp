@@ -39,6 +39,9 @@ extern "C" {
 #include "esp_http_server_utils.h"
 
 espr_t      esp_http_server_init(const http_init_t* init, uint16_t port);
+size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
+
+#define     esp_http_server_write_string(hs, str)   esp_http_server_write(hs, str, strlen(str))
 
 #ifdef __cplusplus
 };

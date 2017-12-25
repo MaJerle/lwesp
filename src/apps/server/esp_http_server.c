@@ -33,16 +33,6 @@
 #include "fs_data.h"
 #include "ctype.h"
 
-#ifndef ESP_DBG_SERVER
-#define ESP_DBG_SERVER              ESP_DBG_OFF
-#endif /* ESP_DBG_SERVER */
-
-#ifndef HTTP_SUPPORT_POST
-#define HTTP_SUPPORT_POST           1
-#endif /* HTTP_SUPPORT_POST */
-
-#define HTTP_MAX_URI_LEN            256
-#define HTTP_MAX_PARAMS             16
 #define CRLF                        "\r\n"
 
 char http_uri[HTTP_MAX_URI_LEN + 1];
@@ -73,7 +63,7 @@ http_parse_uri(esp_pbuf_p p) {
     if (pos_s == ESP_SIZET_MAX || (pos_s != 3 && pos_s != 4)) {
         return espERR;
     }
-    pos_crlf = esp_pbuf_strfind(p, "\r\n", 0);  /* Find CRLF position */
+    pos_crlf = esp_pbuf_strfind(p, CRLF, 0);    /* Find CRLF position */
     if (pos_crlf == ESP_SIZET_MAX) {
         return espERR;
     }
@@ -141,7 +131,6 @@ uint8_t
 http_get_file_from_uri(http_state_t* hs, char* uri) {
     size_t uri_len;
     
-    
     memset(&hs->resp_file, 0x00, sizeof(hs->resp_file));
     uri_len = strlen(uri);                      /* Get URI total length */
     if ((uri_len == 1 && uri[0] == '/') ||      /* Index file only requested */
@@ -192,6 +181,8 @@ http_get_file_from_uri(http_state_t* hs, char* uri) {
     if (!hs->resp_file_opened) {
         hs->resp_file_opened = fs_data_open_file(&hs->resp_file, NULL, 1);  /* Get 404 error page */
     }
+    
+    hs->is_ssi = 1;
     return hs->resp_file_opened;
 }
 
@@ -218,6 +209,146 @@ http_post_send_to_user(http_state_t* hs, esp_pbuf_p pbuf, size_t offset) {
 }
 
 /**
+ * \brief           Send response using SSI parsing
+ * \param[in]       hs: HTTP state
+ */
+static void
+send_response_ssi(http_state_t* hs) {
+    uint8_t reset = 0;
+    uint8_t ch;
+    
+    /*
+     * First get available memory in output buffer
+     */
+    esp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);  /* Get available memory and/or create a new buffer if possible */
+    
+    /*
+     * Check if we have to send temporary buffer,
+     * because of wrong TAG format set by user
+     */
+    if (hs->ssi_tag_buff_written < hs->ssi_tag_buff_ptr) {  /* Do we have to send something from SSI buffer? */
+        size_t len;
+        len = ESP_MIN(hs->ssi_tag_buff_ptr - hs->ssi_tag_buff_written, hs->conn_mem_available);
+        if (len) {                              /* More data to send? */
+            esp_conn_write(hs->conn, &hs->ssi_tag_buff[hs->ssi_tag_buff_written], len, 0, &hs->conn_mem_available);
+            hs->written_total += len;           /* Increase total number of written elements */
+            hs->ssi_tag_buff_written += len;    /* Increase total number of written SSI buffer */
+            
+            if (hs->ssi_tag_buff_written == hs->ssi_tag_buff_ptr) {
+                hs->ssi_tag_buff_ptr = 0;       /* Reset pointer */
+            }
+        }
+    }
+    
+    /*
+     * Process remaining SSI tag buffer
+     */
+    if (hs->buff != NULL) {
+        while (hs->buff_ptr < hs->buff_len && hs->conn_mem_available) { /* Process entire buffer if possible */
+            ch = hs->buff[hs->buff_ptr];
+            switch (hs->ssi_state) {
+                case HTTP_SSI_STATE_WAIT_BEGIN: {
+                    if (ch == HTTP_SSI_TAG_START[0]) {
+                        hs->ssi_tag_buff[0] = ch;
+                        hs->ssi_tag_buff_ptr = 1;
+                        hs->ssi_state = HTTP_SSI_STATE_BEGIN;
+                    } else {
+                        reset = 1;
+                    }
+                    break;
+                }
+                case HTTP_SSI_STATE_BEGIN: {
+                    if (hs->ssi_tag_buff_ptr < HTTP_SSI_TAG_START_LEN &&
+                        ch == HTTP_SSI_TAG_START[hs->ssi_tag_buff_ptr]) {
+                        hs->ssi_tag_buff[hs->ssi_tag_buff_ptr++] = ch;
+                            
+                        if (hs->ssi_tag_buff_ptr == HTTP_SSI_TAG_START_LEN) {
+                            hs->ssi_state = HTTP_SSI_STATE_TAG;
+                            hs->ssi_tag_len = 0;
+                        }
+                    } else {
+                        reset = 1;
+                    }
+                    break;
+                }
+                case HTTP_SSI_STATE_TAG: {
+                    if (ch == HTTP_SSI_TAG_END[0]) {
+                        hs->ssi_tag_buff[hs->ssi_tag_buff_ptr++] = ch;
+                        hs->ssi_state = HTTP_SSI_STATE_END;
+                    } else {
+                        if ((hs->ssi_tag_buff_ptr - HTTP_SSI_TAG_START_LEN) < HTTP_SSI_TAG_MAX_LEN) {
+                            hs->ssi_tag_buff[hs->ssi_tag_buff_ptr++] = ch;
+                            hs->ssi_tag_len++;
+                        } else {
+                            reset = 1;
+                        }
+                    }
+                    break;
+                }
+                case HTTP_SSI_STATE_END: {
+                    if ((hs->ssi_tag_buff_ptr - HTTP_SSI_TAG_START_LEN - hs->ssi_tag_len) < HTTP_SSI_TAG_END_LEN &&
+                        ch == HTTP_SSI_TAG_END[(hs->ssi_tag_buff_ptr - HTTP_SSI_TAG_START_LEN - hs->ssi_tag_len)]) {
+                        
+                        hs->ssi_tag_buff[hs->ssi_tag_buff_ptr++] = ch;
+                        
+                        /*
+                         * Did we reach end of tag and are ready to get replacement from user?
+                         */
+                        if (hs->ssi_tag_buff_ptr == (HTTP_SSI_TAG_START_LEN + hs->ssi_tag_len + HTTP_SSI_TAG_END_LEN)) {
+                            hs->ssi_tag_buff[HTTP_SSI_TAG_START_LEN + hs->ssi_tag_len] = 0;
+                            
+                            hi->ssi_fn(hs, &hs->ssi_tag_buff[HTTP_SSI_TAG_START_LEN], hs->ssi_tag_len);
+                            
+                            hs->ssi_state = HTTP_SSI_STATE_WAIT_BEGIN;
+                            hs->ssi_tag_len = 0;
+                            hs->ssi_tag_buff_ptr = 0;   /* Manually reset everything to prevent anything to be sent */
+                        }
+                    } else {
+                        reset = 1;
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            
+            if (reset) {
+                reset = 0;
+                if (hs->ssi_tag_buff_ptr) {     /* Do we have to send something from temporary TAG buffer? */
+                    size_t len;
+                    
+                    len = ESP_MIN(hs->ssi_tag_buff_ptr, hs->conn_mem_available);
+                    esp_conn_write(hs->conn, hs->ssi_tag_buff, len, 0, &hs->conn_mem_available);
+                    hs->written_total += len;   /* Increase total written length */
+                    hs->ssi_tag_buff_written = len; /* Set length of number of written buffer */
+                    if (len == hs->ssi_tag_buff_ptr) {
+                        hs->ssi_tag_buff_ptr = 0;
+                    }
+                }
+                if (hs->conn_mem_available) {   /* Is there memory to write a current byte? */
+                    esp_conn_write(hs->conn, &ch, 1, 0, &hs->conn_mem_available);
+                    hs->written_total++;
+                    hs->buff_ptr++;
+                }
+                hs->ssi_state = HTTP_SSI_STATE_WAIT_BEGIN;
+            } else {
+                hs->buff_ptr++;
+            }
+        }
+    }
+    
+    esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush to output if possible */
+    if (hs->buff_ptr == hs->buff_len) {         /* Did we reach end of buffer? */
+        esp_conn_close(hs->conn, 0);            /* Close the connection */
+    }
+}
+
+static void
+send_response_no_ssi(http_state_t* hs) {
+    
+}
+
+/**
  * \brief           Send response back to connection
  * \param[in]       hs: HTTP state
  * \param[in]       ft: Flag indicating function was called first time to send the response
@@ -229,31 +360,24 @@ send_response(http_state_t* hs, uint8_t ft) {
      * Do we have a file ready to be send?
      */
     if (hs->resp_file_opened) {
-        if (!ft) {
-            hs->resp_file.sent_total += hs->resp_file.sent;
+        if (ft) {
+            if (hs->resp_file.is_static) {      /* Set on static files */
+                hs->buff = (uint8_t *)hs->resp_file.data;
+                hs->buff_len = hs->resp_file.len;
+                hs->buff_ptr = 0;
+            }
         }
         
         /*
-         * Do we still have some data to send?
+         * Did we sent everything what we wrote to connection buffer?
+         * In this case process with writing more data
          */
-        if (hs->resp_file.sent_total < hs->resp_file.len) {
-            /*
-             * Static files (const array) have data set already
-             * so we can send entire data immediatelly
-             */
-            if (hs->resp_file.is_static) {
-                size_t available;
-                //esp_conn_send(hs->conn, hs->resp_file.data, hs->resp_file.len &hs->resp_file.sent, 0);
-                esp_conn_write(hs->conn, &hs->resp_file.data[0], hs->resp_file.len, 1, NULL);
-                hs->resp_file.sent_total += hs->resp_file.len;
+        if (hs->sent_total == hs->written_total) {
+            if (hs->is_ssi) {
+                send_response_ssi(hs);          /* Send response using SSI parsing */
             } else {
-                /* 
-                 * Todo: Implement read to temporary buffer and send
-                 */
+                send_response_no_ssi(hs);       /* Send response without SSI parsing */
             }
-        } else {
-            fs_data_close_file(&hs->resp_file); /* Close file */
-            close = 1;
         }
     } else {
         close = 1;
@@ -396,6 +520,8 @@ http_evt_cb(esp_cb_t* cb) {
                                         }
                                     }
                                 }
+                            } else {
+                                hs->process_resp = 1;
                             }
                         } else if (!esp_pbuf_strcmp(hs->p, "GET ", 0)) {
                             hs->req_method = HTTP_METHOD_GET;
@@ -453,8 +579,19 @@ http_evt_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_DATA_SENT: {
             if (hs != NULL) {
-                send_response(hs, 0);           /* Send more data if required */
+                hs->sent_total += cb->cb.conn_data_sent.sent;   /* Increase number of bytes sent */
+                send_response(hs, 0);           /* Send more data if possible */
+            } else {
+                close = 1;
             }
+            break;
+        }
+        
+        /*
+         * There was a problem with sending connection data
+         */
+        case ESP_CB_CONN_DATA_SEND_ERR: {
+            close = 1;                          /* Close the connection */
             break;
         }
         
@@ -512,4 +649,19 @@ esp_http_server_init(const http_init_t* init, uint16_t port) {
         hi = init;
     }
     return res;
+}
+
+/**
+ * \brief           Write data directly to connection from callback
+ * \note            This function may only be called from SSI callback function for HTTP server
+ * \param[in]       hs: HTTP state
+ * \param[in]       data: Data to write
+ * \param[in]       len: Length of bytes to write
+ * \return          Number of bytes written
+ */
+size_t
+esp_http_server_write(http_state_t* hs, const void* data, size_t len) {
+    esp_conn_write(hs->conn, data, len, 0, NULL);
+    hs->written_total += len;                   /* Increase total length */
+    return len;
 }
