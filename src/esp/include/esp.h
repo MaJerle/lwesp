@@ -165,7 +165,9 @@ typedef struct esp_cb_t {
  * \param[in]       x: Input value to align
  * \retval          Input value aligned to specific number of bytes
  */
-#define ESP_MEM_ALIGN(x)            ((x + (ESP_MEM_ALIGNMENT - 1)) & ~(ESP_MEM_ALIGNMENT - 1))
+#define ESP_MEM_ALIGN(x)                    ((x + (ESP_MEM_ALIGNMENT - 1)) & ~(ESP_MEM_ALIGNMENT - 1))
+#define ESP_MIN(x, y)                       ((x) < (y) ? (x) : (y))
+#define ESP_MAX(x, y)                       ((x) > (y) ? (x) : (y))
 
 espr_t      esp_reset(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);

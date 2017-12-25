@@ -273,16 +273,17 @@ typedef struct esp_msg {
         } conn_close;
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection to send data */
-            size_t btw;                         /*!< Number of bytes to write */
+            size_t btw;                         /*!< Number of remaining bytes to write */
             size_t ptr;                         /*!< Current write pointer for data */
-            size_t* bw;                         /*!< Number of bytes written so far */
             const uint8_t* data;                /*!< Data to send */
             size_t sent;                        /*!< Number of bytes sent in last packet */
+            size_t sent_all;                    /*!< Number of bytes sent all together */
             uint8_t tries;                      /*!< Number of tries used for last packet */
             uint8_t wait_send_ok_err;           /*!< Set to 1 when we wait for SEND OK or SEND ERROR */
             const uint8_t* remote_ip;           /*!< Remote IP address for UDP connection */
             uint16_t remote_port;               /*!< Remote port address for UDP connection */
             uint8_t fau;                        /*!< Free after use flag to free memory after data are sent (or not) */
+            size_t* bw;                         /*!< Number of bytes written so far */
         } conn_send;                            /*!< Structure to send data on connection */
         
         /*
@@ -414,8 +415,6 @@ extern esp_t esp;
 #define ESP_CHARISHEXNUM(x)                 (((x) >= '0' && (x) <= '9') || ((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F'))
 #define ESP_CHARTONUM(x)                    ((x) - '0')
 #define ESP_CHARHEXTONUM(x)                 (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (((x) >= 'a' && (x) <= 'f') ? ((x) - 'a' + 10) : (((x) >= 'A' && (x) <= 'F') ? ((x) - 'A' + 10) : 0)))
-#define ESP_MIN(x, y)                       ((x) < (y) ? (x) : (y))
-#define ESP_MAX(x, y)                       ((x) > (y) ? (x) : (y))
 #define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
 #define ESP_UNUSED(x)                       ((void)(x))
     
