@@ -61,8 +61,6 @@ extern "C" {
     
 #define ESP_DBG_LVL_MIN             ESP_DBG_LVL_ALL /*!< Minimal level to debug */
 
-#define ESP_DBG                     ESP_DBG_ON    
-
 #define ESP_DEBUG_INT(fmt, ...)     printf(fmt, ## __VA_ARGS__)
     
 #if ESP_DBG || __DOXYGEN__

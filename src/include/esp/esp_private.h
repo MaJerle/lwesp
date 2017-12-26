@@ -42,24 +42,16 @@ extern "C" {
 #include "stdlib.h"
 #include "string.h"
 
-#define ESP_INTERNAL
 #if defined(ESP_INTERNAL) || __DOXYGEN__
-
-/**
- * \addtogroup      ESP
- * \{
- */
- 
-/**
- * \defgroup        ESP_PRIVATE Private region
- * \brief           functions, structures and enumerations
- * \{
- */
 
 #include "esp/esp.h"
 
 /**
  * \addtogroup      ESP_TYPEDEFS
+ * \{
+ */
+ 
+/**
  * \brief           List of possible messages
  */
 typedef enum {
@@ -145,7 +137,6 @@ typedef enum {
 } esp_cmd_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           Connection structure
  */
 typedef struct esp_conn_t {
@@ -175,7 +166,6 @@ typedef struct esp_conn_t {
 } esp_conn_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           Packet buffer structure
  */
 typedef struct esp_pbuf_t {
@@ -189,7 +179,6 @@ typedef struct esp_pbuf_t {
 } esp_pbuf_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           Incoming network data read structure
  */
 typedef struct {
@@ -205,7 +194,6 @@ typedef struct {
 } esp_ipd_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           Message queue structure to share between threads
  */
 typedef struct esp_msg {
@@ -347,7 +335,6 @@ typedef struct esp_msg {
 } esp_msg_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           Sequential API structure
  */
 typedef struct esp_netconn_t {
@@ -366,7 +353,6 @@ typedef struct esp_netconn_t {
 } esp_netconn_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           IP and MAC structure with netmask and gateway addresses
  */
 typedef struct {
@@ -377,7 +363,6 @@ typedef struct {
 } esp_ip_mac_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           ESP global structure
  */
 typedef struct {    
@@ -424,7 +409,6 @@ typedef struct {
 } esp_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           Unicode support structure
  */
 typedef struct esp_unicode_t {
@@ -434,18 +418,30 @@ typedef struct esp_unicode_t {
     espr_t res;                                 /*!< Current result of processing */
 } esp_unicode_t;
 
+/**
+ * \}
+ */
+ 
+/**
+ * \addtogroup      ESP
+ * \{
+ */
+
+/**
+ * \defgroup        ESP_PRIVATE Private region
+ * \brief           functions, structures and enumerations
+ * \{
+ */
+
 extern esp_t esp;
+
+#if !__DOXYGEN__
 
 #define ESP_CHARISNUM(x)                    ((x) >= '0' && (x) <= '9')
 #define ESP_CHARISHEXNUM(x)                 (((x) >= '0' && (x) <= '9') || ((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F'))
 #define ESP_CHARTONUM(x)                    ((x) - '0')
 #define ESP_CHARHEXTONUM(x)                 (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (((x) >= 'a' && (x) <= 'f') ? ((x) - 'a' + 10) : (((x) >= 'A' && (x) <= 'F') ? ((x) - 'A' + 10) : 0)))
 #define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
-    
-#ifndef ESP_DBG_ASSERT
-#define ESP_DBG_ASSERT                      ESP_DBG_OFF
-#endif /* ESP_DBG_ASSERT */
-
 
 /**
  * \brief           Protects (counts up) core from multiple accesses
@@ -470,6 +466,8 @@ espr_t      espi_send_conn_cb(esp_conn_t* conn);
 void        espi_conn_init(void);
 
 espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block_time);
+
+#endif /* !__DOXYGEN__ */
 
 /**
  * \}

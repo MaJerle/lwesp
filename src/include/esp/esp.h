@@ -48,13 +48,17 @@ extern "C" {
 #include "system/esp_sys.h"
 
 /**
- * \defgroup        ESP
+ * \defgroup        ESP ESP AT lib
  * \brief           ESP stack
  * \{
  */
  
 /**
  * \addtogroup      ESP_LL
+ * \{
+ */
+ 
+/**
  * \brief           Callback function prototype to send data
  * \param[in]       data: Pointer to data to send
  * \param[in]       len: Number of bytes to send
@@ -63,7 +67,6 @@ extern "C" {
 typedef uint16_t (*esp_ll_send_fn_t)(const void* data, uint16_t len);
 
 /**
- * \addtogroup      ESP_LL
  * \brief           Low level user specific functions
  */
 typedef struct {
@@ -71,7 +74,15 @@ typedef struct {
 } esp_ll_t;
 
 /**
+ * \}
+ */
+
+/**
  * \addtogroup      ESP_TYPEDEFS
+ * \{
+ */
+
+/**
  * \brief           List of possible WiFi modes
  */
 typedef enum {
@@ -87,7 +98,6 @@ typedef enum {
 } esp_mode_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           List of possible connection types
  */
 typedef enum {
@@ -96,22 +106,28 @@ typedef enum {
     ESP_CONN_TYPE_SSL,                          /*!< Connection type is SSL */
 } esp_conn_type_t;
 
+/* Forward declarations */
 struct esp_cb_t;
 struct esp_conn_t;
+struct esp_pbuf_t;
+
+/**
+ * \brief           Pointer to \ref esp_conn_t structure
+ */
 typedef struct esp_conn_t* esp_conn_p;
 
-struct esp_pbuf_t;
+/**
+ * \brief           Pointer to \ref esp_pbuf_t structure
+ */
 typedef struct esp_pbuf_t* esp_pbuf_p;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           Data type for callback function
  * \param[in]       cb: Callback event data
  */
 typedef espr_t  (*esp_cb_func_t)(struct esp_cb_t* cb);
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           List of possible callback types received to user
  */
 typedef enum esp_cb_type_t {
@@ -133,7 +149,6 @@ typedef enum esp_cb_type_t {
 } esp_cb_type_t;
 
 /**
- * \addtogroup      ESP_TYPEDEFS
  * \brief           Global callback structure to pass as parameter to callback function
  */
 typedef struct esp_cb_t {
@@ -167,6 +182,10 @@ typedef struct esp_cb_t {
 } esp_cb_t;
 
 #define ESP_SIZET_MAX                           ((size_t)(-1))  /*!< Maximal value of \ref size_t variable type */
+
+/**
+ * \}
+ */
 
 #include "esp/esp_utilities.h"
 #include "esp/esp_init.h"

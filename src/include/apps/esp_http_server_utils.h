@@ -101,7 +101,7 @@ extern "C" {
 struct http_state;
 
 /**
- * \brief           HTTP parameters on http URI
+ * \brief           HTTP parameters on http URI in format ?param1=value1&param2=value2&...
  */
 typedef struct {
     const char* name;                           /*!< Name of parameter */
@@ -110,11 +110,15 @@ typedef struct {
 
 /**
  * \brief           CGI callback function
+ * \param[in]       params: Pointer to list of parameteres and their values
+ * \param[in]       params_len: Number of parameters
+ * \return          Function must return a new URI which is used later
+ *                  as response string, such as "/index.html" or similar
  */
-typedef char *  (*http_cgi_fn)(http_param_t *, size_t);
+typedef char *  (*http_cgi_fn)(http_param_t* params, size_t params_len);
 
 /**
- * \brief           CGI structure
+ * \brief           CGI structure to register handlers on URI paths
  */
 typedef struct {
     const char* uri;                            /*!< URI path for CGI handler */
@@ -152,7 +156,9 @@ typedef espr_t  (*http_post_end_fn)(struct http_state* hs);
  * \param[in]       hs: HTTP state
  * \param[in]       tag_name: Name of TAG to replace with user content
  * \param[in]       tag_len: Length of TAG
- * \return          Number of bytes written to output
+ * \retval          1: Everything was written on this tag
+ * \retval          0: There are still data to write to output which means
+ *                     callback will be called again for user to process all the data
  */
 typedef size_t  (*http_ssi_fn)(struct http_state* hs, const char* tag_name, size_t tag_len);
 

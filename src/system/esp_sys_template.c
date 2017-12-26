@@ -28,11 +28,11 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#define esp_INTERNAL
-#include "sys/esp_sys.h"
+#define ESP_INTERNAL
+#include "system/esp_sys.h"
 
 /**
- * \addtogroup      
+ * \addtogroup      ESP_SYS
  * \brief 
  * \{
  */

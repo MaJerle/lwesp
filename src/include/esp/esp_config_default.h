@@ -160,6 +160,16 @@
  */
 
 /**
+ * \brief           Set global debug support.
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ *
+ * \note            Set to \ref ESP_DBG_OFF to globally disable all debugs
+ */
+#ifndef ESP_DBG
+#define ESP_DBG                             ESP_DBG_ON
+#endif
+
+/**
  * \brief           Set debug level for memory manager.
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */

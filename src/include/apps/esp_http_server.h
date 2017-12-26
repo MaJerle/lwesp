@@ -49,9 +49,6 @@ extern "C" {
 #include "apps/esp_apps.h"
 #include "apps/esp_http_server_utils.h"
 
-espr_t      esp_http_server_init(const http_init_t* init, uint16_t port);
-size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
-
 /**
  * \brief           Write string to HTTP server output
  * \note            May only be called from SSI callback function
@@ -61,6 +58,9 @@ size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len
  * \sa              esp_http_server_write
  */
 #define     esp_http_server_write_string(hs, str)   esp_http_server_write(hs, str, strlen(str))
+
+espr_t      esp_http_server_init(const http_init_t* init, uint16_t port);
+size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
 
 /**
  * \}
