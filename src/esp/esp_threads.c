@@ -65,7 +65,7 @@ esp_thread_producer(void* const arg) {
          * Usually it should be function to transmit data to AT port
          */
         esp.msg = msg;
-        if (msg->fn) {                          /* Check for callback processing function */
+        if (msg->fn != NULL) {                  /* Check for callback processing function */
             ESP_CORE_UNPROTECT();               /* Release protection */
             esp_sys_sem_wait(&e->sem_sync, 0000);   /* Lock semaphore, should be unlocked before! */
             ESP_CORE_PROTECT();                 /* Protect system again */
@@ -119,7 +119,7 @@ esp_thread_process(void* const arg) {
         time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 10);  /* Get message from queue */
         ESP_CORE_PROTECT();                     /* Protect system */
         
-        if (time == ESP_SYS_TIMEOUT || !msg) {
+        if (time == ESP_SYS_TIMEOUT || msg == NULL) {
             ESP_UNUSED(time);                   /* Unused variable */
         }
         

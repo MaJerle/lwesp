@@ -266,7 +266,7 @@ mem_alloc(size_t size) {
      */
     Prev = &StartBlock;                             /* Set first first block as previous */
     Curr = Prev->NextFreeBlock;                     /* Set next block as current */
-    while ((Curr->Size < size) && (Curr->NextFreeBlock)) {
+    while ((Curr->Size < size) && (Curr->NextFreeBlock != NULL)) {
         Prev = Curr;
         Curr = Curr->NextFreeBlock;
     }
@@ -299,7 +299,7 @@ mem_alloc(size_t size) {
             mem_insertfreeblock(Next);              /* Insert free memory block to list of free memory blocks (linked list chain) */
         }
         Curr->Size |= MemAllocBit;                  /* Set allocated bit = memory is allocated */
-        Curr->NextFreeBlock = 0;                    /* Clear next free block pointer as there is no one */
+        Curr->NextFreeBlock = NULL;                 /* Clear next free block pointer as there is no one */
 
         MemAvailableBytes -= size;                  /* Decrease available memory */
         if (MemAvailableBytes < MemMinAvailableBytes) { /* Check if current available memory is less than ever before */
@@ -327,7 +327,7 @@ mem_free(void* ptr) {
      * Check if block is even allocated by upper bit on size
      * and next free block must be set to NULL in order to work properly
      */
-    if ((block->Size & MemAllocBit) && !block->NextFreeBlock) {
+    if ((block->Size & MemAllocBit) && block->NextFreeBlock == NULL) {
         /**
          * Clear allocated bit before entering back to free list
          * List will automatically take care for fragmentation and mix segments back

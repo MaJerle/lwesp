@@ -57,9 +57,9 @@ static void
 conn_timeout_cb(void* arg) {
     uint16_t i;
                                                 
+    esp.cb.type = ESP_CB_CONN_POLL;             /* Set polling callback type */
     for (i = 0; i < ESP_MAX_CONNS; i++) {       /* Scan all connections */
         if (esp.conns[i].status.f.active) {     /* If connection is active */
-            esp.cb.type = ESP_CB_CONN_POLL;     /* Set polling callback type */
             esp.cb.cb.conn_poll.conn = &esp.conns[i];   /* Set connection pointer */
             espi_send_conn_cb(&esp.conns[i]);   /* Send connection callback */
         }
@@ -265,7 +265,7 @@ esp_get_conns_status(uint32_t blocking) {
 uint8_t
 esp_conn_is_client(esp_conn_p conn) {
     uint8_t res = 0;
-    if (conn && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
         ESP_CORE_PROTECT();
         res = conn->status.f.active && conn->status.f.client;
         ESP_CORE_UNPROTECT();
@@ -281,7 +281,7 @@ esp_conn_is_client(esp_conn_p conn) {
 uint8_t
 esp_conn_is_server(esp_conn_p conn) {
     uint8_t res = 0;
-    if (conn && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
         ESP_CORE_PROTECT();
         res = conn->status.f.active && !conn->status.f.client;
         ESP_CORE_UNPROTECT();
@@ -297,7 +297,7 @@ esp_conn_is_server(esp_conn_p conn) {
 uint8_t
 esp_conn_is_active(esp_conn_p conn) {
     uint8_t res = 0;
-    if (conn && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
         ESP_CORE_PROTECT();
         res = conn->status.f.active;
         ESP_CORE_UNPROTECT();
@@ -313,7 +313,7 @@ esp_conn_is_active(esp_conn_p conn) {
 uint8_t
 esp_conn_is_closed(esp_conn_p conn) {
     uint8_t res = 0;
-    if (conn && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
         ESP_CORE_PROTECT();
         res = !conn->status.f.active;
         ESP_CORE_UNPROTECT();
@@ -329,7 +329,7 @@ esp_conn_is_closed(esp_conn_p conn) {
 int8_t
 esp_conn_getnum(esp_conn_p conn) {
     int8_t res = -1;
-    if (conn && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
         /* Protection not needed as every connection has always the same number */
         res = conn->num;                        /* Get number */
     }
@@ -391,6 +391,8 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
     size_t len;
     
     const uint8_t* d = data;
+    
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     
     /*
      * Steps, performed in write process:

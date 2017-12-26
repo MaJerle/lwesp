@@ -186,7 +186,7 @@ esp_sta_has_ip(void) {
 espr_t
 esp_sta_copy_ip(void* ip, void* gw, void* nm) {
     espr_t res = espERR;
-    if ((ip || gw || nm) && esp_sta_has_ip() == espOK) {    /* Do we have a valid IP address? */
+    if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip() == espOK) {    /* Do we have a valid IP address? */
         ESP_CORE_PROTECT();                     /* Protect ESP core */
         if (ip) {
             memcpy(ip, esp.sta.ip, 4);          /* Copy IP address */
@@ -216,7 +216,7 @@ espr_t
 esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
-    if (apf) {
+    if (apf != NULL) {
         *apf = 0;
     }
     

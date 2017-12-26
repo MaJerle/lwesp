@@ -263,8 +263,8 @@ espi_parse_ipd(const char* str) {
  */
 uint8_t
 espi_parse_cwlap(const char* str, esp_msg_t* msg) {
-    if (!msg || msg->cmd != ESP_CMD_WIFI_CWLAP ||   /* Do we have valid message here and enough memory to save everything? */
-        !msg->msg.ap_list.aps || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl ||
+    if (msg == NULL || msg->cmd != ESP_CMD_WIFI_CWLAP ||    /* Do we have valid message here and enough memory to save everything? */
+        msg->msg.ap_list.aps == NULL || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl ||
         msg->cmd_def != msg->cmd) {   
         return 0;
     }
@@ -309,8 +309,8 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
  */
 uint8_t
 espi_parse_cwlif(const char* str, esp_msg_t* msg) {
-    if (!msg || msg->cmd != ESP_CMD_WIFI_CWLIF ||   /* Do we have valid message here and enough memory to save everything? */
-        !msg->msg.sta_list.stas || msg->msg.sta_list.stai >= msg->msg.sta_list.stal ||
+    if (msg == NULL || msg->cmd != ESP_CMD_WIFI_CWLIF ||    /* Do we have valid message here and enough memory to save everything? */
+        msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal ||
         msg->cmd_def != msg->cmd) {   
         return 0;
     }
@@ -335,7 +335,7 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
  */
 uint8_t
 espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
-    if (!msg || msg->cmd != ESP_CMD_TCPIP_CIPDOMAIN ||  /* Do we have valid message here and enough memory to save everything? */
+    if (msg == NULL || msg->cmd != ESP_CMD_TCPIP_CIPDOMAIN ||   /* Do we have valid message here and enough memory to save everything? */
         msg->cmd_def != msg->cmd) {   
         return 0;
     }
@@ -357,7 +357,7 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
  */
 uint8_t
 espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
-    if (!msg || msg->cmd_def != ESP_CMD_TCPIP_CIPSNTPTIME) {
+    if (msg == NULL || msg->cmd_def != ESP_CMD_TCPIP_CIPSNTPTIME) {
         return 0;
     }
     if (*str == '+') {                              /* Check input string */

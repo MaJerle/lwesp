@@ -176,7 +176,7 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, uint32_t blocking) {
     ESP_ASSERT("sta != NULL", sta != NULL);     /* Assert input parameters */
     ESP_ASSERT("stal > 0", stal > 0);           /* Assert input parameters */
     
-    if (staf) {
+    if (staf != NULL) {
         *staf = 0;
     }
     

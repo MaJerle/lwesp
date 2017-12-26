@@ -254,7 +254,7 @@ is_received_current_setting(const char* str) {
  */
 espr_t
 espi_send_conn_cb(esp_conn_t* conn) {
-    if (conn->cb_func) {                        /* Connection custom callback? */
+    if (conn->cb_func != NULL) {                /* Connection custom callback? */
         return conn->cb_func(&esp.cb);          /* Process callback function */
     } else {
         return esp.cb_func(&esp.cb);            /* Process default callback function */

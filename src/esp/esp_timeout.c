@@ -69,7 +69,7 @@ process_next_timeout(void) {
      */
     last_timeout_time = time;                   /* Reset variable when we were last processed */
     
-    if (first_timeout) {
+    if (first_timeout != NULL) {
         esp_timeout_t* to = first_timeout;
         
         /*
@@ -94,7 +94,7 @@ uint32_t
 espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t time, wait_time;
     do {
-        if (!first_timeout) {                   /* We have no timeouts ready? */
+        if (first_timeout != NULL) {            /* We have no timeouts ready? */
             return esp_sys_mbox_get(b, m, timeout); /* Get entry from message queue */
         }
         wait_time = get_next_timeout_diff();    /* Get time to wait for next timeout execution */
@@ -119,7 +119,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
     uint32_t now, diff = 0;
     
     to = esp_mem_calloc(1, sizeof(*to));        /* Allocate memory for timeout structure */
-    if (!to) {
+    if (to == NULL) {
         return espERR;
     }
     
@@ -140,7 +140,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
      * Add new timeout to proper place on linked list
      * and align times to have correct values between timeouts
      */
-    if (!first_timeout) {
+    if (first_timeout == NULL) {
         first_timeout = to;                     /* Set as first element */
         last_timeout_time = esp_sys_now();      /* Reset last timeout time to current time */
     } else {                                    /* Find where to place a new timeout */
@@ -155,7 +155,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
             to->next = first_timeout;           /* Set first timeout as next of new one */
             first_timeout = to;                 /* Set new timeout as first */
         } else {                                /* Go somewhere in between current list */
-            for (t = first_timeout; t; t = t->next) {
+            for (t = first_timeout; t != NULL; t = t->next) {
                 to->time -= t->time;            /* Decrease new timeout time by time in a linked list */
                 /*
                  * Enter between 2 entries on a list in case:
@@ -163,8 +163,8 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
                  * - We reached end of linked list
                  * - Our time is less than diff between 2 entries in list
                  */
-                if (!t->next || t->next->time > to->time) {
-                    if (t->next) {              /* Check if there is next element */
+                if (t->next == NULL || t->next->time > to->time) {
+                    if (t->next != NULL) {      /* Check if there is next element */
                         t->next->time -= to->time;  /* Decrease difference time to next one */
                     } else if (to->time > time) {
                         to->time = time + first_timeout->time;
@@ -188,7 +188,7 @@ espr_t
 esp_timeout_remove(esp_timeout_fn_t fn) {
     esp_timeout_t *t, *t_prev;
     
-    for (t = first_timeout, t_prev = NULL; t;
+    for (t = first_timeout, t_prev = NULL; t != NULL;
             t_prev = t, t = t->next) {          /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
             
@@ -197,7 +197,7 @@ esp_timeout_remove(esp_timeout_fn_t fn) {
              * difference time between current and next one
              * to be aligned for correct wait time
              */
-            if (t->next) {                      /* Do we have next element? */
+            if (t->next != NULL) {              /* Do we have next element? */
                 t->next->time += t->time;       /* Increase timeout time for next element */
             }
             
@@ -207,7 +207,7 @@ esp_timeout_remove(esp_timeout_fn_t fn) {
              * otherwise we were first element so simply set 
              * next of current as first one
              */
-            if (t_prev) {
+            if (t_prev != NULL) {
                 t_prev->next = t->next;
             } else {
                 first_timeout = t->next;
