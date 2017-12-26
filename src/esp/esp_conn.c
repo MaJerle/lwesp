@@ -35,6 +35,86 @@
 #include "esp/esp_timeout.h"
 
 /**
+ * \addtogroup      ESP_CONN
+ * \{
+ *
+ * Connection based functions to manage sending and receiving data
+ *
+ * \note            Functions are in general thread safe. If there is an expection, it is mentioned in function description
+ *
+ * In the below example, you can find frequent use case how to use connection API in non-blocking callback mode.
+ *
+ * \par             Example
+ *
+ * In this example, most useful non-blocking approach is used to handle the connection.
+ *
+ * \code{c}
+//Request data are sent to server once we are connected
+uint8_t req_data[] = ""
+    "GET / HTTP/1.1\r\n"
+    "Host: " CONN_HOST "\r\n"
+    "Connection: close\r\n"
+    "\r\n";
+
+// Connection callback function
+// Called on several connection events, such as connected, closed, data received, data sent, ...
+static espr_t
+conn_cb(esp_cb_t* cb) {
+    esp_conn_p conn = esp_conn_get_from_evt(cb);// Get connection from current event
+    if (conn == NULL) {
+        return espERR;                          // Return error at this point as this should never happen!
+    }
+    
+    //Check the event type and process accordingly
+    switch (cb->type) {
+        case ESP_CB_CONN_ACTIVE: {              // Connection just active
+            printf("Connection active!\r\n");
+            
+            // After we are connected,
+            // send the HTTP request string in non-blocking way
+            esp_conn_send(conn, req_data, sizeof(req_data) - 1, NULL, 0);
+            break;
+        }
+        case ESP_CB_CONN_CLOSED: {              // Connection just closed
+            printf("Connection closed!\r\n");
+            if (cb->cb.conn_active_closed.forced) {
+                printf("Connection closed by user\r\n");
+            } else {
+                printf("Connection closed by remote host\r\n");
+            }
+        }
+        case ESP_CB_CONN_DATA_RECV: {           // We received connection data
+            esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
+            printf("Connection data received!\r\n");
+            if (pbuf != NULL) {                 // Check pbuf with data
+                size_t len;
+                len = esp_pbuf_length(pbuf, 1); // Get total length of buffer
+                printf("Length of data: %d bytes\r\n", (int)len);
+            }
+        }
+        default:
+            break;
+    }
+    return espOK;
+}
+
+// Thread function or main function,
+// where everything is happening
+void
+thread_or_main_func(void) {
+    // Start the connection in non-blocking way and set the
+    // function argument to NULL and callback function to conn_cb
+    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "example.com", 80, NULL, conn_cb, 0);
+    
+    // Do other tasks...
+}
+
+\endcode
+ *
+ * \}
+ */
+
+/**
  * \brief           Get connection validation ID
  * \param[in]       conn: Connection handle
  * \return          Connection current validation ID
@@ -340,6 +420,7 @@ esp_conn_getnum(esp_conn_p conn) {
  * \brief           Set internal buffer size for SSL connection on ESP device
  * \note            Use this function first before you initialize first SSL connection
  * \param[in]       size: Size of buffer in units of bytes. Valid range is between 2048 and 4096 bytes
+ * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
@@ -381,9 +462,10 @@ esp_conn_get_from_evt(esp_cb_t* evt) {
  * \param[in]       data: Data to copy to write buffer
  * \param[in]       btw: Number of bytes to write
  * \param[in]       flush: Flush flag. Set to 1 if you want to send data immediatelly after copying
- * \param[out]      mem_available: Available memory in current buffer after write was successful.
- *                  When function returns OK and value is 0, buffer is full and next one will be created next time
- *                  function is called with size of ESP_CONN_MAX_DATA_LEN bytes
+ * \param[out]      mem_available: Available memory size available in current write buffer.
+ *                  When the buffer length is reached, current one is sent and a new one is automatically created.
+ *                  If function returns espOK and *mem_available = 0, there was a problem
+ *                  allocating a new buffer for next operation
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t

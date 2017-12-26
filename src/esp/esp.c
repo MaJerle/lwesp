@@ -75,7 +75,7 @@ espi_set_dinfo(uint8_t info, uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
-/**
+/*
  * Public API functions here
  */
 

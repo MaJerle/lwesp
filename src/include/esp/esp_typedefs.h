@@ -1,5 +1,5 @@
 /**
-* \file            esp_typedef.h
+* \file            esp_typedefs.h
 *
 * Copyright (c) 2017, Tilen MAJERLE
 * All rights reserved.
@@ -41,6 +41,17 @@ extern "C" {
 #include "stdio.h"
 
 /**
+ * \addtogroup      ESP
+ * \{
+ */
+ 
+/**
+ * \defgroup        ESP_TYPEDEFS Structures and enumerations
+ * \brief           List of core structures and enumerations
+ * \{
+ */
+
+/**
  * \brief           Result enumeration used across application functions
  */
 typedef enum {
@@ -60,11 +71,11 @@ typedef enum {
  */
 typedef enum {
     ESP_ECN_OPEN = 0x00,                        /*!< No encryption on access point */
-    ESP_ECN_WEP,
-    ESP_ECN_WPA_PSK,
-    ESP_ECN_WPA2_PSK,
-    ESP_ECN_WPA_WPA2_PSK,
-    ESP_ECN_WPA2_Enterprise                     /*!< Enterprise encryption. ESP is not able to connect to AP of this encryption type */
+    ESP_ECN_WEP,                                /*!< WEP (Wired Equivalent Privacy) encryption */
+    ESP_ECN_WPA_PSK,                            /*!< WPA (Wifi Protected Access) encryption */
+    ESP_ECN_WPA2_PSK,                           /*!< WPA2 (Wifi Protected Access 2) encryption */
+    ESP_ECN_WPA_WPA2_PSK,                       /*!< WPA/2 (Wifi Protected Access 1/2) encryption */
+    ESP_ECN_WPA2_Enterprise                     /*!< Enterprise encryption. \note ESP is currently not able to connect to access point of this encryption type */
 } esp_ecn_t;
 
 /**
@@ -101,7 +112,15 @@ typedef struct {
     uint8_t seconds;                            /*!< Seconds in a minute, from 0 to 59 */
 } esp_datetime_t;
 
-#if defined(ESP_INTERNAL) || defined(__DOXYGEN__)
+/**
+ * \}
+ */
+
+/**
+ * \}
+ */
+
+#if defined(ESP_INTERNAL) || __DOXYGEN__
 
 #if 0
 #define ESP_MSG_VAR_DEFINE(name)                esp_msg_t name
@@ -115,7 +134,7 @@ typedef struct {
 #define ESP_MSG_VAR_FREE(name)                  esp_mem_free(name)
 #endif /* !1 */
 
-#endif /* defined(ESP_INTERNAL) || defined(__DOXYGEN__) */
+#endif /* defined(ESP_INTERNAL) || __DOXYGEN__ */
 
 #ifdef __cplusplus
 }

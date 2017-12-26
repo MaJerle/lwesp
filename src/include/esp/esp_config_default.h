@@ -1,5 +1,5 @@
 /**
- * \file            esp_config.c
+ * \file            esp_config_default.h
  * \brief           Default configuration for ESP
  */
 
@@ -59,11 +59,11 @@
 
 /**
  * \brief           Memory alignment for dynamic memory allocations
- * \note            Some CPUs can work faster if memory is aligned, usually 4 or 8 bytes.
+ * \note            Some CPUs can work faster if memory is aligned, usually to 4 or 8 bytes.
  *                  To speed up this possibilities, you can set memory alignment and library
- *                  will try to allocate memory on aligned position.
+ *                  will try to allocate memory on aligned boundaries.
  *
- * \note            Some CPUs such ARM Cortex-M0 don't support unaligned memory access.
+ * \note            Some CPUs such ARM Cortex-M0 dont't support unaligned memory access.
  *                  This CPUs must have set correct memory alignment value. 
  *
  * \note            This value must be power of 2
@@ -95,8 +95,8 @@
 /**
  * \brief           Set number of retries for send data command.
  *
- *                  Sometimes can happen that AT+SEND fails due to different problems.
- *                  In that case, try again can help and solve the problem.
+ *                  Sometimes it can happen that AT+SEND command fails due to different problems.
+ *                  Trying to send the same data multiple times can raise chances we are successful.
  */
 #ifndef ESP_MAX_SEND_RETRIES
 #define ESP_MAX_SEND_RETRIES                3
@@ -104,7 +104,7 @@
 
 /**
  * \brief           Maximal buffer size for entries in +IPD statement from ESP
- *                  If +IPD length is larger that this setting, 
+ * \note            If +IPD length is larger that this value, 
  *                  multiple pbuf entries will be created to hold entire +IPD
  */
 #ifndef ESP_IPD_MAX_BUFF_SIZE

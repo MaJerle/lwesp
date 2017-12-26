@@ -1,5 +1,5 @@
 /**
- * \file            esp_app_mqtt.h
+ * \file            esp_mqtt_client.h
  * \brief           MQTT client
  */
  
@@ -39,7 +39,7 @@ extern "C" {
 #include "esp/esp.h"
 
 /**
- * \addtogroup      ESP
+ * \addtogroup      ESP_APPS
  * \{
  */
     

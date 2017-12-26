@@ -44,8 +44,8 @@ extern "C" {
  */
     
 /**
- * \defgroup        ESP_SNTP SNTP
- * \brief           Simple network time protocol
+ * \defgroup        ESP_SNTP Simple network time protocol
+ * \brief           Simple network time protocol supported by AT commands
  * \{
  */
  

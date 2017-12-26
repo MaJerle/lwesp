@@ -375,6 +375,7 @@ usart_ll_thread(void const * arg) {
  * \brief           Callback function called from initialization process
  * \note            This function may be called multiple times if AT baudrate is changed from application
  * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
+ * \param[in]       baudrate: Baudrate to use on AT port
  * \return          Member of \ref espr_t enumeration
  */
 espr_t
@@ -385,9 +386,9 @@ esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
     };
     
     if (!initialized) {
-        ll->fn_send = send_data;                /* Set callback function to send data */
+        ll->send_fn = send_data;                /* Set callback function to send data */
     
-        esp_mem_assignmemory(mem_regions, 1);   /* Assign memory for allocations */
+        esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
     }
 
     configure_uart(baudrate);                   /* Initialize UART for communication */

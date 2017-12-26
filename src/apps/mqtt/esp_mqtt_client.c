@@ -1,5 +1,5 @@
 /**
- * \file            esp_app_mqtt.c
+ * \file            esp_mqtt_client.c
  * \brief           MQTT client
  */
  

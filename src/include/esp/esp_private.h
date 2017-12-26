@@ -42,18 +42,30 @@ extern "C" {
 #include "stdlib.h"
 #include "string.h"
 
+#define ESP_INTERNAL
 #if defined(ESP_INTERNAL) || __DOXYGEN__
 
-#include "esp.h"
+/**
+ * \addtogroup      ESP
+ * \{
+ */
+ 
+/**
+ * \defgroup        ESP_PRIVATE Private region
+ * \brief           functions, structures and enumerations
+ * \{
+ */
+
+#include "esp/esp.h"
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           List of possible messages
  */
 typedef enum {
     ESP_CMD_IDLE = 0,                           /*!< IDLE mode */
-    ESP_CMD_DATA_RECV,                          /*!< Data were received from device */
     
-    /**
+    /*
      * Basic AT commands
      */
     ESP_CMD_RESET,                              /*!< Reset device */
@@ -76,7 +88,7 @@ typedef enum {
     ESP_CMD_SYSGPIOWRITE,
     ESP_CMD_SYSGPIOREAD,
     
-    /**
+    /*
      * WiFi based commands
      */
     ESP_CMD_WIFI_CWMODE,                        /*!< Set/Get wifi mode */
@@ -103,7 +115,7 @@ typedef enum {
     ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
     ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
     
-    /**
+    /*
      * TCP/IP related commands
      */
     ESP_CMD_TCPIP_CIPSTATUS,                    /*!< Get status of connections */
@@ -133,6 +145,7 @@ typedef enum {
 } esp_cmd_t;
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           Connection structure
  */
 typedef struct esp_conn_t {
@@ -158,10 +171,11 @@ typedef struct esp_conn_t {
             uint8_t client:1;                   /*!< Status whether connection is in client mode */
             uint8_t data_received:1;            /*!< Status whether first data were received on connection */
         } f;
-    } status;
+    } status;                                   /*!< Connection status union with flag bits */
 } esp_conn_t;
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           Packet buffer structure
  */
 typedef struct esp_pbuf_t {
@@ -175,6 +189,7 @@ typedef struct esp_pbuf_t {
 } esp_pbuf_t;
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           Incoming network data read structure
  */
 typedef struct {
@@ -190,12 +205,13 @@ typedef struct {
 } esp_ipd_t;
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           Message queue structure to share between threads
  */
 typedef struct esp_msg {
     esp_cmd_t       cmd_def;                    /*!< Default message type received from queue */
     esp_cmd_t       cmd;                        /*!< Since some commands can have different subcommands, sub command is used here */
-    uint8_t         i;
+    uint8_t         i;                          /*!< Variable to indicate order number of subcommands */
     esp_sys_sem_t   sem;                        /*!< Semaphore for the message */
     uint32_t        block_time;                 /*!< Maximal blocking time in units of milliseconds. Use 0 to for non-blocking call */
     espr_t          res;                        /*!< Result of message operation */
@@ -331,6 +347,7 @@ typedef struct esp_msg {
 } esp_msg_t;
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           Sequential API structure
  */
 typedef struct esp_netconn_t {
@@ -349,6 +366,7 @@ typedef struct esp_netconn_t {
 } esp_netconn_t;
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           IP and MAC structure with netmask and gateway addresses
  */
 typedef struct {
@@ -359,6 +377,7 @@ typedef struct {
 } esp_ip_mac_t;
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           ESP global structure
  */
 typedef struct {    
@@ -405,6 +424,7 @@ typedef struct {
 } esp_t;
 
 /**
+ * \addtogroup      ESP_TYPEDEFS
  * \brief           Unicode support structure
  */
 typedef struct esp_unicode_t {
@@ -421,17 +441,21 @@ extern esp_t esp;
 #define ESP_CHARTONUM(x)                    ((x) - '0')
 #define ESP_CHARHEXTONUM(x)                 (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (((x) >= 'a' && (x) <= 'f') ? ((x) - 'a' + 10) : (((x) >= 'A' && (x) <= 'F') ? ((x) - 'A' + 10) : 0)))
 #define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
-#define ESP_UNUSED(x)                       ((void)(x))
     
 #ifndef ESP_DBG_ASSERT
 #define ESP_DBG_ASSERT                      ESP_DBG_OFF
 #endif /* ESP_DBG_ASSERT */
 
+
 /**
- * System protection macros
+ * \brief           Protects (counts up) core from multiple accesses
+ */
+#define ESP_CORE_PROTECT()                  esp_sys_protect()
+
+/**
+ * \brief           Unprotects (counts down) OS protection (mutex)
  */
 #define ESP_CORE_UNPROTECT()                esp_sys_unprotect()
-#define ESP_CORE_PROTECT()                  esp_sys_protect()
 
 const char * espi_dbg_msg_to_string(esp_cmd_t cmd);
 
@@ -447,6 +471,13 @@ void        espi_conn_init(void);
 
 espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block_time);
 
+/**
+ * \}
+ */
+ 
+/**
+ * \}
+ */
 
 #endif /* ESP_INTERNAL || __DOXYGEN__ */
 

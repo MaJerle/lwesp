@@ -150,8 +150,8 @@ esp_pbuf_cat(esp_pbuf_p head, esp_pbuf_p tail) {
 /**
  * \brief           Chain 2 pbufs together. Similar to \ref esp_pbuf_cat
  *                  but now new reference is done from head pbuf to tail pbuf.
- * \note            After this function call, user must call \ref esp_pbuf_free(tail) to remove
- *                  its reference to tail pbuf and allow control to head pbuf
+ * \note            After this function call, user must call \ref esp_pbuf_free to remove
+*                  its reference to tail pbuf and allow control to head pbuf: esp_pbuf_free(tail)
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
  * \return          espOK on success, member of \ref espr_t otherwise

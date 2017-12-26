@@ -54,9 +54,9 @@ static esp_recv_t recv;
 #define RECV_LEN()          recv.len
 #define RECV_IDX(index)     recv.data[index]
 
-#define ESP_AT_PORT_SEND_STR(str)       esp.ll.fn_send((const uint8_t *)(str), strlen(str))
-#define ESP_AT_PORT_SEND_CHR(str)       esp.ll.fn_send((const uint8_t *)(str), 1)
-#define ESP_AT_PORT_SEND(d, l)          esp.ll.fn_send((const uint8_t *)(d), l)
+#define ESP_AT_PORT_SEND_STR(str)       esp.ll.send_fn((const uint8_t *)(str), strlen(str))
+#define ESP_AT_PORT_SEND_CHR(str)       esp.ll.send_fn((const uint8_t *)(str), 1)
+#define ESP_AT_PORT_SEND(d, l)          esp.ll.send_fn((const uint8_t *)(d), l)
 
 static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready);
 
@@ -682,24 +682,24 @@ espi_process_buffer(void) {
     size_t len;
     
     do {
-        /**
+        /*
          * Get length of linear memory in buffer
          * we can process directly as memory
          */
         len = esp_buff_get_linear_block_length(&esp.buff);
         if (len) {
-            /**
+            /*
              * Get memory address of first element
              * in linear block to process
              */
             data = esp_buff_get_linear_block_address(&esp.buff);
             
-            /**
+            /*
              * Process actual received data
              */
             espi_process(data, len);
             
-            /**
+            /*
              * Once they are processed, simply skip
              * the buffer memory and start over
              */
@@ -713,8 +713,8 @@ espi_process_buffer(void) {
 /**
  * \brief           Process input data received from ESP device
  * \param[in]       data: Pointer to data to process
- * \param[in]       len: Length of data to process in units of bytes
- * \return          ospOK on success, member of \ref espr_t otherwise
+ * \param[in]       data_len: Length of data to process in units of bytes
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 espi_process(const void* data, size_t data_len) {
@@ -730,7 +730,7 @@ espi_process(const void* data, size_t data_len) {
         ch = *d++;                              /* Get next character */
         d_len--;                                /* Decrease remaining length */
         
-        /**
+        /*
          * First check if we are in IPD mode and process plain data
          * without checking for valid ASCII or unicode format
          */
@@ -743,7 +743,7 @@ espi_process(const void* data, size_t data_len) {
             esp.ipd.buff_ptr++;
             esp.ipd.rem_len--;
             
-            /**
+            /*
              * Try to read more data directly from buffer
              */
             if (d_len) {
@@ -755,7 +755,7 @@ espi_process(const void* data, size_t data_len) {
             ESP_DEBUGF(ESP_DBG_IPD, "IPD: New length: %d bytes\r\n", (int)len);
             if (len) {
                 if (esp.ipd.buff != NULL) {     /* Is buffer valid? */
-                    /** 
+                    /* 
                      * Copy data to connection payload buffer.
                      * Call if ok, even if new length is 0
                      */
@@ -772,13 +772,13 @@ espi_process(const void* data, size_t data_len) {
                 esp.ipd.rem_len -= len;         /* Decrease remaining length */
             }
             
-            /**
+            /*
              * Did we reach end of buffer or no more data?
              */
             if (!esp.ipd.rem_len || (esp.ipd.buff != NULL && esp.ipd.buff_ptr == esp.ipd.buff->len)) {
                 espr_t res = espOK;
                 
-                /**
+                /*
                  * Call user callback function with received data
                  */
                 if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */
@@ -810,7 +810,7 @@ espi_process(const void* data, size_t data_len) {
                 esp.ipd.buff_ptr = 0;           /* Reset input buffer pointer */
             }
             
-        /**
+        /*
          * We are in command mode where we have to process byte by byte
          * Simply check for ASCII and unicode format and process data accordingly
          */
@@ -840,7 +840,7 @@ espi_process(const void* data, size_t data_len) {
                             break;
                     }
                     
-                    /**
+                    /*
                      * If we are waiting for "\n> " sequence when CIPSEND command is active
                      */
                     if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
@@ -855,7 +855,7 @@ espi_process(const void* data, size_t data_len) {
                         }
                     }
                     
-                    /**
+                    /*
                      * Check if "+IPD" statement is in array and now we received colon,
                      * indicating end of +IPD and start of actual data
                      */
@@ -882,7 +882,7 @@ espi_process(const void* data, size_t data_len) {
                         RECV_RESET();           /* Reset received buffer */
                     }
                 } else {                        /* We have sequence of unicode characters */
-                    /**
+                    /*
                      * Unicode sequence characters are not "meta" characters
                      * so it is safe to just add them to receive array without checking
                      * what are the actual values
@@ -1433,10 +1433,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
 #endif /* ESP_PING */
         case ESP_CMD_TCPIP_CIPSSLSIZE: {        /* Set SSL size */
-            char str[12];
             ESP_AT_PORT_SEND_STR("AT+CIPSSLSIZE=");
-            number_to_str(msg->msg.tcpip_sslsize.size, str);
-            ESP_AT_PORT_SEND_STR(str);
+            send_number(msg->msg.tcpip_sslsize.size, 0);
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }

@@ -35,13 +35,40 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "esp/esp.h"
-#include "esp_http_server_utils.h"
+/**
+ * \addtogroup      ESP_APPS
+ * \{
+ */
+
+/**
+ * \defgroup        ESP_APP_HTTP_SERVER HTTP server
+ * \brief           HTTP server based on callback API
+ * \{
+ */
+
+#include "apps/esp_apps.h"
+#include "apps/esp_http_server_utils.h"
 
 espr_t      esp_http_server_init(const http_init_t* init, uint16_t port);
 size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
 
+/**
+ * \brief           Write string to HTTP server output
+ * \note            May only be called from SSI callback function
+ * \param[in]       hs: HTTP handle
+ * \param[in]       str: String to write
+ * \return          Number of bytes written to output
+ * \sa              esp_http_server_write
+ */
 #define     esp_http_server_write_string(hs, str)   esp_http_server_write(hs, str, strlen(str))
+
+/**
+ * \}
+ */
+
+/**
+ * \}
+ */
 
 #ifdef __cplusplus
 };

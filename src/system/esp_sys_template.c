@@ -29,7 +29,17 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define esp_INTERNAL
-#include "esp_sys.h"
+#include "sys/esp_sys.h"
+
+/**
+ * \addtogroup      
+ * \brief 
+ * \{
+ */
+ 
+/**
+ * \}
+ */
 
 /*******************************************/
 /*******************************************/
@@ -354,7 +364,8 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  * \param[out]      t: Pointer to thread identifier if create was successful
  * \param[in]       name: Name of a new thread
  * \param[in]       thread_func: Thread function to use as thread body
- * \param[in]       stack_size: Size of thread stack
+ * \param[in]       arg: Thread function argument
+ * \param[in]       stack_size: Size of thread stack in uints of bytes
  * \param[in]       prio: Thread priority 
  * \return          1 on success, 0 otherwise
  */

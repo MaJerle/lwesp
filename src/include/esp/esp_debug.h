@@ -38,7 +38,18 @@ extern "C" {
 
 #include "stdint.h"
 #include "string.h"
-    
+
+/**
+ * \addtogroup      ESP
+ * \{
+ */
+ 
+/**
+ * \defgroup        ESP_DEBUG Debugging support
+ * \brief           Debugging support module to track stack
+ * \{
+ */
+ 
 #define ESP_DBG_ON                  0x80    /*!< Indicates debug is enabled */
 #define ESP_DBG_OFF                 0       /*!< Indicates debug is disabled */
     
@@ -54,7 +65,7 @@ extern "C" {
 
 #define ESP_DEBUG_INT(fmt, ...)     printf(fmt, ## __VA_ARGS__)
     
-#if ESP_DBG || defined(__DOXYGEN__)
+#if ESP_DBG || __DOXYGEN__
 /**
  * \brief           Print message to the debug "window" if enabled
  * \param[in]       c: Condition if debug of specific type is enabled
@@ -82,7 +93,15 @@ extern "C" {
 #else
 #define ESP_DEBUGF(c, fmt, ...)
 #define ESP_DEBUGW(c, cond, fmt, ...)
-#endif
+#endif /* ESP_DBG || __DOXYGEN__ */
+
+/**
+ * \}
+ */
+
+/**
+ * \}
+ */
 
 /* C++ detection */
 #ifdef __cplusplus

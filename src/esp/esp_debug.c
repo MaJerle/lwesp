@@ -33,7 +33,7 @@
 #include "esp/esp.h"
 #include "esp/esp_debug.h"
 
-#if ESP_DBG || defined(__DOXYGEN__)
+#if ESP_DBG || __DOXYGEN__
     
 const char *
 espi_dbg_msg_to_string(esp_cmd_t cmd) {
@@ -45,4 +45,4 @@ espi_dbg_msg_to_string(esp_cmd_t cmd) {
     return "";
 }
     
-#endif /* ESP_DBG || defined(__DOXYGEN__) */
+#endif /* ESP_DBG || __DOXYGEN__ */

@@ -83,9 +83,9 @@ esp_cb(esp_cb_t* cb) {
     esp_netconn_t* nc;
     uint8_t close = 0;
     
+    conn = esp_conn_get_from_evt(cb);           /* Get connection from event */
     switch (cb->type) {
         case ESP_CB_CONN_ACTIVE: {              /* A new connection active is active */
-            conn = cb->cb.conn_active_closed.conn;  /* Get connection */
             if (esp_conn_is_client(conn)) {     /* Was connection started by us? */
                 nc = conn->arg;                 /* Argument should be ready already */
                 if (nc) {                       /* Is netconn set? Should be already by us */
@@ -120,8 +120,7 @@ esp_cb(esp_cb_t* cb) {
          * should have netconn structure as argument
          */
         case ESP_CB_CONN_DATA_RECV: {
-            esp_pbuf_t* pbuf = (esp_pbuf_t *)cb->cb.conn_data_recv.buff;
-            conn = cb->cb.conn_data_recv.conn;  /* Get connection */
+            esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
             nc = conn->arg;                     /* Get API from connection */
             if (!nc->rcv_packets) {             /* Is this our first packet? */
                 if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
@@ -152,7 +151,6 @@ esp_cb(esp_cb_t* cb) {
          * Connection was just closed
          */
         case ESP_CB_CONN_CLOSED: {
-            conn = cb->cb.conn_active_closed.conn;  /* Get connection */
             nc = conn->arg;                     /* Get API from connection */
             
             /**

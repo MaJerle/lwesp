@@ -38,39 +38,65 @@ extern "C" {
 #include "esp/esp.h"
 #include "fs_data.h"
 
-#ifndef HTTP_SSI_TAG_START
-#define HTTP_SSI_TAG_START              "<!--#"
-#define HTTP_SSI_TAG_START_LEN          5
-#endif
+/**
+ * \addtogroup      ESP_APP_HTTP_SERVER
+ * \{
+ */
 
-#ifndef HTTP_SSI_TAG_END
-#define HTTP_SSI_TAG_END                "-->"
-#define HTTP_SSI_TAG_END_LEN            3
-#endif
+/**
+ * \defgroup        ESP_CONFIG_APP_HTTP HTTP server configuration
+ * \brief           Configuration of HTTP server app
+ * \{
+ */
 
-#ifndef HTTP_SSI_TAG_MAX_LEN
-#define HTTP_SSI_TAG_MAX_LEN            10
-#endif
-
-#ifndef HTTP_SSI_TAG_VALUE_MAX_LEN
-#define HTTP_SSI_TAG_VALUE_MAX_LEN      255
-#endif
-
+/**
+ * \brief           Server debug default setting
+ */
 #ifndef ESP_DBG_SERVER
 #define ESP_DBG_SERVER                  ESP_DBG_OFF
 #endif
 
+#ifndef HTTP_SSI_TAG_START
+#define HTTP_SSI_TAG_START              "<!--#"     /*!< SSI tag start string */
+#define HTTP_SSI_TAG_START_LEN          5           /*!< SSI tag start length */
+#endif
+
+#ifndef HTTP_SSI_TAG_END
+#define HTTP_SSI_TAG_END                "-->"       /*!< SSI tag end string */
+#define HTTP_SSI_TAG_END_LEN            3           /*!< SSI tag end length */
+#endif
+
+/**
+ * \brief           Maximal length of tag name excluding start and end parts of tag
+ */
+#ifndef HTTP_SSI_TAG_MAX_LEN
+#define HTTP_SSI_TAG_MAX_LEN            10
+#endif
+
+/**
+ * \brief           Enables (1) or disables (0) support for POST request
+ */
 #ifndef HTTP_SUPPORT_POST
 #define HTTP_SUPPORT_POST               1
 #endif
 
+/**
+ * \brief           Maximal length of allowed uri length including parameters in format /uri/sub/path?param=value
+ */
 #ifndef HTTP_MAX_URI_LEN
 #define HTTP_MAX_URI_LEN                256
 #endif
 
+/**
+ * \brief           Maximal number of parameters in URI
+ */
 #ifndef HTTP_MAX_PARAMS
 #define HTTP_MAX_PARAMS                 16
 #endif
+
+/**
+ * \}
+ */
 
 struct http_state;
 
@@ -95,10 +121,40 @@ typedef struct {
     http_cgi_fn fn;                             /*!< Callback function to call when we have a CGI match */
 } http_cgi_t;
 
-typedef espr_t  (*http_post_start_fn)(struct http_state *, const char *, uint32_t);
-typedef espr_t  (*http_post_data_fn)(struct http_state *, esp_pbuf_p);
-typedef espr_t  (*http_post_end_fn)(struct http_state *);
-typedef size_t  (*http_ssi_fn)(struct http_state *, const char* tag_name, size_t tag_len);
+/**
+ * \brief           Post request started prototype with non-zero content length
+ * \param[in]       hs: HTTP state
+ * \param[in]       uri: POST request URI
+ * \param[in]       content_length: Total content length (Content-Length HTTP parameter) in units of bytes
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+typedef espr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, uint32_t content_length);
+
+/**
+ * \brief           Post data received on POST request prototype
+ * \note            This function may be called multiple time until content_length from \ref http_post_start_fn callback is not reached
+ * \param[in]       hs: HTTP state
+ * \param[in]       pbuf: Packet buffer wit reciveed data
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+typedef espr_t  (*http_post_data_fn)(struct http_state* hs, esp_pbuf_p pbuf);
+
+/**
+ * \brief           End of POST data request prototype
+ * \param[in]       hs: HTTP state
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+typedef espr_t  (*http_post_end_fn)(struct http_state* hs);
+
+/**
+ * \brief           SSI (Server Side Includes) callback function prototype
+ * \note            User can use server write functions to directly write to connection output
+ * \param[in]       hs: HTTP state
+ * \param[in]       tag_name: Name of TAG to replace with user content
+ * \param[in]       tag_len: Length of TAG
+ * \return          Number of bytes written to output
+ */
+typedef size_t  (*http_ssi_fn)(struct http_state* hs, const char* tag_name, size_t tag_len);
 
 /**
  * \brief           HTTP server initialization structure
@@ -118,15 +174,18 @@ typedef struct {
  * \brief           Request method type
  */
 typedef enum {
-    HTTP_METHOD_GET,
-    HTTP_METHOD_POST,
+    HTTP_METHOD_GET,                            /*!< HTTP request method GET */
+    HTTP_METHOD_POST,                           /*!< HTTP request method POST */
 } http_req_method_t;
 
+/**
+ * \brief           List of SSI TAG parsing states
+ */
 typedef enum {
-    HTTP_SSI_STATE_WAIT_BEGIN = 0x00,
-    HTTP_SSI_STATE_BEGIN = 0x01,
-    HTTP_SSI_STATE_TAG = 0x02,
-    HTTP_SSI_STATE_END = 0x03,
+    HTTP_SSI_STATE_WAIT_BEGIN = 0x00,           /*!< Waiting beginning of tag */
+    HTTP_SSI_STATE_BEGIN = 0x01,                /*!< Beginning detected, parsing it */
+    HTTP_SSI_STATE_TAG = 0x02,                  /*!< Parsing TAG value */
+    HTTP_SSI_STATE_END = 0x03,                  /*!< Parsing end of TAG */
 } http_ssi_state_t;
 
 /**
@@ -156,12 +215,16 @@ typedef struct http_state {
     
     /* SSI tag parsing */
     uint8_t is_ssi;                             /*!< Flag if current request is SSI enabled */
-    http_ssi_state_t ssi_state;
-    char ssi_tag_buff[HTTP_SSI_TAG_START_LEN + HTTP_SSI_TAG_END_LEN + HTTP_SSI_TAG_MAX_LEN + 1];    /* Buffer for SSI tag */
+    http_ssi_state_t ssi_state;                 /*!< Current SSI state when parsing SSI tags */
+    char ssi_tag_buff[HTTP_SSI_TAG_START_LEN + HTTP_SSI_TAG_END_LEN + HTTP_SSI_TAG_MAX_LEN + 1];    /*!< Temporary buffer for SSI tag storing */
     size_t ssi_tag_buff_ptr;                    /*!< Current write pointer */
     size_t ssi_tag_buff_written;                /*!< Number of bytes written so far to output buffer in case tag is not valid */
     size_t ssi_tag_len;                         /*!< Length of SSI tag */
 } http_state_t;
+
+/**
+ * \}
+ */
 
 #ifdef __cplusplus
 };

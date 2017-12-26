@@ -33,12 +33,36 @@
 #include "esp/esp_sntp.h"
 #include "esp/esp_mem.h"
 
+/**
+ * \addtogroup      ESP_SNTP
+ * \{
+ *
+ * SNTP protocol allows you to get current time from network servers.
+ * 
+ * \code{c}
+esp_datetime_t dt;
+
+//Configure SNTP parameters: enable, timezone +1 and use default network servers
+if (esp_sntp_configure(1, 1, NULL, NULL, NULL, 1) == espOK) {
+    //Try to get time from network servers
+    if (esp_sntp_gettime(&dt, 1) == espOK) {
+        printf("We have a date and time: %d.%d.%d: %d:%d:%d\r\n", 
+            (int)dt.date, (int)dt.month, (int)dt.year, 
+            (int)dt.hours, (int)dt.minutes, (int)dt.seconds
+        );
+    }
+}
+\endcode
+ *
+ * \}
+ */
+
 #if ESP_SNTP || __DOXYGEN__
 
 /**
- * \brief           Configure SNTP mode
+ * \brief           Configure SNTP mode parameters
  * \param[in]       en: Status whether SNTP mode is enabled or disabled on ESP device
- * \param[in]       tz: Timezone to use when SNTP acquires time
+ * \param[in]       tz: Timezone to use when SNTP acquires time, between -11 and 13
  * \param[in]       h1: Optional first SNTP server for time. Set to NULL if not used
  * \param[in]       h2: Optional second SNTP server for time. Set to NULL if not used
  * \param[in]       h3: Optional third SNTP server for time. Set to NULL if not used

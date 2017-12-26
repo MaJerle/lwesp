@@ -44,6 +44,7 @@ static uint32_t esp_recv_calls;
 
 /**
  * \brief           Write data to input buffer
+ * \note            \ref ESP_INPUT_USE_PROCESS must be disabled to use this function
  * \param[in]       data: Pointer to data to write
  * \param[in]       len: Number of data elements in units of bytes
  * \return          Member of \ref espr_t enumeration
@@ -66,8 +67,11 @@ esp_input(const void* data, size_t len) {
 
 /**
  * \brief           Process input data directly without writing it to input buffer
- * \note            This function may only be used when OS is used
+ * \note            This function may only be used when in OS mode,
  *                  where single thread is dedicated for input read of AT receive
+ * 
+ * \note            \ref ESP_INPUT_USE_PROCESS must be enabled to use this function
+ *
  * \param[in]       data: Pointer to received data to be processed
  * \param[in]       len: Length of data to process in units of bytes
  */

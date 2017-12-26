@@ -33,10 +33,28 @@
 #include "esp/esp_ping.h"
 #include "esp/esp_mem.h"
 
+/**
+ * \addtogroup      ESP_PING
+ * \{
+ *
+ * By pinging external server, you can get response time in units of milliseconds
+ * 
+ * \code{c}
+uint32_t time;
+
+//Try to ping domain example.com and print time
+if (esp_ping("example.com", &time, 1) == espOK) {
+    printf("Ping successful. Time: %d ms\r\n", (int)time);
+}
+\endcode
+ *
+ * \}
+ */
+
 #if ESP_PING || __DOXYGEN__
 
 /**
- * \brief           Ping external host
+ * \brief           Ping server and get response time from it
  * \param[in]       host: Host name to ping
  * \param[out]      time: Pointer to output variable to save ping time
  * \param[in]       blocking: Status whether command should be blocking or not

@@ -1,6 +1,6 @@
-/**	
- * \file            esp_ping.h
- * \brief           Ping API
+/** 
+ * \file            esp_apps.h
+ * \brief           Applications main header file
  */
  
 /*
@@ -28,40 +28,25 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_PING_H
-#define __ESP_PING_H
+#ifndef __ESP_APPS_H
+#define __ESP_APPS_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp.h"
+#endif /* __cplusplus */
 
 /**
- * \addtogroup      ESP
- * \{
- */
-    
-/**
- * \defgroup        ESP_PING PING
- * \brief           Ping server and get response time
+ * \defgroup        ESP_APPS Applications
+ * \brief           Applications based on ESP stack
  * \{
  */
 
-espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
- 
-/**
- * \}
- */
-    
 /**
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
-}
-#endif
+};
+#endif /* __cplusplus */
 
-#endif /* __ESP_PING_H */
+#endif /* __ESP_HTTP_SERVER_H */

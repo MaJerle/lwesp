@@ -1,6 +1,6 @@
 /**
- * \file            esp_input.h
- * \brief           Initialization process
+ * \file            esp_ll_template.h
+ * \brief           Low-level communication implementation template file
  */
 
 /*
@@ -31,30 +31,29 @@
  *
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_INPUT_H
-#define __ESP_INPUT_H
+#ifndef __ESP_LL_H
+#define __ESP_LL_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#include "string.h"
-#include "esp.h"
+#include "esp/esp.h"
+#include "esp/esp_mem.h"
 
 /**
  * \addtogroup      ESP
  * \{
  */
-    
+
 /**
- * \defgroup        ESP_INPUT Input processing
- * \brief           Input function for received data
+ * \defgroup        ESP_LL Low level communication
+ * \brief           Low-level, platform dependant communication module
  * \{
  */
-
-espr_t      esp_input(const void* data, size_t len);
-espr_t      esp_input_process(const void* data, size_t len);
-
+    
+espr_t      esp_ll_init(esp_ll_t* ll, uint32_t baudrate);
+ 
 /**
  * \}
  */
@@ -67,4 +66,4 @@ espr_t      esp_input_process(const void* data, size_t len);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_INPUT_H */
+#endif /* __ESP_LL_H */

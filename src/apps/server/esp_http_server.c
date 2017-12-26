@@ -679,7 +679,7 @@ esp_http_server_init(const http_init_t* init, uint16_t port) {
  */
 size_t
 esp_http_server_write(http_state_t* hs, const void* data, size_t len) {
-    esp_conn_write(hs->conn, data, len, 0, NULL);
+    esp_conn_write(hs->conn, data, len, 0, &hs->conn_mem_available);
     hs->written_total += len;                   /* Increase total length */
     return len;
 }
