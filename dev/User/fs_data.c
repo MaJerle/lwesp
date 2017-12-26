@@ -125,6 +125,7 @@ const uint8_t responseData_404[] = ""
 const fs_file_table_t
 files[] = {
     {"/index.html",         responseData,       sizeof(responseData) - 1,       0, 1, 1},
+    {"/index.shtml",        responseData,       sizeof(responseData) - 1,       0, 1, 1},
     {"/css/style1.css",     responseData_css,   sizeof(responseData_css) - 1,   0, 1, 1},
     {"/css/style2.css",     responseData_css,   sizeof(responseData_css) - 1,   0, 1, 1},
     {"/css/style3.css",     responseData_css,   sizeof(responseData_css) - 1,   0, 1, 1},
@@ -133,23 +134,20 @@ files[] = {
     {"/js/js2.js",          responseData_js2,   sizeof(responseData_js2) - 1,   0, 1, 1},
     {"/js/js3.js",          responseData_js1,   sizeof(responseData_js1) - 1,   0, 1, 1},
     {"/js/js4.js",          responseData_js2,   sizeof(responseData_js2) - 1,   0, 1, 1},
-    {"404",                 responseData_404,   sizeof(responseData_404) - 1,   1, 1, 1}
+    {"/404.html",           responseData_404,   sizeof(responseData_404) - 1,   1, 1, 1}
 };
 
 /**
  * \brief           Open file from file system
+ * \param[in]       file: Pointer to file structure
  * \param[in]       path: File path to open
- * \param[in]       is_404: Flag indicating we want 404 error message
  * \return          1 on success or 0 otherwise
  */
 uint8_t
-fs_data_open_file(fs_file_t* file, const char* path, uint8_t is_404) {
+fs_data_open_file(fs_file_t* file, const char* path) {
     uint8_t i;
     for (i = 0; i < sizeof(files) / sizeof(files[0]); i++) {
-        if (
-            (is_404 && files[i].is_404) ||
-            (!is_404 && path && !strcmp(files[i].path, path))
-        ) {
+        if (path != NULL && !strcmp(files[i].path, path)) {
             file->len = files[i].len;
             file->data = (uint8_t *)files[i].data;
             file->is_static = 1;

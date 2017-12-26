@@ -69,18 +69,18 @@ osThreadDef(client_thread, client_thread, osPriorityNormal, 0, 512);
 char* led_cgi_handler(http_param_t* params, size_t params_len);
 char* usart_cgi_handler(http_param_t* params, size_t params_len);
 
+esp_ap_t aps[100];
+size_t apf;
+esp_sta_t stas[20];
+size_t staf;
+esp_datetime_t dt;
+
 static size_t   http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len);
 
 const http_cgi_t cgi_handlers[] = {
     { "/led.cgi", led_cgi_handler },
     { "/usart.cgi", usart_cgi_handler },
 };
-
-esp_ap_t aps[100];
-size_t apf;
-esp_sta_t stas[20];
-size_t staf;
-esp_datetime_t dt;
 
 static espr_t
 http_post_start(http_state_t* hs, const char* uri, uint32_t content_len) {
@@ -90,13 +90,14 @@ http_post_start(http_state_t* hs, const char* uri, uint32_t content_len) {
 
 static espr_t
 http_post_data(http_state_t* hs, esp_pbuf_p pbuf) {
-    printf("Data received: %d bytes\r\n", esp_pbuf_length(pbuf, 1));
+    printf("Data received: %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
     return espOK;
 }
 
 static espr_t
 http_post_end(http_state_t* hs) {
     printf("Post finished!\r\n");
+    return espOK;
 }
 
 const http_init_t http_init = {
@@ -104,7 +105,7 @@ const http_init_t http_init = {
     .post_data_fn = http_post_data,
     .post_end_fn = http_post_end,
     .cgi = cgi_handlers,
-    .cgi_count = sizeof(cgi_handlers) / sizeof(cgi_handlers[0]),
+    .cgi_count = ESP_ARRAYSIZE(cgi_handlers),
     .ssi_fn = http_ssi_cb,
 };
 
@@ -286,7 +287,7 @@ client_thread(void const* arg) {
     }
                                                 
     conn = esp_netconn_new(ESP_NETCONN_TYPE_TCP);   /* Create new instance */
-    if (conn) {
+    if (conn != NULL) {
         while (1) {                             /* Infinite loop */            
             /**
              * Connect to external server as client

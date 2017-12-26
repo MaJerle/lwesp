@@ -118,7 +118,6 @@ esp_init(esp_cb_func_t cb_func) {
 
 /**
  * \brief           Sets WiFi mode to either station only, access point only or both
- * \param[in]       mode: Mode of operation
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */

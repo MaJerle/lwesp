@@ -33,6 +33,100 @@
 #include "fs_data.h"
 #include "ctype.h"
 
+/**
+ * \addtogroup      ESP_APP_HTTP_SERVER
+ * \{
+ *
+ * \par             SSI (Server Side Includes) tags support
+ *
+ * SSI tags are supported on server to include user specific values as replacement of static content.
+ *
+ * Each tag must start with \ref HTTP_SSI_TAG_START tag and end with \ref HTTP_SSI_TAG_END and tag must not be longer than \ref HTTP_SSI_TAG_MAX_LEN.
+ * White spaces are not allowed and "-" character is not allowed in tag name. Example of valid tag is <b>\<\!--#my_tag--></b> where name of tag is <b>my_tag</b>.
+ *
+ * The tag name is later sent to SSI callback function where user can send custom data as tag replacement.
+ *
+ * \par             CGI (Common Gateway Interface) support
+ *
+ * CGI support allows you to hook different functions from clients to server.
+ *
+ *  - CGI paths must be enabled before with callback functions when CGI is triggered
+ *  - CGI path must finish with <b>.cgi</b> suffix
+ *      - To allow CGI hook, request URI must be in format <b>/folder/subfolder/file.cgi?param1=value1&param2=value2&</b>
+ *
+ * \par             HTTP server example with CGI and SSI
+ *
+ * \code{c}
+// CGI handler for CGI1
+static char *
+cgi1_callback(http_param_t* params, size_t params_len) {
+    printf("CGI1 callback triggered\r\n");
+    return "/index.shtml";
+}
+// CGI handler for CGI2
+static char *
+cgi2_callback(http_param_t* params, size_t params_len) {
+    printf("CGI2 callback triggered\r\n");
+    return "/index.shtml";
+}
+
+// SSI tags global callback
+// It is called every time SSI tag is found and is valid
+// User must directly write to output
+static size_t
+http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
+    if (!strncmp("my_tag", tag_name, tag_len)) {
+        esp_http_server_write(hs, "my_tag replacement string");
+    }
+    return 0;
+}
+
+// POST request start callback
+static espr_t
+http_post_start(http_state_t* hs, const char* uri, uint32_t content_len) {
+    printf("POST started with content length: %d; on URI: %s\r\n", (int)content_len, uri);
+    return espOK;
+}
+
+// POST request data callback
+static espr_t
+http_post_data(http_state_t* hs, esp_pbuf_p pbuf) {
+    printf("Data received: %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
+    return espOK;
+}
+
+// POST request end callback
+static espr_t
+http_post_end(http_state_t* hs) {
+    printf("Post finished!\r\n");
+    return espOK;
+}
+
+// List of CGI handlers and their paths
+const http_cgi_t
+cgi_handlers[] = {
+    { "/cgi1.cgi", cgi1_callback },         // Available on http://ip_addr/cgi1.cgi
+    { "/cgi2.cgi", cgi2_callback },         // Available on http://ip_addr/cgi2.cgi
+};
+
+// Server parameters
+const http_init_t
+http_init = {
+    .post_start_fn = http_post_start,       // Define POST start callback
+    .post_data_fn = http_post_data,         // Define POST data callback
+    .post_end_fn = http_post_end,           // Define POST end callback
+    .cgi = cgi_handlers,                    // Define CGI handlers
+    .cgi_count = ESP_ARRAYSIZE(cgi_handlers),   //Set length of CGI handlers
+    .ssi_fn = http_ssi_cb,                  // Set global SSI tags callback
+};
+
+// Later, somewhere in code call
+esp_http_server_init(&http_init, 80);       // Enable server on port 80
+\endcode
+ *
+ * \}
+ */
+
 #define CRLF                        "\r\n"
 
 char http_uri[HTTP_MAX_URI_LEN + 1];
@@ -44,11 +138,53 @@ static const http_init_t* hi;
 /**
  * \brief           List of supported file names for index page
  */
-static const char*
+static const char *
 http_index_filenames[] = {
+    "/index.shtml",
+    "/index.shtm"
+    "/index.ssi",
     "/index.html",
     "/index.htm"
 };
+
+/**
+ * \brief           List of URI suffixes where SSI tags are supported
+ */
+static const char *
+http_ssi_suffixes[] = {
+    ".shtml",
+    ".shtm",
+    ".ssi"
+};
+
+/**
+ * \brief           List of 404 URIs
+ */
+static const char *
+http_404_uris[] = {
+    "/404.shtml",
+    "/404.shtm",
+    "/404.ssi",
+    "/404.html",
+    "/404.htm",
+};
+
+/**
+ * \brief           Compare 2 strings in case insensitive way
+ * \param[in]       a: String a to compare
+ * \param[in]       b: String b to compare
+ * \return          0 if equal, non-zero otherwise
+ */
+int
+strcmpi(const char* a, const char* b) {
+    int d;
+    for (;; a++, b++) {
+        d = tolower(*a) - tolower(*b);
+        if (d || !*a) {
+            return d;
+        }
+    }
+}
 
 /**
  * \brief           Parse URI from HTTP request and copy it to linear memory location
@@ -124,11 +260,11 @@ http_get_params(char* params) {
 /**
  * \brief           Get file from uri in format /folder/file?param1=value1&...
  * \param[in]       hs: HTTP state
- * \param[in]       uri: Input uri to get file for
+ * \param[in]       uri: Input URI to get file for
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-http_get_file_from_uri(http_state_t* hs, char* uri) {
+http_get_file_from_uri(http_state_t* hs, const char* uri) {
     size_t uri_len;
     
     memset(&hs->resp_file, 0x00, sizeof(hs->resp_file));
@@ -141,8 +277,9 @@ http_get_file_from_uri(http_state_t* hs, char* uri) {
          * available to return as main file
          */
         for (i = 0; i < sizeof(http_index_filenames) / sizeof(http_index_filenames[0]); i++) {
-            hs->resp_file_opened = fs_data_open_file(&hs->resp_file, http_index_filenames[i], 0); /* Give me a file with desired path */
+            hs->resp_file_opened = fs_data_open_file(&hs->resp_file, http_index_filenames[i]);  /* Give me a file with desired path */
             if (hs->resp_file_opened) {         /* Do we have a file? */
+                uri = http_index_filenames[i];  /* Set new URI for next of this func */
                 break;
             }
         }
@@ -171,7 +308,7 @@ http_get_file_from_uri(http_state_t* hs, char* uri) {
                 }
             }
         }
-        hs->resp_file_opened = fs_data_open_file(&hs->resp_file, uri, 0);   /* Give me a new file now */
+        hs->resp_file_opened = fs_data_open_file(&hs->resp_file, uri);  /* Give me a new file now */
     }
     
     /*
@@ -179,10 +316,36 @@ http_get_file_from_uri(http_state_t* hs, char* uri) {
      * Try with 404 error page if available by user
      */
     if (!hs->resp_file_opened) {
-        hs->resp_file_opened = fs_data_open_file(&hs->resp_file, NULL, 1);  /* Get 404 error page */
+        size_t i;
+        for (i = 0; i < ESP_ARRAYSIZE(http_404_uris); i++) {
+            uri = http_404_uris[i];
+            hs->resp_file_opened = fs_data_open_file(&hs->resp_file, uri);  /* Get 404 error page */
+            if (hs->resp_file_opened) {
+                break;
+            }
+        }
     }
     
-    hs->is_ssi = 1;
+    /*
+     * Check if SSI should be supported on this file
+     */
+    hs->is_ssi = 0;                             /* By default no SSI is supported */
+    if (hs->resp_file_opened) {
+        size_t i, uri_len, suffix_len;
+        const char* suffix;
+        
+        uri_len = strlen(uri);                  /* Get length of URI */
+        for (i = 0; i < ESP_ARRAYSIZE(http_ssi_suffixes); i++) {
+            suffix = http_ssi_suffixes[i];      /* Get suffix */
+            suffix_len = strlen(suffix);        /* Get length of suffix */
+            
+            if (suffix_len < uri_len && !strcmpi(suffix, &uri[uri_len - suffix_len])) {
+                hs->is_ssi = 1;                 /* We have a SSI tag */
+                break;
+            }
+        }
+    }
+    
     return hs->resp_file_opened;
 }
 
@@ -343,9 +506,34 @@ send_response_ssi(http_state_t* hs) {
     }
 }
 
+/**
+ * \brief           Send more data without SSI tags parsing
+ * \param[in]       hs: HTTP state
+ */
 static void
 send_response_no_ssi(http_state_t* hs) {
-    
+    if (hs->resp_file_opened) {                 /* Is file opened? */
+        if (hs->resp_file.is_static) {          /* We can send static file directly to output */
+            /*
+             * Did we try to send anything so far?
+             */
+            if (hs->written_total) {            /* Did we sent anything so far? */
+                if (hs->sent_total == hs->written_total) {
+                    esp_conn_close(hs->conn, 0);    /* We sent everything at this point */
+                }
+                
+            /*
+             * Write all data at a time if static mode is used
+             */
+            } else if (esp_conn_send(hs->conn, hs->resp_file.data, hs->resp_file.len, NULL, 0) == espOK) {
+                hs->written_total = hs->resp_file.len;
+            }
+        } else {
+            /*
+             * File is not static, we have to read part of file and send it
+             */
+        }
+    }
 }
 
 /**

@@ -25,7 +25,7 @@ typedef struct {
     uint32_t sent_total;                        /*!< Total number of bytes sent on a file already */
 } fs_file_t;
 
-uint8_t     fs_data_open_file(fs_file_t* file, const char* path, uint8_t is_404);
+uint8_t     fs_data_open_file(fs_file_t* file, const char* path);
 uint8_t     fs_data_read_file(fs_file_t* file, void* buff, size_t btr, size_t* br);
 void        fs_data_close_file(fs_file_t* file);
 
