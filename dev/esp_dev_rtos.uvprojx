@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F411xE,USE_HAL_DRIVER,USE_FULL_LL_DRIVER,ARM_MATH_CM4,STM32F4XX,NUCLEO_F411,HSE_VALUE=8000000,RCC_OSCILLATORTYPE=RCC_OSCILLATORTYPE_HSE,RCC_PLLM=8,RCC_PLLN=400,RCC_PLLP=4,RCC_PLLQ=7,</Define>
               <Undefine></Undefine>
-              <IncludePath>.\User;..\src;..\src\esp\include;..\src\system\include;..\libs;..\libs\st_hal\STM32F4xx_HAL_Driver\Inc;..\libs\st_hal\CMSIS\Device\ST\STM32F4xx\Include;..\libs\st_hal\CMSIS\Include;..\libs\FreeRTOS\include;..\libs\FreeRTOS\CMSIS_RTOS;..\libs\FreeRTOS\portable\RVDS\ARM_CM4F</IncludePath>
+              <IncludePath>.\User;..\src\include;..\libs;..\libs\st_hal\STM32F4xx_HAL_Driver\Inc;..\libs\st_hal\CMSIS\Device\ST\STM32F4xx\Include;..\libs\st_hal\CMSIS\Include;..\libs\FreeRTOS\include;..\libs\FreeRTOS\CMSIS_RTOS;..\libs\FreeRTOS\portable\RVDS\ARM_CM4F</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

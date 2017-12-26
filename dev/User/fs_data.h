@@ -1,7 +1,7 @@
 #ifndef __FS_DATA_H
 #define __FS_DATA_H
 
-#include "esp.h"
+#include "esp/esp.h"
 
 typedef struct {
     const char* path;

@@ -34,7 +34,7 @@
 #ifndef __ESP_CONFIG_H
 #define __ESP_CONFIG_H  100
 
-#include "esp_debug.h"
+#include "esp/esp_debug.h"
 
 /**
  * User specific config which overwrites setup from esp_config_default.h file
@@ -60,7 +60,7 @@
 #endif /* !__DOXYGEN__ */
 
 /* Include default configuration setup */
-#include "esp_config_default.h"
+#include "esp/esp_config_default.h"
  
 /**
  * \}

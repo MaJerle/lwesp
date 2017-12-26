@@ -49,15 +49,15 @@ CTS         PA3                 RTS from ST to CTS from ESP
 #include "tm_stm32_disco.h"
 #include "tm_stm32_delay.h"
 #include "tm_stm32_usart.h"
-#include "esp.h"
-#include "esp_sntp.h"
+#include "esp/esp.h"
+#include "esp/esp_sntp.h"
 #include "fs_data.h"
 //#include "cmsis_os.h"
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX5
 #include "cpu_utils.h"
 
-#include "apps/server/include/esp_http_server.h"
-#include "apps/mqtt/include/esp_mqtt_client.h"
+#include "apps/esp_http_server.h"
+#include "apps/esp_mqtt_client.h"
 
 void init_thread(void const* arg);
 void client_thread(void const* arg);
