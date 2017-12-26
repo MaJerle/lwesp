@@ -45,6 +45,7 @@
 #define ESP_DBG_IPD                         ESP_DBG_OFF
 #define ESP_DBG_SERVER                      ESP_DBG_OFF
 #define ESP_DBG_MQTT                        ESP_DBG_ON
+#define ESP_DBG_MEM                         ESP_DBG_ON
 #define ESP_RCV_BUFF_SIZE                   0x1000
 
 #define ESP_IPD_MAX_BUFF_SIZE               1460

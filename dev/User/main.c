@@ -69,9 +69,43 @@ osThreadDef(client_thread, client_thread, osPriorityNormal, 0, 512);
 char* led_cgi_handler(http_param_t* params, size_t params_len);
 char* usart_cgi_handler(http_param_t* params, size_t params_len);
 
+static size_t   http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len);
+
 const http_cgi_t cgi_handlers[] = {
     { "/led.cgi", led_cgi_handler },
     { "/usart.cgi", usart_cgi_handler },
+};
+
+esp_ap_t aps[100];
+size_t apf;
+esp_sta_t stas[20];
+size_t staf;
+esp_datetime_t dt;
+
+static espr_t
+http_post_start(http_state_t* hs, const char* uri, uint32_t content_len) {
+    printf("POST started with %d length on URI: %s\r\n", (int)content_len, uri);
+    return espOK;
+}
+
+static espr_t
+http_post_data(http_state_t* hs, esp_pbuf_p pbuf) {
+    printf("Data received: %d bytes\r\n", esp_pbuf_length(pbuf, 1));
+    return espOK;
+}
+
+static espr_t
+http_post_end(http_state_t* hs) {
+    printf("Post finished!\r\n");
+}
+
+const http_init_t http_init = {
+    .post_start_fn = http_post_start,
+    .post_data_fn = http_post_data,
+    .post_end_fn = http_post_end,
+    .cgi = cgi_handlers,
+    .cgi_count = sizeof(cgi_handlers) / sizeof(cgi_handlers[0]),
+    .ssi_fn = http_ssi_cb,
 };
 
 int
@@ -84,7 +118,7 @@ main(void) {
     TM_USART_Init(DISCO_USART, DISCO_USART_PP, 921600); /* Init USART for debug purpose */
     
     osThreadCreate(osThread(init_thread), NULL);/* Create init thread */
-    osKernelStart();                            /* Start operating system */
+    osKernelStart();                            /* Start OS kernel */
     
 	while (1) {
 
@@ -108,12 +142,6 @@ uint32_t time;
 
 #define CONN_HOST       "example.org"
 #define CONN_PORT       80
-
-esp_ap_t aps[100];
-size_t apf;
-esp_sta_t stas[20];
-size_t staf;
-esp_datetime_t dt;
 
 typedef struct {
     const char* ssid;
@@ -190,7 +218,7 @@ cont:
         client_thread_id = osThreadCreate(osThread(client_thread), NULL);
         printf("Client mode!\r\n");
     } else {
-        esp_http_server_init(80);
+        esp_http_server_init(&http_init, 80);
         printf("Server mode!\r\n");
     }
     
@@ -210,8 +238,8 @@ cont:
         }
     }
     
-    mqtt_client = mqtt_client_new(256);
-    mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883);
+//    mqtt_client = mqtt_client_new(256);
+//    mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883);
     
     while (1) {
         if (0 && esp_ap_list_sta(stas, sizeof(stas) / sizeof(stas[0]), &staf, 1) == espOK) {
@@ -224,7 +252,8 @@ cont:
                 );
             }
         }
-        osDelay(1000);
+        osDelay(60000);
+        esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 0);
         //printf("CPU USAGE: %d\r\n", (int)osGetCPUUsage());
         
 //        if (TM_DISCO_ButtonOnPressed()) {
@@ -361,4 +390,41 @@ int
 fputc(int ch, FILE* fil) {
     TM_USART_Putc(DISCO_USART, ch);             /* Send over debug USART */
     return ch;                                  /* Return OK */
+}
+
+char ssi_buffer[25];
+
+static size_t
+http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
+    if (!strncmp(tag_name, "title", tag_len)) {
+        esp_http_server_write_string(hs, "ESP8266 SSI TITLE");
+    } else if (!strncmp(tag_name, "led_status", tag_len)) {
+        if (TM_DISCO_LedIsOn(LED_GREEN)) {
+            esp_http_server_write_string(hs, "Led is on");
+        } else {
+            esp_http_server_write_string(hs, "Led is off");
+        }
+    } else if (!strncmp(tag_name, "wifi_list", tag_len)) {
+        size_t i;
+
+        esp_http_server_write_string(hs, "<table class=\"table\">");
+        esp_http_server_write_string(hs, "<thead><tr><th>#</th><th>SSID</th><th>MAC</th><th>RSSI</th></tr></thead><tbody>");
+        
+        for (i = 0; i < apf; i++) {
+            esp_http_server_write_string(hs, "<tr><td>");
+            sprintf(ssi_buffer, "%d", (int)i);
+            esp_http_server_write_string(hs, ssi_buffer);
+            esp_http_server_write_string(hs, "</td><td>");
+            esp_http_server_write_string(hs, aps[i].ssid);
+            esp_http_server_write_string(hs, "</td><td>");
+            sprintf(ssi_buffer, "%02X:%02X:%02X:%02X:%02X:%02X", aps[i].mac[0], aps[i].mac[1], aps[i].mac[2], aps[i].mac[3], aps[i].mac[4], aps[i].mac[5]);
+            esp_http_server_write_string(hs, ssi_buffer);
+            esp_http_server_write_string(hs, "</td><td>");
+            sprintf(ssi_buffer, "%d", (int)aps[i].rssi);
+            esp_http_server_write_string(hs, ssi_buffer);
+            esp_http_server_write_string(hs, "</td></tr>");
+        }
+        esp_http_server_write_string(hs, "</tbody></table>");
+    }
+    return 0;
 }
