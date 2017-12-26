@@ -28,8 +28,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#include "include/esp_http_server.h"
-#include "esp/include/esp_mem.h"
+#include "apps/esp_http_server.h"
+#include "esp/esp_mem.h"
 #include "fs_data.h"
 #include "ctype.h"
 

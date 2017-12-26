@@ -35,7 +35,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "esp.h"
+#include "esp/esp.h"
 #include "esp_http_server_utils.h"
 
 espr_t      esp_http_server_init(const http_init_t* init, uint16_t port);

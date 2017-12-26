@@ -32,9 +32,9 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp_ll.h"
-#include "esp.h"
-#include "esp_input.h"
+#include "esp/esp.h"
+#include "esp/esp_input.h"
+#include "system/esp_ll.h"
 
 #if !__DOXYGEN__
 

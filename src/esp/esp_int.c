@@ -32,12 +32,12 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_private.h"
-#include "include/esp.h"
-#include "include/esp_int.h"
-#include "include/esp_parser.h"
-#include "include/esp_unicode.h"
-#include "esp_ll.h"
+#include "esp/esp_private.h"
+#include "esp/esp.h"
+#include "esp/esp_int.h"
+#include "esp/esp_parser.h"
+#include "esp/esp_unicode.h"
+#include "system/esp_ll.h"
 
 #define IS_CURR_CMD(c)        (esp.msg && esp.msg->cmd == (c))
 

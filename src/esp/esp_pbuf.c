@@ -29,9 +29,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_private.h"
-#include "include/esp_pbuf.h"
-#include "include/esp_mem.h"
+#include "esp/esp_private.h"
+#include "esp/esp_pbuf.h"
+#include "esp/esp_mem.h"
 
 #define SIZEOF_PBUF_STRUCT          ESP_MEM_ALIGN(sizeof(esp_pbuf_t))
 

@@ -29,9 +29,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_private.h"
-#include "include/esp_mem.h"
-#include "include/esp_debug.h"
+#include "esp/esp_private.h"
+#include "esp/esp_mem.h"
+#include "esp/esp_debug.h"
 
 #ifndef ESP_DBG_MEM
 #define ESP_DBG_MEM                         ESP_DBG_ON

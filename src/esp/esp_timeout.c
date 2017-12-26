@@ -29,9 +29,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_private.h"
-#include "include/esp_timeout.h"
-#include "include/esp_mem.h"
+#include "esp/esp_private.h"
+#include "esp/esp_timeout.h"
+#include "esp/esp_mem.h"
 
 static esp_timeout_t* first_timeout;
 static uint32_t last_timeout_time;

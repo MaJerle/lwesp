@@ -29,9 +29,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_private.h"
-#include "include/esp_timeout.h"
-#include "include/esp_mem.h"
+#include "esp/esp_private.h"
+#include "esp/esp_timeout.h"
+#include "esp/esp_mem.h"
 
 #if ESP_MODE_ACCESS_POINT || __DOXYGEN__
 

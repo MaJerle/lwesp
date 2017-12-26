@@ -28,8 +28,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#include "include/esp_mqtt_client.h"
-#include "../include/esp_mem.h"
+#include "apps/esp_mqtt_client.h"
+#include "esp/esp_mem.h"
 
 #ifndef ESP_DBG_MQTT
 #define ESP_DBG_MQTT                        ESP_DBG_OFF

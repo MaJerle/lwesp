@@ -32,10 +32,10 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_netconn.h"
-#include "include/esp_private.h"
-#include "include/esp_conn.h"
-#include "include/esp_mem.h"
+#include "esp/esp_netconn.h"
+#include "esp/esp_private.h"
+#include "esp/esp_conn.h"
+#include "esp/esp_mem.h"
 
 #if ESP_NETCONN || __DOXYGEN__
 

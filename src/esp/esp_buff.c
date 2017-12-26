@@ -29,8 +29,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_buff.h"
-#include "include/esp_mem.h"
+#include "esp/esp_buff.h"
+#include "esp/esp_mem.h"
 
 #ifndef ESP_DBG_BUFF
 #define ESP_DBG_BUFF        ESP_DBG_OFF

@@ -32,9 +32,9 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_private.h"
-#include "include/esp_parser.h"
-#include "include/esp_mem.h"
+#include "esp/esp_private.h"
+#include "esp/esp_parser.h"
+#include "esp/esp_mem.h"
 
 /**
  * \brief           Parse number from string

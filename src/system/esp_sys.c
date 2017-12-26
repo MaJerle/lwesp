@@ -29,9 +29,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define esp_INTERNAL
-#include "esp_sys.h"
+#include "system/esp_sys.h"
 
-#include "esp_sys.h"
 #if defined(STM32F769_DISCOVERY)
 #include "stm32f7xx_hal.h"
 #else /* defined(STM32F769_DISCOVERY) */

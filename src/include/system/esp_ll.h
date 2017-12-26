@@ -38,8 +38,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "esp.h"
-#include "esp_mem.h"
+#include "esp/esp.h"
+#include "esp/esp_mem.h"
     
 espr_t      esp_ll_init(esp_ll_t* ll, uint32_t baudrate);
 

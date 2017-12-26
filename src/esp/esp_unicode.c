@@ -29,8 +29,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_private.h"
-#include "include/esp_unicode.h"
+#include "esp/esp_private.h"
+#include "esp/esp_unicode.h"
 
 /**
  * \brief           Decode single character for unicode (UTF-8 only) format

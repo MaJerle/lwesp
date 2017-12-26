@@ -32,11 +32,11 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp.h"
-#include "include/esp_int.h"
-#include "include/esp_mem.h"
-#include "include/esp_ll.h"
-#include "include/esp_threads.h"
+#include "esp/esp.h"
+#include "esp/esp_int.h"
+#include "esp/esp_mem.h"
+#include "esp/esp_threads.h"
+#include "system/esp_ll.h"
 
 #if ESP_OS != 1
 #error ESP_OS must be set to 1!

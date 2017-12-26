@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-#include "esp.h"
+#include "esp/esp.h"
 
 /**
  * \addtogroup      ESP

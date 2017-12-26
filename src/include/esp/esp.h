@@ -42,10 +42,10 @@ extern "C" {
 /* Include other library files */
 #include "esp_config.h"
 
-#include "esp_typedefs.h"
-#include "esp_sys.h"
-#include "esp_buff.h"
-#include "esp_input.h"
+#include "esp/esp_typedefs.h"
+#include "esp/esp_buff.h"
+#include "esp/esp_input.h"
+#include "system/esp_sys.h"
 
 /**
  * \brief           Low level user specific functions

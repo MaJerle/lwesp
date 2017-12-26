@@ -32,10 +32,10 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "include/esp_private.h"
-#include "include/esp.h"
-#include "include/esp_input.h"
-#include "include/esp_buff.h"
+#include "esp/esp_private.h"
+#include "esp/esp.h"
+#include "esp/esp_input.h"
+#include "esp/esp_buff.h"
 
 static uint32_t esp_recv_total_len;
 static uint32_t esp_recv_calls;
