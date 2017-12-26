@@ -388,6 +388,11 @@ send_response(http_state_t* hs, uint8_t ft) {
     }
 }
 
+/**
+ * \brief           Server connection callback
+ * \param[in]       cb: Pointer to callback data
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 static espr_t
 http_evt_cb(esp_cb_t* cb) {
     uint8_t close = 0;
@@ -579,6 +584,7 @@ http_evt_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_DATA_SENT: {
             if (hs != NULL) {
+                ESP_DEBUGF(ESP_DBG_SERVER, "Server data sent with %d bytes\r\n", (int)cb->cb.conn_data_sent.sent);
                 hs->sent_total += cb->cb.conn_data_sent.sent;   /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
@@ -591,6 +597,7 @@ http_evt_cb(esp_cb_t* cb) {
          * There was a problem with sending connection data
          */
         case ESP_CB_CONN_DATA_SEND_ERR: {
+            ESP_DEBUGF(ESP_DBG_SERVER, "Data send error. Closing connection..\r\n");
             close = 1;                          /* Close the connection */
             break;
         }
@@ -599,6 +606,7 @@ http_evt_cb(esp_cb_t* cb) {
          * Connection was just closed, either forced by user or by remote side
          */
         case ESP_CB_CONN_CLOSED: {
+            ESP_DEBUGF(ESP_DBG_SERVER, "Server connection closed\r\n");
             if (hs != NULL) {
 #if HTTP_SUPPORT_POST
                 if (hs->req_method == HTTP_METHOD_POST) {
