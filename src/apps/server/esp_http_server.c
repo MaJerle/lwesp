@@ -356,6 +356,11 @@ send_response_no_ssi(http_state_t* hs) {
 static void
 send_response(http_state_t* hs, uint8_t ft) {
     uint8_t close = 0;
+    
+    if (!hs->process_resp) {
+        return;
+    }
+    
     /*
      * Do we have a file ready to be send?
      */
@@ -631,6 +636,11 @@ http_evt_cb(esp_cb_t* cb) {
          * Poll the connection
          */
         case ESP_CB_CONN_POLL: {
+            if (hs != NULL) {
+                send_response(hs, 0);           /* Send more data if possible */
+            } else {
+                close = 1;
+            }
             break;
         }
         default:
