@@ -525,7 +525,7 @@ espi_parse_received(esp_recv_t* rcv) {
                         }
                         esp.cb.type = ESP_CB_CONN_DATA_SENT;    /* Data were fully sent */
                         esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
-                        esp.cb.cb.conn_data_sent.sent = esp.msg->msg.conn_send.sent;
+                        esp.cb.cb.conn_data_sent.sent = esp.msg->msg.conn_send.sent_all;
                         espi_send_conn_cb(esp.msg->msg.conn_send.conn); /* Send connection callback */
                     }
                 } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
