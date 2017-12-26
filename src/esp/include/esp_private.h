@@ -143,7 +143,10 @@ typedef struct esp_conn_t {
     uint16_t        local_port;                 /*!< Local IP address */
     esp_cb_func_t   cb_func;                    /*!< Callback function for connection */
     void*           arg;                        /*!< User custom argument */
-    uint8_t         val_id;                     /*!< Validation ID number */
+    
+    uint8_t         val_id;                     /*!< Validation ID number. It is increased each time a new connection is established.
+                                                     It protects sending data to wrong connection in case we have data in send queue,
+                                                     and connection was closed and active again in between. */
     
     uint8_t*        buff;                       /*!< Pointer to buffer when using \ref esp_conn_write function */
     size_t          buff_len;                   /*!< Total length of buffer */
@@ -270,6 +273,7 @@ typedef struct esp_msg {
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection to close */
+            uint8_t val_id;                     /*!< Connection current validation ID when command was sent to queue */
         } conn_close;
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection to send data */
@@ -284,6 +288,7 @@ typedef struct esp_msg {
             uint16_t remote_port;               /*!< Remote port address for UDP connection */
             uint8_t fau;                        /*!< Free after use flag to free memory after data are sent (or not) */
             size_t* bw;                         /*!< Number of bytes written so far */
+            uint8_t val_id;                     /*!< Connection current validation ID when command was sent to queue */
         } conn_send;                            /*!< Structure to send data on connection */
         
         /*

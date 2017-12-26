@@ -267,7 +267,9 @@ espi_send_conn_cb(esp_conn_t* conn) {
  */
 static espr_t
 espi_tcpip_process_send_data(void) {
-    if (!esp_conn_is_active(esp.msg->msg.conn_send.conn)) {
+    if (!esp_conn_is_active(esp.msg->msg.conn_send.conn) || /* Is the connection already closed? */
+        esp.msg->msg.conn_send.val_id != esp.msg->msg.conn_send.conn->val_id    /* Did validation ID change after we set parameter? */
+    ) {
         if (esp.msg->msg.conn_send.fau) {
             esp_mem_free((void *)esp.msg->msg.conn_send.data);
         }
@@ -317,7 +319,7 @@ espi_tcpip_process_data_sent(uint8_t sent) {
     }
     if (esp.msg->msg.conn_send.btw) {           /* Do we still have data to send? */
         if (espi_tcpip_process_send_data() != espOK) {  /* Check if we can continue */
-            return 1;                           /* Finish as stopped */
+            return 1;                           /* Finish at this point */
         }
         return 0;                               /* We still have data to send */
     }
@@ -510,7 +512,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 }
             }
         } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPSEND) {
-            if (is_ok) {                        /* Check for OK and clear as we have to check for "> " statement */
+            if (is_ok) {                        /* Check for OK and clear as we have to check for "> " statement after OK */
                 is_ok = 0;                      /* Do not reach on OK */
             }
             if (esp.msg->msg.conn_send.wait_send_ok_err) {
@@ -623,7 +625,8 @@ espi_parse_received(esp_recv_t* rcv) {
                  */
                 if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
                     if (esp.msg->msg.conn_send.conn == conn) {
-                        is_error = 1;           /* Set as error to stop processing or waiting for connection */
+                        /** \todo: Find better idea */
+                        //is_error = 1;           /* Set as error to stop processing or waiting for connection */
                     }
                 }
             }
@@ -734,7 +737,7 @@ espi_process(const void* data, size_t data_len) {
         if (esp.ipd.read) {                     /* Do we have to read incoming IPD data? */
             size_t len;
             
-            if (esp.ipd.buff) {                 /* Do we have active buffer? */
+            if (esp.ipd.buff != NULL) {         /* Do we have active buffer? */
                 esp.ipd.buff->payload[esp.ipd.buff_ptr] = ch;   /* Save data character */
             }
             esp.ipd.buff_ptr++;
@@ -744,14 +747,14 @@ espi_process(const void* data, size_t data_len) {
              * Try to read more data directly from buffer
              */
             if (d_len) {
-                len = ESP_MIN(esp.ipd.rem_len, esp.ipd.buff ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len);
+                len = ESP_MIN(esp.ipd.rem_len, esp.ipd.buff != NULL ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len);
                 len = ESP_MIN(len, d_len);      /* Get number of bytes we can read/skip */
             } else {
                 len = 0;                        /* No data to process more */
             }
             ESP_DEBUGF(ESP_DBG_IPD, "IPD: New length: %d bytes\r\n", (int)len);
             if (len) {
-                if (esp.ipd.buff) {             /* Is buffer valid? */
+                if (esp.ipd.buff != NULL) {     /* Is buffer valid? */
                     /** 
                      * Copy data to connection payload buffer.
                      * Call if ok, even if new length is 0
@@ -772,13 +775,13 @@ espi_process(const void* data, size_t data_len) {
             /**
              * Did we reach end of buffer or no more data?
              */
-            if (!esp.ipd.rem_len || (esp.ipd.buff && esp.ipd.buff_ptr == esp.ipd.buff->len)) {
+            if (!esp.ipd.rem_len || (esp.ipd.buff != NULL && esp.ipd.buff_ptr == esp.ipd.buff->len)) {
                 espr_t res = espOK;
                 
                 /**
                  * Call user callback function with received data
                  */
-                if (esp.ipd.buff) {             /* Do we have valid buffer? */
+                if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */
                     esp.cb.type = ESP_CB_CONN_DATA_RECV;/* We have received data */
                     esp.cb.cb.conn_data_recv.buff = esp.ipd.buff;
                     esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
@@ -791,12 +794,12 @@ espi_process(const void* data, size_t data_len) {
                         esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
                     }
                         
-                    if (esp.ipd.buff && esp.ipd.rem_len) {  /* Anything more to read? */
+                    if (esp.ipd.buff != NULL && esp.ipd.rem_len) {  /* Anything more to read? */
                         size_t new_len = ESP_MIN(esp.ipd.rem_len, ESP_IPD_MAX_BUFF_SIZE);   /* Calculate new buffer length */
                         ESP_DEBUGF(ESP_DBG_IPD, "IPD: Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
                         esp.ipd.buff = esp_pbuf_new(new_len);   /* Allocate new packet buffer */
                         ESP_DEBUGW(ESP_DBG_IPD, esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d bytes\r\n", (int)new_len);
-                        if (esp.ipd.buff) {
+                        if (esp.ipd.buff != NULL) {
                             esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
                         }
                     }
@@ -1373,7 +1376,10 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
         case ESP_CMD_TCPIP_CIPCLOSE: {          /* Close the connection */
-            if (msg->msg.conn_close.conn && !esp_conn_is_active(msg->msg.conn_close.conn)) {
+            if (msg->msg.conn_close.conn != NULL &&
+                
+                /* Is connection already closed or command for this connection is not valid anymore? */
+                (!esp_conn_is_active(msg->msg.conn_close.conn) || msg->msg.conn_close.conn->val_id != msg->msg.conn_close.val_id)) {
                 return espERR;
             }
             ESP_AT_PORT_SEND_STR("AT+CIPCLOSE=");
