@@ -562,7 +562,7 @@ send_response(http_state_t* hs, uint8_t ft) {
         }
         
         /*
-         * Did we sent everything what we wrote to connection buffer?
+         * Did we send everything what we wrote to connection buffer?
          * In this case process with writing more data
          */
         if (hs->sent_total == hs->written_total) {
