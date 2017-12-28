@@ -35,6 +35,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "esp/esp.h"
+
 /**
  * \defgroup        ESP_APPS Applications
  * \brief           Applications based on ESP stack
