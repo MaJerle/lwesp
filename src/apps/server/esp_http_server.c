@@ -30,7 +30,6 @@
  */
 #include "apps/esp_http_server.h"
 #include "esp/esp_mem.h"
-#include "fs_data.h"
 #include "ctype.h"
 
 /**
