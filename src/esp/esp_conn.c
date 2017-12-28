@@ -194,7 +194,11 @@ conn_send(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size
 static espr_t
 flush_buff(esp_conn_p conn) {
     if (conn != NULL && conn->buff != NULL) {   /* Do we have something ready? */
-        if (conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
+        /*
+         * If there is nothing to write,
+         * simply free the memory and stop execution
+         */
+        if (conn->buff_ptr == 0 || conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
             esp_mem_free(conn->buff);           /* Free memory manually */
         }
         conn->buff = NULL;
