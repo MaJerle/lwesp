@@ -119,7 +119,9 @@ uint16_t old_pos;
 #endif /* USART_USE_DMA */
 
 static uint8_t initialized;
+#if USART_USE_DMA
 static uint8_t is_running;
+#endif /* USART_USE_DMA */
 
 #if ESP_INPUT_USE_PROCESS
 void usart_ll_thread(void const * arg);
