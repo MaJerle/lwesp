@@ -46,9 +46,9 @@
  * - \ref http_fs_read to read a file
  * - \ref http_fs_close to close a file
  *
- * When opening a file, functions assume user has files in "www" folder in root directory.
+ * When opening a file, functions assume user has files in <b>www</b> folder in root directory of file system.
  * 
- * \par             Example assigning functions to server init
+ * \par             Example assigning file system functions to server
  *
  * \code{c}
 const http_init_t
@@ -61,7 +61,7 @@ http_init = {
 };
 
 // Later somewhere, when you init http_server, call:
-esp_http_server_init(&http_init, 80);       // Enable server on port 80
+esp_http_server_init(&http_init, 80);           // Enable server on port 80
 \endcode
  *
  * \}

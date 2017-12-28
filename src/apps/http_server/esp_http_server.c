@@ -41,7 +41,7 @@
  * SSI tags are supported on server to include user specific values as replacement of static content.
  *
  * Each tag must start with \ref HTTP_SSI_TAG_START tag and end with \ref HTTP_SSI_TAG_END and tag must not be longer than \ref HTTP_SSI_TAG_MAX_LEN.
- * White spaces are not allowed and "-" character is not allowed in tag name. Example of valid tag is <b>\<\!--#my_tag--></b> where name of tag is <b>my_tag</b>.
+ * White spaces are not allowed and "-" character is not allowed in tag name. Example of valid tag is <b>\<\!\-\-\#my_tag\-\-\></b> where name of tag is <b>my_tag</b>.
  *
  * The tag name is later sent to SSI callback function where user can send custom data as tag replacement.
  *
