@@ -625,7 +625,7 @@ espi_parse_received(esp_recv_t* rcv) {
                  */
                 if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
                     if (esp.msg->msg.conn_send.conn == conn) {
-                        /** \todo: Find better idea */
+                        /** \todo: Find better idea to handle what to do in this case */
                         //is_error = 1;           /* Set as error to stop processing or waiting for connection */
                     }
                 }
@@ -1040,11 +1040,10 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
      */
     if (msg->cmd_def == ESP_CMD_TCPIP_CIPSERVER && msg->msg.tcpip_server.port > 0) {
         if (msg->cmd == ESP_CMD_TCPIP_CIPSERVERMAXCONN) {
-            if (is_ok) {
-                msg->cmd = ESP_CMD_TCPIP_CIPSERVER;
-                if (espi_initiate_cmd(msg) == espOK) {  /* Try to start with new connection */
-                    return espCONT;
-                }
+            /* Since not all AT versions support CIPSERVERMAXCONN command, ignore result */
+            msg->cmd = ESP_CMD_TCPIP_CIPSERVER;
+            if (espi_initiate_cmd(msg) == espOK) {  /* Try to start with new connection */
+                return espCONT;
             }
         } else if (msg->cmd == ESP_CMD_TCPIP_CIPSERVER) {
             if (is_ok) {
