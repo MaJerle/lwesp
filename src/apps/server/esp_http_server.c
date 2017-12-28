@@ -127,6 +127,14 @@ esp_http_server_init(&http_init, 80);       // Enable server on port 80
  * \}
  */
 
+/* Function prototypes, declarations in esp_http_server_fs.c file */
+uint8_t     http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* path);
+uint32_t    http_fs_data_read_file(const http_init_t* hi, http_fs_file_t* file, void** buff, size_t btr, size_t* br);
+void        http_fs_data_close_file(const http_init_t* hi, http_fs_file_t* file);
+
+/** Number of opened files in system */
+uint16_t http_fs_opened_files_cnt;
+
 #define CRLF                        "\r\n"
 
 char http_uri[HTTP_MAX_URI_LEN + 1];
@@ -277,7 +285,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
          * available to return as main file
          */
         for (i = 0; i < sizeof(http_index_filenames) / sizeof(http_index_filenames[0]); i++) {
-            hs->resp_file_opened = fs_data_open_file(&hs->resp_file, http_index_filenames[i]);  /* Give me a file with desired path */
+            hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, http_index_filenames[i]); /* Give me a file with desired path */
             if (hs->resp_file_opened) {         /* Do we have a file? */
                 uri = http_index_filenames[i];  /* Set new URI for next of this func */
                 break;
@@ -308,7 +316,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
                 }
             }
         }
-        hs->resp_file_opened = fs_data_open_file(&hs->resp_file, uri);  /* Give me a new file now */
+        hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, uri); /* Give me a new file now */
     }
     
     /*
@@ -319,7 +327,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
         size_t i;
         for (i = 0; i < ESP_ARRAYSIZE(http_404_uris); i++) {
             uri = http_404_uris[i];
-            hs->resp_file_opened = fs_data_open_file(&hs->resp_file, uri);  /* Get 404 error page */
+            hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, uri); /* Get 404 error page */
             if (hs->resp_file_opened) {
                 break;
             }
@@ -372,13 +380,79 @@ http_post_send_to_user(http_state_t* hs, esp_pbuf_p pbuf, size_t offset) {
 }
 
 /**
- * \brief           Send response using SSI parsing
+ * \brief           Read next part of response file
+ * \param[in]       ht: HTTP state
+ */
+static uint32_t
+read_resp_file(http_state_t* hs) {
+    uint32_t len = 0;
+    
+    if (!hs->resp_file_opened) {                /* File should be opened at this point! */
+        return 0;
+    }
+    
+    hs->buff_ptr = 0;                           /* Reset buffer pointer at this point */
+    
+    /*
+     * Is our memory set for some reason?
+     */
+    if (hs->buff != NULL) {                     /* Do we have already something in our buffer? */
+        if (!hs->resp_file.is_static) {         /* If file is not static... */
+            esp_mem_free((void *)hs->buff);     /* ...free the memory... */
+        }
+        hs->buff = NULL;                        /* ...and reset pointer */
+    }
+    
+    /*
+     * Is buffer set to NULL?
+     * In this case set a pointer to static memory in case of static file or
+     * allocate memory for dynamic file and read it
+     */
+    if (hs->buff == NULL) {                     /* Do we have a buffer empty? */
+        len = http_fs_data_read_file(hi, &hs->resp_file, NULL, 0, NULL);    /* Get number of remaining bytes to read in file */
+        if (len) {                              /* Is there anything to read? On static files, this should be valid only once */
+            if (hs->resp_file.is_static) {      /* On static files... */
+                len = http_fs_data_read_file(hi, &hs->resp_file, (void **)&hs->buff, len, NULL);    /* ...simply set file pointer */
+                hs->buff_len = len;             /* Set buffer length */
+                if (!len) {                     /* Empty read? */
+                    hs->buff = NULL;            /* Reset buffer */
+                }
+            } else {
+                if (len > ESP_CONN_MAX_DATA_LEN) {  /* Limit to maximal length */
+                    len = ESP_CONN_MAX_DATA_LEN;
+                }
+                hs->buff_ptr = 0;               /* Reset read pointer */
+                do {
+                    hs->buff_len = len;         /* Set length... */
+                    hs->buff = (const void *)esp_mem_alloc(hs->buff_len);   /* ...and try to allocate memory for it */
+                    if (hs->buff != NULL) {     /* Is memory ready? */
+                        /*
+                         * Read file directly and stop everything
+                         */
+                        if (http_fs_data_read_file(hi, &hs->resp_file, (void **)&hs->buff, hs->buff_len, NULL) == 0) {
+                            esp_mem_free((void *)hs->buff); /* Release the memory */
+                            hs->buff = NULL;    /* Reset pointer */
+                        }
+                        break;
+                    }
+                } while ((len >>= 1) > 64);
+            }
+        }
+    }
+    
+    return hs->buff != NULL;                    /* Do we have our memory ready? */
+}
+
+/**
+ * \brief           Send response using SSI processing
  * \param[in]       hs: HTTP state
  */
 static void
 send_response_ssi(http_state_t* hs) {
     uint8_t reset = 0;
     uint8_t ch;
+    
+    ESP_DEBUGF(ESP_DBG_SERVER, "Processing with SSI\r\n");
     
     /*
      * First get available memory in output buffer
@@ -404,11 +478,19 @@ send_response_ssi(http_state_t* hs) {
     }
     
     /*
+     * Are we ready to read more data?
+     */
+    if (hs->buff == NULL || hs->buff_ptr == hs->buff_len) {
+        read_resp_file(hs);                     /* Read more file at this point */
+    }
+    
+    /*
      * Process remaining SSI tag buffer
+     * Buffer should be ready from response file function call
      */
     if (hs->buff != NULL) {
         while (hs->buff_ptr < hs->buff_len && hs->conn_mem_available) { /* Process entire buffer if possible */
-            ch = hs->buff[hs->buff_ptr];
+            ch = hs->buff[hs->buff_ptr];        /* Get next character */
             switch (hs->ssi_state) {
                 case HTTP_SSI_STATE_WAIT_BEGIN: {
                     if (ch == HTTP_SSI_TAG_START[0]) {
@@ -460,7 +542,9 @@ send_response_ssi(http_state_t* hs) {
                         if (hs->ssi_tag_buff_ptr == (HTTP_SSI_TAG_START_LEN + hs->ssi_tag_len + HTTP_SSI_TAG_END_LEN)) {
                             hs->ssi_tag_buff[HTTP_SSI_TAG_START_LEN + hs->ssi_tag_len] = 0;
                             
-                            hi->ssi_fn(hs, &hs->ssi_tag_buff[HTTP_SSI_TAG_START_LEN], hs->ssi_tag_len);
+                            if (hi != NULL && hi->ssi_fn != NULL) {
+                                hi->ssi_fn(hs, &hs->ssi_tag_buff[HTTP_SSI_TAG_START_LEN], hs->ssi_tag_len);
+                            }
                             
                             hs->ssi_state = HTTP_SSI_STATE_WAIT_BEGIN;
                             hs->ssi_tag_len = 0;
@@ -499,11 +583,7 @@ send_response_ssi(http_state_t* hs) {
             }
         }
     }
-    
     esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush to output if possible */
-    if (hs->buff_ptr == hs->buff_len) {         /* Did we reach end of buffer? */
-        esp_conn_close(hs->conn, 0);            /* Close the connection */
-    }
 }
 
 /**
@@ -512,26 +592,20 @@ send_response_ssi(http_state_t* hs) {
  */
 static void
 send_response_no_ssi(http_state_t* hs) {
-    if (hs->resp_file_opened) {                 /* Is file opened? */
-        if (hs->resp_file.is_static) {          /* We can send static file directly to output */
-            /*
-             * Did we try to send anything so far?
-             */
-            if (hs->written_total) {            /* Did we sent anything so far? */
-                if (hs->sent_total == hs->written_total) {
-                    esp_conn_close(hs->conn, 0);    /* We sent everything at this point */
-                }
-                
-            /*
-             * Write all data at a time if static mode is used
-             */
-            } else if (esp_conn_send(hs->conn, hs->resp_file.data, hs->resp_file.len, NULL, 0) == espOK) {
-                hs->written_total = hs->resp_file.len;
-            }
-        } else {
-            /*
-             * File is not static, we have to read part of file and send it
-             */
+    if (hs->buff == NULL || hs->written_total == hs->sent_total) {
+        read_resp_file(hs);                     /* Try to read response file */
+    }
+    
+    ESP_DEBUGF(ESP_DBG_SERVER, "Processing NO SSI\r\n");
+    
+    /*
+     * Do we have a file? 
+     * Static file should be processed only once at the end 
+     * as entire memory can be send at a time
+     */
+    if (hs->buff != NULL) {
+        if (esp_conn_send(hs->conn, hs->buff, hs->buff_len, NULL, 0) == espOK) {
+            hs->written_total += hs->buff_len;  /* Set written total length */
         }
     }
 }
@@ -545,35 +619,36 @@ static void
 send_response(http_state_t* hs, uint8_t ft) {
     uint8_t close = 0;
     
-    if (!hs->process_resp) {
+    if (!hs->process_resp ||                    /* Not yet ready to process response? */
+        (hs->written_total && hs->written_total != hs->sent_total)) {   /* Did we wrote something but didn't send yet? */
         return;
     }
-    
+
     /*
      * Do we have a file ready to be send?
+     * At this point it should be opened already
      */
     if (hs->resp_file_opened) {
-        if (ft) {
-            if (hs->resp_file.is_static) {      /* Set on static files */
-                hs->buff = (uint8_t *)hs->resp_file.data;
-                hs->buff_len = hs->resp_file.len;
-                hs->buff_ptr = 0;
-            }
+        /*
+         * Process and send more data to output
+         */
+        if (hs->is_ssi) {                       /* In case of SSI request, process data using SSI */
+            send_response_ssi(hs);              /* Send response using SSI parsing */
+        } else {
+            send_response_no_ssi(hs);           /* Send response without SSI parsing */
         }
         
         /*
-         * Did we send everything what we wrote to connection buffer?
-         * In this case process with writing more data
+         * Shall we hare directly close a connection if buff is NULL?
+         * Maybe check first if problem was memory and try next time again
+         *
+         * Currently this is a solution to close the file
          */
-        if (hs->sent_total == hs->written_total) {
-            if (hs->is_ssi) {
-                send_response_ssi(hs);          /* Send response using SSI parsing */
-            } else {
-                send_response_no_ssi(hs);       /* Send response without SSI parsing */
-            }
+        if (hs->buff == NULL) {                 /* Sent everything or problem somehow? */
+            close = 1;
         }
     } else {
-        close = 1;
+        close = 1;                              /* Close connection, file is not opened */
     }
     
     if (close) {
@@ -813,6 +888,15 @@ http_evt_cb(esp_cb_t* cb) {
                 if (hs->p != NULL) {
                     esp_pbuf_free(hs->p);       /* Free packet buffer */
                     hs->p = NULL;
+                }
+                if (hs->resp_file_opened) {     /* Is file opened? */
+                    uint8_t is_static = hs->resp_file.is_static;
+                    http_fs_data_close_file(hi, &hs->resp_file);    /* Close file at this point */
+                    if (!is_static && hs->buff != NULL) {
+                        esp_mem_free((void *)hs->buff); /* Free the memory */
+                        hs->buff = NULL;
+                    }
+                    hs->resp_file_opened = 0;   /* File is not opened anymore */
                 }
                 esp_mem_free(hs);
                 hs = NULL;
