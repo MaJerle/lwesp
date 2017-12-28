@@ -626,6 +626,16 @@
               <FileType>1</FileType>
               <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_ll_gpio.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f7xx_ll_sdmmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_ll_sdmmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f7xx_hal_sd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_sd.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -680,11 +690,6 @@
               <FileName>stm32fxxx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\stm32fxxx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>fs_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\fs_data.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -921,6 +926,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\apps\server\esp_http_server.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_http_server_fs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\apps\server\esp_http_server_fs.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -930,6 +940,36 @@
               <FileName>esp_mqtt_client.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\apps\mqtt\esp_mqtt_client.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FATFS</GroupName>
+          <Files>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\diskio.c</FilePath>
+            </File>
+            <File>
+              <FileName>unicode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\option\unicode.c</FilePath>
+            </File>
+            <File>
+              <FileName>syscall.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\option\syscall.c</FilePath>
+            </File>
+            <File>
+              <FileName>fatfs_sd_sdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\drivers\fatfs_sd_sdio.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1629,6 +1669,16 @@
               <FileType>1</FileType>
               <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_ll_gpio.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f7xx_ll_sdmmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_ll_sdmmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f7xx_hal_sd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_sd.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1683,11 +1733,6 @@
               <FileName>stm32fxxx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\stm32fxxx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>fs_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\fs_data.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1924,6 +1969,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\apps\server\esp_http_server.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_http_server_fs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\apps\server\esp_http_server_fs.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1933,6 +1983,36 @@
               <FileName>esp_mqtt_client.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\apps\mqtt\esp_mqtt_client.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FATFS</GroupName>
+          <Files>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\diskio.c</FilePath>
+            </File>
+            <File>
+              <FileName>unicode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\option\unicode.c</FilePath>
+            </File>
+            <File>
+              <FileName>syscall.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\option\syscall.c</FilePath>
+            </File>
+            <File>
+              <FileName>fatfs_sd_sdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\drivers\fatfs_sd_sdio.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2016,7 +2096,7 @@
       <TargetName>STM32F769_DISCOVERY</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -2342,7 +2422,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F769xx,USE_HAL_DRIVER,USE_FULL_LL_DRIVER,ARM_MATH_CM7,__FPU_PRESENT=1,STM32F7XX,STM32F769_DISCOVERY,HSE_VALUE=25000000,RCC_OSCILLATORTYPE=RCC_OSCILLATORTYPE_HSE,RCC_PLLSOURCE=RCC_PLLSOURCE_HSE,RCC_PLLM=25,RCC_PLLN=432,RCC_PLLP=2,RCC_PLLQ=9</Define>
               <Undefine></Undefine>
-              <IncludePath>.\User;..\src;..\src\esp\include;..\src\system\include;..\libs;..\libs\st_hal\STM32F7xx_HAL_Driver\Inc;..\libs\st_hal\CMSIS\Device\ST\STM32F7xx\Include;..\libs\st_hal\CMSIS\Include;..\libs\FreeRTOS\include;..\libs\FreeRTOS\CMSIS_RTOS;..\libs\FreeRTOS\portable\RVDS\ARM_CM7</IncludePath>
+              <IncludePath>.\User;..\src\include;..\libs;..\libs\st_hal\STM32F7xx_HAL_Driver\Inc;..\libs\st_hal\CMSIS\Device\ST\STM32F7xx\Include;..\libs\st_hal\CMSIS\Include;..\libs\FreeRTOS\include;..\libs\FreeRTOS\CMSIS_RTOS;..\libs\FreeRTOS\portable\RVDS\ARM_CM7;..\libs\fatfs;..\libs\fatfs\drivers;..\libs\fatfs\option</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2632,6 +2712,16 @@
               <FileType>1</FileType>
               <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_ll_gpio.c</FilePath>
             </File>
+            <File>
+              <FileName>stm32f7xx_ll_sdmmc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_ll_sdmmc.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f7xx_hal_sd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_hal_sd.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2686,11 +2776,6 @@
               <FileName>stm32fxxx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\stm32fxxx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>fs_data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\User\fs_data.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2927,6 +3012,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\apps\server\esp_http_server.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_http_server_fs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\apps\server\esp_http_server_fs.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2936,6 +3026,36 @@
               <FileName>esp_mqtt_client.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\apps\mqtt\esp_mqtt_client.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FATFS</GroupName>
+          <Files>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\diskio.c</FilePath>
+            </File>
+            <File>
+              <FileName>unicode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\option\unicode.c</FilePath>
+            </File>
+            <File>
+              <FileName>syscall.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\option\syscall.c</FilePath>
+            </File>
+            <File>
+              <FileName>fatfs_sd_sdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\libs\fatfs\drivers\fatfs_sd_sdio.c</FilePath>
             </File>
           </Files>
         </Group>
