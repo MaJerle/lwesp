@@ -52,7 +52,7 @@
 //Request data are sent to server once we are connected
 uint8_t req_data[] = ""
     "GET / HTTP/1.1\r\n"
-    "Host: " CONN_HOST "\r\n"
+    "Host: example.com\r\n"
     "Connection: close\r\n"
     "\r\n";
 
@@ -84,9 +84,22 @@ conn_cb(esp_cb_t* cb) {
             }
         }
         case ESP_CB_CONN_DATA_RECV: {           // We received connection data
-            esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
+            esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;   //Get pbuf
+            
+            // Connection data buffer is automatically
+            // freed when you return from function
+            // If you still want to hold it,
+            // then either chain it using esp_pbuf_chain
+            // or reference it using esp_pbuf_ref functions.
+            // Remember!!
+            // After you do this, you are responsible for
+            // freeing the memory otherwise memory leak will appear in system!
+            // Use esp_pbuf_free once you don't need data anymore
+            
             printf("Connection data received!\r\n");
             if (pbuf != NULL) {                 // Check pbuf with data
+                // You should not call esp_pbuf_free on this variable unless
+                // you used esp_pbuf_ref before to increase reference
                 size_t len;
                 len = esp_pbuf_length(pbuf, 1); // Get total length of buffer
                 printf("Length of data: %d bytes\r\n", (int)len);

@@ -138,7 +138,7 @@ if (cmd1(param1, param2, 1) == espOK) {         // Execute cmd 1 in blocking mod
  *                  this is the only allowed way to do it. Every command must be called in
  *                  non-blocking way from callback function.
  *
- * Pseudo code example for non-blocking API call:
+ * Pseudo code example for non-blocking API call. Full example for connections API can be found in \ref ESP_CONN section.
  *
  * \code{c}
 if (cmd1(param1, param2, 0) == espOK) {
