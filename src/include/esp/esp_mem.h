@@ -58,7 +58,7 @@ typedef struct mem_region_t {
 } mem_region_t;
 
 /**
- * \brief           Wrapper for memory region for GUI
+ * \brief           Wrapper for memory region for ESP
  */
 typedef mem_region_t esp_mem_region_t;
 

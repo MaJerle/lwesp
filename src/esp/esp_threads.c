@@ -66,9 +66,9 @@ esp_thread_producer(void* const arg) {
          */
         esp.msg = msg;
         if (msg->fn != NULL) {                  /* Check for callback processing function */
-            ESP_CORE_UNPROTECT();               /* Release protection */
+            ESP_CORE_UNPROTECT();               /* Release protection, think if this is necessary, probably shouldn't be here */
             esp_sys_sem_wait(&e->sem_sync, 0000);   /* Lock semaphore, should be unlocked before! */
-            ESP_CORE_PROTECT();                 /* Protect system again */
+            ESP_CORE_PROTECT();                 /* Protect system again, think if this is necessary, probably shouldn't be here */
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
                 ESP_CORE_UNPROTECT();           /* Release protection */
