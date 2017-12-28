@@ -65,9 +65,9 @@
 #define ESP_USART_RX_PORT           GPIOD
 #define ESP_USART_RX_PIN            LL_GPIO_PIN_2
 #define ESP_USART_RX_PIN_AF         LL_GPIO_AF_8
-#define ESP_USART_RS_PORT_CLK       __HAL_RCC_GPIOD_CLK_ENABLE
-#define ESP_USART_RS_PORT           GPIOD
-#define ESP_USART_RS_PIN            LL_GPIO_PIN_2
+#define ESP_USART_RS_PORT_CLK       __HAL_RCC_GPIOJ_CLK_ENABLE
+#define ESP_USART_RS_PORT           GPIOJ
+#define ESP_USART_RS_PIN            LL_GPIO_PIN_14
 
 #define ESP_USART_DMA               DMA1
 #define ESP_USART_DMA_CLK           __HAL_RCC_DMA1_CLK_ENABLE
@@ -111,7 +111,7 @@
 #define DMA_RX_STREAM_CLEAR_HT      LL_DMA_ClearFlag_HT5(ESP_USART_DMA)
 #endif /* !defined(STM32F769_DISCOVERY) */
 
-#define USART_USE_DMA               1
+#define USART_USE_DMA               0
 
 #if USART_USE_DMA
 static uint8_t usart_mem[0x400];
@@ -138,7 +138,13 @@ osThreadId usart_ll_thread_id;
  */
 static uint16_t
 send_data(const void* data, uint16_t len) {
-    TM_USART_Send(ESP_USART, data, len);        /* Send actual data via UART using blocking method */
+    uint16_t i;
+    const uint8_t* d = data;
+    
+    for (i = 0; i < len; i++) {
+        LL_USART_TransmitData8(ESP_USART, *d++);
+        while (!LL_USART_IsActiveFlag_TXE(ESP_USART));
+    }
     return len;
 }
 
@@ -152,6 +158,11 @@ configure_uart(uint32_t baudrate) {
 #if USART_USE_DMA
     LL_DMA_InitTypeDef dma_init;
 #endif /* USART_USE_DMA */
+    
+    if (initialized) {
+        osDelay(10);
+        return;
+    }
     
     ESP_USART_CLK();              
     ESP_USART_TX_PORT_CLK();
@@ -200,9 +211,6 @@ configure_uart(uint32_t baudrate) {
         LL_USART_SetBaudRate(ESP_USART, 100000000, LL_USART_OVERSAMPLING_8, baudrate);
         LL_USART_Enable(ESP_USART);
     }
-
-    
-    
     
 #if !USART_USE_DMA
     LL_USART_EnableIT_RXNE(ESP_USART);
