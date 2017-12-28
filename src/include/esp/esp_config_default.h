@@ -258,7 +258,7 @@
  *                  Message queue is used for storing memory address to command data
  */
 #ifndef ESP_THREAD_PRODUCER_MBOX_SIZE
-#define ESP_THREAD_PRODUCER_MBOX_SIZE       10
+#define ESP_THREAD_PRODUCER_MBOX_SIZE       16
 #endif
 
 /**
@@ -268,7 +268,7 @@
  * \note            This parameter has no meaning when \ref ESP_INPUT_USE_PROCESS is enabled
  */
 #ifndef ESP_THREAD_PROCESS_MBOX_SIZE
-#define ESP_THREAD_PROCESS_MBOX_SIZE        10
+#define ESP_THREAD_PROCESS_MBOX_SIZE        16
 #endif
 
 /**

@@ -100,6 +100,16 @@ extern "C" {
 #endif
 
 /**
+ * \brief           Enables (1) or disables (0) response support 
+ *                  when method is requested which is not allowed by server
+ *
+ * \note            When disabled, connection will be closed without response
+ */
+#ifndef HTTP_USE_METHOD_NOTALLOWED_RESP
+#define HTTP_USE_METHOD_NOTALLOWED_RESP 1
+#endif
+
+/**
  * \}
  */
 
@@ -199,9 +209,11 @@ typedef uint8_t (*http_fs_close_fn)(struct http_fs_file* file);
  */
 typedef struct {
     /* POST request related functions */
+#if HTTP_SUPPORT_POST || __DOXYGEN__
     http_post_start_fn post_start_fn;           /*!< Callback function for post start */
     http_post_data_fn post_data_fn;             /*!< Callback functon for post data */
     http_post_end_fn post_end_fn;               /*!< Callback functon for post end */
+#endif /* HTTP_SUPPORT_POST || __DOXYGEN__ */
     
     /* CGI related */
     const http_cgi_t* cgi;                      /*!< Pointer to array of CGI entries. Set to NULL if not used */
@@ -220,6 +232,7 @@ typedef struct {
  * \brief           Request method type
  */
 typedef enum {
+    HTTP_METHOD_NOTALLOWED,                     /*!< HTTP method is not allowed */
     HTTP_METHOD_GET,                            /*!< HTTP request method GET */
     HTTP_METHOD_POST,                           /*!< HTTP request method POST */
 } http_req_method_t;
@@ -271,9 +284,12 @@ typedef struct http_state {
     
     http_req_method_t req_method;               /*!< Used request method */
     uint8_t headers_received;                   /*!< Did we fully received a headers? */
-    uint32_t content_length;                    /*!< Total expected content length for request (on POST) (without headers) */
-    uint32_t content_received;                  /*!< Content length received so far (without headers) */
     uint8_t process_resp;                       /*!< Process with response flag */
+
+#if HTTP_SUPPORT_POST || __DOXYGEN__
+    uint32_t content_length;                    /*!< Total expected content length for request (on POST) (without headers) */
+    uint32_t content_received;                  /*!< Content length received so far (POST request, without headers) */
+#endif /* HTTP_SUPPORT_POST || __DOXYGEN__ */
     
     http_fs_file_t resp_file;                   /*!< Response file structure */
     uint8_t resp_file_opened;                   /*!< Status if response file is opened and ready */
@@ -305,6 +321,20 @@ typedef struct http_state {
 espr_t      esp_http_server_init(const http_init_t* init, uint16_t port);
 size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
 
+/**
+ * \defgroup        ESP_APP_HTTP_SERVER_FS_FAT FAT FS
+ * \brief           FATFS file system implementation for dynamic files
+ * \{
+ */
+
+uint8_t     http_fs_open(http_fs_file_t* file, const char* path);
+uint32_t    http_fs_read(http_fs_file_t* file, void* buff, size_t btr);
+uint8_t     http_fs_close(http_fs_file_t* file);
+
+/**
+ * \}
+ */
+ 
 /**
  * \}
  */
