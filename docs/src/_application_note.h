@@ -10,7 +10,7 @@
  *
  * \subsection      subsect System structure
  *
- * \image html system_structure.png System structure organization
+ * \image html system_structure.svg System structure organization
  *
  * We can describe library structure in 4 different layers:
  *
@@ -51,7 +51,7 @@
  * In order to have very effective library from resources point of view,
  * an inter-thread communication was introduced.
  *
- * \image html thread_communication.png Inter-Thread communication between user and library.
+ * \image html thread_communication.svg Inter-Thread communication between user and library.
  *
  * Library consists of 2 threads working in parallel and bunch of different user threads.
  *
