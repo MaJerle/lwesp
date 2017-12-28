@@ -72,6 +72,10 @@ esp_mem_region_t mem_regions[] = {
 esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));
 \endcode
  *
+ * \note            Even with multiple regions, maximal allocation size is length of biggest region.
+ *                  In case of example, we have <b>0x9000</b> bytes of memory but theoretically only <b>0x8000</b> may be allocated. 
+ *                  Practically maximal value is little lower due to header values required to track blocks.
+ *
  * \par             Allocating memory
  *
  * Now once we have set regions, we can proceed with allocating the memory.
