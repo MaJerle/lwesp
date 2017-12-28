@@ -119,7 +119,7 @@ http_init = {
     .ssi_fn = http_ssi_cb,                  // Set global SSI tags callback
 };
 
-// Later, somewhere in code call
+// Later, somewhere in code:
 esp_http_server_init(&http_init, 80);       // Enable server on port 80
 \endcode
  *
@@ -141,6 +141,20 @@ http_param_t http_params[HTTP_MAX_PARAMS];
 
 /* HTTP init structure with user settings */
 static const http_init_t* hi;
+
+#if HTTP_USE_METHOD_NOTALLOWED_RESP
+const char
+http_data_method_not_allowed[] = ""
+"HTTP/1.1 405 Method Not Allowed" CRLF
+"Connection: close" CRLF
+"Allow: GET"
+#if HTTP_SUPPORT_POST
+", POST"
+#endif /* HTTP_SUPPORT_POST */
+CRLF
+CRLF
+"";
+#endif /* HTTP_USE_METHOD_NOTALLOWED_RESP */
 
 /**
  * \brief           List of supported file names for index page
@@ -356,6 +370,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
     return hs->resp_file_opened;
 }
 
+#if HTTP_SUPPORT_POST
 /**
  * \brief           Send the received pbuf to user space
  * \param[in]       hs: HTTP state context
@@ -377,6 +392,7 @@ http_post_send_to_user(http_state_t* hs, esp_pbuf_p pbuf, size_t offset) {
         hi->post_data_fn(hs, new_pbuf);         /* Notify user with data */
     }
 }
+#endif /* HTTP_SUPPORT_POST */
 
 /**
  * \brief           Read next part of response file
@@ -625,7 +641,7 @@ send_response(http_state_t* hs, uint8_t ft) {
 
     /*
      * Do we have a file ready to be send?
-     * At this point it should be opened already
+     * At this point it should be opened already if request method is valid
      */
     if (hs->resp_file_opened) {
         /*
@@ -646,7 +662,13 @@ send_response(http_state_t* hs, uint8_t ft) {
         if (hs->buff == NULL) {                 /* Sent everything or problem somehow? */
             close = 1;
         }
-    } else {
+    } else  {
+#if HTTP_USE_METHOD_NOTALLOWED_RESP
+        if (hs->req_method == HTTP_METHOD_NOTALLOWED) {  /* Is request method not allowed? */
+            esp_conn_send(hs->conn, http_data_method_not_allowed, sizeof(http_data_method_not_allowed) - 1, NULL, 0);
+            /* Don't set number of bytes written to preven recursion */
+        }
+#endif /* HTTP_USE_METHOD_NOT_ALLOWED_RESPONSE */
         close = 1;                              /* Close connection, file is not opened */
     }
     
@@ -691,8 +713,7 @@ http_evt_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_DATA_RECV: {
             esp_pbuf_p p = cb->cb.conn_data_recv.buff;
-            size_t data_pos, pos, pbuf_total_len;
-            uint8_t ch;
+            size_t pos;
             
             if (hs != NULL) {                   /* Do we have a valid http state? */
                 /*
@@ -712,27 +733,30 @@ http_evt_cb(esp_cb_t* cb) {
                      * To know this, search for "\r\n\r\n" sequence in received data
                      */
                     if ((pos = esp_pbuf_strfind(hs->p, CRLF CRLF, 0)) != ESP_SIZET_MAX) {
+                        uint8_t http_uri_parsed;
                         ESP_DEBUGF(ESP_DBG_SERVER, "HTTP headers received!\r\n");
                         hs->headers_received = 1;   /* Flag received headers */
                         
                         /*
                          * Parse the URI, process request and open response file
                          */
-                        if (http_parse_uri(hs->p) == espOK) {
-                            http_get_file_from_uri(hs, http_uri);   /* Open file */
-                        }
+                        http_uri_parsed = http_parse_uri(hs->p) == espOK;
                         
-                        /*
-                         * At this point, all headers are received
-                         * We can start process them into something useful
-                         */
-                        data_pos = pos + 4;     /* Ignore 4 bytes of CRLF sequence */
-                        
+#if HTTP_SUPPORT_POST                        
                         /*
                          * Check for request method used on this connection
                          */
                         if (!esp_pbuf_strcmp(hs->p, "POST ", 0)) {
+                            size_t data_pos, pbuf_total_len;
+                        
                             hs->req_method = HTTP_METHOD_POST;  /* Save a new value as POST method */
+                        
+                        
+                            /*
+                             * At this point, all headers are received
+                             * We can start process them into something useful
+                             */
+                            data_pos = pos + 4; /* Ignore 4 bytes of CRLF sequence */
                             
                             /*
                              * Try to find content length on this request
@@ -741,6 +765,7 @@ http_evt_cb(esp_cb_t* cb) {
                             hs->content_length = 0;
                             if (((pos = esp_pbuf_strfind(hs->p, "Content-Length:", 0)) != ESP_SIZET_MAX) ||
                                 (pos = esp_pbuf_strfind(hs->p, "content-length:", 0)) != ESP_SIZET_MAX) {
+                                uint8_t ch;
                                 
                                 pos += 15;      /* Skip this part */
                                 if (esp_pbuf_get_at(hs->p, pos, &ch) && ch == ' ') {
@@ -795,45 +820,61 @@ http_evt_cb(esp_cb_t* cb) {
                             } else {
                                 hs->process_resp = 1;
                             }
-                        } else if (!esp_pbuf_strcmp(hs->p, "GET ", 0)) {
+                        } else 
+#else
+                        ESP_UNUSED(pos);        /* Unused variable */
+#endif /* HTTP_SUPPORT_POST */
+                        if (!esp_pbuf_strcmp(hs->p, "GET ", 0)) {
                             hs->req_method = HTTP_METHOD_GET;
                             hs->process_resp = 1;   /* Process with response to user */
+                        } else {
+                            hs->req_method = HTTP_METHOD_NOTALLOWED;
+                            hs->process_resp = 1;
+                        }
+                        
+                        /*
+                         * If uri was parsed succssfully and if method is allowed,
+                         * then open and prepare file for future response
+                         */
+                        if (http_uri_parsed && hs->req_method != HTTP_METHOD_NOTALLOWED) {
+                            http_get_file_from_uri(hs, http_uri);   /* Open file */
                         }
                     }
-                } else {
+#if HTTP_SUPPORT_POST
+                }
+                /*
+                 * We are receiving request data now
+                 * as headers are already received
+                 */
+                else if (hs->req_method == HTTP_METHOD_POST) {
                     /*
-                     * We are receiving request data now
-                     * as headers are already received
+                     * Did we receive all the data on POST?
                      */
-                    if (hs->req_method == HTTP_METHOD_POST) {
-                        /*
-                         * Did we receive all the data on POST?
+                    if (hs->content_received < hs->content_length) {
+                        size_t tot_len;
+                        
+                        tot_len = esp_pbuf_length(p, 1);    /* Get length of pbuf */
+                        hs->content_received += tot_len;
+                        
+                        http_post_send_to_user(hs, p, 0);   /* Send data directly to user */
+                        
+                        /**
+                         * Check if everything received
                          */
-                        if (hs->content_received < hs->content_length) {
-                            size_t tot_len;
+                        if (hs->content_received >= hs->content_length) {
+                            hs->process_resp = 1;   /* Process with response to user */
                             
-                            tot_len = esp_pbuf_length(p, 1);    /* Get length of pbuf */
-                            hs->content_received += tot_len;
-                            
-                            http_post_send_to_user(hs, p, 0);   /* Send data directly to user */
-                            
-                            /**
-                             * Check if everything received
+                            /*
+                             * Stop the response part here!
                              */
-                            if (hs->content_received >= hs->content_length) {
-                                hs->process_resp = 1;   /* Process with response to user */
-                                
-                                /*
-                                 * Stop the response part here!
-                                 */
-                                if (hi != NULL && hi->post_end_fn) {
-                                    hi->post_end_fn(hs);
-                                }
+                            if (hi != NULL && hi->post_end_fn) {
+                                hi->post_end_fn(hs);
                             }
                         }
-                    } else {
-                        /* On anything else (GET) we should not receive more data! Violation of protocol */
                     }
+#endif /* HTTP_SUPPORT_POST */
+                } else {
+                    /* Protocol violation at this point! */
                 }
                 
                 /* Do the processing on response */
