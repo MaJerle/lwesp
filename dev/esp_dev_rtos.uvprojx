@@ -924,12 +924,17 @@
             <File>
               <FileName>esp_http_server.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\apps\server\esp_http_server.c</FilePath>
+              <FilePath>..\src\apps\http_server\esp_http_server.c</FilePath>
             </File>
             <File>
               <FileName>esp_http_server_fs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\apps\server\esp_http_server_fs.c</FilePath>
+              <FilePath>..\src\apps\http_server\esp_http_server_fs.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_http_server_fs_fat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\apps\http_server\esp_http_server_fs_fat.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1967,12 +1972,17 @@
             <File>
               <FileName>esp_http_server.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\apps\server\esp_http_server.c</FilePath>
+              <FilePath>..\src\apps\http_server\esp_http_server.c</FilePath>
             </File>
             <File>
               <FileName>esp_http_server_fs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\apps\server\esp_http_server_fs.c</FilePath>
+              <FilePath>..\src\apps\http_server\esp_http_server_fs.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_http_server_fs_fat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\apps\http_server\esp_http_server_fs_fat.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3010,12 +3020,17 @@
             <File>
               <FileName>esp_http_server.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\apps\server\esp_http_server.c</FilePath>
+              <FilePath>..\src\apps\http_server\esp_http_server.c</FilePath>
             </File>
             <File>
               <FileName>esp_http_server_fs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\apps\server\esp_http_server_fs.c</FilePath>
+              <FilePath>..\src\apps\http_server\esp_http_server_fs.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_http_server_fs_fat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\apps\http_server\esp_http_server_fs_fat.c</FilePath>
             </File>
           </Files>
         </Group>

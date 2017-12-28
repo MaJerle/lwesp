@@ -221,6 +221,8 @@ configure_uart(uint32_t baudrate) {
 #if USART_USE_DMA
     LL_USART_EnableDMAReq_RX(ESP_USART);
     LL_USART_EnableIT_IDLE(ESP_USART);
+    LL_USART_EnableIT_PE(ESP_USART);
+    LL_USART_EnableIT_ERROR(ESP_USART);
     
     /* Set DMA_InitStruct fields to default values */
     if (!initialized) {
@@ -285,6 +287,19 @@ void
 ESP_USART_IRQHANDLER(void) {
 #if USART_USE_DMA
     uint16_t pos;
+    
+    if (LL_USART_IsActiveFlag_PE(ESP_USART)) {
+        LL_USART_ClearFlag_PE(ESP_USART);
+    }
+    if (LL_USART_IsActiveFlag_FE(ESP_USART)) {
+        LL_USART_ClearFlag_FE(ESP_USART);
+    }
+    if (LL_USART_IsActiveFlag_ORE(ESP_USART)) {
+        LL_USART_ClearFlag_ORE(ESP_USART);
+    }
+    if (LL_USART_IsActiveFlag_NE(ESP_USART)) {
+        LL_USART_ClearFlag_NE(ESP_USART);
+    }
     
     if (LL_USART_IsActiveFlag_IDLE(ESP_USART) && is_running) {
         LL_USART_ClearFlag_IDLE(ESP_USART);

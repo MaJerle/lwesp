@@ -69,10 +69,6 @@ osThreadDef(client_thread, client_thread, osPriorityNormal, 0, 512);
 char*       led_cgi_handler(http_param_t* params, size_t params_len);
 char*       usart_cgi_handler(http_param_t* params, size_t params_len);
 
-uint8_t     http_fs_open(http_fs_file_t* file, const char* path);
-uint32_t    http_fs_read(http_fs_file_t* file, void* buff, size_t btr);
-uint8_t     http_fs_close(http_fs_file_t* file);
-
 esp_ap_t aps[100];
 size_t apf;
 esp_sta_t stas[20];
@@ -107,9 +103,11 @@ http_post_end(http_state_t* hs) {
 
 const http_init_t
 http_init = {
+#if HTTP_SUPPORT_POST
     .post_start_fn = http_post_start,
     .post_data_fn = http_post_data,
     .post_end_fn = http_post_end,
+#endif /* HTTP_SUPPORT_POST */
     .cgi = cgi_handlers,
     .cgi_count = ESP_ARRAYSIZE(cgi_handlers),
     .ssi_fn = http_ssi_cb,
@@ -451,103 +449,3 @@ http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
     return 0;
 }
 
-#include "esp/esp_mem.h"
-
-char fs_path[128];
-uint8_t
-http_fs_open(http_fs_file_t* file, const char* path) {
-    FIL* fil;
-    
-    printf("Opening file on path \"%s\": Rem: %d\r\n", path, (int)*file->rem_open_files);
-    
-    /*
-     * Do we have to mount our file system?
-     */
-    if (*file->rem_open_files == 0) {
-        if (f_mount(&fs, "SD:", 1) != FR_OK) {
-            return 0;
-        }
-    }
-    
-    /*
-     * Format file path in "www" directory of root directory
-     */
-    sprintf(fs_path, "SD:www%s", path);
-    printf("File path to open: \"%s\"!\r\n", fs_path);
-    
-    /*
-     * Allocate memory for FATFS file structure
-     */
-    fil = esp_mem_alloc(sizeof(*fil));
-    if (fil == NULL) {
-        return 0;
-    }
-    
-    /*
-     * Try to open file in read mode and
-     * set required parameters for file length
-     */
-    if (f_open(fil, fs_path, FA_READ) == FR_OK) {
-        file->arg = fil;                        /* Set user file argument to FATFS file structure */
-        file->size = f_size(fil);               /* Set file length */
-        return 1;
-    }
-    
-    esp_mem_free(fil);                          /* We failed, free memory */
-    return 0;
-}
-
-uint32_t
-http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
-    FIL* fil;
-    UINT br;
-    
-    printf("Reading file %d bytes, buff = %p\r\n", (int)btr, buff);
-    
-    fil = file->arg;                            /* Get file argument */
-    if (fil == NULL) {                          /* Check if argument is valid */
-        return 0;
-    }
-    
-    /*
-     * When buffer is NULL, return available 
-     * length we can read in the next step
-     */
-    if (buff == NULL) {
-        return f_size(fil) - f_tell(fil);
-    }
-    
-    /*
-     * Read the file and return read length
-     */
-    br = 0;
-    if (f_read(fil, buff, btr, &br) == FR_OK) {
-        return br;
-    }
-    return 0;
-}
-
-uint8_t
-http_fs_close(http_fs_file_t* file) {
-    FIL* fil;
-    
-    printf("Closing file...\r\n");
-    
-    fil = file->arg;                            /* Get file argument */
-    if (fil == NULL) {                          /* Check if argument is valid */
-        return 0;
-    }
-    
-    f_close(fil);                               /* Close file */
-    
-    /*
-     * At this step, check if we are last opened file
-     * and unmount system if necessary
-     */
-    if (*file->rem_open_files == 1) { 
-        f_mount(NULL, "SD:", 1);
-    }
-    esp_mem_free(fil);                          /* Free user argument */
-    
-    return 1;                                   /* Close was successful */
-}
