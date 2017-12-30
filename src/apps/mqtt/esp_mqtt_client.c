@@ -70,16 +70,6 @@ typedef enum {
     MQTT_MSG_TYPE_DISCONNECT =  0x0E,           /*!< Disconnect notification */
 } mqtt_msg_type_t;
 
-/**
- * \brief           State of MQTT client
- */
-typedef enum {
-    MQTT_CONN_DISCONNECTED,                     /*!< Connection with server is not established */
-    MQTT_CONN_CONNECTING,                       /*!< Client is connecting to server */
-    MQTT_CONNECTING,                            /*!< MQTT client is connecting... CONNECT command has been sent to server */
-    MQTT_CONNECTED,                             /*!< MQTT is fully connected and ready to send data on topics */
-} mqtt_state_t;
-
 /** List of flags for CONNECT message type */
 #define MQTT_FLAG_CONNECT_USERNAME      0x80    /*!< Packet contains username */
 #define MQTT_FLAG_CONNECT_PASSWORD      0x40    /*!< Packet contains password */
@@ -151,13 +141,13 @@ create_packet_id(mqtt_client_t* client) {
  */
 static mqtt_request_t *
 request_create(mqtt_client_t* client, uint16_t packet_id, void* arg) {
-    mqtt_request_t* request = NULL;
+    mqtt_request_t* request;
     uint16_t i;
     
     /*
      * Try to find a new request which does not have IN_USE flag set
      */
-    for (i = 0; i < MQTT_MAX_REQUESTS; i++) {
+    for (request = NULL, i = 0; i < MQTT_MAX_REQUESTS; i++) {
         if ((client->requests[i].status & MQTT_REQUEST_FLAG_IN_USE) == 0) {
             request = &client->requests[i];     /* We have empty request */
             break;
@@ -233,12 +223,12 @@ static void
 write_fixed_header(mqtt_client_t* client, mqtt_msg_type_t type, uint8_t dup, uint8_t qos, uint8_t retain, uint16_t rem_len) {
     uint8_t b;
     
-    b = (((uint8_t)type) << 4) | ((dup & 0x01) << 3) | ((qos & 0x03) << 1) | (retain & 0x01);
+    b = (((uint8_t)type) << 0x04) | ((dup & 0x01) << 0x03) | ((qos & 0x03) << 0x01) | (retain & 0x01);
     esp_buff_write(&client->tx_buff, &b, 1);    /* Write start of packet parameters */
     
     ESP_DEBUGF(ESP_DBG_MQTT, "MQTT writing packet type %s to output buffer\r\n", mqtt_msg_type_to_str(type));
     
-    while (rem_len) {                           /* Encode length */
+    do {                                        /* Encode length, we must write a len byte even if 0 */
         /*
          * Length if encoded LSB first up to 127 (0x7F) long,
          * where bit 7 indicates we have more data in queue
@@ -246,7 +236,7 @@ write_fixed_header(mqtt_client_t* client, mqtt_msg_type_t type, uint8_t dup, uin
         b = (rem_len & 0x7F) | (rem_len > 0x7F ? 0x80 : 0);
         esp_buff_write(&client->tx_buff, &b, 1);/* Write single byte */
         rem_len >>= 7;                          /* Go to next 127 bytes */
-    }
+    } while (rem_len);
 }
 
 static void
@@ -347,6 +337,7 @@ static uint8_t
 sub_unsub(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg, uint8_t sub) {
     uint16_t len_topic, pkt_id;
     uint32_t rem_len;
+    uint8_t ret = 0;
     mqtt_request_t* request = NULL;
     
     len_topic = strlen(topic);                  /* Get length of topic */
@@ -364,27 +355,26 @@ sub_unsub(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg, uint
         rem_len++;
     }
     
-    if (!output_check_enough_memory(client, rem_len)) { /* Check if enough memory to write packet data */
-        return 0;
+    esp_core_lock();                            /* Lock core */
+    if (client->conn_state == MQTT_CONNECTED && 
+        output_check_enough_memory(client, rem_len)) {  /* Check if enough memory to write packet data */
+        pkt_id = create_packet_id(client);      /* Create new packet ID */
+        request = request_create(client, pkt_id, arg);  /* Create request for packet */
+        if (request != NULL) {                  /* Do we have a request */
+            write_fixed_header(client, sub ? MQTT_MSG_TYPE_SUBSCRIBE : MQTT_MSG_TYPE_UNSUBSCRIBE, 0, 1, 0, rem_len);
+            write_u16(client, pkt_id);          /* Write packet ID */
+            write_string(client, topic, len_topic);     /* Write topic string to packet */
+            if (sub) {                          /* Send quality of service only on subscribe */
+                write_u8(client, ESP_MIN(qos, 2));  /* Write quality of service */
+            }
+            
+            request_set_pending(client, request);   /* Set request as pending waiting for server reply */
+            send_data(client);                  /* Try to send data */
+            ret = 1;
+        }
     }
-    
-    pkt_id = create_packet_id(client);          /* Create new packet ID */
-    request = request_create(client, pkt_id, arg);  /* Create request for packet */
-    if (request == NULL) {
-        return 0;
-    }
-    
-    write_fixed_header(client, sub ? MQTT_MSG_TYPE_SUBSCRIBE : MQTT_MSG_TYPE_UNSUBSCRIBE, 0, 1, 0, rem_len);
-    write_u16(client, pkt_id);                  /* Write packet ID */
-    write_string(client, topic, len_topic);     /* Write topic string to packet */
-    if (sub) {                                  /* Send quality of service only on subscribe */
-        write_u8(client, ESP_MIN(qos, 2));      /* Write quality of service */
-    }
-    
-    request_set_pending(client, request);       /* Set request as pending waiting for server reply */
-    send_data(client);                          /* Try to send data */
-    
-    return 1;
+    esp_core_unlock();                          /* Unlock core */
+    return ret;
 }
 
 /**
@@ -404,12 +394,18 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
      */
     switch (msg_type) {
         case MQTT_MSG_TYPE_CONNACK: {
-            uint8_t err;
-            err = client->rx_buff[0];           /* Get result of connection */
-            if (err == 0) {
-                ESP_DEBUGF(ESP_DBG_MQTT, "MQTT Successfully connected and ready to subscribe to topics\r\n");
+            mqtt_conn_status_t err = (mqtt_conn_status_t)client->rx_buff[1];
+            if (client->conn_state == MQTT_CONNECTING) {
+                if (err == MQTT_CONN_STATUS_ACCEPTED) {
+                    client->conn_state = MQTT_CONNECTED;
+                }
+                
+                /* Notify user layer */
                 client->evt.type = MQTT_EVT_CONNECT;
+                client->evt.evt.connect.status = err;
                 client->evt_fn(client, &client->evt);  /* Call user function */
+            } else {
+                /* Protocol violation here */
             }
             break;
         }
@@ -465,6 +461,8 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
             client->evt.evt.publish_recv.topic_len = topic_len;
             client->evt.evt.publish_recv.data = data;
             client->evt.evt.publish_recv.data_len = data_len;
+            client->evt.evt.publish_recv.dup = dup;
+            client->evt.evt.publish_recv.qos = qos;
             client->evt_fn(client, &client->evt);
             
             break;
@@ -665,6 +663,9 @@ mqtt_connected_cb(mqtt_client_t* client) {
     }
     
     client->parser_state = MQTT_PARSER_STATE_INIT;  /* Reset parser state */
+    
+    client->poll_time = 0;                      /* Reset kep alive time */
+    client->conn_state = MQTT_CONNECTING;       /* MQTT is connecting to server */
 
     send_data(client);                          /* Flush and send the actual data */
 }
@@ -677,7 +678,7 @@ mqtt_connected_cb(mqtt_client_t* client) {
  */
 static uint8_t
 mqtt_data_recv_cb(mqtt_client_t* client, esp_pbuf_p pbuf) {
-    
+    client->poll_time = 0;                      /* Reset kep alive time */
     mqtt_parse_incoming(client, pbuf);
     return 1;
 }
@@ -695,6 +696,8 @@ mqtt_data_sent_cb(mqtt_client_t* client, size_t sent_len, uint8_t successful) {
     client->is_sending = 0;                     /* We are not sending anymore */
     client->sent_total += sent_len;
 
+    client->poll_time = 0;                      /* Reset kep alive time */
+    
     /*
      * Even if sent was in general not successful,
      * on larger packets it may happen (if they are fragmented)
@@ -740,6 +743,42 @@ mqtt_data_sent_cb(mqtt_client_t* client, size_t sent_len, uint8_t successful) {
 static uint8_t
 mqtt_poll_cb(mqtt_client_t* client) {
     client->poll_time++;
+    
+    /*
+     * Check for keep-alive time if equal or greater than
+     * keep alive time. In that case, send packet 
+     * to make sure we are still alive
+     */
+    if (client->info->keep_alive &&             /* Keep alive must be enabled */
+        (client->poll_time * 500) >= (client->info->keep_alive * 1000)) {
+        if (output_check_enough_memory(client, 0)) {
+            write_fixed_header(client, MQTT_MSG_TYPE_PINGREQ, 0, 0, 0, 0);
+            send_data(client);                  /* Force send data */
+            client->poll_time = 0;              /* Reset polling time */
+        }
+    }
+    return 1;
+}
+
+/**
+ * \brief           Connection closed callback
+ * \param[in]       client: MQTT client
+ * \return          1 on success, 0 otherwise
+ */
+static uint8_t
+mqtt_closed_cb(mqtt_client_t* client) {
+    client->conn_state = MQTT_CONN_DISCONNECTED;/* Connection is disconnected, ready to be established again */
+    
+    client->evt.type = MQTT_EVT_DISCONNECT;     /* Connection disconnected from server */
+    client->evt_fn(client, &client->evt);       /* Notify upper layer about closed connection */
+    
+    client->conn = NULL;                        /* Reset connection handle */
+    memset(client->requests, 0x00, sizeof(client->requests));
+    
+    client->is_sending = client->sent_total = client->written_total = 0;
+    client->parser_state = MQTT_PARSER_STATE_INIT;
+    esp_buff_reset(&client->tx_buff);           /* Rese TX buffer */
+    
     return 1;
 }
 
@@ -813,11 +852,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
          * Connection closed for some reason
          */
         case ESP_CB_CONN_CLOSED: {
-            if (cb->cb.conn_active_closed.forced) {
-                ESP_DEBUGF(ESP_DBG_MQTT, "MQTT connection closed by user\r\n");
-            } else {
-                ESP_DEBUGF(ESP_DBG_MQTT, "MQTT connection closed by remote server\r\n");
-            }
+            mqtt_closed_cb(client);             /* Closed connection callback */
             break;
         }
         default:
@@ -846,6 +881,8 @@ mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
     client = esp_mem_alloc(sizeof(*client));    /* Allocate memory for client structure */
     if (client) {
         memset(client, 0x00, sizeof(*client));  /* Reset memory */
+        client->conn_state = MQTT_CONN_DISCONNECTED;/* Set to disconnected mode */
+        
         if (!esp_buff_init(&client->tx_buff, tx_buff_len)) {
             esp_mem_free(client);
             client = NULL;
@@ -864,50 +901,122 @@ mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
 }
 
 /**
+ * \brief           Delete MQTT client structure
+ * \param[in]       client: MQTT client
+ */
+void
+mqtt_client_delete(mqtt_client_t* client) {
+    if (client != NULL) {
+        if (client->rx_buff != NULL) {
+            esp_mem_free(client->rx_buff);      /* Free RX buffer memory */
+            client->rx_buff = NULL;
+        }
+        esp_buff_free(&client->tx_buff);        /* Free TX buffer memory */
+        esp_mem_free(client);                   /* Free client memory */
+    }
+}
+
+/**
  * \brief           Connect to MQTT server
- * \param[in,out]   client: MQTT client structure
+ * \note            After TCP connection is established, CONNECT packet is automatically sent to server
+ * \param[in]       client: MQTT client
  * \param[in]       host: Host address for server
  * \param[in]       port: Host port number
+ * \param[in]       evt_fn: Callback function for all events on this MQTT client
+ * \param[in]       info: Information structure for connection
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info) {
+mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port,
+                    mqtt_evt_fn evt_fn, const mqtt_client_info_t* info) {
+    espr_t res = espERR;
+    
     ESP_ASSERT("client != NULL", client != NULL);   /* Assert input parameters */
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
     ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
     
-    client->info = info;                        /* Save client info parameters */
-    client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
-    return esp_conn_start(&client->conn, ESP_CONN_TYPE_TCP, host, port, client, mqtt_conn_cb, 0);
+    esp_core_lock();                            /* Lock ESP core */
+    if (client->conn_state == MQTT_CONN_DISCONNECTED) {        
+        client->info = info;                    /* Save client info parameters */
+        client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
+        res = esp_conn_start(&client->conn, ESP_CONN_TYPE_TCP, host, port, client, mqtt_conn_cb, 0);
+    }
+    esp_core_unlock();                          /* Unlock ESP core */
+    
+    return res;
 }
 
 /**
  * \brief           Disconnect from MQTT server
- * \todo            Implement disconnect sequence
  * \param[in]       client: MQTT client
  * \return          espOK if request sent to queue or member of \ref espr_t otherwise
  */
 espr_t
 mqtt_client_disconnect(mqtt_client_t* client) {
-    return esp_conn_close(client->conn, 0);     /* Close the connection in non-blocking mode */
+    espr_t res = espERR;
+    
+    esp_core_lock();                            /* Lock ESP core */
+    if (client->conn_state != MQTT_CONN_DISCONNECTED &&
+        client->conn_state != MQTT_CONN_DISCONNECTING) {
+        res = esp_conn_close(client->conn, 0);  /* Close the connection in non-blocking mode */
+        if (res == espOK) {
+            client->conn_state = MQTT_CONN_DISCONNECTING;
+        }
+    }
+    esp_core_unlock();                          /* Unlock ESP core */
+    return res;
 }
 
+/**
+ * \brief           Subscribe to MQTT topic
+ * \param[in]       client: MQTT client
+ * \param[in]       topic: Topic name to subscribe to
+ * \param[in]       qos: Quality of service:
+ *                      - \ref MQTT_QOS_AT_MOST_ONCE
+ *                      - \ref MQTT_QOS_AT_LEAST_ONCE
+ *                      - \ref MQTT_QOS_EXACTLY_ONCE
+ * \param[in]       arg: User custom argument used in callback
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
 mqtt_client_subscribe(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg) {
     return sub_unsub(client, topic, qos, arg, 1) == 1 ? espOK : espERR;  /* Subscribe to topic */
 }
 
+/**
+ * \brief           Unsubscribe from MQTT topic
+ * \param[in]       client: MQTT client
+ * \param[in]       topic: Topic name to unsubscribe from
+ * \param[in]       arg: User custom argument used in callback
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
 mqtt_client_unsubscribe(mqtt_client_t* client, const char* topic, void* arg) {
     return sub_unsub(client, topic, 0, arg, 0) == 1 ? espOK : espERR;    /* Unsubscribe from topic */
 }
 
+/**
+ * \brief           Publish a new message on specific topic
+ * \param[in]       client: MQTT client
+ * \param[in]       topic: Topic to send message to
+ * \param[in]       payload: Message data
+ * \param[in]       payload_len: Length of payload data
+ * \param[in]       qos: Quality of service:
+ *                      - \ref MQTT_QOS_AT_MOST_ONCE
+ *                      - \ref MQTT_QOS_AT_LEAST_ONCE
+ *                      - \ref MQTT_QOS_EXACTLY_ONCE
+ * \param[in]       retain: Retian parameter value
+ * \param[in]       arg: User custom argument used in callback
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
-mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payload, uint16_t payload_len, uint8_t qos, uint8_t retain, void* arg) {
+mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payload,
+                    uint16_t payload_len, uint8_t qos, uint8_t retain, void* arg) {
     uint16_t len_topic, pkt_id;
     uint32_t rem_len, raw_len;
     mqtt_request_t* request = NULL;
+    espr_t res = espOK;
     
     len_topic = strlen(topic);                  /* Get length of topic */
     if (len_topic == 0) {
@@ -924,36 +1033,39 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
         rem_len += 2;
     }
     
-    if ((raw_len = output_check_enough_memory(client, rem_len)) == 0) {
-        return espERRMEM;
+    esp_core_lock();                            /* Lock ESP core */
+    if (client->conn_state == MQTT_CONNECTED && 
+        (raw_len = output_check_enough_memory(client, rem_len)) != 0) {
+            
+        pkt_id = qos > 0 ? create_packet_id(client) : 0;/* Create new packet ID */
+        request = request_create(client, pkt_id, arg);  /* Create request for packet */
+        if (request != NULL) {
+            /*
+             * Set expected number of bytes we should send before
+             * we can say that this packet was sent.
+             * Used in case QoS is set to 0 because packet notification 
+             * is not received by server. In this case, wait
+             * number of bytes sent before notifying user about success
+             */
+            request->expected_sent_len = client->written_total + raw_len;
+            
+            write_fixed_header(client, MQTT_MSG_TYPE_PUBLISH, 0, ESP_MIN(qos, 2), 1, rem_len);
+            write_string(client, topic, len_topic); /* Write topic string to packet */
+            if (qos > 0) {
+                write_u16(client, pkt_id);      /* Write packet ID */
+            } else {}
+            if (payload != NULL && payload_len > 0) {
+                write_data(client, payload, payload_len);   /* Write RAW topic payload */
+            }    
+            
+            request_set_pending(client, request);   /* Set request as pending waiting for server reply */
+            send_data(client);                  /* Try to send data */
+        } else {
+            res = espERRMEM;
+        }
+    } else {
+        res = espERRMEM;
     }
-    
-    pkt_id = qos > 0 ? create_packet_id(client) : 0;/* Create new packet ID */
-    request = request_create(client, pkt_id, arg);  /* Create request for packet */
-    if (request == NULL) {
-        return espERRMEM;
-    }
-    
-    /*
-     * Set expected number of bytes we should send before
-     * we can say that this packet was sent.
-     * Used in case QoS is set to 0 because packet notification 
-     * is not received by server. In this case, wait
-     * number of bytes sent before notifying user about success
-     */
-    request->expected_sent_len = client->written_total + raw_len;
-    
-    write_fixed_header(client, MQTT_MSG_TYPE_PUBLISH, 0, ESP_MIN(qos, 2), 1, rem_len);
-    write_string(client, topic, len_topic);     /* Write topic string to packet */
-    if (qos > 0) {
-        write_u16(client, pkt_id);              /* Write packet ID */
-    } else {}
-    if (payload != NULL && payload_len > 0) {
-        write_data(client, payload, payload_len);   /* Write RAW topic payload */
-    }    
-    
-    request_set_pending(client, request);       /* Set request as pending waiting for server reply */
-    send_data(client);                          /* Try to send data */
-    
-    return espOK;
+    esp_core_unlock();                          /* Unlock ESP core */
+    return res;
 }

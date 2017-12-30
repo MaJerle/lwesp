@@ -65,6 +65,17 @@ extern "C" {
 struct mqtt_client;
 
 /**
+ * \brief           State of MQTT client
+ */
+typedef enum {
+    MQTT_CONN_DISCONNECTED,                     /*!< Connection with server is not established */
+    MQTT_CONN_CONNECTING,                       /*!< Client is connecting to server */
+    MQTT_CONN_DISCONNECTING,                    /*!< Client connection is disconnecting from server */
+    MQTT_CONNECTING,                            /*!< MQTT client is connecting... CONNECT command has been sent to server */
+    MQTT_CONNECTED,                             /*!< MQTT is fully connected and ready to send data on topics */
+} mqtt_state_t;
+
+/**
  * \brief           MQTT client information structure
  */
 typedef struct {
@@ -73,10 +84,11 @@ typedef struct {
     const char* user;                           /*!< Authentication username. Set to NULL if not required */
     const char* pass;                           /*!< Authentication password, set to NULL if not required */
     
-    uint16_t keep_alive;                        /*!< Keep-alive parameter in units of seconds. When set to 0, functionality is disabled (not recommended) */
+    uint16_t keep_alive;                        /*!< Keep-alive parameter in units of seconds.
+                                                        When set to 0, functionality is disabled (not recommended) */
     
-    const char* will_topic;
-    const char* will_message;
+    const char* will_topic;                     /*!< Will topic */
+    const char* will_message;                   /*!< Will message */
     uint8_t will_qos;                           /*!< Will topic quality of service */
 } mqtt_client_info_t;
 
@@ -103,6 +115,7 @@ typedef enum {
     MQTT_EVT_UNSUBSCRIBE,                       /*!< MQTT client unsubscribed from specific topic */
     MQTT_EVT_PUBLISHED,                         /*!< MQTT client successfully published message to server */
     MQTT_EVT_PUBLISH_RECV,                      /*!< MQTT client received a publish message from server */
+    MQTT_EVT_DISCONNECT,                        /*!< MQTT client disconnected from MQTT server */
 } mqtt_evt_type_t;
 
 /**
@@ -127,7 +140,7 @@ typedef struct {
             mqtt_conn_status_t status;          /*!< Connection status with MQTT */
         } connect;                              /*!< Event for connecting to server */
         struct {
-            void* arg;
+            void* arg;                          /*!< User argument for callback function */
         } sub_unsub_scribed;                    /*!< Event for (un)subscribe to/from topics */
         struct {
             const uint8_t* topic;               /*!< Pointer to topic identifier */
@@ -135,13 +148,19 @@ typedef struct {
             const void* data;                   /*!< Topic data */
             size_t data_len;                    /*!< Length of topic data */
             uint8_t dup;                        /*!< Duplicate flag if message was sent again */
+            uint8_t qos;                        /*!< Received packet quality of service */
         } publish_recv;                         /*!< Publish received event */
         struct {
-            void* arg;                          /*!< User argument used on publish function */
+            void* arg;                          /*!< User argument for callback function */
         } published;                            /*!< Published event */
     } evt;                                      /*!< Event data parameters */
 } mqtt_evt_t;
 
+/**
+ * \brief           MQTT event callback function
+ * \param[in]       client: MQTT client
+ * \param[in]       evt: MQTT event with type and related data
+ */
 typedef void    (*mqtt_evt_fn)(struct mqtt_client* client, mqtt_evt_t* evt);
 
 /**
@@ -150,11 +169,12 @@ typedef void    (*mqtt_evt_fn)(struct mqtt_client* client, mqtt_evt_t* evt);
 typedef struct mqtt_client {
     esp_conn_p conn;                            /*!< Active used connection for MQTT */
     const mqtt_client_info_t* info;             /*!< Connection info */
+    mqtt_state_t conn_state;                    /*!< MQTT connection state */
     
     uint32_t poll_time;                         /*!< Poll time, increased every 500ms */
     
     mqtt_evt_t evt;                             /*!< MQTT event callback */
-    mqtt_evt_fn evt_fn;
+    mqtt_evt_fn evt_fn;                         /*!< Event callback function */
     
     esp_buff_t tx_buff;                         /*!< Buffer for raw output data to transmit */
     
@@ -176,6 +196,7 @@ typedef struct mqtt_client {
 } mqtt_client_t;
 
 mqtt_client_t*  mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
+void            mqtt_client_delete(mqtt_client_t* client);
 espr_t          mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info);
 espr_t          mqtt_client_disconnect(mqtt_client_t* client);
 
