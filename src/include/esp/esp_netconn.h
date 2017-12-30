@@ -62,6 +62,10 @@ typedef enum {
 } esp_netconn_type_t;
 
 struct esp_netconn_t;
+
+/**
+ * \brief           Netconn object structure
+ */
 typedef struct esp_netconn_t* esp_netconn_p;
 
 esp_netconn_p   esp_netconn_new(esp_netconn_type_t type);

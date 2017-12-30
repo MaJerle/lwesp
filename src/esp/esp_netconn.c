@@ -85,9 +85,13 @@ esp_cb(esp_cb_t* cb) {
     
     conn = esp_conn_get_from_evt(cb);           /* Get connection from event */
     switch (cb->type) {
+        /*
+         * A new connection has been active
+         * and should be handled by netconn API
+         */
         case ESP_CB_CONN_ACTIVE: {              /* A new connection active is active */
             if (esp_conn_is_client(conn)) {     /* Was connection started by us? */
-                nc = conn->arg;                 /* Argument should be ready already */
+                nc = esp_conn_get_arg(conn);    /* Argument should be ready already */
                 if (nc) {                       /* Is netconn set? Should be already by us */
                     nc->conn = conn;            /* Save actual connection */
                 } else {
@@ -115,13 +119,13 @@ esp_cb(esp_cb_t* cb) {
             break;
         }
         
-        /**
+        /*
          * We have a new data received which
          * should have netconn structure as argument
          */
         case ESP_CB_CONN_DATA_RECV: {
             esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
-            nc = conn->arg;                     /* Get API from connection */
+            nc = esp_conn_get_arg(conn);        /* Get API from connection */
             if (!nc->rcv_packets) {             /* Is this our first packet? */
                 if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
                     if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
@@ -147,13 +151,13 @@ esp_cb(esp_cb_t* cb) {
             break;
         }
         
-        /**
+        /*
          * Connection was just closed
          */
         case ESP_CB_CONN_CLOSED: {
-            nc = conn->arg;                     /* Get API from connection */
+            nc = esp_conn_get_arg(conn);        /* Get API from connection */
             
-            /**
+            /*
              * In case we have a netconn available, 
              * simply write pointer to received variable to indicate closed state
              */

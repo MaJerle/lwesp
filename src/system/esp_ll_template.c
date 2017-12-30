@@ -36,63 +36,6 @@
 #include "esp/esp.h"
 #include "esp/esp_input.h"
 
-/**
- * \addtogroup      ESP_LL
- * \{
- *
- * Low-level communication part is responsible to make sure
- * all bytes received from ESP device are properly 
- * sent to upper layer stack and that all bytes are sent to ESP
- * when requested by upper layer ESP stack
- *
- * When initializing low-level part, following steps are important and must be done when \ref esp_ll_init function is called:
- *
- * 1. Assign memory for dynamic allocations required by ESP library
- * 2. Configure AT send function to use when we have data to be transmitted
- * 3. Configure AT port to be able to send/receive any data
- *
- * \par             Example
- * 
- * Example shows basic functionality what user must do in order to prepare stack properly.
- *
- * \code{c}
-uint8_t initialized = 0;
-
-// Prepare send function to send the data to AT port
-static uint16_t
-send_data(const void* data, uint16_t len) {
-    return len;
-}
-
-// Implement esp_ll_init callback function
-// It is called when stack is initialized
-espr_t
-esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
-    // Step 1
-    static uint8_t memory[0x10000];
-    // Create a lookup table of memory regions for dynamic memory allocator
-    esp_mem_region_t mem_regions[] = {
-        { memory, sizeof(memory) }
-    };
-    if (!initialized) {
-        esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions)); 
-    }
-    
-    // Step 2
-    if (!initialized) {
-        ll->send_fn = send_data;
-    }
-    
-    // Step 3: User must configure UART with specific baudrate
-    configure_uart(baudrate);
-    
-    initialized = 1;
-}
-\endcode
- *
- * \}
- */
-
 static uint8_t initialized = 0;
 
 /**
