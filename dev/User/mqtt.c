@@ -9,7 +9,7 @@ mqtt_client_info = {
     .id = "test_client_id",
     // .user = "test_username",
     // .pass = "test_password",
-    .keep_alive = 1000,
+    .keep_alive = 20,
 };
 
 static void mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt);
@@ -24,7 +24,8 @@ mqtt_thread(void const* arg) {
     mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
     
     while (1) {
-        osDelay(1000);
+        osDelay(10000);
+        mqtt_client_publish(mqtt_client, "tilen_topic_test", "test_4", 6, MQTT_QOS_AT_MOST_ONCE, 0, (void *)((uint32_t)4));
     }
 }
 
@@ -39,7 +40,7 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
             if (status == MQTT_CONN_STATUS_ACCEPTED) {
                 mqtt_client_subscribe(client, "tilen_topic_test", MQTT_QOS_AT_MOST_ONCE, "tilen_topic_test");
             } else {
-                printf("MQTT server connection was not successful\r\n");
+                printf("MQTT server connection was not successful: %d\r\n", (int)status);
             }
             break;
         }
@@ -84,6 +85,13 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
             }
             break;
         }
+        
+        case MQTT_EVT_DISCONNECT: {
+            printf("MQTT client disconnected!\r\n");
+            mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
+            break;
+        }
+        
         default: 
             break;
     }
