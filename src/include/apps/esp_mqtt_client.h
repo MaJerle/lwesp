@@ -91,6 +91,7 @@ typedef struct {
 typedef enum {
     MQTT_EVT_CONNECTED,                         /*!< MQTT client connected to server and ready to publish */
     MQTT_EVT_SUBSCRIBED,                        /*!< MQTT client subscribed to specific topic */
+    MQTT_EVT_UNSUBSCRIBED,                      /*!< MQTT client unsubscribed from specific topic */
 } mqtt_evt_type_t;
 
 /**
