@@ -691,6 +691,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\stm32fxxx_it.c</FilePath>
             </File>
+            <File>
+              <FileName>mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\mqtt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1739,6 +1744,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\stm32fxxx_it.c</FilePath>
             </File>
+            <File>
+              <FileName>mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\mqtt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2786,6 +2796,11 @@
               <FileName>stm32fxxx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\stm32fxxx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\mqtt.c</FilePath>
             </File>
           </Files>
         </Group>
