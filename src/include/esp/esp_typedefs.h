@@ -59,6 +59,7 @@ typedef enum {
     espOKIGNOREMORE,                            /*!< Function succedded, should continue as espOK but ignore sending more data. This result is possible on connection data receive callback */
     espERR,
     espPARERR,                                  /*!< Wrong parameters on function call */
+    espERRMEM,                                  /*!< Memory error occurred */
     espTIMEOUT,                                 /*!< Timeout occurred on command */
     espNOFREECONN,                              /*!< There is no free connection available to start */
     espCONT,                                    /*!< There is still some command to be processed in current command */
@@ -129,7 +130,7 @@ typedef struct {
 #define ESP_MSG_VAR_FREE(name)                      
 #else /* 1 */
 #define ESP_MSG_VAR_DEFINE(name)                esp_msg_t* name
-#define ESP_MSG_VAR_ALLOC(name)                 do { name = esp_mem_alloc(sizeof(*(name))); if (!(name)) { ESP_DEBUGF(ESP_DBG_VAR, "Error allocating: %d bytes\r\n", sizeof(*(name))); return espERR; } memset(name, 0x00, sizeof(*(name))); } while (0)
+#define ESP_MSG_VAR_ALLOC(name)                 do { name = esp_mem_alloc(sizeof(*(name))); if (!(name)) { ESP_DEBUGF(ESP_DBG_VAR, "Error allocating: %d bytes\r\n", sizeof(*(name))); return espERRMEM; } memset(name, 0x00, sizeof(*(name))); } while (0)
 #define ESP_MSG_VAR_REF(name)                   (*(name))
 #define ESP_MSG_VAR_FREE(name)                  esp_mem_free(name)
 #endif /* !1 */

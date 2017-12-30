@@ -94,7 +94,7 @@ uint32_t
 espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t time, wait_time;
     do {
-        if (first_timeout != NULL) {            /* We have no timeouts ready? */
+        if (first_timeout == NULL) {            /* We have no timeouts ready? */
             return esp_sys_mbox_get(b, m, timeout); /* Get entry from message queue */
         }
         wait_time = get_next_timeout_diff();    /* Get time to wait for next timeout execution */

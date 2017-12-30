@@ -51,7 +51,7 @@ esp_buff_init(esp_buff_t* buff, uint32_t size) {
 
     buff->size = size;                          /* Set default values */
     buff->buff = esp_mem_alloc(size);           /* Allocate memory for buffer */
-    if (!buff->buff) {                          /* Check allocation */
+    if (buff->buff == NULL) {                   /* Check allocation */
         return 0;
     }
 
@@ -64,7 +64,7 @@ esp_buff_init(esp_buff_t* buff, uint32_t size) {
  */
 void
 esp_buff_free(esp_buff_t* buff) {
-    if (buff) {
+    if (buff != NULL) {
         esp_mem_free(buff->buff);               /* Free memory */
     }
 }

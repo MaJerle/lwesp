@@ -57,7 +57,7 @@ CTS         PA3                 RTS from ST to CTS from ESP
 #include "ff.h"
 
 #include "apps/esp_http_server.h"
-#include "apps/esp_mqtt_client.h"
+#include "mqtt.h"
 
 void init_thread(void const* arg);
 void client_thread(void const* arg);
@@ -65,6 +65,7 @@ void client_thread(void const* arg);
 osThreadId init_thread_id, server_thread_id, client_thread_id;
 osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
 osThreadDef(client_thread, client_thread, osPriorityNormal, 0, 512);
+osThreadDef(mqtt_thread, mqtt_thread, osPriorityNormal, 0, 512);
 
 char*       led_cgi_handler(http_param_t* params, size_t params_len);
 char*       usart_cgi_handler(http_param_t* params, size_t params_len);
@@ -117,10 +118,6 @@ http_init = {
     .fs_close = http_fs_close,
 };
 
-FATFS fs;
-FIL fil;
-FRESULT fres;
-
 int
 main(void) {
     TM_RCC_InitSystem();                        /* Init system */
@@ -129,10 +126,6 @@ main(void) {
     TM_DISCO_ButtonInit();                      /* Init button */
     TM_DELAY_Init();                            /* Init delay */
     TM_USART_Init(DISCO_USART, DISCO_USART_PP, 921600); /* Init USART for debug purpose */
-    
-    if ((fres = f_mount(&fs, "SD:", 1)) == FR_OK) {
-        printf("Mounted OK\r\n");
-    }
     
     osThreadCreate(osThread(init_thread), NULL);/* Create init thread */
     osKernelStart();                            /* Start OS kernel */
@@ -178,6 +171,7 @@ ap_entry_t ap_list[] = {
     { "HOTEL-VEGA", "hotelvega" },
     { "Slikop.", "slikop2012" },
     { "Danai Hotel", "danai2017!" },
+    { "Amis3789606848", "majerle_internet_private" },
 };
 
 const uint8_t requestData[] = ""
@@ -185,8 +179,6 @@ const uint8_t requestData[] = ""
 "Host: " CONN_HOST "\r\n"
 "Connection: close\r\n"
 "\r\n";
-
-mqtt_client_t* mqtt_client;
 
 /**
  * \brief           Initialization thread for entire process
@@ -258,8 +250,7 @@ cont:
         }
     }
     
-//    mqtt_client = mqtt_client_new(256);
-//    mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883);
+    client_thread_id = osThreadCreate(osThread(mqtt_thread), NULL);
     
     while (1) {
         if (0 && esp_ap_list_sta(stas, sizeof(stas) / sizeof(stas[0]), &staf, 1) == espOK) {
@@ -273,7 +264,7 @@ cont:
             }
         }
         osDelay(60000);
-        esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 0);
+        //esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 0);
         //printf("CPU USAGE: %d\r\n", (int)osGetCPUUsage());
         
 //        if (TM_DISCO_ButtonOnPressed()) {

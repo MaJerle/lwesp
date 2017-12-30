@@ -1510,7 +1510,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     if (block_time) {                           /* In case message is blocking */
         if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */
             ESP_MSG_VAR_FREE(msg);              /* Release memory and return */
-            return espERR;
+            return espERRMEM;
         }
     }
     if (!msg->cmd) {                            /* Set start command if not set by user */
