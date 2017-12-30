@@ -207,6 +207,9 @@ espr_t      esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, e
 
 espr_t      esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking);
 
+espr_t      esp_core_lock(void);
+espr_t      esp_core_unlock(void);
+
 /**
  * \}
  */

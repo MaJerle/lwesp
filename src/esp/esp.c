@@ -242,3 +242,24 @@ esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 #endif /* ESP_DNS || __DOXYGEN__ */
+
+/**
+ * \brief           Lock and protect ESP core from multiple access at a time
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_core_lock(void) {
+    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    return espOK;
+}
+
+/**
+ * \brief           Unlock and unprotect ESP core from multiple access at a time
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_core_unlock(void) {
+    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    return espOK;
+}
+
