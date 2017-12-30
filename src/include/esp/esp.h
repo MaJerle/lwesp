@@ -163,7 +163,8 @@ typedef struct esp_cb_t {
             size_t sent;                        /*!< Number of bytes sent on connection */
         } conn_data_sent;                       /*!< Data successfully sent. Use with \ref ESP_CB_CONN_DATA_SENT event */
         struct {
-            struct esp_conn_t* conn;            /*!< Connection where data were sent */
+            esp_conn_p conn;                    /*!< Connection where data were sent */
+            size_t sent;                        /*!< Number of bytes sent on connection before error occurred */
         } conn_data_send_err;                   /*!< Data were not sent. Use with \ref ESP_CB_CONN_DATA_SEND_ERR event */
         struct {
             const char* host;                   /*!< Host to use for connection */

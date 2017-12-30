@@ -537,6 +537,7 @@ espi_parse_received(esp_recv_t* rcv) {
                         }
                         esp.cb.type = ESP_CB_CONN_DATA_SEND_ERR;/* Error sending data */
                         esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
+                        esp.cb.cb.conn_data_send_err.sent = esp.msg->msg.conn_send.sent_all;
                         espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
                     }
                 }
