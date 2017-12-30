@@ -50,19 +50,6 @@ extern "C" {
  * \defgroup        ESP_NETCONN Network connection
  * \brief           Network connection
  * \{
- *
- * Netconn provides sequential API to work with connection 
- * in either server or client mode.
- *
- * It was designed to allow programming in blocking way (instead of events),
- * but still without data copy between calls
- *
- * To use netconn API, RTOS support is mandatory.
- * Processing is done in core thread of ESP library,
- * but user application thread communicates with main one using message queues,
- * which must be part of OS system implementation.
- *
- * All the NETCONN API functions are blocking and will wait for response before returning.
  */
  
 /**
