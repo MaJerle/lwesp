@@ -9,10 +9,10 @@ mqtt_client_info = {
     .id = "test_client_id",
     // .user = "test_username",
     // .pass = "test_password",
-    .keep_alive = 10,
+    .keep_alive = 1000,
 };
 
-static void mqtt_cb(mqtt_evt_t* evt);
+static void mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt);
 
 /**
  * \brief           MQTT client thread
@@ -32,15 +32,60 @@ mqtt_thread(void const* arg) {
  * \brief           MQTT event callback function
  */
 static void
-mqtt_cb(mqtt_evt_t* evt) {
+mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
     switch (evt->type) {
-        case MQTT_EVT_CONNECTED: {              /* MQTT connected to server */
-            mqtt_client_subscribe(mqtt_client, "test_topic", MQTT_QOS_AT_LEAST_ONCE);
+        case MQTT_EVT_CONNECT: {                /* MQTT connect event occurred */
+            mqtt_conn_status_t status = evt->evt.connect.status;
+            if (status == MQTT_CONN_STATUS_ACCEPTED) {
+                mqtt_client_subscribe(client, "tilen_topic_test", MQTT_QOS_AT_MOST_ONCE, "tilen_topic_test");
+            } else {
+                printf("MQTT server connection was not successful\r\n");
+            }
             break;
         }
-        case MQTT_EVT_SUBSCRIBED: {             /* MQTT subscribed to topic */
-            mqtt_client_publish(mqtt_client, "test_topic", "krneki", 6, 2, 0);
+        
+        case MQTT_EVT_SUBSCRIBE: {              /* MQTT subscribe to topic event */
+            const char* arg = evt->evt.sub_unsub_scribed.arg;   /* Get user argument */
+            
+            printf("Successfully subscribed to %s topic\r\n", arg);
+            if (!strcmp(arg, "tilen_topic_test")) {
+                mqtt_client_subscribe(client, "tilen_another_topic", MQTT_QOS_AT_MOST_ONCE, "tilen_another_topic");
+            } else if (!strcmp(arg, "tilen_another_topic")) {
+                mqtt_client_publish(client, "tilen_topic_test", "test_1", 6, MQTT_QOS_AT_MOST_ONCE, 0, (void *)((uint32_t)1));
+            }
+            
             break;
         }
+        
+        /*
+         * Message was successfully published
+         */
+        case MQTT_EVT_PUBLISHED: {              /* MQTT publish was successful */
+            uint32_t val = (uint32_t)evt->evt.published.arg;    /* Get user argument */
+            printf("Published val: %d\r\n", (int)val);
+            if (val == 1) {
+                mqtt_client_publish(client, "tilen_topic_test", "test_2", 6, MQTT_QOS_AT_MOST_ONCE, 0, (void *)((uint32_t)2));
+            } else if (val == 2) {
+                mqtt_client_publish(client, "tilen_topic_test", "test_3", 6, MQTT_QOS_AT_MOST_ONCE, 0, (void *)((uint32_t)3));
+            } else if (val == 3) {
+                mqtt_client_publish(client, "tilen_topic_test", "test_4", 6, MQTT_QOS_AT_MOST_ONCE, 0, (void *)((uint32_t)4));
+            } else {
+                printf("Everything was sent!\r\n");
+            }
+            break;
+        }
+        
+        /*
+         * A new message was published to us
+         */
+        case MQTT_EVT_PUBLISH_RECV: {
+            if (!memcmp("tilen_topic_test", evt->evt.publish_recv.topic, evt->evt.publish_recv.topic_len)) {
+                printf("MQTT publish received on topic: %.*s\r\n", evt->evt.publish_recv.topic_len, evt->evt.publish_recv.topic);
+            }
+            break;
+        }
+        default: 
+            break;
     }
 }
+
