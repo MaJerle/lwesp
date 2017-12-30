@@ -141,12 +141,13 @@ typedef struct {
         } connect;                              /*!< Event for connecting to server */
         struct {
             void* arg;                          /*!< User argument for callback function */
+            espr_t res;                         /*!< Response status */
         } sub_unsub_scribed;                    /*!< Event for (un)subscribe to/from topics */
         struct {
             const uint8_t* topic;               /*!< Pointer to topic identifier */
             size_t topic_len;                   /*!< Length of topic */
-            const void* data;                   /*!< Topic data */
-            size_t data_len;                    /*!< Length of topic data */
+            const void* payload;                /*!< Topic payload */
+            size_t payload_len;                 /*!< Length of topic payload */
             uint8_t dup;                        /*!< Duplicate flag if message was sent again */
             uint8_t qos;                        /*!< Received packet quality of service */
         } publish_recv;                         /*!< Publish received event */
@@ -197,6 +198,7 @@ typedef struct mqtt_client {
 
 mqtt_client_t*  mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
 void            mqtt_client_delete(mqtt_client_t* client);
+
 espr_t          mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info);
 espr_t          mqtt_client_disconnect(mqtt_client_t* client);
 

@@ -32,17 +32,6 @@
 #include "esp/esp_mem.h"
 #include "esp/esp_pbuf.h"
 
-/**
- * \addtogroup      ESP_APP_MQTT_CLIENT MQTT Client
- * \{
- *
- * MQTT client app uses MQTT-3.1.1 protocol versions.
- *
- * List of full specs is available <a href="http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.pdf">here</a>.
- *
- * \}
- */
-
 #ifndef ESP_DBG_MQTT
 #define ESP_DBG_MQTT                        ESP_DBG_OFF
 #endif /* ESP_DBG_MQTT */
@@ -459,8 +448,8 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
             client->evt.type = MQTT_EVT_PUBLISH_RECV;
             client->evt.evt.publish_recv.topic = topic;
             client->evt.evt.publish_recv.topic_len = topic_len;
-            client->evt.evt.publish_recv.data = data;
-            client->evt.evt.publish_recv.data_len = data_len;
+            client->evt.evt.publish_recv.payload = data;
+            client->evt.evt.publish_recv.payload_len = data_len;
             client->evt.evt.publish_recv.dup = dup;
             client->evt.evt.publish_recv.qos = qos;
             client->evt_fn(client, &client->evt);
@@ -501,6 +490,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
                     if (msg_type == MQTT_MSG_TYPE_SUBACK || msg_type == MQTT_MSG_TYPE_UNSUBACK) {
                         client->evt.type = msg_type == MQTT_MSG_TYPE_SUBACK ? MQTT_EVT_SUBSCRIBE : MQTT_EVT_UNSUBSCRIBE;
                         client->evt.evt.sub_unsub_scribed.arg = request->arg;
+                        client->evt.evt.sub_unsub_scribed.res = client->rx_buff[2] < 3 ? espOK : espERR;
                         client->evt_fn(client, &client->evt);
                         
                     /*
