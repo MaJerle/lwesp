@@ -19,8 +19,8 @@
  *          - First (producer) thread (collects user commands from user threads and starts the command processing)
  *          - Second (process) thread reads the data from ESP device and does the job accordingly
  *  - Includes several applications built on top of library:
- *      - HTTP server with dynamic files (file system) support
- *      - MQTT client (under development)
+ *      - \ref ESP_APP_HTTP_SERVER with dynamic files (file system) support
+ *      - \ref ESP_APP_MQTT_CLIENT (under development)
  *
  *
  * \section         sect_resources Resources

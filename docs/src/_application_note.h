@@ -58,7 +58,7 @@
  * \subsection      subsec_thread_user User thread(s)
  *
  * User thread is a place where user communicates with ESP AT library.
- * When a new command wants to be executed to ESP device, users calls appropriate API function which will do following steps:
+ * When a new command wants to be executed to ESP device, user calls appropriate API function which will do following steps:
  *
  *  - Allocate memory for command message from memory manager
  *  - Assign command type to message
