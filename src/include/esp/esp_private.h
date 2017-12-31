@@ -45,6 +45,7 @@ extern "C" {
 #if defined(ESP_INTERNAL) || __DOXYGEN__
 
 #include "esp/esp.h"
+#include "esp/esp_debug.h"
 
 /**
  * \addtogroup      ESP_TYPEDEFS

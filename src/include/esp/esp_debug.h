@@ -53,13 +53,33 @@ extern "C" {
 #define ESP_DBG_ON                  0x80    /*!< Indicates debug is enabled */
 #define ESP_DBG_OFF                 0       /*!< Indicates debug is disabled */
     
-#define ESP_DBG_LVL_MASK            0x03    /*!< Mask for getting debug level */
-#define ESP_DBG_LVL_ALL             0x00    /*!< Print all messages */
-#define ESP_DBG_LVL_WARNING         0x01    /*!< Print warnings or more */
+/**
+ * \name            Debug levels
+ * \{
+ */
+ 
+#define ESP_DBG_LVL_ALL             0x00    /*!< Print all messages of all types */
+#define ESP_DBG_LVL_WARNING         0x01    /*!< Print warning and upper messages */
 #define ESP_DBG_LVL_DANGER          0x02    /*!< Print danger errors */
 #define ESP_DBG_LVL_SEVERE          0x03    /*!< Print severe problems affecting program flow */
-    
-#define ESP_DBG_LVL_MIN             ESP_DBG_LVL_ALL /*!< Minimal level to debug */
+#define ESP_DBG_LVL_MASK            0x03    /*!< Mask for getting debug level */
+
+/**
+ * \}
+ */
+
+/**
+ * \name            Debug types
+ * \brief           List of possible debugging types
+ * \{
+ */
+
+#define ESP_DBG_TYPE_TRACE          0x40    /*!< Debug trace messages for program flow */
+#define ESP_DBG_TYPE_STATE          0x20    /*!< Debug state messages (such as state machines) */
+
+/**
+ * \}
+ */
 
 #define ESP_DEBUG_INT(fmt, ...)     printf(fmt, ## __VA_ARGS__)
     
@@ -71,7 +91,7 @@ extern "C" {
  * \param[in]       ...: Variable parameters for formatted string
  */
 #define ESP_DEBUGF(c, fmt, ...)         do {\
-    if (((c) & ESP_DBG_ON) && ((c) & ESP_DBG_LVL_MASK) >= ESP_DBG_LVL_MIN) {    \
+    if (((c) & (ESP_DBG_ON)) && ((c) & (ESP_CFG_DBG_TYPES_ON)) && ((c) & ESP_DBG_LVL_MASK) >= (ESP_CFG_DBG_LVL_MIN)) {    \
         ESP_DEBUG_INT(fmt, ## __VA_ARGS__); \
     }                                       \
 } while (0)

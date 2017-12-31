@@ -46,6 +46,7 @@ extern "C" {
 #include "esp/esp_buff.h"
 #include "esp/esp_input.h"
 #include "system/esp_sys.h"
+#include "esp/esp_debug.h"
 
 /**
  * \defgroup        ESP ESP AT lib

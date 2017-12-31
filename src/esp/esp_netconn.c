@@ -80,7 +80,7 @@ flush_mboxes(esp_netconn_t* nc) {
 static espr_t
 esp_cb(esp_cb_t* cb) {
     esp_conn_t* conn;
-    esp_netconn_t* nc;
+    esp_netconn_t* nc = NULL;
     uint8_t close = 0;
     
     conn = esp_conn_get_from_evt(cb);           /* Get connection from event */
@@ -97,22 +97,25 @@ esp_cb(esp_cb_t* cb) {
                 } else {
                     close = 1;                  /* Close this connection, invalid netconn */
                 }
-            } else if (esp_conn_is_server(conn) && listen_api) {    /* Is the connection server type and we have known listening API? */
+            } else if (esp_conn_is_server(conn) && listen_api != NULL) {    /* Is the connection server type and we have known listening API? */
                 nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Create new API */
-                ESP_DEBUGW(ESP_CFG_DBG_NETCONN, nc == NULL, "NETCONN: Cannot create new structure for incoming server connection!\r\n");
-                if (nc) {
+                ESP_DEBUGW(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
+                    nc == NULL, "NETCONN: Cannot create new structure for incoming server connection!\r\n");
+                
+                if (nc != NULL) {
                     nc->conn = conn;            /* Set connection callback */
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
                 } else {
                     close = 1;
                 }
             } else {
-                ESP_DEBUGW(ESP_CFG_DBG_NETCONN, nc == NULL, "NETCONN: Closing connection as there is no listening API in netconn!\r\n");
+                ESP_DEBUGW(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING, listen_api == NULL,
+                    "NETCONN: Closing connection as there is no listening API in netconn!\r\n");
                 close = 1;                      /* Close the connection at this point */
             }
             if (close) {
                 esp_conn_close(conn, 0);        /* Close the connection */
-                if (nc) {
+                if (nc != NULL) {
                     esp_netconn_delete(nc);     /* Free memory for API */
                 }
             }
@@ -129,7 +132,8 @@ esp_cb(esp_cb_t* cb) {
             if (!nc->rcv_packets) {             /* Is this our first packet? */
                 if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
                     if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
-                        ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Cannot put server connection to accept mbox\r\n");
+                        ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
+                            "NETCONN: Cannot put server connection to accept mbox\r\n");
                         close = 1;
                     }
                 } else {
@@ -141,13 +145,13 @@ esp_cb(esp_cb_t* cb) {
             if (!close) {
                 if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
                     !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
-                    ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Ignoring more data for receive\r\n");
+                    ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Ignoring more data for receive!\r\n");
                     return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
                 } else {
                     esp_pbuf_ref(pbuf);         /* Increase current reference count by 1 as system mbox is referencing our pbuf */
                 }
             }
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
+            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
             break;
         }
         
@@ -192,11 +196,11 @@ esp_netconn_new(esp_netconn_type_t type) {
     if (a) {
         a->type = type;                         /* Save netconn type */
         if (!esp_sys_mbox_create(&a->mbox_accept, 5)) { /* Allocate memory for accepting message box */
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Cannot create accept MBOX\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER, "NETCONN: Cannot create accept MBOX\r\n");
             goto free_ret;
         }
         if (!esp_sys_mbox_create(&a->mbox_receive, 10)) {   /* Allocate memory for receiving message box */
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Cannot create receive MBOX\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER, "NETCONN: Cannot create receive MBOX\r\n");
             goto free_ret;
         }
     }

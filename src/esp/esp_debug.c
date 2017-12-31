@@ -30,8 +30,8 @@
  */
 #define ESP_INTERNAL
 #include "esp/esp_private.h"
-#include "esp/esp.h"
 #include "esp/esp_debug.h"
+#include "esp/esp.h"
 
 #if ESP_CFG_DBG || __DOXYGEN__
     

@@ -166,7 +166,19 @@
  * \note            Set to \ref ESP_DBG_OFF to globally disable all debugs
  */
 #ifndef ESP_CFG_DBG
-#define ESP_CFG_DBG                         ESP_DBG_ON
+#define ESP_CFG_DBG                         ESP_DBG_OFF
+#endif
+
+/**
+ * \brief           Minimal debug level
+ *
+ */
+#ifndef ESP_CFG_DBG_LVL_MIN
+#define ESP_CFG_DBG_LVL_MIN                 ESP_DBG_LVL_ALL
+#endif
+
+#ifndef ESP_CFG_DBG_TYPES_ON
+#define ESP_CFG_DBG_TYPES_ON                0
 #endif
 
 /**

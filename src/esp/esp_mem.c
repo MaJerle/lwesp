@@ -31,7 +31,6 @@
 #define ESP_INTERNAL
 #include "esp/esp_private.h"
 #include "esp/esp_mem.h"
-#include "esp/esp_debug.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -410,7 +409,7 @@ esp_mem_alloc(uint32_t size) {
     void* ptr;
     ESP_CORE_PROTECT();
     ptr = mem_alloc(size);                          /* Allocate memory and return pointer */
-    ESP_DEBUGW(ESP_CFG_DBG_MEM, ptr == NULL, "(A)llocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "Mem allocation failed: %d bytes\r\n", (int)size);
     ESP_CORE_UNPROTECT();
     return ptr;
 }
@@ -429,7 +428,7 @@ void *
 esp_mem_realloc(void* ptr, size_t size) {
     ESP_CORE_PROTECT();
     ptr = mem_realloc(ptr, size);                   /* Reallocate and return pointer */
-    ESP_DEBUGW(ESP_CFG_DBG_MEM, ptr == NULL, "(Re)allocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "Mem reallocation failed: %d bytes\r\n", (int)size);
     ESP_CORE_UNPROTECT();
     return ptr;
 }
@@ -447,7 +446,7 @@ esp_mem_calloc(size_t num, size_t size) {
     void* ptr;
     ESP_CORE_PROTECT();
     ptr = mem_calloc(num, size);                   /* Allocate memory and clear it to 0. Then return pointer */
-    ESP_DEBUGW(ESP_CFG_DBG_MEM, ptr == NULL, "(C)allocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "Callocation failed: %d bytes\r\n", (int)size);
     ESP_CORE_UNPROTECT();
     return ptr;
 }

@@ -757,7 +757,7 @@ espi_process(const void* data, size_t data_len) {
             } else {
                 len = 0;                        /* No data to process more */
             }
-            ESP_DEBUGF(ESP_CFG_DBG_IPD, "IPD: New length: %d bytes\r\n", (int)len);
+            ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: New length: %d bytes\r\n", (int)len);
             if (len) {
                 if (esp.ipd.buff != NULL) {     /* Is buffer valid? */
                     /* 
@@ -765,9 +765,9 @@ espi_process(const void* data, size_t data_len) {
                      * Call if ok, even if new length is 0
                      */
                     memcpy(&esp.ipd.buff->payload[esp.ipd.buff_ptr], d, len);
-                    ESP_DEBUGF(ESP_CFG_DBG_IPD, "IPD: Bytes read: %d\r\n", (int)len);
+                    ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Bytes read: %d\r\n", (int)len);
                 } else {                        /* Simply skip the data in buffer */
-                    ESP_DEBUGF(ESP_CFG_DBG_IPD, "IPD: Bytes skipped: %d\r\n", (int)len);
+                    ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Bytes skipped: %d\r\n", (int)len);
                 }
                 d_len -= len;                   /* Decrease effective length */
                 d += len;                       /* Skip remaining length */
@@ -792,18 +792,20 @@ espi_process(const void* data, size_t data_len) {
                     esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
                     res = espi_send_conn_cb(esp.ipd.conn);  /* Send connection callback */
                     
-                    ESP_DEBUGF(ESP_CFG_DBG_IPD, "IPD: Free packet buffer\r\n");
+                    ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Free packet buffer\r\n");
                     esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer */
                     if (res == espOKIGNOREMORE) {   /* We should ignore more data */
-                        ESP_DEBUGF(ESP_CFG_DBG_IPD, "IPD: Ignoring more data from this IPD if available\r\n");
+                        ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Ignoring more data from this IPD if available\r\n");
                         esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
                     }
                         
                     if (esp.ipd.buff != NULL && esp.ipd.rem_len) {  /* Anything more to read? */
                         size_t new_len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);   /* Calculate new buffer length */
-                        ESP_DEBUGF(ESP_CFG_DBG_IPD, "IPD: Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
+                        ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
                         esp.ipd.buff = esp_pbuf_new(new_len);   /* Allocate new packet buffer */
-                        ESP_DEBUGW(ESP_CFG_DBG_IPD, esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d bytes\r\n", (int)new_len);
+                        ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
+                            esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d bytes\r\n", (int)new_len);
+                        
                         if (esp.ipd.buff != NULL) {
                             esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
                         }
@@ -868,7 +870,8 @@ espi_process(const void* data, size_t data_len) {
                         espi_parse_received(&recv); /* Parse received string */
                         if (esp.ipd.read) {     /* Are we going into read mode? */
                             size_t len;
-                            ESP_DEBUGF(ESP_CFG_DBG_IPD, "IPD: Data on connection %d with total size %d byte(s)\r\n", (int)esp.ipd.conn->num, esp.ipd.tot_len);
+                            ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
+                                "IPD: Data on connection %d with total size %d byte(s)\r\n", (int)esp.ipd.conn->num, esp.ipd.tot_len);
                             
                             len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
                             if (esp.ipd.conn->status.f.active) {    /* If connection is not active, doesn't make sense to read anything */
@@ -876,10 +879,11 @@ espi_process(const void* data, size_t data_len) {
                                 if (esp.ipd.buff) {
                                     esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
                                 }
-                                ESP_DEBUGW(ESP_CFG_DBG_IPD, esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d byte(s)\r\n", (int)len);
+                                ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING, esp.ipd.buff == NULL,
+                                    "IPD: Buffer allocation failed for %d byte(s)\r\n", (int)len);
                             } else {
                                 esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
-                                ESP_DEBUGF(ESP_CFG_DBG_IPD, "IPD: Connection %d already closed, skipping %d byte(s)\r\n", esp.ipd.conn->num, (int)len);
+                                ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Connection %d already closed, skipping %d byte(s)\r\n", esp.ipd.conn->num, (int)len);
                             }
                             esp.ipd.conn->status.f.data_received = 1;   /* We have first received data */
                         }
