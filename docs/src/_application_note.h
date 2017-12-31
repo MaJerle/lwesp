@@ -45,7 +45,81 @@
  * as well as take care of proper communication with ESP device in \ref ESP_LL section.
  *
  * \note            For more information about how to port, check sections accordingly
+ *
+ * \section         sect_config Library configuration
+ *
+ * To make library as efficient as possible, different configuration parameters are available
+ * to make sure all the requirements are met for different purposes as possible.
+ *
+ * A list of all configurations can be found in \ref ESP_CONF section.
+ *
+ * \subsection      subsect_conf_file Project configuration file
+ *
+ * Library comes with <b>2</b> configuration files:
+ *
+ *  - Default configuration file <b>esp_config_default.h</b>
+ *  - Project template configuration file <b>esp_config_template.h</b>
+ *
+ * When project is started, user has to rename template file to <b>esp_config.h</b>
+ * and if required, it should override default settings in this file.
+ *
+ * Default template file comes with something like this:
+ *
+ * \code{c}
+#ifndef __ESP_CONFIG_H
+#define __ESP_CONFIG_H  100
+
+/*
+ * Rename this file to "esp_config.h" for your application
+ */
+
+/* First include debug */
+#include "esp/esp_debug.h"
+
+/*
+ * Open "include/esp/esp_config_default.h" and 
+ * copy & replace settings you want to change here
+ */
+
+
+/* After user configuration, call default config to merge config together */
+#include "esp/esp_config_default.h"
+
+
+#endif /* __ESP_CONFIG_H */ 
+\endcode
  * 
+ * In case user wants to increase default buffer size_t for received data,
+ * a file should be modified to something similar like code below:
+ *
+ * \code{c}
+#ifndef __ESP_CONFIG_H
+#define __ESP_CONFIG_H  100
+
+/*
+ * Rename this file to "esp_config.h" for your application
+ */
+
+/* First include debug */
+#include "esp/esp_debug.h"
+
+ /*
+  * Increase default receive buffer length
+  */
+#define ESP_RCV_BUFF_SIZE                   0x800
+ 
+/* After user configuration, call default config to merge config together */
+#include "esp/esp_config_default.h"
+
+#endif /* __ESP_CONFIG_H */ 
+\endcode
+ *
+ * \note            Important notes:
+ *                      - Always do default settings modifications in user custom <b>esp_config.h</b> file
+ *                          which was previously renamed from <b>esp_config_template.h</b>,
+ *                      - Always include <b>esp/esp_debug.h</b> before any custom settings and
+ *                          <b>esp/esp_config_default.h</b> after custom settings
+ *
  * \section         sect_thread_comm Inter-thread communication
  *
  * In order to have very effective library from resources point of view,
@@ -55,7 +129,7 @@
  *
  * Library consists of 2 threads working in parallel and bunch of different user threads.
  *
- * \subsection      subsec_thread_user User thread(s)
+ * \subsection      subsect_thread_user User thread(s)
  *
  * User thread is a place where user communicates with ESP AT library.
  * When a new command wants to be executed to ESP device, user calls appropriate API function which will do following steps:
