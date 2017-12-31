@@ -18,7 +18,7 @@
  */
 #include "fatfs_sd_sdio.h"
 
-uint8_t SDCARD_IsDetected(void);
+static uint8_t SDCARD_IsDetected(void);
 
 /* Status of SDCARD */
 static volatile DSTATUS Stat = STA_NOINIT;
@@ -196,17 +196,9 @@ __weak void
 BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params) {
     static DMA_HandleTypeDef dma_rx_handle;
     static DMA_HandleTypeDef dma_tx_handle;
-	uint16_t gpio_af;
 	
 	/* Get GPIO alternate function */
-#if defined(GPIO_AF12_SDIO)
-	gpio_af = GPIO_AF12_SDIO;
-	__HAL_RCC_SDIO_CLK_ENABLE();
-#endif
-#if defined(STM32F7xx)
-	gpio_af = GPIO_AF10_SDMMC2;
 	__HAL_RCC_SDMMCx_CLK_ENABLE();
-#endif
 
 	/* Enable DMA2 clocks */
 	__DMAx_TxRx_CLK_ENABLE();
@@ -220,14 +212,9 @@ BSP_SD_MspInit(SD_HandleTypeDef *hsd, void *Params) {
 #endif
 	
 	/* SDIO/SDMMC pins */
-#if FATFS_SDIO_4BIT == 1
 	TM_GPIO_InitAlternate(GPIOB, GPIO_PIN_3 | GPIO_PIN_4, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_High, GPIO_AF10_SDMMC2);
 	TM_GPIO_InitAlternate(GPIOD, GPIO_PIN_6 | GPIO_PIN_7, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_High, GPIO_AF11_SDMMC2);
 	TM_GPIO_InitAlternate(GPIOG, GPIO_PIN_9 | GPIO_PIN_10, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_High, GPIO_AF11_SDMMC2);
-#else
-	TM_GPIO_InitAlternate(GPIOC, GPIO_PIN_8 | GPIO_PIN_12, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_High, gpio_af);
-	TM_GPIO_InitAlternate(GPIOD, GPIO_PIN_2, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_High, gpio_af);
-#endif
     
     /* NVIC configuration for SDIO interrupts */
     HAL_NVIC_SetPriority(SDMMCx_IRQn, 5, 0);

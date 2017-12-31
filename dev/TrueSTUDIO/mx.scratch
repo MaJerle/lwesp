@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project>
+<ProjectName>C:\Users\Tilen majerle\Documents\STM32\STM32CubeMXExamples\esp_dev_rtos\\esp_dev_rtos</ProjectName>
+<ProjectNature>C</ProjectNature> 
+<CMSIS>..\Drivers\CMSIS</CMSIS>
+<HAL_Driver>C:\Users\Tilen majerle\STM32Cube\Repository\STM32Cube_FW_F7_V1.9.0RC2\Drivers\CMSIS</HAL_Driver>
+
+<Toolchain>TrueSTUDIO</Toolchain>
+<Version>0</Version>
+
+<filestoremove>
+    <file>
+    </file>
+</filestoremove>
+
+<inctoremove>
+	<Aincludes>
+	   <include></include>
+    </Aincludes>
+	<Cincludes>
+    </Cincludes>
+</inctoremove>
+
+<configs>
+  <config>
+    <name>esp_dev_rtos</name>				
+    <device>STM32F769NIHx</device>		 
+    <heapSize>0x1000</heapSize>
+    <stackSize>0x400</stackSize>
+    
+    	<board>custom</board>
+			
+    <usedDebug>true</usedDebug>
+    	<debugprobe></debugprobe>
+    <optimization></optimization>
+    <icfloc>1</icfloc>
+    <Adefines>
+        <define></define>
+    </Adefines>   
+
+    <UsedFreeRTOS></UsedFreeRTOS>
+    <Aincludes>
+
+
+	    	<include></include>
+    </Aincludes>
+    <Cdefines>
+        <define>__weak=__attribute__((weak))</define>
+        <define>__packed=__attribute__((__packed__))</define>
+    </Cdefines>
+    <definestoremove>
+        <Adefines>
+            <define></define>
+        </Adefines>
+        <Cdefines>
+            <define>USE_FULL_LL_DRIVER</define>
+            <define>MBEDTLS_CONFIG_FILE=&quot;mbedtls_config.h&quot;</define>
+        </Cdefines>         
+    </definestoremove>
+    
+	<Cincludes>
+	   <include>..\Inc</include>
+	   <include>..\Drivers\STM32F7xx_HAL_Driver\Inc</include>
+	   <include>..\Drivers\STM32F7xx_HAL_Driver\Inc\Legacy</include>
+	   <include>..\Drivers\CMSIS\Device\ST\STM32F7xx\Include</include>
+	   <include>..\Drivers\CMSIS\Include</include>
+
+    </Cincludes>
+      </config>
+    </configs> 
+
+    <underRoot>true</underRoot>
+    	<copyAsReference>false</copyAsReference>
+	  		<sourceEntries>
+		    	<sourceEntry>
+		    		<name>Inc</name>
+		    	</sourceEntry>
+		    	<sourceEntry>
+		    		<name>Src</name>
+		    	</sourceEntry>
+		    	<sourceEntry>
+		    		<name>Drivers</name>
+		    	</sourceEntry>
+		    </sourceEntries>
+    	<group>
+            <name>Drivers</name> 
+                <group>
+                        <name>STM32F7xx_HAL_Driver</name>
+		</group>
+	</group>
+
+</Project>
