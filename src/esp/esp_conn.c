@@ -58,7 +58,7 @@ conn_timeout_cb(void* arg) {
     uint16_t i;
                                                 
     esp.cb.type = ESP_CB_CONN_POLL;             /* Set polling callback type */
-    for (i = 0; i < ESP_MAX_CONNS; i++) {       /* Scan all connections */
+    for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Scan all connections */
         if (esp.conns[i].status.f.active) {     /* If connection is active */
             esp.cb.cb.conn_poll.conn = &esp.conns[i];   /* Set connection pointer */
             espi_send_conn_cb(&esp.conns[i]);   /* Send connection callback */
