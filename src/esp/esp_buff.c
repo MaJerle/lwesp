@@ -43,7 +43,7 @@
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-esp_buff_init(esp_buff_t* buff, uint32_t size) {
+esp_buff_init(esp_buff_t* buff, size_t size) {
     if (buff == NULL) {                         /* Check buffer structure */
         return 0;
     }
@@ -77,11 +77,11 @@ esp_buff_free(esp_buff_t* buff) {
  * \return          Number of bytes actually written to buffer
  */
 size_t
-esp_buff_write(esp_buff_t* buff, const void* data, uint32_t count) {
-    uint32_t i = 0;
-    uint32_t free;
+esp_buff_write(esp_buff_t* buff, const void* data, size_t count) {
+	size_t i = 0;
+	size_t free;
     const uint8_t* d = data;
-    uint32_t tocopy;
+    size_t tocopy;
 
     if (buff == NULL || count == 0) {           /* Check buffer structure */
         return 0;

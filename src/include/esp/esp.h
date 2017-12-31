@@ -182,7 +182,7 @@ typedef struct esp_cb_t {
     } cb;                                       /*!< Callback event union */
 } esp_cb_t;
 
-#define ESP_SIZET_MAX                           ((size_t)(-1))  /*!< Maximal value of \ref size_t variable type */
+#define ESP_SIZET_MAX                           ((size_t)(-1))  /*!< Maximal value of size_t variable type */
 
 /**
  * \}

@@ -421,7 +421,7 @@ espi_parse_received(esp_recv_t* rcv) {
             ) {
                 const char* tmp = NULL;
                 uint8_t *a = NULL, *b = NULL;
-                uint8_t ip[4], ch;
+                uint8_t ip[4], ch = 0;
                 esp_ip_mac_t* im;
                          
 #if ESP_MODE_STATION_ACCESS_POINT              
@@ -496,7 +496,7 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     }
     
-    /**
+    /*
      * Start processing received data
      */
     if (esp.msg) {                              /* Do we have valid message? */
@@ -557,7 +557,7 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     }
     
-    /**
+    /*
      * Check if connection is just active or just closed
      */
     /*
@@ -640,7 +640,7 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     } else if (is_error && IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)) {
         esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
-        /* TODO: Get last connection number we used to start the connection */
+        /** \todo Get last connection number we used to start the connection */
         esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection just active */
         esp.cb.cb.conn_error.host = esp.msg->msg.conn_start.host;
         esp.cb.cb.conn_error.port = esp.msg->msg.conn_start.port;
@@ -648,7 +648,7 @@ espi_parse_received(esp_recv_t* rcv) {
         espi_send_conn_cb(conn);                /* Send event */
     }
     
-    /**
+    /*
      * In case of any of these events, simply release semaphore
      * and proceed with next command
      */
@@ -1105,7 +1105,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\",\"");
             send_string(msg->msg.sta_join.pass, 1, 0);
             ESP_AT_PORT_SEND_STR("\"");
-            if (msg->msg.sta_join.mac) {
+            if (msg->msg.sta_join.mac != NULL) {
                 ESP_AT_PORT_SEND_STR(",");
                 send_ip_mac(msg->msg.sta_join.mac, 0, 1);
             }
@@ -1118,7 +1118,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_WIFI_CWLAP: {              /* List access points */
             ESP_AT_PORT_SEND_STR("AT+CWLAP");
-            if (msg->msg.ap_list.ssid) {        /* Do we want to filter by SSID? */   
+            if (msg->msg.ap_list.ssid != NULL) {/* Do we want to filter by SSID? */   
                 ESP_AT_PORT_SEND_STR("=");
                 send_string(msg->msg.ap_list.ssid, 1, 1);
             }
@@ -1226,10 +1226,10 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
             ESP_AT_PORT_SEND_STR("=");
             send_ip_mac(msg->msg.sta_ap_setip.ip, 1, 1);    /* Send IP address */
-            if (msg->msg.sta_ap_setip.gw) {     /* Is gateway set? */
+            if (msg->msg.sta_ap_setip.gw != NULL) { /* Is gateway set? */
                 ESP_AT_PORT_SEND_STR(",");
                 send_ip_mac(msg->msg.sta_ap_setip.gw, 1, 1);    /* Send gateway address */
-                if (msg->msg.sta_ap_setip.nm) { /* Is netmask set ? */
+                if (msg->msg.sta_ap_setip.nm != NULL) { /* Is netmask set ? */
                     ESP_AT_PORT_SEND_STR(",");
                     send_ip_mac(msg->msg.sta_ap_setip.nm, 1, 1);    /* Send netmask address */
                 }
@@ -1349,11 +1349,11 @@ espi_initiate_cmd(esp_msg_t* msg) {
                     break;
                 }
             }
-            if (!c) {
+            if (c == NULL) {
                 return espNOFREECONN;           /* We don't have available connection */
             }
             
-            if (msg->msg.conn_start.conn) {     /* Is user interested about connection info? */
+            if (msg->msg.conn_start.conn != NULL) { /* Is user interested about connection info? */
                 *msg->msg.conn_start.conn = c;  /* Save connection for user */
             }
             
@@ -1377,7 +1377,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_TCPIP_CIPCLOSE: {          /* Close the connection */
             if (msg->msg.conn_close.conn != NULL &&
-                
                 /* Is connection already closed or command for this connection is not valid anymore? */
                 (!esp_conn_is_active(msg->msg.conn_close.conn) || msg->msg.conn_close.conn->val_id != msg->msg.conn_close.val_id)) {
                 return espERR;
@@ -1444,15 +1443,15 @@ espi_initiate_cmd(esp_msg_t* msg) {
             send_number(msg->msg.tcpip_sntp_cfg.en, 0);
             ESP_AT_PORT_SEND_STR(",");
             send_signed_number(msg->msg.tcpip_sntp_cfg.tz, 0);
-            if (msg->msg.tcpip_sntp_cfg.h1 && strlen(msg->msg.tcpip_sntp_cfg.h1)) {
+            if (msg->msg.tcpip_sntp_cfg.h1 != NULL && strlen(msg->msg.tcpip_sntp_cfg.h1)) {
                 ESP_AT_PORT_SEND_STR(",");
                 send_string(msg->msg.tcpip_sntp_cfg.h1, 0, 1);
             }
-            if (msg->msg.tcpip_sntp_cfg.h2 && strlen(msg->msg.tcpip_sntp_cfg.h2)) {
+            if (msg->msg.tcpip_sntp_cfg.h2 != NULL && strlen(msg->msg.tcpip_sntp_cfg.h2)) {
                 ESP_AT_PORT_SEND_STR(",");
                 send_string(msg->msg.tcpip_sntp_cfg.h2, 0, 1);
             }
-            if (msg->msg.tcpip_sntp_cfg.h3 && strlen(msg->msg.tcpip_sntp_cfg.h3)) {
+            if (msg->msg.tcpip_sntp_cfg.h3 != NULL && strlen(msg->msg.tcpip_sntp_cfg.h3)) {
                 ESP_AT_PORT_SEND_STR(",");
                 send_string(msg->msg.tcpip_sntp_cfg.h3, 0, 1);
             }

@@ -278,7 +278,7 @@ typedef struct http_state {
     esp_conn_p conn;                            /*!< Connection handle */
     esp_pbuf_p p;                               /*!< Header received pbuf chain */
     
-    uint32_t conn_mem_available;                /*!< Available memory in connection send queue */
+    size_t conn_mem_available;               	/*!< Available memory in connection send queue */
     uint32_t written_total;                     /*!< Total number of bytes written into send buffer */
     uint32_t sent_total;                        /*!< Number of bytes we already sent */
     

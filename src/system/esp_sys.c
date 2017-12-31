@@ -289,7 +289,7 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     evt = osMessageGet(*b, !timeout ? osWaitForever : timeout); /* Get message event */
     if (evt.status == osEventMessage) {         /* Did we get a message? */
         *m = evt.value.p;                       /* Set value */
-        return osKernelSysTick() - timeout;     /* Return time required for reading message */
+        return osKernelSysTick() - time;        /* Return time required for reading message */
     }
     return ESP_SYS_TIMEOUT;
 }

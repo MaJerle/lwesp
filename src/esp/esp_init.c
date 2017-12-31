@@ -32,6 +32,6 @@
  * \author          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
-#include "esp_init.h"
-#include "esp_ll.h"
-#include "esp_threads.h"
+#include "esp/esp_init.h"
+#include "esp/esp_threads.h"
+#include "system/esp_ll.h"

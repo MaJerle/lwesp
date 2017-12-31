@@ -92,7 +92,7 @@ process_next_timeout(void) {
  */
 uint32_t
 espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
-    uint32_t time, wait_time;
+    uint32_t wait_time;
     do {
         if (first_timeout == NULL) {            /* We have no timeouts ready? */
             return esp_sys_mbox_get(b, m, timeout); /* Get entry from message queue */
@@ -103,7 +103,7 @@ espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t tim
         }
         break;
     } while (1);
-    return time;
+    return wait_time;
 }
 
 /**

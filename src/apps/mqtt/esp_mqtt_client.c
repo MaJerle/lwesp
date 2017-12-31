@@ -1,4 +1,4 @@
-/**
+    /**
  * \file            esp_mqtt_client.c
  * \brief           MQTT client
  */
@@ -203,16 +203,16 @@ request_get_pending(mqtt_client_t* client, uint16_t pkt_id) {
  * \brief           Write a fixed header part of MQTT packet to output buffer
  * \param[in]       client: MQTT client
  * \param[in]       type: MQTT Message type
- * \param[in]       dup:
- * \param[in]       qos:
- * \param[in]       retain:
+ * \param[in]       dup: Duplicate status when same packet is sent again
+ * \param[in]       qos: Quality of service value
+ * \param[in]       retain: Retain value
  * \param[in]       rem_len: Remaining packet length, excluding variable length part
  */
 static void
 write_fixed_header(mqtt_client_t* client, mqtt_msg_type_t type, uint8_t dup, uint8_t qos, uint8_t retain, uint16_t rem_len) {
     uint8_t b;
     
-    b = (((uint8_t)type) << 0x04) | ((dup & 0x01) << 0x03) | ((qos & 0x03) << 0x01) | (retain & 0x01);
+    b = ESP_U8((((uint8_t)type) << 0x04) | ((dup & 0x01) << 0x03) | ((qos & 0x03) << 0x01) | (retain & 0x01));
     esp_buff_write(&client->tx_buff, &b, 1);    /* Write start of packet parameters */
     
     ESP_DEBUGF(ESP_DBG_MQTT, "MQTT writing packet type %s to output buffer\r\n", mqtt_msg_type_to_str(type));
@@ -222,23 +222,39 @@ write_fixed_header(mqtt_client_t* client, mqtt_msg_type_t type, uint8_t dup, uin
          * Length if encoded LSB first up to 127 (0x7F) long,
          * where bit 7 indicates we have more data in queue
          */
-        b = (rem_len & 0x7F) | (rem_len > 0x7F ? 0x80 : 0);
+        b = ESP_U8((rem_len & 0x7F) | (rem_len > 0x7F ? 0x80 : 0));
         esp_buff_write(&client->tx_buff, &b, 1);/* Write single byte */
         rem_len >>= 7;                          /* Go to next 127 bytes */
     } while (rem_len);
 }
 
+/**
+ * \brief           Write 8-bit value to output buffer
+ * \param[in]       client: MQTT client
+ * \param[in]       num: Number to write
+ */
 static void
 write_u8(mqtt_client_t* client, uint8_t num) {
     esp_buff_write(&client->tx_buff, &num, 1);  /* Write single byte */
 }
 
+/**
+ * \brief           Write 16-bit value in MSB first format to output buffer
+ * \param[in]       client: MQTT client
+ * \param[in]       num: Number to write
+ */
 static void
 write_u16(mqtt_client_t* client, uint16_t num) {
-    write_u8(client, num >> 8);                 /* Write MSB first... */
-    write_u8(client, num & 0xFF);               /* ...followed by LSB */
+    write_u8(client, ESP_U8(num >> 8));         /* Write MSB first... */
+    write_u8(client, ESP_U8(num & 0xFF));       /* ...followed by LSB */
 }
 
+/**
+ * \brief           Write raw data without length parameter to output buffer
+ * \param[in]       client: MQTT client
+ * \param[in]       data: Data to write
+ * \param[in]       len: Length of data to write
+ */
 static void
 write_data(mqtt_client_t* client, const void* data, size_t len) {
     esp_buff_write(&client->tx_buff, data, len);/* Write raw data to buffer */
@@ -252,21 +268,27 @@ write_data(mqtt_client_t* client, const void* data, size_t len) {
  *                  remaining length itself + 1 byte for packet header
  * \param[in]       client: MQTT client
  * \param[in]       rem_len: Remaining length of packet
+ * \return          Number of required RAW bytes or 0 if no memory available
  */
 static uint16_t
 output_check_enough_memory(mqtt_client_t* client, uint16_t rem_len) {
     uint16_t total_len = rem_len + 1;           /* Remaining length + first (packet start) byte */
     
-    while (rem_len) {                           /* Calculate bytes for encoding remainig length itself */
+    do {                                        /* Calculate bytes for encoding remainig length itself */
         total_len++;
         rem_len >>= 7;                          /* Encoded with 7 bits per byte */
-    }
+    } while (rem_len);
     
-    return esp_buff_get_free(&client->tx_buff) >= total_len ? total_len : 0;
+    return ESP_U16(esp_buff_get_free(&client->tx_buff)) >= total_len ? total_len : 0;
 }
 
 /**
- * \brief           Write and send acknowledge/recor
+ * \brief           Write and send acknowledge/record
+ * \param[in]       client: MQTT client
+ * \param[in]       msg_type: Message type to respond
+ * \param[in]       pkt_id: Packet ID to send response for
+ * \param[in]       qos: Quality of service for packet
+ * \return          1 on success, 0 otherwise
  */
 static uint8_t
 write_ack_rec_rel_resp(mqtt_client_t* client, mqtt_msg_type_t msg_type, uint16_t pkt_id, uint8_t qos) {
@@ -274,6 +296,7 @@ write_ack_rec_rel_resp(mqtt_client_t* client, mqtt_msg_type_t msg_type, uint16_t
         write_fixed_header(client, msg_type, 0, qos, 0, 2); /* Write fixed header with 2 more bytes for packet id */
         write_u16(client, pkt_id);              /* Write packet ID */
         send_data(client);                      /* Flush data to output */
+        return 1;
     } else {
         ESP_DEBUGF(ESP_DBG_MQTT, "MQTT No memory to write ACK/REC/REL entries\r\n");
     }
@@ -329,7 +352,7 @@ sub_unsub(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg, uint
     uint8_t ret = 0;
     mqtt_request_t* request = NULL;
     
-    len_topic = strlen(topic);                  /* Get length of topic */
+    len_topic = ESP_U16(strlen(topic));         /* Get length of topic */
     if (len_topic == 0) {
         return 0;
     }
@@ -587,8 +610,8 @@ mqtt_parse_incoming(mqtt_client_t* client, esp_pbuf_p pbuf) {
 static void
 mqtt_connected_cb(mqtt_client_t* client) {
     uint8_t flags = 0;
-    uint16_t rem_len;
-    size_t len_id, len_user, len_pass, len_will_topic, len_will_message;
+    uint16_t rem_len = 0;
+    uint16_t len_id = 0, len_user = 0, len_pass = 0, len_will_topic = 0, len_will_message = 0;
 
     flags |= MQTT_FLAG_CONNECT_CLEAN_SESSION;   /* Start as clean session */
     
@@ -600,15 +623,15 @@ mqtt_connected_cb(mqtt_client_t* client) {
      */
     rem_len = 10;                               /* Set remaining length of fixed header */
     
-    len_id = strlen(client->info->id);          /* Get cliend ID length */
+    len_id = ESP_U16(strlen(client->info->id)); /* Get cliend ID length */
     rem_len += len_id + 2;                      /* Add client id length including length entries */
     
     if (client->info->will_topic != NULL && client->info->will_message != NULL) {
         flags |= MQTT_FLAG_CONNECT_WILL;
         flags |= (ESP_MIN(client->info->will_qos, 2)) << 0x03;  /* Set qos to flags */
         
-        len_will_topic = strlen(client->info->will_topic);
-        len_will_message = strlen(client->info->will_message);
+        len_will_topic = ESP_U16(strlen(client->info->will_topic));
+        len_will_message = ESP_U16(strlen(client->info->will_message));
         
         rem_len += len_will_topic + 2;          /* Add will topic parameter */
         rem_len += len_will_message + 2;        /* Add will message parameter */
@@ -617,14 +640,14 @@ mqtt_connected_cb(mqtt_client_t* client) {
     if (client->info->user != NULL) {           /* Check for username */
         flags |= MQTT_FLAG_CONNECT_USERNAME;    /* Username is included */
         
-        len_user = strlen(client->info->user);  /* Get username length */
+        len_user = ESP_U16(strlen(client->info->user)); /* Get username length */
         rem_len += len_user + 2;                /* Add username length including length entries */
     }
     
     if (client->info->pass != NULL) {           /* Check for password */
         flags |= MQTT_FLAG_CONNECT_PASSWORD;    /* Password is included */
         
-        len_pass = strlen(client->info->pass);  /* Get username length */
+        len_pass = ESP_U16(strlen(client->info->pass)); /* Get username length */
         rem_len += len_pass + 2;                /* Add password length including length entries */
     }
     
@@ -1008,7 +1031,7 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
     mqtt_request_t* request = NULL;
     espr_t res = espOK;
     
-    len_topic = strlen(topic);                  /* Get length of topic */
+    len_topic = ESP_U16(strlen(topic));         /* Get length of topic */
     if (len_topic == 0) {
         return espERRMEM;
     }
