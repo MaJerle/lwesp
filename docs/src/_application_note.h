@@ -65,54 +65,12 @@
  *
  * Default template file comes with something like this:
  *
- * \code{c}
-#ifndef __ESP_CONFIG_H
-#define __ESP_CONFIG_H  100
-
-/*
- * Rename this file to "esp_config.h" for your application
- */
-
-/* First include debug */
-#include "esp/esp_debug.h"
-
-/*
- * Open "include/esp/esp_config_default.h" and 
- * copy & replace settings you want to change here
- */
-
-
-/* After user configuration, call default config to merge config together */
-#include "esp/esp_config_default.h"
-
-
-#endif /* __ESP_CONFIG_H */ 
-\endcode
- * 
+ * \include         _example_config_template.h
+ *
  * In case user wants to increase default buffer size_t for received data,
  * a file should be modified to something similar like code below:
  *
- * \code{c}
-#ifndef __ESP_CONFIG_H
-#define __ESP_CONFIG_H  100
-
-/*
- * Rename this file to "esp_config.h" for your application
- */
-
-/* First include debug */
-#include "esp/esp_debug.h"
-
- /*
-  * Increase default receive buffer length
-  */
-#define ESP_RCV_BUFF_SIZE                   0x800
- 
-/* After user configuration, call default config to merge config together */
-#include "esp/esp_config_default.h"
-
-#endif /* __ESP_CONFIG_H */ 
-\endcode
+ * \include         _example_config.h
  *
  * \note            Important notes:
  *                      - Always do default settings modifications in user custom <b>esp_config.h</b> file
@@ -187,14 +145,7 @@
  * When blocking mode is selected, function will block execution until response is received 
  * and user has immediate result so linear code execution may be applied:
  *
- * \code{c}
-//Execute command 1 in blocking mode
-if (cmd1(param1, param2, 1) == espOK) {         // Execute cmd 1 in blocking mode and read response immediatelly
-    if (cmd2(param3, param4, 1) == espOK) {     // Execute cmd 2 in blocking mode and read response immediatelly
-        // Do some job after 2 commands were successfully executed
-    }
-}
-\endcode
+ * \include         _example_blocking_pseudo.c
  *
  * \warning         When user wants to send command from callback function,
  *                  it is mandatory to call it in non-blocking way, otherwise you may enter dead-lock
@@ -214,19 +165,6 @@ if (cmd1(param1, param2, 1) == espOK) {         // Execute cmd 1 in blocking mod
  *
  * Pseudo code example for non-blocking API call. Full example for connections API can be found in \ref ESP_CONN section.
  *
- * \code{c}
-if (cmd1(param1, param2, 0) == espOK) {
-    // Cmd 1 was created and sent to message queue for processing
-}
-
-// Callback function for command
-callback_fn(evt) {
-    if (evt == cmd1_evt) {
-        // Command was executed
-        // Send another, must always be sent non-blocking way!
-        cmd2(param2, param3, 0);
-    }
-}
-\endcode
+ * \include         _example_nonblocking_pseudo.c
  *
  */

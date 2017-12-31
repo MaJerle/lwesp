@@ -73,19 +73,7 @@
  * After we call \ref esp_pbuf_cat, we have to forget using user variable 2, because if we somehow try to free pbuf from variable <b>1</b>, 
  * then we point with variable <b>2</b> to memory which is not defined anymore.
  *
- * \code{c}
-esp_pbuf_p a, b;
-                                                
-a = esp_pbuf_new(10);                           // Create pbuf with 10 bytes of memory
-b = esp_pbuf_new(20);                           // Create pbuf with 20 bytes of memory
-
-esp_pbuf_cat(a, b);                             // Link them together
-esp_pbuf_free(a);                               // If we call this, it will free pbuf for a and b together
-
-// From now on, operating with b variable has undefined behavior, we should not use it anymore.
-// The best way would be to do
-b = NULL;                                       // We are not pointing anymore here
-\endcode
+ * \include         _example_pbuf_cat.c
  *
  * If we need to link pbuf to another pbuf and we still need to use variable, then use \ref esp_pbuf_chain instead.
  *
@@ -96,23 +84,7 @@ b = NULL;                                       // We are not pointing anymore h
  *
  * Once we are done using pbuf, we have to free it using \ref esp_pbuf_free function.
  *
- * \code{c}
-esp_pbuf_p a, b;
-                                                
-a = esp_pbuf_new(10);                           // Create pbuf with 10 bytes of memory
-b = esp_pbuf_new(20);                           // Create pbuf with 20 bytes of memory
-
-esp_pbuf_chain(a, b);                           // Link them together and increase reference count on b
-esp_pbuf_free(a);                               // If we call this, it will free only first pbuf
-                                                // As there is link to b pbuf somewhere
-
-// From now on, we can still use b as reference to some pbuf,
-// but when we are finish using it, we have to free the memory
-esp_pbuf_free(b);                               // Try to free our memory. 
-                                                // If reference is more than 1, 
-                                                // It will not be removed from memory but only reference will be decreased
-b = NULL                                        // After free call, do not use b anymore
-\endcode
+ * \include         _example_pbuf_chain.c
  *
  * \}
  */
