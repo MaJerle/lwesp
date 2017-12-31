@@ -33,7 +33,7 @@
 #include "esp/esp_sta.h"
 #include "esp/esp_mem.h"
 
-#if ESP_MODE_STATION || __DOXYGEN__
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
 
 /**
  * \brief           Quit (disconnect) from access point
@@ -230,4 +230,4 @@ esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint3
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
-#endif /* ESP_MODE_STATION || __DOXYGEN__ */
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */

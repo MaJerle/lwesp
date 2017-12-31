@@ -86,15 +86,15 @@ typedef struct {
  * \brief           List of possible WiFi modes
  */
 typedef enum {
-#if ESP_MODE_STATION || __DOXYGEN__
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
     ESP_MODE_STA = 1,                           /*!< Set WiFi mode to station only */
-#endif /* ESP_MODE_STATION || __DOXYGEN__ */
-#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_MODE_AP = 2,                            /*!< Set WiFi mode to access point only */
-#endif /* ESP_MODE_ACCESS_POINT || __DOXYGEN__ */
-#if (ESP_MODE_STATION_ACCESS_POINT) || __DOXYGEN__
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+#if (ESP_CFG_MODE_STATION_ACCESS_POINT) || __DOXYGEN__
     ESP_MODE_STA_AP = 3,                        /*!< Set WiFi mode to station and access point */
-#endif /* (ESP_MODE_STATION_ACCESS_POINT) || __DOXYGEN__ */
+#endif /* (ESP_CFG_MODE_STATION_ACCESS_POINT) || __DOXYGEN__ */
 } esp_mode_t;
 
 /**
@@ -194,9 +194,9 @@ typedef struct esp_cb_t {
 #include "esp/esp_conn.h"
 #include "esp/esp_sta.h"
 #include "esp/esp_ap.h"
-#if ESP_OS
+#if ESP_CFG_OS
 #include "esp/esp_netconn.h"
-#endif /* ESP_OS */
+#endif /* ESP_CFG_OS */
 
 espr_t      esp_reset(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);

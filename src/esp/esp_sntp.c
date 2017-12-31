@@ -33,7 +33,7 @@
 #include "esp/esp_sntp.h"
 #include "esp/esp_mem.h"
 
-#if ESP_SNTP || __DOXYGEN__
+#if ESP_CFG_SNTP || __DOXYGEN__
 
 /**
  * \brief           Configure SNTP mode parameters
@@ -77,4 +77,4 @@ esp_sntp_gettime(esp_datetime_t* dt, uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
-#endif /* ESP_SNTP || __DOXYGEN__ */
+#endif /* ESP_CFG_SNTP || __DOXYGEN__ */

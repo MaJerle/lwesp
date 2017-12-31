@@ -50,7 +50,7 @@ extern "C" {
  *
  * Functions to manage access point (AP) on ESP device.
  * 
- * In order to be able to use AP feature, \ref ESP_MODE_ACCESS_POINT must be enabled.
+ * In order to be able to use AP feature, \ref ESP_CFG_MODE_ACCESS_POINT must be enabled.
  */
 
 espr_t      esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);

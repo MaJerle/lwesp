@@ -33,7 +33,7 @@
 #include "esp/esp_ping.h"
 #include "esp/esp_mem.h"
 
-#if ESP_PING || __DOXYGEN__
+#if ESP_CFG_PING || __DOXYGEN__
 
 /**
  * \brief           Ping server and get response time from it
@@ -57,4 +57,4 @@ esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
-#endif /* ESP_PING || __DOXYGEN__ */
+#endif /* ESP_CFG_PING || __DOXYGEN__ */

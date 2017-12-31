@@ -439,28 +439,29 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
     /*
      * Step 2
      */
-    while (btw >= ESP_CONN_MAX_DATA_LEN) {
+    while (btw >= ESP_CFG_CONN_MAX_DATA_LEN) {
         uint8_t* buff;
-        buff = esp_mem_alloc(ESP_CONN_MAX_DATA_LEN);    /* Allocate memory */
+        buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN);    /* Allocate memory */
         if (buff != NULL) {
-            memcpy(buff, d, ESP_CONN_MAX_DATA_LEN); /* Copy data to buffer */
-            if (conn_send(conn, NULL, 0, buff, ESP_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
+            memcpy(buff, d, ESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
+            if (conn_send(conn, NULL, 0, buff, ESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
                 esp_mem_free(buff);             /* Manually free memory */
+                return espERRMEM;
             }
         } else {
-            return espERR;
+            return espERRMEM;
         }
         
-        btw -= ESP_CONN_MAX_DATA_LEN;           /* Decrease remaining length */
-        d += ESP_CONN_MAX_DATA_LEN;             /* Advance data pointer */
+        btw -= ESP_CFG_CONN_MAX_DATA_LEN;       /* Decrease remaining length */
+        d += ESP_CFG_CONN_MAX_DATA_LEN;         /* Advance data pointer */
     }
     
     /*
      * Step 3
      */
     if (conn->buff == NULL) {
-        conn->buff = esp_mem_alloc(ESP_CONN_MAX_DATA_LEN);  /* Allocate memory for temp buffer */
-        conn->buff_len = ESP_CONN_MAX_DATA_LEN;
+        conn->buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN);  /* Allocate memory for temp buffer */
+        conn->buff_len = ESP_CFG_CONN_MAX_DATA_LEN;
         conn->buff_ptr = 0;
     }
     if (btw) {
@@ -468,7 +469,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
             memcpy(conn->buff, d, btw);         /* Copy data to memory */
             conn->buff_ptr = btw;
         } else {
-            return espERR;
+            return espERRMEM;
         }
     }
     

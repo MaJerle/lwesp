@@ -130,7 +130,7 @@ typedef struct {
 #define ESP_MSG_VAR_FREE(name)                      
 #else /* 1 */
 #define ESP_MSG_VAR_DEFINE(name)                esp_msg_t* name
-#define ESP_MSG_VAR_ALLOC(name)                 do { name = esp_mem_alloc(sizeof(*(name))); if (!(name)) { ESP_DEBUGF(ESP_DBG_VAR, "Error allocating: %d bytes\r\n", sizeof(*(name))); return espERRMEM; } memset(name, 0x00, sizeof(*(name))); } while (0)
+#define ESP_MSG_VAR_ALLOC(name)                 do { name = esp_mem_alloc(sizeof(*(name))); if (!(name)) { ESP_DEBUGF(ESP_CFG_DBG_VAR, "Error allocating: %d bytes\r\n", sizeof(*(name))); return espERRMEM; } memset(name, 0x00, sizeof(*(name))); } while (0)
 #define ESP_MSG_VAR_REF(name)                   (*(name))
 #define ESP_MSG_VAR_FREE(name)                  esp_mem_free(name)
 #endif /* !1 */

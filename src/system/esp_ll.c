@@ -123,14 +123,14 @@ static uint8_t initialized;
 static uint8_t is_running;
 #endif /* USART_USE_DMA */
 
-#if ESP_INPUT_USE_PROCESS
+#if ESP_CFG_INPUT_USE_PROCESS
 void usart_ll_thread(void const * arg);
 
 osMessageQDef(usart_ll_mbox, 10, uint8_t);
 osMessageQId usart_ll_mbox_id;
 osThreadDef(usart_ll_thread, usart_ll_thread, osPriorityNormal, 0, 1024);
 osThreadId usart_ll_thread_id;
-#endif /* ESP_INPUT_USE_PROCESS */
+#endif /* ESP_CFG_INPUT_USE_PROCESS */
 
 /**
  * \brief           Send data to ESP device
@@ -263,14 +263,14 @@ configure_uart(uint32_t baudrate) {
     HAL_NVIC_SetPriority(ESP_USART_IRQ, 1, 1);
     HAL_NVIC_EnableIRQ(ESP_USART_IRQ);
 
-#if ESP_INPUT_USE_PROCESS
+#if ESP_CFG_INPUT_USE_PROCESS
     if (!usart_ll_thread_id) {
         usart_ll_thread_id = osThreadCreate(osThread(usart_ll_thread), NULL);
     }
     if (!usart_ll_mbox_id) {
         usart_ll_mbox_id = osMessageCreate(osMessageQ(usart_ll_mbox), NULL);
     }
-#endif /* ESP_INPUT_USE_PROCESS */
+#endif /* ESP_CFG_INPUT_USE_PROCESS */
     
     if (!initialized) {
         LL_GPIO_ResetOutputPin(ESP_USART_RS_PORT, ESP_USART_RS_PIN);
@@ -303,7 +303,7 @@ ESP_USART_IRQHANDLER(void) {
     
     if (LL_USART_IsActiveFlag_IDLE(ESP_USART) && is_running) {
         LL_USART_ClearFlag_IDLE(ESP_USART);
-#if ESP_INPUT_USE_PROCESS
+#if ESP_CFG_INPUT_USE_PROCESS
         osMessagePut(usart_ll_mbox_id, 0, 0);
         (void)pos;
 #else
@@ -313,7 +313,7 @@ ESP_USART_IRQHANDLER(void) {
             esp_input(&usart_mem[old_pos], pos - old_pos);  /* Send to stack */
         }
         old_pos = pos;
-#endif /* !ESP_INPUT_USE_PROCESS */
+#endif /* !ESP_CFG_INPUT_USE_PROCESS */
     }
 #else /* USART_USE_DMA */
     if (LL_USART_IsActiveFlag_RXNE(ESP_USART)) {
@@ -330,15 +330,15 @@ ESP_USART_IRQHANDLER(void) {
  */
 void
 ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
-#if !ESP_INPUT_USE_PROCESS
+#if !ESP_CFG_INPUT_USE_PROCESS
     uint16_t pos;
-#endif /* !ESP_INPUT_USE_PROCESS */
+#endif /* !ESP_CFG_INPUT_USE_PROCESS */
     
     if (!is_running) {                          /* Ignore if not running */
         DMA_RX_STREAM_CLEAR_TC;
         DMA_RX_STREAM_CLEAR_HT;
     }
-#if ESP_INPUT_USE_PROCESS
+#if ESP_CFG_INPUT_USE_PROCESS
     DMA_RX_STREAM_CLEAR_TC;                     /* Clear transfer complete interrupt */
     DMA_RX_STREAM_CLEAR_HT;                     /* Clear half-transfer interrupt */
     osMessagePut(usart_ll_mbox_id, 0, 0);       /* Notify thread only */
@@ -359,11 +359,11 @@ ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
         esp_input(&usart_mem[old_pos], pos - old_pos);  /* Send to stack */
         old_pos = pos;                          /* Set new position of new valid data */
     }
-#endif /* !ESP_INPUT_USE_PROCESS */
+#endif /* !ESP_CFG_INPUT_USE_PROCESS */
 }
 #endif /* USART_USE_DMA */
 
-#if ESP_INPUT_USE_PROCESS
+#if ESP_CFG_INPUT_USE_PROCESS
 /**
  * \brief           USART read thread
  */
@@ -394,7 +394,7 @@ usart_ll_thread(void const * arg) {
         }
     }
 }
-#endif /* ESP_INPUT_USE_PROCESS */
+#endif /* ESP_CFG_INPUT_USE_PROCESS */
 
 /**
  * \brief           Callback function called from initialization process

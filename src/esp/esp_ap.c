@@ -33,7 +33,7 @@
 #include "esp/esp_timeout.h"
 #include "esp/esp_mem.h"
 
-#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
 
 /**
  * \brief           Get IP of access point
@@ -189,4 +189,4 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
-#endif /* ESP_MODE_ACCESS_POINT || __DOXYGEN__ */
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */

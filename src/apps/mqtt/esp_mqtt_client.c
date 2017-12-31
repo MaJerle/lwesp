@@ -32,9 +32,9 @@
 #include "esp/esp_mem.h"
 #include "esp/esp_pbuf.h"
 
-#ifndef ESP_DBG_MQTT
-#define ESP_DBG_MQTT                        ESP_DBG_OFF
-#endif /* ESP_DBG_MQTT */
+#ifndef ESP_CFG_DBG_MQTT
+#define ESP_CFG_DBG_MQTT                        ESP_CFG_DBG_OFF
+#endif /* ESP_CFG_DBG_MQTT */
 
 static espr_t   mqtt_conn_cb(esp_cb_t* cb);
 static void     send_data(mqtt_client_t* client);
@@ -215,7 +215,7 @@ write_fixed_header(mqtt_client_t* client, mqtt_msg_type_t type, uint8_t dup, uin
     b = ESP_U8((((uint8_t)type) << 0x04) | ((dup & 0x01) << 0x03) | ((qos & 0x03) << 0x01) | (retain & 0x01));
     esp_buff_write(&client->tx_buff, &b, 1);    /* Write start of packet parameters */
     
-    ESP_DEBUGF(ESP_DBG_MQTT, "MQTT writing packet type %s to output buffer\r\n", mqtt_msg_type_to_str(type));
+    ESP_DEBUGF(ESP_CFG_DBG_MQTT, "MQTT writing packet type %s to output buffer\r\n", mqtt_msg_type_to_str(type));
     
     do {                                        /* Encode length, we must write a len byte even if 0 */
         /*
@@ -298,7 +298,7 @@ write_ack_rec_rel_resp(mqtt_client_t* client, mqtt_msg_type_t msg_type, uint16_t
         send_data(client);                      /* Flush data to output */
         return 1;
     } else {
-        ESP_DEBUGF(ESP_DBG_MQTT, "MQTT No memory to write ACK/REC/REL entries\r\n");
+        ESP_DEBUGF(ESP_CFG_DBG_MQTT, "MQTT No memory to write ACK/REC/REL entries\r\n");
     }
     return 0;
 }
@@ -446,7 +446,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
             }
             data_len = client->msg_rem_len - (data - client->rx_buff);  /* Calculate length of remaining data */
             
-            ESP_DEBUGF(ESP_DBG_MQTT, \
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT, \
                 "MQTT publish packet received on topic %.*s; QoS: %d; pkt_id: %d; data_len: %d\r\n", \
                 topic_len, (const char *)topic, (int)qos, (int)pkt_id, (int)data_len);
             
@@ -459,7 +459,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
              */
             if (qos > 0) {                      /* We have to reply on QoS > 0 */
                 mqtt_msg_type_t resp_msg_type = qos == 1 ? MQTT_MSG_TYPE_PUBACK : MQTT_MSG_TYPE_PUBREC;
-                ESP_DEBUGF(ESP_DBG_MQTT, "MQTT sending publish resp: %s on pkt_id: %d\r\n", \
+                ESP_DEBUGF(ESP_CFG_DBG_MQTT, "MQTT sending publish resp: %s on pkt_id: %d\r\n", \
                             mqtt_msg_type_to_str(resp_msg_type), (int)pkt_id);
                 
                 write_ack_rec_rel_resp(client, resp_msg_type, pkt_id, qos);
@@ -480,7 +480,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
             break;
         }
         case MQTT_MSG_TYPE_PINGRESP: {          /* Respond to PINGREQ received */
-            ESP_DEBUGF(ESP_DBG_MQTT, "MQTT ping response received\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT, "MQTT ping response received\r\n");
             break;
         }
         case MQTT_MSG_TYPE_SUBACK:

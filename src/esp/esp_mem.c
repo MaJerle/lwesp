@@ -48,8 +48,8 @@ typedef struct MemBlock {
 /**
  * \brief           Memory alignment bits and absolute number
  */
-#define MEM_ALIGN_BITS              ((size_t)(ESP_MEM_ALIGNMENT - 1))
-#define MEM_ALIGN_NUM               ((size_t)ESP_MEM_ALIGNMENT)
+#define MEM_ALIGN_BITS              ((size_t)(ESP_CFG_MEM_ALIGNMENT - 1))
+#define MEM_ALIGN_NUM               ((size_t)ESP_CFG_MEM_ALIGNMENT)
 #define MEM_ALIGN(x)                ESP_MEM_ALIGN(x)
 
 #define MEMBLOCK_METASIZE           MEM_ALIGN(sizeof(MemBlock_t))
@@ -410,7 +410,7 @@ esp_mem_alloc(uint32_t size) {
     void* ptr;
     ESP_CORE_PROTECT();
     ptr = mem_alloc(size);                          /* Allocate memory and return pointer */
-    ESP_DEBUGW(ESP_DBG_MEM, ptr == NULL, "(A)llocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM, ptr == NULL, "(A)llocation failed: %d bytes\r\n", (int)size);
     ESP_CORE_UNPROTECT();
     return ptr;
 }
@@ -429,7 +429,7 @@ void *
 esp_mem_realloc(void* ptr, size_t size) {
     ESP_CORE_PROTECT();
     ptr = mem_realloc(ptr, size);                   /* Reallocate and return pointer */
-    ESP_DEBUGW(ESP_DBG_MEM, ptr == NULL, "(Re)allocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM, ptr == NULL, "(Re)allocation failed: %d bytes\r\n", (int)size);
     ESP_CORE_UNPROTECT();
     return ptr;
 }
@@ -447,7 +447,7 @@ esp_mem_calloc(size_t num, size_t size) {
     void* ptr;
     ESP_CORE_PROTECT();
     ptr = mem_calloc(num, size);                   /* Allocate memory and clear it to 0. Then return pointer */
-    ESP_DEBUGW(ESP_DBG_MEM, ptr == NULL, "(C)allocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM, ptr == NULL, "(C)allocation failed: %d bytes\r\n", (int)size);
     ESP_CORE_UNPROTECT();
     return ptr;
 }

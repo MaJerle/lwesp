@@ -33,7 +33,7 @@
 #include "esp/esp_hostname.h"
 #include "esp/esp_mem.h"
 
-#if ESP_HOSTNAME || __DOXYGEN__
+#if ESP_CFG_HOSTNAME || __DOXYGEN__
 
 /**
  * \brief           Set hostname of WiFi station
@@ -76,4 +76,4 @@ esp_hostname_get(char* hostname, size_t length, uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
 
-#endif /* ESP_HOSTNAME || __DOXYGEN__ */
+#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */

@@ -63,7 +63,7 @@ extern "C" {
 
 #define ESP_DEBUG_INT(fmt, ...)     printf(fmt, ## __VA_ARGS__)
     
-#if ESP_DBG || __DOXYGEN__
+#if ESP_CFG_DBG || __DOXYGEN__
 /**
  * \brief           Print message to the debug "window" if enabled
  * \param[in]       c: Condition if debug of specific type is enabled
@@ -91,7 +91,7 @@ extern "C" {
 #else
 #define ESP_DEBUGF(c, fmt, ...)
 #define ESP_DEBUGW(c, cond, fmt, ...)
-#endif /* ESP_DBG || __DOXYGEN__ */
+#endif /* ESP_CFG_DBG || __DOXYGEN__ */
 
 /**
  * \}

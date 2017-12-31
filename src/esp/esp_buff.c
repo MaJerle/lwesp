@@ -32,8 +32,8 @@
 #include "esp/esp_buff.h"
 #include "esp/esp_mem.h"
 
-#ifndef ESP_DBG_BUFF
-#define ESP_DBG_BUFF        ESP_DBG_OFF
+#ifndef ESP_CFG_DBG_BUFF
+#define ESP_CFG_DBG_BUFF        ESP_CFG_DBG_OFF
 #endif
 
 /**

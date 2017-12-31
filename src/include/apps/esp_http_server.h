@@ -57,8 +57,8 @@ extern "C" {
 /**
  * \brief           Server debug default setting
  */
-#ifndef ESP_DBG_SERVER
-#define ESP_DBG_SERVER                  ESP_DBG_OFF
+#ifndef ESP_CFG_DBG_SERVER
+#define ESP_CFG_DBG_SERVER                  ESP_CFG_DBG_OFF
 #endif
 
 #ifndef HTTP_SSI_TAG_START

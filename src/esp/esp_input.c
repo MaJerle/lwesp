@@ -40,11 +40,11 @@
 static uint32_t esp_recv_total_len;
 static uint32_t esp_recv_calls;
 
-#if !ESP_INPUT_USE_PROCESS || __DOXYGEN__
+#if !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
 
 /**
  * \brief           Write data to input buffer
- * \note            \ref ESP_INPUT_USE_PROCESS must be disabled to use this function
+ * \note            \ref ESP_CFG_INPUT_USE_PROCESS must be disabled to use this function
  * \param[in]       data: Pointer to data to write
  * \param[in]       len: Number of data elements in units of bytes
  * \return          Member of \ref espr_t enumeration
@@ -61,16 +61,16 @@ esp_input(const void* data, size_t len) {
     return espOK;
 }
 
-#endif /* !ESP_INPUT_USE_PROCESS || __DOXYGEN__ */
+#endif /* !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
 
-#if ESP_INPUT_USE_PROCESS || __DOXYGEN__
+#if ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
 
 /**
  * \brief           Process input data directly without writing it to input buffer
  * \note            This function may only be used when in OS mode,
  *                  where single thread is dedicated for input read of AT receive
  * 
- * \note            \ref ESP_INPUT_USE_PROCESS must be enabled to use this function
+ * \note            \ref ESP_CFG_INPUT_USE_PROCESS must be enabled to use this function
  *
  * \param[in]       data: Pointer to received data to be processed
  * \param[in]       len: Length of data to process in units of bytes
@@ -90,4 +90,4 @@ esp_input_process(const void* data, size_t len) {
     return res;
 }
 
-#endif /* ESP_OS || __DOXYGEN__ */
+#endif /* ESP_CFG_OS || __DOXYGEN__ */

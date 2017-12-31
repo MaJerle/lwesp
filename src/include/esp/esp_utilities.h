@@ -57,18 +57,18 @@ extern "C" {
  */
 #define ESP_ASSERT(msg, c)   do {   \
     if (!(c)) {                     \
-        ESP_DEBUGF(ESP_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, __LINE__, msg); \
+        ESP_DEBUGF(ESP_CFG_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, __LINE__, msg); \
         return espPARERR;           \
     }                               \
 } while (0)
 
 /**
- * \brief           Align x value to specific number of bytes, provided from \ref ESP_MEM_ALIGNMENT configuration
+ * \brief           Align x value to specific number of bytes, provided from \ref ESP_CFG_MEM_ALIGNMENT configuration
  * \param[in]       x: Input value to align
  * \return          Input value aligned to specific number of bytes
  * \hideinitializer
  */
-#define ESP_MEM_ALIGN(x)                    ((x + (ESP_MEM_ALIGNMENT - 1)) & ~(ESP_MEM_ALIGNMENT - 1))
+#define ESP_MEM_ALIGN(x)                    ((x + (ESP_CFG_MEM_ALIGNMENT - 1)) & ~(ESP_CFG_MEM_ALIGNMENT - 1))
 
 /**
  * \brief           Get minimal value between x and y inputs

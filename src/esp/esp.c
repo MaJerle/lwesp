@@ -38,8 +38,8 @@
 #include "esp/esp_threads.h"
 #include "system/esp_ll.h"
 
-#if ESP_OS != 1
-#error ESP_OS must be set to 1!
+#if ESP_CFG_OS != 1
+#error ESP_CFG_OS must be set to 1!
 #endif
 
 esp_t esp;
@@ -91,18 +91,18 @@ esp_init(esp_cb_func_t cb_func) {
     esp.cb_server = esp.cb_func;                /* Set default server callback function */
     
     esp_sys_init();                             /* Init low-level system */
-    esp_ll_init(&esp.ll, ESP_AT_PORT_BAUDRATE); /* Init low-level communication */
+    esp_ll_init(&esp.ll, ESP_CFG_AT_PORT_BAUDRATE); /* Init low-level communication */
     
     esp_sys_sem_create(&esp.sem_sync, 1);       /* Create new semaphore with unlocked state */
-    esp_sys_mbox_create(&esp.mbox_producer, ESP_THREAD_PRODUCER_MBOX_SIZE); /* Producer message queue */
+    esp_sys_mbox_create(&esp.mbox_producer, ESP_CFG_THREAD_PRODUCER_MBOX_SIZE); /* Producer message queue */
     esp_sys_thread_create(&esp.thread_producer, "producer", esp_thread_producer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
     
-#if !ESP_INPUT_USE_PROCESS
-    esp_sys_mbox_create(&esp.mbox_process, ESP_THREAD_PROCESS_MBOX_SIZE);   /* Consumer message queue */
+#if !ESP_CFG_INPUT_USE_PROCESS
+    esp_sys_mbox_create(&esp.mbox_process, ESP_CFG_THREAD_PROCESS_MBOX_SIZE);   /* Consumer message queue */
     esp_sys_thread_create(&esp.thread_process,  "process", esp_thread_process, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
     
-    esp_buff_init(&esp.buff, ESP_RCV_BUFF_SIZE);    /* Init buffer for input data */
-#endif /* !ESP_INPUT_USE_PROCESS */
+    esp_buff_init(&esp.buff, ESP_CFG_RCV_BUFF_SIZE);    /* Init buffer for input data */
+#endif /* !ESP_CFG_INPUT_USE_PROCESS */
     esp.status.f.initialized = 1;               /* We are initialized now */
     
     /**
@@ -219,7 +219,7 @@ esp_set_default_server_callback(esp_cb_func_t cb_func) {
     return espOK;
 }
 
-#if ESP_DNS || __DOXYGEN__
+#if ESP_CFG_DNS || __DOXYGEN__
 /**
  * \brief           Get IP address from host name
  * \param[in]       host: Pointer to host name to get IP for
@@ -241,7 +241,7 @@ esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking) {
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
 }
-#endif /* ESP_DNS || __DOXYGEN__ */
+#endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
 /**
  * \brief           Lock and protect ESP core from multiple access at a time

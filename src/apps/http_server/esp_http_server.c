@@ -339,8 +339,8 @@ read_resp_file(http_state_t* hs) {
                     hs->buff = NULL;            /* Reset buffer */
                 }
             } else {
-                if (len > ESP_CONN_MAX_DATA_LEN) {  /* Limit to maximal length */
-                    len = ESP_CONN_MAX_DATA_LEN;
+                if (len > ESP_CFG_CONN_MAX_DATA_LEN) {  /* Limit to maximal length */
+                    len = ESP_CFG_CONN_MAX_DATA_LEN;
                 }
                 hs->buff_ptr = 0;               /* Reset read pointer */
                 do {
@@ -373,7 +373,7 @@ send_response_ssi(http_state_t* hs) {
     uint8_t reset = 0;
     uint8_t ch;
     
-    ESP_DEBUGF(ESP_DBG_SERVER, "Processing with SSI\r\n");
+    ESP_DEBUGF(ESP_CFG_DBG_SERVER, "Processing with SSI\r\n");
     
     /*
      * First get available memory in output buffer
@@ -517,7 +517,7 @@ send_response_no_ssi(http_state_t* hs) {
         read_resp_file(hs);                     /* Try to read response file */
     }
     
-    ESP_DEBUGF(ESP_DBG_SERVER, "Processing NO SSI\r\n");
+    ESP_DEBUGF(ESP_CFG_DBG_SERVER, "Processing NO SSI\r\n");
     
     /*
      * Do we have a file? 
@@ -608,7 +608,7 @@ http_evt_cb(esp_cb_t* cb) {
                 hs->conn = conn;                /* Save connection handle */
                 esp_conn_set_arg(conn, hs);     /* Set argument for connection */
             } else {
-                ESP_DEBUGF(ESP_DBG_SERVER, "Cannot allocate memory for http state\r\n");
+                ESP_DEBUGF(ESP_CFG_DBG_SERVER, "Cannot allocate memory for http state\r\n");
                 close = 1;                      /* No memory, close the connection */
             }
             break;
@@ -640,7 +640,7 @@ http_evt_cb(esp_cb_t* cb) {
                      */
                     if ((pos = esp_pbuf_strfind(hs->p, CRLF CRLF, 0)) != ESP_SIZET_MAX) {
                         uint8_t http_uri_parsed;
-                        ESP_DEBUGF(ESP_DBG_SERVER, "HTTP headers received!\r\n");
+                        ESP_DEBUGF(ESP_CFG_DBG_SERVER, "HTTP headers received!\r\n");
                         hs->headers_received = 1;   /* Flag received headers */
                         
                         /*
@@ -798,7 +798,7 @@ http_evt_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_DATA_SENT: {
             if (hs != NULL) {
-                ESP_DEBUGF(ESP_DBG_SERVER, "Server data sent with %d bytes\r\n", (int)cb->cb.conn_data_sent.sent);
+                ESP_DEBUGF(ESP_CFG_DBG_SERVER, "Server data sent with %d bytes\r\n", (int)cb->cb.conn_data_sent.sent);
                 hs->sent_total += cb->cb.conn_data_sent.sent;   /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
@@ -811,7 +811,7 @@ http_evt_cb(esp_cb_t* cb) {
          * There was a problem with sending connection data
          */
         case ESP_CB_CONN_DATA_SEND_ERR: {
-            ESP_DEBUGF(ESP_DBG_SERVER, "Data send error. Closing connection..\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_SERVER, "Data send error. Closing connection..\r\n");
             close = 1;                          /* Close the connection */
             break;
         }
@@ -820,7 +820,7 @@ http_evt_cb(esp_cb_t* cb) {
          * Connection was just closed, either forced by user or by remote side
          */
         case ESP_CB_CONN_CLOSED: {
-            ESP_DEBUGF(ESP_DBG_SERVER, "Server connection closed\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_SERVER, "Server connection closed\r\n");
             if (hs != NULL) {
 #if HTTP_SUPPORT_POST
                 if (hs->req_method == HTTP_METHOD_POST) {
@@ -881,7 +881,7 @@ http_evt_cb(esp_cb_t* cb) {
 espr_t
 esp_http_server_init(const http_init_t* init, uint16_t port) {
     espr_t res;
-    if ((res = esp_set_server(port, ESP_MAX_CONNS / 2, 80, http_evt_cb, 1)) == espOK) {
+    if ((res = esp_set_server(port, ESP_CFG_MAX_CONNS / 2, 80, http_evt_cb, 1)) == espOK) {
         hi = init;
     }
     return res;

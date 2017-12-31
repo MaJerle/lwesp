@@ -84,7 +84,7 @@ typedef enum {
      * WiFi based commands
      */
     ESP_CMD_WIFI_CWMODE,                        /*!< Set/Get wifi mode */
-#if ESP_MODE_STATION || __DOXYGEN__
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
     ESP_CMD_WIFI_CWJAP,                         /*!< Connect to access point */
     ESP_CMD_WIFI_CWQAP,                         /*!< Disconnect from access point */
     ESP_CMD_WIFI_CWLAP,                         /*!< List available access points */
@@ -92,8 +92,8 @@ typedef enum {
     ESP_CMD_WIFI_CIPSTAMAC_SET,                 /*!< Set MAC address of ESP station */
     ESP_CMD_WIFI_CIPSTA_GET,                    /*!< Get IP address of ESP station */
     ESP_CMD_WIFI_CIPSTA_SET,                    /*!< Set IP address of ESP station */
-#endif /* ESP_MODE_STATION || __DOXYGEN__ */
-#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_CMD_WIFI_CWSAP_GET,                     /*!< Get software access point configuration */
     ESP_CMD_WIFI_CWSAP_SET,                     /*!< Set software access point configuration */
     ESP_CMD_WIFI_CIPAPMAC_GET,                  /*!< Get MAC address of ESP access point */
@@ -101,21 +101,21 @@ typedef enum {
     ESP_CMD_WIFI_CIPAP_GET,                     /*!< Get IP address of ESP access point */
     ESP_CMD_WIFI_CIPAP_SET,                     /*!< Set IP address of ESP access point */
     ESP_CMD_WIFI_CWLIF,                         /*!< Get connected stations on access point */
-#endif /* ESP_MODE_STATION || __DOXYGEN__ */
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
     ESP_CMD_WIFI_WPS,                           /*!< Set WPS option */
     ESP_CMD_WIFI_MDNS,                          /*!< Configure MDNS function */
-#if ESP_HOSTNAME || __DOXYGEN__
+#if ESP_CFG_HOSTNAME || __DOXYGEN__
     ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
     ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
-#endif /* ESP_HOSTNAME || __DOXYGEN__ */
+#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
     
     /*
      * TCP/IP related commands
      */
     ESP_CMD_TCPIP_CIPSTATUS,                    /*!< Get status of connections */
-#if ESP_DNS || __DOXYGEN__
+#if ESP_CFG_DNS || __DOXYGEN__
     ESP_CMD_TCPIP_CIPDOMAIN,                    /*!< Get IP address from domain name = DNS function */
-#endif /* ESP_DNS || __DOXYGEN__ */
+#endif /* ESP_CFG_DNS || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIPSTART,                     /*!< Start client connection */
     ESP_CMD_TCPIP_CIPSSLSIZE,                   /*!< Set SSL buffer size for SSL connection */
     ESP_CMD_TCPIP_CIPSEND,                      /*!< Send network data */
@@ -126,11 +126,11 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSERVERMAXCONN,             /*!< Sets maximal number of connections allowed for server population */
     ESP_CMD_TCPIP_CIPMODE,                      /*!< Transmission mode, either transparent or normal one */
     ESP_CMD_TCPIP_CIPSTO,                       /*!< Sets connection timeout */
-#if ESP_PING || __DOXYGEN__
+#if ESP_CFG_PING || __DOXYGEN__
     ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
-#endif /* ESP_PING || __DOXYGEN__ */
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIUPDATE,                     /*!< Perform self-update */
-#if ESP_SNTP || __DOXYGEN__
+#if ESP_CFG_SNTP || __DOXYGEN__
     ESP_CMD_TCPIP_CIPSNTPCFG,                   /*!< Configure SNTP servers */
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
 #endif /* ESP_SNT || __DOXYGEN__ */
@@ -373,10 +373,10 @@ typedef struct {
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
     esp_sys_mbox_t      mbox_process;           /*!< Consumer message queue handle */
     esp_sys_thread_t    thread_producer;        /*!< Producer thread handle */
-#if !ESP_INPUT_USE_PROCESS || __DOXYGEN__
+#if !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
     esp_sys_thread_t    thread_process;         /*!< Processing thread handle */
     esp_buff_t          buff;                   /*!< Input processing buffer */
-#endif /* !ESP_INPUT_USE_PROCESS || __DOXYGEN__ */
+#endif /* !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
     esp_ll_t            ll;                     /*!< Low level functions */
     
     esp_msg_t*          msg;                    /*!< Pointer to current user message being executed */
@@ -392,12 +392,12 @@ typedef struct {
     esp_cb_func_t       cb_func;                /*!< Default callback function */
     esp_cb_func_t       cb_server;              /*!< Default callback function for server connections */
     
-#if ESP_MODE_STATION || __DOXYGEN__
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
     esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */
-#endif /* ESP_MODE_STATION || __DOXYGEN__ */
-#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     esp_ip_mac_t        ap;                     /*!< Access point IP and MAC addressed */
-#endif /* ESP_MODE_ACCESS_POINT || __DOXYGEN__ */
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
     
     union {
         struct {

@@ -254,7 +254,7 @@ espi_parse_ipd(const char* str) {
     return espOK;
 }
 
-#if ESP_MODE_STATION || __DOXYGEN__
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
 /**
  * \brief           Parse received message for list access points
  * \param[in]       str: Pointer to input string starting with +CWLAP
@@ -298,9 +298,9 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     }
     return 1;
 }
-#endif /* ESP_MODE_STATION || __DOXYGEN__ */
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 
-#if ESP_MODE_ACCESS_POINT || __DOXYGEN__
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
 /**
  * \brief           Parse received message for list stations
  * \param[in]       str: Pointer to input string starting with +CWLAP
@@ -324,9 +324,9 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
     }
     return 1;
 }
-#endif /* ESP_MODE_ACCESS_POINT || __DOXYGEN__ */
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 
-#if ESP_DNS || __DOXYGEN__
+#if ESP_CFG_DNS || __DOXYGEN__
 /**
  * \brief           Parse received message domain DNS name
  * \param[in]       str: Pointer to input string starting with +CWLAP
@@ -345,9 +345,9 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
     espi_parse_ip(&str, msg->msg.dns_getbyhostname.ip); /* Parse IP address */
     return 1;
 }
-#endif /* ESP_DNS || __DOXYGEN__ */
+#endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
-#if ESP_SNTP || __DOXYGEN__
+#if ESP_CFG_SNTP || __DOXYGEN__
 
 /**
  * \brief           Parse received message for SNTP time
@@ -425,9 +425,9 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
     return 1;
 }
 
-#endif /* ESP_SNTP || __DOXYGEN__ */
+#endif /* ESP_CFG_SNTP || __DOXYGEN__ */
 
-#if ESP_HOSTNAME || __DOXYGEN__
+#if ESP_CFG_HOSTNAME || __DOXYGEN__
 
 /**
  * \brief           Parse received message for HOSTNAME
@@ -457,4 +457,4 @@ espi_parse_hostname(const char* str, esp_msg_t* msg) {
     return 1;
 }
 
-#endif /* ESP_HOSTNAME || __DOXYGEN__ */
+#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */

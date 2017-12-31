@@ -50,7 +50,7 @@ extern "C" {
  * \brief               System based function for OS management, timings, etc
  * \{
  */
-#if ESP_OS || __DOXYGEN__
+#if ESP_CFG_OS || __DOXYGEN__
 #include "cmsis_os.h"
 
 /**
@@ -89,7 +89,7 @@ typedef osPriority          esp_sys_thread_prio_t;
 #define ESP_SYS_TIMEOUT     ((uint32_t)osWaitForever)
 #define ESP_SYS_THREAD_PRIO (osPriorityNormal)
 #define ESP_SYS_THREAD_SS   (1024)
-#endif /* ESP_OS || __DOXYGEN__ */
+#endif /* ESP_CFG_OS || __DOXYGEN__ */
 
 uint8_t     esp_sys_init(void);
 uint8_t     esp_sys_protect(void);

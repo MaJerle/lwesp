@@ -1,5 +1,5 @@
 /**
- * \file            esp_config.c
+ * \file            esp_config.h
  * \brief           Configuration for ESP
  */
 
@@ -39,22 +39,24 @@
  */
 
 #if !__DOXYGEN__
-#define ESP_NETCONN                         1
-#define ESP_DBG_IPD                         ESP_DBG_OFF
-#define ESP_DBG_SERVER                      ESP_DBG_OFF
-#define ESP_DBG_MQTT                        ESP_DBG_OFF
-#define ESP_DBG_MEM                         ESP_DBG_ON
-#define ESP_RCV_BUFF_SIZE                   0x1000
+#define ESP_CFG_NETCONN                     1
+#define ESP_CFG_DBG_IPD                     ESP_DBG_OFF
+#define ESP_CFG_DBG_SERVER                  ESP_DBG_OFF
+#define ESP_CFG_DBG_MQTT                    ESP_DBG_OFF
+#define ESP_CFG_DBG_MEM                     ESP_DBG_ON
+#define ESP_CFG_RCV_BUFF_SIZE               0x1000
 
-#define ESP_IPD_MAX_BUFF_SIZE               1460
+#define ESP_CFG_IPD_MAX_BUFF_SIZE           1460
 
-#define ESP_INPUT_USE_PROCESS               0
+#define ESP_CFG_INPUT_USE_PROCESS           0
 
-#define ESP_AT_ECHO                         1
+#define ESP_CFG_AT_ECHO                     1
 
-#define ESP_MAX_CONNS                       20
+#define ESP_CFG_MAX_CONNS                   20
 
-#define ESP_SNTP                            1
+#define ESP_CFG_SNTP                        1
+#define ESP_CFG_HOSTNAME                    1
+
 #endif /* !__DOXYGEN__ */
 
 /* Include default configuration setup */
