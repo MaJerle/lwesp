@@ -61,7 +61,7 @@ send_data(const void* data, uint16_t len) {
  *                  It is important that every configuration except AT baudrate is configured only once!
  *
  * \note            This function may be called from different threads in ESP stack when using OS.
- *                  When \ref ESP_INPUT_USE_PROCESS is set to 1, this function may be called from user UART thread.
+ *                  When \ref ESP_CFG_INPUT_USE_PROCESS is set to 1, this function may be called from user UART thread.
  *
  * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
  * \param[in]       baudrate: Baudrate to use on AT port

@@ -161,9 +161,9 @@
 
 /**
  * \brief           Set global debug support.
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  *
- * \note            Set to \ref ESP_CFG_DBG_OFF to globally disable all debugs
+ * \note            Set to \ref ESP_DBG_OFF to globally disable all debugs
  */
 #ifndef ESP_CFG_DBG
 #define ESP_CFG_DBG                         ESP_DBG_ON
@@ -171,7 +171,7 @@
 
 /**
  * \brief           Set debug level for memory manager.
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_MEM
 #define ESP_CFG_DBG_MEM                     ESP_DBG_OFF
@@ -179,7 +179,7 @@
 
 /**
  * \brief           Set debug level for input module
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_INPUT
 #define ESP_CFG_DBG_INPUT                   ESP_DBG_OFF
@@ -187,7 +187,7 @@
 
 /**
  * \brief           Set debug level for ESP threads
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_THREAD
 #define ESP_CFG_DBG_THREAD                  ESP_DBG_OFF
@@ -195,7 +195,7 @@
 
 /**
  * \brief           Set debug level for asserting of input variables
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_ASSERT
 #define ESP_CFG_DBG_ASSERT                  ESP_DBG_OFF
@@ -203,7 +203,7 @@
 
 /**
  * \brief           Set debug level for incoming data received from device
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_IPD
 #define ESP_CFG_DBG_IPD                     ESP_DBG_OFF
@@ -211,7 +211,7 @@
 
 /**
  * \brief           Set debug level for netconn sequential API
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_NETCONN
 #define ESP_CFG_DBG_NETCONN                 ESP_DBG_OFF
@@ -219,7 +219,7 @@
 
 /**
  * \brief           Set debug level for packet buffer manager
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_PBUF
 #define ESP_CFG_DBG_PBUF                    ESP_DBG_OFF
@@ -227,7 +227,7 @@
 
 /**
  * \brief           Set debug level for dynamic variable allocations
- *                  Possible values are \ref ESP_CFG_DBG_ON or \ref ESP_CFG_DBG_OFF
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_VAR
 #define ESP_CFG_DBG_VAR                     ESP_DBG_OFF

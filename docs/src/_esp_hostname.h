@@ -6,7 +6,7 @@
  *
  * Set hostname of device before connecting to access point.
  *
- * \note            \ref ESP_MODE_STATION and \ref ESP_HOSTNAME must be enabled
+ * \note            \ref ESP_CFG_MODE_STATION and \ref ESP_CFG_HOSTNAME must be enabled
  *                  if you want to use hostname features
  *
  * \}
