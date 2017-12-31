@@ -81,9 +81,11 @@ extern "C" {
  * \}
  */
 
-#define ESP_DEBUG_INT(fmt, ...)     printf(fmt, ## __VA_ARGS__)
+#if ESP_CFG_DBG && !defined(ESP_CFG_DBG_OUT) 
+#warning "ESP_CFG_DBG_OUT is not enabled but debugging is enabled"
+#endif
     
-#if ESP_CFG_DBG || __DOXYGEN__
+#if (ESP_CFG_DBG && defined(ESP_CFG_DBG_OUT)) || __DOXYGEN__
 /**
  * \brief           Print message to the debug "window" if enabled
  * \param[in]       c: Condition if debug of specific type is enabled
@@ -92,7 +94,7 @@ extern "C" {
  */
 #define ESP_DEBUGF(c, fmt, ...)         do {\
     if (((c) & (ESP_DBG_ON)) && ((c) & (ESP_CFG_DBG_TYPES_ON)) && ((c) & ESP_DBG_LVL_MASK) >= (ESP_CFG_DBG_LVL_MIN)) {    \
-        ESP_DEBUG_INT(fmt, ## __VA_ARGS__); \
+        ESP_CFG_DBG_OUT(fmt, ## __VA_ARGS__); \
     }                                       \
 } while (0)
 
@@ -109,9 +111,11 @@ extern "C" {
     }                                       \
 } while (0)
 #else
+#undef ESP_CFG_DBG
+#define ESP_CFG_DBG                 ESP_DBG_OFF
 #define ESP_DEBUGF(c, fmt, ...)
 #define ESP_DEBUGW(c, cond, fmt, ...)
-#endif /* ESP_CFG_DBG || __DOXYGEN__ */
+#endif /* (ESP_CFG_DBG && defined(ESP_CFG_DBG_OUT)) || __DOXYGEN__ */
 
 /**
  * \}

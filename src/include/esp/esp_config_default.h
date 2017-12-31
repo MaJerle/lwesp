@@ -170,6 +170,15 @@
 #endif
 
 /**
+ * \brief           Debugging output function
+ * 
+ *                  Called with format and optional parameters for printf style debug
+ */
+#ifndef ESP_CFG_DBG_OUT
+#define ESP_CFG_DBG_OUT(fmt, ...)           do { extern int printf( const char *restrict format, ... ); printf(fmt, ## __VA_ARGS__); } while (0)
+#endif
+
+/**
  * \brief           Minimal debug level
  *
  */
@@ -177,6 +186,12 @@
 #define ESP_CFG_DBG_LVL_MIN                 ESP_DBG_LVL_ALL
 #endif
 
+/**
+ * \brief           Enabled debug types
+ *                  
+ *                  When debug is globally enabled with \ref ESP_CFG_DBG parameter,
+ *                  user must enable debug types such as TRACE or STATE messages.
+ */
 #ifndef ESP_CFG_DBG_TYPES_ON
 #define ESP_CFG_DBG_TYPES_ON                0
 #endif
