@@ -204,7 +204,7 @@ reset_connections(uint8_t forced) {
     esp.cb.type = ESP_CB_CONN_CLOSED;
     esp.cb.cb.conn_active_closed.forced = forced;
     
-    for (i = 0; i < ESP_MAX_CONNS; i++) {       /* Check all connections */
+    for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Check all connections */
         if (esp.conns[i].status.f.active) {
             esp.conns[i].status.f.active = 0;
             
@@ -480,6 +480,10 @@ espi_parse_received(esp_recv_t* rcv) {
             } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPSNTPTIME && !strncmp(rcv->data, "+CIPSNTPTIME", 12)) {
                 espi_parse_cipsntptime(rcv->data, esp.msg); /* Parse CIPSNTPTIME entry */
 #endif /* ESP_SNTP */
+#if ESP_HOSTNAME
+            } else if (esp.msg->cmd == ESP_CMD_WIFI_CWHOSTNAME_GET && !strncmp(rcv->data, "+CWHOSTNAME", 11)) {
+                espi_parse_hostname(rcv->data, esp.msg);    /* Parse HOSTNAME entry */
+#endif /* ESP_HOSTNAME */
             }
         }
     } else if (!strncmp(rcv->data, "WIFI", 4)) {
@@ -507,7 +511,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 espi_parse_cipstatus(rcv->data + 11);   /* Parse CIPSTATUS response */
             } else if (is_ok) {
                 uint8_t i;
-                for (i = 0; i < ESP_MAX_CONNS; i++) {   /* Set current connection statuses */
+                for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Set current connection statuses */
                     esp.conns[i].status.f.active = !!(esp.active_conns & (1 << i));
                 }
             }
@@ -570,7 +574,7 @@ espi_parse_received(esp_recv_t* rcv) {
             tmp--;
         }
         num = espi_parse_number(&tmp);          /* Parse connection number */
-        if (num < ESP_MAX_CONNS) {
+        if (num < ESP_CFG_MAX_CONNS) {
             uint8_t id;
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
             id = conn->val_id;
@@ -607,7 +611,7 @@ espi_parse_received(esp_recv_t* rcv) {
             tmp--;
         }
         num = espi_parse_number(&tmp);          /* Parse connection number */
-        if (num < ESP_MAX_CONNS) {
+        if (num < ESP_CFG_MAX_CONNS) {
             esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
             conn->num = num;                    /* Set connection number */
             if (conn->status.f.active) {        /* Is connection actually active? */
@@ -1295,6 +1299,18 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_MODE_ACCESS_POINT */
+#if ESP_HOSTNAME
+        case ESP_CMD_WIFI_CWHOSTNAME_SET: {     /* List stations connected on access point */
+            ESP_AT_PORT_SEND_STR("AT+CWHOSTNAME=");
+            send_string(msg->msg.wifi_hostname.hostname, 1, 1);
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
+        case ESP_CMD_WIFI_CWHOSTNAME_GET: {     /* List stations connected on access point */
+            ESP_AT_PORT_SEND_STR("AT+CWHOSTNAME?\r\n");
+            break;
+        }
+#endif /* ESP_HOSTNAME */
         
         /**
          * TCP/IP related commands
@@ -1314,9 +1330,9 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_CIPSERVERMAXCONN: {  /* Maximal number of connections */
             uint16_t max_conn;
             if (msg->cmd_def == ESP_CMD_TCPIP_CIPSERVER) {
-                max_conn = ESP_MIN(msg->msg.tcpip_server.max_conn, ESP_MAX_CONNS);
+                max_conn = ESP_MIN(msg->msg.tcpip_server.max_conn, ESP_CFG_MAX_CONNS);
             } else {
-                max_conn = ESP_MAX_CONNS;
+                max_conn = ESP_CFG_MAX_CONNS;
             }
             ESP_AT_PORT_SEND_STR("AT+CIPSERVERMAXCONN=");
             send_number(max_conn, 0);
@@ -1341,7 +1357,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             esp_conn_t* c = NULL;
             char str[6];
             msg->msg.conn_start.num = 0;        /* Reset to make sure default value is set */
-            for (i = ESP_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
+            for (i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
                 if (!esp.conns[i].status.f.active || !(esp.active_conns & (1 << i))) {
                     c = &esp.conns[i];
                     c->num = i;
@@ -1382,7 +1398,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 return espERR;
             }
             ESP_AT_PORT_SEND_STR("AT+CIPCLOSE=");
-            send_number((uint32_t)(msg->msg.conn_close.conn ? msg->msg.conn_close.conn->num : ESP_MAX_CONNS), 0);
+            send_number((uint32_t)(msg->msg.conn_close.conn ? msg->msg.conn_close.conn->num : ESP_CFG_MAX_CONNS), 0);
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }

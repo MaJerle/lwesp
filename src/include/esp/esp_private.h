@@ -104,8 +104,10 @@ typedef enum {
 #endif /* ESP_MODE_STATION || __DOXYGEN__ */
     ESP_CMD_WIFI_WPS,                           /*!< Set WPS option */
     ESP_CMD_WIFI_MDNS,                          /*!< Configure MDNS function */
+#if ESP_HOSTNAME || __DOXYGEN__
     ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
     ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
+#endif /* ESP_HOSTNAME || __DOXYGEN__ */
     
     /*
      * TCP/IP related commands
@@ -237,7 +239,6 @@ typedef struct esp_msg {
             const uint8_t* mac;                 /*!< Pointer to MAC variable */
             uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
-        
         struct {
             const char* ssid;                   /*!< Pointer to optional filter SSID name to search */
             esp_ap_t* aps;                      /*!< Pointer to array to save access points */
@@ -245,14 +246,12 @@ typedef struct esp_msg {
             size_t apsi;                        /*!< Current access point array */
             size_t* apf;                        /*!< Pointer to output variable holding number of access points found */
         } ap_list;                              /*!< List for access points */
-        
         struct {
             esp_sta_t* stas;                    /*!< Pointer to array to save access points */
             size_t stal;                        /*!< Length of input array of access points */
             size_t stai;                        /*!< Current access point array */
             size_t* staf;                       /*!< Pointer to output variable holding number of access points found */
         } sta_list;                             /*!< List for stations */
-        
         struct {
             const char* ssid;                   /*!< Name of access point */
             const char* pwd;                    /*!< Password of access point */
@@ -262,6 +261,10 @@ typedef struct esp_msg {
             uint8_t hid;                        /*!< Configuration if network is hidden or visible */
             uint8_t def;                        /*!< Save as default configuration */
         } ap_conf;                              /*!< Parameters to configura access point */
+        struct {
+            char* hostname;                     /*!< Hostname set/get value */
+            size_t length;                      /*!< Length of buffer when reading hostname */
+        } wifi_hostname;                        /*!< Set or get hostname structure */
         
         /**
          * Connection based commands
@@ -381,7 +384,7 @@ typedef struct {
     uint32_t            active_conns;           /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
     uint32_t            active_conns_last;      /*!< The same as previous but status before last check */
     
-    esp_conn_t          conns[ESP_MAX_CONNS];   /*!< Array of all connection structures */
+    esp_conn_t          conns[ESP_CFG_MAX_CONNS];   /*!< Array of all connection structures */
     
     esp_ipd_t           ipd;                    /*!< Incoming data structure */
     esp_cb_t            cb;                     /*!< Callback processing structure */
