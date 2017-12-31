@@ -112,3 +112,78 @@ thread_or_main_func(void) {
  *
  * \}
  */
+/**
+ * \addtogroup      ESP_CONN
+ * \{
+ *
+ * \section         sect_send_data Send data methods
+ *
+ * User can choose between <b>2</b> different methods for sending the data:
+ *
+ *  - Temporary connection write buffer
+ *  - Send every packet separately
+ *
+ * \par             Temporary connection write buffer
+ *
+ * When user calls \ref esp_conn_write function,
+ * a temporary buffer is created on connection and data are copied to it,
+ * but they might not be send to command queue for sending.
+ *
+ * ESP can send up to <b>x</b> bytes at a time in single AT command,
+ * currently limited to <b>2048</b> bytes.
+ * If we can optimize packets of <b>2048</b> bytes,
+ * we would have best throughput speed and this is the purpose of write function.
+ *
+ * \note            If we write bigger amount than max data for packet
+ *                  function will automaticaly split data to make sure,
+ *                  everything is sent in correct order
+ *
+ * \code
+size_t rem_len;
+esp_conn_p conn;
+espr_t res;
+
+/* ... other tasks to make sure connection is established */
+
+/* We are connected to server at this point! */
+/*
+ * Call write function to write data to memory
+ * and do not send immediately unless buffer is full after this write
+ *
+ * rem_len will give us response how much bytes
+ * is available in memory after write
+ */
+res = esp_conn_write(conn, "My string", 9, 0, &rem_len);
+if (rem_len == 0) {
+    printf("No more memory available for next write!\r\n");
+}
+res = esp_conn_write(conn, "Example.com", 11, 0, &rem_len);
+
+/*
+ * Data will stay in buffer until buffer is full,
+ * except if user wants to force send,
+ * call write function with flush mode enabled
+ *
+ * It will send out together 20 bytes
+ */
+esp_conn_write(conn, NULL, 0, 1, NULL);
+
+\endcode
+ *
+ * \}
+ */
+/**
+ * \addtogroup      ESP_CONN
+ * \{
+ *
+ * \par             Send every packet separately
+ *
+ * If you are not able to use write buffer,
+ * due to memory constraints, you may also send data
+ * by putting every write command directly to command message queue.
+ *
+ * Use \ref esp_conn_send or \ref esp_conn_sendto functions,
+ * to send data directly to message queue.
+ *
+ * \}
+ */
