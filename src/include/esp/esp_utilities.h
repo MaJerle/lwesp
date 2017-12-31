@@ -65,7 +65,8 @@ extern "C" {
 /**
  * \brief           Align x value to specific number of bytes, provided from \ref ESP_MEM_ALIGNMENT configuration
  * \param[in]       x: Input value to align
- * \retval          Input value aligned to specific number of bytes
+ * \return          Input value aligned to specific number of bytes
+ * \hideinitializer
  */
 #define ESP_MEM_ALIGN(x)                    ((x + (ESP_MEM_ALIGNMENT - 1)) & ~(ESP_MEM_ALIGNMENT - 1))
 
@@ -74,6 +75,7 @@ extern "C" {
  * \param[in]       x: First input to test
  * \param[in]       y: Second input to test
  * \return          Minimal value between x and y parameters
+ * \hideinitializer
  */
 #define ESP_MIN(x, y)                       ((x) < (y) ? (x) : (y))
 
@@ -82,6 +84,7 @@ extern "C" {
  * \param[in]       x: First input to test
  * \param[in]       y: Second input to test
  * \return          Maximal value between x and y parameters
+ * \hideinitializer
  */
 #define ESP_MAX(x, y)                       ((x) > (y) ? (x) : (y))
 
@@ -89,6 +92,7 @@ extern "C" {
  * \brief           Get size of statically declared array
  * \param[in]       x: Input array
  * \return          Number of array elements
+ * \hideinitializer
  */
 #define ESP_ARRAYSIZE(x)                    (sizeof(x) / sizeof((x)[0]))
 
@@ -97,9 +101,38 @@ extern "C" {
  * \note            Use this on all parameters in a function which are not used to prevent
  *                  compiler warnings saying "unused variables"
  * \param[in]       x: Variable which is not used
+ * \hideinitializer
  */
 #define ESP_UNUSED(x)                       ((void)(x))
-    
+
+/**
+ * \brief           Get input value casted to unsigned 32-bit value
+ * \param[in]       x: Input value
+ * \hideinitializer
+ */
+#define ESP_U32(x)                          ((uint32_t)(x))
+
+/**
+ * \brief           Get input value casted to unsigned 16-bit value
+ * \param[in]       x: Input value
+ * \hideinitializer
+ */
+#define ESP_U16(x)                          ((uint16_t)(x))
+
+/**
+ * \brief           Get input value casted to unsigned 8-bit value
+ * \param[in]       x: Input value
+ * \hideinitializer
+ */
+#define ESP_U8(x)                           ((uint8_t)(x))
+
+/**
+ * \brief           Get input value casted to size_t value
+ * \param[in]       x: Input value
+ * \hideinitializer
+ */
+#define ESP_SZ(x)                           ((size_t)(x))
+
 /**
  * \}
  */
