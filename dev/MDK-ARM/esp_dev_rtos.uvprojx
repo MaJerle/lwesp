@@ -801,6 +801,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_ping.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_hostname.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_hostname.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1759,6 +1764,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_ping.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_hostname.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_hostname.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2648,6 +2658,11 @@
               <FileName>esp_ping.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_ping.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_hostname.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_hostname.c</FilePath>
             </File>
           </Files>
         </Group>

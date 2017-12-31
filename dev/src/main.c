@@ -19,6 +19,7 @@
 
 #include "apps/esp_http_server.h"
 #include "mqtt.h"
+#include "esp/esp_hostname.h"
 
 static void init_thread(void const* arg);
 void client_thread(void const* arg);
@@ -147,6 +148,7 @@ const uint8_t requestData[] = ""
 static void
 init_thread(void const* arg) {
     size_t i, j;
+    char hostname[20];
     
     TM_GPIO_Init(GPIOC, GPIO_PIN_3, TM_GPIO_Mode_IN, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_Low);
     
@@ -157,10 +159,14 @@ init_thread(void const* arg) {
     
     esp_ap_configure("Tilenov WiFi", "ni dostopa", 5, ESP_ECN_WPA_WPA2_PSK, 8, 0, 1, 1);
     
+    esp_hostname_set("my_esp", 1);
+    esp_hostname_get(hostname, sizeof(hostname), 1);
+    esp_hostname_get(hostname, 3, 1);
+    
     /**
      * Scan for network access points
      * In case we have access point,
-     * try to connect to known Ap
+     * try to connect to known AP
      */
     if (esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
         for (i = 0; i < apf; i++) {

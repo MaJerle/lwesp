@@ -377,6 +377,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_debug.c</locationURI>
 		</link>
 		<link>
+			<name>ESP AT/Core/esp_hostname.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_hostname.c</locationURI>
+		</link>
+		<link>
 			<name>ESP AT/Core/esp_init.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_init.c</locationURI>
