@@ -1,4 +1,4 @@
-    /**
+/**
  * \file            esp_mqtt_client.c
  * \brief           MQTT client
  */
@@ -39,6 +39,7 @@
 /* Tracing debug message */
 #define ESP_CFG_DBG_MQTT_TRACE                  ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_TRACE
 #define ESP_CFG_DBG_MQTT_STATE                  ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_STATE
+#define ESP_CFG_DBG_MQTT_TRACE_WARNING          ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_STATE | ESP_DBG_LVL_WARNING
 
 static espr_t   mqtt_conn_cb(esp_cb_t* cb);
 static void     send_data(mqtt_client_t* client);
@@ -84,7 +85,7 @@ typedef enum {
 #define MQTT_REQUEST_FLAG_IN_USE        0x01    /*!< Request object is allocated and in use */
 #define MQTT_REQUEST_FLAG_PENDING       0x02    /*!< Request object is pending waiting for response from server */
 
-#if ESP_CFG_DBG_MQTT
+#if ESP_CFG_DBG
 
 static const char *
 mqtt_msg_type_to_str(mqtt_msg_type_t msg_type) {
@@ -97,7 +98,7 @@ mqtt_msg_type_to_str(mqtt_msg_type_t msg_type) {
     return strings[(uint8_t)msg_type];
 }
 
-#endif /* ESP_CFG_DBG_MQTT */
+#endif /* ESP_CFG_DBG */
 
 /**
  * \brief           Default event callback function
@@ -344,6 +345,25 @@ send_data(mqtt_client_t* client) {
             client->is_sending = 1;             /* Remember active sending flag */
         }
     }
+}
+
+/**
+ * \brief           Close a MQTT connection with server
+ * \param[in]       client: MQTT client
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+static espr_t
+mqtt_close(mqtt_client_t* client) {
+    espr_t res = espERR;
+    if (client->conn_state != MQTT_CONN_DISCONNECTED &&
+        client->conn_state != MQTT_CONN_DISCONNECTING) {
+
+        res = esp_conn_close(client->conn, 0);  /* Close the connection in non-blocking mode */
+        if (res == espOK) {
+            client->conn_state = MQTT_CONN_DISCONNECTING;
+        }
+    }
+    return res;
 }
 
 /**
@@ -767,7 +787,7 @@ mqtt_data_sent_cb(mqtt_client_t* client, size_t sent_len, uint8_t successful) {
 
 /**
  * \brief           Poll for client connection
- *                  Called every 500ms when MQTT client TCP connection is established
+ *                  Called every ESP_CFG_CONN_POLL_INTERVAL ms when MQTT client TCP connection is established
  * \param[in]       client: MQTT client
  * \return          1 on success, 0 otherwise
  */
@@ -781,15 +801,18 @@ mqtt_poll_cb(mqtt_client_t* client) {
      * to make sure we are still alive
      */
     if (client->info->keep_alive &&             /* Keep alive must be enabled */
-        (client->poll_time * 500) >= (client->info->keep_alive * 1000)) {
-        if (output_check_enough_memory(client, 0)) {
-            write_fixed_header(client, MQTT_MSG_TYPE_PINGREQ, 0, 0, 0, 0);
+        /* Poll time is in units of ESP_CFG_CONN_POLL_INTERVAL milliseconds,
+           while keep_alive is in units of seconds */
+        (client->poll_time * ESP_CFG_CONN_POLL_INTERVAL) >= (client->info->keep_alive * 1000)) {
+            
+        if (output_check_enough_memory(client, 0)) {/* Check if memory available in output buffer */
+            write_fixed_header(client, MQTT_MSG_TYPE_PINGREQ, 0, 0, 0, 0);  /* Write PINGREQ command to output buffer */
             send_data(client);                  /* Force send data */
             client->poll_time = 0;              /* Reset polling time */
             
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT sending PINGREQ packet\r\n");
         } else {
-            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT no memory to send PINGREQ packet\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING, "MQTT no memory to send PINGREQ packet\r\n");
         }
     }
     return 1;
@@ -975,7 +998,11 @@ mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port,
     if (client->conn_state == MQTT_CONN_DISCONNECTED) {        
         client->info = info;                    /* Save client info parameters */
         client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
+        
         res = esp_conn_start(&client->conn, ESP_CONN_TYPE_TCP, host, port, client, mqtt_conn_cb, 0);
+        if (res == espOK) {
+            client->conn_state = MQTT_CONN_CONNECTING;
+        }
     }
     esp_core_unlock();                          /* Unlock ESP core */
     
@@ -994,10 +1021,7 @@ mqtt_client_disconnect(mqtt_client_t* client) {
     esp_core_lock();                            /* Lock ESP core */
     if (client->conn_state != MQTT_CONN_DISCONNECTED &&
         client->conn_state != MQTT_CONN_DISCONNECTING) {
-        res = esp_conn_close(client->conn, 0);  /* Close the connection in non-blocking mode */
-        if (res == espOK) {
-            client->conn_state = MQTT_CONN_DISCONNECTING;
-        }
+        res = mqtt_close(client);               /* Close client connection */
     }
     esp_core_unlock();                          /* Unlock ESP core */
     return res;
@@ -1055,7 +1079,7 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
     
     len_topic = ESP_U16(strlen(topic));         /* Get length of topic */
     if (len_topic == 0) {
-        return espERRMEM;
+        return espERR;
     }
     
     /*
@@ -1069,16 +1093,16 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
     }
     
     esp_core_lock();                            /* Lock ESP core */
-    if (client->conn_state == MQTT_CONNECTED && 
-        (raw_len = output_check_enough_memory(client, rem_len)) != 0) {
-            
+    if (client->conn_state != MQTT_CONNECTED) {
+        res = espERR;
+    } else if ((raw_len = output_check_enough_memory(client, rem_len)) != 0) {
         pkt_id = qos > 0 ? create_packet_id(client) : 0;/* Create new packet ID */
         request = request_create(client, pkt_id, arg);  /* Create request for packet */
         if (request != NULL) {
             /*
              * Set expected number of bytes we should send before
              * we can say that this packet was sent.
-             * Used in case QoS is set to 0 because packet notification 
+             * Used in case QoS is set to 0 where packet notification 
              * is not received by server. In this case, wait
              * number of bytes sent before notifying user about success
              */
@@ -1088,14 +1112,17 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
             write_string(client, topic, len_topic); /* Write topic string to packet */
             if (qos > 0) {
                 write_u16(client, pkt_id);      /* Write packet ID */
-            } else {}
+            }
             if (payload != NULL && payload_len > 0) {
                 write_data(client, payload, payload_len);   /* Write RAW topic payload */
             }    
             
             request_set_pending(client, request);   /* Set request as pending waiting for server reply */
             send_data(client);                  /* Try to send data */
+            
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos, (int)pkt_id);
         } else {
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT no memory to publish message\r\n");
             res = espERRMEM;
         }
     } else {
