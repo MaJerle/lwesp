@@ -311,9 +311,9 @@ espi_tcpip_process_data_sent(uint8_t sent) {
             *esp.msg->msg.conn_send.bw += esp.msg->msg.conn_send.sent;
         }
         esp.msg->msg.conn_send.tries = 0;
-    } else {
+    } else {                                    /* We were not successful */
         esp.msg->msg.conn_send.tries++;         /* Increase number of tries */
-        if (esp.msg->msg.conn_send.tries == 3) {    /* In case we reached max number of retransmissions */
+        if (esp.msg->msg.conn_send.tries == ESP_CFG_MAX_SEND_RETRIES) { /* In case we reached max number of retransmissions */
             return 1;                           /* Return 1 and indicate error */
         }
     }
@@ -340,7 +340,7 @@ espi_parse_received(esp_recv_t* rcv) {
     }
     //printf("Rcv! s: %s", (char *)rcv->data);
     
-    /**
+    /*
      * Detect most common responses from device
      */
     is_ok = !strcmp(rcv->data, "OK\r\n");       /* Check if received string is OK */
@@ -351,7 +351,7 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     }
     
-    /**
+    /*
      * In case ready is received, there was a reset on device,
      * either forced by us or problem on device itself
      */
@@ -364,7 +364,7 @@ espi_parse_received(esp_recv_t* rcv) {
         reset_everything();                     /* Put everything to default state */
     }
     
-    /**
+    /*
      * Read and process statements starting with '+' character
      */
     if (rcv->data[0] == '+') {
