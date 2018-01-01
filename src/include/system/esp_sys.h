@@ -41,13 +41,13 @@ extern "C" {
 #include "esp_config.h"
 
 /**
- * \addtogroup          ESP
+ * \addtogroup      ESP
  * \{
  */
  
 /**
- * \defgroup            ESP_SYS System functions
- * \brief               System based function for OS management, timings, etc
+ * \defgroup        ESP_SYS System functions
+ * \brief           System based function for OS management, timings, etc
  * \{
  */
 #if ESP_CFG_OS || __DOXYGEN__
