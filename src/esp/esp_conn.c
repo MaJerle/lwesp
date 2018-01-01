@@ -56,7 +56,7 @@ conn_get_val_id(esp_conn_p conn) {
 static void
 conn_timeout_cb(void* arg) {
     uint16_t i;
-                                                
+
     esp.cb.type = ESP_CB_CONN_POLL;             /* Set polling callback type */
     for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Scan all connections */
         if (esp.conns[i].status.f.active) {     /* If connection is active */
@@ -64,7 +64,7 @@ conn_timeout_cb(void* arg) {
             espi_send_conn_cb(&esp.conns[i]);   /* Send connection callback */
         }
     }
-    esp_timeout_add(500, conn_timeout_cb, NULL);/* Schedule timeout again */
+    esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, NULL);/* Schedule timeout again */
 }
 
 /**
@@ -115,7 +115,7 @@ static espr_t
 flush_buff(esp_conn_p conn) {
     if (conn != NULL && conn->buff != NULL) {   /* Do we have something ready? */
         /*
-         * If there is nothing to write,
+         * If there is nothing to write or if write was not successful,
          * simply free the memory and stop execution
          */
         if (conn->buff_ptr == 0 || conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
@@ -131,7 +131,7 @@ flush_buff(esp_conn_p conn) {
  */
 void
 espi_conn_init(void) {
-    esp_timeout_add(500, conn_timeout_cb, NULL);/* Add connection timeout */
+    esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, NULL); /* Add connection timeout */
 }
 
 /**

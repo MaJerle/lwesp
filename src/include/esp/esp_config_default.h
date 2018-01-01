@@ -371,6 +371,17 @@
  */
 
 /**
+ * \brief           Poll interval for connections in units of milliseconds
+ *
+ *                  Value indicates interval time to call poll event on active connections.
+ *
+ * \note            Single poll interval applies for all connections
+ */
+#ifndef ESP_CFG_CONN_POLL_INTERVAL
+#define ESP_CFG_CONN_POLL_INTERVAL          500
+#endif
+
+/**
  * \}
  */
  
