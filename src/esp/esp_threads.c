@@ -102,10 +102,12 @@ esp_thread_producer(void* const arg) {
     }
 }
 
-#if !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
 /**
  * \brief           Thread for processing received data from device
- * \note            It is used only when direct processing mode is disabled
+ * 
+ *                  This thread is also used to handle timeout events
+ *                  in correct time order as it is never blocked by user command
+ *
  * \sa              ESP_CFG_INPUT_USE_PROCESS
  */
 void
@@ -113,6 +115,7 @@ esp_thread_process(void* const arg) {
     esp_msg_t* msg;
     uint32_t time;
     
+#if !ESP_CFG_INPUT_USE_PROCESS
     ESP_CORE_PROTECT();                         /* Protect system */
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
@@ -122,8 +125,12 @@ esp_thread_process(void* const arg) {
         if (time == ESP_SYS_TIMEOUT || msg == NULL) {
             ESP_UNUSED(time);                   /* Unused variable */
         }
-        
         espi_process_buffer();                  /* Process input data */
+#else
+    while (1) {
+        /* Check timeouts only */
+        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 100);
+        ESP_UNUSED(time);
+#endif /* !ESP_CFG_INPUT_USE_PROCESS */
     }
 }
-#endif /* !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */

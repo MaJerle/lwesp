@@ -374,8 +374,8 @@ typedef struct {
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
     esp_sys_mbox_t      mbox_process;           /*!< Consumer message queue handle */
     esp_sys_thread_t    thread_producer;        /*!< Producer thread handle */
-#if !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
     esp_sys_thread_t    thread_process;         /*!< Processing thread handle */
+#if !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
     esp_buff_t          buff;                   /*!< Input processing buffer */
 #endif /* !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
     esp_ll_t            ll;                     /*!< Low level functions */

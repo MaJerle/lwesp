@@ -90,4 +90,4 @@ esp_input_process(const void* data, size_t len) {
     return res;
 }
 
-#endif /* ESP_CFG_OS || __DOXYGEN__ */
+#endif /* ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
