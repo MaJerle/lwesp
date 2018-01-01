@@ -43,3 +43,13 @@
  *
  * \}
  */
+
+/**
+ * \addtogroup      ESP_CONF_DBG
+ * \{
+ *
+ * Check \ref ESP_DEBUG section for more information
+ *
+ * \}
+ *
+ */
