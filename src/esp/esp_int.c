@@ -210,7 +210,7 @@ reset_connections(uint8_t forced) {
             
             esp.cb.cb.conn_active_closed.conn = &esp.conns[i];
             esp.cb.cb.conn_active_closed.client = esp.conns[i].status.f.client;
-            espi_send_conn_cb(&esp.conns[i]);   /* Send callback function */
+            espi_send_conn_cb(&esp.conns[i], NULL); /* Send callback function */
         }
     }
 }
@@ -250,11 +250,14 @@ is_received_current_setting(const char* str) {
  * \brief           Process connection callback
  * \note            Before calling function, callback structure must be prepared
  * \param[in]       conn: Pointer to connection to use as callback
+ * \param[in]       cb: Optional function used to call callback. If NULL, connection callback will be used if set
  * \return          Member of \ref espr_t enumeration
  */
 espr_t
-espi_send_conn_cb(esp_conn_t* conn) {
-    if (conn->cb_func != NULL) {                /* Connection custom callback? */
+espi_send_conn_cb(esp_conn_t* conn, esp_cb_func_t cb) {
+    if (cb != NULL) {                           /* Try with user connection */
+        cb(&esp.cb);
+    } if (conn->cb_func != NULL) {              /* Connection custom callback? */
         return conn->cb_func(&esp.cb);          /* Process callback function */
     } else {
         return esp.cb_func(&esp.cb);            /* Process default callback function */
@@ -530,7 +533,7 @@ espi_parse_received(esp_recv_t* rcv) {
                         esp.cb.type = ESP_CB_CONN_DATA_SENT;    /* Data were fully sent */
                         esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
                         esp.cb.cb.conn_data_sent.sent = esp.msg->msg.conn_send.sent_all;
-                        espi_send_conn_cb(esp.msg->msg.conn_send.conn); /* Send connection callback */
+                        espi_send_conn_cb(esp.msg->msg.conn_send.conn, NULL);   /* Send connection callback */
                     }
                 } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
@@ -542,7 +545,7 @@ espi_parse_received(esp_recv_t* rcv) {
                         esp.cb.type = ESP_CB_CONN_DATA_SEND_ERR;/* Error sending data */
                         esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
                         esp.cb.cb.conn_data_send_err.sent = esp.msg->msg.conn_send.sent_all;
-                        espi_send_conn_cb(esp.ipd.conn);/* Send connection callback */
+                        espi_send_conn_cb(esp.ipd.conn, NULL);  /* Send connection callback */
                     }
                 }
             } else if (is_error) {
@@ -598,7 +601,7 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
             esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
             esp.cb.cb.conn_active_closed.forced = conn->status.f.client;    /* Set if action was forced = if client mode */
-            espi_send_conn_cb(conn);            /* Send event */
+            espi_send_conn_cb(conn, NULL);      /* Send event */
         }
     /*
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
@@ -622,7 +625,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
                 /** @todo: Check if we really tried to close connection which was just closed */
                 esp.cb.cb.conn_active_closed.forced = IS_CURR_CMD(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
-                espi_send_conn_cb(conn);        /* Send event */
+                espi_send_conn_cb(conn, NULL);  /* Send event */
                 
                 /**
                  * In case we received x,CLOSED on connection we are currently sending data,
@@ -643,13 +646,16 @@ espi_parse_received(esp_recv_t* rcv) {
             }
         }
     } else if (is_error && IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)) {
+        /*
+         * \todo: Use callback function set as connection start
+         */
         esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
-        /** \todo Get last connection number we used to start the connection */
-        esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection just active */
+        esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection error */
         esp.cb.cb.conn_error.host = esp.msg->msg.conn_start.host;
         esp.cb.cb.conn_error.port = esp.msg->msg.conn_start.port;
         esp.cb.cb.conn_error.type = esp.msg->msg.conn_start.type;
-        espi_send_conn_cb(conn);                /* Send event */
+        esp.cb.cb.conn_error.arg = esp.msg->msg.conn_start.arg;
+        espi_send_conn_cb(conn, esp.msg->msg.conn_start.cb_func);   /* Send event */
     }
     
     /*
@@ -790,7 +796,7 @@ espi_process(const void* data, size_t data_len) {
                     esp.cb.type = ESP_CB_CONN_DATA_RECV;/* We have received data */
                     esp.cb.cb.conn_data_recv.buff = esp.ipd.buff;
                     esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
-                    res = espi_send_conn_cb(esp.ipd.conn);  /* Send connection callback */
+                    res = espi_send_conn_cb(esp.ipd.conn, NULL);    /* Send connection callback */
                     
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Free packet buffer\r\n");
                     esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer */

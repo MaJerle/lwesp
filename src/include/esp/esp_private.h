@@ -465,7 +465,7 @@ espr_t      espi_process_buffer(void);
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
 uint8_t     espi_is_valid_conn_ptr(esp_conn_p conn);
 espr_t      espi_send_cb(esp_cb_type_t type);
-espr_t      espi_send_conn_cb(esp_conn_t* conn);
+espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_cb_func_t cb);
 
 void        espi_conn_init(void);
 

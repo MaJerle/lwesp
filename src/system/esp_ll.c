@@ -37,10 +37,6 @@
 #include "system/esp_ll.h"
 
 #if !__DOXYGEN__
-
-#include "tm_stm32_usart.h"
-#include "tm_stm32_disco.h"
-
 #include "stm32f7xx_ll_usart.h"
 #include "stm32f7xx_ll_gpio.h"
 #include "stm32f7xx_ll_dma.h"
@@ -230,7 +226,6 @@ configure_uart(uint32_t baudrate) {
         usart_ll_mbox_id = osMessageCreate(osMessageQ(usart_ll_mbox), NULL);
     }
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
-    
     
     /*
      * Force ESP hardware reset
