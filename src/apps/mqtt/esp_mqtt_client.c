@@ -857,7 +857,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
             esp_conn_close(conn, 0);            /* Force connection close immediatelly */
             return espERR;
         }
-    } else {
+    } else if (cb->type != ESP_CB_CONN_ERROR) {
         return espERR;
     }
     
@@ -865,6 +865,14 @@ mqtt_conn_cb(esp_cb_t* cb) {
      * Check and process events
      */
     switch (cb->type) {
+        case ESP_CB_CONN_ERROR: {
+            mqtt_client_t* client = cb->cb.conn_error.arg;  /* Get argument from connection */
+            if (client != NULL) {
+                /* Notify user upper layer */
+            }
+            break;
+        }
+        
         /*
          * Connection active to MQTT server
          */

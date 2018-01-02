@@ -647,15 +647,22 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     } else if (is_error && IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)) {
         /*
-         * \todo: Use callback function set as connection start
+         * Notify user about failed connection,
+         * but only if connection callback is known.
+         *
+         * This will prevent notifying wrong connection
+         * in case connection is already active for some reason
+         * but new callback is not set by user
          */
-        esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
-        esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection error */
-        esp.cb.cb.conn_error.host = esp.msg->msg.conn_start.host;
-        esp.cb.cb.conn_error.port = esp.msg->msg.conn_start.port;
-        esp.cb.cb.conn_error.type = esp.msg->msg.conn_start.type;
-        esp.cb.cb.conn_error.arg = esp.msg->msg.conn_start.arg;
-        espi_send_conn_cb(conn, esp.msg->msg.conn_start.cb_func);   /* Send event */
+        if (esp.msg->msg.conn_start.cb_func != NULL) {  /* Connection must be closed */
+            esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
+            esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection error */
+            esp.cb.cb.conn_error.host = esp.msg->msg.conn_start.host;
+            esp.cb.cb.conn_error.port = esp.msg->msg.conn_start.port;
+            esp.cb.cb.conn_error.type = esp.msg->msg.conn_start.type;
+            esp.cb.cb.conn_error.arg = esp.msg->msg.conn_start.arg;
+            espi_send_conn_cb(conn, esp.msg->msg.conn_start.cb_func);   /* Send event */
+        }
     }
     
     /*
