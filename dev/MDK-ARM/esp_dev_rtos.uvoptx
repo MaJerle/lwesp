@@ -181,6 +181,38 @@
           <ExecCommand></ExecCommand>
           <Expression>\\project\../src/apps/server/esp_http_server.c\320</Expression>
         </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>323</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_ll_usart.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>3</Number>
+          <Type>0</Type>
+          <LineNumber>657</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\..\src\esp\esp_int.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
@@ -568,6 +600,38 @@
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
+        <Bp>
+          <Number>12</Number>
+          <Type>0</Type>
+          <LineNumber>323</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\..\libs\st_hal\STM32F7xx_HAL_Driver\Src\stm32f7xx_ll_usart.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>13</Number>
+          <Type>0</Type>
+          <LineNumber>657</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\..\src\esp\esp_int.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
       </Breakpoint>
       <WatchWindow1>
         <Ww>
@@ -817,119 +881,84 @@
           <Name>UL2CM3(-S0 -C0 -P0 -FD20020000 -FC1000 -FN2 -FF0STM32F7x_2048 -FS08000000 -FL0200000 -FF1STM32F7xTCM_2048 -FS1200000 -FL1200000 -FP0($$Device:STM32F769NIHx$CMSIS\Flash\STM32F7x_2048.FLM) -FP1($$Device:STM32F769NIHx$CMSIS\Flash\STM32F7xTCM_2048.FLM))</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint/>
+      <Breakpoint>
+        <Bp>
+          <Number>0</Number>
+          <Type>0</Type>
+          <LineNumber>657</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134256198</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\..\src\esp\esp_int.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\project\../../src/esp/esp_int.c\657</Expression>
+        </Bp>
+      </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>rcv</ItemText>
+          <ItemText>irq_call,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>usart_mem</ItemText>
+          <ItemText>irq_call_dma,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>UART5</ItemText>
+          <ItemText>old_pos,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>old_pos,0x0A</ItemText>
+          <ItemText>DMA1_Stream0,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>DMA1_Stream0-&gt;NDTR,0x0A</ItemText>
+          <ItemText>configure_usart_call</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>esp_recv_calls,0x0A</ItemText>
+          <ItemText>SCB</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>1</WinNumber>
-          <ItemText>esp,0x0A</ItemText>
+          <ItemText>write_message</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>usart_mem</ItemText>
+          <ItemText>pos,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>1</WinNumber>
-          <ItemText>fres</ItemText>
+          <ItemText>old_pos,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>SDMMCx</ItemText>
-        </Ww>
-        <Ww>
-          <count>10</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>SDMMC2</ItemText>
-        </Ww>
-        <Ww>
-          <count>11</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>SDMMC1</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>(const char *)data</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>esp,0x0A</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>hs</ItemText>
-        </Ww>
-        <Ww>
-          <count>15</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>first_timeout</ItemText>
-        </Ww>
-        <Ww>
-          <count>16</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>timeout</ItemText>
-        </Ww>
-        <Ww>
-          <count>17</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>arg</ItemText>
-        </Ww>
-        <Ww>
-          <count>18</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>msg_type</ItemText>
-        </Ww>
-        <Ww>
-          <count>19</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>client</ItemText>
-        </Ww>
-        <Ww>
-          <count>20</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>request</ItemText>
-        </Ww>
-        <Ww>
-          <count>21</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>hostname</ItemText>
+          <ItemText>esp</ItemText>
         </Ww>
       </WatchWindow1>
+      <MemoryWindow1>
+        <Mm>
+          <WinNumber>1</WinNumber>
+          <SubType>8</SubType>
+          <ItemText>usart_mem</ItemText>
+          <AccSizeX>0</AccSizeX>
+        </Mm>
+      </MemoryWindow1>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>
@@ -972,6 +1001,16 @@
       <pszMrulep></pszMrulep>
       <pSingCmdsp></pSingCmdsp>
       <pMultCmdsp></pMultCmdsp>
+      <SystemViewers>
+        <Entry>
+          <Name>System Viewer\DMA1</Name>
+          <WinId>35904</WinId>
+        </Entry>
+        <Entry>
+          <Name>System Viewer\UART5</Name>
+          <WinId>35903</WinId>
+        </Entry>
+      </SystemViewers>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableLog>0</EnableLog>
@@ -1446,18 +1485,6 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\libs\FreeRTOS\portable\RVDS\ARM_CM4F\port_cm4.c</PathWithFileName>
-      <FilenameWithoutPath>port_cm4.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>37</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
       <PathWithFileName>..\..\libs\FreeRTOS\portable\MemMang\heap_4.c</PathWithFileName>
       <FilenameWithoutPath>heap_4.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
@@ -1465,7 +1492,7 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>38</FileNumber>
+      <FileNumber>37</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1477,25 +1504,25 @@
     </File>
     <File>
       <GroupNumber>5</GroupNumber>
-      <FileNumber>39</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>..\..\libs\FreeRTOS\portable\RVDS\ARM_CM7\port_cm7.c</PathWithFileName>
-      <FilenameWithoutPath>port_cm7.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>5</GroupNumber>
-      <FileNumber>40</FileNumber>
+      <FileNumber>38</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\libs\FreeRTOS\CMSIS_RTOS\cpu_utils.c</PathWithFileName>
       <FilenameWithoutPath>cpu_utils.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>5</GroupNumber>
+      <FileNumber>39</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\libs\FreeRTOS\portable\RVDS\ARM_CM4F\port.c</PathWithFileName>
+      <FilenameWithoutPath>port.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1509,7 +1536,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>41</FileNumber>
+      <FileNumber>40</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1521,7 +1548,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>42</FileNumber>
+      <FileNumber>41</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1533,7 +1560,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>43</FileNumber>
+      <FileNumber>42</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1545,7 +1572,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>44</FileNumber>
+      <FileNumber>43</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1557,7 +1584,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>45</FileNumber>
+      <FileNumber>44</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1569,7 +1596,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>46</FileNumber>
+      <FileNumber>45</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1581,7 +1608,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>47</FileNumber>
+      <FileNumber>46</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1593,7 +1620,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>48</FileNumber>
+      <FileNumber>47</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1605,7 +1632,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>49</FileNumber>
+      <FileNumber>48</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1617,7 +1644,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>50</FileNumber>
+      <FileNumber>49</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1629,7 +1656,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>51</FileNumber>
+      <FileNumber>50</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1641,7 +1668,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>52</FileNumber>
+      <FileNumber>51</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1653,7 +1680,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>53</FileNumber>
+      <FileNumber>52</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1665,7 +1692,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>54</FileNumber>
+      <FileNumber>53</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1677,7 +1704,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>55</FileNumber>
+      <FileNumber>54</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1689,7 +1716,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>56</FileNumber>
+      <FileNumber>55</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1701,7 +1728,7 @@
     </File>
     <File>
       <GroupNumber>6</GroupNumber>
-      <FileNumber>57</FileNumber>
+      <FileNumber>56</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1721,12 +1748,12 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>7</GroupNumber>
-      <FileNumber>58</FileNumber>
+      <FileNumber>57</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\src\esp\esp_netconn.c</PathWithFileName>
+      <PathWithFileName>..\..\src\api\esp_netconn.c</PathWithFileName>
       <FilenameWithoutPath>esp_netconn.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -1741,7 +1768,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>59</FileNumber>
+      <FileNumber>58</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1753,7 +1780,7 @@
     </File>
     <File>
       <GroupNumber>8</GroupNumber>
-      <FileNumber>60</FileNumber>
+      <FileNumber>59</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1773,7 +1800,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>9</GroupNumber>
-      <FileNumber>61</FileNumber>
+      <FileNumber>60</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1785,7 +1812,7 @@
     </File>
     <File>
       <GroupNumber>9</GroupNumber>
-      <FileNumber>62</FileNumber>
+      <FileNumber>61</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1797,7 +1824,7 @@
     </File>
     <File>
       <GroupNumber>9</GroupNumber>
-      <FileNumber>63</FileNumber>
+      <FileNumber>62</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1817,7 +1844,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>10</GroupNumber>
-      <FileNumber>64</FileNumber>
+      <FileNumber>63</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1837,7 +1864,7 @@
     <RteFlg>0</RteFlg>
     <File>
       <GroupNumber>11</GroupNumber>
-      <FileNumber>65</FileNumber>
+      <FileNumber>64</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1849,7 +1876,7 @@
     </File>
     <File>
       <GroupNumber>11</GroupNumber>
-      <FileNumber>66</FileNumber>
+      <FileNumber>65</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1861,7 +1888,7 @@
     </File>
     <File>
       <GroupNumber>11</GroupNumber>
-      <FileNumber>67</FileNumber>
+      <FileNumber>66</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1873,7 +1900,7 @@
     </File>
     <File>
       <GroupNumber>11</GroupNumber>
-      <FileNumber>68</FileNumber>
+      <FileNumber>67</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1885,7 +1912,7 @@
     </File>
     <File>
       <GroupNumber>11</GroupNumber>
-      <FileNumber>69</FileNumber>
+      <FileNumber>68</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
@@ -1907,7 +1934,7 @@
 
   <Group>
     <GroupName>::Device</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>1</RteFlg>

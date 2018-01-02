@@ -44,7 +44,7 @@
 #define ESP_CFG_DBG_TYPES_ON                ESP_DBG_TYPE_TRACE | ESP_DBG_TYPE_STATE
 #define ESP_CFG_DBG_IPD                     ESP_DBG_OFF
 #define ESP_CFG_DBG_SERVER                  ESP_DBG_OFF
-#define ESP_CFG_DBG_MQTT                    ESP_DBG_ON
+#define ESP_CFG_DBG_MQTT                    ESP_DBG_OFF
 #define ESP_CFG_DBG_MEM                     ESP_DBG_OFF
 #define ESP_CFG_DBG_PBUF                    ESP_DBG_OFF
 #define ESP_CFG_RCV_BUFF_SIZE               0x1000
