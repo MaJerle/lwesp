@@ -77,7 +77,6 @@
 #if USART_USE_DMA
 uint8_t usart_mem[0x400];
 uint16_t old_pos;
-uint32_t irq_call, irq_call_dma, configure_usart_call;
 
 static uint8_t is_running;
 #endif /* USART_USE_DMA */
@@ -160,7 +159,7 @@ configure_uart(uint32_t baudrate) {
         LL_USART_SetBaudRate(ESP_USART, LL_RCC_GetUARTClockFreq(ESP_USART_CLK_SOURCE), LL_USART_OVERSAMPLING_16, baudrate);
     }
     
-    HAL_NVIC_SetPriority(ESP_USART_IRQ, 1, 1);
+    HAL_NVIC_SetPriority(ESP_USART_IRQ, 6, 1);
     HAL_NVIC_EnableIRQ(ESP_USART_IRQ);
     
 #if !USART_USE_DMA
@@ -195,7 +194,7 @@ configure_uart(uint32_t baudrate) {
         LL_DMA_EnableIT_DME(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         LL_DMA_EnableStream(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         
-        HAL_NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, 1, 0);
+        HAL_NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, 6, 0);
         HAL_NVIC_EnableIRQ(ESP_USART_DMA_RX_STREAM_IRQ);
         
         old_pos = 0;
@@ -205,9 +204,6 @@ configure_uart(uint32_t baudrate) {
     /*
      * Configure USART RX DMA for data reception on AT port
      */
-    LL_USART_Enable(ESP_USART);
-    
-//    LL_USART_EnableIT_RXNE(ESP_USART);
     LL_USART_EnableIT_IDLE(ESP_USART);
     LL_USART_EnableIT_PE(ESP_USART);
     LL_USART_EnableIT_ERROR(ESP_USART);
@@ -226,6 +222,7 @@ configure_uart(uint32_t baudrate) {
         usart_ll_mbox_id = osMessageCreate(osMessageQ(usart_ll_mbox), NULL);
     }
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
+    LL_USART_Enable(ESP_USART);
     
     /*
      * Force ESP hardware reset
@@ -246,13 +243,9 @@ configure_uart(uint32_t baudrate) {
 void
 ESP_USART_IRQHANDLER(void) {
 #if USART_USE_DMA
-    if (LL_USART_IsActiveFlag_RXNE(ESP_USART)) {
-        volatile uint8_t val = LL_USART_ReceiveData8(ESP_USART);
-        ESP_UNUSED(val);
-    }
     if (LL_USART_IsActiveFlag_IDLE(ESP_USART)) {
         LL_USART_ClearFlag_IDLE(ESP_USART);
-        osMessagePut(usart_ll_mbox_id, 0, 0);
+        /* osMessagePut(usart_ll_mbox_id, 0, 0); */
     }
 #else /* USART_USE_DMA */
     if (LL_USART_IsActiveFlag_RXNE(ESP_USART)) {
@@ -260,7 +253,7 @@ ESP_USART_IRQHANDLER(void) {
         esp_input(&val, 1);
     }
 #endif /* !USART_USE_DMA */
-            
+
     if (LL_USART_IsActiveFlag_PE(ESP_USART))    { LL_USART_ClearFlag_PE(ESP_USART); }
     if (LL_USART_IsActiveFlag_FE(ESP_USART))    { LL_USART_ClearFlag_FE(ESP_USART); }
     if (LL_USART_IsActiveFlag_ORE(ESP_USART))   { LL_USART_ClearFlag_ORE(ESP_USART); }
@@ -273,21 +266,9 @@ ESP_USART_IRQHANDLER(void) {
  */
 void
 ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
-    irq_call_dma++;
-    if (LL_DMA_IsActiveFlag_TE0(ESP_USART_DMA)) {
-        LL_DMA_ClearFlag_TE0(ESP_USART_DMA);
-    }
-    if (LL_DMA_IsActiveFlag_FE0(ESP_USART_DMA)) {
-        LL_DMA_ClearFlag_FE0(ESP_USART_DMA);
-    }
-    if (LL_DMA_IsActiveFlag_DME0(ESP_USART_DMA)) {
-        LL_DMA_ClearFlag_DME0(ESP_USART_DMA);
-    }
     DMA_RX_STREAM_CLEAR_TC;                     /* Clear transfer complete interrupt */
     DMA_RX_STREAM_CLEAR_HT;                     /* Clear half-transfer interrupt */
-    if (is_running) {                           /* Ignore if not running */
-        osMessagePut(usart_ll_mbox_id, 0, 0);   /* Notify thread about new data available */
-    }
+    /* osMessagePut(usart_ll_mbox_id, 0, 0); */
 }
 #endif /* USART_USE_DMA */
 
@@ -301,12 +282,10 @@ usart_ll_thread(void const * arg) {
     size_t pos;
     
     while (1) {
-        evt = osMessageGet(usart_ll_mbox_id, osWaitForever);
-        if (evt.status == osEventMessage) {     /* We have a valid message */
-            /* Read data from buffer and process them */
-            pos = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Get current DMA position */
-            pos = sizeof(usart_mem) - pos;      /* Get position in correct order */
-            
+        /* Read data from buffer and process them */
+        pos = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Get current DMA position */
+        pos = sizeof(usart_mem) - pos;      /* Get position in correct order */
+        if (pos != old_pos && is_running) {
             /*
              * At this point, user may implement
              * RTS pin functionality to block ESP to
@@ -332,6 +311,7 @@ usart_ll_thread(void const * arg) {
              * send more data until processing is finished
              */
         }
+        osDelay(1);
     }
 }
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
