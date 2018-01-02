@@ -41,7 +41,7 @@ extern "C" {
 #include "esp_config.h"
 
 /**
- * \addtogroup      ESP
+ * \addtogroup      ESP_PORT
  * \{
  */
  

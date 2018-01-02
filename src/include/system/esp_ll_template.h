@@ -42,7 +42,7 @@ extern "C" {
 #include "esp/esp_mem.h"
 
 /**
- * \addtogroup      ESP
+ * \addtogroup      ESP_PORT
  * \{
  */
 

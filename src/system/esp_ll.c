@@ -41,119 +41,70 @@
 #include "tm_stm32_usart.h"
 #include "tm_stm32_disco.h"
 
-#if defined(STM32F7xx)
 #include "stm32f7xx_ll_usart.h"
 #include "stm32f7xx_ll_gpio.h"
 #include "stm32f7xx_ll_dma.h"
-#else /* defined(STM32F769_DISCOVERY) */
-#include "stm32f4xx_ll_usart.h"
-#include "stm32f4xx_ll_gpio.h"
-#include "stm32f4xx_ll_dma.h"
-#endif /* !defined(STM32F769_DISCOVERY) */
+#include "stm32f7xx_ll_rcc.h"
 
-#if defined(STM32F769_DISCOVERY)
-#define ESP_USART                   UART5
-#define ESP_USART_CLK               __HAL_RCC_UART5_CLK_ENABLE
-#define ESP_USART_IRQ               UART5_IRQn
-#define ESP_USART_IRQHANDLER        UART5_IRQHandler
+#define ESP_USART                           UART5
+#define ESP_USART_CLK                       __HAL_RCC_UART5_CLK_ENABLE
+#define ESP_USART_CLK_SOURCE                LL_RCC_UART5_CLKSOURCE
+#define ESP_USART_IRQ                       UART5_IRQn
+#define ESP_USART_IRQHANDLER                UART5_IRQHandler
 
-#define ESP_USART_TX_PORT_CLK       __HAL_RCC_GPIOC_CLK_ENABLE
-#define ESP_USART_TX_PORT           GPIOC
-#define ESP_USART_TX_PIN            LL_GPIO_PIN_12
-#define ESP_USART_TX_PIN_AF         LL_GPIO_AF_8
-#define ESP_USART_RX_PORT_CLK       __HAL_RCC_GPIOD_CLK_ENABLE
-#define ESP_USART_RX_PORT           GPIOD
-#define ESP_USART_RX_PIN            LL_GPIO_PIN_2
-#define ESP_USART_RX_PIN_AF         LL_GPIO_AF_8
-#define ESP_USART_RS_PORT_CLK       __HAL_RCC_GPIOJ_CLK_ENABLE
-#define ESP_USART_RS_PORT           GPIOJ
-#define ESP_USART_RS_PIN            LL_GPIO_PIN_14
+#define ESP_USART_TX_PORT_CLK               __HAL_RCC_GPIOC_CLK_ENABLE
+#define ESP_USART_TX_PORT                   GPIOC
+#define ESP_USART_TX_PIN                    LL_GPIO_PIN_12
+#define ESP_USART_TX_PIN_AF                 LL_GPIO_AF_8
+#define ESP_USART_RX_PORT_CLK               __HAL_RCC_GPIOD_CLK_ENABLE
+#define ESP_USART_RX_PORT                   GPIOD
+#define ESP_USART_RX_PIN                    LL_GPIO_PIN_2
+#define ESP_USART_RX_PIN_AF                 LL_GPIO_AF_8
+#define ESP_USART_RS_PORT_CLK               __HAL_RCC_GPIOJ_CLK_ENABLE
+#define ESP_USART_RS_PORT                   GPIOJ
+#define ESP_USART_RS_PIN                    LL_GPIO_PIN_14
 
-#define ESP_USART_DMA               DMA1
-#define ESP_USART_DMA_CLK           __HAL_RCC_DMA1_CLK_ENABLE
-#define ESP_USART_DMA_RX_STREAM     LL_DMA_STREAM_0
-#define ESP_USART_DMA_RX_CH         LL_DMA_CHANNEL_4
-#define ESP_USART_DMA_RX_STREAM_IRQ DMA1_Stream0_IRQn
+#define ESP_USART_DMA                       DMA1
+#define ESP_USART_DMA_CLK                   __HAL_RCC_DMA1_CLK_ENABLE
+#define ESP_USART_DMA_RX_STREAM             LL_DMA_STREAM_0
+#define ESP_USART_DMA_RX_CH                 LL_DMA_CHANNEL_4
+#define ESP_USART_DMA_RX_STREAM_IRQ         DMA1_Stream0_IRQn
 #define ESP_USART_DMA_RX_STREAM_IRQHANDLER  DMA1_Stream0_IRQHandler
 
-#define IS_DMA_RX_STREAM_TC         LL_DMA_IsActiveFlag_TC0(ESP_USART_DMA)
-#define IS_DMA_RX_STREAM_HT         LL_DMA_IsActiveFlag_HT0(ESP_USART_DMA)
-#define DMA_RX_STREAM_CLEAR_TC      LL_DMA_ClearFlag_TC0(ESP_USART_DMA)
-#define DMA_RX_STREAM_CLEAR_HT      LL_DMA_ClearFlag_HT0(ESP_USART_DMA)
-#else /* defined(STM32F769_DISCOVERY) */
-#define ESP_USART                   USART1
-#define ESP_USART_CLK               __HAL_RCC_USART1_CLK_ENABLE
-#define ESP_USART_IRQ               USART1_IRQn
-#define ESP_USART_IRQHANDLER        USART1_IRQHandler
+#define IS_DMA_RX_STREAM_TC                 LL_DMA_IsActiveFlag_TC0(ESP_USART_DMA)
+#define IS_DMA_RX_STREAM_HT                 LL_DMA_IsActiveFlag_HT0(ESP_USART_DMA)
+#define DMA_RX_STREAM_CLEAR_TC              LL_DMA_ClearFlag_TC0(ESP_USART_DMA)
+#define DMA_RX_STREAM_CLEAR_HT              LL_DMA_ClearFlag_HT0(ESP_USART_DMA)
 
-#define ESP_USART_TX_PORT_CLK       __HAL_RCC_GPIOA_CLK_ENABLE
-#define ESP_USART_TX_PORT           GPIOA
-#define ESP_USART_TX_PIN            LL_GPIO_PIN_9
-#define ESP_USART_TX_PIN_AF         LL_GPIO_AF_7
-#define ESP_USART_RX_PORT_CLK       __HAL_RCC_GPIOA_CLK_ENABLE
-#define ESP_USART_RX_PORT           GPIOA
-#define ESP_USART_RX_PIN            LL_GPIO_PIN_10
-#define ESP_USART_RX_PIN_AF         LL_GPIO_AF_7
-#define ESP_USART_RS_PORT_CLK       __HAL_RCC_GPIOA_CLK_ENABLE
-#define ESP_USART_RS_PORT           GPIOA
-#define ESP_USART_RS_PIN            LL_GPIO_PIN_0
-
-#define ESP_USART_DMA               DMA2
-#define ESP_USART_DMA_CLK           __HAL_RCC_DMA2_CLK_ENABLE
-#define ESP_USART_DMA_RX_STREAM     LL_DMA_STREAM_5
-#define ESP_USART_DMA_RX_CH         LL_DMA_CHANNEL_4
-#define ESP_USART_DMA_RX_STREAM_IRQ DMA2_Stream5_IRQn
-#define ESP_USART_DMA_RX_STREAM_IRQHANDLER  DMA2_Stream5_IRQHandler
-
-#define IS_DMA_RX_STREAM_TC         LL_DMA_IsActiveFlag_TC5(ESP_USART_DMA)
-#define IS_DMA_RX_STREAM_HT         LL_DMA_IsActiveFlag_HT5(ESP_USART_DMA)
-#define DMA_RX_STREAM_CLEAR_TC      LL_DMA_ClearFlag_TC5(ESP_USART_DMA)
-#define DMA_RX_STREAM_CLEAR_HT      LL_DMA_ClearFlag_HT5(ESP_USART_DMA)
-#endif /* !defined(STM32F769_DISCOVERY) */
-
-#define USART_USE_DMA               0
+#define USART_USE_DMA                       ESP_CFG_INPUT_USE_PROCESS
 
 #if USART_USE_DMA
-static uint8_t usart_mem[0x400];
+uint8_t usart_mem[0x400];
 uint16_t old_pos;
-#endif /* USART_USE_DMA */
+uint32_t irq_call, irq_call_dma, configure_usart_call;
 
-static uint8_t initialized;
-#if USART_USE_DMA
 static uint8_t is_running;
 #endif /* USART_USE_DMA */
+static uint8_t initialized;
 
 #if ESP_CFG_INPUT_USE_PROCESS
-void usart_ll_thread(void const * arg);
-
+/*
+ * Receive data thread and message queue definitions
+ */
+ 
+static void usart_ll_thread(void const * arg);
 osMessageQDef(usart_ll_mbox, 10, uint8_t);
 osMessageQId usart_ll_mbox_id;
 osThreadDef(usart_ll_thread, usart_ll_thread, osPriorityNormal, 0, 1024);
 osThreadId usart_ll_thread_id;
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
 
-/**
- * \brief           Send data to ESP device
- * \param[in]       data: Pointer to data to send
- * \param[in]       len: Number of bytes to send
- * \return          Number of bytes sent
- */
-static uint16_t
-send_data(const void* data, uint16_t len) {
-    uint16_t i;
-    const uint8_t* d = data;
-    
-    for (i = 0; i < len; i++) {
-        LL_USART_TransmitData8(ESP_USART, *d++);
-        while (!LL_USART_IsActiveFlag_TXE(ESP_USART));
-    }
-    return len;
-}
+static uint16_t send_data(const void* data, uint16_t len);
 
 /**
  * \brief           Configure UART using DMA for receive in double buffer mode and IDLE line detection
  */
-static void
+void
 configure_uart(uint32_t baudrate) {
     LL_USART_InitTypeDef usart_init;
     LL_GPIO_InitTypeDef gpio_init;
@@ -180,14 +131,14 @@ configure_uart(uint32_t baudrate) {
         gpio_init.Pull = LL_GPIO_PULL_UP;
         gpio_init.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
         
-        /* Configure reset pin */
+        /* Configure RESET pin */
         gpio_init.Mode = LL_GPIO_MODE_OUTPUT;
-        gpio_init.Pin = ESP_USART_RS_PIN;
         gpio_init.Pin = ESP_USART_RS_PIN;
         LL_GPIO_Init(ESP_USART_RS_PORT, &gpio_init);
         
-        /* Configure GPIO pins */
+        /* Configure USART pins */
         gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
+        
         gpio_init.Alternate = ESP_USART_TX_PIN_AF;
         gpio_init.Pin = ESP_USART_TX_PIN;
         LL_GPIO_Init(ESP_USART_TX_PORT, &gpio_init);
@@ -199,41 +150,34 @@ configure_uart(uint32_t baudrate) {
     /* Configure UART */
     if (!initialized) {
         LL_USART_DeInit(ESP_USART);
+        LL_USART_StructInit(&usart_init);
         usart_init.BaudRate = baudrate;
         usart_init.DataWidth = LL_USART_DATAWIDTH_8B;
         usart_init.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-        usart_init.OverSampling = LL_USART_OVERSAMPLING_8;
+        usart_init.OverSampling = LL_USART_OVERSAMPLING_16;
         usart_init.Parity = LL_USART_PARITY_NONE;
         usart_init.StopBits = LL_USART_STOPBITS_1;
         usart_init.TransferDirection = LL_USART_DIRECTION_TX_RX;
         LL_USART_Init(ESP_USART, &usart_init);
-        LL_USART_Enable(ESP_USART);
     } else {
         LL_USART_Disable(ESP_USART);
-        LL_USART_SetBaudRate(ESP_USART, 100000000, LL_USART_OVERSAMPLING_8, baudrate);
-        LL_USART_Enable(ESP_USART);
+        LL_USART_SetBaudRate(ESP_USART, LL_RCC_GetUARTClockFreq(ESP_USART_CLK_SOURCE), LL_USART_OVERSAMPLING_16, baudrate);
     }
+    
+    HAL_NVIC_SetPriority(ESP_USART_IRQ, 1, 1);
+    HAL_NVIC_EnableIRQ(ESP_USART_IRQ);
     
 #if !USART_USE_DMA
     LL_USART_EnableIT_RXNE(ESP_USART);
 #endif /* USART_USE_DMA */
-
 #if USART_USE_DMA
-    LL_USART_EnableDMAReq_RX(ESP_USART);
-    LL_USART_EnableIT_IDLE(ESP_USART);
-    LL_USART_EnableIT_PE(ESP_USART);
-    LL_USART_EnableIT_ERROR(ESP_USART);
     
     /* Set DMA_InitStruct fields to default values */
     if (!initialized) {
         is_running = 0;
         LL_DMA_DeInit(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         dma_init.Channel = ESP_USART_DMA_RX_CH;
-#if defined(STM32F769_DISCOVERY)
         dma_init.PeriphOrM2MSrcAddress = (uint32_t)&ESP_USART->RDR;
-#else /* defined(STM32F769_DISCOVERY) */
-        dma_init.PeriphOrM2MSrcAddress = (uint32_t)&ESP_USART->DR;
-#endif /* !defined(STM32F769_DISCOVERY) */
         dma_init.MemoryOrM2MDstAddress = (uint32_t)usart_mem;
         dma_init.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
         dma_init.Mode = LL_DMA_MODE_CIRCULAR;
@@ -242,14 +186,17 @@ configure_uart(uint32_t baudrate) {
         dma_init.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_BYTE;
         dma_init.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_BYTE;
         dma_init.NbData = sizeof(usart_mem);
-        dma_init.Priority = LL_DMA_PRIORITY_LOW;
+        dma_init.Priority = LL_DMA_PRIORITY_VERYHIGH;
         dma_init.FIFOMode = LL_DMA_FIFOMODE_DISABLE;
-        dma_init.FIFOThreshold = LL_DMA_FIFOTHRESHOLD_1_4;
-        dma_init.MemBurst = LL_DMA_MBURST_SINGLE;
-        dma_init.PeriphBurst = LL_DMA_PBURST_SINGLE;
+        dma_init.FIFOThreshold = LL_DMA_FIFOTHRESHOLD_FULL;
+        dma_init.MemBurst = LL_DMA_MBURST_INC4;
+        dma_init.PeriphBurst = LL_DMA_PBURST_INC4;
         LL_DMA_Init(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM, &dma_init);
         LL_DMA_EnableIT_HT(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         LL_DMA_EnableIT_TC(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
+        LL_DMA_EnableIT_TE(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
+        LL_DMA_EnableIT_FE(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
+        LL_DMA_EnableIT_DME(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         LL_DMA_EnableStream(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         
         HAL_NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, 1, 0);
@@ -258,12 +205,24 @@ configure_uart(uint32_t baudrate) {
         old_pos = 0;
         is_running = 1;
     }
-#endif /* USART_USE_DMA */
     
-    HAL_NVIC_SetPriority(ESP_USART_IRQ, 1, 1);
-    HAL_NVIC_EnableIRQ(ESP_USART_IRQ);
+    /*
+     * Configure USART RX DMA for data reception on AT port
+     */
+    LL_USART_Enable(ESP_USART);
+    
+//    LL_USART_EnableIT_RXNE(ESP_USART);
+    LL_USART_EnableIT_IDLE(ESP_USART);
+    LL_USART_EnableIT_PE(ESP_USART);
+    LL_USART_EnableIT_ERROR(ESP_USART);
+    LL_USART_EnableDMAReq_RX(ESP_USART);
+#endif /* USART_USE_DMA */
 
 #if ESP_CFG_INPUT_USE_PROCESS
+    /*
+     * For direct input processing,
+     * separate thread must be used to feed received data from
+     */
     if (!usart_ll_thread_id) {
         usart_ll_thread_id = osThreadCreate(osThread(usart_ll_thread), NULL);
     }
@@ -272,6 +231,12 @@ configure_uart(uint32_t baudrate) {
     }
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
     
+    
+    /*
+     * Force ESP hardware reset
+     * after initialization to make sure device is ready and
+     * not in undefined state from previous AT usage
+     */
     if (!initialized) {
         LL_GPIO_ResetOutputPin(ESP_USART_RS_PORT, ESP_USART_RS_PIN);
         osDelay(1);
@@ -286,34 +251,13 @@ configure_uart(uint32_t baudrate) {
 void
 ESP_USART_IRQHANDLER(void) {
 #if USART_USE_DMA
-    uint16_t pos;
-    
-    if (LL_USART_IsActiveFlag_PE(ESP_USART)) {
-        LL_USART_ClearFlag_PE(ESP_USART);
+    if (LL_USART_IsActiveFlag_RXNE(ESP_USART)) {
+        volatile uint8_t val = LL_USART_ReceiveData8(ESP_USART);
+        ESP_UNUSED(val);
     }
-    if (LL_USART_IsActiveFlag_FE(ESP_USART)) {
-        LL_USART_ClearFlag_FE(ESP_USART);
-    }
-    if (LL_USART_IsActiveFlag_ORE(ESP_USART)) {
-        LL_USART_ClearFlag_ORE(ESP_USART);
-    }
-    if (LL_USART_IsActiveFlag_NE(ESP_USART)) {
-        LL_USART_ClearFlag_NE(ESP_USART);
-    }
-    
-    if (LL_USART_IsActiveFlag_IDLE(ESP_USART) && is_running) {
+    if (LL_USART_IsActiveFlag_IDLE(ESP_USART)) {
         LL_USART_ClearFlag_IDLE(ESP_USART);
-#if ESP_CFG_INPUT_USE_PROCESS
         osMessagePut(usart_ll_mbox_id, 0, 0);
-        (void)pos;
-#else
-        pos = sizeof(usart_mem) - LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Remaining data to receive */
-        
-        if ((pos - old_pos) > 0) {
-            esp_input(&usart_mem[old_pos], pos - old_pos);  /* Send to stack */
-        }
-        old_pos = pos;
-#endif /* !ESP_CFG_INPUT_USE_PROCESS */
     }
 #else /* USART_USE_DMA */
     if (LL_USART_IsActiveFlag_RXNE(ESP_USART)) {
@@ -321,7 +265,11 @@ ESP_USART_IRQHANDLER(void) {
         esp_input(&val, 1);
     }
 #endif /* !USART_USE_DMA */
-    LL_USART_ClearFlag_ORE(ESP_USART);
+            
+    if (LL_USART_IsActiveFlag_PE(ESP_USART))    { LL_USART_ClearFlag_PE(ESP_USART); }
+    if (LL_USART_IsActiveFlag_FE(ESP_USART))    { LL_USART_ClearFlag_FE(ESP_USART); }
+    if (LL_USART_IsActiveFlag_ORE(ESP_USART))   { LL_USART_ClearFlag_ORE(ESP_USART); }
+    if (LL_USART_IsActiveFlag_NE(ESP_USART))    { LL_USART_ClearFlag_NE(ESP_USART); }
 }
 
 #if USART_USE_DMA
@@ -330,36 +278,21 @@ ESP_USART_IRQHANDLER(void) {
  */
 void
 ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
-#if !ESP_CFG_INPUT_USE_PROCESS
-    uint16_t pos;
-#endif /* !ESP_CFG_INPUT_USE_PROCESS */
-    
-    if (!is_running) {                          /* Ignore if not running */
-        DMA_RX_STREAM_CLEAR_TC;
-        DMA_RX_STREAM_CLEAR_HT;
+    irq_call_dma++;
+    if (LL_DMA_IsActiveFlag_TE0(ESP_USART_DMA)) {
+        LL_DMA_ClearFlag_TE0(ESP_USART_DMA);
     }
-#if ESP_CFG_INPUT_USE_PROCESS
+    if (LL_DMA_IsActiveFlag_FE0(ESP_USART_DMA)) {
+        LL_DMA_ClearFlag_FE0(ESP_USART_DMA);
+    }
+    if (LL_DMA_IsActiveFlag_DME0(ESP_USART_DMA)) {
+        LL_DMA_ClearFlag_DME0(ESP_USART_DMA);
+    }
     DMA_RX_STREAM_CLEAR_TC;                     /* Clear transfer complete interrupt */
     DMA_RX_STREAM_CLEAR_HT;                     /* Clear half-transfer interrupt */
-    osMessagePut(usart_ll_mbox_id, 0, 0);       /* Notify thread only */
-#else
-    if (IS_DMA_RX_STREAM_TC) {
-        pos = 0;
-    } else {
-        pos = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Remaining data to receive */
+    if (is_running) {                           /* Ignore if not running */
+        osMessagePut(usart_ll_mbox_id, 0, 0);   /* Notify thread about new data available */
     }
-    pos = sizeof(usart_mem) - pos;              /* Current position in receive buffer array */
-    
-    if (IS_DMA_RX_STREAM_TC) {
-        DMA_RX_STREAM_CLEAR_TC;
-        esp_input(&usart_mem[old_pos], pos - old_pos);  /* Send to stack */
-        old_pos = 0;                            /* Set new position of new valid data */
-    } else if (IS_DMA_RX_STREAM_HT) {
-        DMA_RX_STREAM_CLEAR_HT;
-        esp_input(&usart_mem[old_pos], pos - old_pos);  /* Send to stack */
-        old_pos = pos;                          /* Set new position of new valid data */
-    }
-#endif /* !ESP_CFG_INPUT_USE_PROCESS */
 }
 #endif /* USART_USE_DMA */
 
@@ -367,7 +300,7 @@ ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
 /**
  * \brief           USART read thread
  */
-void
+static void
 usart_ll_thread(void const * arg) {
     osEvent evt;
     size_t pos;
@@ -378,6 +311,12 @@ usart_ll_thread(void const * arg) {
             /* Read data from buffer and process them */
             pos = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Get current DMA position */
             pos = sizeof(usart_mem) - pos;      /* Get position in correct order */
+            
+            /*
+             * At this point, user may implement
+             * RTS pin functionality to block ESP to
+             * send more data until processing is finished
+             */
             
             if (pos > old_pos) {                /* Are we in linear section? */
                 esp_input_process(&usart_mem[old_pos], pos - old_pos);
@@ -391,10 +330,34 @@ usart_ll_thread(void const * arg) {
             if (old_pos == sizeof(usart_mem)) {
                 old_pos = 0;
             }
+            
+            /*
+             * At this point, user may implement
+             * RTS pin functionality to again allow ESP to
+             * send more data until processing is finished
+             */
         }
     }
 }
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
+
+/**
+ * \brief           Send data to ESP device
+ * \param[in]       data: Pointer to data to send
+ * \param[in]       len: Number of bytes to send
+ * \return          Number of bytes sent
+ */
+static uint16_t
+send_data(const void* data, uint16_t len) {
+    uint16_t i;
+    const uint8_t* d = data;
+    
+    for (i = 0; i < len; i++, d++) {
+        LL_USART_TransmitData8(ESP_USART, *d);
+        while (!LL_USART_IsActiveFlag_TXE(ESP_USART));
+    }
+    return len;
+}
 
 /**
  * \brief           Callback function called from initialization process

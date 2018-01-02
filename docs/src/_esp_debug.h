@@ -40,7 +40,7 @@
  * Use configuration in your program:
  *
  * \include         _example_debug.c
- *
+ * 
  * \}
  */
 

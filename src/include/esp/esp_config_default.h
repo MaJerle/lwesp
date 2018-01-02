@@ -35,11 +35,6 @@
 #define __ESP_DEFAULT_CONFIG_H  100
 
 /**
- * \addtogroup      ESP
- * \{
- */
-
-/**
  * \defgroup        ESP_CONF Configuration
  * \brief           Configuration parameters for ESP8266 library
  * \{
@@ -402,10 +397,6 @@
 #define ESP_CFG_CONN_POLL_INTERVAL          500
 #endif
 
-/**
- * \}
- */
- 
 /**
  * \}
  */

@@ -33,9 +33,11 @@
  *      of sending and receiving data from/to ESP AT lib to properly handle communication between
  *      host device and ESP device.
  *      - User must assign memory for memory manager in this section.
-            Check \ref ESP_MEM and \ref ESP_LL sections for more information.
+ *          Check \ref ESP_MEM and \ref ESP_LL sections for more information.
  *
  *      More about this part can be found in \ref ESP_LL section.
+ *      
+ *      Together with this section, user must implement part to input the received data from AT port.
  *
  *  - <b>ESP physical device</b>: Actual ESP8266 or ESP32 device
  *
