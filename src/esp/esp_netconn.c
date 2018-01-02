@@ -130,8 +130,8 @@ esp_cb(esp_cb_t* cb) {
             esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
             if (!nc->rcv_packets) {             /* Is this our first packet? */
-                if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
-                    if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
+                if (esp_sys_mbox_isvalid(&nc->mbox_accept)) {
+                    if (!esp_sys_mbox_putnow(&nc->mbox_accept, nc)) {
                         ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
                             "NETCONN: Cannot put server connection to accept mbox\r\n");
                         close = 1;
