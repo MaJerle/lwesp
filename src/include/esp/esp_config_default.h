@@ -325,6 +325,12 @@
  */
 
 /**
+ * \defgroup        ESP_CONF_MODULES_NETCONN Netconn module
+ * \brief           Configuration of netconn API module
+ * \{
+ */
+ 
+/**
  * \brief           Enables (1) or disables (0) NETCONN sequential API support for OS systems
  *
  * \note            To use this feature, OS support is mandatory. 
@@ -333,6 +339,21 @@
 #ifndef ESP_CFG_NETCONN
 #define ESP_CFG_NETCONN                     0
 #endif
+
+/**
+ * \brief           Accept and put a new connection to receive message queue immediately when connections starts
+ *
+ *                  If this parameter is set to 0, a new connection info will be written 
+ *                  to accept mbox only when first data packet arrives to device,
+ *                  otherwise it will be immediately written to receive mbox.
+ */
+#ifndef ECP_CFG_NETCONN_ACCEPT_ON_CONNECT
+#define ECP_CFG_NETCONN_ACCEPT_ON_CONNECT   1
+#endif
+
+/**
+ * \}
+ */
  
 /**
  * \brief           Enables (1) or disables (0) support for DNS functions

@@ -98,6 +98,10 @@ esp_cb(esp_cb_t* cb) {
                     close = 1;                  /* Close this connection, invalid netconn */
                 }
             } else if (esp_conn_is_server(conn) && listen_api != NULL) {    /* Is the connection server type and we have known listening API? */
+                /*
+                 * Create a new netconn structure
+                 * and set it as connection argument.
+                 */
                 nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Create new API */
                 ESP_DEBUGW(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
                     nc == NULL, "NETCONN: Cannot create new structure for incoming server connection!\r\n");
@@ -105,6 +109,20 @@ esp_cb(esp_cb_t* cb) {
                 if (nc != NULL) {
                     nc->conn = conn;            /* Set connection callback */
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
+#if ECP_CFG_NETCONN_ACCEPT_ON_CONNECT
+                    /*
+                     * If user wants to write connection to accept mbox,
+                     * immediately after connection active,
+                     * process it here.
+                     *
+                     * In case there is no listening connection,
+                     * simply close the connection
+                     */
+                    if (!esp_sys_mbox_isvalid(listen_api->mbox_accept) ||
+                        !esp_sys_mbox_putnow(listen_api->mbox_accept, nc)) {
+                        close = 1;
+                    }
+#endif /* ECP_CFG_NETCONN_ACCEPT_ON_CONNECT */
                 } else {
                     close = 1;
                 }
@@ -129,6 +147,12 @@ esp_cb(esp_cb_t* cb) {
         case ESP_CB_CONN_DATA_RECV: {
             esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
+
+#if !ECP_CFG_NETCONN_ACCEPT_ON_CONNECT
+            /*
+             * Write data to listening connection accept mbox,
+             * only when first data packet arrives
+             */
             if (!nc->rcv_packets) {             /* Is this our first packet? */
                 if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
                     if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
@@ -141,6 +165,8 @@ esp_cb(esp_cb_t* cb) {
                     close = 1;
                 }
             }
+#endif /* !ECP_CFG_NETCONN_ACCEPT_ON_CONNECT */
+
             nc->rcv_packets++;                  /* Increase number of received packets */
             if (!close) {
                 if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
@@ -165,7 +191,7 @@ esp_cb(esp_cb_t* cb) {
              * In case we have a netconn available, 
              * simply write pointer to received variable to indicate closed state
              */
-            if (nc && esp_sys_mbox_isvalid(&nc->mbox_receive)) {
+            if (nc != NULL && esp_sys_mbox_isvalid(&nc->mbox_receive)) {
                 esp_sys_mbox_putnow(&nc->mbox_receive, (void *)&recv_closed);
             }
             
@@ -193,7 +219,7 @@ esp_netconn_new(esp_netconn_type_t type) {
     esp_netconn_t* a;
     
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
-    if (a) {
+    if (a != NULL) {
         a->type = type;                         /* Save netconn type */
         if (!esp_sys_mbox_create(&a->mbox_accept, 5)) { /* Allocate memory for accepting message box */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER, "NETCONN: Cannot create accept MBOX\r\n");
@@ -212,7 +238,7 @@ free_ret:
     if (esp_sys_mbox_isvalid(&a->mbox_receive)) {
         esp_sys_mbox_delete(&a->mbox_receive);
     }
-    if (a) {
+    if (a != NULL) {
         esp_mem_free(a);
     }
     return NULL;
