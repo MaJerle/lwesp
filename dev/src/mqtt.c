@@ -30,7 +30,9 @@ mqtt_thread(void const* arg) {
      * and 128 bytes of RAW incoming data
      */
     mqtt_client = mqtt_client_new(256, 128);
-    mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
+    if (mqtt_client != NULL) {
+        mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
+    }
     
     while (1) {
         osDelay(5000);

@@ -130,6 +130,7 @@ typedef struct {
  */
 ap_entry_t ap_list[] = {
     { "Majerle WiFi", "majerle_internet" },
+    { "Tilen\xE2\x80\x99s iPhone", "ni dostopa" },
     { "Hoteldeshorlogers", "roomclient16" },
     { "scandic_easy", "" },
     { "HOTEL-VEGA", "hotelvega" },
