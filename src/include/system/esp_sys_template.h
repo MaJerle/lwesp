@@ -126,6 +126,8 @@ typedef osPriority          esp_sys_thread_prio_t;
 #endif /* ESP_OS || __DOXYGEN__ */
 
 uint8_t     esp_sys_init(void);
+uint32_t    esp_sys_now(void);
+
 uint8_t     esp_sys_protect(void);
 uint8_t     esp_sys_unprotect(void);
 
@@ -134,6 +136,7 @@ uint8_t     esp_sys_mutex_delete(esp_sys_mutex_t* p);
 uint8_t     esp_sys_mutex_lock(esp_sys_mutex_t* p);
 uint8_t     esp_sys_mutex_unlock(esp_sys_mutex_t* p);
 uint8_t     esp_sys_mutex_isvalid(esp_sys_mutex_t* p);
+uint8_t     esp_sys_mutex_invalid(esp_sys_mutex_t* p);
 
 uint8_t     esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt);
 uint8_t     esp_sys_sem_delete(esp_sys_sem_t* p);
@@ -152,8 +155,6 @@ uint8_t     esp_sys_mbox_isvalid(esp_sys_mbox_t* b);
 uint8_t     esp_sys_mbox_invalid(esp_sys_mbox_t* b);
 
 uint8_t     esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void(*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio);
-
-uint32_t    esp_sys_now(void);
  
 /**
  * \}

@@ -31,16 +31,6 @@
 #define ESP_INTERNAL
 #include "system/esp_sys.h"
 
-/**
- * \addtogroup      ESP_SYS
- * \brief 
- * \{
- */
- 
-/**
- * \}
- */
-
 /*******************************************/
 /*******************************************/
 /**   Modify this file for your system    **/
