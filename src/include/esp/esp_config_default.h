@@ -35,16 +35,17 @@
 
 /**
  * \defgroup        ESP_CONF Configuration
- * \brief           Configuration parameters for ESP8266 library
+ * \brief           Configuration parameters
  * \{
+ *
  */
  
 /**
- * \brief           Enables (1) or disables (0) operating system support for ESP
+ * \brief           Enables (1) or disables (0) operating system support for ESP library
  *
  * \note            Value must be set to 1 in the current revision
  *
- * \note            Check \ref ESP_CFG_OS group for more configuration related to operating system
+ * \note            Check \ref ESP_CONF_OS group for more configuration related to operating system
  *
  */
 #ifndef ESP_CFG_OS
@@ -53,6 +54,7 @@
 
 /**
  * \brief           Memory alignment for dynamic memory allocations
+ *
  * \note            Some CPUs can work faster if memory is aligned, usually to 4 or 8 bytes.
  *                  To speed up this possibilities, you can set memory alignment and library
  *                  will try to allocate memory on aligned boundaries.
@@ -191,7 +193,8 @@
 #endif
 
 /**
- * \brief           Set debug level for memory manager.
+ * \brief           Set debug level for memory manager
+ *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_MEM
@@ -200,6 +203,7 @@
 
 /**
  * \brief           Set debug level for input module
+ *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_INPUT
@@ -208,6 +212,7 @@
 
 /**
  * \brief           Set debug level for ESP threads
+ *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_THREAD
@@ -216,6 +221,7 @@
 
 /**
  * \brief           Set debug level for asserting of input variables
+ *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_ASSERT
@@ -224,6 +230,7 @@
 
 /**
  * \brief           Set debug level for incoming data received from device
+ *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_IPD
@@ -232,6 +239,7 @@
 
 /**
  * \brief           Set debug level for netconn sequential API
+ *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_NETCONN
@@ -240,6 +248,7 @@
 
 /**
  * \brief           Set debug level for packet buffer manager
+ *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_PBUF
@@ -248,6 +257,7 @@
 
 /**
  * \brief           Set debug level for dynamic variable allocations
+ *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_VAR
@@ -269,13 +279,14 @@
  */
 
 /**
- * \defgroup        ESP_CFG_OS OS configuration
+ * \defgroup        ESP_CONF_OS OS configuration
  * \brief           Operating system dependant configuration
  * \{
  */
  
 /**
  * \brief           Set number of message queue entries for procuder thread
+ *
  *                  Message queue is used for storing memory address to command data
  */
 #ifndef ESP_CFG_THREAD_PRODUCER_MBOX_SIZE
@@ -284,9 +295,8 @@
 
 /**
  * \brief           Set number of message queue entries for processing thread
- *                  Message queue is used to notify processing thread about new received data on AT port
  *
- * \note            This parameter has no meaning when \ref ESP_CFG_INPUT_USE_PROCESS is enabled
+ *                  Message queue is used to notify processing thread about new received data on AT port
  */
 #ifndef ESP_CFG_THREAD_PROCESS_MBOX_SIZE
 #define ESP_CFG_THREAD_PROCESS_MBOX_SIZE    16
@@ -294,6 +304,7 @@
 
 /**
  * \brief           Enables (1) or disables (0) direct support for processing input data
+ *
  *                  When this mode is enabled, no overhead is included for copying data
  *                  to receive buffer because bytes are processed directly.
  *
