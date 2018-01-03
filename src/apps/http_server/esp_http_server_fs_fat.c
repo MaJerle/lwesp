@@ -34,41 +34,6 @@
 #include "esp/esp_mem.h"
 #include "ff.h"                 /* Include FATFS file system file */
 
-/**
- * \addtogroup      ESP_APP_HTTP_SERVER_FS_FAT
- * \{
- * 
- * This is FATFS implementation for HTTP server dynamic files.
- *
- * \note            More about FATFS can be found on its <a href="http://elm-chan.org/fsw/ff/00index_e.html" target="_blank">official website</a>.
- *
- * It consists of 3 functions, which must be applied to \ref http_init_t structure on server initialization:
- * 
- * - \ref http_fs_open to open a file
- * - \ref http_fs_read to read a file
- * - \ref http_fs_close to close a file
- *
- * When opening a file, functions assume user has files in <b>www</b> folder in root directory of file system.
- * 
- * \par             Example assigning file system functions to server
- *
- * \code{c}
-const http_init_t
-http_init = {
-    .fs_open = http_fs_open,                    // Set open function
-    .fs_read = http_fs_read,                    // Set read function
-    .fs_close = http_fs_close,                  // Set close function
-    
-    //Set other parameters suchs as SSI tags or CGI handlers
-};
-
-// Later somewhere, when you init http_server, call:
-esp_http_server_init(&http_init, 80);           // Enable server on port 80
-\endcode
- *
- * \}
- */
-
 /* File system object handle */
 static FATFS fs;
 

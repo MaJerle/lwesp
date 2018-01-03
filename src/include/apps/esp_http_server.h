@@ -51,7 +51,7 @@ extern "C" {
  */
 
 /**
- * \defgroup        ESP_CONFIG_APP_HTTP HTTP server configuration
+ * \defgroup        ESP_CONFIG_APP_HTTP Configuration
  * \brief           Configuration of HTTP server app
  * \{
  */
@@ -324,7 +324,7 @@ espr_t      esp_http_server_init(const http_init_t* init, uint16_t port);
 size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
 
 /**
- * \defgroup        ESP_APP_HTTP_SERVER_FS_FAT FAT FS
+ * \defgroup        ESP_APP_HTTP_SERVER_FS_FAT FAT File System
  * \brief           FATFS file system implementation for dynamic files
  * \{
  */
