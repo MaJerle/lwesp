@@ -850,7 +850,7 @@ mqtt_closed_cb(mqtt_client_t* client) {
 static espr_t
 mqtt_conn_cb(esp_cb_t* cb) {
     esp_conn_p conn;
-    mqtt_client_t* client;
+    mqtt_client_t* client = NULL;
     
     conn = esp_conn_get_from_evt(cb);           /* Get connection from event */
     if (conn != NULL) {
@@ -867,10 +867,18 @@ mqtt_conn_cb(esp_cb_t* cb) {
      * Check and process events
      */
     switch (cb->type) {
+        /*
+         * Connection error. Connection to external
+         * server was not successful
+         */
         case ESP_CB_CONN_ERROR: {
             mqtt_client_t* client = cb->cb.conn_error.arg;  /* Get argument from connection */
             if (client != NULL) {
+                client->conn_state = MQTT_CONN_DISCONNECTED;    /* Set back to disconnected state */
                 /* Notify user upper layer */
+                client->evt.type = MQTT_EVT_CONNECT;/* Connect event */
+                client->evt.evt.connect.status = MQTT_CONN_STATUS_TCP_FAILED;   /* TCP connection failed */
+                client->evt_fn(client, &client->evt);   /* Notify upper layer about closed connection */
             }
             break;
         }

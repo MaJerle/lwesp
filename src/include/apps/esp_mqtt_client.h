@@ -130,6 +130,7 @@ typedef enum {
     MQTT_CONN_STATUS_REFUSED_SERVER =           0x03,   /*!< Connection refused, server unavailable */
     MQTT_CONN_STATUS_REFUSED_USER_PASS =        0x04,   /*!< Connection refused, bad user name or password */
     MQTT_CONN_STATUS_REFUSED_NOT_AUTHORIZED =   0x05,   /*!< Connection refused, not authorized */
+    MQTT_CONN_STATUS_TCP_FAILED =               0x100,  /*!< TCP connection to server was not successful */
 } mqtt_conn_status_t;
 
 /**
