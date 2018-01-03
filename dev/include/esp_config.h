@@ -51,7 +51,7 @@
 
 #define ESP_CFG_IPD_MAX_BUFF_SIZE           1460
 
-#define ESP_CFG_INPUT_USE_PROCESS           0
+#define ESP_CFG_INPUT_USE_PROCESS           1
 
 #define ESP_CFG_AT_ECHO                     1
 

@@ -39,7 +39,7 @@
 #include "esp/esp_unicode.h"
 #include "system/esp_ll.h"
 
-#define IS_CURR_CMD(c)        (esp.msg && esp.msg->cmd == (c))
+#define IS_CURR_CMD(c)        (esp.msg != NULL && esp.msg->cmd == (c))
 
 #if !__DOXYGEN__
 typedef struct {
@@ -341,7 +341,6 @@ espi_parse_received(esp_recv_t* rcv) {
     if (rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n') {
         return;
     }
-    //printf("Rcv! s: %s", (char *)rcv->data);
     
     /*
      * Detect most common responses from device
@@ -408,7 +407,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     memcpy(esp.ap.mac, mac, 6); /* Copy to current setup */
 #endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
                 }
-                if (esp.msg->msg.sta_ap_getmac.mac && esp.msg->cmd == esp.msg->cmd_def) {
+                if (esp.msg->msg.sta_ap_getmac.mac != NULL && esp.msg->cmd == esp.msg->cmd_def) {
                     memcpy(esp.msg->msg.sta_ap_getmac.mac, mac, 6); /* Copy to current setup */
                 }
             } else if (
@@ -451,7 +450,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     case 'n': tmp = &rcv->data[15]; a = im->nm; b = esp.msg->msg.sta_ap_getip.nm; break;
                     default: tmp = NULL; a = NULL; b = NULL; break;
                 }
-                if (tmp) {                      /* Do we have temporary string? */
+                if (tmp != NULL) {              /* Do we have temporary string? */
                     if (rcv->data[6] == '_' || rcv->data[7] == '_') {   /* Do we have "_CUR" or "_DEF" included? */
                         tmp += 4;               /* Skip it */
                     }
@@ -462,13 +461,16 @@ espi_parse_received(esp_recv_t* rcv) {
                     if (is_received_current_setting(rcv->data)) {
                         memcpy(a, ip, 4);       /* Copy to current setup */
                     }
-                    if (b && IS_CURR_CMD(esp.msg->cmd_def)) {   /* Is current command the same as default one? */
+                    if (b != NULL && IS_CURR_CMD(esp.msg->cmd_def)) {   /* Is current command the same as default one? */
                         memcpy(b, ip, 4);       /* Copy to user variable */
                     }
                 }
 #if ESP_CFG_MODE_STATION
-            } else if (esp.msg->cmd == ESP_CMD_WIFI_CWLAP && !strncmp(rcv->data, "+CWLAP", 6)) {
+            } else if (IS_CURR_CMD(ESP_CMD_WIFI_CWLAP) && !strncmp(rcv->data, "+CWLAP", 6)) {
                 espi_parse_cwlap(rcv->data, esp.msg);   /* Parse CWLAP entry */
+            } else if (IS_CURR_CMD(ESP_CMD_WIFI_CWJAP) && !strncmp(rcv->data, "+CWJAP", 6)) {
+                const char* tmp = &rcv->data[7];/* Go to the number position */
+                esp.msg->msg.sta_join.error_num = (uint8_t)espi_parse_number(&tmp);
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_DNS
             } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPDOMAIN && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
@@ -480,11 +482,11 @@ espi_parse_received(esp_recv_t* rcv) {
                 *esp.msg->msg.tcpip_ping.time = espi_parse_number(&tmp);
 #endif /* ESP_CFG_PING */
 #if ESP_CFG_SNTP
-            } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPSNTPTIME && !strncmp(rcv->data, "+CIPSNTPTIME", 12)) {
+            } else if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSNTPTIME) && !strncmp(rcv->data, "+CIPSNTPTIME", 12)) {
                 espi_parse_cipsntptime(rcv->data, esp.msg); /* Parse CIPSNTPTIME entry */
 #endif /* ESP_CFG_SNTP */
 #if ESP_CFG_HOSTNAME
-            } else if (esp.msg->cmd == ESP_CMD_WIFI_CWHOSTNAME_GET && !strncmp(rcv->data, "+CWHOSTNAME", 11)) {
+            } else if (IS_CURR_CMD(ESP_CMD_WIFI_CWHOSTNAME_GET) && !strncmp(rcv->data, "+CWHOSTNAME", 11)) {
                 espi_parse_hostname(rcv->data, esp.msg);    /* Parse HOSTNAME entry */
 #endif /* ESP_CFG_HOSTNAME */
             }
@@ -506,10 +508,10 @@ espi_parse_received(esp_recv_t* rcv) {
     /*
      * Start processing received data
      */
-    if (esp.msg) {                              /* Do we have valid message? */
-        if (esp.msg->cmd == ESP_CMD_RESET && is_ok) {    /* Check for reset command */
+    if (esp.msg != NULL) {                      /* Do we have valid message? */
+        if (IS_CURR_CMD(ESP_CMD_RESET) && is_ok) {  /* Check for reset command */
             is_ok = 0;                          /* We must wait for "ready", not only "OK" */
-        } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPSTATUS) {
+        } else if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTATUS)) {
             if (!strncmp(rcv->data, "+CIPSTATUS", 10)) {
                 espi_parse_cipstatus(rcv->data + 11);   /* Parse CIPSTATUS response */
             } else if (is_ok) {
@@ -518,7 +520,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.conns[i].status.f.active = !!(esp.active_conns & (1 << i));
                 }
             }
-        } else if (esp.msg->cmd == ESP_CMD_TCPIP_CIPSEND) {
+        } else if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
             if (is_ok) {                        /* Check for OK and clear as we have to check for "> " statement after OK */
                 is_ok = 0;                      /* Do not reach on OK */
             }
@@ -553,12 +555,12 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp_mem_free((void *)esp.msg->msg.conn_send.data);  /* Free the memory */
                 }
             }
-        } else if (esp.msg->cmd == ESP_CMD_UART) {  /* In case of UART command */
+        } else if (IS_CURR_CMD(ESP_CMD_UART)) { /* In case of UART command */
             if (is_ok) {                        /* We have valid OK result */
                 esp_ll_init(&esp.ll, esp.msg->msg.uart.baudrate);   /* Set new baudrate */
             }
 #if ESP_CFG_MODE_ACCESS_POINT
-        } else if (esp.msg->cmd == ESP_CMD_WIFI_CWLIF && ESP_CHARISNUM(rcv->data[0])) {
+        } else if (IS_CURR_CMD(ESP_CMD_WIFI_CWLIF) && ESP_CHARISNUM(rcv->data[0])) {
             espi_parse_cwlif(rcv->data, esp.msg);   /* Parse CWLIF entry */
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
         }
@@ -673,16 +675,21 @@ espi_parse_received(esp_recv_t* rcv) {
         espr_t res = espOK;
         if (esp.msg) {                          /* Do we have active message? */
             res = espi_process_sub_cmd(esp.msg, is_ok, is_error, is_ready);
-            if (res != espCONT) {
+            if (res != espCONT) {               /* Shall we continue with next subcommand under this one? */
                 if (is_ok || is_ready) {        /* Check ready or ok status */
                     res = esp.msg->res = espOK;
                 } else {                        /* Or error status */
-                    res = esp.msg->res = espERR;
+                    res = esp.msg->res = res;   /* Set the error status */
                 }
             } else {
                 esp.msg->i++;                   /* Number of continue calls */
             }
         }
+        /*
+         * When the command is finished,
+         * release synchronization semaphore
+         * from user thread and start with next command
+         */
         if (res != espCONT) {                   /* Do we have to continue to wait for command? */
             esp_sys_sem_release(&esp.sem_sync); /* Release semaphore */
         }
@@ -942,6 +949,19 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 msg->cmd = ESP_CMD_WIFI_CIPSTA_GET; /* Go to next command to get IP address */
                 if (espi_initiate_cmd(msg) == espOK) {
                     return espCONT;             /* Return to continue and not to stop command */
+                }
+            } else {
+                /*
+                 * Parse received error message,
+                 * if final result was error and decide what type
+                 * of error should be returned for user
+                 */
+                switch (msg->msg.sta_join.error_num) {
+                    case 1: return espERRCONNTIMEOUT;
+                    case 2: return espERRPASS;
+                    case 3: return espERRNOAP;
+                    case 4: return espERRCONNFAIL;
+                    default: return espOK;
                 }
             }
         } else if (msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) {

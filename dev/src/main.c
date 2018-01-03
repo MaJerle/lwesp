@@ -80,6 +80,8 @@ http_init = {
     .fs_close = http_fs_close,
 };
 
+void configure_uart(uint32_t baudrate);
+
 int
 main(void) {
     TM_RCC_InitSystem();                        /* Init system */
@@ -149,6 +151,7 @@ static void
 init_thread(void const* arg) {
     size_t i, j;
     char hostname[20];
+    espr_t eres;
     
     TM_GPIO_Init(GPIOC, GPIO_PIN_3, TM_GPIO_Mode_IN, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_Low);
     
@@ -176,8 +179,10 @@ init_thread(void const* arg) {
             for (i = 0; i < apf; i++) {
                 if (!strcmp(aps[i].ssid, ap_list[j].ssid)) {
                     printf("Trying to connect to \"%s\" network\r\n", ap_list[j].ssid);
-                    if (esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 0, 1) == espOK) {
+                    if ((eres = esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 0, 1)) == espOK) {
                         goto cont;
+                    } else {
+                        printf("Connection error: %d\r\n", (int)eres);
                     }
                 }
             }
