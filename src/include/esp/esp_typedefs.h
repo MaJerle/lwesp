@@ -65,6 +65,11 @@ typedef enum {
     espCONT,                                    /*!< There is still some command to be processed in current command */
     espCLOSED,                                  /*!< Connection just closed */
     espINPROG,                                  /*!< Operation is in progress */
+    
+    espERRCONNTIMEOUT,                          /*!< Timeout received when connection to access point */
+    espERRPASS,                                 /*!< Invalid password for access point */
+    espERRNOAP,                                 /*!< No access point found with specific SSID and MAC address */
+    espERRCONNFAIL,                             /*!< Connection failed to access point */
 } espr_t;
 
 /**

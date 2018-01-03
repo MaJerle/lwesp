@@ -219,6 +219,7 @@ typedef struct esp_msg {
             const char* pass;                   /*!< AP password */
             const uint8_t* mac;                 /*!< Specific MAC address to use when connecting to AP */
             uint8_t def;                        /*!< Value indicates to connect as current only or as default */
+            uint8_t error_num;                  /*!< Error number on connecting */
         } sta_join;                             /*!< Message for joining to access point */
         struct {
             uint8_t* ip;                        /*!< Pointer to IP variable */

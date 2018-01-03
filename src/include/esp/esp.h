@@ -191,7 +191,6 @@ typedef struct esp_cb_t {
  */
 
 #include "esp/esp_utilities.h"
-#include "esp/esp_init.h"
 #include "esp/esp_pbuf.h"
 #include "esp/esp_conn.h"
 #include "esp/esp_sta.h"
@@ -200,6 +199,7 @@ typedef struct esp_cb_t {
 #include "esp/esp_netconn.h"
 #endif /* ESP_CFG_OS */
 
+espr_t      esp_init(esp_cb_func_t cb_func);
 espr_t      esp_reset(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
