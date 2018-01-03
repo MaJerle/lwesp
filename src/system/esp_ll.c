@@ -74,8 +74,16 @@
 
 #define USART_USE_DMA                       ESP_CFG_INPUT_USE_PROCESS
 
+/**
+ * Wait for event before processing data received from DMA
+ * or in case it is set to 0, periodically check for new data in DMA buffer
+ *
+ * Set to 1 if your UART supports IDLE line event
+ */
+#define PROCESS_ON_EVENT                    1
+
 #if USART_USE_DMA
-uint8_t usart_mem[0x400];
+uint8_t usart_mem[0x1000] __attribute__((at(0x20000000)));
 uint16_t old_pos;
 
 static uint8_t is_running;
@@ -88,10 +96,13 @@ static uint8_t initialized;
  */
  
 static void usart_ll_thread(void const * arg);
-osMessageQDef(usart_ll_mbox, 10, uint8_t);
-osMessageQId usart_ll_mbox_id;
 osThreadDef(usart_ll_thread, usart_ll_thread, osPriorityNormal, 0, 1024);
 osThreadId usart_ll_thread_id;
+
+#if PROCESS_ON_EVENT
+osMessageQDef(usart_ll_mbox, 10, uint8_t);
+osMessageQId usart_ll_mbox_id;
+#endif /* PROCESS_ON_EVENT */
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
 
 static uint16_t send_data(const void* data, uint16_t len);
@@ -109,7 +120,7 @@ configure_uart(uint32_t baudrate) {
     
     if (initialized) {
         osDelay(10);
-        return;
+        //return;
     }
     
     ESP_USART_CLK();              
@@ -154,9 +165,11 @@ configure_uart(uint32_t baudrate) {
         usart_init.StopBits = LL_USART_STOPBITS_1;
         usart_init.TransferDirection = LL_USART_DIRECTION_TX_RX;
         LL_USART_Init(ESP_USART, &usart_init);
+        LL_USART_Enable(ESP_USART);
     } else {
         LL_USART_Disable(ESP_USART);
         LL_USART_SetBaudRate(ESP_USART, LL_RCC_GetUARTClockFreq(ESP_USART_CLK_SOURCE), LL_USART_OVERSAMPLING_16, baudrate);
+        LL_USART_Enable(ESP_USART);
     }
     
     HAL_NVIC_SetPriority(ESP_USART_IRQ, 6, 1);
@@ -194,7 +207,7 @@ configure_uart(uint32_t baudrate) {
         LL_DMA_EnableIT_DME(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         LL_DMA_EnableStream(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         
-        HAL_NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, 6, 0);
+        HAL_NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, 1, 0);
         HAL_NVIC_EnableIRQ(ESP_USART_DMA_RX_STREAM_IRQ);
         
         old_pos = 0;
@@ -215,14 +228,15 @@ configure_uart(uint32_t baudrate) {
      * For direct input processing,
      * separate thread must be used to feed received data from
      */
-    if (!usart_ll_thread_id) {
+    if (usart_ll_thread_id == NULL) {
         usart_ll_thread_id = osThreadCreate(osThread(usart_ll_thread), NULL);
     }
-    if (!usart_ll_mbox_id) {
+#if PROCESS_ON_EVENT
+    if (usart_ll_mbox_id == NULL) {
         usart_ll_mbox_id = osMessageCreate(osMessageQ(usart_ll_mbox), NULL);
     }
+#endif /* PROCESS_ON_EVENT */
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
-    LL_USART_Enable(ESP_USART);
     
     /*
      * Force ESP hardware reset
@@ -243,21 +257,23 @@ configure_uart(uint32_t baudrate) {
 void
 ESP_USART_IRQHANDLER(void) {
 #if USART_USE_DMA
-    if (LL_USART_IsActiveFlag_IDLE(ESP_USART)) {
-        LL_USART_ClearFlag_IDLE(ESP_USART);
-        /* osMessagePut(usart_ll_mbox_id, 0, 0); */
+    if (LL_USART_IsActiveFlag_IDLE(ESP_USART)) {/*  */
+        LL_USART_ClearFlag_IDLE(ESP_USART);     /* Clear IDLE flag */
+#if PROCESS_ON_EVENT
+        osMessagePut(usart_ll_mbox_id, 0, 0);   /* Send IDLE event to queue */
+#endif /* PROCESS_ON_EVENT */
     }
 #else /* USART_USE_DMA */
     if (LL_USART_IsActiveFlag_RXNE(ESP_USART)) {
         uint8_t val = LL_USART_ReceiveData8(ESP_USART);
-        esp_input(&val, 1);
+        esp_input(&val, 1);                     /* Send byte to processing function */
     }
 #endif /* !USART_USE_DMA */
 
-    if (LL_USART_IsActiveFlag_PE(ESP_USART))    { LL_USART_ClearFlag_PE(ESP_USART); }
-    if (LL_USART_IsActiveFlag_FE(ESP_USART))    { LL_USART_ClearFlag_FE(ESP_USART); }
-    if (LL_USART_IsActiveFlag_ORE(ESP_USART))   { LL_USART_ClearFlag_ORE(ESP_USART); }
-    if (LL_USART_IsActiveFlag_NE(ESP_USART))    { LL_USART_ClearFlag_NE(ESP_USART); }
+    LL_USART_ClearFlag_PE(ESP_USART);
+    LL_USART_ClearFlag_FE(ESP_USART);
+    LL_USART_ClearFlag_ORE(ESP_USART);
+    LL_USART_ClearFlag_NE(ESP_USART);
 }
 
 #if USART_USE_DMA
@@ -268,13 +284,15 @@ void
 ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
     DMA_RX_STREAM_CLEAR_TC;                     /* Clear transfer complete interrupt */
     DMA_RX_STREAM_CLEAR_HT;                     /* Clear half-transfer interrupt */
-    /* osMessagePut(usart_ll_mbox_id, 0, 0); */
+#if PROCESS_ON_EVENT
+    osMessagePut(usart_ll_mbox_id, 0, 0);       /* Send event to queue */
+#endif /* PROCESS_ON_EVENT */
 }
 #endif /* USART_USE_DMA */
 
 #if ESP_CFG_INPUT_USE_PROCESS
 /**
- * \brief           USART read thread
+ * \brief           USART data processing
  */
 static void
 usart_ll_thread(void const * arg) {
@@ -282,23 +300,42 @@ usart_ll_thread(void const * arg) {
     size_t pos;
     
     while (1) {
+#if PROCESS_ON_EVENT
+        /*
+         * Wait for the event message from:
+         *  - DMA (half)transfer complete
+         *  - IDLE line detection on UART line
+         */
+        evt = osMessageGet(usart_ll_mbox_id, osWaitForever);
+        if (evt.status != osEventMessage) {
+            continue;
+        }
+#endif /* PROCESS_ON_EVENT */
+        
         /* Read data from buffer and process them */
         pos = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Get current DMA position */
-        pos = sizeof(usart_mem) - pos;      /* Get position in correct order */
+        pos = sizeof(usart_mem) - pos;          /* Get position in correct order */
         if (pos != old_pos && is_running) {
             /*
              * At this point, user may implement
              * RTS pin functionality to block ESP to
              * send more data until processing is finished
              */
-            
+           
             if (pos > old_pos) {                /* Are we in linear section? */
-                esp_input_process(&usart_mem[old_pos], pos - old_pos);
-                old_pos = pos;
+                /*
+                 * In linear section, simply process difference between pointers
+                 */
+                esp_input_process(&usart_mem[old_pos], pos - old_pos);  /* Process input data in linear buffer phase */
+                old_pos = pos;                  /* Set old position as new one */
             } else {                            /* We are in overflow section */
+                /*
+                 * In overflow mode we have to process twice:
+                 *  - Process data until end of buffer
+                 *  - Process data until current position on top of buffer
+                 */
                 esp_input_process(&usart_mem[old_pos], sizeof(usart_mem) - old_pos);
-                old_pos = 0;
-                esp_input_process(&usart_mem[old_pos], pos - old_pos);
+                esp_input_process(&usart_mem[0], pos);    
                 old_pos = pos;
             }
             if (old_pos == sizeof(usart_mem)) {
@@ -311,7 +348,9 @@ usart_ll_thread(void const * arg) {
              * send more data until processing is finished
              */
         }
-        osDelay(1);
+#if !PROCESS_ON_EVENT
+        osDelay(1);                             /* Delay thread to allow other threads to process */
+#endif /* !PROCESS_ON_EVENT */
     }
 }
 #endif /* ESP_CFG_INPUT_USE_PROCESS */
@@ -345,7 +384,7 @@ espr_t
 esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
     static uint8_t memory[0x10000];
     esp_mem_region_t mem_regions[] = {
-        {memory, sizeof(memory)}
+        { memory, sizeof(memory) }
     };
     
     if (!initialized) {
