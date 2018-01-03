@@ -38,6 +38,24 @@
 
 #if ESP_CFG_NETCONN || __DOXYGEN__
 
+/**
+ * \brief           Sequential API structure
+ */
+typedef struct esp_netconn_t {
+    esp_netconn_type_t type;                    /*!< Netconn type */
+    uint16_t listen_port;                       /*!< Port on which we are listening */
+    
+    size_t rcv_packets;                         /*!< Number of received packets so far on this connection */
+    esp_conn_t* conn;                           /*!< Pointer to actual connection */
+    
+    esp_sys_sem_t mbox_accept;                  /*!< List of active connections waiting to be processed */
+    esp_sys_sem_t mbox_receive;                 /*!< Message queue for receive mbox */
+    
+    uint8_t* buff;                              /*!< Pointer to buffer for \ref esp_netconn_write function. used only on TCP connection */
+    size_t buff_len;                            /*!< Total length of buffer */
+    size_t buff_ptr;                            /*!< Current buffer pointer for write mode */
+} esp_netconn_t;
+
 static uint8_t recv_closed = 0xFF;
 static esp_netconn_t* listen_api;              /* Main connection in listening mode */
 
@@ -454,7 +472,7 @@ esp_netconn_flush(esp_netconn_p nc) {
      * In case we have data in write buffer,
      * flush them out to network
      */
-    if (nc->buff) {                             /* Check remaining data */
+    if (nc->buff != NULL) {                     /* Check remaining data */
         esp_conn_send(nc->conn, nc->buff, nc->buff_ptr, NULL, 1);   /* Send data */
         esp_mem_free(nc->buff);                 /* Free memory */
         nc->buff = NULL;                        /* Invalid memory */
@@ -539,7 +557,7 @@ esp_netconn_close(esp_netconn_p nc) {
  */
 int8_t
 esp_netconn_getconnnum(esp_netconn_p nc) {
-    if (nc && nc->conn) {
+    if (nc != NULL && nc->conn != NULL) {
         return esp_conn_getnum(nc->conn);
     }
     return -1;
