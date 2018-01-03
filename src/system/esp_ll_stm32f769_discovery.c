@@ -1,6 +1,6 @@
 /**
  * \file            esp_ll.c
- * \brief           Low-level communication with ESP device
+ * \brief           Low-level communication with ESP device for STM32F769-Discovery using DMA
  */
 
 /*
@@ -73,7 +73,7 @@
 
 #define USART_USE_DMA                       ESP_CFG_INPUT_USE_PROCESS
 
-/**
+/*
  * Wait for event before processing data received from DMA
  * or in case it is set to 0, periodically check for new data in DMA buffer
  *

@@ -1,6 +1,6 @@
 /**	
  * \file            esp_sys.c
- * \brief           System dependant functions
+ * \brief           System dependant functions for STM32 MCU with CMSIS OS
  */
  
 /*
@@ -168,7 +168,7 @@ esp_sys_mutex_invalid(esp_sys_mutex_t* p) {
 uint8_t
 esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
     osSemaphoreDef(SEM);                        /* Define semaphore info */
-    *p = osSemaphoreCreate(osSemaphore(SEM), 1);    /* Create semaphore with one token */
+    *p = osSemaphoreCreate(osSemaphore(SEM), 1);/* Create semaphore with one token */
     
     if (*p && !cnt) {                           /* We have valid entry */
         osSemaphoreWait(*p, 0);                 /* Lock semaphore immediatelly */
