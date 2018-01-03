@@ -767,14 +767,14 @@
           <GroupName>ESP LL</GroupName>
           <Files>
             <File>
-              <FileName>esp_sys.c</FileName>
+              <FileName>esp_ll_stm32f769_discovery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_sys.c</FilePath>
+              <FilePath>..\..\src\system\esp_ll_stm32f769_discovery.c</FilePath>
             </File>
             <File>
-              <FileName>esp_ll.c</FileName>
+              <FileName>esp_sys_stm32_cmsis_os.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_ll.c</FilePath>
+              <FilePath>..\..\src\system\esp_sys_stm32_cmsis_os.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1675,14 +1675,14 @@
           <GroupName>ESP LL</GroupName>
           <Files>
             <File>
-              <FileName>esp_sys.c</FileName>
+              <FileName>esp_ll_stm32f769_discovery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_sys.c</FilePath>
+              <FilePath>..\..\src\system\esp_ll_stm32f769_discovery.c</FilePath>
             </File>
             <File>
-              <FileName>esp_ll.c</FileName>
+              <FileName>esp_sys_stm32_cmsis_os.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_ll.c</FilePath>
+              <FilePath>..\..\src\system\esp_sys_stm32_cmsis_os.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2515,14 +2515,14 @@
           <GroupName>ESP LL</GroupName>
           <Files>
             <File>
-              <FileName>esp_sys.c</FileName>
+              <FileName>esp_ll_stm32f769_discovery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_sys.c</FilePath>
+              <FilePath>..\..\src\system\esp_ll_stm32f769_discovery.c</FilePath>
             </File>
             <File>
-              <FileName>esp_ll.c</FileName>
+              <FileName>esp_sys_stm32_cmsis_os.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_ll.c</FilePath>
+              <FilePath>..\..\src\system\esp_sys_stm32_cmsis_os.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1706,7 +1706,7 @@
 
   <Group>
     <GroupName>ESP LL</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1717,8 +1717,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\src\system\esp_sys.c</PathWithFileName>
-      <FilenameWithoutPath>esp_sys.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\src\system\esp_ll_stm32f769_discovery.c</PathWithFileName>
+      <FilenameWithoutPath>esp_ll_stm32f769_discovery.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1729,8 +1729,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\src\system\esp_ll.c</PathWithFileName>
-      <FilenameWithoutPath>esp_ll.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\src\system\esp_sys_stm32_cmsis_os.c</PathWithFileName>
+      <FilenameWithoutPath>esp_sys_stm32_cmsis_os.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

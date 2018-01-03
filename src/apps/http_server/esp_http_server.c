@@ -165,7 +165,7 @@ http_get_params(char* params) {
     size_t cnt = 0, i;
     char *amp, *eq;
     
-    if (params) {
+    if (params != NULL) {
         for (i = 0; params && i < HTTP_MAX_PARAMS; i++, cnt++) {
             http_params[i].name = params;
             
