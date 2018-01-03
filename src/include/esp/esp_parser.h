@@ -53,6 +53,8 @@ uint8_t     espi_parse_cipdomain(const char* src, esp_msg_t* msg);
 uint8_t     espi_parse_cipsntptime(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_hostname(const char* str, esp_msg_t* msg);
 
+uint8_t     espi_parse_at_sdk_version(const char* str, uint32_t* version_out);
+
 #if defined(__cplusplus)
 }
 #endif /* defined(__cplusplus) */

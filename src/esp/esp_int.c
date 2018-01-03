@@ -502,6 +502,12 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.status.f.r_got_ip = 1;          /* Wifi got IP address */
             espi_send_cb(ESP_CB_WIFI_GOT_IP);   /* Call user callback function */
         }
+    } else if (IS_CURR_CMD(ESP_CMD_GMR)) {
+        if (!strncmp(rcv->data, "AT version", 10)) {
+            espi_parse_at_sdk_version(&rcv->data[11], &esp.version_at);
+        } else if (!strncmp(rcv->data, "SDK version", 11)) {
+            espi_parse_at_sdk_version(&rcv->data[12], &esp.version_sdk);
+        }
     }
     
     /*
@@ -895,7 +901,7 @@ espi_process(const void* data, size_t data_len) {
                             len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
                             if (esp.ipd.conn->status.f.active) {    /* If connection is not active, doesn't make sense to read anything */
                                 esp.ipd.buff = esp_pbuf_new(len);   /* Allocate new packet buffer */
-                                if (esp.ipd.buff) {
+                                if (esp.ipd.buff != NULL) {
                                     esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
                                 }
                                 ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING, esp.ipd.buff == NULL,
@@ -1041,6 +1047,10 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             }
             case ESP_CMD_ATE0:
             case ESP_CMD_ATE1: {
+                n_cmd = ESP_CMD_GMR;            /* Get AT software version */
+                break;
+            }
+            case ESP_CMD_GMR: {
                 n_cmd = ESP_CMD_WIFI_CWMODE;    /* Set Wifi mode */
                 break;
             }
@@ -1117,6 +1127,10 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_ATE1: {                    /* Enable AT echo mode */
             ESP_AT_PORT_SEND_STR("ATE1\r\n");
+            break;
+        }
+        case ESP_CMD_GMR: {                     /* Get AT version */
+            ESP_AT_PORT_SEND_STR("AT+GMR\r\n");
             break;
         }
         case ESP_CMD_UART: {                    /* Change UART parameters for AT port */

@@ -170,6 +170,12 @@ typedef struct esp_cb_t {
             uint16_t port;                      /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
             void* arg;                          /*!< Connection argument used on connection */
+            /**
+             * \todo: Implement error reason:
+             *  - No free connection to start
+             *  - Remote host is not responding
+             *  - ...
+             */
         } conn_error;                           /*!< Client connection start error */
         struct {
             esp_conn_p conn;                    /*!< Pointer to connection */

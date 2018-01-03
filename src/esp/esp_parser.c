@@ -253,6 +253,26 @@ espi_parse_ipd(const char* str) {
     return espOK;
 }
 
+/**
+ * \brief           Parse AT and SDK versions from AT+GMR response
+ * \param[in]       str: String starting with version numbers
+ * \param[out]      version_out: Output variable to save version
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+espi_parse_at_sdk_version(const char* str, uint32_t* version_out) {
+    *version_out = 0;
+    
+    *version_out |= ((uint8_t)espi_parse_number(&str)) << 24;   str++;
+    *version_out |= ((uint8_t)espi_parse_number(&str)) << 16;   str++;
+    *version_out |= ((uint8_t)espi_parse_number(&str)) << 8;    str++;
+    *version_out |= ((uint8_t)espi_parse_number(&str));
+    
+    printf("Version out: %08X\r\n", *version_out);
+    
+    return 1;
+}
+
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
 /**
  * \brief           Parse received message for list access points

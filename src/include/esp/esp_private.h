@@ -339,24 +339,6 @@ typedef struct esp_msg {
 } esp_msg_t;
 
 /**
- * \brief           Sequential API structure
- */
-typedef struct esp_netconn_t {
-    esp_netconn_type_t type;                    /*!< Netconn type */
-    uint16_t listen_port;                       /*!< Port on which we are listening */
-    
-    size_t rcv_packets;                         /*!< Number of received packets so far on this connection */
-    esp_conn_t* conn;                           /*!< Pointer to actual connection */
-    
-    esp_sys_sem_t mbox_accept;                  /*!< List of active connections waiting to be processed */
-    esp_sys_sem_t mbox_receive;                 /*!< Message queue for receive mbox */
-    
-    uint8_t* buff;                              /*!< Pointer to buffer for \ref esp_netconn_write function. used only on TCP connection */
-    size_t buff_len;                            /*!< Total length of buffer */
-    size_t buff_ptr;                            /*!< Current buffer pointer for write mode */
-} esp_netconn_t;
-
-/**
  * \brief           IP and MAC structure with netmask and gateway addresses
  */
 typedef struct {
@@ -370,6 +352,9 @@ typedef struct {
  * \brief           ESP global structure
  */
 typedef struct {    
+    uint32_t version_at;                        /*!< Version of AT command software on ESP device */
+    uint32_t version_sdk;                       /*!< Version of SDK used to build AT software */
+
     esp_sys_sem_t       sem_sync;               /*!< Synchronization semaphore between threads */
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
     esp_sys_mbox_t      mbox_process;           /*!< Consumer message queue handle */
