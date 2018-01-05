@@ -42,6 +42,7 @@
 #if defined(STM32F769_DISCOVERY)
 /* Use custom IRQ handler function for USART1 */
 #define TM_UART5_USE_CUSTOM_IRQ  
+#define USART_DISABLE_UART5
 #elif defined(STM32F7_DISCOVERY)
 /* Use custom IRQ handler function for USART6 */
 #define TM_USART6_USE_CUSTOM_IRQ
