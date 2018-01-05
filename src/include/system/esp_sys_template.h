@@ -53,7 +53,7 @@ extern "C" {
  * \{
  */
 
-#if ESP_OS || __DOXYGEN__
+#if ESP_CFG_OS || __DOXYGEN__
 #include "cmsis_os.h"
 
 /**

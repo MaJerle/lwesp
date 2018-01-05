@@ -349,7 +349,7 @@
 		<link>
 			<name>ESP AT/API/esp_netconn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_netconn.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/api/esp_netconn.c</locationURI>
 		</link>
 		<link>
 			<name>ESP AT/Core/esp.c</name>
@@ -380,11 +380,6 @@
 			<name>ESP AT/Core/esp_hostname.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_hostname.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_init.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_init.c</locationURI>
 		</link>
 		<link>
 			<name>ESP AT/Core/esp_input.c</name>
@@ -442,14 +437,14 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_unicode.c</locationURI>
 		</link>
 		<link>
-			<name>ESP AT/LL/esp_ll.c</name>
+			<name>ESP AT/LL/esp_ll_stm32f769_discovery.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_ll.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_ll_stm32f769_discovery.c</locationURI>
 		</link>
 		<link>
-			<name>ESP AT/LL/esp_sys.c</name>
+			<name>ESP AT/LL/esp_sys_stm32_cmsis_os.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_sys.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_sys_stm32_cmsis_os.c</locationURI>
 		</link>
 		<link>
 			<name>ESP AT/APP/HTTP Server/esp_http_server.c</name>

@@ -1,6 +1,6 @@
 /**	
- * \file            esp_sys.h
- * \brief           System functions
+ * \file            esp_sys_template.h
+ * \brief           Template file for system functions
  */
 
 /*
@@ -43,7 +43,7 @@ extern "C" {
 #include "esp_config.h"
 
 /**
- * \addtogroup      ESP
+ * \addtogroup      ESP_PORT
  * \{
  */
  
@@ -52,6 +52,7 @@ extern "C" {
  * \brief           System based function for OS management, timings, etc
  * \{
  */
+
 #if ESP_CFG_OS || __DOXYGEN__
 #include "cmsis_os.h"
 
@@ -85,13 +86,44 @@ typedef osThreadId          esp_sys_thread_t;
  */
 typedef osPriority          esp_sys_thread_prio_t;
 
-#define ESP_SYS_MBOX_NULL   (osMessageQId)0
-#define ESP_SYS_SEM_NULL    (osSemaphoreId)0
-#define ESP_SYS_MUTEX_NULL  (osMutexId)0
-#define ESP_SYS_TIMEOUT     ((uint32_t)osWaitForever)
-#define ESP_SYS_THREAD_PRIO (osPriorityNormal)
-#define ESP_SYS_THREAD_SS   (1024)
-#endif /* ESP_CFG_OS || __DOXYGEN__ */
+/**
+ * \brief           Value indicating message queue is not valid
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
+#define ESP_SYS_MBOX_NULL           (osMessageQId)0
+
+/**
+ * \brief           Value indicating semaphore is not valid
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
+#define ESP_SYS_SEM_NULL            (osSemaphoreId)0
+
+/**
+ * \brief           Value indicating mutex is not valid
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
+#define ESP_SYS_MUTEX_NULL          (osMutexId)0
+
+/**
+ * \brief           Value indicating timeout for OS timings
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
+#define ESP_SYS_TIMEOUT             ((uint32_t)osWaitForever)
+
+/**
+ * \brief           ESP stack threads priority parameter
+ * \note            Usually normal priority is ok. If many threads are in the system and high traffic is introduced
+ *                  This value might need to be set to higher value
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
+#define ESP_SYS_THREAD_PRIO         (osPriorityNormal)
+
+/**
+ * \brief           Stack size of system threads
+ * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
+ */
+#define ESP_SYS_THREAD_SS           (1024)
+#endif /* ESP_OS || __DOXYGEN__ */
 
 uint8_t     esp_sys_init(void);
 uint32_t    esp_sys_now(void);
@@ -123,7 +155,7 @@ uint8_t     esp_sys_mbox_isvalid(esp_sys_mbox_t* b);
 uint8_t     esp_sys_mbox_invalid(esp_sys_mbox_t* b);
 
 uint8_t     esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void(*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio);
-
+ 
 /**
  * \}
  */
