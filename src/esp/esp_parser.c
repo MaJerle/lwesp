@@ -268,8 +268,6 @@ espi_parse_at_sdk_version(const char* str, uint32_t* version_out) {
     *version_out |= ((uint8_t)espi_parse_number(&str)) << 8;    str++;
     *version_out |= ((uint8_t)espi_parse_number(&str));
     
-    printf("Version out: %08X\r\n", *version_out);
-    
     return 1;
 }
 
