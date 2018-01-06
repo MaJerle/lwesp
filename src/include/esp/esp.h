@@ -145,6 +145,8 @@ typedef enum esp_cb_type_t {
     ESP_CB_WIFI_CONNECTED,                      /*!< Station just connected to AP */
     ESP_CB_WIFI_GOT_IP,                         /*!< Station has valid IP */
     ESP_CB_WIFI_DISCONNECTED,                   /*!< Station just disconnected from AP */
+  
+    ESP_CB_STA_LIST_AP,                         /*!< Station list AP event */
 } esp_cb_type_t;
 
 /**
@@ -185,6 +187,11 @@ typedef struct esp_cb_t {
         struct {
             esp_conn_p conn;                    /*!< Set connection pointer */
         } conn_poll;                            /*!< Polling active connection to check for timeouts. Use with \ref ESP_CB_CONN_POLL event */
+        struct {
+            espr_t status;                      /*!< Status of command */
+            esp_ap_t* aps;                      /*!< Pointer to access points */
+            size_t len;                         /*!< Number of access points found */
+        } sta_list_ap;
     } cb;                                       /*!< Callback event union */
 } esp_cb_t;
 

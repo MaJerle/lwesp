@@ -978,6 +978,22 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             }
         }
     }
+    if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_SET) {
+        if (msg->i == 0 && msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
+            if (is_ok) {
+                msg->cmd = ESP_CMD_WIFI_CIPSTA_GET;
+                if (espi_initiate_cmd(msg) == espOK) {
+                    return espCONT;
+                }
+            }
+        }
+    }
+    if (msg->cmd_def == ESP_CMD_WIFI_CWLAP) {
+        esp.cb.cb.sta_list_ap.aps = msg->msg.ap_list.aps;
+        esp.cb.cb.sta_list_ap.len = msg->msg.ap_list.apsi;
+        esp.cb.cb.sta_list_ap.status = is_ok ? espOK : espERR;
+        espi_send_cb(ESP_CB_STA_LIST_AP);
+    }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
     if (msg->cmd_def == ESP_CMD_WIFI_CWMODE &&
@@ -1022,18 +1038,6 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             
         }
     }
-#if ESP_CFG_MODE_STATION
-    if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_SET) {
-        if (msg->i == 0 && msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
-            if (is_ok) {
-                msg->cmd = ESP_CMD_WIFI_CIPSTA_GET;
-                if (espi_initiate_cmd(msg) == espOK) {
-                    return espCONT;
-                }
-            }
-        }
-    } 
-#endif /* ESP_CFG_MODE_STATION */
     if (msg->cmd_def == ESP_CMD_RESET) {        /* Device is in reset mode */
         esp_cmd_t n_cmd = ESP_CMD_IDLE;
         switch (msg->cmd) {
