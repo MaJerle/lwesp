@@ -106,7 +106,7 @@ conn_send(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size
     ESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
     ESP_MSG_VAR_REF(msg).msg.conn_send.val_id = conn_get_val_id(conn);
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 10000);   /* Send message to producer queue */
 }
 
 /**
@@ -161,7 +161,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, uint16_
     ESP_MSG_VAR_REF(msg).msg.conn_start.cb_func = cb_func;
     ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 30000);   /* Send message to producer queue */
 }
 
 /**
@@ -182,7 +182,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.conn_close.val_id = conn_get_val_id(conn);
     
     flush_buff(conn);                           /* First flush buffer */
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**
@@ -260,7 +260,7 @@ esp_get_conns_status(uint32_t blocking) {
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTATUS;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**
@@ -357,7 +357,7 @@ esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLSIZE;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**

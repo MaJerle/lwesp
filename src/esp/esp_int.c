@@ -1575,9 +1575,9 @@ espi_send_cb(esp_cb_type_t type) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block_time) {
+espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block, uint32_t max_block_time) {
     espr_t res = msg->res = espOK;
-    if (block_time) {                           /* In case message is blocking */
+    if (block) {                                /* In case message is blocking */
         if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */
             ESP_MSG_VAR_FREE(msg);              /* Release memory and return */
             return espERRMEM;
@@ -1586,18 +1586,19 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     if (!msg->cmd) {                            /* Set start command if not set by user */
         msg->cmd = msg->cmd_def;                /* Set it as default */
     }
-    msg->block_time = block_time;               /* Set blocking status if necessary */
+    msg->is_blocking = block;                   /* Set status if message is blocking */
+    msg->block_time = max_block_time;           /* Set blocking status if necessary */
     msg->fn = process_fn;                       /* Save processing function to be called as callback */
-    if (block_time) {
+    if (block) {
         esp_sys_mbox_put(&esp.mbox_producer, msg);  /* Write message to producer queue and wait forever */
     } else {
         if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
             res = espERR;
         }
     }
-    if (block_time && res == espOK) {           /* In case we have blocking request */
+    if (block && res == espOK) {                /* In case we have blocking request */
         uint32_t time;
-        time = esp_sys_sem_wait(&msg->sem, 0000);  /* Wait forever for access to semaphore */
+        time = esp_sys_sem_wait(&msg->sem, max_block_time); /* Wait forever for semaphore access for max block time */
         if (ESP_SYS_TIMEOUT == time) {          /* If semaphore was not accessed in given time */
             res = espERR;                       /* Semaphore not released in time */
         } else {

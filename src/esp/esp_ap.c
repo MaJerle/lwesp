@@ -57,7 +57,7 @@ esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.nm = nm;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.def = def;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**
@@ -82,7 +82,7 @@ esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm = nm;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.def = def;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**
@@ -101,7 +101,7 @@ esp_ap_getmac(void* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.def = def;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**
@@ -123,7 +123,7 @@ esp_ap_setmac(const void* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.def = def;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**
@@ -160,7 +160,7 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
     ESP_MSG_VAR_REF(msg).msg.ap_conf.hid = hid;
     ESP_MSG_VAR_REF(msg).msg.ap_conf.def = def;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**
@@ -188,7 +188,7 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.sta_list.stal = stal;
     ESP_MSG_VAR_REF(msg).msg.sta_list.staf = staf;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */

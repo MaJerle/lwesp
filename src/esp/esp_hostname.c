@@ -53,7 +53,7 @@ esp_hostname_set(const char* hostname, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_SET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname = (char *)hostname;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**
@@ -75,7 +75,7 @@ esp_hostname_get(char* hostname, size_t length, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname = (char *)hostname;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = length;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 #endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */

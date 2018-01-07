@@ -204,7 +204,7 @@ cont:
         printf("Server mode!\r\n");
     }
     
-    /**
+    /*
      * Check if device has set IP address
      */
     if (esp_sta_has_ip() == espOK) {
@@ -507,6 +507,9 @@ esp_cb(esp_cb_t* cb) {
         case ESP_CB_INIT_FINISH:
             esp_set_at_baudrate(115200, 0);     /* Init ESP stack */
                                                 
+            break;
+        case ESP_CB_STA_LIST_AP:
+            printf("List AP finished!\r\n");                        
             break;
         default:
             break;

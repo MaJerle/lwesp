@@ -56,7 +56,7 @@ esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
     ESP_MSG_VAR_REF(msg).msg.tcpip_ping.time = time;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 10000);   /* Send message to producer queue */
 }
 
 #endif /* ESP_CFG_PING || __DOXYGEN__ */

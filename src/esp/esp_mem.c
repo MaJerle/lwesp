@@ -34,11 +34,6 @@
 #include "esp/esp_private.h"
 #include "esp/esp_mem.h"
 
-/******************************************************************************/
-/******************************************************************************/
-/***                           Private structures                            **/
-/******************************************************************************/
-/******************************************************************************/
 #if !__DOXYGEN__
 typedef struct MemBlock {
     struct MemBlock* NextFreeBlock;                 /*!< Pointer to next free block */
@@ -54,18 +49,7 @@ typedef struct MemBlock {
 #define MEM_ALIGN(x)                ESP_MEM_ALIGN(x)
 
 #define MEMBLOCK_METASIZE           MEM_ALIGN(sizeof(MemBlock_t))
-
-/******************************************************************************/
-/******************************************************************************/
-/***                           Private definitions                           **/
-/******************************************************************************/
-/******************************************************************************/
-
-/******************************************************************************/
-/******************************************************************************/
-/***                            Private variables                            **/
-/******************************************************************************/
-/******************************************************************************/
+    
 static MemBlock_t StartBlock;
 static MemBlock_t* EndBlock = 0;
 static size_t MemAvailableBytes = 0;
@@ -74,23 +58,20 @@ static size_t MemAllocBit = 0;
 
 static size_t MemTotalSize = 0;                     /* Size of memory in units of bytes */
 
-/******************************************************************************/
-/******************************************************************************/
-/***                            Private functions                            **/
-/******************************************************************************/
-/******************************************************************************/
+static uint32_t mem_allocations;
+
 /* Insert block to list of free blocks */
 static void
 mem_insertfreeblock(MemBlock_t* newBlock) {
     MemBlock_t* ptr;
     uint8_t* addr;
 
-    /**
+    /*
      * Find block position to insert new block between
      */
     for (ptr = &StartBlock; ptr && ptr->NextFreeBlock < newBlock; ptr = ptr->NextFreeBlock);
 
-    /**
+    /*
      * If the new inserted block and block before create a one big block (contiguous)
      * then try to merge them together
      */
@@ -100,7 +81,7 @@ mem_insertfreeblock(MemBlock_t* newBlock) {
         newBlock = ptr;                             /* Set new block pointer to block before (expanded block) */
     }
 
-    /**
+    /*
      * Check if new block and its size is the same address as next free block newBlock points to
      */
     addr = (uint8_t *)newBlock;
@@ -115,7 +96,7 @@ mem_insertfreeblock(MemBlock_t* newBlock) {
         newBlock->NextFreeBlock = ptr->NextFreeBlock;   /* Our next element is now from pointer next element */
     }
 
-    /**
+    /*
     * If merge with new block and block before was not made then there
     * is a gap between free memory before and new free memory.
     *
@@ -138,7 +119,7 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
         return 0;
     }
     
-    /**
+    /*
      * Check if region address are linear and rising
      */
     MemStartAddr = (uint8_t *)0;
@@ -150,7 +131,7 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
     }
 
     while (len--) {
-        /**
+        /*
          * Check minimum region size
          */
         MemSize = regions->Size;
@@ -158,7 +139,7 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
             regions++;
             continue;
         }
-        /**
+        /*
          * Get start address and check memory alignment
          * if necessary, decrease memory region size
          */
@@ -168,14 +149,14 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
             MemSize -= MemStartAddr - (uint8_t *)regions->StartAddress;
         }
         
-        /**
+        /*
          * Check memory size alignment if match
          */
         if (MemSize & MEM_ALIGN_BITS) {
             MemSize &= ~MEM_ALIGN_BITS;             /* Clear lower bits of memory size only */
         }
 
-        /**
+        /*
          * StartBlock is fixed variable for start list of free blocks
          *
          * Set free blocks linked list on initialized
@@ -189,7 +170,7 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
         
         PreviousEndBlock = EndBlock;                /* Save previous end block to set next block later */
         
-        /**
+        /*
          * Set pointer to end of free memory - block region memory
          * Calculate new end block in region
          */
@@ -197,7 +178,7 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
         EndBlock->NextFreeBlock = 0;                /* No more free blocks after end is reached */
         EndBlock->Size = 0;                         /* Empty block */
 
-        /**
+        /*
          * Initialize start of region memory
          * Create first block in region
          */
@@ -205,7 +186,7 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
         FirstBlock->Size = MemSize - MEMBLOCK_METASIZE; /* Exclude end block in chain */
         FirstBlock->NextFreeBlock = EndBlock;       /* Last block is next free in chain */
 
-        /**
+        /*
          * If we have previous end block
          * End block of previous region
          *
@@ -215,7 +196,7 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
             PreviousEndBlock->NextFreeBlock = FirstBlock;
         }
         
-        /**
+        /*
          * Set number of free bytes available to allocate in region
          */
         MemAvailableBytes += FirstBlock->Size;
@@ -233,8 +214,6 @@ mem_assignmem(const mem_region_t* regions, size_t len) {
     return 1;                                       /* Regions set as expected */
 }
 
-uint32_t mem_allocations;
-
 static void*
 mem_alloc(size_t size) {
     MemBlock_t *Prev, *Curr, *Next;
@@ -243,10 +222,7 @@ mem_alloc(size_t size) {
     if (!EndBlock) {                                /* If end block is not yet defined */
         return 0;                                   /* Invalid, not initialized */
     }
-    
-    /**
-     * TODO: Check alignment maybe?
-     */    
+      
     if (!size || size >= MemAllocBit) {             /* Check input parameters */
         return 0;
     }
@@ -256,7 +232,7 @@ mem_alloc(size_t size) {
         return 0;
     }
 
-    /**
+    /*
      * Try to find sufficient block for data
      * Go through free blocks until enough memory is found
      * or end block is reached (no next free block)
@@ -268,18 +244,17 @@ mem_alloc(size_t size) {
         Curr = Curr->NextFreeBlock;
     }
     
-    /**
+    /*
      * Possible improvements
      * Try to find smallest available block for desired amount of memory
      * 
      * Feature may be very risky later because of fragmentation
      */
-    
     if (Curr != EndBlock) {                         /* We found empty block of enough memory available */
         retval = (void *)((uint8_t *)Prev->NextFreeBlock + MEMBLOCK_METASIZE);    /* Set return value */
         Prev->NextFreeBlock = Curr->NextFreeBlock;  /* Since block is now allocated, remove it from free chain */
 
-        /**
+        /*
          * If found free block is much bigger than required, 
          * then split big block by 2 blocks (one used, second available)
          * There should be available memory for at least 2 metadata block size = 8 bytes of useful memory
@@ -289,7 +264,7 @@ mem_alloc(size_t size) {
             Next->Size = Curr->Size - size;         /* Set new block size for remaining of before and used */
             Curr->Size = size;                      /* Set block size for used block */
 
-            /**
+            /*
              * Add virtual block to list of free blocks.
              * It is placed directly after currently allocated memory
              */

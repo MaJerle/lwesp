@@ -59,7 +59,7 @@ esp_thread_producer(void* const arg) {
             continue;
         }
         
-        /**
+        /*
          * Try to call function to process this message
          * Usually it should be function to transmit data to AT port
          */
@@ -71,7 +71,7 @@ esp_thread_producer(void* const arg) {
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
                 ESP_CORE_UNPROTECT();           /* Release protection */
-                time = esp_sys_sem_wait(&e->sem_sync, 0000);   /* Wait for synchronization semaphore */
+                time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Wait for synchronization semaphore */
                 ESP_CORE_PROTECT();              /* Protect system again */
                 esp_sys_sem_release(&e->sem_sync);  /* Release protection and start over later */
                 if (time == ESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
@@ -84,12 +84,12 @@ esp_thread_producer(void* const arg) {
             res = espERR;                       /* Simply set error message */
         }
         
-        /**
+        /*
          * In case message is blocking,
          * release semaphore that we finished with processing
          * otherwise directly free memory of message structure
          */
-        if (msg->block_time) {
+        if (msg->is_blocking) {
             esp_sys_sem_release(&msg->sem);     /* Release semaphore */
         } else {
             /* TODO: Process callback what happened with result and then free message */
