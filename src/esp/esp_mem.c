@@ -295,12 +295,12 @@ mem_free(void* ptr) {
 
     block = (MemBlock_t *)(((uint8_t *)ptr) - MEMBLOCK_METASIZE);   /* Get block data pointer from input pointer */
 
-    /**
+    /*
      * Check if block is even allocated by upper bit on size
      * and next free block must be set to NULL in order to work properly
      */
     if ((block->Size & MemAllocBit) && block->NextFreeBlock == NULL) {
-        /**
+        /*
          * Clear allocated bit before entering back to free list
          * List will automatically take care for fragmentation and mix segments back
          */
