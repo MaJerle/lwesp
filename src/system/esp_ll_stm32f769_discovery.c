@@ -82,7 +82,7 @@
 #define PROCESS_ON_EVENT                    1
 
 #if USART_USE_DMA
-uint8_t usart_mem[0x1000] __attribute__((at(0x20000000)));
+uint8_t usart_mem[0x1000] __attribute__((at(0x20010000)));
 uint16_t old_pos;
 
 static uint8_t is_running;
