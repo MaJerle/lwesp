@@ -160,7 +160,7 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
     ESP_MSG_VAR_REF(msg).msg.ap_conf.hid = hid;
     ESP_MSG_VAR_REF(msg).msg.ap_conf.def = def;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 10000);   /* Send message to producer queue */
 }
 
 /**
