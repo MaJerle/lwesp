@@ -138,7 +138,7 @@ espi_conn_init(void) {
 
 /**
  * \brief           Starts a new connection of specific type
- * \param[out]      conn: Pointer to pointer to \ref esp_conn_t structure to set new connection reference
+ * \param[out]      conn: Pointer to connection handle to set new connection reference in case of successful connection
  * \param[in]       type: Connection type. This parameter can be a value of \ref esp_conn_type_t enumeration
  * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
  * \param[in]       port: Connection port
@@ -166,7 +166,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, uint16_
 
 /**
  * \brief           Close specific or all connections
- * \param[in]       conn: Pointer to connection to close. Set to NULL if you want to close all connections.
+ * \param[in]       conn: Connection handle to close. Set to NULL if you want to close all connections.
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -188,7 +188,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
 /**
  * \brief           Send data on already active connection of type UDP to specific remote IP and port
  * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP too)
- * \param[in]       conn: Pointer to connection to send data
+ * \param[in]       conn: Connection handle to send data
  * \param[in]       ip: Remote IP address for UDP connection
  * \param[in]       port: Remote port connection
  * \param[in]       data: Pointer to data to send
@@ -205,8 +205,8 @@ esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data
 
 /**
  * \brief           Send data on already active connection either as client or server
- * \param[in]       conn: Pointer to connection to send data
- * \param[in]       data: Pointer to data to send
+ * \param[in]       conn: Connection handle to send data
+ * \param[in]       data: Data to send
  * \param[in]       btw: Number of bytes to send
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
  * \param[in]       blocking: Status whether command should be blocking or not
@@ -219,8 +219,29 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
 }
 
 /**
+ * \brief           Notify connection about received data which means connection is ready to accept more data
+ * 
+ *                  Once data reception is confirmed, stack will try to send more data to user.
+ * 
+ * \note            Since this feature is not supported yet by AT commands, function is only prototype
+ *                  and should be used in connection callback when data are received
+ *
+ * \note            Function is not thread safe and may only be called from callback function
+ *
+ * \param[in]       conn: Connection hande
+ * \param[in]       pbuf: Packet buffer received on connection
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
+    ESP_UNUSED(conn);
+    ESP_UNUSED(pbuf);
+    return espOK;
+}
+
+/**
  * \brief           Set argument variable for connection
- * \param[in]       conn: Pointer to connection to set argument
+ * \param[in]       conn: Connection handle to set argument
  * \param[in]       arg: Pointer to argument
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  * \sa              esp_conn_get_arg
@@ -235,7 +256,7 @@ esp_conn_set_arg(esp_conn_p conn, void* arg) {
 
 /**
  * \brief           Get user defined connection argument
- * \param[in]       conn: Pointer to connection to set argument
+ * \param[in]       conn: Connection handle to get argument
  * \return          User argument
  * \sa              esp_conn_set_arg
  */
