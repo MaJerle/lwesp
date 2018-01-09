@@ -123,7 +123,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
 }
 
 /**
- * \brief           Contencate 2 packet buffers together to one big packet
+ * \brief           Concatenate 2 packet buffers together to one big packet
  * \note            After tail pbuf has been added to head pbuf chain,
  *                  it must not be referenced by user anymore as it is now completelly controlled by head pbuf.
  *                  In simple words, when user calls this function, it should not call esp_pbuf_free function anymore,
@@ -476,14 +476,14 @@ esp_pbuf_set_ip(esp_pbuf_p pbuf, const void* ip, uint16_t port) {
 }
 
 /**
- * \brief           Advance pbuf payload pointer by number of \arg len bytes
+ * \brief           Advance pbuf payload pointer by number of len bytes.
  *                  It can only advance single pbuf in a chain
  *
  * \note            When other pbufs are referencing current one, 
  *                  they are not adjusted in length and total length
  *
  * \param[in]       pbuf: Pbuf to advance
- * \param[in]       len: Number of bytes to advance, when negative is used, buffer is increased by only if it was decreased before
+ * \param[in]       len: Number of bytes to advance. when negative is used, buffer size is increased by only if it was decreased before
  * \return          1 on success, 0 otherwise
  */
 uint8_t

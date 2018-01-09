@@ -153,6 +153,7 @@ init_thread(void const* arg) {
     size_t i, j;
     char hostname[20];
     espr_t eres;
+    uint8_t ip[4] = {192, 168, 0, 150};
     
     TM_GPIO_Init(GPIOC, GPIO_PIN_3, TM_GPIO_Mode_IN, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_Low);
     
@@ -166,6 +167,8 @@ init_thread(void const* arg) {
     esp_hostname_set("my_esp", 1);
     esp_hostname_get(hostname, sizeof(hostname), 1);
     esp_hostname_get(hostname, 3, 1);
+    
+    esp_sta_setip(ip, NULL, NULL, 0, 1);
     
     /**
      * Scan for network access points

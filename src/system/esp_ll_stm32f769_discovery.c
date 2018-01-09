@@ -1,5 +1,5 @@
 /**
- * \file            esp_ll.c
+ * \file            esp_ll_stm32f769_discovery.c
  * \brief           Low-level communication with ESP device for STM32F769-Discovery using DMA
  */
 
