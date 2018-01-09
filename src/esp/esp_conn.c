@@ -106,7 +106,7 @@ conn_send(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size
     ESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
     ESP_MSG_VAR_REF(msg).msg.conn_send.val_id = conn_get_val_id(conn);
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 10000);   /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);   /* Send message to producer queue */
 }
 
 /**

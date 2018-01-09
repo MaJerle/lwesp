@@ -163,8 +163,10 @@ esp_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_DATA_RECV: {
             esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
+            uint8_t success = 0;
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
 
+            esp_conn_recved(conn, pbuf);        /* Notify stack about received data */
 #if !ECP_CFG_NETCONN_ACCEPT_ON_CONNECT
             /*
              * Write data to listening connection accept mbox,
@@ -188,11 +190,15 @@ esp_cb(esp_cb_t* cb) {
             if (!close) {
                 if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
                     !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
+                    esp_pbuf_free(pbuf);        /* Free pbuf */
                     ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Ignoring more data for receive!\r\n");
                     return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
                 } else {
-                    esp_pbuf_ref(pbuf);         /* Increase current reference count by 1 as system mbox is referencing our pbuf */
+                    success = 1;
                 }
+            }
+            if (!success) {
+                esp_pbuf_free(pbuf);            /* Free pbuf */
             }
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
             break;

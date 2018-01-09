@@ -638,7 +638,6 @@ http_evt_cb(esp_cb_t* cb) {
                     } else {
                         esp_pbuf_cat(hs->p, p); /* Add new packet to the end of linked list of recieved data */
                     }
-                    esp_pbuf_ref(p);            /* Reference a new received pbuf */
                 
                     /*
                      * Check if headers are fully received.
@@ -753,40 +752,42 @@ http_evt_cb(esp_cb_t* cb) {
                         }
                     }
 #if HTTP_SUPPORT_POST
-                }
-                /*
-                 * We are receiving request data now
-                 * as headers are already received
-                 */
-                else if (hs->req_method == HTTP_METHOD_POST) {
+                } else {
                     /*
-                     * Did we receive all the data on POST?
+                     * We are receiving request data now
+                     * as headers are already received
                      */
-                    if (hs->content_received < hs->content_length) {
-                        size_t tot_len;
-                        
-                        tot_len = esp_pbuf_length(p, 1);    /* Get length of pbuf */
-                        hs->content_received += tot_len;
-                        
-                        http_post_send_to_user(hs, p, 0);   /* Send data directly to user */
-                        
-                        /**
-                         * Check if everything received
+                    if (hs->req_method == HTTP_METHOD_POST) {
+                        /*
+                         * Did we receive all the data on POST?
                          */
-                        if (hs->content_received >= hs->content_length) {
-                            hs->process_resp = 1;   /* Process with response to user */
+                        if (hs->content_received < hs->content_length) {
+                            size_t tot_len;
                             
-                            /*
-                             * Stop the response part here!
+                            tot_len = esp_pbuf_length(p, 1);/* Get length of pbuf */
+                            hs->content_received += tot_len;
+                            
+                            http_post_send_to_user(hs, p, 0);   /* Send data directly to user */
+                            
+                            /**
+                             * Check if everything received
                              */
-                            if (hi != NULL && hi->post_end_fn) {
-                                hi->post_end_fn(hs);
+                            if (hs->content_received >= hs->content_length) {
+                                hs->process_resp = 1;   /* Process with response to user */
+                                
+                                /*
+                                 * Stop the response part here!
+                                 */
+                                if (hi != NULL && hi->post_end_fn) {
+                                    hi->post_end_fn(hs);
+                                }
                             }
                         }
-                    }
 #endif /* HTTP_SUPPORT_POST */
-                } else {
-                    /* Protocol violation at this point! */
+                    } else {
+                        /* Protocol violation at this point! */
+                    }
+                    esp_pbuf_free(p);           /* Free packet buffer */
                 }
                 
                 /* Do the processing on response */
@@ -794,8 +795,10 @@ http_evt_cb(esp_cb_t* cb) {
                     send_response(hs, 1);       /* Send the response data */
                 }
             } else {
+                esp_pbuf_free(p);               /* Free packet buffer */
                 close = 1;
             }
+            esp_conn_recved(conn, p);           /* Notify stack about received data */
             break;
         }
         

@@ -287,7 +287,7 @@ espi_tcpip_process_send_data(void) {
         const uint8_t* ip = esp.msg->msg.conn_send.remote_ip;   /* Get remote IP */
         uint16_t port = esp.msg->msg.conn_send.remote_port;
         
-        if (ip && port) {
+        if (ip != NULL && port) {
             ESP_AT_PORT_SEND_STR(",");
             send_ip_mac(ip, 1, 1);              /* Send IP address including quotes */
             ESP_AT_PORT_SEND_STR(",");
@@ -812,13 +812,18 @@ espi_process(const void* data, size_t data_len) {
                  * Call user callback function with received data
                  */
                 if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */
+                    /*
+                     * Send data buffer to upper layer
+                     *
+                     * From this moment, user is responsible for packet
+                     * buffer and must free it manually
+                     */
                     esp.cb.type = ESP_CB_CONN_DATA_RECV;/* We have received data */
                     esp.cb.cb.conn_data_recv.buff = esp.ipd.buff;
                     esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
                     res = espi_send_conn_cb(esp.ipd.conn, NULL);    /* Send connection callback */
                     
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Free packet buffer\r\n");
-                    esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer */
                     if (res == espOKIGNOREMORE) {   /* We should ignore more data */
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Ignoring more data from this IPD if available\r\n");
                         esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
@@ -837,6 +842,7 @@ espi_process(const void* data, size_t data_len) {
                     }
                 }
                 if (!esp.ipd.rem_len) {         /* Check if we read everything */
+                    esp.ipd.buff = NULL;        /* Reset buffer pointer */
                     esp.ipd.read = 0;           /* Stop reading data */
                 }
                 esp.ipd.buff_ptr = 0;           /* Reset input buffer pointer */

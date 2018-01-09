@@ -733,6 +733,8 @@ static uint8_t
 mqtt_data_recv_cb(mqtt_client_t* client, esp_pbuf_p pbuf) {
     client->poll_time = 0;                      /* Reset kep alive time */
     mqtt_parse_incoming(client, pbuf);
+    esp_conn_recved(client->conn, pbuf);        /* Notify stack about received data */
+    esp_pbuf_free(pbuf);                        /* Free memory after usage */
     return 1;
 }
 
