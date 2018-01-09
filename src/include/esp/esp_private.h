@@ -203,7 +203,7 @@ typedef struct esp_msg {
     esp_cmd_t       cmd;                        /*!< Since some commands can have different subcommands, sub command is used here */
     uint8_t         i;                          /*!< Variable to indicate order number of subcommands */
     esp_sys_sem_t   sem;                        /*!< Semaphore for the message */
-    uint8_t         is_blocking;
+    uint8_t         is_blocking;                /*!< Status if command is blocking */
     uint32_t        block_time;                 /*!< Maximal blocking time in units of milliseconds. Use 0 to for non-blocking call */
     espr_t          res;                        /*!< Result of message operation */
     espr_t          (*fn)(struct esp_msg *);    /*!< Processing callback function to process packet */
