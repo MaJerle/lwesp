@@ -166,7 +166,7 @@ esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
     espr_t res;
     
     /*
-     * First contencate them together
+     * First concatenate them together
      * Second create a new reference from head buffer to tail buffer
      * so user can normally use tail pbuf and free it when it wants    
      */
@@ -225,10 +225,10 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
      * First only copy in case we have some offset from first pbuf
      */
     if (offset) {
-        size_t l = ESP_MIN(pbuf->len - offset, len);    /* Get length to copy to current pbuf */
-        memcpy(pbuf->payload + offset, d, l);   /* Copy to memory with offset */
-        len -= l;                               /* Decrease remaining bytes to copy */
-        d += l;                                 /* Increase data pointer */
+        copy_len = ESP_MIN(pbuf->len - offset, len);    /* Get length to copy to current pbuf */
+        memcpy(pbuf->payload + offset, d, copy_len);    /* Copy to memory with offset */
+        len -= copy_len;                        /* Decrease remaining bytes to copy */
+        d += copy_len;                          /* Increase data pointer */
         pbuf = pbuf->next;                      /* Go to next pbuf */
     }
     
@@ -236,7 +236,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
      * Copy user memory to sequence of pbufs
      */
     for (; len; pbuf = pbuf->next) {
-        copy_len = len > pbuf->len ? pbuf->len : len;   /* Get copy length */
+        copy_len = ESP_MIN(len, pbuf->len);     /* Get copy length */
         memcpy(pbuf->payload, d, copy_len);     /* Copy memory to pbuf payload */
         len -= copy_len;                        /* Decrease number of remaining bytes to send */
         d += copy_len;                          /* Increase data pointer */

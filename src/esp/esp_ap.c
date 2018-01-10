@@ -42,7 +42,7 @@
  * \param[out]      ip: Pointer to variable to save IP address. Memory of at least 4 bytes is required
  * \param[out]      gw: Pointer to output variable to save gateway address. Memory of at least 4 bytes is required
  * \param[out]      nm: Pointer to output variable to save netmask address. Memory of at least 4 bytes is required
- * \param[in]       def: Status whether default (1) or current (1) IP to read
+ * \param[in]       def: Status whether default (1) or current (0) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -65,7 +65,7 @@ esp_ap_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking) {
  * \param[in]       ip: Pointer to IP address. Memory of at least 4 bytes is required
  * \param[in]       gw: Pointer to gateway address. Set to NULL to use default gateway. Memory of at least 4 bytes is required
  * \param[in]       nm: Pointer to netmask address. Set to NULL to use default netmask. Memory of at least 4 bytes is required
- * \param[in]       def: Status whether default (1) or current (1) IP to set
+ * \param[in]       def: Status whether default (1) or current (0) IP to set
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -88,7 +88,7 @@ esp_ap_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32
 /**
  * \brief           Get MAC of access point
  * \param[out]      mac: Pointer to output variable to save MAC address. Memory of at least 6 bytes is required
- * \param[in]       def: Status whether default (1) or current (1) IP to read
+ * \param[in]       def: Status whether default (1) or current (0) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -107,7 +107,7 @@ esp_ap_getmac(void* mac, uint8_t def, uint32_t blocking) {
 /**
  * \brief           Set MAC of access point
  * \param[in]       mac: Pointer to variable with MAC address. Memory of at least 6 bytes is required
- * \param[in]       def: Status whether default (1) or current (1) MAC to write
+ * \param[in]       def: Status whether default (1) or current (0) MAC to write
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
