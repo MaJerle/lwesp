@@ -190,13 +190,13 @@ esp_sta_copy_ip(void* ip, void* gw, void* nm) {
     espr_t res = espERR;
     if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip() == espOK) {    /* Do we have a valid IP address? */
         ESP_CORE_PROTECT();                     /* Protect ESP core */
-        if (ip) {
+        if (ip != NULL) {
             memcpy(ip, esp.sta.ip, 4);          /* Copy IP address */
         }
-        if (gw) {
+        if (gw != NULL) {
             memcpy(gw, esp.sta.gw, 4);          /* Copy gateway address */
         }
-        if (nm) {
+        if (nm != NULL) {
             memcpy(nm, esp.sta.nm, 4);          /* Copy netmask address */
         }
         res = espOK;
