@@ -151,9 +151,7 @@ const uint8_t requestData[] = ""
 static void
 init_thread(void const* arg) {
     size_t i, j;
-    char hostname[20];
     espr_t eres;
-    uint8_t ip[4] = {192, 168, 0, 150};
     
     TM_GPIO_Init(GPIOC, GPIO_PIN_3, TM_GPIO_Mode_IN, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_Low);
     
@@ -162,50 +160,42 @@ init_thread(void const* arg) {
     
     time = osKernelSysTick();
     
-    esp_ap_configure("Tilenov WiFi", "ni dostopa", 5, ESP_ECN_WPA_WPA2_PSK, 8, 0, 1, 1);
-    
-    esp_hostname_set("my_esp", 1);
-    esp_hostname_get(hostname, sizeof(hostname), 1);
-    esp_hostname_get(hostname, 3, 1);
-    
-    esp_sta_setip(ip, NULL, NULL, 0, 1);
-    
-    /**
+    /*
      * Scan for network access points
      * In case we have access point,
      * try to connect to known AP
      */
-    if (esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
-        for (i = 0; i < apf; i++) {
-            printf("AP found: %s\r\n", aps[i].ssid);
-        }
-        for (j = 0; j < sizeof(ap_list) / sizeof(ap_list[0]); j++) {
+    do {
+        if (esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
             for (i = 0; i < apf; i++) {
-                if (!strcmp(aps[i].ssid, ap_list[j].ssid)) {
-                    printf("Trying to connect to \"%s\" network\r\n", ap_list[j].ssid);
-                    if ((eres = esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 0, 1)) == espOK) {
-                        goto cont;
-                    } else {
-                        printf("Connection error: %d\r\n", (int)eres);
+                printf("AP found: %s\r\n", aps[i].ssid);
+            }
+            for (j = 0; j < sizeof(ap_list) / sizeof(ap_list[0]); j++) {
+                for (i = 0; i < apf; i++) {
+                    if (!strcmp(aps[i].ssid, ap_list[j].ssid)) {
+                        printf("Trying to connect to \"%s\" network\r\n", ap_list[j].ssid);
+                        if ((eres = esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 0, 1)) == espOK) {
+                            goto cont;
+                        } else {
+                            printf("Connection error: %d\r\n", (int)eres);
+                        }
                     }
                 }
             }
+        } else {
+            printf("No WIFI to connect!\r\n");
         }
-    } else {
-        printf("No WIFI to connect!\r\n");
-    }
+    } while (1);
 cont:
 
     /**
      * Determine if this nucleo is client or server
      */
-    if (0 && TM_GPIO_GetInputPinValue(GPIOC, GPIO_PIN_3)) {  
-        client_thread_id = osThreadCreate(osThread(client_thread), NULL);
-        printf("Client mode!\r\n");
-    } else {
-        esp_http_server_init(&http_init, 80);
-        printf("Server mode!\r\n");
-    }
+//    client_thread_id = osThreadCreate(osThread(client_thread), NULL);
+//    printf("Client mode!\r\n");
+
+    esp_http_server_init(&http_init, 80);
+    printf("Server mode!\r\n");
     
     /*
      * Check if device has set IP address
@@ -226,7 +216,7 @@ cont:
         }
     }
     
-    client_thread_id = osThreadCreate(osThread(mqtt_thread), NULL);
+    //client_thread_id = osThreadCreate(osThread(mqtt_thread), NULL);
     
     while (1) {
         if (0 && esp_ap_list_sta(stas, sizeof(stas) / sizeof(stas[0]), &staf, 1) == espOK) {
@@ -286,7 +276,10 @@ client_thread(void const* arg) {
         res = esp_netconn_connect(client, NETCONN_HOST, NETCONN_PORT);
         if (res == espOK) {                     /* Are we successfully connected? */
             printf("Connected to server " NETCONN_HOST "\r\n");
-            res = esp_netconn_write(client, requestData, sizeof(requestData) - 1);    /* Send data to server */
+            res = esp_netconn_write(client, requestData, sizeof(requestData) - 1);  /* Send data to server */
+            if (res == espOK) {
+                res = esp_netconn_flush(client);    /* Flush data to output */
+            }
             if (res == espOK) {                 /* Were data sent? */
                 printf("Data were successfully sent to server\r\n");
                 
@@ -342,6 +335,8 @@ client_thread(void const* arg) {
      * from memory
      */
     esp_netconn_delete(client);
+    
+    osThreadTerminate(NULL);
 }
 
 /**
@@ -454,6 +449,7 @@ server_thread(void const* arg) {
             }
         }
     }
+    osThreadTerminate(NULL);
 }
 
 char *
