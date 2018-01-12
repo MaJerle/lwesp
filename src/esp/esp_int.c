@@ -253,7 +253,7 @@ is_received_current_setting(const char* str) {
  * \return          Member of \ref espr_t enumeration
  */
 espr_t
-espi_send_conn_cb(esp_conn_t* conn, esp_cb_func_t cb) {
+espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb) {
     if (cb != NULL) {                           /* Try with user connection */
         cb(&esp.cb);
     } if (conn->cb_func != NULL) {              /* Connection custom callback? */

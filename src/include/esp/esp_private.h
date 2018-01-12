@@ -147,7 +147,7 @@ typedef struct esp_conn_t {
     uint8_t         remote_ip[4];               /*!< Remote IP address */
     uint16_t        remote_port;                /*!< Remote port number */
     uint16_t        local_port;                 /*!< Local IP address */
-    esp_cb_func_t   cb_func;                    /*!< Callback function for connection */
+    esp_cb_fn   cb_func;                    /*!< Callback function for connection */
     void*           arg;                        /*!< User custom argument */
     
     uint8_t         val_id;                     /*!< Validation ID number. It is increased each time a new connection is established.
@@ -277,7 +277,7 @@ typedef struct esp_msg {
             uint16_t port;                      /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
             void* arg;                          /*!< Connection custom argument */
-            esp_cb_func_t cb_func;              /*!< Callback function to use on connection */
+            esp_cb_fn cb_func;              /*!< Callback function to use on connection */
             uint8_t num;                        /*!< Connection number used for start */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
@@ -310,7 +310,7 @@ typedef struct esp_msg {
             uint16_t port;                      /*!< Server port number */
             uint16_t max_conn;                  /*!< Maximal number of connections available for server */
             uint16_t timeout;                   /*!< Connection timeout */
-            esp_cb_func_t cb;                   /*!< Server default callback function */
+            esp_cb_fn cb;                   /*!< Server default callback function */
         } tcpip_server;
         struct {
             uint8_t info;                       /*!< New info status */
@@ -376,8 +376,8 @@ typedef struct {
     esp_ipd_t           ipd;                    /*!< Incoming data structure */
     esp_cb_t            cb;                     /*!< Callback processing structure */
     
-    esp_cb_func_t       cb_func;                /*!< Default callback function */
-    esp_cb_func_t       cb_server;              /*!< Default callback function for server connections */
+    esp_cb_fn       cb_func;                /*!< Default callback function */
+    esp_cb_fn       cb_server;              /*!< Default callback function for server connections */
     
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */
@@ -451,7 +451,7 @@ espr_t      espi_process_buffer(void);
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
 uint8_t     espi_is_valid_conn_ptr(esp_conn_p conn);
 espr_t      espi_send_cb(esp_cb_type_t type);
-espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_cb_func_t cb);
+espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb);
 
 void        espi_conn_init(void);
 

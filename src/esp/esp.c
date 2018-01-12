@@ -84,7 +84,7 @@ espi_set_dinfo(uint8_t info, uint32_t blocking) {
  * \return          Member of \ref espr_t enumeration
  */
 espr_t
-esp_init(esp_cb_func_t cb_func) {
+esp_init(esp_cb_fn cb_func) {
     esp.status.f.initialized = 0;               /* Clear possible init flag */
     esp.cb_func = cb_func ? cb_func : def_callback; /* Set callback function */
     esp.cb_server = esp.cb_func;                /* Set default server callback function */
@@ -191,7 +191,7 @@ esp_set_mux(uint8_t mux, uint32_t blocking) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_func_t cb, uint32_t blocking) {
+esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -211,7 +211,7 @@ esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_func_t
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_default_server_callback(esp_cb_func_t cb_func) {
+esp_set_default_server_callback(esp_cb_fn cb_func) {
     ESP_CORE_PROTECT();                         /* Protect system */
     esp.cb_server = cb_func ? cb_func : esp.cb_func;    /* Set default callback */
     ESP_CORE_UNPROTECT();                       /* Unprotect system */

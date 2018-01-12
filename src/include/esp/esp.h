@@ -58,18 +58,18 @@ extern "C" {
  */
  
 /**
- * \brief           Callback function prototype to send data
+ * \brief           Function prototype for AT output data
  * \param[in]       data: Pointer to data to send
  * \param[in]       len: Number of bytes to send
  * \return          Number of bytes sent
  */
-typedef uint16_t (*esp_ll_send_fn_t)(const void* data, uint16_t len);
+typedef uint16_t (*esp_ll_send_fn)(const void* data, uint16_t len);
 
 /**
  * \brief           Low level user specific functions
  */
 typedef struct {
-    esp_ll_send_fn_t send_fn;                   /*!< Callback function to transmit data */
+    esp_ll_send_fn send_fn;                     /*!< Callback function to transmit data */
 } esp_ll_t;
 
 /**
@@ -123,8 +123,9 @@ typedef struct esp_pbuf_t* esp_pbuf_p;
 /**
  * \brief           Data type for callback function
  * \param[in]       cb: Callback event data
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
-typedef espr_t  (*esp_cb_func_t)(struct esp_cb_t* cb);
+typedef espr_t  (*esp_cb_fn)(struct esp_cb_t* cb);
 
 /**
  * \brief           List of possible callback types received to user
@@ -210,13 +211,13 @@ typedef struct esp_cb_t {
 #include "esp/esp_netconn.h"
 #endif /* ESP_CFG_OS */
 
-espr_t      esp_init(esp_cb_func_t cb_func);
+espr_t      esp_init(esp_cb_fn cb_func);
 espr_t      esp_reset(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
 espr_t      esp_set_mux(uint8_t mux, uint32_t blocking);
 
-espr_t      esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_func_t cb, uint32_t blocking);
+espr_t      esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking);
 
 espr_t      esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking);
 
