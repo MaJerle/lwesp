@@ -79,6 +79,7 @@ typedef enum {
     ESP_CMD_SYSGPIODIR,
     ESP_CMD_SYSGPIOWRITE,
     ESP_CMD_SYSGPIOREAD,
+    ESP_CMD_SYSMSG,                             /*!< Configure system messages */
     
     /*
      * WiFi based commands

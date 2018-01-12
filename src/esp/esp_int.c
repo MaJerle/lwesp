@@ -1065,6 +1065,10 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 break;
             }
             case ESP_CMD_WIFI_CWMODE: {
+                n_cmd = ESP_CMD_SYSMSG;         /* Set Wifi mode */
+                break;
+            }
+            case ESP_CMD_SYSMSG: {
                 n_cmd = ESP_CMD_TCPIP_CIPMUX;   /* Set multiple connections mode */
                 break;
             }
@@ -1143,6 +1147,9 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("AT+GMR\r\n");
             break;
         }
+        case ESP_CMD_SYSMSG: {
+            ESP_AT_PORT_SEND_STR("AT+SYSMSG_CUR=3\r\n");
+        }
         case ESP_CMD_UART: {                    /* Change UART parameters for AT port */
             char str[8];
             number_to_str(msg->msg.uart.baudrate, str); /* Get string from number */
@@ -1153,7 +1160,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
         
-        /**
+        /*
          * WiFi related commands
          */
  
