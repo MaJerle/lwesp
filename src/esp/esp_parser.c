@@ -271,6 +271,36 @@ espi_parse_at_sdk_version(const char* str, uint32_t* version_out) {
     return 1;
 }
 
+/**
+ * \brief           Parse +LINK_CONN received string for new connection active
+ */
+uint8_t
+espi_parse_link_conn(const char* str) {
+    if (str == NULL) {
+        return 0;
+    }
+    if (*str == '+') {
+        str += 11;
+    }
+    esp.link_conn.failed = espi_parse_number(&str);
+    esp.link_conn.num = espi_parse_number(&str);
+    if (!strncmp(str, "\"TCP\"", 5)) {
+        esp.link_conn.type = ESP_CONN_TYPE_TCP;
+    } else if (!strncmp(str, "\"UDP\"", 5)) {
+        esp.link_conn.type = ESP_CONN_TYPE_UDP;
+    } else if (!strncmp(str, "\"SSL\"", 5)) {
+        esp.link_conn.type = ESP_CONN_TYPE_SSL;
+    } else {
+        return 0;
+    }
+    str += 6;
+    esp.link_conn.is_server = espi_parse_number(&str);
+    espi_parse_ip(&str, esp.link_conn.remote_ip);
+    esp.link_conn.remote_port = espi_parse_number(&str);
+    esp.link_conn.local_port = espi_parse_number(&str);
+    return 1;
+}
+
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
 /**
  * \brief           Parse received message for list access points

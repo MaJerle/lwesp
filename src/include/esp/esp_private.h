@@ -351,6 +351,19 @@ typedef struct {
 } esp_ip_mac_t;
 
 /**
+ * \brief           Link connection active info
+ */
+typedef struct {
+    uint8_t failed;                             /*!< Status if connection successful */
+    uint8_t num;                                /*!< Connection number */
+    uint8_t is_server;                          /*!< Status if connection is client or server */
+    esp_conn_type_t type;                       /*!< Connection type */
+    uint8_t remote_ip[4];                       /*!< Remote IP address */
+    uint16_t remote_port;                       /*!< Remote port */
+    uint16_t local_port;                        /*!< Local port number */
+} esp_link_conn_t;
+
+/**
  * \brief           ESP global structure
  */
 typedef struct {    
@@ -374,11 +387,12 @@ typedef struct {
     
     esp_conn_t          conns[ESP_CFG_MAX_CONNS];   /*!< Array of all connection structures */
     
+    esp_link_conn_t     link_conn;              /*!< Link connection handle */
     esp_ipd_t           ipd;                    /*!< Incoming data structure */
     esp_cb_t            cb;                     /*!< Callback processing structure */
     
-    esp_cb_fn       cb_func;                /*!< Default callback function */
-    esp_cb_fn       cb_server;              /*!< Default callback function for server connections */
+    esp_cb_fn           cb_func;                /*!< Default callback function */
+    esp_cb_fn           cb_server;              /*!< Default callback function for server connections */
     
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */

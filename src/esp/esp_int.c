@@ -572,33 +572,36 @@ espi_parse_received(esp_recv_t* rcv) {
     }
     
     /*
-     * Check if connection is just active or just closed
+     * Check if connection is just active:
+     *
+     * Since new ESP AT release, it is possible to get
+     * connection status by using +LINK_CONN message.
+     *
+     * Check LINK_CONN and x,CONNECT messages
      */
-    /*
-    if (!strncmp(",CONNECT", &rcv->data[1], 8)) {
-        const char* tmp = rcv->data; */
-    if (rcv->len > 10 && (s = strstr(rcv->data, ",CONNECT\r\n")) != NULL) {
-        const char* tmp = s;
-        uint32_t num = 0;
-        while (tmp >= rcv->data && ESP_CHARISNUM(tmp[-1])) {
-            tmp--;
-        }
-        num = espi_parse_number(&tmp);          /* Parse connection number */
-        if (num < ESP_CFG_MAX_CONNS) {
+    if (rcv->len > 20 && (s = strstr(rcv->data, "+LINK_CONN:")) != NULL) {
+        if (espi_parse_link_conn(s) && esp.link_conn.num < ESP_CFG_MAX_CONNS) {
             uint8_t id;
-            esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
+            esp_conn_t* conn = &esp.conns[esp.link_conn.num];   /* Get connection pointer */
             id = conn->val_id;
             memset(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
-            conn->num = num;                    /* Set connection number */
-            conn->status.f.active = 1;          /* Connection just active */
+            conn->num = esp.link_conn.num;      /* Set connection number */
+            conn->status.f.active = !esp.link_conn.failed;  /* Check if connection active */
             conn->val_id = ++id;                /* Set new validation ID */
-            if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART) && num == esp.msg->msg.conn_start.num) {    /* Did we start connection on our own? */
+            
+            conn->type = esp.link_conn.type;    /* Set connection type */
+            memcpy(conn->remote_ip, esp.link_conn.remote_ip, sizeof(conn->remote_ip));
+            conn->remote_port = esp.link_conn.remote_port;
+            conn->local_port = esp.link_conn.local_port;
+            conn->status.f.client = !esp.link_conn.is_server;
+            
+            if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)
+                && esp.link_conn.num == esp.msg->msg.conn_start.num
+                && conn->status.f.client) {     /* Did we start connection on our own and connection is client? */
                 conn->status.f.client = 1;      /* Go to client mode */
                 conn->cb_func = esp.msg->msg.conn_start.cb_func;    /* Set callback function */
                 conn->arg = esp.msg->msg.conn_start.arg;    /* Set argument for function */
-                conn->type = esp.msg->msg.conn_start.type;  /* Set connection type */
             } else {                            /* Server connection start */
-                conn->status.f.client = 0;      /* We are in server mode this time */
                 conn->cb_func = esp.cb_server;  /* Set server default callback */
                 conn->arg = NULL;
                 conn->type = ESP_CONN_TYPE_TCP; /* Set connection type to TCP. @todo: Wait for ESP team to upgrade AT commands to set other type */
@@ -1149,12 +1152,11 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_SYSMSG: {
             ESP_AT_PORT_SEND_STR("AT+SYSMSG_CUR=3\r\n");
+            break;
         }
         case ESP_CMD_UART: {                    /* Change UART parameters for AT port */
-            char str[8];
-            number_to_str(msg->msg.uart.baudrate, str); /* Get string from number */
             ESP_AT_PORT_SEND_STR("AT+UART_CUR=");
-            ESP_AT_PORT_SEND_STR(str);
+            send_number(msg->msg.uart.baudrate, 0);
             ESP_AT_PORT_SEND_STR(",8,1,0,0");
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
@@ -1379,7 +1381,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
 #endif /* ESP_CFG_HOSTNAME */
         
-        /**
+        /*
          * TCP/IP related commands
          */
         
@@ -1498,6 +1500,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+        case ESP_CMD_TCPIP_CIPSSLSIZE: {        /* Set SSL size */
+            ESP_AT_PORT_SEND_STR("AT+CIPSSLSIZE=");
+            send_number(msg->msg.tcpip_sslsize.size, 0);
+            ESP_AT_PORT_SEND_STR("\r\n");
+            break;
+        }
 #if ESP_CFG_DNS
         case ESP_CMD_TCPIP_CIPDOMAIN: {         /* DNS function */
             ESP_AT_PORT_SEND_STR("AT+CIPDOMAIN=");
@@ -1514,12 +1522,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_PING */
-        case ESP_CMD_TCPIP_CIPSSLSIZE: {        /* Set SSL size */
-            ESP_AT_PORT_SEND_STR("AT+CIPSSLSIZE=");
-            send_number(msg->msg.tcpip_sslsize.size, 0);
-            ESP_AT_PORT_SEND_STR("\r\n");
-            break;
-        }
 #if ESP_CFG_SNTP
         case ESP_CMD_TCPIP_CIPSNTPCFG: {        /* Configure SNTP */
             ESP_AT_PORT_SEND_STR("AT+CIPSNTPCFG=");

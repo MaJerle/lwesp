@@ -325,7 +325,7 @@ usart_ll_thread(void const * arg) {
                 /*
                  * In linear section, simply process difference between pointers
                  */
-                esp_input_process(&usart_mem[old_pos], pos - old_pos);  /* Process input data in linear buffer phase */
+                esp_input_process(&((uint8_t *)usart_mem)[old_pos], pos - old_pos);  /* Process input data in linear buffer phase */
                 old_pos = pos;                  /* Set old position as new one */
             } else {                            /* We are in overflow section */
                 /*
@@ -333,8 +333,8 @@ usart_ll_thread(void const * arg) {
                  *  - Process data until end of buffer
                  *  - Process data until current position on top of buffer
                  */
-                esp_input_process(&usart_mem[old_pos], sizeof(usart_mem) - old_pos);
-                esp_input_process(&usart_mem[0], pos);    
+                esp_input_process(&((uint8_t *)usart_mem)[old_pos], sizeof(usart_mem) - old_pos);
+                esp_input_process(&((uint8_t *)usart_mem)[0], pos);    
                 old_pos = pos;
             }
             if (old_pos == sizeof(usart_mem)) {
