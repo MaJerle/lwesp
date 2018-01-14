@@ -74,10 +74,6 @@ espi_set_dinfo(uint8_t info, uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
-/*
- * Public API functions here
- */
-
 /**
  * \brief           Init and prepare ESP stack
  * \param[in]       cb_func: Event callback function
@@ -104,7 +100,7 @@ esp_init(esp_cb_fn cb_func) {
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */
     esp.status.f.initialized = 1;               /* We are initialized now */
     
-    /**
+    /*
      * Call reset command and call default
      * AT commands to prepare basic setup for device
      */
@@ -219,6 +215,7 @@ esp_set_default_server_callback(esp_cb_fn cb_func) {
 }
 
 #if ESP_CFG_DNS || __DOXYGEN__
+
 /**
  * \brief           Get IP address from host name
  * \param[in]       host: Pointer to host name to get IP for
@@ -240,6 +237,7 @@ esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking) {
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 20000);   /* Send message to producer queue */
 }
+
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
 /**

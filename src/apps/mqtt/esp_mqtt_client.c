@@ -285,7 +285,7 @@ static uint16_t
 output_check_enough_memory(mqtt_client_t* client, uint16_t rem_len) {
     uint16_t total_len = rem_len + 1;           /* Remaining length + first (packet start) byte */
     
-    do {                                        /* Calculate bytes for encoding remainig length itself */
+    do {                                        /* Calculate bytes for encoding remaining length itself */
         total_len++;
         rem_len >>= 7;                          /* Encoded with 7 bits per byte */
     } while (rem_len);
@@ -947,13 +947,6 @@ mqtt_conn_cb(esp_cb_t* cb) {
     return espOK;
 }
 
-
-/******************************************************************************************************/
-/******************************************************************************************************/
-/*  Public API functions                                                                              */
-/******************************************************************************************************/
-/******************************************************************************************************/
-
 /**
  * \brief           Allocate a new MQTT client structure
  * \param[in]       tx_buff_len: Length of raw data output buffer
@@ -965,7 +958,7 @@ mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
     mqtt_client_t* client;
     
     client = esp_mem_alloc(sizeof(*client));    /* Allocate memory for client structure */
-    if (client) {
+    if (client != NULL) {
         memset(client, 0x00, sizeof(*client));  /* Reset memory */
         client->conn_state = MQTT_CONN_DISCONNECTED;/* Set to disconnected mode */
         
@@ -1143,8 +1136,7 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
             }
             if (payload != NULL && payload_len > 0) {
                 write_data(client, payload, payload_len);   /* Write RAW topic payload */
-            }    
-            
+            }
             request_set_pending(client, request);   /* Set request as pending waiting for server reply */
             send_data(client);                  /* Try to send data */
             
