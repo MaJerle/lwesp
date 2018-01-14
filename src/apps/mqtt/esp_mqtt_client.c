@@ -515,6 +515,9 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
         }
         case MQTT_MSG_TYPE_PINGRESP: {          /* Respond to PINGREQ received */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT ping response received\r\n");
+            
+            client->evt.type = MQTT_EVT_KEEP_ALIVE;
+            client->evt_fn(client, &client->evt);
             break;
         }
         case MQTT_MSG_TYPE_SUBACK:
@@ -613,7 +616,12 @@ mqtt_parse_incoming(mqtt_client_t* client, esp_pbuf_p pbuf) {
                     client->msg_rem_len |= (ch & 0x7F);
                     if ((ch & 0x80) == 0) {     /* Is this last entry? */
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE, "MQTT remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
-                        client->parser_state = MQTT_PARSER_STATE_READ_REM;
+                        if (client->msg_rem_len) {
+                            client->parser_state = MQTT_PARSER_STATE_READ_REM;
+                        } else {
+                            mqtt_process_incoming_message(client);
+                            client->parser_state = MQTT_PARSER_STATE_INIT;
+                        }
                     }
                     break;
                 }

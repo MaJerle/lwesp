@@ -118,6 +118,7 @@ typedef enum {
     MQTT_EVT_PUBLISHED,                         /*!< MQTT client successfully published message to server */
     MQTT_EVT_PUBLISH_RECV,                      /*!< MQTT client received a publish message from server */
     MQTT_EVT_DISCONNECT,                        /*!< MQTT client disconnected from MQTT server */
+    MQTT_EVT_KEEP_ALIVE,                        /*!< MQTT keep-alive sent to server and received */
 } mqtt_evt_type_t;
 
 /**
