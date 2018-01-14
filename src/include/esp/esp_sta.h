@@ -58,6 +58,7 @@ espr_t      esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_
 espr_t      esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_has_ip(void);
+espr_t      esp_sta_joined(void);
 espr_t      esp_sta_copy_ip(void* ip, void* gw, void* nm);
 
 espr_t      esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);

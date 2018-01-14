@@ -179,6 +179,15 @@ esp_sta_has_ip(void) {
 }
 
 /**
+ * \brief           Check if station is connected to WiFi network
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_sta_joined(void) {
+    return esp_sta_has_ip();
+}
+
+/**
  * \brief           Copies IP address from internal value for user
  * \note            In case you want to refresh actual value from ESP device, use \ref esp_sta_getip function
  * \param[out]      ip: Pointer to output IP variable. Set to NULL if not interested in IP address
