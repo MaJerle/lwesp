@@ -31,7 +31,7 @@ mqtt_thread(void const* arg) {
      */
     mqtt_client = mqtt_client_new(256, 128);
     if (mqtt_client != NULL) {
-        mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
+        example_do_connect(mqtt_client);
     }
     
     while (1) {

@@ -152,6 +152,7 @@ static void
 init_thread(void const* arg) {
     size_t i, j;
     espr_t eres;
+    esp_conn_p conn;
     
     TM_GPIO_Init(GPIOC, GPIO_PIN_3, TM_GPIO_Mode_IN, TM_GPIO_OType_PP, TM_GPIO_PuPd_UP, TM_GPIO_Speed_Low);
     
@@ -196,6 +197,8 @@ cont:
 
     esp_http_server_init(&http_init, 80);
     printf("Server mode!\r\n");
+    
+    osThreadCreate(osThread(mqtt_thread), 0);
     
     /*
      * Check if device has set IP address

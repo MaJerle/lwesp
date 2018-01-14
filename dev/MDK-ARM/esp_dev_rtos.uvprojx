@@ -378,9 +378,6 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>CMSIS</GroupName>
-        </Group>
-        <Group>
           <GroupName>STM32F7_HAL_Drivers</GroupName>
           <GroupOption>
             <CommonProperty>
@@ -1286,9 +1283,6 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>CMSIS</GroupName>
-        </Group>
-        <Group>
           <GroupName>STM32F7_HAL_Drivers</GroupName>
           <GroupOption>
             <CommonProperty>
@@ -2193,9 +2187,6 @@
         </TargetArmAds>
       </TargetOption>
       <Groups>
-        <Group>
-          <GroupName>CMSIS</GroupName>
-        </Group>
         <Group>
           <GroupName>STM32F7_HAL_Drivers</GroupName>
           <Files>
