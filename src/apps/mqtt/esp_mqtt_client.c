@@ -604,7 +604,6 @@ mqtt_parse_incoming(mqtt_client_t* client, esp_pbuf_p pbuf) {
                     
                     /* Save other info about message */
                     client->msg_hdr_byte = ch;  /* Save first entry */
-                    
                     client->msg_rem_len = 0;    /* Reset remaining length */
                     client->msg_curr_pos = 0;   /* Reset current buffer write pointer */
                     

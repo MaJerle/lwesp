@@ -60,6 +60,16 @@ static esp_recv_t recv;
 static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready);
 
 /**
+ * \brief           Free connection send data memory
+ * \param[in]       m: Send data message type
+ */
+#define CONN_SEND_DATA_FREE(m)    do {    \
+    if ((m)->msg.conn_send.fau) {         \
+        esp_mem_free((void *)(m)->msg.conn_send.data);    \
+    }                                       \
+} while (0)
+
+/**
  * \brief           Create 2-characters long hex from byte
  * \param[in]       num: Number to convert to string
  * \param[out]      str: Pointer to string to save result to
@@ -100,7 +110,7 @@ send_ip_mac(const uint8_t* d, uint8_t is_ip, uint8_t q) {
     uint8_t i, ch;
     char str[4];
     
-    if (!d) {
+    if (d == NULL) {
         return;
     }
     if (q) {
@@ -135,7 +145,7 @@ send_string(const char* str, uint8_t e, uint8_t q) {
     if (q) {
         ESP_AT_PORT_SEND_STR("\"");
     }
-    if (str) {
+    if (str != NULL) {
         if (e) {                                /* Do we have to escape string? */
             while (*str) {                      /* Go through string */
                 if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */    
@@ -255,8 +265,8 @@ is_received_current_setting(const char* str) {
 espr_t
 espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb) {
     if (cb != NULL) {                           /* Try with user connection */
-        cb(&esp.cb);
-    } if (conn->cb_func != NULL) {              /* Connection custom callback? */
+        return cb(&esp.cb);                     /* Call temporary function */
+    } else if (conn != NULL && conn->cb_func != NULL) { /* Connection custom callback? */
         return conn->cb_func(&esp.cb);          /* Process callback function */
     } else {
         return esp.cb_func(&esp.cb);            /* Process default callback function */
@@ -272,9 +282,7 @@ espi_tcpip_process_send_data(void) {
     if (!esp_conn_is_active(esp.msg->msg.conn_send.conn) || /* Is the connection already closed? */
         esp.msg->msg.conn_send.val_id != esp.msg->msg.conn_send.conn->val_id    /* Did validation ID change after we set parameter? */
     ) {
-        if (esp.msg->msg.conn_send.fau) {
-            esp_mem_free((void *)esp.msg->msg.conn_send.data);
-        }
+        CONN_SEND_DATA_FREE(esp.msg);           /* Free message data */
         return espERR;
     }
     ESP_AT_PORT_SEND_STR("AT+CIPSEND=");
@@ -329,6 +337,21 @@ espi_tcpip_process_data_sent(uint8_t sent) {
 }
 
 /**
+ * \brief           Send error event to application layer
+ * \param[in]       msg: Message from user with connection start
+ */
+static void
+espi_send_conn_error_cb(esp_msg_t* msg) {
+    esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
+    esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection error */
+    esp.cb.cb.conn_error.host = esp.msg->msg.conn_start.host;
+    esp.cb.cb.conn_error.port = esp.msg->msg.conn_start.port;
+    esp.cb.cb.conn_error.type = esp.msg->msg.conn_start.type;
+    esp.cb.cb.conn_error.arg = esp.msg->msg.conn_start.arg;
+    espi_send_conn_cb(conn, esp.msg->msg.conn_start.cb_func);   /* Send event */
+}
+
+/**
  * \brief           Process received string from ESP 
  * \param[in]       recv: Pointer to \ref esp_rect_t structure with input string
  */
@@ -337,13 +360,13 @@ espi_parse_received(esp_recv_t* rcv) {
     uint8_t is_ok = 0, is_error = 0, is_ready = 0;
     const char* s;
     
-    if (rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n') {
+    /* Try to remove non-parsable strings */
+    if ((rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n') ||
+        (rcv->len > 3 && rcv->data[0] == 'A' && rcv->data[1] == 'T' && rcv->data[2] == '+')) {
         return;
     }
     
-    /*
-     * Detect most common responses from device
-     */
+    /* Detect most common responses from device */
     is_ok = !strcmp(rcv->data, "OK\r\n");       /* Check if received string is OK */
     if (!is_ok) {
         is_error = !strcmp(rcv->data, "ERROR\r\n") || !strcmp(rcv->data, "FAIL\r\n");   /* Check if received string is error */
@@ -534,9 +557,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_ok = espi_tcpip_process_data_sent(1);    /* Process as data were sent */
                     if (is_ok) {
-                        if (esp.msg->msg.conn_send.fau) {   /* Do we have to free memory after use? */
-                            esp_mem_free((void *)esp.msg->msg.conn_send.data);  /* Free the memory */
-                        }
+                        CONN_SEND_DATA_FREE(esp.msg);   /* Free message data */
                         esp.cb.type = ESP_CB_CONN_DATA_SENT;    /* Data were fully sent */
                         esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
                         esp.cb.cb.conn_data_sent.sent = esp.msg->msg.conn_send.sent_all;
@@ -546,9 +567,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
                     if (is_error) {
-                        if (esp.msg->msg.conn_send.fau) {   /* Do we have to free memory after use? */
-                            esp_mem_free((void *)esp.msg->msg.conn_send.data);  /* Free the memory */
-                        }
+                        CONN_SEND_DATA_FREE(esp.msg);   /* Free message data */
                         esp.cb.type = ESP_CB_CONN_DATA_SEND_ERR;/* Error sending data */
                         esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
                         esp.cb.cb.conn_data_send_err.sent = esp.msg->msg.conn_send.sent_all;
@@ -556,9 +575,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     }
                 }
             } else if (is_error) {
-                if (esp.msg->msg.conn_send.fau) {   /* Do we have to free memory after use? */
-                    esp_mem_free((void *)esp.msg->msg.conn_send.data);  /* Free the memory */
-                }
+                CONN_SEND_DATA_FREE(esp.msg);   /* Free message data */
             }
         } else if (IS_CURR_CMD(ESP_CMD_UART)) { /* In case of UART command */
             if (is_ok) {                        /* We have valid OK result */
@@ -665,13 +682,7 @@ espi_parse_received(esp_recv_t* rcv) {
          * but new callback is not set by user
          */
         if (esp.msg->msg.conn_start.cb_func != NULL) {  /* Connection must be closed */
-            esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
-            esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection error */
-            esp.cb.cb.conn_error.host = esp.msg->msg.conn_start.host;
-            esp.cb.cb.conn_error.port = esp.msg->msg.conn_start.port;
-            esp.cb.cb.conn_error.type = esp.msg->msg.conn_start.type;
-            esp.cb.cb.conn_error.arg = esp.msg->msg.conn_start.arg;
-            espi_send_conn_cb(conn, esp.msg->msg.conn_start.cb_func);   /* Send event */
+            espi_send_conn_error_cb(esp.msg);
         }
     }
     
@@ -1420,11 +1431,18 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
-        
+#if ESP_CFG_MODE_STATION        
         case ESP_CMD_TCPIP_CIPSTART: {          /* Start a new connection */
             int8_t i = 0;
             esp_conn_t* c = NULL;
             char str[6];
+            
+            /* Do we have wifi connection? */
+            if (esp_sta_has_ip() != espOK) {
+                espi_send_conn_error_cb(msg);
+                return espERR;
+            }
+            
             msg->msg.conn_start.num = 0;        /* Reset to make sure default value is set */
             for (i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
                 if (!esp.conns[i].status.f.active || !(esp.active_conns & (1 << i))) {
@@ -1460,6 +1478,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\r\n");
             break;
         }
+#endif /* ESP_CFG_MODE_STATION */
         case ESP_CMD_TCPIP_CIPCLOSE: {          /* Close the connection */
             if (msg->msg.conn_close.conn != NULL &&
                 /* Is connection already closed or command for this connection is not valid anymore? */
