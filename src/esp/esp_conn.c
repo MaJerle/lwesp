@@ -161,7 +161,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, uint16_
     ESP_MSG_VAR_REF(msg).msg.conn_start.cb_func = cb_func;
     ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 30000);   /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);   /* Send message to producer queue */
 }
 
 /**
