@@ -23,6 +23,14 @@
  *      - \ref ESP_APP_MQTT_CLIENT for MQTT connection
  *
  *
+ * \section         sect_requirements Requirements
+ *
+ * In order to start with this library, you must complete these requirements:
+ *
+ *  - ESP8266 must include latest AT software
+ *      - Currently supported is AT 1.6.0 based on SDK 2.2.0 which is not yet released officially from EspressIf Systems
+ *      - Precompiled development AT version from Espressif is available on Github account of this library
+ *
  * \section         sect_resources Resources
  *
  *  - Read \ref page_appnote before you start development
