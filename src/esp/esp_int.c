@@ -63,8 +63,8 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
  * \brief           Free connection send data memory
  * \param[in]       m: Send data message type
  */
-#define CONN_SEND_DATA_FREE(m)    do {    \
-    if ((m)->msg.conn_send.fau) {         \
+#define CONN_SEND_DATA_FREE(m)    do {      \
+    if ((m)->msg.conn_send.fau) {           \
         esp_mem_free((void *)(m)->msg.conn_send.data);    \
     }                                       \
 } while (0)
@@ -556,7 +556,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 if (!strncmp("SEND OK", rcv->data, 7)) {    /* Data were sent successfully */
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_ok = espi_tcpip_process_data_sent(1);    /* Process as data were sent */
-                    if (is_ok) {
+                    if (is_ok && esp.msg->msg.conn_send.conn->status.f.active) {
                         CONN_SEND_DATA_FREE(esp.msg);   /* Free message data */
                         esp.cb.type = ESP_CB_CONN_DATA_SENT;    /* Data were fully sent */
                         esp.cb.cb.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
@@ -566,7 +566,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
-                    if (is_error) {
+                    if (is_error && esp.msg->msg.conn_send.conn->status.f.active) {
                         CONN_SEND_DATA_FREE(esp.msg);   /* Free message data */
                         esp.cb.type = ESP_CB_CONN_DATA_SEND_ERR;/* Error sending data */
                         esp.cb.cb.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
@@ -600,35 +600,52 @@ espi_parse_received(esp_recv_t* rcv) {
         if (espi_parse_link_conn(s) && esp.link_conn.num < ESP_CFG_MAX_CONNS) {
             uint8_t id;
             esp_conn_t* conn = &esp.conns[esp.link_conn.num];   /* Get connection pointer */
-            id = conn->val_id;
-            memset(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
-            conn->num = esp.link_conn.num;      /* Set connection number */
-            conn->status.f.active = !esp.link_conn.failed;  /* Check if connection active */
-            conn->val_id = ++id;                /* Set new validation ID */
+            if (esp.link_conn.failed && conn->status.f.active) {/* Connection failed and now closed? */
+                conn->status.f.active = 0;      /* Connection was just closed */
+                
+                esp.cb.type = ESP_CB_CONN_CLOSED;   /* Connection just active */
+                esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
+                esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
+                /** @todo: Check if we really tried to close connection which was just closed */
+                esp.cb.cb.conn_active_closed.forced = IS_CURR_CMD(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
+                espi_send_conn_cb(conn, NULL);  /* Send event */
             
-            conn->type = esp.link_conn.type;    /* Set connection type */
-            memcpy(conn->remote_ip, esp.link_conn.remote_ip, sizeof(conn->remote_ip));
-            conn->remote_port = esp.link_conn.remote_port;
-            conn->local_port = esp.link_conn.local_port;
-            conn->status.f.client = !esp.link_conn.is_server;
-            
-            if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)
-                && esp.link_conn.num == esp.msg->msg.conn_start.num
-                && conn->status.f.client) {     /* Did we start connection on our own and connection is client? */
-                conn->status.f.client = 1;      /* Go to client mode */
-                conn->cb_func = esp.msg->msg.conn_start.cb_func;    /* Set callback function */
-                conn->arg = esp.msg->msg.conn_start.arg;    /* Set argument for function */
-            } else {                            /* Server connection start */
-                conn->cb_func = esp.cb_server;  /* Set server default callback */
-                conn->arg = NULL;
-                conn->type = ESP_CONN_TYPE_TCP; /* Set connection type to TCP. @todo: Wait for ESP team to upgrade AT commands to set other type */
+                /* Check if write buffer is set */
+                if (conn->buff != NULL) {
+                    esp_mem_free(conn->buff);   /* Free the memory */
+                    conn->buff = NULL;
+                }
+            } else if (!esp.link_conn.failed && !conn->status.f.active) {
+                id = conn->val_id;
+                memset(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
+                conn->num = esp.link_conn.num;  /* Set connection number */
+                conn->status.f.active = !esp.link_conn.failed;  /* Check if connection active */
+                conn->val_id = ++id;            /* Set new validation ID */
+                
+                conn->type = esp.link_conn.type;/* Set connection type */
+                memcpy(conn->remote_ip, esp.link_conn.remote_ip, sizeof(conn->remote_ip));
+                conn->remote_port = esp.link_conn.remote_port;
+                conn->local_port = esp.link_conn.local_port;
+                conn->status.f.client = !esp.link_conn.is_server;
+                
+                if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)
+                    && esp.link_conn.num == esp.msg->msg.conn_start.num
+                    && conn->status.f.client) { /* Did we start connection on our own and connection is client? */
+                    conn->status.f.client = 1;  /* Go to client mode */
+                    conn->cb_func = esp.msg->msg.conn_start.cb_func;    /* Set callback function */
+                    conn->arg = esp.msg->msg.conn_start.arg;    /* Set argument for function */
+                } else {                        /* Server connection start */
+                    conn->cb_func = esp.cb_server;  /* Set server default callback */
+                    conn->arg = NULL;
+                    conn->type = ESP_CONN_TYPE_TCP; /* Set connection type to TCP. @todo: Wait for ESP team to upgrade AT commands to set other type */
+                }
+                
+                esp.cb.type = ESP_CB_CONN_ACTIVE;   /* Connection just active */
+                esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
+                esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
+                esp.cb.cb.conn_active_closed.forced = conn->status.f.client;    /* Set if action was forced = if client mode */
+                espi_send_conn_cb(conn, NULL);  /* Send event */
             }
-            
-            esp.cb.type = ESP_CB_CONN_ACTIVE;   /* Connection just active */
-            esp.cb.cb.conn_active_closed.conn = conn;   /* Set connection */
-            esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
-            esp.cb.cb.conn_active_closed.forced = conn->status.f.client;    /* Set if action was forced = if client mode */
-            espi_send_conn_cb(conn, NULL);      /* Send event */
         }
     /*
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
