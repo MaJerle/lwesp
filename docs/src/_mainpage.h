@@ -25,11 +25,11 @@
  *
  * \section         sect_requirements Requirements
  *
- * In order to start with this library, you must complete these requirements:
+ * In order to start with this library, these requirements must be resolved:
  *
  *  - ESP8266 must include latest AT software
- *      - Currently supported is AT 1.6.0 based on SDK 2.2.0 which is not yet released officially from EspressIf Systems
- *      - Precompiled development AT version from Espressif is available on Github account of this library
+ *      - Currently supported AT version is <b>1.6.0</b> based on SDK version <b>2.2.0</b> which is not yet released officially from EspressIf Systems
+ *      - Precompiled development AT version from Espressif is available on Github of this library
  *
  * \section         sect_resources Resources
  *
