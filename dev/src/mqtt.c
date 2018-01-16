@@ -62,7 +62,8 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
                  * We will subscrive to "mqtt_esp_example_topic" topic,
                  * and will also set the same name as subscribe argument for callback later
                  */
-                mqtt_client_subscribe(client, "mqtt_esp_example_topic", MQTT_QOS_AT_MOST_ONCE, "mqtt_esp_example_topic");
+                mqtt_client_subscribe(client, "mqtt_esp_example_topic", MQTT_QOS_EXACTLY_ONCE, "mqtt_esp_example_topic");
+                mqtt_client_subscribe(client, "stm32f7_topic0", MQTT_QOS_EXACTLY_ONCE, "mqtt_esp_example_topic");
             } else {
                 printf("MQTT server connection was not successful: %d\r\n", (int)status);
                 /* Maybe close connection at this point and try again? */

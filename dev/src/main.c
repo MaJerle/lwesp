@@ -485,7 +485,7 @@ led_cgi_handler(http_param_t* params, size_t params_len) {
             TM_DISCO_LedToggle(type == 0 ? LED_GREEN : LED_RED);
         }
     }
-    return "/index.html";
+    return "/index.shtml";
 }
 
 char *
