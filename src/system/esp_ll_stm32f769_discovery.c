@@ -348,7 +348,7 @@ usart_ll_thread(void const * arg) {
              */
         }
 #if !PROCESS_ON_EVENT
-        osYield();                              /* Delay thread to allow other threads to process */
+        osThreadYield();                        /* Delay thread to allow other threads to process */
 #endif /* !PROCESS_ON_EVENT */
     }
 }
