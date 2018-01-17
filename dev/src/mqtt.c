@@ -1,6 +1,7 @@
 #include "mqtt.h"
 #include "esp/esp.h"
 #include "apps/esp_mqtt_client.h"
+#include "esp/esp_timeout.h"
 
 mqtt_client_t* mqtt_client;
 
@@ -11,7 +12,7 @@ const mqtt_client_info_t
 mqtt_client_info = {
     .id = "test_client_id",                     /* The only required field for connection! */
     
-    // .keep_alive = 10,
+    .keep_alive = 10,
     // .user = "test_username",
     // .pass = "test_password",
 };
@@ -40,6 +41,27 @@ mqtt_thread(void const* arg) {
 }
 
 /**
+ * \brief           Timeout callback for MQTT events
+ * \param[in]       arg: User argument
+ */
+void
+mqtt_timeout_cb(void* arg) {
+    static uint32_t num = 10;
+    mqtt_client_t* client = arg;
+    espr_t res;
+    
+    if (mqtt_client_is_connected(client) == espOK) {
+        if ((res = mqtt_client_publish(client, "stm32f7_topic0", "TEST DATA", 9, MQTT_QOS_EXACTLY_ONCE, 0, (void *)num)) == espOK) {
+            printf("Publishing %d...\r\n", (int)num);
+            num++;
+        } else {
+            printf("Cannot publish...: %d, client->state: %d\r\n", (int)res, (int)client->conn_state);
+        }
+    }
+    esp_timeout_add(500, mqtt_timeout_cb, client);
+}
+
+/**
  * \brief           MQTT event callback function
  * \param[in]       client: MQTT client where event occurred
  * \param[in]       evt: Event type and data
@@ -56,17 +78,21 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
             mqtt_conn_status_t status = evt->evt.connect.status;
             
             if (status == MQTT_CONN_STATUS_ACCEPTED) {
+                printf("MQTT accepted!\r\n");
                 /*
                  * Once we are accepted on server, 
                  * it is time to subscribe to differen topics
                  * We will subscrive to "mqtt_esp_example_topic" topic,
                  * and will also set the same name as subscribe argument for callback later
                  */
-                mqtt_client_subscribe(client, "mqtt_esp_example_topic", MQTT_QOS_EXACTLY_ONCE, "mqtt_esp_example_topic");
                 mqtt_client_subscribe(client, "stm32f7_topic0", MQTT_QOS_EXACTLY_ONCE, "mqtt_esp_example_topic");
+                
+                esp_timeout_add(5000, mqtt_timeout_cb, client);
             } else {
                 printf("MQTT server connection was not successful: %d\r\n", (int)status);
                 /* Maybe close connection at this point and try again? */
+                
+                example_do_connect(client);
             }
             break;
         }
@@ -147,6 +173,7 @@ example_do_connect(mqtt_client_t* client) {
      * Start a simple connection to open source
      * MQTT server on mosquitto.org
      */
+    esp_timeout_remove(mqtt_timeout_cb);
     mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
 }
 
