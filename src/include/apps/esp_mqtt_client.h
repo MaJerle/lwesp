@@ -70,7 +70,7 @@ struct mqtt_client;
  * \brief           State of MQTT client
  */
 typedef enum {
-    MQTT_CONN_DISCONNECTED,                     /*!< Connection with server is not established */
+    MQTT_CONN_DISCONNECTED = 0x00,              /*!< Connection with server is not established */
     MQTT_CONN_CONNECTING,                       /*!< Client is connecting to server */
     MQTT_CONN_DISCONNECTING,                    /*!< Client connection is disconnecting from server */
     MQTT_CONNECTING,                            /*!< MQTT client is connecting... CONNECT command has been sent to server */
@@ -205,6 +205,7 @@ void            mqtt_client_delete(mqtt_client_t* client);
 
 espr_t          mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info);
 espr_t          mqtt_client_disconnect(mqtt_client_t* client);
+espr_t          mqtt_client_is_connected(mqtt_client_t* client);
 
 espr_t          mqtt_client_subscribe(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg);
 espr_t          mqtt_client_unsubscribe(mqtt_client_t* client, const char* topic, void* arg);
