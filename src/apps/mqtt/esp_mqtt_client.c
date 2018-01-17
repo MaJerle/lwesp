@@ -980,6 +980,7 @@ mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
 
 /**
  * \brief           Delete MQTT client structure
+ * \note            MQTT client must be disconnected first
  * \param[in]       client: MQTT client
  */
 void
@@ -1015,7 +1016,7 @@ mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port,
     ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
     
     esp_core_lock();                            /* Lock ESP core */
-    if (client->conn_state == MQTT_CONN_DISCONNECTED) {        
+    if (esp_sta_joined() == espOK && client->conn_state == MQTT_CONN_DISCONNECTED) {        
         client->info = info;                    /* Save client info parameters */
         client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
         
@@ -1148,5 +1149,22 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
         res = espERRMEM;
     }
     esp_core_unlock();                          /* Unlock ESP core */
+    return res;
+}
+
+/**
+ * \brief           Test if client is connected to server and accepted to MQTT protocol
+ * \note            Function will return error if TCP is connected but MQTT not accepted
+ * \param[in]       client: MQTT client
+ * \return          espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+mqtt_client_is_connected(mqtt_client_t* client) {
+    espr_t res;
+    
+    esp_core_lock();                            /* Lock ESP core */
+    res = client->conn_state == MQTT_CONNECTED ? espOK : espERR;
+    esp_core_unlock();                          /* Unlock ESP core */
+    
     return res;
 }
