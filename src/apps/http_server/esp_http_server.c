@@ -638,6 +638,7 @@ http_evt_cb(esp_cb_t* cb) {
                     } else {
                         esp_pbuf_cat(hs->p, p); /* Add new packet to the end of linked list of recieved data */
                     }
+                    esp_pbuf_ref(p);            /* Increase reference counter */
                 
                     /*
                      * Check if headers are fully received.
@@ -787,7 +788,6 @@ http_evt_cb(esp_cb_t* cb) {
                     } else {
                         /* Protocol violation at this point! */
                     }
-                    esp_pbuf_free(p);           /* Free packet buffer */
                 }
                 
                 /* Do the processing on response */
@@ -795,7 +795,6 @@ http_evt_cb(esp_cb_t* cb) {
                     send_response(hs, 1);       /* Send the response data */
                 }
             } else {
-                esp_pbuf_free(p);               /* Free packet buffer */
                 close = 1;
             }
             esp_conn_recved(conn, p);           /* Notify stack about received data */

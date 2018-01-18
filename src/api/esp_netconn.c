@@ -126,7 +126,7 @@ esp_cb(esp_cb_t* cb) {
                 if (nc != NULL) {
                     nc->conn = conn;            /* Set connection callback */
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
-#if ECP_CFG_NETCONN_ACCEPT_ON_CONNECT
+#if ESP_CFG_NETCONN_ACCEPT_ON_CONNECT
                     /*
                      * If user wants to write connection to accept mbox,
                      * immediately after connection active,
@@ -139,7 +139,7 @@ esp_cb(esp_cb_t* cb) {
                         !esp_sys_mbox_putnow(listen_api->mbox_accept, nc)) {
                         close = 1;
                     }
-#endif /* ECP_CFG_NETCONN_ACCEPT_ON_CONNECT */
+#endif /* ESP_CFG_NETCONN_ACCEPT_ON_CONNECT */
                 } else {
                     close = 1;
                 }
@@ -163,11 +163,10 @@ esp_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_DATA_RECV: {
             esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
-            uint8_t success = 0;
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
 
             esp_conn_recved(conn, pbuf);        /* Notify stack about received data */
-#if !ECP_CFG_NETCONN_ACCEPT_ON_CONNECT
+#if !ESP_CFG_NETCONN_ACCEPT_ON_CONNECT
             /*
              * Write data to listening connection accept mbox,
              * only when first data packet arrives
@@ -184,21 +183,17 @@ esp_cb(esp_cb_t* cb) {
                     close = 1;
                 }
             }
-#endif /* !ECP_CFG_NETCONN_ACCEPT_ON_CONNECT */
+#endif /* !ESP_CFG_NETCONN_ACCEPT_ON_CONNECT */
 
             nc->rcv_packets++;                  /* Increase number of received packets */
             if (!close) {
                 if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
                     !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
-                    esp_pbuf_free(pbuf);        /* Free pbuf */
                     ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Ignoring more data for receive!\r\n");
                     return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
                 } else {
-                    success = 1;
+                    esp_pbuf_ref(pbuf);         /* Increase reference counter */
                 }
-            }
-            if (!success) {
-                esp_pbuf_free(pbuf);            /* Free pbuf */
             }
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
             break;

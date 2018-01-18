@@ -115,6 +115,7 @@ conn_send(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size
  */
 static espr_t
 flush_buff(esp_conn_p conn) {
+    ESP_CORE_PROTECT();                         /* Protect core */
     if (conn != NULL && conn->buff != NULL) {   /* Do we have something ready? */
         /*
          * If there is nothing to write or if write was not successful,
@@ -125,6 +126,7 @@ flush_buff(esp_conn_p conn) {
         }
         conn->buff = NULL;
     }
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return espOK;
 }
 
@@ -172,17 +174,36 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, uint16_
  */
 espr_t
 esp_conn_close(esp_conn_p conn, uint32_t blocking) {
+    espr_t res = espOK;
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     
+    ESP_CORE_PROTECT();                         /* Protect core */
+    if (conn->status.f.in_closing || !conn->status.f.active) {  /* Check if already in closing mode or already closed */
+        res = espERR;
+    }
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    if (res != espOK) {
+        return res;
+    }
+    
+    /* 
+     * Proceed with close event at this point!
+     */
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPCLOSE;
     ESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
     ESP_MSG_VAR_REF(msg).msg.conn_close.val_id = conn_get_val_id(conn);
     
     flush_buff(conn);                           /* First flush buffer */
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+    res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000); /* Send message to producer queue */
+    if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
+        ESP_CORE_PROTECT();                     /* Protect core */
+        conn->status.f.in_closing = 1;          /* Connection is in closing mode but not yet closed */
+        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+    }
+    return res;
 }
 
 /**
