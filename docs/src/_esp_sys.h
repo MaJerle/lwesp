@@ -97,6 +97,8 @@
  * threading management functions must be implemented and used on demand from ESP stack.
  *
  *  - \ref esp_sys_thread_create is called when a new thread should be created
+ *  - \ref esp_sys_thread_terminate is called to terminate thread
+ *  - \ref esp_sys_thread_yield is yield current thread and allow processing other threads
  *
  * \include         _example_sys_thread.c
  *

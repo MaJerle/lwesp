@@ -56,10 +56,6 @@ conn_cb(esp_cb_t* cb) {
              * If you still want to hold it,
              * then either chain it using esp_pbuf_chain
              * or reference it using esp_pbuf_ref functions.
-             * Remember!!
-             * After you do this, you are responsible for
-             * freeing the memory otherwise memory leak will appear in system!
-             * Use esp_pbuf_free once you don't need data anymore
              */
             
             printf("Connection data received!\r\n");
@@ -72,6 +68,8 @@ conn_cb(esp_cb_t* cb) {
                 len = esp_pbuf_length(pbuf, 1); /* Get total length of buffer */
                 printf("Length of data: %d bytes\r\n", (int)len);
             }
+			
+			esp_conn_recved(conn, pbuf);        /* Notify stack about received data */ 
         }
         default:
             break;
