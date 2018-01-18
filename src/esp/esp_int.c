@@ -256,6 +256,25 @@ is_received_current_setting(const char* str) {
 }
 
 /**
+ * \brief           Process callback function to user with specific type
+ * \param[in]       type: Callback event type
+ * \return          Member of \ref espr_t enumeration
+ */
+espr_t
+espi_send_cb(esp_cb_type_t type) {
+    esp_cb_func_t* link;
+    esp.cb.type = type;                         /* Set callback type to process */
+    
+    /*
+     * Call callback function for all 
+     */
+    for (link = esp.cb_func; link != NULL; link = link->next) {
+        link->fn(&esp.cb);
+    }
+    return espOK;
+}
+
+/**
  * \brief           Process connection callback
  * \note            Before calling function, callback structure must be prepared
  * \param[in]       conn: Pointer to connection to use as callback
@@ -264,13 +283,32 @@ is_received_current_setting(const char* str) {
  */
 espr_t
 espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb) {
+    if (conn->status.f.in_closing) {            /* Do not continue if in closing mode */
+        return espOK;
+    }
+    
     if (cb != NULL) {                           /* Try with user connection */
         return cb(&esp.cb);                     /* Call temporary function */
     } else if (conn != NULL && conn->cb_func != NULL) { /* Connection custom callback? */
         return conn->cb_func(&esp.cb);          /* Process callback function */
-    } else {
-        return esp.cb_func(&esp.cb);            /* Process default callback function */
+    } else if (conn == NULL) {
+        return espOK;
     }
+    
+    /*
+     * On normal API operation,
+     * this part of code should never be entered!
+     */
+    
+    /*
+     * If connection doesn't have callback function
+     * automatically close the connection?
+     *
+     * Since function call is non-blocking,
+     * it will set active connection to closing mode
+     * and further callback events should not be executed anymore
+     */
+    return esp_conn_close(conn, 0);
 }
 
 /**
@@ -854,22 +892,33 @@ espi_process(const void* data, size_t data_len) {
                     esp.cb.cb.conn_data_recv.conn = esp.ipd.conn;
                     res = espi_send_conn_cb(esp.ipd.conn, NULL);    /* Send connection callback */
                     
+                    esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer at this point */
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Free packet buffer\r\n");
                     if (res == espOKIGNOREMORE) {   /* We should ignore more data */
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Ignoring more data from this IPD if available\r\n");
                         esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
                     }
                         
-                    if (esp.ipd.buff != NULL && esp.ipd.rem_len) {  /* Anything more to read? */
+                    /*
+                     * Create new data packet if case if:
+                     * 
+                     *  - Previous one was successful and more data to read and
+                     *  - Connection is not in closing state
+                     */
+                    if (esp.ipd.buff != NULL && esp.ipd.rem_len && !esp.ipd.conn->status.f.in_closing) {
                         size_t new_len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);   /* Calculate new buffer length */
+                        
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
                         esp.ipd.buff = esp_pbuf_new(new_len);   /* Allocate new packet buffer */
+
                         ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
                             esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d bytes\r\n", (int)new_len);
                         
                         if (esp.ipd.buff != NULL) {
                             esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
                         }
+                    } else {
+                        esp.ipd.buff = NULL;    /* Reset it */
                     }
                 }
                 if (!esp.ipd.rem_len) {         /* Check if we read everything */
@@ -936,7 +985,14 @@ espi_process(const void* data, size_t data_len) {
                                 "IPD: Data on connection %d with total size %d byte(s)\r\n", (int)esp.ipd.conn->num, esp.ipd.tot_len);
                             
                             len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
-                            if (esp.ipd.conn->status.f.active) {    /* If connection is not active, doesn't make sense to read anything */
+                            
+                            /*
+                             * Read received data in case of:
+                             * 
+                             *  - Connection is active and
+                             *  - Connection is not in closing mode
+                             */
+                            if (esp.ipd.conn->status.f.active && !esp.ipd.conn->status.f.in_closing) {
                                 esp.ipd.buff = esp_pbuf_new(len);   /* Allocate new packet buffer */
                                 if (esp.ipd.buff != NULL) {
                                     esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
@@ -1605,17 +1661,6 @@ espi_is_valid_conn_ptr(esp_conn_p conn) {
         }
     }
     return 0;
-}
-
-/**
- * \brief           Process callback function to user with specific type
- * \param[in]       type: Callback event type
- * \return          Member of \ref espr_t enumeration
- */
-espr_t
-espi_send_cb(esp_cb_type_t type) {
-    esp.cb.type = type;                         /* Set callback type to process */
-    return esp.cb_func(&esp.cb);                /* Call function and return status */
 }
 
 /**
