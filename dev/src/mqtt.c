@@ -20,18 +20,32 @@ mqtt_client_info = {
 static void mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt);
 static void example_do_connect(mqtt_client_t* client);
 
+static espr_t
+mqtt_esp_cb(esp_cb_t* cb) {
+    switch (cb->type) {
+        case ESP_CB_WIFI_GOT_IP: {
+            example_do_connect(mqtt_client);    /* Start connection after we have a connection to network client */
+            break;
+        }
+        default: break;
+    }
+    return espOK;
+}
+
 /**
  * \brief           MQTT client thread
  * \param[in]       arg: User argument
  */
 void
 mqtt_thread(void const* arg) {
+    esp_cb_register(mqtt_esp_cb);
+    
     /*
      * Create a new client with 256 bytes of RAW TX data
      * and 128 bytes of RAW incoming data
      */
     mqtt_client = mqtt_client_new(256, 128);
-    if (mqtt_client != NULL) {
+    if (esp_sta_joined() == espOK) {
         example_do_connect(mqtt_client);
     }
     
@@ -169,6 +183,10 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
 /** Make a connection to MQTT server in non-blocking mode */
 static void
 example_do_connect(mqtt_client_t* client) {
+    if (client == NULL) {
+        return;
+    }
+    
     /*
      * Start a simple connection to open source
      * MQTT server on mosquitto.org

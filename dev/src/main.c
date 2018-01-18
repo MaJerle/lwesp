@@ -137,6 +137,7 @@ ap_entry_t ap_list[] = {
     { "Slikop.", "slikop2012" },
     { "Danai Hotel", "danai2017!" },
     { "Amis3789606848", "majerle_internet_private" },
+    { "IDSnet", "pisig312d" },
 };
 
 const uint8_t requestData[] = ""
@@ -160,6 +161,9 @@ init_thread(void const* arg) {
     esp_init(esp_cb);                           /* Init ESP stack */
     
     time = osKernelSysTick();
+    
+    /* Start MQTT thread */
+    osThreadCreate(osThread(mqtt_thread), 0);
     
     /*
      * Scan for network access points
@@ -197,8 +201,6 @@ cont:
 
     esp_http_server_init(&http_init, 80);
     printf("Server mode!\r\n");
-    
-    osThreadCreate(osThread(mqtt_thread), 0);
     
     /*
      * Check if device has set IP address
@@ -513,6 +515,10 @@ esp_cb(esp_cb_t* cb) {
         case ESP_CB_STA_LIST_AP:
             printf("List AP finished!\r\n");                        
             break;
+        case ESP_CB_WIFI_GOT_IP: {
+            printf("WIFI GOT IP FROM MAIN!\r\n");
+            break;
+        }
         default:
             break;
     }
