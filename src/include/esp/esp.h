@@ -224,6 +224,9 @@ espr_t      esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking)
 espr_t      esp_core_lock(void);
 espr_t      esp_core_unlock(void);
 
+espr_t      esp_cb_register(esp_cb_fn cb_fn);
+espr_t      esp_cb_unregister(esp_cb_fn cb_fn);
+
 /**
  * \}
  */

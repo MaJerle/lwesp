@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #define ESP_INTERNAL
+#include "esp/esp_private.h"
 #include "esp/esp.h"
-#include "esp/esp_int.h"
 #include "esp/esp_mem.h"
 #include "esp/esp_threads.h"
 #include "system/esp_ll.h"
@@ -40,6 +40,9 @@
 #if ESP_CFG_OS != 1
 #error ESP_CFG_OS must be set to 1!
 #endif
+
+static espr_t   def_callback(esp_cb_t* cb);
+static esp_cb_func_t def_cb_link;
 
 esp_t esp;
 
@@ -52,10 +55,6 @@ static espr_t
 def_callback(esp_cb_t* cb) {
     return espOK;
 }
-
-/**
- * Internal API functions here
- */
 
 /**
  * \brief           Enable more data on +IPD command
@@ -82,8 +81,11 @@ espi_set_dinfo(uint8_t info, uint32_t blocking) {
 espr_t
 esp_init(esp_cb_fn cb_func) {
     esp.status.f.initialized = 0;               /* Clear possible init flag */
-    esp.cb_func = cb_func ? cb_func : def_callback; /* Set callback function */
-    esp.cb_server = esp.cb_func;                /* Set default server callback function */
+    
+    def_cb_link.fn = cb_func ? cb_func : def_callback;
+    esp.cb_func = &def_cb_link;                 /* Set callback function */
+    
+    esp.cb_server = NULL;                       /* Set default server callback function */
     
     esp_sys_init();                             /* Init low-level system */
     esp_ll_init(&esp.ll, ESP_CFG_AT_PORT_BAUDRATE); /* Init low-level communication */
@@ -209,7 +211,7 @@ esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb,
 espr_t
 esp_set_default_server_callback(esp_cb_fn cb_func) {
     ESP_CORE_PROTECT();                         /* Protect system */
-    esp.cb_server = cb_func ? cb_func : esp.cb_func;    /* Set default callback */
+    esp.cb_server = cb_func != NULL ? cb_func : esp.cb_func->fn;/* Set default callback */
     ESP_CORE_UNPROTECT();                       /* Unprotect system */
     return espOK;
 }
@@ -256,6 +258,72 @@ esp_core_lock(void) {
  */
 espr_t
 esp_core_unlock(void) {
+    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    return espOK;
+}
+
+/**
+ * \brief           Register callback function for global (non-connection based) events
+ * \param[in]       cb_fn: Callback function to call on specific event
+ * \returne         espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_cb_register(esp_cb_fn cb_fn) {
+    espr_t res = espOK;
+    esp_cb_func_t* func, *newFunc;
+    
+    ESP_ASSERT("cb_fn != NULL", cb_fn != NULL); /* Assert input parameters */
+    
+    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    
+    /* Check if function already exists on list */
+    for (func = esp.cb_func; func != NULL; func = func->next) {
+        if (func->fn == cb_fn) {
+            res = espERR;
+            break;
+        }
+    }
+    
+    if (res == espOK) {
+        newFunc = esp_mem_alloc(sizeof(*newFunc));  /* Get memory for new function */
+        if (newFunc != NULL) {
+            memset(newFunc, 0x00, sizeof(*newFunc));/* Reset memory */
+            newFunc->fn = cb_fn;                /* Set function pointer */
+            if (esp.cb_func == NULL) {
+                esp.cb_func = newFunc;          /* This should never happen! */
+            } else {
+                for (func = esp.cb_func; func->next != NULL; func = func->next) {}
+                func->next = newFunc;           /* Set new function as next */
+                res = espOK;
+            }
+            res = espOK;
+        } else {
+            res = espERRMEM;
+        }
+    }
+    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    return res;
+}
+
+/**
+ * \brief           Unregister callback function for global (non-connection based) events
+ * \note            Function must be first registered using \ref esp_cb_register
+ * \param[in]       cb_fn: Callback function to call on specific event
+ * \returne         espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_cb_unregister(esp_cb_fn cb_fn) {
+    esp_cb_func_t* func, *prev;
+    ESP_ASSERT("cb_fn != NULL", cb_fn != NULL); /* Assert input parameters */
+    
+    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    for (prev = esp.cb_func, func = esp.cb_func->next; func != NULL; prev = func, func = func->next) {
+        if (func->fn == cb_fn) {
+            prev->next = func->next;
+            esp_mem_free(func);
+            break;
+        }
+    }
     ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
     return espOK;
 }

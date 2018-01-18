@@ -164,6 +164,8 @@ typedef struct esp_conn_t {
             uint8_t active:1;                   /*!< Status whether connection is active */
             uint8_t client:1;                   /*!< Status whether connection is in client mode */
             uint8_t data_received:1;            /*!< Status whether first data were received on connection */
+            uint8_t in_closing:1;               /*!< Status if connection is in closing mode.
+                                                    When in closing mode, ignore any possible received data from function */
         } f;
     } status;                                   /*!< Connection status union with flag bits */
 } esp_conn_t;
@@ -364,6 +366,14 @@ typedef struct {
 } esp_link_conn_t;
 
 /**
+ * \brief           Callback function linked list prototype
+ */
+typedef struct esp_cb_func {
+    struct esp_cb_func* next;                   /*!< Next function in the list */
+    esp_cb_fn fn;                               /*!< Function pointer itself */
+} esp_cb_func_t;
+
+/**
  * \brief           ESP global structure
  */
 typedef struct {    
@@ -391,7 +401,7 @@ typedef struct {
     esp_ipd_t           ipd;                    /*!< Incoming data structure */
     esp_cb_t            cb;                     /*!< Callback processing structure */
     
-    esp_cb_fn           cb_func;                /*!< Default callback function */
+    esp_cb_func_t*      cb_func;                /*!< Callback function linked list */
     esp_cb_fn           cb_server;              /*!< Default callback function for server connections */
     
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
