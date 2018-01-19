@@ -90,7 +90,7 @@ typedef enum {
  * \brief           Access point data structure
  */
 typedef struct {
-    esp_ecn_t ecn;                              /*!< Ecryption mode */
+    esp_ecn_t ecn;                              /*!< Encryption mode */
     char ssid[21];                              /*!< Access point name */
     int16_t rssi;                               /*!< Received signal strength indicator */
     uint8_t mac[6];                             /*!< MAC physical address */

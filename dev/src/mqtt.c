@@ -156,13 +156,12 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
             const uint8_t* payload = evt->evt.publish_recv.payload;
             uint16_t payload_len = evt->evt.publish_recv.payload_len;
             
-            /* Check topic for publish command */
-            if (!memcmp("mqtt_esp_example_topic", topic, topic_len)) {
-                printf("MQTT publish received on topic: %.*s\r\n", topic_len, topic);
-            }
+            printf("Publish received on topic %.*s with message: %.*s\r\n", topic_len, topic, payload_len, (const char *)payload);
             
             ESP_UNUSED(payload);
             ESP_UNUSED(payload_len);
+            ESP_UNUSED(topic);
+            ESP_UNUSED(topic_len);
             break;
         }
         

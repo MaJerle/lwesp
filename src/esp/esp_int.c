@@ -586,6 +586,19 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.conns[i].status.f.active = !!(esp.active_conns & (1 << i));
                 }
             }
+        } else if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTART)) {
+            /*
+             * \todo: Request Espressif for numerical response instead of random messages
+             */
+            /*
+            if (!strncmp(rcv->data, "DNS Fail", 8)) {
+                
+            } else if (!strncmp(rcv->data, "ID ERROR", 8)) {
+                
+            } else if (!strncmp(rcv->data, "Link type ERROR", 15)) {
+                
+            }
+            */
         } else if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSEND)) {
             if (is_ok) {                        /* Check for OK and clear as we have to check for "> " statement after OK */
                 is_ok = 0;                      /* Do not reach on OK */

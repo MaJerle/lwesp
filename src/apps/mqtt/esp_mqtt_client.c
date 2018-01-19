@@ -762,7 +762,7 @@ mqtt_data_sent_cb(mqtt_client_t* client, size_t sent_len, uint8_t successful) {
     /*
      * Even if sent was in general not successful,
      * on larger packets it may happen (if they are fragmented)
-     * that part of packet was still sent ant we have to update this part
+     * that part of packet was still sent and we have to update this part
      */
     esp_buff_skip(&client->tx_buff, sent_len);  /* Skip buffer for actual skipped data */
     

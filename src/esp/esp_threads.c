@@ -86,15 +86,12 @@ esp_thread_producer(void* const arg) {
         
         /*
          * In case message is blocking,
-         * release semaphore that we finished with processing
+         * release semaphore and notify finished with processing
          * otherwise directly free memory of message structure
          */
         if (msg->is_blocking) {
-            esp_sys_sem_release(&msg->sem);     /* Release semaphore */
+            esp_sys_sem_release(&msg->sem);     /* Release semaphore only */
         } else {
-            /* TODO: Process callback what happened with result and then free message */
-            
-            
             ESP_MSG_VAR_FREE(msg);              /* Release message structure */
         }
         esp.msg = NULL;
@@ -118,7 +115,7 @@ esp_thread_process(void* const arg) {
     ESP_CORE_PROTECT();                         /* Protect system */
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
-        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 10);  /* Get message from queue */
+        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 1);  /* Get message from queue */
         ESP_CORE_PROTECT();                     /* Protect system */
         
         if (time == ESP_SYS_TIMEOUT || msg == NULL) {
