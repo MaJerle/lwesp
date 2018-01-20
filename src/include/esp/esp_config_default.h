@@ -39,7 +39,7 @@
  * \{
  *
  */
- 
+
 /**
  * \brief           Enables (1) or disables (0) operating system support for ESP library
  *
@@ -50,6 +50,15 @@
  */
 #ifndef ESP_CFG_OS
 #define ESP_CFG_OS                          1
+#endif
+
+/**
+ * \brief           Default system port implementation
+ *
+ *                  According to selected port, stack will automatically include apropriate file
+ */
+#ifndef ESP_CFG_SYS_PORT
+#define ESP_CFG_SYS_PORT                    ESP_SYS_PORT_CMSIS_OS
 #endif
 
 /**

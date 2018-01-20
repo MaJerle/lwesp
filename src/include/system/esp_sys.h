@@ -1,6 +1,6 @@
-/**	
- * \file            esp_sys_template.h
- * \brief           Template file for system functions
+/**
+ * \file            esp_sys.h
+ * \brief           Main system include file which decides later include file
  */
 
 /*
@@ -30,144 +30,30 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_SYSTEM_H
-#define __ESP_SYSTEM_H
+#ifndef __ESP_MAIN_SYS_H
+#define __ESP_MAIN_SYS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#include "stdint.h"
-#include "stdlib.h"
+/**
+ * \brief           List of available system ports
+ */
+#define ESP_SYS_PORT_CMSIS_OS               1   /*!< CMSIS-OS based port */
+#define ESP_SYS_PORT_WIN32                  2   /*<! WIN32 based port */
 
 #include "esp_config.h"
 
-/**
- * \addtogroup      ESP_PORT
- * \{
- */
- 
-/**
- * \defgroup        ESP_SYS System functions
- * \brief           System based function for OS management, timings, etc
- * \{
- */
-
-#if ESP_CFG_OS || __DOXYGEN__
-#include "cmsis_os.h"
-
-/**
- * \brief           ESP system mutex ID type
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-typedef osMutexId           esp_sys_mutex_t;
-
-/**
- * \brief           ESP system semaphore ID type
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-typedef osSemaphoreId       esp_sys_sem_t;
-
-/**
- * \brief           ESP system message queue ID type
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-typedef osMessageQId        esp_sys_mbox_t;
-
-/**
- * \brief           ESP system thread ID type
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-typedef osThreadId          esp_sys_thread_t;
-
-/**
- * \brief           ESP system thread priority type
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-typedef osPriority          esp_sys_thread_prio_t;
-
-/**
- * \brief           Value indicating message queue is not valid
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-#define ESP_SYS_MBOX_NULL           (osMessageQId)0
-
-/**
- * \brief           Value indicating semaphore is not valid
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-#define ESP_SYS_SEM_NULL            (osSemaphoreId)0
-
-/**
- * \brief           Value indicating mutex is not valid
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-#define ESP_SYS_MUTEX_NULL          (osMutexId)0
-
-/**
- * \brief           Value indicating timeout for OS timings
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-#define ESP_SYS_TIMEOUT             ((uint32_t)osWaitForever)
-
-/**
- * \brief           ESP stack threads priority parameter
- * \note            Usually normal priority is ok. If many threads are in the system and high traffic is introduced
- *                  This value might need to be set to higher value
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-#define ESP_SYS_THREAD_PRIO         (osPriorityNormal)
-
-/**
- * \brief           Stack size of system threads
- * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
- */
-#define ESP_SYS_THREAD_SS           (1024)
-#endif /* ESP_OS || __DOXYGEN__ */
-
-uint8_t     esp_sys_init(void);
-uint32_t    esp_sys_now(void);
-
-uint8_t     esp_sys_protect(void);
-uint8_t     esp_sys_unprotect(void);
-
-uint8_t     esp_sys_mutex_create(esp_sys_mutex_t* p);
-uint8_t     esp_sys_mutex_delete(esp_sys_mutex_t* p);
-uint8_t     esp_sys_mutex_lock(esp_sys_mutex_t* p);
-uint8_t     esp_sys_mutex_unlock(esp_sys_mutex_t* p);
-uint8_t     esp_sys_mutex_isvalid(esp_sys_mutex_t* p);
-uint8_t     esp_sys_mutex_invalid(esp_sys_mutex_t* p);
-
-uint8_t     esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt);
-uint8_t     esp_sys_sem_delete(esp_sys_sem_t* p);
-uint32_t    esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout);
-uint8_t     esp_sys_sem_release(esp_sys_sem_t* p);
-uint8_t     esp_sys_sem_isvalid(esp_sys_sem_t* p);
-uint8_t     esp_sys_sem_invalid(esp_sys_sem_t* p);
-
-uint8_t     esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size);
-uint8_t     esp_sys_mbox_delete(esp_sys_mbox_t* b);
-uint32_t    esp_sys_mbox_put(esp_sys_mbox_t* b, void* m);
-uint32_t    esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout);
-uint8_t     esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m);
-uint8_t     esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m);
-uint8_t     esp_sys_mbox_isvalid(esp_sys_mbox_t* b);
-uint8_t     esp_sys_mbox_invalid(esp_sys_mbox_t* b);
-
-uint8_t     esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void(*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio);
-uint8_t     esp_sys_thread_terminate(esp_sys_thread_t* t);
-uint8_t     esp_sys_thread_yield(void);
- 
-/**
- * \}
- */
- 
-/**
- * \}
- */
+/* Decide which port to include */
+#if ESP_CFG_SYS_PORT == ESP_SYS_PORT_CMSIS_OS
+#include "system/cmsis_os/esp_sys.h"
+#elif ESP_CFG_SYS_PORT == ESP_SYS_PORT_WIN32
+#include "system/win32/esp_sys.h"
+#endif
 
 #ifdef __cplusplus
-};
+}
 #endif /* __cplusplus */
 
-#endif /* __ESP_SYSTEM_H */
+#endif /* __ESP_MAIN_LL_H */

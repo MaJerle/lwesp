@@ -163,7 +163,7 @@ init_thread(void const* arg) {
     time = osKernelSysTick();
     
     /* Start MQTT thread */
-    osThreadCreate(osThread(mqtt_thread), 0);
+    //osThreadCreate(osThread(mqtt_thread), 0);
     
     /*
      * Scan for network access points
@@ -196,8 +196,8 @@ cont:
     /**
      * Determine if this nucleo is client or server
      */
-//    client_thread_id = osThreadCreate(osThread(client_thread), NULL);
-//    printf("Client mode!\r\n");
+    client_thread_id = osThreadCreate(osThread(client_thread), NULL);
+    printf("Client mode!\r\n");
 
     esp_http_server_init(&http_init, 80);
     printf("Server mode!\r\n");
@@ -385,7 +385,7 @@ server_thread(void const* arg) {
                  * new client is connected to server.
                  *
                  * From performance point of view,
-                 * this allows you zero overhead
+                 * this allows zero overhead
                  */
                 res = esp_netconn_accept(server, &client);
                 if (res == espOK) {
@@ -393,8 +393,8 @@ server_thread(void const* arg) {
                     
                     do {
                         /*
-                         * Since we accepted a client, we
-                         * are expecting that client will send to us some data
+                         * Client was accepted, we are now
+                         * expecting client will send to us some data
                          *
                          * Wait for data and block thread for that time
                          */

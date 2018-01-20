@@ -72,7 +72,7 @@ flush_mboxes(esp_netconn_t* nc) {
             if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
                 break;
             }
-            if (pbuf && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
+            if (pbuf != NULL && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
                 esp_pbuf_free(pbuf);
             }
         } while (1);
@@ -82,7 +82,7 @@ flush_mboxes(esp_netconn_t* nc) {
             if (!esp_sys_mbox_getnow(&nc->mbox_accept, (void *)&new_nc)) {
                 break;
             }
-            if (new_nc) {
+            if (new_nc != NULL) {
                 esp_netconn_close(new_nc);      /* Close netconn connection */
             }
         } while (1);
@@ -170,8 +170,11 @@ esp_cb(esp_cb_t* cb) {
             /*
              * Write data to listening connection accept mbox,
              * only when first data packet arrives
+             *
+             * Apply this only if connection is in server mode
              */
-            if (!nc->rcv_packets) {             /* Is this our first packet? */
+            if (!nc->rcv_packets && esp_conn_is_server(conn) &&
+                listen_api != NULL) {           /* Is this our first packet? */
                 if (esp_sys_mbox_isvalid(&listen_api->mbox_accept)) {
                     if (!esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
                         ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
