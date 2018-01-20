@@ -265,7 +265,7 @@ esp_core_unlock(void) {
 /**
  * \brief           Register callback function for global (non-connection based) events
  * \param[in]       cb_fn: Callback function to call on specific event
- * \returne         espOK on success, member of \ref espr_t otherwise
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 esp_cb_register(esp_cb_fn cb_fn) {
@@ -309,7 +309,7 @@ esp_cb_register(esp_cb_fn cb_fn) {
  * \brief           Unregister callback function for global (non-connection based) events
  * \note            Function must be first registered using \ref esp_cb_register
  * \param[in]       cb_fn: Callback function to call on specific event
- * \returne         espOK on success, member of \ref espr_t otherwise
+ * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 esp_cb_unregister(esp_cb_fn cb_fn) {
