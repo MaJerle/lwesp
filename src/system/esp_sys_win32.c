@@ -30,20 +30,15 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#define esp_INTERNAL
+#define ESP_INTERNAL
 #include "system/esp_sys.h"
 #include "string.h"
-
-#if defined(STM32F769_DISCOVERY)
-#include "stm32f7xx_hal.h"
-#else /* defined(STM32F769_DISCOVERY) */
-#include "stm32f4xx_hal.h"
-#endif /* !defined(STM32F769_DISCOVERY) */
+#include "stdlib.h"
 
 typedef struct {
-    osSemaphoreId sem_not_empty;                /*!< Semaphore indicates not empty */
-    osSemaphoreId sem_not_full;                 /*!< Semaphore indicates not full */
-    osSemaphoreId sem;                          /*!< Semaphore to lock access */
+    esp_sys_sem_t sem_not_empty;                /*!< Semaphore indicates not empty */
+	esp_sys_sem_t sem_not_full;                 /*!< Semaphore indicates not full */
+	esp_sys_sem_t sem;                          /*!< Semaphore to lock access */
     size_t in, out, size;
     void* entries[1];
 } win32_mbox_t;
@@ -74,7 +69,25 @@ mbox_is_empty(win32_mbox_t* m) {
     return m->in == m->out;
 }
 
-static osMutexId sys_mutex;                     /* Mutex ID for main protection */
+static LARGE_INTEGER freq, sys_start_time;
+
+/**
+ * \brief           Get current kernel time in units of milliseconds
+ */
+static uint32_t
+osKernelSysTick(void) {
+	LONGLONG ret;
+	LARGE_INTEGER now;
+
+	QueryPerformanceFrequency(&freq);
+	QueryPerformanceCounter(&sys_start_time);
+
+	QueryPerformanceCounter(&now);
+	ret = now.QuadPart - sys_start_time.QuadPart;
+	return (uint32_t)(((ret) * 1000) / freq.QuadPart);
+}
+
+static esp_sys_mutex_t sys_mutex;				/* Mutex ID for main protection */
 
 /**
  * \brief           Init system dependant parameters
@@ -83,6 +96,9 @@ static osMutexId sys_mutex;                     /* Mutex ID for main protection 
  */
 uint8_t
 esp_sys_init(void) {
+	QueryPerformanceFrequency(&freq);
+	QueryPerformanceCounter(&sys_start_time);
+
     esp_sys_mutex_create(&sys_mutex);           /* Create system mutex */
     return 1;
 }
@@ -93,7 +109,7 @@ esp_sys_init(void) {
  */
 uint32_t
 esp_sys_now(void) {
-    return HAL_GetTick();                       /* Get current tick in units of milliseconds */
+    return osKernelSysTick();                   /* Get current tick in units of milliseconds */
 }
 
 /**
@@ -129,9 +145,8 @@ esp_sys_unprotect(void) {
  */
 uint8_t
 esp_sys_mutex_create(esp_sys_mutex_t* p) {
-    osMutexDef(MUT);                            /* Define a mutex */
-    *p = osRecursiveMutexCreate(osMutex(MUT));  /* Create recursive mutex */
-    return !!*p;                                /* Return status */
+	*p = CreateMutex(NULL, FALSE, NULL);
+	return !!*p;
 }
 
 /**
@@ -142,7 +157,7 @@ esp_sys_mutex_create(esp_sys_mutex_t* p) {
  */
 uint8_t
 esp_sys_mutex_delete(esp_sys_mutex_t* p) {
-    return osMutexDelete(*p) == osOK;           /* Delete mutex */
+	return CloseHandle(*p);
 }
 
 /**
@@ -153,7 +168,12 @@ esp_sys_mutex_delete(esp_sys_mutex_t* p) {
  */
 uint8_t
 esp_sys_mutex_lock(esp_sys_mutex_t* p) {
-    return osRecursiveMutexWait(*p, osWaitForever) == osOK; /* Wait forever for mutex */
+	DWORD ret;
+	ret = WaitForSingleObject(*p, INFINITE);
+	if (ret != WAIT_OBJECT_0) {
+        return 0;
+	}
+	return 1;
 }
 
 /**
@@ -164,7 +184,7 @@ esp_sys_mutex_lock(esp_sys_mutex_t* p) {
  */
 uint8_t
 esp_sys_mutex_unlock(esp_sys_mutex_t* p) {
-    return osRecursiveMutexRelease(*p) == osOK; /* Release mutex */
+	return !!ReleaseMutex(*p);
 }
 
 /**
@@ -202,13 +222,10 @@ esp_sys_mutex_invalid(esp_sys_mutex_t* p) {
  */
 uint8_t
 esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
-    osSemaphoreDef(SEM);                        /* Define semaphore info */
-    *p = osSemaphoreCreate(osSemaphore(SEM), 1);/* Create semaphore with one token */
-    
-    if (*p && !cnt) {                           /* We have valid entry */
-        osSemaphoreWait(*p, 0);                 /* Lock semaphore immediatelly */
-    }
-    return !!*p;
+	HANDLE h;
+	h = CreateSemaphore(NULL, !!cnt, 1, NULL);
+	*p = h;
+	return !!*p;
 }
 
 /**
@@ -219,7 +236,7 @@ esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
  */
 uint8_t
 esp_sys_sem_delete(esp_sys_sem_t* p) {
-    return osSemaphoreDelete(*p) == osOK;       /* Delete semaphore */
+	return CloseHandle(*p);
 }
 
 /**
@@ -231,8 +248,20 @@ esp_sys_sem_delete(esp_sys_sem_t* p) {
  */
 uint32_t
 esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
+	DWORD ret;
     uint32_t tick = osKernelSysTick();          /* Get start tick time */
-    return (osSemaphoreWait(*p, !timeout ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;    /* Wait for semaphore with specific time */
+	
+	if (!timeout) {
+		ret = WaitForSingleObject(*p, INFINITE);
+		return 1;
+	} else {
+		ret = WaitForSingleObject(*p, timeout);
+		if (ret == WAIT_OBJECT_0) {
+			return 1;
+		} else {
+			return ESP_SYS_TIMEOUT;
+		}
+	}
 }
 
 /**
@@ -243,7 +272,7 @@ esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
  */
 uint8_t
 esp_sys_sem_release(esp_sys_sem_t* p) {
-    return osSemaphoreRelease(*p) == osOK;      /* Release semaphore */
+	return ReleaseSemaphore(*p, 1, NULL);
 }
 
 /**
@@ -282,7 +311,7 @@ esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
     
     *b = 0;
     
-    mbox = pvPortMalloc(sizeof(*mbox) + size * sizeof(void *));
+    mbox = malloc(sizeof(*mbox) + size * sizeof(void *));
     if (mbox != NULL) {
         memset(mbox, 0x00, sizeof(*mbox));
         mbox->size = size + 1;                  /* Set it to 1 more as cyclic buffer has only one less than size */
@@ -303,10 +332,10 @@ esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
 uint8_t
 esp_sys_mbox_delete(esp_sys_mbox_t* b) {
     win32_mbox_t* mbox = *b;
-    esp_sys_sem_delete(mbox->sem);
-    esp_sys_sem_delete(mbox->sem_not_full);
-    esp_sys_sem_delete(mbox->sem_not_empty);
-    vPortFree(mbox);
+    esp_sys_sem_delete(&mbox->sem);
+    esp_sys_sem_delete(&mbox->sem_not_full);
+    esp_sys_sem_delete(&mbox->sem_not_empty);
+    free(mbox);
     return 1;
 }
 
@@ -322,21 +351,26 @@ esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
     win32_mbox_t* mbox = *b;
     uint32_t time = osKernelSysTick();          /* Get start time */
   
-    esp_sys_sem_wait(mbox->sem, 0);             /* Wait for access */
+    esp_sys_sem_wait(&mbox->sem, 0);            /* Wait for access */
+    
+    /*
+     * Since function is blocking until ready to write something to queue,
+     * wait and release the semaphores to allow other threads
+     * to process the queue before we can write new value.
+     */
     while (mbox_is_full(mbox)) {
-        esp_sys_sem_release(mbox->sem);         /* Release semaphore */
-        esp_sys_sem_wait(mbox->sem_not_full, 0);/* Wait for semaphore indicating not full */
-        esp_sys_sem_wait(mbox->sem, 0);         /* Wait availability again */
+        esp_sys_sem_release(&mbox->sem);        /* Release semaphore */
+        esp_sys_sem_wait(&mbox->sem_not_full, 0);   /* Wait for semaphore indicating not full */
+        esp_sys_sem_wait(&mbox->sem, 0);        /* Wait availability again */
     }
     mbox->entries[mbox->in] = m;
     if (mbox->in == mbox->out) {                /* Was the previous state empty? */
-        /* Release it only if waiting for it */
-        esp_sys_sem_release(mbox->sem_not_empty);   /* Signal non-empty state */
+        esp_sys_sem_release(&mbox->sem_not_empty);  /* Signal non-empty state */
     }
     if (++mbox->in >= mbox->size) {
         mbox->in = 0;
     }
-    esp_sys_sem_release(mbox->sem);             /* Release access for other threads */
+    esp_sys_sem_release(&mbox->sem);            /* Release access for other threads */
     return osKernelSysTick() - time;
 }
 
@@ -354,21 +388,31 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t time = osKernelSysTick();          /* Get current time */
     uint32_t spent_time;
     
-    if ((spent_time = esp_sys_sem_wait(mbox->sem, timeout)) == ESP_SYS_TIMEOUT) {
+    /*
+     * Get exclusive access to message queue
+     */
+    if ((spent_time = esp_sys_sem_wait(&mbox->sem, timeout)) == ESP_SYS_TIMEOUT) {
         return spent_time;
     }
     
+    /*
+     * Make sure we have something to read from queue.
+     */
     while (mbox_is_empty(mbox)) {
-        esp_sys_sem_release(mbox->sem);
+        esp_sys_sem_release(&mbox->sem);        /* Release semaphore and allow other threads to write something */
+        /*
+         * Timeout = 0 means unlimited time
+         * Wait either unlimited time or for specific timeout
+         */
         if (!timeout) {
-            esp_sys_sem_wait(mbox->sem_not_empty, 0);
+            esp_sys_sem_wait(&mbox->sem_not_empty, 0);
         } else {
-            spent_time = esp_sys_sem_wait(mbox->sem_not_empty, timeout);
+            spent_time = esp_sys_sem_wait(&mbox->sem_not_empty, timeout);
             if (spent_time == ESP_SYS_TIMEOUT) {
                 return spent_time;
             }
         }
-        spent_time = esp_sys_sem_wait(mbox->sem, timeout);
+        spent_time = esp_sys_sem_wait(&mbox->sem, timeout); /* Wait again for exclusive access */
     }
     
     /*
@@ -381,8 +425,8 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     }
     
     /* Release it only if waiting for it */
-    esp_sys_sem_release(mbox->sem_not_full);
-    esp_sys_sem_release(mbox->sem);
+    esp_sys_sem_release(&mbox->sem_not_full);   /* Release semaphore as it is not full */
+    esp_sys_sem_release(&mbox->sem);            /* Release exclusive access to mbox */
     
     return osKernelSysTick() - time;
 }
@@ -397,20 +441,21 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
 uint8_t
 esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
     win32_mbox_t* mbox = *b;
-    esp_sys_sem_wait(mbox->sem, 0);
+
+    esp_sys_sem_wait(&mbox->sem, 0);
     if (mbox_is_full(mbox)) {
-        esp_sys_sem_release(mbox->sem);
+        esp_sys_sem_release(&mbox->sem);
         return 0;
     }
     mbox->entries[mbox->in] = m;
     if (mbox->in == mbox->out) {
-        esp_sys_sem_release(mbox->sem_not_empty);
+        esp_sys_sem_release(&mbox->sem_not_empty);
     }
     mbox->in++;
     if (mbox->in >= mbox->size) {
         mbox->in = 0;
     }
-    esp_sys_sem_release(mbox->sem);
+    esp_sys_sem_release(&mbox->sem);
     return 1;
 }
 
@@ -425,9 +470,9 @@ uint8_t
 esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     win32_mbox_t* mbox = *b;
     
-    esp_sys_sem_wait(mbox->sem, 0);
+    esp_sys_sem_wait(&mbox->sem, 0);            /* Wait exclusive access */
     if (mbox->in == mbox->out) {
-        esp_sys_sem_release(mbox->sem);
+        esp_sys_sem_release(mbox->sem);         /* Release access */
         return 0;
     }
     
@@ -436,10 +481,8 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     if (mbox->out >= mbox->size) {
         mbox->out = 0;
     }
-    if (mbox->in == mbox->out) {
-        esp_sys_sem_release(mbox->sem_not_full);
-    }
-    esp_sys_sem_release(mbox->sem);
+    esp_sys_sem_release(mbox->sem_not_full);    /* Queue not full anymore */
+    esp_sys_sem_release(mbox->sem);             /* Release semaphore */
     return 1;
 }
 
@@ -479,9 +522,11 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  */
 uint8_t
 esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void (*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
-    const osThreadDef_t thread_def = {(char *)name, (os_pthread)thread_func, (osPriority)prio, 0, stack_size};  /* Create thread description */
-    *t = osThreadCreate(&thread_def, arg);      /* Create thread */
-    return !!*t;
+	DWORD id;
+	HANDLE h;
+	h = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_func, arg, 0, &id);
+	*t = id;
+	return h != NULL;
 }
 
 /**
@@ -492,8 +537,8 @@ esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void (*thread_func)
  */
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
-    osThreadTerminate(*t);                      /* Terminate thread */
-    return 1;
+    /* Not implemented */
+	return 1;
 }
 
 /**
@@ -503,6 +548,6 @@ esp_sys_thread_terminate(esp_sys_thread_t* t) {
  */
 uint8_t
 esp_sys_thread_yield(void) {
-    osThreadYield();                            /* Yield current thread */
-    return 1;
+    /* Not implemented */
+	return 1;
 }
