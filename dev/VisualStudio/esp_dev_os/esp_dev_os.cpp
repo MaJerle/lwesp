@@ -5,6 +5,7 @@
 #include "windows.h"
 #include "esp/esp.h"
 #include "apps/esp_http_server.h"
+#include "mqtt.h"
 
 static void main_thread(void* arg);
 DWORD main_thread_id;
@@ -44,10 +45,12 @@ ap_entry_t ap_list[] = {
  */
 int
 main() {
+    /* Create start main thread */
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)main_thread, NULL, 0, &main_thread_id);
 
+    /* Do nothing anymore at this point */
 	while (1) {
-
+        esp_delay(1000);
 	}
 }
 
@@ -59,16 +62,21 @@ main_thread(void* arg) {
 	size_t i, j;
 	espr_t eres;
 
-    /**
+    /*
      * Init ESP library
      */
     esp_init(esp_cb);
 
+    /*
+     * Create new thread for MQTT client
+     */
+    CreateThread(0, 0, (LPTHREAD_START_ROUTINE)mqtt_thread, NULL, 0, NULL);
+
 	/*
-	* Scan for network access points
-	* In case we have access point,
-	* try to connect to known AP
-	*/
+	 * Scan for network access points
+	 * In case we have access point,
+	 * try to connect to known AP
+	 */
 	do {
 		if (esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
 			for (i = 0; i < apf; i++) {
@@ -116,4 +124,3 @@ esp_cb(esp_cb_t* cb) {
     }
 	return espOK;
 }
-

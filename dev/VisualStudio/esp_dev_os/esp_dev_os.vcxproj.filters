@@ -116,5 +116,8 @@
     <ClCompile Include="..\..\..\src\system\esp_ll_win32.c">
       <Filter>Source Files\ESP LL</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\mqtt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

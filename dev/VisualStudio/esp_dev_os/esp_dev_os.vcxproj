@@ -166,6 +166,7 @@
     <ClCompile Include="..\..\..\src\esp\esp_unicode.c" />
     <ClCompile Include="..\..\..\src\system\esp_ll_win32.c" />
     <ClCompile Include="..\..\..\src\system\esp_sys_win32.c" />
+    <ClCompile Include="..\..\src\mqtt.c" />
     <ClCompile Include="esp_dev_os.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
