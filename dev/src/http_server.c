@@ -42,7 +42,15 @@ http_init = {
  */
 espr_t
 http_server_start(void) {
-    return esp_http_server_init(&http_init, 80);
+    espr_t res;
+    printf("Starting HTTP server on port 80...\r\n");
+    res = esp_http_server_init(&http_init, 80);
+    if (res == espOK) {
+        printf("HTTP server ready!\r\n");
+    } else {
+        printf("Cannot start HTTP server\r\n");
+    }
+    return res;
 }
 
 #if HTTP_SUPPORT_POST
