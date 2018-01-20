@@ -87,7 +87,7 @@ extern "C" {
 #warning "ESP_CFG_DBG_OUT is not enabled but debugging is enabled"
 #endif
     
-#if 0 && (ESP_CFG_DBG && defined(ESP_CFG_DBG_OUT)) || __DOXYGEN__
+#if (ESP_CFG_DBG && defined(ESP_CFG_DBG_OUT)) || __DOXYGEN__
 /**
  * \brief           Print message to the debug "window" if enabled
  * \param[in]       c: Condition if debug of specific type is enabled
