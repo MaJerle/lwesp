@@ -137,7 +137,6 @@ ap_entry_t ap_list[] = {
     { "Slikop.", "slikop2012" },
     { "Danai Hotel", "danai2017!" },
     { "Amis3789606848", "majerle_internet_private" },
-    { "IDSnet", "pisig312d" },
 };
 
 const uint8_t requestData[] = ""
@@ -163,7 +162,7 @@ init_thread(void const* arg) {
     time = osKernelSysTick();
     
     /* Start MQTT thread */
-    //osThreadCreate(osThread(mqtt_thread), 0);
+    osThreadCreate(osThread(mqtt_thread), 0);
     
     /*
      * Scan for network access points

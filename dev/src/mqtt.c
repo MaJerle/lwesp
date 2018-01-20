@@ -50,7 +50,7 @@ mqtt_thread(void const* arg) {
     }
     
     while (1) {
-        osDelay(5000);
+        esp_delay(5000);
     }
 }
 
@@ -152,11 +152,9 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
          */
         case MQTT_EVT_PUBLISH_RECV: {
             const char* topic = (const char *)evt->evt.publish_recv.topic;
-            uint16_t topic_len = evt->evt.publish_recv.topic_len;
+            uint16_t topic_len = (uint16_t)evt->evt.publish_recv.topic_len;
             const uint8_t* payload = evt->evt.publish_recv.payload;
-            uint16_t payload_len = evt->evt.publish_recv.payload_len;
-            
-            printf("Publish received on topic %.*s with message: %.*s\r\n", topic_len, topic, payload_len, (const char *)payload);
+            uint16_t payload_len = (uint16_t)evt->evt.publish_recv.payload_len;
             
             ESP_UNUSED(payload);
             ESP_UNUSED(payload_len);
