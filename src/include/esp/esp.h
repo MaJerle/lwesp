@@ -227,6 +227,8 @@ espr_t      esp_core_unlock(void);
 espr_t      esp_cb_register(esp_cb_fn cb_fn);
 espr_t      esp_cb_unregister(esp_cb_fn cb_fn);
 
+void        esp_delay(uint32_t ms);
+
 /**
  * \}
  */

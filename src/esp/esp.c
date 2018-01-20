@@ -328,3 +328,17 @@ esp_cb_unregister(esp_cb_fn cb_fn) {
     return espOK;
 }
 
+/**
+ * \brief           Delay for amount of milliseconds
+ * \param[in]       ms: Milliseconds to delay
+ */
+void
+esp_delay(uint32_t ms) {
+    esp_sys_sem_t sem;
+    if (ms != 0) {
+        esp_sys_sem_create(&sem, 0);            /* Create semaphore in locked state */
+        esp_sys_sem_wait(&sem, ms);             /* Wait for semaphore, timeout should occur */
+        esp_sys_sem_release(&sem);              /* Release semaphore */
+        esp_sys_sem_delete(&sem);               /* Delete semaphore */
+    }
+}
