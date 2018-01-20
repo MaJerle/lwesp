@@ -54,7 +54,7 @@
 
 #define ESP_CFG_AT_ECHO                     1
 
-#define ESP_CFG_MAX_CONNS                   20
+#define ESP_CFG_MAX_CONNS                   5
 
 #define ESP_CFG_SNTP                        1
 #define ESP_CFG_HOSTNAME                    1

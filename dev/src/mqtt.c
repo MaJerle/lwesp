@@ -50,7 +50,7 @@ mqtt_thread(void const* arg) {
     }
     
     while (1) {
-        esp_delay(5000);
+        esp_delay(1000);
     }
 }
 

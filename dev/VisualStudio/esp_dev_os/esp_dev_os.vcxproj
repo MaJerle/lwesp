@@ -166,7 +166,11 @@
     <ClCompile Include="..\..\..\src\esp\esp_unicode.c" />
     <ClCompile Include="..\..\..\src\system\esp_ll_win32.c" />
     <ClCompile Include="..\..\..\src\system\esp_sys_win32.c" />
+    <ClCompile Include="..\..\src\http_server.c" />
     <ClCompile Include="..\..\src\mqtt.c" />
+    <ClCompile Include="..\..\src\netconn_client.c" />
+    <ClCompile Include="..\..\src\netconn_server.c" />
+    <ClCompile Include="..\..\src\station_manager.c" />
     <ClCompile Include="esp_dev_os.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

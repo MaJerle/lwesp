@@ -5,40 +5,17 @@
 #include "windows.h"
 #include "esp/esp.h"
 #include "apps/esp_http_server.h"
+
 #include "mqtt.h"
+#include "http_server.h"
+#include "station_manager.h"
+#include "netconn_client.h"
+#include "netconn_server.h"
 
 static void main_thread(void* arg);
 DWORD main_thread_id;
 
 static espr_t esp_cb(esp_cb_t* cb);
-
-esp_ap_t aps[100];
-size_t apf;
-
-const http_init_t
-http_init = {0};
-
-typedef struct {
-    const char* ssid;
-    const char* pass;
-} ap_entry_t;
-
-/**
-* List of preferred access points for ESP device
-* SSID and password
-* In case ESP finds some of these SSIDs on startup,
-* it will use the match by match to get connection
-*/
-ap_entry_t ap_list[] = {
-    { "Majerle WiFi", "majerle_internet" },
-    { "Tilen\xE2\x80\x99s iPhone", "ni dostopa" },
-    { "Hoteldeshorlogers", "roomclient16" },
-    { "scandic_easy", "" },
-    { "HOTEL-VEGA", "hotelvega" },
-    { "Slikop.", "slikop2012" },
-    { "Danai Hotel", "danai2017!" },
-    { "Amis3789606848", "majerle_internet_private" },
-};
 
 /**
  * \brief           Program entry point
@@ -59,55 +36,46 @@ main() {
  */
 static void
 main_thread(void* arg) {
-	size_t i, j;
-	espr_t eres;
-
     /*
      * Init ESP library
      */
     esp_init(esp_cb);
+    
+    /*
+     * Start MQTT thread
+     */
+    //esp_sys_thread_create(NULL, "MQTT", (esp_sys_thread_fn)mqtt_thread, NULL, 512, ESP_SYS_THREAD_PRIO);
 
     /*
-     * Create new thread for MQTT client
+     * Try to connect to preferred access point
+     *
+     * Follow function implementation for more info
+     * on how to setup preferred access points for fast connection
      */
-    CreateThread(0, 0, (LPTHREAD_START_ROUTINE)mqtt_thread, NULL, 0, NULL);
+    connect_to_preferred_access_point(1);
 
-	/*
-	 * Scan for network access points
-	 * In case we have access point,
-	 * try to connect to known AP
-	 */
-	do {
-		if (esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
-			for (i = 0; i < apf; i++) {
-				printf("AP found: %s\r\n", aps[i].ssid);
-			}
-			for (j = 0; j < sizeof(ap_list) / sizeof(ap_list[0]); j++) {
-				for (i = 0; i < apf; i++) {
-					if (!strcmp(aps[i].ssid, ap_list[j].ssid)) {
-						printf("Trying to connect to \"%s\" network\r\n", ap_list[j].ssid);
-						if ((eres = esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 0, 1)) == espOK) {
-							goto cont;
-						}
-						else {
-							printf("Connection error: %d\r\n", (int)eres);
-						}
-					}
-				}
-			}
-		}
-		else {
-			printf("No WIFI to connect!\r\n");
-		}
-	} while (1);
-cont:
+    /*
+     * Start server on port 80
+     */
+    http_server_start();
+    printf("Server mode!\r\n");
 
-    /* Start HTTP server */
-	esp_http_server_init(&http_init, 80);
+    /*
+     * Check if device has set IP address
+     *
+     * This should always pass
+     */
+    if (esp_sta_has_ip() == espOK) {
+        uint8_t ip[4];
+        esp_sta_copy_ip(ip, NULL, NULL);
+        printf("Connected to WIFI!\r\n");
+        printf("Device IP: %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
+    }
 
-	while (1) {
-		esp_delay(1000);
-	}
+    /*
+     * Terminate thread
+     */
+    esp_sys_thread_terminate(NULL);
 }
 
 /**
@@ -119,8 +87,9 @@ static espr_t
 esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
         case ESP_CB_INIT_FINISH: {
-            esp_set_at_baudrate(921600, 0);
+
         }
+        default: break;
     }
 	return espOK;
 }

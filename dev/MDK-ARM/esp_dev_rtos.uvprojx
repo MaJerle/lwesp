@@ -603,6 +603,26 @@
               <FileType>1</FileType>
               <FilePath>..\src\stm32fxxx_it.c</FilePath>
             </File>
+            <File>
+              <FileName>netconn_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\netconn_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\netconn_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>station_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\station_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>http_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\http_server.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1508,6 +1528,26 @@
               <FileType>1</FileType>
               <FilePath>..\src\stm32fxxx_it.c</FilePath>
             </File>
+            <File>
+              <FileName>netconn_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\netconn_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\netconn_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>station_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\station_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>http_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\http_server.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2344,6 +2384,26 @@
               <FileName>stm32fxxx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\stm32fxxx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\netconn_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\netconn_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>station_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\station_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>http_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\http_server.c</FilePath>
             </File>
           </Files>
         </Group>
