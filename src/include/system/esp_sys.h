@@ -37,13 +37,27 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "esp_config.h"
+    
+/**
+ * \addtogroup      ESP_SYS
+ * \{
+ */
+ 
+/**
+ * \brief           Thread function prototype
+ */
+typedef void (*esp_sys_thread_fn)(void *);
+
 /**
  * \brief           List of available system ports
  */
 #define ESP_SYS_PORT_CMSIS_OS               1   /*!< CMSIS-OS based port */
 #define ESP_SYS_PORT_WIN32                  2   /*<! WIN32 based port */
 
-#include "esp_config.h"
+/**
+ * \}
+ */
 
 /* Decide which port to include */
 #if ESP_CFG_SYS_PORT == ESP_SYS_PORT_CMSIS_OS

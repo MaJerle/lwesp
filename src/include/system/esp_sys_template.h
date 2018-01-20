@@ -154,7 +154,7 @@ uint8_t     esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m);
 uint8_t     esp_sys_mbox_isvalid(esp_sys_mbox_t* b);
 uint8_t     esp_sys_mbox_invalid(esp_sys_mbox_t* b);
 
-uint8_t     esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void(*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio);
+uint8_t     esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio);
 uint8_t     esp_sys_thread_terminate(esp_sys_thread_t* t);
 uint8_t     esp_sys_thread_yield(void);
  

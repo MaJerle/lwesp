@@ -32,12 +32,7 @@
  */
 #define esp_INTERNAL
 #include "system/esp_sys.h"
-
-#if defined(STM32F769_DISCOVERY)
-#include "stm32f7xx_hal.h"
-#else /* defined(STM32F769_DISCOVERY) */
-#include "stm32f4xx_hal.h"
-#endif /* !defined(STM32F769_DISCOVERY) */
+#include "cmsis_os.h"
 
 static osMutexId sys_mutex;                     /* Mutex ID for main protection */
 
@@ -58,7 +53,7 @@ esp_sys_init(void) {
  */
 uint32_t
 esp_sys_now(void) {
-    return HAL_GetTick();                       /* Get current tick in units of milliseconds */
+    return osKernelSysTick();                   /* Get current tick in units of milliseconds */
 }
 
 /**
@@ -362,21 +357,25 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void (*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
+esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
+    esp_sys_thread_t id;
     const osThreadDef_t thread_def = {(char *)name, (os_pthread)thread_func, (osPriority)prio, 0, stack_size};  /* Create thread description */
-    *t = osThreadCreate(&thread_def, arg);      /* Create thread */
-    return !!*t;
+    id = osThreadCreate(&thread_def, arg);      /* Create thread */
+    if (t != NULL) {
+        *t = id;
+    }
+    return !!id;
 }
 
 /**
  * \brief           Terminate thread (shut it down and remove)
  * \note            This function is required with OS
- * \param[in]       t: Thread handle to terminate. If set to NULL, terminate current thread (thread from where function is called)
+ * \param[in]       t: Pointer to thread handle to terminate. If set to NULL, terminate current thread (thread from where function is called)
  * \return          1 on success, 0 otherwise
  */
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
-    osThreadTerminate(*t);                      /* Terminate thread */
+    osThreadTerminate(t != NULL ? *t : NULL);   /* Terminate thread */
     return 1;
 }
 

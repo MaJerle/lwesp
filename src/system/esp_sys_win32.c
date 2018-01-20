@@ -521,23 +521,34 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-esp_sys_thread_create(esp_sys_thread_t* t, const char* name, void (*thread_func)(void *), void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
+esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
 	DWORD id;
 	HANDLE h;
 	h = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_func, arg, 0, &id);
-	*t = id;
+	if (t != NULL) {
+        *t = id;
+    }
 	return h != NULL;
 }
 
 /**
  * \brief           Terminate thread (shut it down and remove)
+ *
+ *                  Implementation will not shutdown any thread, it will just make huge delay to leave resources
+ *
  * \note            This function is required with OS
  * \param[in]       t: Thread handle to terminate. If set to NULL, terminate current thread (thread from where function is called)
  * \return          1 on success, 0 otherwise
  */
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
-    /* Not implemented */
+    esp_sys_sem_t sem;
+    esp_sys_sem_create(&sem, 1);
+    while (1) {
+        esp_sys_sem_wait(&sem, 0);
+        esp_sys_sem_wait(&sem, 1000);
+        esp_sys_sem_release(&sem);
+    }
 	return 1;
 }
 
