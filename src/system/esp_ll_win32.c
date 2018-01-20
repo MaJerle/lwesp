@@ -38,7 +38,7 @@
 static uint8_t initialized = 0;
 
 DWORD thread_id;
-DWORD thread_handle;
+HANDLE thread_handle;
 static void uart_thread(void* param);
 HANDLE comPort;                                 /*!< COM port handle */
 uint8_t data_buffer[0x1000];                    /*!< Received data array */
@@ -111,7 +111,7 @@ configure_uart(uint32_t baudrate) {
  */
 static void
 uart_thread(void* param) {
-	LPDWORD bytes_read;
+	DWORD bytes_read;
     esp_sys_sem_t sem;
 	while (comPort == NULL);
 
@@ -123,14 +123,14 @@ uart_thread(void* param) {
          */
 		ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
 		if (bytes_read > 0) {
-			esp_input_process(data_buffer, bytes_read);
-			printf("%.*s", bytes_read, (const char *)data_buffer);
+			esp_input_process(data_buffer, (size_t)bytes_read);
+			printf("%.*s", (int)bytes_read, (const char *)data_buffer);
 		}
 
         /* Implement delay to allow other tasks processing */
         esp_sys_sem_wait(&sem, 0);
         esp_sys_sem_wait(&sem, 5);
-        esp_sys_sem_release(&sem, 0);
+        esp_sys_sem_release(&sem);
 	}
 }
 

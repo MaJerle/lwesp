@@ -45,17 +45,17 @@ typedef struct {
     char data[128];
     uint8_t len;
 } esp_recv_t;
-static esp_recv_t recv;
+static esp_recv_t recv_buff;
 #endif /* !__DOXYGEN__ */
 
-#define RECV_ADD(ch)        do { recv.data[recv.len++] = ch; recv.data[recv.len] = 0; } while (0)
-#define RECV_RESET()        recv.data[(recv.len = 0)] = 0;
-#define RECV_LEN()          recv.len
-#define RECV_IDX(index)     recv.data[index]
+#define RECV_ADD(ch)        do { recv_buff.data[recv_buff.len++] = ch; recv_buff.data[recv_buff.len] = 0; } while (0)
+#define RECV_RESET()        do { recv_buff.len = 0; recv_buff.data[0] = 0; } while (0)
+#define RECV_LEN()          recv_buff.len
+#define RECV_IDX(index)     recv_buff.data[index]
 
-#define ESP_AT_PORT_SEND_STR(str)       esp.ll.send_fn((const uint8_t *)(str), strlen(str))
-#define ESP_AT_PORT_SEND_CHR(str)       esp.ll.send_fn((const uint8_t *)(str), 1)
-#define ESP_AT_PORT_SEND(d, l)          esp.ll.send_fn((const uint8_t *)(d), l)
+#define ESP_AT_PORT_SEND_STR(str)       esp.ll.send_fn((const uint8_t *)(str), (uint16_t)strlen(str))
+#define ESP_AT_PORT_SEND_CHR(str)       esp.ll.send_fn((const uint8_t *)(str), (uint16_t)1)
+#define ESP_AT_PORT_SEND(d, l)          esp.ll.send_fn((const uint8_t *)(d), (uint16_t)l)
 
 static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready);
 
@@ -963,7 +963,7 @@ espi_process(const void* data, size_t data_len) {
                     switch (ch) {
                         case '\n':
                             RECV_ADD(ch);       /* Add character to input buffer */
-                            espi_parse_received(&recv); /* Parse received string */
+                            espi_parse_received(&recv_buff);	/* Parse received string */
                             RECV_RESET();       /* Reset received string */
                             break;
                         default:
@@ -990,8 +990,8 @@ espi_process(const void* data, size_t data_len) {
                      * Check if "+IPD" statement is in array and now we received colon,
                      * indicating end of +IPD and start of actual data
                      */
-                    if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv.data, "+IPD", 4)) {
-                        espi_parse_received(&recv); /* Parse received string */
+                    if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+IPD", 4)) {
+                        espi_parse_received(&recv_buff);	/* Parse received string */
                         if (esp.ipd.read) {     /* Are we going into read mode? */
                             size_t len;
                             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,

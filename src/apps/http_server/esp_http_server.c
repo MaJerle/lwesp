@@ -109,7 +109,7 @@ http_404_uris[] = {
  * \return          0 if equal, non-zero otherwise
  */
 int
-strcmpi(const char* a, const char* b) {
+strcmpa(const char* a, const char* b) {
     int d;
     for (;; a++, b++) {
         d = tolower(*a) - tolower(*b);
@@ -272,7 +272,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
             suffix = http_ssi_suffixes[i];      /* Get suffix */
             suffix_len = strlen(suffix);        /* Get length of suffix */
             
-            if (suffix_len < uri_len && !strcmpi(suffix, &uri[uri_len - suffix_len])) {
+            if (suffix_len < uri_len && !strcmpa(suffix, &uri[uri_len - suffix_len])) {
                 hs->is_ssi = 1;                 /* We have a SSI tag */
                 break;
             }

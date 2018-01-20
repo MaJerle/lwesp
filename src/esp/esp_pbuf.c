@@ -134,7 +134,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
  * \sa              esp_pbuf_chain
  */
 espr_t
-esp_pbuf_cat(esp_pbuf_p head, esp_pbuf_p tail) {
+esp_pbuf_cat(esp_pbuf_p head, const esp_pbuf_p tail) {
     ESP_ASSERT("head != NULL", head != NULL);   /* Assert input parameters */
     ESP_ASSERT("tail != NULL", tail != NULL);   /* Assert input parameters */
     
@@ -493,7 +493,7 @@ esp_pbuf_advance(esp_pbuf_p pbuf, int len) {
         return 0;
     }
     if (len > 0) {                              /* When we want to decrease size */
-        if (len <= pbuf->len) {                 /* Is there space to decrease? */
+        if ((size_t)len <= pbuf->len) {         /* Is there space to decrease? */
             process = 1;
         }
     } else {

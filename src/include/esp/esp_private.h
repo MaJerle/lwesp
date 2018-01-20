@@ -313,7 +313,7 @@ typedef struct esp_msg {
             uint16_t port;                      /*!< Server port number */
             uint16_t max_conn;                  /*!< Maximal number of connections available for server */
             uint16_t timeout;                   /*!< Connection timeout */
-            esp_cb_fn cb;                   /*!< Server default callback function */
+            esp_cb_fn cb;                       /*!< Server default callback function */
         } tcpip_server;
         struct {
             uint8_t info;                       /*!< New info status */

@@ -94,7 +94,7 @@
  *                  to optimize speed performance of sending data
  */
 #ifndef ESP_CFG_CONN_MAX_DATA_LEN
-#define ESP_CFG_CONN_MAX_DATA_LEN           2048
+#define ESP_CFG_CONN_MAX_DATA_LEN           (2048/4)
 #endif
 
 /**

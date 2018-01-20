@@ -813,7 +813,7 @@ mqtt_poll_cb(mqtt_client_t* client) {
     if (client->info->keep_alive &&             /* Keep alive must be enabled */
         /* Poll time is in units of ESP_CFG_CONN_POLL_INTERVAL milliseconds,
            while keep_alive is in units of seconds */
-        (client->poll_time * ESP_CFG_CONN_POLL_INTERVAL) >= (client->info->keep_alive * 1000)) {
+        (client->poll_time * ESP_CFG_CONN_POLL_INTERVAL) >= (uint32_t)(client->info->keep_alive * 1000)) {
             
         if (output_check_enough_memory(client, 0)) {/* Check if memory available in output buffer */
             write_fixed_header(client, MQTT_MSG_TYPE_PINGREQ, 0, 0, 0, 0);  /* Write PINGREQ command to output buffer */

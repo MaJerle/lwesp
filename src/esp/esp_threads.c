@@ -63,10 +63,10 @@ esp_thread_producer(void* const arg) {
          * Try to call function to process this message
          * Usually it should be function to transmit data to AT port
          */
-        esp.msg = msg;
+        e->msg = msg;
         if (msg->fn != NULL) {                  /* Check for callback processing function */
             ESP_CORE_UNPROTECT();               /* Release protection, think if this is necessary, probably shouldn't be here */
-            esp_sys_sem_wait(&e->sem_sync, 0000);   /* Lock semaphore, should be unlocked before! */
+            esp_sys_sem_wait(&e->sem_sync, 0000);	/* Lock semaphore, should be unlocked before! */
             ESP_CORE_PROTECT();                 /* Protect system again, think if this is necessary, probably shouldn't be here */
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
@@ -115,7 +115,7 @@ esp_thread_process(void* const arg) {
     ESP_CORE_PROTECT();                         /* Protect system */
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
-        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 1);  /* Get message from queue */
+        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 10);    /* Get message from queue */
         ESP_CORE_PROTECT();                     /* Protect system */
         
         if (time == ESP_SYS_TIMEOUT || msg == NULL) {

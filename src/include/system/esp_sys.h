@@ -47,9 +47,9 @@ extern "C" {
 
 /* Decide which port to include */
 #if ESP_CFG_SYS_PORT == ESP_SYS_PORT_CMSIS_OS
-#include "system/cmsis_os/esp_sys.h"
+#include "system/esp_sys_cmsis_os.h"
 #elif ESP_CFG_SYS_PORT == ESP_SYS_PORT_WIN32
-#include "system/win32/esp_sys.h"
+#include "system/esp_sys_win32.h"
 #endif
 
 #ifdef __cplusplus
