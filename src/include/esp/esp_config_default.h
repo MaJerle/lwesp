@@ -56,6 +56,8 @@
  * \brief           Default system port implementation
  *
  *                  According to selected port, stack will automatically include apropriate file
+ *
+ *                  Parameter can be a value of \ref ESP_SYS_PORTS choices
  */
 #ifndef ESP_CFG_SYS_PORT
 #define ESP_CFG_SYS_PORT                    ESP_SYS_PORT_CMSIS_OS

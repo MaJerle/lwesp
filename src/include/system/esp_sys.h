@@ -50,10 +50,19 @@ extern "C" {
 typedef void (*esp_sys_thread_fn)(void *);
 
 /**
- * \brief           List of available system ports
+ * \name            ESP_SYS_PORTS System ports
+ * \{
+ *
+ * List of already available system ports. 
+ * Configure \ref ESP_CFG_SYS_PORT with one of these values to use preconfigured ports
  */
-#define ESP_SYS_PORT_CMSIS_OS               1   /*!< CMSIS-OS based port */
-#define ESP_SYS_PORT_WIN32                  2   /*<! WIN32 based port */
+ 
+#define ESP_SYS_PORT_CMSIS_OS               1   /*!< CMSIS-OS based port for OS systems capable of ARM CMSIS standard */
+#define ESP_SYS_PORT_WIN32                  2   /*!< WIN32 based port to use ESP library with Windows applications */
+
+/**
+ * \}
+ */
 
 /**
  * \}
