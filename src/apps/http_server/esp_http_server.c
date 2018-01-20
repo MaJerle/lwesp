@@ -890,7 +890,7 @@ http_evt_cb(esp_cb_t* cb) {
 espr_t
 esp_http_server_init(const http_init_t* init, uint16_t port) {
     espr_t res;
-    if ((res = esp_set_server(port, ESP_CFG_MAX_CONNS / 2, 80, http_evt_cb, 1)) == espOK) {
+    if ((res = esp_set_server(port, ESP_CFG_MAX_CONNS, 80, http_evt_cb, 1)) == espOK) {
         hi = init;
     }
     return res;
