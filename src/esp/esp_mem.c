@@ -49,6 +49,9 @@ typedef struct MemBlock {
 #define MEM_ALIGN(x)                ESP_MEM_ALIGN(x)
 
 #define MEMBLOCK_METASIZE           MEM_ALIGN(sizeof(MemBlock_t))
+
+#define MEM_BLOCK_FROM_PTR(ptr)     ((MemBlock_t *)(((uint8_t *)(ptr)) - MEMBLOCK_METASIZE))
+#define MEM_BLOCK_USER_SIZE(ptr)    ((MEM_BLOCK_FROM_PTR(ptr)->Size & ~MemAllocBit) - MEMBLOCK_METASIZE)
     
 static MemBlock_t StartBlock;
 static MemBlock_t* EndBlock = 0;
@@ -293,7 +296,7 @@ mem_free(void* ptr) {
         return;
     }
 
-    block = (MemBlock_t *)(((uint8_t *)ptr) - MEMBLOCK_METASIZE);   /* Get block data pointer from input pointer */
+    block = MEM_BLOCK_FROM_PTR(ptr);                /* Get block data pointer from input pointer */
 
     /*
      * Check if block is even allocated by upper bit on size
@@ -385,8 +388,9 @@ void *
 esp_mem_alloc(uint32_t size) {
     void* ptr;
     ESP_CORE_PROTECT();
-    ptr = mem_alloc(size);                          /* Allocate memory and return pointer */
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "Mem allocation failed: %d bytes\r\n", (int)size);
+    ptr = mem_calloc(1, size);                      /* Allocate memory and return pointer */
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "MEM: Allocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr != NULL, "MEM: Allocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
     ESP_CORE_UNPROTECT();
     return ptr;
 }
@@ -405,7 +409,8 @@ void *
 esp_mem_realloc(void* ptr, size_t size) {
     ESP_CORE_PROTECT();
     ptr = mem_realloc(ptr, size);                   /* Reallocate and return pointer */
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "Mem reallocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "MEM: Reallocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr != NULL, "MEM: Reallocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
     ESP_CORE_UNPROTECT();
     return ptr;
 }
@@ -423,7 +428,8 @@ esp_mem_calloc(size_t num, size_t size) {
     void* ptr;
     ESP_CORE_PROTECT();
     ptr = mem_calloc(num, size);                   /* Allocate memory and clear it to 0. Then return pointer */
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "Callocation failed: %d bytes\r\n", (int)size);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL, "MEM: Callocation failed: %d bytes\r\n", (int)size * (int)num);
+    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr != NULL, "MEM: Callocation OK: %d bytes, addr: %p\r\n", (int)size * (int)num, ptr);
     ESP_CORE_UNPROTECT();
     return ptr;
 }
@@ -435,6 +441,8 @@ esp_mem_calloc(size_t num, size_t size) {
 void
 esp_mem_free(void* ptr) {
     ESP_CORE_PROTECT();
+    ESP_DEBUGF(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, "MEM: Free size: %d, address: %p\r\n",
+        (int)MEM_BLOCK_USER_SIZE(ptr), ptr);
     mem_free(ptr);                                  /* Free already allocated memory */
     ESP_CORE_UNPROTECT();
 }

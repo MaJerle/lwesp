@@ -68,6 +68,7 @@ void
 esp_buff_free(esp_buff_t* buff) {
     if (buff != NULL) {
         esp_mem_free(buff->buff);               /* Free memory */
+        buff->buff = NULL;
     }
 }
 

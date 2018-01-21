@@ -255,12 +255,15 @@ esp_netconn_new(esp_netconn_type_t type) {
 free_ret:
     if (esp_sys_mbox_isvalid(&a->mbox_accept)) {
         esp_sys_mbox_delete(&a->mbox_accept);
+        esp_sys_mbox_invalid(&a->mbox_accept);
     }
     if (esp_sys_mbox_isvalid(&a->mbox_receive)) {
         esp_sys_mbox_delete(&a->mbox_receive);
+        esp_sys_mbox_invalid(&a->mbox_receive);
     }
     if (a != NULL) {
         esp_mem_free(a);
+        a = NULL;
     }
     return NULL;
 }
@@ -276,11 +279,14 @@ esp_netconn_delete(esp_netconn_p nc) {
     
     if (esp_sys_mbox_isvalid(&nc->mbox_accept)) {
         esp_sys_mbox_delete(&nc->mbox_accept);
+        esp_sys_mbox_invalid(&nc->mbox_accept);
     }
     if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
         esp_sys_mbox_delete(&nc->mbox_receive);
+        esp_sys_mbox_invalid(&nc->mbox_receive);
     }
     esp_mem_free(nc);
+    nc = NULL;
     return espOK;
 }
 
@@ -477,7 +483,9 @@ esp_netconn_flush(esp_netconn_p nc) {
      * flush them out to network
      */
     if (nc->buff != NULL) {                     /* Check remaining data */
-        esp_conn_send(nc->conn, nc->buff, nc->buff_ptr, NULL, 1);   /* Send data */
+        if (nc->buff_ptr > 0) {                 /* Do we have data in current buffer? */
+            esp_conn_send(nc->conn, nc->buff, nc->buff_ptr, NULL, 1);   /* Send data */
+        }
         esp_mem_free(nc->buff);                 /* Free memory */
         nc->buff = NULL;                        /* Invalid memory */
     }

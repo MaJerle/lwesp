@@ -321,6 +321,7 @@ esp_cb_unregister(esp_cb_fn cb_fn) {
         if (func->fn == cb_fn) {
             prev->next = func->next;
             esp_mem_free(func);
+            func = NULL;
             break;
         }
     }
