@@ -523,7 +523,7 @@ send_response_no_ssi(http_state_t* hs) {
         read_resp_file(hs);                     /* Try to read response file */
     }
     
-    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER processing NO SSI\r\n");
+    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: processing NO SSI\r\n");
     
     /*
      * Do we have a file? 
@@ -609,12 +609,13 @@ http_evt_cb(esp_cb_t* cb) {
          * A new connection just became active
          */
         case ESP_CB_CONN_ACTIVE: {
+            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "SERVER: Conn %d active\r\n", (int)esp_conn_getnum(conn));
             hs = esp_mem_calloc(1, sizeof(*hs));
             if (hs != NULL) {
                 hs->conn = conn;                /* Save connection handle */
                 esp_conn_set_arg(conn, hs);     /* Set argument for connection */
             } else {
-                ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "SERVER cannot allocate memory for http state\r\n");
+                ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "SERVER: Cannot allocate memory for http state\r\n");
                 close = 1;                      /* No memory, close the connection */
             }
             break;
@@ -639,14 +640,14 @@ http_evt_cb(esp_cb_t* cb) {
                         esp_pbuf_cat(hs->p, p); /* Add new packet to the end of linked list of recieved data */
                     }
                     esp_pbuf_ref(p);            /* Increase reference counter */
-                
+
                     /*
                      * Check if headers are fully received.
                      * To know this, search for "\r\n\r\n" sequence in received data
                      */
                     if ((pos = esp_pbuf_strfind(hs->p, CRLF CRLF, 0)) != ESP_SIZET_MAX) {
                         uint8_t http_uri_parsed;
-                        ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER HTTP headers received!\r\n");
+                        ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: HTTP headers received!\r\n");
                         hs->headers_received = 1;   /* Flag received headers */
                         
                         /*
@@ -807,7 +808,7 @@ http_evt_cb(esp_cb_t* cb) {
         case ESP_CB_CONN_DATA_SENT: {
             if (hs != NULL) {
                 ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE,
-                    "Server data sent with %d bytes\r\n", (int)cb->cb.conn_data_sent.sent);
+                    "SERVER: data sent with %d bytes\r\n", (int)cb->cb.conn_data_sent.sent);
                 hs->sent_total += cb->cb.conn_data_sent.sent;   /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
@@ -820,7 +821,7 @@ http_evt_cb(esp_cb_t* cb) {
          * There was a problem with sending connection data
          */
         case ESP_CB_CONN_DATA_SEND_ERR: {
-            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_DANGER, "SERVER data send error. Closing connection..\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_DANGER, "SERVER: data send error. Closing connection..\r\n");
             close = 1;                          /* Close the connection */
             break;
         }
@@ -829,7 +830,7 @@ http_evt_cb(esp_cb_t* cb) {
          * Connection was just closed, either forced by user or by remote side
          */
         case ESP_CB_CONN_CLOSED: {
-            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER connection closed\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: connection closed\r\n");
             if (hs != NULL) {
 #if HTTP_SUPPORT_POST
                 if (hs->req_method == HTTP_METHOD_POST) {
