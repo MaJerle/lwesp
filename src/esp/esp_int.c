@@ -63,12 +63,12 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
  * \brief           Free connection send data memory
  * \param[in]       m: Send data message type
  */
-#define CONN_SEND_DATA_FREE(m)    do {      \
-    if ((m)->msg.conn_send.fau) {           \
-        (m)->msg.conn_send.fau = 0;         \
+#define CONN_SEND_DATA_FREE(m)    do {              \
+    if ((m) != NULL && (m)->msg.conn_send.fau) {    \
+        (m)->msg.conn_send.fau = 0;                 \
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
         esp_mem_free((void *)(m)->msg.conn_send.data);    \
-    }                                       \
+    }                                               \
 } while (0)
 
 /**
@@ -268,7 +268,7 @@ espi_send_cb(esp_cb_type_t type) {
     esp.cb.type = type;                         /* Set callback type to process */
     
     /*
-     * Call callback function for all 
+     * Call callback function for all registered functions
      */
     for (link = esp.cb_func; link != NULL; link = link->next) {
         link->fn(&esp.cb);
@@ -328,9 +328,12 @@ espi_tcpip_process_send_data(void) {
     ESP_AT_PORT_SEND_STR("AT+CIPSEND=");
     send_number(esp.msg->msg.conn_send.conn->num, 0);
     ESP_AT_PORT_SEND_STR(",");
-    esp.msg->msg.conn_send.sent = esp.msg->msg.conn_send.btw > ESP_CFG_CONN_MAX_DATA_LEN ? ESP_CFG_CONN_MAX_DATA_LEN : esp.msg->msg.conn_send.btw;
+    esp.msg->msg.conn_send.sent = ESP_MIN(esp.msg->msg.conn_send.btw, ESP_CFG_CONN_MAX_DATA_LEN);
     send_number(esp.msg->msg.conn_send.sent, 0);    /* Send length number */
     
+    /*
+     * On UDP connections, IP address and port may be selected
+     */
     if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {
         const uint8_t* ip = esp.msg->msg.conn_send.remote_ip;   /* Get remote IP */
         uint16_t port = esp.msg->msg.conn_send.remote_port;
