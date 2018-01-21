@@ -62,7 +62,7 @@ esp_sta_quit(uint32_t blocking) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_join(const char* name, const char* pass, const uint8_t* mac, uint8_t def, uint32_t blocking) {
+esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("name != NULL", name != NULL);   /* Assert input parameters */
@@ -79,15 +79,15 @@ esp_sta_join(const char* name, const char* pass, const uint8_t* mac, uint8_t def
 
 /**
  * \brief           Get station IP address
- * \param[out]      ip: Pointer to variable to save IP address. Memory of at least 4 bytes is required
- * \param[out]      gw: Pointer to output variable to save gateway address. Memory of at least 4 bytes is required
- * \param[out]      nm: Pointer to output variable to save netmask address. Memory of at least 4 bytes is required
+ * \param[out]      ip: Pointer to variable to save IP address
+ * \param[out]      gw: Pointer to output variable to save gateway address
+ * \param[out]      nm: Pointer to output variable to save netmask address
  * \param[in]       def: Status whether default (1) or current (1) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking) {
+esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -102,15 +102,15 @@ esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking) {
 
 /**
  * \brief           Set station IP address
- * \param[in]       ip: Pointer to IP address. Memory of at least 4 bytes is required
- * \param[in]       gw: Pointer to gateway address. Set to NULL to use default gateway. Memory of at least 4 bytes is required
- * \param[in]       nm: Pointer to netmask address. Set to NULL to use default netmask. Memory of at least 4 bytes is required
+ * \param[in]       ip: Pointer to IP address
+ * \param[in]       gw: Pointer to gateway address. Set to NULL to use default gateway
+ * \param[in]       nm: Pointer to netmask address. Set to NULL to use default netmask
  * \param[in]       def: Status whether default (1) or current (1) IP to set
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking) {
+esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
@@ -133,7 +133,7 @@ esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint3
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking) {
+esp_sta_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -152,7 +152,7 @@ esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking) {
+esp_sta_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("mac != NULL", mac != NULL);     /* Assert input parameters */
@@ -195,18 +195,18 @@ esp_sta_joined(void) {
  * \param[out]      nm: Pointer to output netmask variable. Set to NULL if not interested in netmask address
  */
 espr_t
-esp_sta_copy_ip(void* ip, void* gw, void* nm) {
+esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
     espr_t res = espERR;
     if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip() == espOK) {    /* Do we have a valid IP address? */
         ESP_CORE_PROTECT();                     /* Protect ESP core */
         if (ip != NULL) {
-            memcpy(ip, esp.sta.ip, 4);          /* Copy IP address */
+            memcpy(ip, &esp.sta.ip, sizeof(esp.sta.ip));    /* Copy IP address */
         }
         if (gw != NULL) {
-            memcpy(gw, esp.sta.gw, 4);          /* Copy gateway address */
+            memcpy(gw, &esp.sta.gw, sizeof(esp.sta.gw));    /* Copy gateway address */
         }
         if (nm != NULL) {
-            memcpy(nm, esp.sta.nm, 4);          /* Copy netmask address */
+            memcpy(nm, &esp.sta.nm, sizeof(esp.sta.nm));    /* Copy netmask address */
         }
         res = espOK;
         ESP_CORE_UNPROTECT();                   /* Unprotect ESP core */

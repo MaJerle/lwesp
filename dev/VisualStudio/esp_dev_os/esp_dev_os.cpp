@@ -66,10 +66,10 @@ main_thread(void* arg) {
      * This should always pass
      */
     if (esp_sta_has_ip() == espOK) {
-        uint8_t ip[4];
-        esp_sta_copy_ip(ip, NULL, NULL);
+        esp_ip_t ip;
+        esp_sta_copy_ip(&ip, NULL, NULL);
         printf("Connected to WIFI!\r\n");
-        printf("Device IP: %d.%d.%d.%d\r\n", ip[0], ip[1], ip[2], ip[3]);
+        printf("Device IP: %d.%d.%d.%d\r\n", ip.ip[0], ip.ip[1], ip.ip[2], ip.ip[3]);
     }
 
     /*

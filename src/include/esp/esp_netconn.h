@@ -68,8 +68,8 @@ typedef struct esp_netconn_t* esp_netconn_p;
 
 esp_netconn_p   esp_netconn_new(esp_netconn_type_t type);
 espr_t          esp_netconn_delete(esp_netconn_p nc);
-espr_t          esp_netconn_bind(esp_netconn_p nc, uint16_t port);
-espr_t          esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port);
+espr_t          esp_netconn_bind(esp_netconn_p nc, esp_port_t port);
+espr_t          esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port);
 espr_t          esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf);
 espr_t          esp_netconn_close(esp_netconn_p nc);
 int8_t          esp_netconn_getconnnum(esp_netconn_p nc);
@@ -82,7 +82,7 @@ espr_t          esp_netconn_flush(esp_netconn_p nc);
 
 /* UDP only */
 espr_t          esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw);
-espr_t          esp_netconn_sendto(esp_netconn_p nc, const void* ip, uint16_t port, const void* data, size_t btw);
+espr_t          esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw);
 
 /**
  * \}

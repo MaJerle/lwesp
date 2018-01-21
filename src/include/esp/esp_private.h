@@ -145,10 +145,10 @@ typedef enum {
 typedef struct esp_conn_t {
     esp_conn_type_t type;                       /*!< Connection type */
     uint8_t         num;                        /*!< Connection number */
-    uint8_t         remote_ip[4];               /*!< Remote IP address */
-    uint16_t        remote_port;                /*!< Remote port number */
-    uint16_t        local_port;                 /*!< Local IP address */
-    esp_cb_fn   cb_func;                    /*!< Callback function for connection */
+    esp_ip_t        remote_ip;                  /*!< Remote IP address */
+    esp_port_t      remote_port;                /*!< Remote port number */
+    esp_port_t      local_port;                 /*!< Local IP address */
+    esp_cb_fn       cb_func;                    /*!< Callback function for connection */
     void*           arg;                        /*!< User custom argument */
     
     uint8_t         val_id;                     /*!< Validation ID number. It is increased each time a new connection is established.
@@ -177,10 +177,10 @@ typedef struct esp_pbuf_t {
     struct esp_pbuf_t* next;                    /*!< Next pbuf in chain list */
     size_t tot_len;                             /*!< Total length of pbuf chain */
     size_t len;                                 /*!< Length of payload */
-    uint16_t ref;                               /*!< Number of references to this structure */
+    size_t ref;                                 /*!< Number of references to this structure */
     uint8_t* payload;                           /*!< Pointer to payload memory */
-    uint8_t ip[4];                              /*!< Remote address for received IPD data */
-    uint16_t port;                              /*!< Remote port for received IPD data */
+    esp_ip_t ip;                                /*!< Remote address for received IPD data */
+    esp_port_t port;                            /*!< Remote port for received IPD data */
 } esp_pbuf_t;
 
 /**
@@ -191,8 +191,8 @@ typedef struct {
     size_t              tot_len;                /*!< Total length of packet */
     size_t              rem_len;                /*!< Remaining bytes to read in current +IPD statement */
     esp_conn_p          conn;                   /*!< Pointer to connection for network data */
-    uint8_t             ip[4];                  /*!< Remote IP address on from IPD data */
-    uint16_t            port;                   /*!< Remote port on IPD data */
+    esp_ip_t            ip;                     /*!< Remote IP address on from IPD data */
+    esp_port_t          port;                   /*!< Remote port on IPD data */
     
     size_t              buff_ptr;               /*!< Buffer pointer to save data to */
     esp_pbuf_p          buff;                   /*!< Pointer to data buffer used for receiving data */
@@ -220,28 +220,28 @@ typedef struct esp_msg {
         struct {
             const char* name;                   /*!< AP name */
             const char* pass;                   /*!< AP password */
-            const uint8_t* mac;                 /*!< Specific MAC address to use when connecting to AP */
+            const esp_mac_t* mac;               /*!< Specific MAC address to use when connecting to AP */
             uint8_t def;                        /*!< Value indicates to connect as current only or as default */
             uint8_t error_num;                  /*!< Error number on connecting */
         } sta_join;                             /*!< Message for joining to access point */
         struct {
-            uint8_t* ip;                        /*!< Pointer to IP variable */
-            uint8_t* gw;                        /*!< Pointer to gateway variable */
-            uint8_t* nm;                        /*!< Pointer to netmask variable */
+            esp_ip_t* ip;                       /*!< Pointer to IP variable */
+            esp_ip_t* gw;                       /*!< Pointer to gateway variable */
+            esp_ip_t* nm;                       /*!< Pointer to netmask variable */
             uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_getip;                         /*!< Message for reading station or access point IP */
         struct {
-            uint8_t* mac;                       /*!< Pointer to MAC variable */
+            esp_mac_t* mac;                     /*!< Pointer to MAC variable */
             uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_getmac;                        /*!< Message for reading station or access point MAC address */
         struct {
-            const uint8_t* ip;                  /*!< Pointer to IP variable */
-            const uint8_t* gw;                  /*!< Pointer to gateway variable */
-            const uint8_t* nm;                  /*!< Pointer to netmask variable */
+            const esp_ip_t* ip;                 /*!< Pointer to IP variable */
+            const esp_ip_t* gw;                 /*!< Pointer to gateway variable */
+            const esp_ip_t* nm;                 /*!< Pointer to netmask variable */
             uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setip;                         /*!< Message for setting station or access point IP */
         struct {
-            const uint8_t* mac;                 /*!< Pointer to MAC variable */
+            const esp_mac_t* mac;               /*!< Pointer to MAC variable */
             uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
         struct {
@@ -277,10 +277,10 @@ typedef struct esp_msg {
         struct {
             esp_conn_t** conn;                  /*!< Pointer to pointer to save connection used */
             const char* host;                   /*!< Host to use for connection */
-            uint16_t port;                      /*!< Remote port used for connection */
+            esp_port_t port;                    /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
             void* arg;                          /*!< Connection custom argument */
-            esp_cb_fn cb_func;              /*!< Callback function to use on connection */
+            esp_cb_fn cb_func;                  /*!< Callback function to use on connection */
             uint8_t num;                        /*!< Connection number used for start */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
@@ -296,8 +296,8 @@ typedef struct esp_msg {
             size_t sent_all;                    /*!< Number of bytes sent all together */
             uint8_t tries;                      /*!< Number of tries used for last packet */
             uint8_t wait_send_ok_err;           /*!< Set to 1 when we wait for SEND OK or SEND ERROR */
-            const uint8_t* remote_ip;           /*!< Remote IP address for UDP connection */
-            uint16_t remote_port;               /*!< Remote port address for UDP connection */
+            const esp_ip_t* remote_ip;           /*!< Remote IP address for UDP connection */
+            esp_port_t remote_port;               /*!< Remote port address for UDP connection */
             uint8_t fau;                        /*!< Free after use flag to free memory after data are sent (or not) */
             size_t* bw;                         /*!< Number of bytes written so far */
             uint8_t val_id;                     /*!< Connection current validation ID when command was sent to queue */
@@ -310,7 +310,7 @@ typedef struct esp_msg {
             uint8_t mux;                        /*!< Mux status, either enabled or disabled */
         } tcpip_mux;                            /*!< Used for setting up multiple connections */
         struct {
-            uint16_t port;                      /*!< Server port number */
+            esp_port_t port;                    /*!< Server port number */
             uint16_t max_conn;                  /*!< Maximal number of connections available for server */
             uint16_t timeout;                   /*!< Connection timeout */
             esp_cb_fn cb;                       /*!< Server default callback function */
@@ -327,7 +327,7 @@ typedef struct esp_msg {
         } tcpip_sslsize;                        /*!< TCP SSL size for SSL connections */
         struct {
             const char* host;                   /*!< Hostname to resolve IP address for */
-            uint8_t* ip;                        /*!< Pointer to IP address to save result */
+            esp_ip_t* ip;                       /*!< Pointer to IP address to save result */
         } dns_getbyhostname;                    /*!< DNS function */
         struct {
             uint8_t en;                         /*!< Status if SNTP is enabled or not */
@@ -346,10 +346,10 @@ typedef struct esp_msg {
  * \brief           IP and MAC structure with netmask and gateway addresses
  */
 typedef struct {
-    uint8_t             ip[4];                  /*!< IP address */
-    uint8_t             gw[4];                  /*!< Gateway address */
-    uint8_t             nm[4];                  /*!< Netmask address */
-    uint8_t             mac[6];                 /*!< MAC address */
+    esp_ip_t ip;                                /*!< IP address */
+    esp_ip_t gw;                                /*!< Gateway address */
+    esp_ip_t nm;                                /*!< Netmask address */
+    esp_mac_t mac;                              /*!< MAC address */
 } esp_ip_mac_t;
 
 /**
@@ -360,9 +360,9 @@ typedef struct {
     uint8_t num;                                /*!< Connection number */
     uint8_t is_server;                          /*!< Status if connection is client or server */
     esp_conn_type_t type;                       /*!< Connection type */
-    uint8_t remote_ip[4];                       /*!< Remote IP address */
-    uint16_t remote_port;                       /*!< Remote port */
-    uint16_t local_port;                        /*!< Local port number */
+    esp_ip_t remote_ip;                         /*!< Remote IP address */
+    esp_port_t remote_port;                     /*!< Remote port */
+    esp_port_t local_port;                      /*!< Local port number */
 } esp_link_conn_t;
 
 /**

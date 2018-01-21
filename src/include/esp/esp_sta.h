@@ -51,15 +51,15 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_sta_join(const char* name, const char* pass, const uint8_t* mac, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_quit(uint32_t blocking);
-espr_t      esp_sta_getip(void* ip, void* gw, void* nm, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_setip(const void* ip, const void* gw, const void* nm, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_getmac(void* mac, uint8_t def, uint32_t blocking);
-espr_t      esp_sta_setmac(const void* mac, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking);
+espr_t      esp_sta_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_has_ip(void);
 espr_t      esp_sta_joined(void);
-espr_t      esp_sta_copy_ip(void* ip, void* gw, void* nm);
+espr_t      esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm);
 espr_t      esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);
 
 /**

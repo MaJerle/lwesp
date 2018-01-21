@@ -58,6 +58,8 @@
 
 #define ESP_CFG_MAX_CONNS                   20
 
+#define ESP_CFG_DNS                         1
+#define ESP_CFG_PING                        1
 #define ESP_CFG_SNTP                        1
 #define ESP_CFG_HOSTNAME                    1
 

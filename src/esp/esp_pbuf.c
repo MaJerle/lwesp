@@ -94,10 +94,10 @@ esp_pbuf_new(size_t len) {
  * \param[in]       pbuf: Packet buffer to free
  * \return          Number of freed pbufs from head
  */
-uint16_t
+size_t
 esp_pbuf_free(esp_pbuf_p pbuf) {
     esp_pbuf_p p, pn;
-    uint16_t ref, cnt;
+    size_t ref, cnt;
     
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
     
@@ -468,9 +468,9 @@ esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot) {
  * \param[in]       port: Port number to assign to packet buffer
  */
 void
-esp_pbuf_set_ip(esp_pbuf_p pbuf, const void* ip, uint16_t port) {
+esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port) {
     if (pbuf != NULL && ip != NULL) {
-        memcpy(pbuf->ip, ip, 4);
+        memcpy(&pbuf->ip, ip, 4);
         pbuf->port = port;
     }
 }

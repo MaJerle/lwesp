@@ -1005,7 +1005,7 @@ mqtt_client_delete(mqtt_client_t* client) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port,
+mqtt_client_connect(mqtt_client_t* client, const char* host, esp_port_t port,
                     mqtt_evt_fn evt_fn, const mqtt_client_info_t* info) {
     espr_t res = espERR;
     

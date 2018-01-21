@@ -51,10 +51,10 @@ extern "C" {
  * \{
  */
  
-espr_t      esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, uint16_t port, void* arg, esp_cb_fn cb_func, uint32_t blocking);
+espr_t      esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_port_t port, void* arg, esp_cb_fn cb_func, uint32_t blocking);
 espr_t      esp_conn_close(esp_conn_p conn, uint32_t blocking);
 espr_t      esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking);
-espr_t      esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking);
+espr_t      esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking);
 espr_t      esp_conn_set_arg(esp_conn_p conn, void* arg);
 void *      esp_conn_get_arg(esp_conn_p conn);
 uint8_t     esp_conn_is_client(esp_conn_p conn);

@@ -151,20 +151,20 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
 /**
  * \brief           Parse string as IP address
  * \param[in,out]   src: Pointer to pointer to string to parse from
- * \param[in]       dst: Destination pointer. Use NULL in case you want only skip string in source
+ * \param[in]       dst: Destination pointer
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-espi_parse_ip(const char** src, uint8_t* ip) {
+espi_parse_ip(const char** src, esp_ip_t* ip) {
     const char* p = *src;
     
     if (*p == '"') {
         p++;
     }
-    ip[0] = espi_parse_number(&p); p++;
-    ip[1] = espi_parse_number(&p); p++;
-    ip[2] = espi_parse_number(&p); p++;
-    ip[3] = espi_parse_number(&p);
+    ip->ip[0] = espi_parse_number(&p); p++;
+    ip->ip[1] = espi_parse_number(&p); p++;
+    ip->ip[2] = espi_parse_number(&p); p++;
+    ip->ip[3] = espi_parse_number(&p);
     if (*p == '"') {
         p++;
     }
@@ -176,22 +176,22 @@ espi_parse_ip(const char** src, uint8_t* ip) {
 /**
  * \brief           Parse string as MAC address
  * \param[in,out]   src: Pointer to pointer to string to parse from
- * \param[in]       dst: Destination pointer. Use NULL in case you want only skip string in source
+ * \param[in]       dst: Destination pointer
  * \return          1 on success, 0 otherwise
  */
 uint8_t
-espi_parse_mac(const char** src, uint8_t* mac) {
+espi_parse_mac(const char** src, esp_mac_t* mac) {
     const char* p = *src;
     
     if (*p == '"') {                            /* Go to next entry if possible */
         p++;
     }
-    mac[0] = espi_parse_hexnumber(&p); p++;
-    mac[1] = espi_parse_hexnumber(&p); p++;
-    mac[2] = espi_parse_hexnumber(&p); p++;
-    mac[3] = espi_parse_hexnumber(&p); p++;
-    mac[4] = espi_parse_hexnumber(&p); p++;
-    mac[5] = espi_parse_hexnumber(&p);
+    mac->mac[0] = espi_parse_hexnumber(&p); p++;
+    mac->mac[1] = espi_parse_hexnumber(&p); p++;
+    mac->mac[2] = espi_parse_hexnumber(&p); p++;
+    mac->mac[3] = espi_parse_hexnumber(&p); p++;
+    mac->mac[4] = espi_parse_hexnumber(&p); p++;
+    mac->mac[5] = espi_parse_hexnumber(&p);
     if (*p == '"') {                            /* Skip quotes if possible */
         p++;
     }
@@ -209,17 +209,14 @@ espi_parse_mac(const char** src, uint8_t* mac) {
  */
 espr_t
 espi_parse_cipstatus(const char* str) {
-    uint8_t cn_num = 0, i;
+    uint8_t cn_num = 0;
     
     cn_num = espi_parse_number(&str);           /* Parse connection number */
     esp.active_conns |= 1 << cn_num;            /* Set flag as active */
     
     espi_parse_string(&str, NULL, 0, 1);        /* Parse string and ignore result */
     
-    for (i = 0; i < 4; i++) {                   /* Process connection IP */
-        esp.conns[cn_num].remote_ip[i] = espi_parse_number(&str);
-        str++;
-    }
+    espi_parse_ip(&str, &esp.conns[cn_num].remote_ip);
     esp.conns[cn_num].remote_port = espi_parse_number(&str);
     esp.conns[cn_num].local_port = espi_parse_number(&str);
     esp.conns[cn_num].status.f.client = !espi_parse_number(&str);
@@ -239,10 +236,10 @@ espi_parse_ipd(const char* str) {
     
     conn = espi_parse_number(&str);             /* Parse number for connection number */
     len = espi_parse_number(&str);              /* Parse number for number of bytes to read */
-    espi_parse_ip(&str, esp.ipd.ip);            /* Parse incoming packet IP */
+    espi_parse_ip(&str, &esp.ipd.ip);           /* Parse incoming packet IP */
     esp.ipd.port = espi_parse_number(&str);     /* Get port on IPD data */
     
-    memcpy(esp.conns[conn].remote_ip, esp.ipd.ip, sizeof(esp.ipd.ip));
+    memcpy(&esp.conns[conn].remote_ip, &esp.ipd.ip, sizeof(esp.ipd.ip));
     memcpy(&esp.conns[conn].remote_port, &esp.ipd.port, sizeof(esp.ipd.port));
     
     esp.ipd.read = 1;                           /* Start reading network data */
@@ -295,7 +292,7 @@ espi_parse_link_conn(const char* str) {
     }
     str += 6;
     esp.link_conn.is_server = espi_parse_number(&str);
-    espi_parse_ip(&str, esp.link_conn.remote_ip);
+    espi_parse_ip(&str, &esp.link_conn.remote_ip);
     esp.link_conn.remote_port = espi_parse_number(&str);
     esp.link_conn.local_port = espi_parse_number(&str);
     return 1;
@@ -325,7 +322,7 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (esp_ecn_t)espi_parse_number(&str);
     espi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = espi_parse_number(&str);
-    espi_parse_mac(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
+    espi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = espi_parse_number(&str);
@@ -362,8 +359,8 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
         return 0;
     }
     
-    espi_parse_ip(&str, msg->msg.sta_list.stas[msg->msg.sta_list.stai].ip);
-    espi_parse_mac(&str, msg->msg.sta_list.stas[msg->msg.sta_list.stai].mac);
+    espi_parse_ip(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].ip);
+    espi_parse_mac(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].mac);
 
     msg->msg.sta_list.stai++;                   /* Increase number of found elements */
     if (msg->msg.sta_list.staf) {               /* Set pointer if necessary */

@@ -889,7 +889,7 @@ http_evt_cb(esp_cb_t* cb) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_http_server_init(const http_init_t* init, uint16_t port) {
+esp_http_server_init(const http_init_t* init, esp_port_t port) {
     espr_t res;
     if ((res = esp_set_server(port, ESP_CFG_MAX_CONNS, 80, http_evt_cb, 1)) == espOK) {
         hi = init;

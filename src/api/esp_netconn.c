@@ -43,7 +43,7 @@
  */
 typedef struct esp_netconn_t {
     esp_netconn_type_t type;                    /*!< Netconn type */
-    uint16_t listen_port;                       /*!< Port on which we are listening */
+    esp_port_t listen_port;                     /*!< Port on which we are listening */
     
     size_t rcv_packets;                         /*!< Number of received packets so far on this connection */
     esp_conn_t* conn;                           /*!< Pointer to actual connection */
@@ -298,7 +298,7 @@ esp_netconn_delete(esp_netconn_p nc) {
  * \return          espOK if successfully connected, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
+esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
     espr_t res;
     
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
@@ -321,7 +321,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, uint16_t port) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_bind(esp_netconn_p nc, uint16_t port) {
+esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
     /*
@@ -518,7 +518,7 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_sendto(esp_netconn_p nc, const void* ip, uint16_t port, const void* data, size_t btw) {
+esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be UDP\r\n", nc->type == ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
     

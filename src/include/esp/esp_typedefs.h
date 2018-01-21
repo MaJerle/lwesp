@@ -87,19 +87,6 @@ typedef enum {
 } esp_ecn_t;
 
 /**
- * \brief           Access point data structure
- */
-typedef struct {
-    esp_ecn_t ecn;                              /*!< Encryption mode */
-    char ssid[21];                              /*!< Access point name */
-    int16_t rssi;                               /*!< Received signal strength indicator */
-    uint8_t mac[6];                             /*!< MAC physical address */
-    uint8_t ch;                                 /*!< WiFi channel used on access point */
-    int8_t offset;                              /*!< Access point offset */
-    uint8_t cal;                                /*!< Calibration value */
-} esp_ap_t;
-
-/**
  * \brief           IP structure
  */
 typedef struct {
@@ -119,11 +106,24 @@ typedef struct {
 } esp_mac_t;
 
 /**
+ * \brief           Access point data structure
+ */
+typedef struct {
+    esp_ecn_t ecn;                              /*!< Encryption mode */
+    char ssid[21];                              /*!< Access point name */
+    int16_t rssi;                               /*!< Received signal strength indicator */
+    esp_mac_t mac;                              /*!< MAC physical address */
+    uint8_t ch;                                 /*!< WiFi channel used on access point */
+    int8_t offset;                              /*!< Access point offset */
+    uint8_t cal;                                /*!< Calibration value */
+} esp_ap_t;
+
+/**
  * \brief           Station data structure
  */
 typedef struct {
-    uint8_t ip[4];                              /*!< IP address of connected station */
-    uint8_t mac[6];                             /*!< MAC address of connected station */
+    esp_ip_t ip;                                /*!< IP address of connected station */
+    esp_mac_t mac;                              /*!< MAC address of connected station */
 } esp_sta_t;
 
 /**

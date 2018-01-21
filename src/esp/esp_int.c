@@ -108,9 +108,11 @@ signed_number_to_str(int32_t num, char* str) {
  * \param[in]       q: Set to 1 to include start and ending quotes
  */
 static void
-send_ip_mac(const uint8_t* d, uint8_t is_ip, uint8_t q) {
+send_ip_mac(const void* d, uint8_t is_ip, uint8_t q) {
     uint8_t i, ch;
     char str[4];
+    const esp_mac_t* mac = d;
+    const esp_ip_t* ip = d;
     
     if (d == NULL) {
         return;
@@ -121,9 +123,9 @@ send_ip_mac(const uint8_t* d, uint8_t is_ip, uint8_t q) {
     ch = is_ip ? '.' : ':';                     /* Get delimiter character */
     for (i = 0; i < (is_ip ? 4 : 6); i++) {     /* Process byte by byte */
         if (is_ip) {                            /* In case of IP ... */
-            number_to_str(d[i], str);           /* ... go to decimal format ... */
+            number_to_str(is_ip ? ip->ip[i] : mac->mac[i], str);    /* ... go to decimal format ... */
         } else {                                /* ... in case of MAC ... */
-            byte_to_str(d[i], str);             /* ... go to HEX format */
+            byte_to_str(is_ip ? ip->ip[i] : mac->mac[i], str);  /* ... go to HEX format */
         }
         ESP_AT_PORT_SEND_STR(str);              /* Send str */
         if (i < (is_ip ? 4 : 6) - 1) {          /* Check end if characters */
@@ -335,8 +337,8 @@ espi_tcpip_process_send_data(void) {
      * On UDP connections, IP address and port may be selected
      */
     if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {
-        const uint8_t* ip = esp.msg->msg.conn_send.remote_ip;   /* Get remote IP */
-        uint16_t port = esp.msg->msg.conn_send.remote_port;
+        const esp_ip_t* ip = esp.msg->msg.conn_send.remote_ip;  /* Get remote IP */
+        esp_port_t port = esp.msg->msg.conn_send.remote_port;
         
         if (ip != NULL && port) {
             ESP_AT_PORT_SEND_STR(",");
@@ -460,7 +462,7 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
             ) {
                 const char* tmp;
-                uint8_t mac[6];
+                esp_mac_t mac;
                 
                 if (rcv->data[9] == '_') {      /* Do we have "_CUR" or "_DEF" included? */
                     tmp = &rcv->data[14];
@@ -472,10 +474,10 @@ espi_parse_received(esp_recv_t* rcv) {
                     tmp = &rcv->data[11];
                 }
                 
-                espi_parse_mac(&tmp, mac);      /* Save as current MAC address */
+                espi_parse_mac(&tmp, &mac);     /* Save as current MAC address */
                 if (is_received_current_setting(rcv->data)) {
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
-                    memcpy(esp.msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_GET ? esp.sta.mac : esp.ap.mac, mac, 6);   /* Copy to current setup */
+                    memcpy(esp.msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_GET ? &esp.sta.mac : &esp.ap.mac, &mac, 6);   /* Copy to current setup */
 #elif ESP_CFG_MODE_STATION
                     memcpy(esp.sta.mac, mac, 6);    /* Copy to current setup */
 #else
@@ -483,7 +485,7 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
                 }
                 if (esp.msg->msg.sta_ap_getmac.mac != NULL && esp.msg->cmd == esp.msg->cmd_def) {
-                    memcpy(esp.msg->msg.sta_ap_getmac.mac, mac, 6); /* Copy to current setup */
+                    memcpy(esp.msg->msg.sta_ap_getmac.mac, &mac, sizeof(mac));  /* Copy to current setup */
                 }
             } else if (
 #if ESP_CFG_MODE_STATION
@@ -497,9 +499,9 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
             ) {
                 const char* tmp = NULL;
-                uint8_t *a = NULL, *b = NULL;
-                uint8_t ip[4], ch = 0;
+                esp_ip_t ip, *a = NULL, *b = NULL;
                 esp_ip_mac_t* im;
+                uint8_t ch = 0;
                          
 #if ESP_CFG_MODE_STATION_ACCESS_POINT              
                 im = (esp.msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) ? &esp.sta : &esp.ap;    /* Get IP and MAC structure first */
@@ -520,9 +522,9 @@ espi_parse_received(esp_recv_t* rcv) {
                     ch = rcv->data[8];
                 }
                 switch (ch) {
-                    case 'i': tmp = &rcv->data[10]; a = im->ip; b = esp.msg->msg.sta_ap_getip.ip; break;
-                    case 'g': tmp = &rcv->data[15]; a = im->gw; b = esp.msg->msg.sta_ap_getip.gw; break;
-                    case 'n': tmp = &rcv->data[15]; a = im->nm; b = esp.msg->msg.sta_ap_getip.nm; break;
+                    case 'i': tmp = &rcv->data[10]; a = &im->ip; b = esp.msg->msg.sta_ap_getip.ip; break;
+                    case 'g': tmp = &rcv->data[15]; a = &im->gw; b = esp.msg->msg.sta_ap_getip.gw; break;
+                    case 'n': tmp = &rcv->data[15]; a = &im->nm; b = esp.msg->msg.sta_ap_getip.nm; break;
                     default: tmp = NULL; a = NULL; b = NULL; break;
                 }
                 if (tmp != NULL) {              /* Do we have temporary string? */
@@ -532,12 +534,12 @@ espi_parse_received(esp_recv_t* rcv) {
                     if (*tmp == ':') {
                         tmp++;
                     }
-                    espi_parse_ip(&tmp, ip);    /* Parse IP address */
+                    espi_parse_ip(&tmp, &ip);   /* Parse IP address */
                     if (is_received_current_setting(rcv->data)) {
-                        memcpy(a, ip, 4);       /* Copy to current setup */
+                        memcpy(a, &ip, sizeof(ip)); /* Copy to current setup */
                     }
                     if (b != NULL && IS_CURR_CMD(esp.msg->cmd_def)) {   /* Is current command the same as default one? */
-                        memcpy(b, ip, 4);       /* Copy to user variable */
+                        memcpy(b, &ip, sizeof(ip)); /* Copy to user variable */
                     }
                 }
 #if ESP_CFG_MODE_STATION
@@ -690,7 +692,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 conn->val_id = ++id;            /* Set new validation ID */
                 
                 conn->type = esp.link_conn.type;/* Set connection type */
-                memcpy(conn->remote_ip, esp.link_conn.remote_ip, sizeof(conn->remote_ip));
+                memcpy(&conn->remote_ip, &esp.link_conn.remote_ip, sizeof(conn->remote_ip));
                 conn->remote_port = esp.link_conn.remote_port;
                 conn->local_port = esp.link_conn.local_port;
                 conn->status.f.client = !esp.link_conn.is_server;
@@ -939,7 +941,7 @@ espi_process(const void* data, size_t data_len) {
                             esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d bytes\r\n", (int)new_len);
                         
                         if (esp.ipd.buff != NULL) {
-                            esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
+                            esp_pbuf_set_ip(esp.ipd.buff, &esp.ipd.ip, esp.ipd.port);   /* Set IP and port for received data */
                         }
                     } else {
                         esp.ipd.buff = NULL;    /* Reset it */
@@ -1019,7 +1021,7 @@ espi_process(const void* data, size_t data_len) {
                             if (esp.ipd.conn->status.f.active && !esp.ipd.conn->status.f.in_closing) {
                                 esp.ipd.buff = esp_pbuf_new(len);   /* Allocate new packet buffer */
                                 if (esp.ipd.buff != NULL) {
-                                    esp_pbuf_set_ip(esp.ipd.buff, esp.ipd.ip, esp.ipd.port);    /* Set IP and port for received data */
+                                    esp_pbuf_set_ip(esp.ipd.buff, &esp.ipd.ip, esp.ipd.port);   /* Set IP and port for received data */
                                 }
                                 ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING, esp.ipd.buff == NULL,
                                     "IPD: Buffer allocation failed for %d byte(s)\r\n", (int)len);

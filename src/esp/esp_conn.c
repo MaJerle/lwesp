@@ -83,7 +83,7 @@ conn_timeout_cb(void* arg) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 static espr_t
-conn_send(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint8_t fau, uint32_t blocking) {
+conn_send(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw, size_t* bw, uint8_t fau, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
@@ -151,7 +151,7 @@ espi_conn_init(void) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, uint16_t port, void* arg, esp_cb_fn cb_func, uint32_t blocking) {
+esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_port_t port, void* arg, esp_cb_fn cb_func, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -201,7 +201,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
     res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000); /* Send message to producer queue */
     if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
         ESP_CORE_PROTECT();                     /* Protect core */
-        ESP_DEBUGF(ESP_CFG_DBG_CONN, ESP_DBG_TYPE_TRACE, "CONN: Connection %d set to closing state\r\n", (int)conn->num);
+        ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Connection %d set to closing state\r\n", (int)conn->num);
         conn->status.f.in_closing = 1;          /* Connection is in closing mode but not yet closed */
         ESP_CORE_UNPROTECT();                   /* Unprotect core */
     }
@@ -221,7 +221,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_sendto(esp_conn_p conn, const void* ip, uint16_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
+esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
     flush_buff(conn);                           /* Flush currently written memory if exists */
     return conn_send(conn, ip, port, data, btw, bw, 0, blocking);
 }

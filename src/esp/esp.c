@@ -189,7 +189,7 @@ esp_set_mux(uint8_t mux, uint32_t blocking) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking) {
+esp_set_server(esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -226,7 +226,7 @@ esp_set_default_server_callback(esp_cb_fn cb_func) {
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking) {
+esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */

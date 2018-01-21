@@ -170,7 +170,7 @@ typedef struct esp_cb_t {
         } conn_data_send_err;                   /*!< Data were not sent. Use with \ref ESP_CB_CONN_DATA_SEND_ERR event */
         struct {
             const char* host;                   /*!< Host to use for connection */
-            uint16_t port;                      /*!< Remote port used for connection */
+            esp_port_t port;                    /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
             void* arg;                          /*!< Connection argument used on connection */
             /**
@@ -219,7 +219,7 @@ espr_t      esp_set_mux(uint8_t mux, uint32_t blocking);
 
 espr_t      esp_set_server(uint16_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking);
 
-espr_t      esp_dns_getbyhostname(const char* host, void* ip, uint32_t blocking);
+espr_t      esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking);
 
 espr_t      esp_core_lock(void);
 espr_t      esp_core_unlock(void);
