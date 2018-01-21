@@ -10,7 +10,7 @@
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
  * and to permit persons to whom the Software is furnished to do so, 
  * subject to the following conditions:
  * 
@@ -65,6 +65,8 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
  */
 #define CONN_SEND_DATA_FREE(m)    do {      \
     if ((m)->msg.conn_send.fau) {           \
+        (m)->msg.conn_send.fau = 0;         \
+        ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
         esp_mem_free((void *)(m)->msg.conn_send.data);    \
     }                                       \
 } while (0)
@@ -283,7 +285,7 @@ espi_send_cb(esp_cb_type_t type) {
  */
 espr_t
 espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb) {
-    if (conn->status.f.in_closing) {            /* Do not continue if in closing mode */
+    if (conn->status.f.in_closing && esp.cb.type != ESP_CB_CONN_CLOSED) {   /* Do not continue if in closing mode */
         return espOK;
     }
     
@@ -663,6 +665,7 @@ espi_parse_received(esp_recv_t* rcv) {
             
                 /* Check if write buffer is set */
                 if (conn->buff != NULL) {
+                    ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer: %p\r\n", conn->buff);
                     esp_mem_free(conn->buff);   /* Free the memory */
                     conn->buff = NULL;
                 }
@@ -736,6 +739,7 @@ espi_parse_received(esp_recv_t* rcv) {
             
             /* Check if write buffer is set */
             if (conn->buff != NULL) {
+                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer: %p\r\n", conn->buff);
                 esp_mem_free(conn->buff);       /* Free the memory */
                 conn->buff = NULL;
             }
@@ -1014,7 +1018,7 @@ espi_process(const void* data, size_t data_len) {
                                     "IPD: Buffer allocation failed for %d byte(s)\r\n", (int)len);
                             } else {
                                 esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
-                                ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Connection %d already closed, skipping %d byte(s)\r\n", esp.ipd.conn->num, (int)len);
+                                ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Connection %d closed or in closing, skipping %d byte(s)\r\n", esp.ipd.conn->num, (int)len);
                             }
                             esp.ipd.conn->status.f.data_received = 1;   /* We have first received data */
                         }
@@ -1715,6 +1719,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
         }
         if (esp_sys_sem_isvalid(&msg->sem)) {   /* In case we have valid semaphore */
             esp_sys_sem_delete(&msg->sem);      /* Delete semaphore object */
+            esp_sys_sem_invalid(&msg->sem);     /* Invalidate semaphore object */
         }
         ESP_MSG_VAR_FREE(msg);                  /* Release message */
     }
