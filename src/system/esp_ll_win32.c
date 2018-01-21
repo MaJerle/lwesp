@@ -127,23 +127,31 @@ static void
 uart_thread(void* param) {
 	DWORD bytes_read;
     esp_sys_sem_t sem;
+    FILE* file = NULL;
+
 	while (comPort == NULL);
 
     esp_sys_sem_create(&sem, 1);
+    fopen_s(&file, "log_file.txt", "w+");
 	while (1) {
         /*
          * Try to read data from COM port
          * and send it to upper layer for processing
          */
-		ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
-		if (bytes_read > 0) {
-			esp_input_process(data_buffer, (size_t)bytes_read);
-			//printf("%.*s", (int)bytes_read, (const char *)data_buffer);
-		}
+        do {
+            ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
+            if (bytes_read > 0) {
+                esp_input_process(data_buffer, (size_t)bytes_read);
+                if (file != NULL) {
+                    fwrite(data_buffer, 1, bytes_read, file);
+                    fflush(file);
+                }
+            }
+        } while (bytes_read == (DWORD)sizeof(data_buffer));
 
         /* Implement delay to allow other tasks processing */
         esp_sys_sem_wait(&sem, 0);
-        esp_sys_sem_wait(&sem, 5);
+        esp_sys_sem_wait(&sem, 1);
         esp_sys_sem_release(&sem);
 	}
 }
