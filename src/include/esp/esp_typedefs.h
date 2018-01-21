@@ -137,9 +137,21 @@ typedef struct {
 #define ESP_MSG_VAR_FREE(name)                      
 #else /* 1 */
 #define ESP_MSG_VAR_DEFINE(name)                esp_msg_t* name
-#define ESP_MSG_VAR_ALLOC(name)                 do { name = esp_mem_alloc(sizeof(*(name))); if (!(name)) { ESP_DEBUGF(ESP_CFG_DBG_VAR, "Error allocating: %d bytes\r\n", sizeof(*(name))); return espERRMEM; } memset(name, 0x00, sizeof(*(name))); } while (0)
+#define ESP_MSG_VAR_ALLOC(name)                 do {\
+    (name) = esp_mem_alloc(sizeof(*(name)));          \
+    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) != NULL, "MSG VAR: Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
+    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) == NULL, "MSG VAR: Error allocating %d bytes\r\n", sizeof(*(name))); \
+    if (!(name)) {                                  \
+        return espERRMEM;                           \
+    }                                               \
+    memset(name, 0x00, sizeof(*(name)));            \
+} while (0)
 #define ESP_MSG_VAR_REF(name)                   (*(name))
-#define ESP_MSG_VAR_FREE(name)                  esp_mem_free(name)
+#define ESP_MSG_VAR_FREE(name)                  do {\
+    ESP_DEBUGF(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, "MSG VAR: Free memory: %p\r\n", (name)); \
+    esp_mem_free(name);                             \
+    (name) = NULL;                                  \
+} while (0)
 #endif /* !1 */
 
 #endif /* defined(ESP_INTERNAL) || __DOXYGEN__ */
