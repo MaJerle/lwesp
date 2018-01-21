@@ -72,7 +72,7 @@ configure_uart(uint32_t baudrate) {
      * as generic read and write
      */
 	if (!initialized) {
-		comPort = CreateFile(TEXT("COM6"),
+		comPort = CreateFile(L"\\\\.\\COM14",
 			GENERIC_READ | GENERIC_WRITE,
 			0,
 			0,
@@ -86,6 +86,8 @@ configure_uart(uint32_t baudrate) {
      * Configure COM port parameters
      */
 	if (GetCommState(comPort, &dcb)) {
+        COMMTIMEOUTS timeouts;
+
         dcb.BaudRate = baudrate;
         dcb.ByteSize = 8;
         dcb.Parity = NOPARITY;
@@ -93,6 +95,18 @@ configure_uart(uint32_t baudrate) {
 
         if (!SetCommState(comPort, &dcb)) {
             printf("Cannot set COM PORT info\r\n");
+        }
+        if (GetCommTimeouts(comPort, &timeouts)) {
+            /* Set timeout to return immediatelly from ReadFile function */
+            timeouts.ReadIntervalTimeout = MAXDWORD;
+            timeouts.ReadTotalTimeoutConstant = 0;
+            timeouts.ReadTotalTimeoutMultiplier = 0;
+            if (!SetCommTimeouts(comPort, &timeouts)) {
+                printf("Cannot set COM PORT timeouts\r\n");
+            }
+            GetCommTimeouts(comPort, &timeouts);
+        } else {
+            printf("Cannot get COM PORT timeouts\r\n");
         }
     } else {
         printf("Cannot get COM PORT info\r\n");
@@ -124,7 +138,7 @@ uart_thread(void* param) {
 		ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
 		if (bytes_read > 0) {
 			esp_input_process(data_buffer, (size_t)bytes_read);
-			printf("%.*s", (int)bytes_read, (const char *)data_buffer);
+			//printf("%.*s", (int)bytes_read, (const char *)data_buffer);
 		}
 
         /* Implement delay to allow other tasks processing */
