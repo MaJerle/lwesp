@@ -87,7 +87,7 @@ static espr_t
 esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
         case ESP_CB_INIT_FINISH: {
-            esp_set_at_baudrate(115200*8, 0);
+            esp_set_at_baudrate(115200, 0);
         }
         default: break;
     }
