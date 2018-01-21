@@ -401,8 +401,18 @@ espi_parse_received(esp_recv_t* rcv) {
     const char* s;
     
     /* Try to remove non-parsable strings */
-    if ((rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n') ||
-        (rcv->len > 3 && rcv->data[0] == 'A' && rcv->data[1] == 'T' && rcv->data[2] == '+')) {
+    if ((rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n')
+        /*
+         * Condition below can be used only if AT echo is disabled
+         * otherwise it may happen that some message is inserted in between AT command echo, such as:
+         *
+         * AT+CIPCLOSE=0+LINK_CONN:0,2,"TCP",1,"192.168.0.14",57551,80\r\n\r\n
+         *
+         * Instead of:
+         * AT+CIPCLOSE=0\r\n
+         * +LINK_CONN:0,2,"TCP",1,"192.168.0.14",57551,80\r\n
+         */
+        /* || (rcv->len > 3 && rcv->data[0] == 'A' && rcv->data[1] == 'T' && rcv->data[2] == '+') */) {
         return;
     }
     
