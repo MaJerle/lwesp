@@ -100,6 +100,25 @@ typedef struct {
 } esp_ap_t;
 
 /**
+ * \brief           IP structure
+ */
+typedef struct {
+    uint8_t ip[4];                              /*!< IPv4 address */
+} esp_ip_t;
+
+/**
+ * \brief           Port variable
+ */
+typedef uint16_t    esp_port_t;
+
+/**
+ * \brief           MAC address
+ */
+typedef struct {
+    uint8_t mac[6];                             /*!< MAC address */
+} esp_mac_t;
+
+/**
  * \brief           Station data structure
  */
 typedef struct {
