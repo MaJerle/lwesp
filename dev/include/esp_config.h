@@ -46,6 +46,8 @@
 #define ESP_CFG_DBG_MQTT                    ESP_DBG_OFF
 #define ESP_CFG_DBG_MEM                     ESP_DBG_OFF
 #define ESP_CFG_DBG_PBUF                    ESP_DBG_OFF
+#define ESP_CFG_DBG_CONN                    ESP_DBG_OFF
+#define ESP_CFG_DBG_VAR                     ESP_DBG_OFF
 #define ESP_CFG_RCV_BUFF_SIZE               0x1000
 
 #define ESP_CFG_IPD_MAX_BUFF_SIZE           1460
@@ -54,7 +56,7 @@
 
 #define ESP_CFG_AT_ECHO                     1
 
-#define ESP_CFG_MAX_CONNS                   5
+#define ESP_CFG_MAX_CONNS                   20
 
 #define ESP_CFG_SNTP                        1
 #define ESP_CFG_HOSTNAME                    1

@@ -22,6 +22,7 @@ static espr_t esp_cb(esp_cb_t* cb);
  */
 int
 main() {
+    printf("App start!\r\n");
     /* Create start main thread */
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)main_thread, NULL, 0, &main_thread_id);
 
@@ -58,7 +59,6 @@ main_thread(void* arg) {
      * Start server on port 80
      */
     http_server_start();
-    printf("Server mode!\r\n");
 
     /*
      * Check if device has set IP address
@@ -87,7 +87,7 @@ static espr_t
 esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
         case ESP_CB_INIT_FINISH: {
-
+            esp_set_at_baudrate(115200*8, 0);
         }
         default: break;
     }
