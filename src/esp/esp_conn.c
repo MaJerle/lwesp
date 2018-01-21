@@ -201,6 +201,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
     res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000); /* Send message to producer queue */
     if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
         ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_DEBUGF(ESP_CFG_DBG_CONN, ESP_DBG_TYPE_TRACE, "CONN: Connection %d set to closing state\r\n", (int)conn->num);
         conn->status.f.in_closing = 1;          /* Connection is in closing mode but not yet closed */
         ESP_CORE_UNPROTECT();                   /* Unprotect core */
     }

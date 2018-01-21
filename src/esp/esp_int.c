@@ -399,11 +399,11 @@ static void
 espi_parse_received(esp_recv_t* rcv) {
     uint8_t is_ok = 0, is_error = 0, is_ready = 0;
     const char* s;
-    
+
     /* Try to remove non-parsable strings */
     if ((rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n')
         /*
-         * Condition below can be used only if AT echo is disabled
+         * Condition below can only be used if AT echo is disabled
          * otherwise it may happen that some message is inserted in between AT command echo, such as:
          *
          * AT+CIPCLOSE=0+LINK_CONN:0,2,"TCP",1,"192.168.0.14",57551,80\r\n\r\n
@@ -878,13 +878,9 @@ espi_process(const void* data, size_t data_len) {
             } else {
                 len = 0;                        /* No data to process more */
             }
-            ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: New length: %d bytes\r\n", (int)len);
+            ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: New length to read: %d bytes\r\n", (int)len);
             if (len) {
                 if (esp.ipd.buff != NULL) {     /* Is buffer valid? */
-                    /* 
-                     * Copy data to connection payload buffer.
-                     * Call if ok, even if new length is 0
-                     */
                     memcpy(&esp.ipd.buff->payload[esp.ipd.buff_ptr], d, len);
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Bytes read: %d\r\n", (int)len);
                 } else {                        /* Simply skip the data in buffer */
@@ -892,8 +888,6 @@ espi_process(const void* data, size_t data_len) {
                 }
                 d_len -= len;                   /* Decrease effective length */
                 d += len;                       /* Skip remaining length */
-            }
-            if (len) {                          /* Check if we did read/skip anything */
                 esp.ipd.buff_ptr += len;        /* Forward buffer pointer */
                 esp.ipd.rem_len -= len;         /* Decrease remaining length */
             }
@@ -907,7 +901,7 @@ espi_process(const void* data, size_t data_len) {
                 /*
                  * Call user callback function with received data
                  */
-                if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */
+                if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */                  
                     /*
                      * Send data buffer to upper layer
                      *
@@ -992,7 +986,7 @@ espi_process(const void* data, size_t data_len) {
                         if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
                             RECV_RESET();       /* Reset received object */
                             
-                            /**
+                            /*
                              * Now actually send the data prepared before
                              */
                             ESP_AT_PORT_SEND(&esp.msg->msg.conn_send.data[esp.msg->msg.conn_send.ptr], esp.msg->msg.conn_send.sent);
