@@ -267,6 +267,15 @@
 #endif
 
 /**
+ * \brief           Set debug level for connections
+ *
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ */
+#ifndef ESP_CFG_DBG_CONN
+#define ESP_CFG_DBG_CONN                    ESP_DBG_OFF
+#endif
+
+/**
  * \brief           Set debug level for dynamic variable allocations
  *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF

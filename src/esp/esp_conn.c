@@ -122,7 +122,8 @@ flush_buff(esp_conn_p conn) {
          * simply free the memory and stop execution
          */
         if (conn->buff_ptr == 0 || conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
-            esp_mem_free(conn->buff);           /* Free memory manually */
+            ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer1: %p\r\n", (void *)conn->buff);
+            esp_mem_free(conn->buff);           /* Manually free memory */
         }
         conn->buff = NULL;
     }
@@ -474,6 +475,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         if (conn->buff_ptr == conn->buff_len || flush) {
             /* Try to send to processing queue in non-blocking way */
             if (conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
+                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer2: %p\r\n", conn->buff);
                 esp_mem_free(conn->buff);       /* Manually free memory */
             }
             conn->buff = NULL;                  /* Reset pointer */
@@ -489,7 +491,9 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         if (buff != NULL) {
             memcpy(buff, d, ESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
             if (conn_send(conn, NULL, 0, buff, ESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
+                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer3: %p\r\n", (void *)buff);
                 esp_mem_free(buff);             /* Manually free memory */
+                buff = NULL;
                 return espERRMEM;
             }
         } else {
@@ -507,6 +511,11 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         conn->buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN);  /* Allocate memory for temp buffer */
         conn->buff_len = ESP_CFG_CONN_MAX_DATA_LEN;
         conn->buff_ptr = 0;
+        
+        ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff != NULL,
+            "CONN: New write buffer allocated, addr = %p\r\n", conn->buff);
+        ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff == NULL,
+            "CONN: Cannot allocate new write buffer\r\n");
     }
     if (btw) {
         if (conn->buff != NULL) {
