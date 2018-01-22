@@ -1,6 +1,6 @@
 #include "http_server.h"
 #include "esp/esp.h"
-#include "apps/esp_http_server.h"
+#include "esp/apps/esp_http_server.h"
 
 static size_t   http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len);
 #if HTTP_SUPPORT_POST

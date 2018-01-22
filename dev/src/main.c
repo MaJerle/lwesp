@@ -16,7 +16,7 @@
 #include "cpu_utils.h"
 #include "ff.h"
 
-#include "apps/esp_http_server.h"
+#include "esp/apps/esp_http_server.h"
 #include "esp/esp_hostname.h"
 
 #include "mqtt.h"
@@ -75,7 +75,7 @@ init_thread(void const* arg) {
     /*
      * Start MQTT thread
      */
-    esp_sys_thread_create(NULL, "MQTT", (esp_sys_thread_fn)mqtt_thread, NULL, 512, ESP_SYS_THREAD_PRIO);
+    //esp_sys_thread_create(NULL, "MQTT", (esp_sys_thread_fn)mqtt_thread, NULL, 512, ESP_SYS_THREAD_PRIO);
     
     /*
      * Try to connect to preferred access point

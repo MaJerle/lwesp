@@ -37,7 +37,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "apps/esp_apps.h"
+#include "esp/apps/esp_apps.h"
 
 /**
  * \addtogroup      ESP_APPS
@@ -64,51 +64,53 @@ extern "C" {
 #endif
 
 #ifndef HTTP_SSI_TAG_START
-#define HTTP_SSI_TAG_START              "<!--#"     /*!< SSI tag start string */
-#define HTTP_SSI_TAG_START_LEN          5           /*!< SSI tag start length */
+#define HTTP_SSI_TAG_START                  "<!--#"     /*!< SSI tag start string */
+#define HTTP_SSI_TAG_START_LEN              5           /*!< SSI tag start length */
 #endif
 
 #ifndef HTTP_SSI_TAG_END
-#define HTTP_SSI_TAG_END                "-->"       /*!< SSI tag end string */
-#define HTTP_SSI_TAG_END_LEN            3           /*!< SSI tag end length */
+#define HTTP_SSI_TAG_END                    "-->"       /*!< SSI tag end string */
+#define HTTP_SSI_TAG_END_LEN                3           /*!< SSI tag end length */
 #endif
 
 /**
  * \brief           Maximal length of tag name excluding start and end parts of tag
  */
 #ifndef HTTP_SSI_TAG_MAX_LEN
-#define HTTP_SSI_TAG_MAX_LEN            10
+#define HTTP_SSI_TAG_MAX_LEN                10
 #endif
 
 /**
  * \brief           Enables (1) or disables (0) support for POST request
  */
 #ifndef HTTP_SUPPORT_POST
-#define HTTP_SUPPORT_POST               1
+#define HTTP_SUPPORT_POST                   1
 #endif
 
 /**
  * \brief           Maximal length of allowed uri length including parameters in format /uri/sub/path?param=value
  */
 #ifndef HTTP_MAX_URI_LEN
-#define HTTP_MAX_URI_LEN                256
+#define HTTP_MAX_URI_LEN                    256
 #endif
 
 /**
  * \brief           Maximal number of parameters in URI
  */
 #ifndef HTTP_MAX_PARAMS
-#define HTTP_MAX_PARAMS                 16
+#define HTTP_MAX_PARAMS                     16
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) response support 
- *                  when method is requested which is not allowed by server
+ * \brief           Enables (1) or disables (0) method not allowed response.
+ *
+ *                  Response is used in case user makes HTTP request with method
+ *                  which is not on the list of allowed methods. See \ref http_req_method_t
  *
  * \note            When disabled, connection will be closed without response
  */
 #ifndef HTTP_USE_METHOD_NOTALLOWED_RESP
-#define HTTP_USE_METHOD_NOTALLOWED_RESP 1
+#define HTTP_USE_METHOD_NOTALLOWED_RESP     1
 #endif
 
 /**
@@ -236,7 +238,9 @@ typedef struct {
 typedef enum {
     HTTP_METHOD_NOTALLOWED,                     /*!< HTTP method is not allowed */
     HTTP_METHOD_GET,                            /*!< HTTP request method GET */
+#if HTTP_SUPPORT_POST || __DOXYGEN__
     HTTP_METHOD_POST,                           /*!< HTTP request method POST */
+#endif /* HTTP_SUPPORT_POST || __DOXYGEN__ */
 } http_req_method_t;
 
 /**

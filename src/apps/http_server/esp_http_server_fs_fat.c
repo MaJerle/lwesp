@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#include "apps/esp_http_server.h"
+#include "esp/apps/esp_http_server.h"
 #include "esp/esp_mem.h"
 #include "ff.h"                 /* Include FATFS file system file */
 

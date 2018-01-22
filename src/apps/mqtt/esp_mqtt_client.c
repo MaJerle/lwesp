@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#include "apps/esp_mqtt_client.h"
+#include "esp/apps/esp_mqtt_client.h"
 #include "esp/esp_mem.h"
 #include "esp/esp_pbuf.h"
 

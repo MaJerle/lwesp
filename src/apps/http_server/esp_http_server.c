@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#include "apps/esp_http_server.h"
+#include "esp/apps/esp_http_server.h"
 #include "esp/esp_mem.h"
 #include "ctype.h"
 
@@ -654,8 +654,8 @@ http_evt_cb(esp_cb_t* cb) {
                          * Parse the URI, process request and open response file
                          */
                         http_uri_parsed = http_parse_uri(hs->p) == espOK;
-                        
-#if HTTP_SUPPORT_POST                        
+
+#if HTTP_SUPPORT_POST
                         /*
                          * Check for request method used on this connection
                          */
@@ -663,7 +663,6 @@ http_evt_cb(esp_cb_t* cb) {
                             size_t data_pos, pbuf_total_len;
                         
                             hs->req_method = HTTP_METHOD_POST;  /* Save a new value as POST method */
-                        
                         
                             /*
                              * At this point, all headers are received
@@ -735,14 +734,16 @@ http_evt_cb(esp_cb_t* cb) {
                             }
                         } else 
 #else
-                        ESP_UNUSED(pos);        /* Unused variable */
+                        ESP_UNUSED(pos);
 #endif /* HTTP_SUPPORT_POST */
-                        if (!esp_pbuf_strcmp(hs->p, "GET ", 0)) {
-                            hs->req_method = HTTP_METHOD_GET;
-                            hs->process_resp = 1;   /* Process with response to user */
-                        } else {
-                            hs->req_method = HTTP_METHOD_NOTALLOWED;
-                            hs->process_resp = 1;
+                        {
+                            if (!esp_pbuf_strcmp(hs->p, "GET ", 0)) {
+                                hs->req_method = HTTP_METHOD_GET;
+                                hs->process_resp = 1;   /* Process with response to user */
+                            } else {
+                                hs->req_method = HTTP_METHOD_NOTALLOWED;
+                                hs->process_resp = 1;
+                            }
                         }
                         
                         /*
@@ -753,8 +754,8 @@ http_evt_cb(esp_cb_t* cb) {
                             http_get_file_from_uri(hs, http_uri);   /* Open file */
                         }
                     }
-#if HTTP_SUPPORT_POST
                 } else {
+#if HTTP_SUPPORT_POST
                     /*
                      * We are receiving request data now
                      * as headers are already received
@@ -785,8 +786,9 @@ http_evt_cb(esp_cb_t* cb) {
                                 }
                             }
                         }
+                    } else
 #endif /* HTTP_SUPPORT_POST */
-                    } else {
+                    {
                         /* Protocol violation at this point! */
                     }
                 }

@@ -1,6 +1,6 @@
 #include "mqtt.h"
 #include "esp/esp.h"
-#include "apps/esp_mqtt_client.h"
+#include "esp/apps/esp_mqtt_client.h"
 #include "esp/esp_timeout.h"
 
 mqtt_client_t* mqtt_client;

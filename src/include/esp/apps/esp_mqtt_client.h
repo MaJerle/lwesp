@@ -203,7 +203,7 @@ typedef struct mqtt_client {
 mqtt_client_t*  mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
 void            mqtt_client_delete(mqtt_client_t* client);
 
-espr_t          mqtt_client_connect(mqtt_client_t* client, const char* host, uint16_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info);
+espr_t          mqtt_client_connect(mqtt_client_t* client, const char* host, esp_port_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info);
 espr_t          mqtt_client_disconnect(mqtt_client_t* client);
 espr_t          mqtt_client_is_connected(mqtt_client_t* client);
 
