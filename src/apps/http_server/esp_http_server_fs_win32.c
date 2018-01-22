@@ -1,6 +1,6 @@
 /**	
- * \file            esp_http_server_fs_fat.c
- * \brief           FATFS library implementation for HTTP server file system
+ * \file            esp_http_server_fs_win32.c
+ * \brief           WIN32 file system implementation
  */
  
 /*
@@ -33,13 +33,8 @@
 #include "esp/apps/esp_http_server.h"
 #include "esp/apps/esp_http_server_fs.h"
 #include "esp/esp_mem.h"
-#include "ff.h"                 /* Include FATFS file system file */
 
-/* File system object handle */
-static FATFS fs;
-
-/* File path */
-static char fs_path[128];
+static char fs_path[256];
 
 /**
  * \brief           Open a file of specific path
@@ -49,41 +44,23 @@ static char fs_path[128];
  */
 uint8_t
 http_fs_open(http_fs_file_t* file, const char* path) {
-    FIL* fil;
-    
-    /*
-     * Do we have to mount our file system?
-     */
-    if (*file->rem_open_files == 0) {
-        if (f_mount(&fs, "SD:", 1) != FR_OK) {
-            return 0;
-        }
-    }
+    FILE* fil;
     
     /*
      * Format file path in "www" directory of root directory
      */
-    sprintf(fs_path, "SD:www%s", path);
+    sprintf(fs_path, "www%s", path);
     
     /*
-     * Allocate memory for FATFS file structure
+     * Try to open file on disk as read and binary mode
      */
-    fil = esp_mem_alloc(sizeof(*fil));
-    if (fil == NULL) {
-        return 0;
-    }
-    
-    /*
-     * Try to open file in read mode and
-     * set required parameters for file length
-     */
-    if (f_open(fil, fs_path, FA_READ) == FR_OK) {
-        file->arg = fil;                        /* Set user file argument to FATFS file structure */
-        file->size = f_size(fil);               /* Set file length, most important part */
+    if (!fopen_s(&fil, fs_path, "rb")) {
+        file->arg = fil;
+        fseek(fil, 0, SEEK_END);
+        file->size = ftell(fil);
+        fseek(fil, 0, SEEK_SET);
         return 1;
     }
-    
-    esp_mem_free(fil);                          /* We failed, free memory */
     return 0;
 }
 
@@ -96,8 +73,8 @@ http_fs_open(http_fs_file_t* file, const char* path) {
  */
 uint32_t
 http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
-    FIL* fil;
-    UINT br;
+    FILE* fil;
+    uint32_t br;
     
     fil = file->arg;                            /* Get file argument */
     if (fil == NULL) {                          /* Check if argument is valid */
@@ -109,17 +86,19 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
      * length we can read in the next step
      */
     if (buff == NULL) {
-        return f_size(fil) - f_tell(fil);
+        uint32_t s, e;
+        s = ftell(fil);                         /* Get current position */
+        fseek(fil, 0, SEEK_END);                /* Go to the end */
+        e = ftell(fil);                         /* Get end position */
+        fseek(fil, s, SEEK_SET);                /* Set back to current position */
+        return e - s;                           /* Return difference in positions */
     }
     
     /*
      * Read the file and return read length
      */
-    br = 0;
-    if (f_read(fil, buff, btr, &br) == FR_OK) {
-        return br;
-    }
-    return 0;
+    br = (uint32_t)fread_s(buff, btr, 1, btr, fil);
+    return br;
 }
 
 /**
@@ -129,23 +108,21 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
  */
 uint8_t
 http_fs_close(http_fs_file_t* file) {
-    FIL* fil;
+    FILE* fil;
     
     fil = file->arg;                            /* Get file argument */
     if (fil == NULL) {                          /* Check if argument is valid */
         return 0;
     }
     
-    f_close(fil);                               /* Close file */
+    fclose(fil);                                /* Close file */
     
     /*
      * At this step, check if we are last opened file
      * and unmount system if necessary
      */
     if (*file->rem_open_files == 1) { 
-        f_mount(NULL, "SD:", 1);
-    }
-    esp_mem_free(fil);                          /* Free user argument */
-    
+
+    }    
     return 1;                                   /* Close was successful */
 }

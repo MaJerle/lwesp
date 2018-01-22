@@ -1,6 +1,7 @@
 #include "http_server.h"
 #include "esp/esp.h"
 #include "esp/apps/esp_http_server.h"
+#include "esp/apps/esp_http_server_fs.h"
 
 static size_t   http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len);
 #if HTTP_SUPPORT_POST
@@ -34,6 +35,12 @@ http_init = {
     .cgi = cgi_handlers,
     .cgi_count = ESP_ARRAYSIZE(cgi_handlers),
     .ssi_fn = http_ssi_cb,
+    
+#if WIN32
+    .fs_open = http_fs_open,
+    .fs_read = http_fs_read,
+    .fs_close = http_fs_close,
+#endif
 };
 
 /**

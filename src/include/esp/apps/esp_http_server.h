@@ -326,20 +326,6 @@ typedef struct http_state {
 
 espr_t      esp_http_server_init(const http_init_t* init, esp_port_t port);
 size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
-
-/**
- * \defgroup        ESP_APP_HTTP_SERVER_FS_FAT FAT File System
- * \brief           FATFS file system implementation for dynamic files
- * \{
- */
-
-uint8_t     http_fs_open(http_fs_file_t* file, const char* path);
-uint32_t    http_fs_read(http_fs_file_t* file, void* buff, size_t btr);
-uint8_t     http_fs_close(http_fs_file_t* file);
-
-/**
- * \}
- */
  
 /**
  * \}
