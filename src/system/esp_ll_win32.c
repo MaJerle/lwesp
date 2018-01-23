@@ -72,7 +72,7 @@ configure_uart(uint32_t baudrate) {
      * as generic read and write
      */
 	if (!initialized) {
-		comPort = CreateFile(L"\\\\.\\COM16",
+		comPort = CreateFile(L"\\\\.\\COM6",
 			GENERIC_READ | GENERIC_WRITE,
 			0,
 			0,
@@ -131,8 +131,8 @@ uart_thread(void* param) {
 
 	while (comPort == NULL);
 
-    esp_sys_sem_create(&sem, 1);
-    fopen_s(&file, "log_file.txt", "w+");
+    esp_sys_sem_create(&sem, 1);                /* Create semaphore for delay functions */
+    fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
 	while (1) {
         /*
          * Try to read data from COM port
@@ -141,7 +141,18 @@ uart_thread(void* param) {
         do {
             ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
             if (bytes_read > 0) {
+                DWORD i;
+                for (i = 0; i < bytes_read; i++) {
+                    //printf("%c", data_buffer[i]);
+                }
+                /*
+                 * Send received data to input processing module
+                 */
                 esp_input_process(data_buffer, (size_t)bytes_read);
+
+                /*
+                 * Write received data to output debug file
+                 */
                 if (file != NULL) {
                     fwrite(data_buffer, 1, bytes_read, file);
                     fflush(file);
