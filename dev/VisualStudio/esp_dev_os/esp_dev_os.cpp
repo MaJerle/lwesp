@@ -88,6 +88,11 @@ esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
         case ESP_CB_INIT_FINISH: {
             esp_set_at_baudrate(115200*8, 0);
+            break;
+        }
+        case ESP_CB_RESET: {
+            printf("Device reset!\r\n");
+            break;
         }
         default: break;
     }

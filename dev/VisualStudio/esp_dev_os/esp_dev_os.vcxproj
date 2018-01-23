@@ -146,6 +146,7 @@
     <ClCompile Include="..\..\..\src\api\esp_netconn.c" />
     <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server.c" />
     <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server_fs.c" />
+    <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server_fs_win32.c" />
     <ClCompile Include="..\..\..\src\apps\mqtt\esp_mqtt_client.c" />
     <ClCompile Include="..\..\..\src\esp\esp.c" />
     <ClCompile Include="..\..\..\src\esp\esp_ap.c" />

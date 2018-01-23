@@ -1125,34 +1125,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>450</LineNumber>
+          <LineNumber>1010</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134236794</Address>
+          <Address>134248394</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\..\src\esp\esp_mem.c</Filename>
+          <Filename>..\..\src\esp\esp_int.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\project\../../src/esp/esp_mem.c\450</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>109</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134236174</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\..\src\esp\esp.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\project\../../src/esp/esp.c\109</Expression>
+          <Expression>\\project\../../src/esp/esp_int.c\1010</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -1209,7 +1193,7 @@
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>esp</ItemText>
+          <ItemText>esp,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
@@ -2084,7 +2068,7 @@
 
   <Group>
     <GroupName>ESP LL</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2116,7 +2100,7 @@
 
   <Group>
     <GroupName>ESP HTTP SERVER</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
