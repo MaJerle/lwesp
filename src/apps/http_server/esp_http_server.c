@@ -300,8 +300,8 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
             char* crlfcrlf;
             crlfcrlf = strstr((const char *)hs->resp_file.data, CRLF CRLF);
             if (crlfcrlf != NULL) {             /* Skip header part of file */
-                hs->resp_file.size -= crlfcrlf - hs->resp_file.data + 4;    /* Decrease file size first! */
-                hs->resp_file.data += crlfcrlf - hs->resp_file.data + 4;    /* Advance file pointer */
+                hs->resp_file.size -= (const char *)crlfcrlf - (const char *)hs->resp_file.data + 4;/* Decrease file size first! */
+                hs->resp_file.data += (const char *)crlfcrlf - (const char *)hs->resp_file.data + 4;/* Advance file pointer */
             }
         }
 
