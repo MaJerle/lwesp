@@ -438,8 +438,9 @@ espi_parse_received(esp_recv_t* rcv) {
         if (IS_CURR_CMD(ESP_CMD_RESET)) {       /* Did we force reset? */
             
         } else {                                /* Reset due unknown error */
-            espi_send_cb(ESP_CB_RESET);         /* Call user callback function */
+
         }
+        espi_send_cb(ESP_CB_RESET);         /* Call user callback function */
         reset_everything();                     /* Put everything to default state */
     }
     
