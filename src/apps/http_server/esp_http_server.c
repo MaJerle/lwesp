@@ -55,18 +55,101 @@ http_param_t http_params[HTTP_MAX_PARAMS];
 static const http_init_t* hi;
 
 #if HTTP_USE_METHOD_NOTALLOWED_RESP
-const char
+/**
+ * \brief           Default output for method not allowed response
+ */
+static const char
 http_data_method_not_allowed[] = ""
-"HTTP/1.1 405 Method Not Allowed" CRLF
-"Connection: close" CRLF
-"Allow: GET"
+    "HTTP/1.1 405 Method Not Allowed" CRLF
+    "Server: " HTTP_SERVER_NAME CRLF
+    "Allow: GET"
 #if HTTP_SUPPORT_POST
-", POST"
+    ", POST"
 #endif /* HTTP_SUPPORT_POST */
-CRLF
-CRLF
+    CRLF
+    CRLF
 "";
 #endif /* HTTP_USE_METHOD_NOTALLOWED_RESP */
+
+#if HTTP_DYNAMIC_HEADERS
+/**
+ * \brief           Intexes for \ref http_dynstrs array
+ */
+typedef enum {
+    /* Response code */
+    HTTP_HDR_200,
+    HTTP_HDR_400,
+    HTTP_HDR_404,
+
+    /* Server response code */
+    HTTP_HDR_SERVER,
+
+    /* Content type strings */
+    HTTP_HDR_HTML,
+    HTTP_HDR_PNG,
+    HTTP_HDR_JPG,
+    HTTP_HDR_GIF,
+    HTTP_HDR_CSS,
+    HTTP_HDR_JS,
+    HTTP_HDR_ICO,
+    HTTP_HDR_XML,
+    HTTP_HDR_PLAIN,
+} dynamic_headers_index_t;
+
+/**
+ * \brief           Array of supported response strings
+ */
+static const char* const
+http_dynstrs[] = {
+    /* Response code */
+    "HTTP/1.1 200 OK" CRLF,
+    "HTTP/1.1 400 Bad Request" CRLF,
+    "HTTP/1.1 404 File Not Found" CRLF,
+
+    /* Server response code */
+    "Server: " HTTP_SERVER_NAME CRLF,
+
+    /* Content type strings */
+    "Content-type: text/html" CRLF CRLF,
+    "Content-type: image/png" CRLF CRLF,
+    "Content-type: image/jpeg" CRLF CRLF,
+    "Content-type: image/gif" CRLF CRLF,
+    "Content-type: text/css" CRLF CRLF,
+    "Content-type: text/javascript" CRLF CRLF,
+    "Content-type: text/x-icon" CRLF CRLF,
+    "Content-type: text/xml" CRLF CRLF,
+    "Content-type: text/plain" CRLF CRLF,
+};
+
+/**
+ * \brief           Header index and file suffix pair
+ */
+typedef struct {
+    dynamic_headers_index_t index;
+    const char* ext;
+} dynamic_headers_pair_t;
+
+/**
+ * \brief           Lookup table for file suffix and content type header
+ */
+static const dynamic_headers_pair_t
+dynamic_headers_pairs[] = {
+    { HTTP_HDR_HTML,        "html" },
+    { HTTP_HDR_HTML,        "htm" },
+    { HTTP_HDR_HTML,        "shtml" },
+    { HTTP_HDR_HTML,        "shtm" },
+    { HTTP_HDR_HTML,        "ssi" },
+    { HTTP_HDR_PNG,         "png" },
+    { HTTP_HDR_JPG,         "jpg" },
+    { HTTP_HDR_JPG,         "jpeg" },
+    { HTTP_HDR_GIF,         "gif" },
+    { HTTP_HDR_CSS,         "css" },
+    { HTTP_HDR_JS,          "js" },
+    { HTTP_HDR_ICO,         "ico" },
+    { HTTP_HDR_XML,         "xml" },
+};
+
+#endif /* HTTP_DYNAMIC_HEADERS */
 
 /**
  * \brief           List of supported file names for index page
@@ -190,6 +273,137 @@ http_get_params(char* params) {
     return cnt;
 }
 
+#if HTTP_DYNAMIC_HEADERS
+/**
+ * \brief           Prepare dynamic headers to be sent as response to user
+ * \param[in]       hs: HTTP state
+ * \param[in]       uri: Request URI excluding optional parameters
+ */
+static void
+prepare_dynamic_headers(http_state_t* hs, const char* uri) {
+    char *ext, *u;
+    size_t i;
+
+    hs->dyn_hdr_idx = 0;
+    hs->dyn_hdr_pos = 0;
+                                                /*  */
+    hs->dyn_hdr_strs[1] = http_dynstrs[HTTP_HDR_SERVER];    /* Set server name */
+    if (!hs->resp_file_opened) {
+        hs->dyn_hdr_strs[0] = http_dynstrs[HTTP_HDR_404];   /* 404 Not Found */
+        hs->dyn_hdr_strs[2] = http_dynstrs[HTTP_HDR_HTML];  /* Content type text/html */
+    } else {
+        /*
+         * Try to find CRLFCRLF sequence on static files and remove
+         * the headers if dynamic headers are used
+         */
+        if (hs->resp_file.is_static) {
+            char* crlfcrlf;
+            crlfcrlf = strstr((const char *)hs->resp_file.data, CRLF CRLF);
+            if (crlfcrlf != NULL) {             /* Skip header part of file */
+                hs->resp_file.size -= crlfcrlf - hs->resp_file.data + 4;    /* Decrease file size first! */
+                hs->resp_file.data += crlfcrlf - hs->resp_file.data + 4;    /* Advance file pointer */
+            }
+        }
+
+        /*
+         * Determine if file is 404 or normal user file.
+         * 
+         * 404 file should be in type of "/404.xxx" where "xxx" includes optional extension
+         */
+        if (strstr(uri, "/404.")) {             /* Do we have a 404 in file name? */
+            hs->dyn_hdr_strs[0] = http_dynstrs[HTTP_HDR_404];   /* 404 Not found */
+        } else {
+            hs->dyn_hdr_strs[0] = http_dynstrs[HTTP_HDR_200];   /* 200 OK */
+        }
+
+        /*
+         * Try to find content type by inspecting file extensions
+         *
+         * At this point, uri should not include parameters in string as we are searching for actual file
+         *
+         * Step 1: Find file extension
+         * Step 2: Compare file extension with table of known extensions and content types
+         */
+        ext = NULL;                             /* No extension on beginning */
+        u = strchr(uri, '.');                   /* Find first dot in string */
+        while (u != NULL) {
+            ext = u + 1;                        /* Set current u as extension but skip dot character */
+            u = strchr(u + 1, '.');             /* Find next dot */
+        }
+
+        i = 0;
+        if (ext != NULL) {                      /* Do we have an extension? */
+            for (; i < ESP_ARRAYSIZE(dynamic_headers_pairs); i++) {
+                if (!strcmpa(ext, dynamic_headers_pairs[i].ext)) {
+                    break;
+                }
+            }
+        }
+
+        /*
+         * Finally set the output content type header
+         */
+        if (ext != NULL && i < ESP_ARRAYSIZE(dynamic_headers_pairs)) {
+            hs->dyn_hdr_strs[2] = http_dynstrs[dynamic_headers_pairs[i].index]; /* Set response from index directly */
+        } else {
+            hs->dyn_hdr_strs[2] = http_dynstrs[HTTP_HDR_PLAIN]; /* Plain text, unknown type */
+        }
+    }
+
+    for (i = 0; i < HTTP_MAX_HEADERS; i++) {
+        printf("Header %d: %s", (int)i, hs->dyn_hdr_strs[i]);
+    }
+}
+
+/**
+* \brief           Sends dynamic headers to output before sending actual content
+* \param[in]       hs: HTTP state
+*/
+static void
+send_dynamic_headers(http_state_t* hs) {
+    size_t to_write, rem_len;
+    if (hs->dyn_hdr_idx >= HTTP_MAX_HEADERS) {
+        return;
+    }
+
+    /*
+     * Get available memory in write buffer
+     */
+    esp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);
+
+    /*
+     * Try to write as much data as possible
+     */
+    while (hs->conn_mem_available && hs->dyn_hdr_idx < HTTP_MAX_HEADERS) {
+        if (hs->dyn_hdr_strs[hs->dyn_hdr_idx] == NULL) {    /* Check if string is set */
+            hs->dyn_hdr_pos = 0;                /* Reset header position */
+            hs->dyn_hdr_idx++;                  /* Go to next string */
+            continue;
+        }
+        rem_len = strlen(&hs->dyn_hdr_strs[hs->dyn_hdr_idx][hs->dyn_hdr_pos]);  /* Get remaining length of string to write */
+        to_write = ESP_MIN(hs->conn_mem_available, rem_len);    /* Calculate remaining maximal number of bytes we can write */
+        
+        /*
+         * Write data to connection output buffer
+         */
+        esp_conn_write(hs->conn, &hs->dyn_hdr_strs[hs->dyn_hdr_idx][hs->dyn_hdr_pos], to_write, 0, &hs->conn_mem_available);
+        hs->written_total += to_write;
+
+        hs->dyn_hdr_pos += to_write;            /* Advance for written position */
+        if (to_write == rem_len) {              /* Did we write everything? */
+            hs->dyn_hdr_pos = 0;                /* Reset output variable position */
+            hs->dyn_hdr_idx++;                  /* Increase header index string */
+        }
+    }
+    /*
+     * Flush data to output
+     *
+     * TODO: Do not flush it now and try to write more data together with user output?
+     */
+    esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush data to output */
+}
+#endif
+
 /**
  * \brief           Get file from uri in format /folder/file?param1=value1&...
  * \param[in]       hs: HTTP state
@@ -226,7 +440,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
         char* req_params;
         size_t params_len;
         req_params = strchr(uri, '?');          /* Search for params delimiter */
-        if (req_params) {                       /* We found parameters? */
+        if (req_params != NULL) {               /* We found parameters? They should not exists in static strings or we may have buf! */
             req_params[0] = 0;                  /* Reset everything at this point */
             req_params++;                       /* Skip NULL part and go to next one */
         }
@@ -278,6 +492,16 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
             }
         }
     }
+
+#if HTTP_DYNAMIC_HEADERS
+    /*
+     * Process with dynamic headers response only
+     * if file is opened for response.
+     *
+     * If file is not opened, send default 404 resp or close connection
+     */
+    prepare_dynamic_headers(hs, uri);
+#endif /* HTTP_DYNAMIC_HEADERS */
     
     return hs->resp_file_opened;
 }
@@ -556,31 +780,51 @@ send_response(http_state_t* hs, uint8_t ft) {
      * At this point it should be opened already if request method is valid
      */
     if (hs->resp_file_opened) {
+#if HTTP_DYNAMIC_HEADERS
         /*
-         * Process and send more data to output
+         * Before processing actual output, make sure
+         * dynamic headers were sent to client output
          */
-        if (hs->is_ssi) {                       /* In case of SSI request, process data using SSI */
-            send_response_ssi(hs);              /* Send response using SSI parsing */
-        } else {
-            send_response_no_ssi(hs);           /* Send response without SSI parsing */
-        }
+        if (hs->dyn_hdr_idx < HTTP_MAX_HEADERS) {
+            send_dynamic_headers(hs);           /* Send dynamic headers to output */
+        } else 
+#endif /* HTTP_DYNAMIC_HEADERS */
+        {
+            /*
+             * Process and send more data to output
+             */
+            if (hs->is_ssi) {                   /* In case of SSI request, process data using SSI */
+                send_response_ssi(hs);          /* Send response using SSI parsing */
+            } else {
+                send_response_no_ssi(hs);       /* Send response without SSI parsing */
+            }
         
-        /*
-         * Shall we hare directly close a connection if buff is NULL?
-         * Maybe check first if problem was memory and try next time again
-         *
-         * Currently this is a solution to close the file
-         */
-        if (hs->buff == NULL) {                 /* Sent everything or problem somehow? */
-            close = 1;
+            /*
+             * Shall we hare directly close a connection if buff is NULL?
+             * Maybe check first if problem was memory and try next time again
+             *
+             * Currently this is a solution to close the file
+             */
+            if (hs->buff == NULL) {             /* Sent everything or problem somehow? */
+                close = 1;
+            }
         }
     } else  {
 #if HTTP_USE_METHOD_NOTALLOWED_RESP
         if (hs->req_method == HTTP_METHOD_NOTALLOWED) {  /* Is request method not allowed? */
             esp_conn_send(hs->conn, http_data_method_not_allowed, sizeof(http_data_method_not_allowed) - 1, NULL, 0);
-            /* Don't set number of bytes written to preven recursion */
-        }
+            /* Don't set number of bytes written to prevent recursion */
+        } else
 #endif /* HTTP_USE_METHOD_NOT_ALLOWED_RESPONSE */
+        {
+            /*
+             * Since user should include _fs.c file and 404 response is part of it,
+             * we should never enter here. However in case user does 
+             * hard modifications, we may enter here.
+             *
+             * Think about "hard" 404 response before closing?
+             */
+        }
         close = 1;                              /* Close connection, file is not opened */
     }
     

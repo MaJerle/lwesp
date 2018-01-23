@@ -114,8 +114,47 @@ extern "C" {
 #endif
 
 /**
+ * \brief           Enables (1) or disables (1) default static files 
+ *
+ *                  To allow fast startup of server development,
+ *                  several static files are included by default:
+ *                      - /index.html
+ *                      - /index.shtml
+ *                      - /js/style.css
+ *                      - /js/js.js
+ */
+#ifndef HTTP_USE_DEFAULT_STATIC_FILES
+#define HTTP_USE_DEFAULT_STATIC_FILES       1
+#endif
+
+/**
+ * \brief           Enables (1) or disables (0) dynamic headers support
+ *
+ *                  With dynamic headers enabled, script will try to detect most common
+ *                  file extensions and will try to response with:
+ *                      - HTTP response code as first line
+ *                      - Server name as second line
+ *                      - Content type as third line including end of headers (empty line)
+ */
+#ifndef HTTP_DYNAMIC_HEADERS
+#define HTTP_DYNAMIC_HEADERS                1
+#endif
+
+/**
+ * \brief           Default server name for "Server: x" response dynamic header
+ */
+#ifndef HTTP_SERVER_NAME
+#define HTTP_SERVER_NAME                    "ESP8266 AT Lib (majerle.eu)"
+#endif
+
+/**
  * \}
  */
+
+/**
+ * \brief           Maximal number of headers we can control
+ */
+#define HTTP_MAX_HEADERS                    3
 
 struct http_state;
 struct http_fs_file;
@@ -304,6 +343,12 @@ typedef struct http_state {
     uint32_t buff_ptr;                          /*!< Current buffer pointer */
     
     void* arg;                                  /*!< User optional argument */
+
+#if HTTP_DYNAMIC_HEADERS || __DOXYGEN__
+    const char* dyn_hdr_strs[HTTP_MAX_HEADERS]; /*!< Pointer to constant strings for dynamic header outputs */
+    size_t dyn_hdr_idx;                         /*!< Current header for processing on output */
+    size_t dyn_hdr_pos;                         /*!< Current position in current index for output */
+#endif /* HTTP_DYNAMIC_HEADERS || __DOXYGEN__ */
     
     /* SSI tag parsing */
     uint8_t is_ssi;                             /*!< Flag if current request is SSI enabled */

@@ -49,7 +49,7 @@ http_fs_open(http_fs_file_t* file, const char* path) {
     /*
      * Format file path in "www" directory of root directory
      */
-    sprintf(fs_path, "www%s", path);
+    sprintf(fs_path, "../../../www%s", path);
     
     /*
      * Try to open file on disk as read and binary mode
