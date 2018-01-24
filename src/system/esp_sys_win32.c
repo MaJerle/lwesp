@@ -543,11 +543,10 @@ esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn t
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
     esp_sys_sem_t sem;
-    esp_sys_sem_create(&sem, 1);
+
+    esp_sys_sem_create(&sem, 0);
     while (1) {
-        esp_sys_sem_wait(&sem, 0);
         esp_sys_sem_wait(&sem, 1000);
-        esp_sys_sem_release(&sem);
     }
 	return 1;
 }

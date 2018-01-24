@@ -131,8 +131,7 @@ uart_thread(void* param) {
 
 	while (comPort == NULL);
 
-    esp_sys_sem_create(&sem, 1);                /* Create semaphore for delay functions */
-    esp_sys_sem_wait(&sem, 0);
+    esp_sys_sem_create(&sem, 0);                /* Create semaphore for delay functions */
 
     fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
 	while (1) {
