@@ -143,11 +143,11 @@ extern "C" {
 /**
  * \brief           Enables (1) or disables (0) content length header for response
  *
- * \note            In order to use this, \ref HTTP_DYNAMIC_HEADERS must be enabled
- *
  *                  If response has fixed length without SSI tags,
  *                  dynamic headers will try to include "Content-Length" header
  *                  as part of response message sent to client
+ *
+ * \note            In order to use this, \ref HTTP_DYNAMIC_HEADERS must be enabled
  */
 #ifndef HTTP_DYNAMIC_HEADERS_CONTENT_LEN
 #define HTTP_DYNAMIC_HEADERS_CONTENT_LEN    1

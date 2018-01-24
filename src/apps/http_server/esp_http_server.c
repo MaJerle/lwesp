@@ -316,7 +316,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
         hs->dyn_hdr_strs[2] = NULL;             /* No content length involved */
 #if HTTP_DYNAMIC_HEADERS_CONTENT_LEN
         if (!hs->is_ssi) {
-            sprintf(hs->dyn_hdr_cnt_len, "Content-Length: %d" CRLF, hs->resp_file.size);
+            sprintf(hs->dyn_hdr_cnt_len, "Content-Length: %d" CRLF, (int)hs->resp_file.size);
             hs->dyn_hdr_strs[2] = hs->dyn_hdr_cnt_len;
         }
 #endif /* HTTP_DYNAMIC_HEADERS_CONTENT_LEN */
