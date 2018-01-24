@@ -291,8 +291,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
     if (!hs->resp_file_opened) {                /* This should never be the case as 404.html file exists as static */
         hs->dyn_hdr_strs[0] = http_dynstrs[HTTP_HDR_404];   /* 404 Not Found */
         hs->dyn_hdr_strs[HTTP_MAX_HEADERS - 1] = http_dynstrs[HTTP_HDR_HTML];   /* Content type text/html */
-    }
-    else {
+    } else {
         /*
          * Try to find CRLFCRLF sequence on static files and remove
          * the headers if dynamic headers are used
