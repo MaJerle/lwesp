@@ -23,10 +23,12 @@ static void example_do_connect(mqtt_client_t* client);
 static espr_t
 mqtt_esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
+#if ESP_CFG_MODE_STATION
         case ESP_CB_WIFI_GOT_IP: {
             example_do_connect(mqtt_client);    /* Start connection after we have a connection to network client */
             break;
         }
+#endif /* ESP_CFG_MODE_STATION */
         default: break;
     }
     return espOK;

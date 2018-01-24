@@ -125,6 +125,7 @@ esp_cb(esp_cb_t* cb) {
             esp_set_at_baudrate(115200, 0);     /* Init ESP stack */
                                                 
             break;
+#if ESP_CFG_MODE_STATION
         case ESP_CB_STA_LIST_AP:
             printf("List AP finished!\r\n");                        
             break;
@@ -132,6 +133,7 @@ esp_cb(esp_cb_t* cb) {
             printf("WIFI GOT IP FROM MAIN!\r\n");
             break;
         }
+#endif /* ESP_CFG_MODE_STATION */
         default:
             break;
     }
