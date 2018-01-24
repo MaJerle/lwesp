@@ -339,6 +339,9 @@ typedef struct esp_msg {
         struct {
             esp_datetime_t* dt;                 /*!< Pointer to datetime structure */
         } tcpip_sntp_time;                      /*!< SNTP get time */
+        struct {
+            uint8_t en;                         /*!< Status if WPS is enabled or not */
+        } wps_cfg;                              /*!< WPS configuration */
     } msg;                                      /*!< Group of different possible message contents */
 } esp_msg_t;
 

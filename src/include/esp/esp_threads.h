@@ -37,7 +37,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "esp.h"
+#include "esp/esp.h"
 
 void    esp_thread_producer(void* const arg);
 void    esp_thread_process(void* const arg);

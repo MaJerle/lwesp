@@ -395,6 +395,14 @@
 #ifndef ESP_CFG_PING
 #define ESP_CFG_PING                        0
 #endif
+ 
+/**
+ * \brief           Enables (1) or disables (0) support for WPS functions
+ *
+ */
+#ifndef ESP_CFG_WPS
+#define ESP_CFG_WPS                         0
+#endif
 
 /**
  * \brief           Enables (1) or disables (0) support for SNTP protocol with AT commands
@@ -443,9 +451,14 @@
 
 #if !ESP_CFG_OS
     #if ESP_CFG_INPUT_USE_PROCESS
-    #error "ESP_CFG_INPUT_USE_PROCESS may only be enabled when OS is used"
+    #error "ESP_CFG_INPUT_USE_PROCESS may only be enabled when OS is used!"
     #endif /* ESP_CFG_INPUT_USE_PROCESS */
 #endif /* !ESP_CFG_OS */
+
+/* Check for WPS functionality */
+#if ESP_CFG_WPS && !ESP_CFG_MODE_STATION
+#error "WPS function may only be used when station mode is enabled!"
+#endif /* ESP_CFG_WPS && !ESP_CFG_MODE_STATION */
 
 #endif /* !__DOXYGEN__ */
 

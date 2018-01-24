@@ -38,7 +38,7 @@
 extern "C" {
 #endif
 
-#include "esp.h"
+#include "esp/esp.h"
 #include "esp_private.h"
 
 /**

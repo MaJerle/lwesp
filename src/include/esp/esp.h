@@ -227,6 +227,19 @@ typedef struct esp_cb_t {
 #if ESP_CFG_OS
 #include "esp/esp_netconn.h"
 #endif /* ESP_CFG_OS */
+#if ESP_CFG_PING
+#include "esp/esp_ping.h"
+#endif /* ESP_CFG_PING */
+#if ESP_CFG_WPS
+#include "esp/esp_wps.h"
+#endif /* ESP_CFG_WPS */
+#if ESP_CFG_SNTP
+#include "esp/esp_sntp.h"
+#endif /* ESP_CFG_SNTP */
+#if ESP_CFG_HOSTNAME
+#include "esp/esp_hostname.h"
+#endif /* ESP_CFG_HOSTNAME */
+
 
 espr_t      esp_init(esp_cb_fn cb_func);
 espr_t      esp_reset(uint32_t blocking);
