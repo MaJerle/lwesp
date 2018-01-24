@@ -197,6 +197,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/libs/tm_stm32_usart.c</locationURI>
 		</link>
 		<link>
+			<name>User/http_server.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/src/http_server.c</locationURI>
+		</link>
+		<link>
 			<name>User/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/src/main.c</locationURI>
@@ -205,6 +210,21 @@
 			<name>User/mqtt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/src/mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>User/netconn_client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/src/netconn_client.c</locationURI>
+		</link>
+		<link>
+			<name>User/netconn_server.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/src/netconn_server.c</locationURI>
+		</link>
+		<link>
+			<name>User/station_manager.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/src/station_manager.c</locationURI>
 		</link>
 		<link>
 			<name>User/stm32fxxx_it.c</name>
@@ -442,9 +462,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_ll_stm32f769_discovery.c</locationURI>
 		</link>
 		<link>
-			<name>ESP AT/LL/esp_sys_stm32_cmsis_os.c</name>
+			<name>ESP AT/LL/esp_sys_cmsis_os.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_sys_stm32_cmsis_os.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_sys_cmsis_os.c</locationURI>
 		</link>
 		<link>
 			<name>ESP AT/APP/HTTP Server/esp_http_server.c</name>

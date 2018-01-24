@@ -87,13 +87,35 @@ static espr_t
 esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
         case ESP_CB_INIT_FINISH: {
-            esp_set_at_baudrate(115200*8, 0);
+            esp_set_at_baudrate(115200, 0);
             break;
         }
         case ESP_CB_RESET: {
             printf("Device reset!\r\n");
             break;
         }
+#if ESP_CFG_MODE_ACCESS_POINT
+        case ESP_CB_AP_CONNECTED_STA: {
+            esp_mac_t* mac = cb->cb.ap_conn_disconn_sta.mac;
+            printf("New station connected to ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
+            break;
+        }
+        case ESP_CB_AP_DISCONNECTED_STA: {
+            esp_mac_t* mac = cb->cb.ap_conn_disconn_sta.mac;
+            printf("Station disconnected from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
+                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
+            break;
+        }
+        case ESP_CB_AP_IP_STA: {
+            esp_mac_t* mac = cb->cb.ap_ip_sta.mac;
+            esp_ip_t* ip = cb->cb.ap_ip_sta.ip;
+            printf("Station received IP address from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X and IP: %d.%d.%d.%d\r\n",
+                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5],
+                ip->ip[0], ip->ip[1], ip->ip[2], ip->ip[3]);
+            break;
+        }
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
         default: break;
     }
 	return espOK;
