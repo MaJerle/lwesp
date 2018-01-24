@@ -132,6 +132,8 @@ uart_thread(void* param) {
 	while (comPort == NULL);
 
     esp_sys_sem_create(&sem, 1);                /* Create semaphore for delay functions */
+    esp_sys_sem_wait(&sem, 0);
+
     fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
 	while (1) {
         /*
@@ -143,7 +145,7 @@ uart_thread(void* param) {
             if (bytes_read > 0) {
                 DWORD i;
                 for (i = 0; i < bytes_read; i++) {
-                    //printf("%c", data_buffer[i]);
+                    printf("%c", data_buffer[i]);
                 }
                 /*
                  * Send received data to input processing module
@@ -161,9 +163,7 @@ uart_thread(void* param) {
         } while (bytes_read == (DWORD)sizeof(data_buffer));
 
         /* Implement delay to allow other tasks processing */
-        esp_sys_sem_wait(&sem, 0);
         esp_sys_sem_wait(&sem, 1);
-        esp_sys_sem_release(&sem);
 	}
 }
 
