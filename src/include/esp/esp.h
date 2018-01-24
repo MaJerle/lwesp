@@ -121,7 +121,7 @@ typedef struct esp_conn_t* esp_conn_p;
 typedef struct esp_pbuf_t* esp_pbuf_p;
 
 /**
- * \brief           Data type for callback function
+ * \brief           Event function prototype
  * \param[in]       cb: Callback event data
  * \return          espOK on success, member of \ref espr_t otherwise
  */
