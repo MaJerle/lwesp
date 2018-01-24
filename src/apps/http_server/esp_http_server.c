@@ -306,7 +306,14 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
             }
         }
 
-
+        /*
+         * Process with content-length response header
+         *
+         * In case request does not include SSI parsing,
+         * script has known final content length.
+         *
+         * Include length in header output
+         */
         hs->dyn_hdr_strs[2] = NULL;             /* No content length involved */
 #if HTTP_DYNAMIC_HEADERS_CONTENT_LEN
         if (!hs->is_ssi) {
@@ -334,6 +341,10 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
          * Step 1: Find file extension
          * Step 2: Compare file extension with table of known extensions and content types
          */
+
+        /*
+         * Step 1: Find extension of request path
+         */
         ext = NULL;                             /* No extension on beginning */
         u = strchr(uri, '.');                   /* Find first dot in string */
         while (u != NULL) {
@@ -341,6 +352,9 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
             u = strchr(u + 1, '.');             /* Find next dot */
         }
 
+        /*
+         * Step 2: Compare extension with known pairs
+         */
         i = 0;
         if (ext != NULL) {                      /* Do we have an extension? */
             for (; i < ESP_ARRAYSIZE(dynamic_headers_pairs); i++) {
