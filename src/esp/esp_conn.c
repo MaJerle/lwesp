@@ -112,23 +112,30 @@ conn_send(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data
 /**
  * \brief           Flush buffer on connection
  * \param[in]       conn: Connection to flush buffer on
+ * \return          espOK if data flushed and put to queue, member of \ref espr_t otherwise
  */
 static espr_t
 flush_buff(esp_conn_p conn) {
+    espr_t res = espOK;
     ESP_CORE_PROTECT();                         /* Protect core */
     if (conn != NULL && conn->buff != NULL) {   /* Do we have something ready? */
         /*
          * If there is nothing to write or if write was not successful,
          * simply free the memory and stop execution
          */
-        if (conn->buff_ptr == 0 || conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
+        if (conn->buff_ptr) {                   /* Anything to send at the moment? */
+            res = conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0);
+        } else {
+            res = espERR;
+        }
+        if (res != espOK) {
             ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer1: %p\r\n", (void *)conn->buff);
             esp_mem_free(conn->buff);           /* Manually free memory */
         }
         conn->buff = NULL;
     }
     ESP_CORE_UNPROTECT();                       /* Unprotect core */
-    return espOK;
+    return res;
 }
 
 /**
@@ -222,23 +229,41 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
  */
 espr_t
 esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
+
     flush_buff(conn);                           /* Flush currently written memory if exists */
     return conn_send(conn, ip, port, data, btw, bw, 0, blocking);
 }
 
 /**
  * \brief           Send data on already active connection either as client or server
+ * \todo            In case there is buffer enabled, check if we can put some data to ready buffer and then flush
  * \param[in]       conn: Connection handle to send data
  * \param[in]       data: Data to send
  * \param[in]       btw: Number of bytes to send
- * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
+ * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent.
+ *                      Parameter value might not be accurate if you combine \ref esp_conn_write and \ref esp_conn_send functions
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
+    const uint8_t* d = data;
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
+
+    ESP_CORE_PROTECT();                         /* Protect ESP core */
+    if (conn->buff != NULL) {
+        size_t to_copy;
+        to_copy = ESP_MIN(btw, conn->buff_len - conn->buff_ptr);
+        if (to_copy) {
+            memcpy(&conn->buff[conn->buff_ptr], d, to_copy);
+            d -= to_copy;
+            btw -= to_copy;
+        }
+    }
+    ESP_CORE_UNPROTECT();                       /* Unprotect ESP core */
     flush_buff(conn);                           /* Flush currently written memory if exists */
-    return conn_send(conn, NULL, 0, data, btw, bw, 0, blocking);
+    return conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
 }
 
 /**

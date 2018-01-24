@@ -286,12 +286,13 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
 
     hs->dyn_hdr_idx = 0;
     hs->dyn_hdr_pos = 0;
-                                                /*  */
+
     hs->dyn_hdr_strs[1] = http_dynstrs[HTTP_HDR_SERVER];    /* Set server name */
-    if (!hs->resp_file_opened) {
+    if (!hs->resp_file_opened) {                /* This should never be the case as 404.html file exists as static */
         hs->dyn_hdr_strs[0] = http_dynstrs[HTTP_HDR_404];   /* 404 Not Found */
-        hs->dyn_hdr_strs[2] = http_dynstrs[HTTP_HDR_HTML];  /* Content type text/html */
-    } else {
+        hs->dyn_hdr_strs[HTTP_MAX_HEADERS - 1] = http_dynstrs[HTTP_HDR_HTML];   /* Content type text/html */
+    }
+    else {
         /*
          * Try to find CRLFCRLF sequence on static files and remove
          * the headers if dynamic headers are used
@@ -304,6 +305,15 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
                 hs->resp_file.data += (const char *)crlfcrlf - (const char *)hs->resp_file.data + 4;/* Advance file pointer */
             }
         }
+
+
+        hs->dyn_hdr_strs[2] = NULL;             /* No content length involved */
+#if HTTP_DYNAMIC_HEADERS_CONTENT_LEN
+        if (!hs->is_ssi) {
+            sprintf(hs->dyn_hdr_cnt_len, "Content-Length: %d" CRLF, hs->resp_file.size);
+            hs->dyn_hdr_strs[2] = hs->dyn_hdr_cnt_len;
+        }
+#endif /* HTTP_DYNAMIC_HEADERS_CONTENT_LEN */
 
         /*
          * Determine if file is 404 or normal user file.
@@ -344,14 +354,10 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
          * Finally set the output content type header
          */
         if (ext != NULL && i < ESP_ARRAYSIZE(dynamic_headers_pairs)) {
-            hs->dyn_hdr_strs[2] = http_dynstrs[dynamic_headers_pairs[i].index]; /* Set response from index directly */
+            hs->dyn_hdr_strs[HTTP_MAX_HEADERS - 1] = http_dynstrs[dynamic_headers_pairs[i].index];  /* Set response from index directly */
         } else {
-            hs->dyn_hdr_strs[2] = http_dynstrs[HTTP_HDR_PLAIN]; /* Plain text, unknown type */
+            hs->dyn_hdr_strs[HTTP_MAX_HEADERS - 1] = http_dynstrs[HTTP_HDR_PLAIN];  /* Plain text, unknown type */
         }
-    }
-
-    for (i = 0; i < HTTP_MAX_HEADERS; i++) {
-        printf("Header %d: %s", (int)i, hs->dyn_hdr_strs[i]);
     }
 }
 
@@ -400,7 +406,7 @@ send_dynamic_headers(http_state_t* hs) {
      *
      * TODO: Do not flush it now and try to write more data together with user output?
      */
-    esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush data to output */
+    //esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush data to output */
 }
 #endif
 
@@ -743,11 +749,14 @@ send_response_ssi(http_state_t* hs) {
  */
 static void
 send_response_no_ssi(http_state_t* hs) {
+    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: processing NO SSI\r\n");
+
+    /*
+     * Are we ready to read more?
+     */
     if (hs->buff == NULL || hs->written_total == hs->sent_total) {
         read_resp_file(hs);                     /* Try to read response file */
     }
-    
-    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: processing NO SSI\r\n");
     
     /*
      * Do we have a file? 
@@ -755,8 +764,28 @@ send_response_no_ssi(http_state_t* hs) {
      * as entire memory can be send at a time
      */
     if (hs->buff != NULL) {
-        if (esp_conn_send(hs->conn, hs->buff, hs->buff_len, NULL, 0) == espOK) {
-            hs->written_total += hs->buff_len;  /* Set written total length */
+        const uint8_t* b = hs->buff;
+        size_t blen = hs->buff_len;
+
+#if HTTP_DYNAMIC_HEADERS
+        /*
+         * In case we still have remaining memory from dynamic headers write,
+         * try to write more to fill packet to send as much data as possible at single time
+         */
+        if (hs->conn_mem_available) {
+            size_t to_write;
+            to_write = ESP_MIN(hs->buff_len, hs->conn_mem_available);
+            esp_conn_write(hs->conn, b, to_write, 0, &hs->conn_mem_available);
+            hs->written_total += to_write;
+            blen -= to_write;
+            b += to_write;
+        }
+#endif /* HTTP_DYNAMIC_HEADERS */
+
+        if (blen > 0) {
+            if (esp_conn_send(hs->conn, b, blen, NULL, 0) == espOK) {
+                hs->written_total += blen;      /* Set written total length */
+            }
         }
     }
 }
@@ -781,13 +810,16 @@ send_response(http_state_t* hs, uint8_t ft) {
      */
     if (hs->resp_file_opened) {
 #if HTTP_DYNAMIC_HEADERS
+        uint8_t send_dyn_head = 0;
         /*
          * Before processing actual output, make sure
          * dynamic headers were sent to client output
          */
         if (hs->dyn_hdr_idx < HTTP_MAX_HEADERS) {
             send_dynamic_headers(hs);           /* Send dynamic headers to output */
-        } else 
+            send_dyn_head = 1;
+        }
+        if (hs->dyn_hdr_idx >= HTTP_MAX_HEADERS)
 #endif /* HTTP_DYNAMIC_HEADERS */
         {
             /*
@@ -809,6 +841,18 @@ send_response(http_state_t* hs, uint8_t ft) {
                 close = 1;
             }
         }
+#if HTTP_DYNAMIC_HEADERS
+        /*
+         * If we were sending header data, 
+         * force flush, no matter on a fact if response
+         * functions did flush it already. 
+         *
+         * Maybe response functions didn't response anything?
+         */
+        if (send_dyn_head) {
+            esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);
+        }
+#endif /* HTTP_DYNAMIC_HEADERS */
     } else  {
 #if HTTP_USE_METHOD_NOTALLOWED_RESP
         if (hs->req_method == HTTP_METHOD_NOTALLOWED) {  /* Is request method not allowed? */

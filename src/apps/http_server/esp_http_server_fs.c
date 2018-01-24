@@ -42,7 +42,7 @@ extern uint16_t http_fs_opened_files_cnt;
  */
 static const uint8_t
 responseData[] = ""
-    "HTTP/1.1 200 OK"
+    "HTTP/1.1 200 OK\r\n"
     "Server: " HTTP_SERVER_NAME "\r\n"
     "Content-Type: text/html\r\n"
     "\r\n"
@@ -53,7 +53,7 @@ responseData[] = ""
     "       <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n"
     "       <script src=\"/js/js.js\" type=\"text/javascript\"></script>\n"
     "       <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css\" integrity=\"sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb\" crossorigin=\"anonymous\" />\n"
-    "       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style.css\">\n"
+    "       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style.css\" />\n"
     "   </head>\n"
     "   <body>\n"
     "       <div class=\"container\">\n"
@@ -72,7 +72,7 @@ responseData[] = ""
  */
 static const uint8_t
 responseData_css[] = ""
-    "HTTP/1.1 200 OK"
+    "HTTP/1.1 200 OK\r\n"
     "Server: " HTTP_SERVER_NAME "\r\n"
     "Content-Type: text/css\r\n"
     "\r\n"
@@ -89,7 +89,7 @@ responseData_css[] = ""
  */
 static const uint8_t
 responseData_js1[] = ""
-    "HTTP/1.1 200 OK"
+    "HTTP/1.1 200 OK\r\n"
     "Server: " HTTP_SERVER_NAME "\r\n"
     "Content-Type: text/javascript\r\n"
     "\r\n"

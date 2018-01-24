@@ -141,6 +141,19 @@ extern "C" {
 #endif
 
 /**
+ * \brief           Enables (1) or disables (0) content length header for response
+ *
+ * \note            In order to use this, \ref HTTP_DYNAMIC_HEADERS must be enabled
+ *
+ *                  If response has fixed length without SSI tags,
+ *                  dynamic headers will try to include "Content-Length" header
+ *                  as part of response message sent to client
+ */
+#ifndef HTTP_DYNAMIC_HEADERS_CONTENT_LEN
+#define HTTP_DYNAMIC_HEADERS_CONTENT_LEN    1
+#endif
+
+/**
  * \brief           Default server name for "Server: x" response dynamic header
  */
 #ifndef HTTP_SERVER_NAME
@@ -154,7 +167,7 @@ extern "C" {
 /**
  * \brief           Maximal number of headers we can control
  */
-#define HTTP_MAX_HEADERS                    3
+#define HTTP_MAX_HEADERS                    4
 
 struct http_state;
 struct http_fs_file;
@@ -185,7 +198,7 @@ typedef struct {
 } http_cgi_t;
 
 /**
- * \brief           Post request started prototype with non-zero content length
+ * \brief           Post request started with non-zero content length function prototype
  * \param[in]       hs: HTTP state
  * \param[in]       uri: POST request URI
  * \param[in]       content_length: Total content length (Content-Length HTTP parameter) in units of bytes
@@ -194,7 +207,7 @@ typedef struct {
 typedef espr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, uint32_t content_length);
 
 /**
- * \brief           Post data received on POST request prototype
+ * \brief           Post data received on request function prototype
  * \note            This function may be called multiple time until content_length from \ref http_post_start_fn callback is not reached
  * \param[in]       hs: HTTP state
  * \param[in]       pbuf: Packet buffer wit reciveed data
@@ -203,7 +216,7 @@ typedef espr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, ui
 typedef espr_t  (*http_post_data_fn)(struct http_state* hs, esp_pbuf_p pbuf);
 
 /**
- * \brief           End of POST data request prototype
+ * \brief           End of POST data request function prototype
  * \param[in]       hs: HTTP state
  * \return          espOK on success, member of \ref espr_t otherwise
  */
@@ -348,6 +361,9 @@ typedef struct http_state {
     const char* dyn_hdr_strs[HTTP_MAX_HEADERS]; /*!< Pointer to constant strings for dynamic header outputs */
     size_t dyn_hdr_idx;                         /*!< Current header for processing on output */
     size_t dyn_hdr_pos;                         /*!< Current position in current index for output */
+#if HTTP_DYNAMIC_HEADERS_CONTENT_LEN || __DOXYGEN__
+    char dyn_hdr_cnt_len[30];                   /*!< Content length header response: "Content-Length: 0123456789\r\n" */
+#endif /* HTTP_DYNAMIC_HEADERS_CONTENT_LEN || __DOXYGEN__ */
 #endif /* HTTP_DYNAMIC_HEADERS || __DOXYGEN__ */
     
     /* SSI tag parsing */
