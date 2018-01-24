@@ -440,7 +440,7 @@ espi_parse_received(esp_recv_t* rcv) {
         } else {                                /* Reset due unknown error */
 
         }
-        espi_send_cb(ESP_CB_RESET);         /* Call user callback function */
+        espi_send_cb(ESP_CB_RESET);             /* Call user callback function */
         reset_everything();                     /* Put everything to default state */
     }
     
@@ -450,7 +450,15 @@ espi_parse_received(esp_recv_t* rcv) {
     if (rcv->data[0] == '+') {
         if (!strncmp("+IPD", rcv->data, 4)) {   /* Check received network data */
             espi_parse_ipd(rcv->data + 5);      /* Parse IPD statement and start receiving network data */
-        } else if (esp.msg) {
+#if ESP_CFG_MODE_ACCESS_POINT
+        } else if (!strncmp(rcv->data, "+STA_CONNECTED", 14)) {
+            espi_parse_ap_conn_disconn_sta(&rcv->data[15], 1);  /* Parse string and send to user layer */
+        } else if (!strncmp(rcv->data, "+STA_DISCONNECTED", 17)) {
+            espi_parse_ap_conn_disconn_sta(&rcv->data[18], 1);  /* Parse string and send to user layer */
+        } else if (!strncmp(rcv->data, "+DIST_STA_IP", 12)) {
+            espi_parse_ap_ip_sta(&rcv->data[13]);   /* Parse string and send to user layer */
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
+        } else if (esp.msg != NULL) {
             if (
 #if ESP_CFG_MODE_STATION
                 (IS_CURR_CMD(ESP_CMD_WIFI_CIPSTAMAC_GET) && !strncmp(rcv->data, "+CIPSTAMAC", 10))
@@ -480,9 +488,9 @@ espi_parse_received(esp_recv_t* rcv) {
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
                     memcpy(esp.msg->cmd == ESP_CMD_WIFI_CIPSTAMAC_GET ? &esp.sta.mac : &esp.ap.mac, &mac, 6);   /* Copy to current setup */
 #elif ESP_CFG_MODE_STATION
-                    memcpy(esp.sta.mac, mac, 6);    /* Copy to current setup */
+                    memcpy(&esp.sta.mac, &mac, 6);  /* Copy to current setup */
 #else
-                    memcpy(esp.ap.mac, mac, 6); /* Copy to current setup */
+                    memcpy(&esp.ap.mac, &mac, 6);   /* Copy to current setup */
 #endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
                 }
                 if (esp.msg->msg.sta_ap_getmac.mac != NULL && esp.msg->cmd == esp.msg->cmd_def) {
@@ -569,6 +577,7 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_HOSTNAME */
             }
         }
+#if ESP_CFG_MODE_STATION
     } else if (!strncmp(rcv->data, "WIFI", 4)) {
         if (!strncmp(&rcv->data[5], "CONNECTED", 9)) {
             esp.status.f.r_w_conn = 1;          /* Wifi is connected */
@@ -587,6 +596,7 @@ espi_parse_received(esp_recv_t* rcv) {
         } else if (!strncmp(rcv->data, "SDK version", 11)) {
             espi_parse_at_sdk_version(&rcv->data[12], &esp.version_sdk);
         }
+#endif /* ESP_CFG_MODE_STATION */
     }
     
     /*
@@ -1117,7 +1127,11 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
     if (msg->cmd_def == ESP_CMD_WIFI_CWMODE &&
-        (msg->msg.wifi_mode.mode == ESP_MODE_AP || msg->msg.wifi_mode.mode == ESP_MODE_STA_AP)) {
+        (msg->msg.wifi_mode.mode == ESP_MODE_AP
+#if ESP_CFG_MODE_STATION
+    || msg->msg.wifi_mode.mode == ESP_MODE_STA_AP
+#endif /* ESP_CFG_MODE_STATION */
+        )) {
         if (msg->cmd == ESP_CMD_WIFI_CWMODE) {
             if (is_ok) {
                 msg->cmd = ESP_CMD_WIFI_CIPAP_GET;  /* Go to next command to get IP address */

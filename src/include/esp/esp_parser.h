@@ -56,6 +56,9 @@ uint8_t     espi_parse_link_conn(const char* str);
 
 uint8_t     espi_parse_at_sdk_version(const char* str, uint32_t* version_out);
 
+uint8_t     espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn);
+uint8_t     espi_parse_ap_ip_sta(const char* str);
+
 #if defined(__cplusplus)
 }
 #endif /* defined(__cplusplus) */

@@ -368,6 +368,41 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
     }
     return 1;
 }
+
+/**
+ * \brief           Parse MAC address and send to user layer
+ * \param[in]       str: Input string excluding "+DIST_STA_IP:" part
+ * \param[in]       is_conn: Set to 1 if station connected or 0 if station disconnected
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
+    esp_mac_t mac;
+    espi_parse_mac(&str, &mac);                 /* Parse MAC address */
+
+    esp.cb.cb.ap_conn_disconn_sta.mac = &mac;
+    espi_send_cb(is_conn ? ESP_CB_AP_CONNECTED_STA : ESP_CB_AP_DISCONNECTED_STA);   /* Send event function */
+    return 1;
+}
+
+/**
+ * \brief           Parse received string "+DIST_STA_IP" and send notification to user layer
+ * \param[in]       str: Input string excluding "+DIST_STA_IP:" part
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+espi_parse_ap_ip_sta(const char* str) {
+    esp_mac_t mac;
+    esp_ip_t ip;
+
+    espi_parse_mac(&str, &mac);                 /* Parse MAC address */
+    espi_parse_ip(&str, &ip);                   /* Parse IP address */
+
+    esp.cb.cb.ap_ip_sta.mac = &mac;
+    esp.cb.cb.ap_ip_sta.ip = &ip;
+    espi_send_cb(ESP_CB_AP_IP_STA);             /* Send event function */
+    return 1;
+}
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 
 #if ESP_CFG_DNS || __DOXYGEN__

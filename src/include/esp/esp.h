@@ -143,11 +143,18 @@ typedef enum esp_cb_type_t {
     ESP_CB_CONN_CLOSED,                         /*!< Connection was just closed */
     ESP_CB_CONN_POLL,                           /*!< Poll for connection if there are any changes */
     
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
     ESP_CB_WIFI_CONNECTED,                      /*!< Station just connected to AP */
     ESP_CB_WIFI_GOT_IP,                         /*!< Station has valid IP */
     ESP_CB_WIFI_DISCONNECTED,                   /*!< Station just disconnected from AP */
   
-    ESP_CB_STA_LIST_AP,                         /*!< Station list AP event */
+    ESP_CB_STA_LIST_AP,                         /*!< Station listed APs event */
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
+    ESP_CB_AP_CONNECTED_STA,                    /*!< New station just connected to ESP's access point */
+    ESP_CB_AP_DISCONNECTED_STA,                 /*!< New station just disconnected from ESP's access point */
+    ESP_CB_AP_IP_STA,                           /*!< New station just received IP from ESP's access point */
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 } esp_cb_type_t;
 
 /**
@@ -193,6 +200,16 @@ typedef struct esp_cb_t {
             esp_ap_t* aps;                      /*!< Pointer to access points */
             size_t len;                         /*!< Number of access points found */
         } sta_list_ap;
+        
+#if ESP_CFG_MODE_ACCESS_POINT
+        struct {
+            esp_mac_t* mac;                     /*!< Station MAC address */
+        } ap_conn_disconn_sta;                  /*!< A new station connected or disconnected to ESP's access point. Use with \ref ESP_CB_AP_CONNECTED_STA or \ref ESP_CB_AP_DISCONNECTED_STA events */
+        struct {
+            esp_mac_t* mac;                     /*!< Station MAC address */
+            esp_ip_t* ip;                       /*!< Station IP address */
+        } ap_ip_sta;                            /*!< Station got IP address from ESP's access point. Use with \ref ESP_CB_AP_IP_STA */
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
     } cb;                                       /*!< Callback event union */
 } esp_cb_t;
 
