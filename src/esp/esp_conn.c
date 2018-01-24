@@ -248,8 +248,12 @@ esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void
  */
 espr_t
 esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
+    espr_t res;
     const uint8_t* d = data;
+
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
+    ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
+    ESP_ASSERT("btw > 0", btw > 0);             /* Assert input parameters */
 
     ESP_CORE_PROTECT();                         /* Protect ESP core */
     if (conn->buff != NULL) {
@@ -257,13 +261,17 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
         to_copy = ESP_MIN(btw, conn->buff_len - conn->buff_ptr);
         if (to_copy) {
             memcpy(&conn->buff[conn->buff_ptr], d, to_copy);
-            d -= to_copy;
+            conn->buff_ptr += to_copy;
+            d += to_copy;
             btw -= to_copy;
         }
     }
     ESP_CORE_UNPROTECT();                       /* Unprotect ESP core */
-    flush_buff(conn);                           /* Flush currently written memory if exists */
-    return conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
+    res = flush_buff(conn);                     /* Flush currently written memory if exists */
+    if (btw) {                                  /* Check for remaining data */
+        res = conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
+    }
+    return res;
 }
 
 /**
