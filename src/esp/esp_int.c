@@ -48,6 +48,8 @@ typedef struct {
 static esp_recv_t recv_buff;
 #endif /* !__DOXYGEN__ */
 
+#define CRLF                "\r\n"
+
 #define RECV_ADD(ch)        do { recv_buff.data[recv_buff.len++] = ch; recv_buff.data[recv_buff.len] = 0; } while (0)
 #define RECV_RESET()        do { recv_buff.len = 0; recv_buff.data[0] = 0; } while (0)
 #define RECV_LEN()          recv_buff.len
@@ -347,7 +349,7 @@ espi_tcpip_process_send_data(void) {
             send_number(port, 0);               /* Send length number */
         }
     }
-    ESP_AT_PORT_SEND_STR("\r\n");
+    ESP_AT_PORT_SEND_STR(CRLF);
     return espOK;
 }
 
@@ -422,11 +424,11 @@ espi_parse_received(esp_recv_t* rcv) {
     }
     
     /* Detect most common responses from device */
-    is_ok = !strcmp(rcv->data, "OK\r\n");       /* Check if received string is OK */
+    is_ok = !strcmp(rcv->data, "OK" CRLF);      /* Check if received string is OK */
     if (!is_ok) {
-        is_error = !strcmp(rcv->data, "ERROR\r\n") || !strcmp(rcv->data, "FAIL\r\n");   /* Check if received string is error */
+        is_error = !strcmp(rcv->data, "ERROR" CRLF) || !strcmp(rcv->data, "FAIL" CRLF); /* Check if received string is error */
         if (!is_error) {
-            is_ready = !strcmp(rcv->data, "ready\r\n"); /* Check if received string is ready */
+            is_ready = !strcmp(rcv->data, "ready" CRLF);    /* Check if received string is ready */
         }
     }
     
@@ -730,8 +732,8 @@ espi_parse_received(esp_recv_t* rcv) {
     /*
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
         const char* tmp = rcv->data; */
-    } else if ( (rcv->len > 9  && (s = strstr(rcv->data, ",CLOSED\r\n")) != NULL) || 
-                (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL\r\n")) != NULL)) {
+    } else if ( (rcv->len > 9  && (s = strstr(rcv->data, ",CLOSED" CRLF)) != NULL) || 
+                (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL" CRLF)) != NULL)) {
         const char* tmp = s;
         uint32_t num = 0;
         while (tmp >= rcv->data && ESP_CHARISNUM(tmp[-1])) {
@@ -1260,30 +1262,30 @@ espr_t
 espi_initiate_cmd(esp_msg_t* msg) {
     switch (msg->cmd) {                         /* Check current message we want to send over AT */
         case ESP_CMD_RESET: {                   /* Reset MCU with AT commands */
-            ESP_AT_PORT_SEND_STR("AT+RST\r\n");
+            ESP_AT_PORT_SEND_STR("AT+RST" CRLF);
             break;
         }
         case ESP_CMD_ATE0: {                    /* Disable AT echo mode */
-            ESP_AT_PORT_SEND_STR("ATE0\r\n");
+            ESP_AT_PORT_SEND_STR("ATE0" CRLF);
             break;
         }
         case ESP_CMD_ATE1: {                    /* Enable AT echo mode */
-            ESP_AT_PORT_SEND_STR("ATE1\r\n");
+            ESP_AT_PORT_SEND_STR("ATE1" CRLF);
             break;
         }
         case ESP_CMD_GMR: {                     /* Get AT version */
-            ESP_AT_PORT_SEND_STR("AT+GMR\r\n");
+            ESP_AT_PORT_SEND_STR("AT+GMR" CRLF);
             break;
         }
         case ESP_CMD_SYSMSG: {
-            ESP_AT_PORT_SEND_STR("AT+SYSMSG_CUR=3\r\n");
+            ESP_AT_PORT_SEND_STR("AT+SYSMSG_CUR=3" CRLF);
             break;
         }
         case ESP_CMD_UART: {                    /* Change UART parameters for AT port */
             ESP_AT_PORT_SEND_STR("AT+UART_CUR=");
             send_number(msg->msg.uart.baudrate, 0);
             ESP_AT_PORT_SEND_STR(",8,1,0,0");
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         
@@ -1307,11 +1309,11 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 ESP_AT_PORT_SEND_STR(",");
                 send_ip_mac(msg->msg.sta_join.mac, 0, 1);
             }
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_WIFI_CWQAP: {              /* Quit from access point */
-            ESP_AT_PORT_SEND_STR("AT+CWQAP\r\n");
+            ESP_AT_PORT_SEND_STR("AT+CWQAP" CRLF);
             break;
         }
         case ESP_CMD_WIFI_CWLAP: {              /* List access points */
@@ -1320,7 +1322,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 ESP_AT_PORT_SEND_STR("=");
                 send_string(msg->msg.ap_list.ssid, 1, 1);
             }
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
 #endif /* ESP_CFG_MODE_STATION */
@@ -1343,7 +1345,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
     
             ESP_AT_PORT_SEND_STR("AT+CWMODE=");
             ESP_AT_PORT_SEND_CHR(&c);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
 #if ESP_CFG_MODE_STATION
@@ -1369,7 +1371,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else {
                 ESP_AT_PORT_SEND_STR("_CUR");
             }
-            ESP_AT_PORT_SEND_STR("?\r\n");
+            ESP_AT_PORT_SEND_STR("?" CRLF);
             break;
         }
 #if ESP_CFG_MODE_STATION
@@ -1396,7 +1398,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else {
                 ESP_AT_PORT_SEND_STR("_CUR");
             }
-            ESP_AT_PORT_SEND_STR("?\r\n");
+            ESP_AT_PORT_SEND_STR("?" CRLF);
             break;
         }
 #if ESP_CFG_MODE_STATION
@@ -1432,7 +1434,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                     send_ip_mac(msg->msg.sta_ap_setip.nm, 1, 1);    /* Send netmask address */
                 }
             }
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
 #if ESP_CFG_MODE_STATION
@@ -1461,7 +1463,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
             ESP_AT_PORT_SEND_STR("=");
             send_ip_mac(msg->msg.sta_ap_setmac.mac, 0, 1);  /* Send MAC address */
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         
@@ -1485,11 +1487,11 @@ espi_initiate_cmd(esp_msg_t* msg) {
             send_number((uint32_t)msg->msg.ap_conf.max_sta, 0);
             ESP_AT_PORT_SEND_STR(",");
             send_number((uint32_t)(!!msg->msg.ap_conf.hid), 0);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_WIFI_CWLIF: {              /* List stations connected on access point */
-            ESP_AT_PORT_SEND_STR("AT+CWLIF\r\n");
+            ESP_AT_PORT_SEND_STR("AT+CWLIF" CRLF);
             break;
         }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
@@ -1497,14 +1499,22 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_WIFI_CWHOSTNAME_SET: {     /* List stations connected on access point */
             ESP_AT_PORT_SEND_STR("AT+CWHOSTNAME=");
             send_string(msg->msg.wifi_hostname.hostname, 1, 1);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_WIFI_CWHOSTNAME_GET: {     /* List stations connected on access point */
-            ESP_AT_PORT_SEND_STR("AT+CWHOSTNAME?\r\n");
+            ESP_AT_PORT_SEND_STR("AT+CWHOSTNAME?" CRLF);
             break;
         }
 #endif /* ESP_CFG_HOSTNAME */
+#if ESP_CFG_WPS
+        case ESP_CMD_WIFI_WPS: {
+            ESP_AT_PORT_SEND_STR("AT+WPS=");
+            send_number(!!msg->msg.wps_cfg.en, 0);
+            ESP_AT_PORT_SEND_STR(CRLF);
+            break;
+        }
+#endif /* ESP_CFG_WPS */
         
         /*
          * TCP/IP related commands
@@ -1518,7 +1528,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else {                            /* Disable server */
                 ESP_AT_PORT_SEND_STR("0");
             }
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_TCPIP_CIPSERVERMAXCONN: {  /* Maximal number of connections */
@@ -1530,7 +1540,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
             ESP_AT_PORT_SEND_STR("AT+CIPSERVERMAXCONN=");
             send_number(max_conn, 0);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_TCPIP_CIPSTO: {            /* Set server connection timeout */
@@ -1542,7 +1552,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
             ESP_AT_PORT_SEND_STR("AT+CIPSTO=");
             send_number(timeout, 0);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
 #if ESP_CFG_MODE_STATION        
@@ -1589,7 +1599,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_STR("\",");
             number_to_str(msg->msg.conn_start.port, str);
             ESP_AT_PORT_SEND_STR(str);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
 #endif /* ESP_CFG_MODE_STATION */
@@ -1601,7 +1611,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
             ESP_AT_PORT_SEND_STR("AT+CIPCLOSE=");
             send_number((uint32_t)(msg->msg.conn_close.conn ? msg->msg.conn_close.conn->num : ESP_CFG_MAX_CONNS), 0);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_TCPIP_CIPSEND: {           /* Send data to connection */
@@ -1610,7 +1620,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_CIPSTATUS: {         /* Get status of device and all connections */
             esp.active_conns_last = esp.active_conns;   /* Save as last status */
             esp.active_conns = 0;               /* Reset new status before parsing starts */
-            ESP_AT_PORT_SEND_STR("AT+CIPSTATUS\r\n");   /* Send command to AT port */
+            ESP_AT_PORT_SEND_STR("AT+CIPSTATUS" CRLF);   /* Send command to AT port */
             break;
         }
         case ESP_CMD_TCPIP_CIPDINFO: {          /* Set info data on +IPD command */
@@ -1620,7 +1630,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else {
                 ESP_AT_PORT_SEND_STR("0");
             }
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_TCPIP_CIPMUX: {            /* Set multiple connections */
@@ -1630,20 +1640,20 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else {
                 ESP_AT_PORT_SEND_STR("0");
             }
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_TCPIP_CIPSSLSIZE: {        /* Set SSL size */
             ESP_AT_PORT_SEND_STR("AT+CIPSSLSIZE=");
             send_number(msg->msg.tcpip_sslsize.size, 0);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
 #if ESP_CFG_DNS
         case ESP_CMD_TCPIP_CIPDOMAIN: {         /* DNS function */
             ESP_AT_PORT_SEND_STR("AT+CIPDOMAIN=");
             send_string(msg->msg.dns_getbyhostname.host, 1, 1);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
 #endif /* ESP_CFG_DNS */
@@ -1651,7 +1661,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_PING: {              /* Pinging hostname or IP address */
             ESP_AT_PORT_SEND_STR("AT+PING=");
             send_string(msg->msg.tcpip_ping.host, 1, 1);
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
 #endif /* ESP_CFG_PING */
@@ -1673,11 +1683,11 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 ESP_AT_PORT_SEND_STR(",");
                 send_string(msg->msg.tcpip_sntp_cfg.h3, 0, 1);
             }
-            ESP_AT_PORT_SEND_STR("\r\n");
+            ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }
         case ESP_CMD_TCPIP_CIPSNTPTIME: {       /* Get time over SNTP */
-            ESP_AT_PORT_SEND_STR("AT+CIPSNTPTIME?\r\n");
+            ESP_AT_PORT_SEND_STR("AT+CIPSNTPTIME?" CRLF);
             break;
         }
 #endif /* ESP_CFG_SNTP */
