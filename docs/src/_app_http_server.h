@@ -1,5 +1,3 @@
-
-
 /**
  * \addtogroup      ESP_APP_HTTP_SERVER
  * \{
@@ -20,6 +18,21 @@
  *  - CGI paths must be enabled before with callback functions when CGI is triggered
  *  - CGI path must finish with <b>.cgi</b> suffix
  *      - To allow CGI hook, request URI must be in format <b>/folder/subfolder/file.cgi?param1=value1&param2=value2&</b>
+ *
+ * \par             Dynamic headers support
+ *
+ * Library can (based on request filename) decide what could be a good response type header.
+ * When dynamic headers are active, server with parse input and will output up to 4 different header responses:
+ *
+ *  - Response code such as "HTTP/1.1 200 OK\r\n"
+ *  - Server name defined with \ref HTTP_SERVER_NAME
+ *  - Content-Length parameter output. This header is only pushed to output if SSI tags parsing is not included.
+ *  - Content-Type and end of response delimiter. Content type is determined based on extension pairs written in HTTP server application. 
+ *      Currently it supports: <b>HTML, TEXT, XML, PNG, JPG, JPEG, GIF, ICO, CSS, JS</b> but more of them can be added very easy
+ *
+ * \note            When SSI parsing is enabled for output, "Content-Length" part of headers is not included.
+ *                  This is due to the fact that script does not know final output length as SSI tag outputs may have variable lengths.
+ *                  Instead, Content-Length output will be included only in case SSI parsing is not active for specific request
  *
  * \par             HTTP server example with CGI and SSI
  *
