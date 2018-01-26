@@ -45,7 +45,7 @@ static uint8_t initialized = 0;
  */
 static uint16_t
 send_data(const void* data, uint16_t len) {
-    /**
+    /*
      * Implement send function here
      */
     
@@ -74,7 +74,7 @@ esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
     static uint8_t memory[0x10000];             /* Create memory for dynamic allocations with specific size */
 
     /*
-     * Create memory region(s) of memory.
+     * Create region(s) of memory.
      * If device has internal/external memory available,
      * multiple memories may be used
      */
