@@ -54,7 +54,7 @@ pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
         return NULL;
     }
     
-    /**
+    /*
      * Skip pbufs until we reach pbuf where offset is placed
      */
     for (; p != NULL && p->len <= off; p = p->next) {
@@ -470,7 +470,7 @@ esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot) {
 void
 esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port) {
     if (pbuf != NULL && ip != NULL) {
-        memcpy(&pbuf->ip, ip, 4);
+        memcpy(&pbuf->ip, ip, sizeof(*ip));
         pbuf->port = port;
     }
 }
