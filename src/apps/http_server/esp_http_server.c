@@ -210,7 +210,7 @@ strcmpa(const char* a, const char* b) {
 static espr_t
 http_parse_uri(esp_pbuf_p p) {
     size_t pos_s, pos_e, pos_crlf, uri_len;
-                                                
+
     pos_s = esp_pbuf_strfind(p, " ", 0);        /* Find first " " in request header */
     if (pos_s == ESP_SIZET_MAX || (pos_s != 3 && pos_s != 4)) {
         return espERR;

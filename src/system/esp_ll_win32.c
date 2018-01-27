@@ -142,10 +142,10 @@ uart_thread(void* param) {
         do {
             ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
             if (bytes_read > 0) {
-                DWORD i;
-                for (i = 0; i < bytes_read; i++) {
-                    printf("%c", data_buffer[i]);
-                }
+                //DWORD i;
+                //for (i = 0; i < bytes_read; i++) {
+                //    printf("%c", data_buffer[i]);
+                //}
                 /*
                  * Send received data to input processing module
                  */

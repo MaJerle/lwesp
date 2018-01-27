@@ -35,6 +35,9 @@
 #include "string.h"
 #include "stdlib.h"
 
+/**
+ * \brief           Custom message queue implementation for WIN32
+ */
 typedef struct {
     esp_sys_sem_t sem_not_empty;                /*!< Semaphore indicates not empty */
 	esp_sys_sem_t sem_not_full;                 /*!< Semaphore indicates not full */
@@ -42,6 +45,8 @@ typedef struct {
     size_t in, out, size;
     void* entries[1];
 } win32_mbox_t;
+
+static LARGE_INTEGER freq, sys_start_time;
 
 /**
  * \brief           Check if message box is full
@@ -68,8 +73,6 @@ static uint8_t
 mbox_is_empty(win32_mbox_t* m) {
     return m->in == m->out;
 }
-
-static LARGE_INTEGER freq, sys_start_time;
 
 /**
  * \brief           Get current kernel time in units of milliseconds
