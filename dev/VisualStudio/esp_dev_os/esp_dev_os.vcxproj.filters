@@ -28,6 +28,9 @@
     <Filter Include="Source Files\ESP LL">
       <UniqueIdentifier>{a7a2f464-2a72-438b-95c3-287e652c47f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ESP SNIPPETS">
+      <UniqueIdentifier>{f53eba69-7eb3-428c-9053-e398ae95bf8e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -116,23 +119,26 @@
     <ClCompile Include="..\..\..\src\system\esp_ll_win32.c">
       <Filter>Source Files\ESP LL</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\mqtt.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\netconn_client.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\netconn_server.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\http_server.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\station_manager.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server_fs_win32.c">
       <Filter>Source Files\ESP APPS HTTP SERVER</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\esp\esp_wps.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\snippets\http_server.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\snippets\mqtt.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\snippets\netconn_client.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\snippets\netconn_server.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\snippets\station_manager.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

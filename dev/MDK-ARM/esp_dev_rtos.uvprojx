@@ -594,34 +594,9 @@
               <FilePath>..\src\main.c</FilePath>
             </File>
             <File>
-              <FileName>mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\mqtt.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32fxxx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\stm32fxxx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>netconn_client.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\netconn_client.c</FilePath>
-            </File>
-            <File>
-              <FileName>netconn_server.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\netconn_server.c</FilePath>
-            </File>
-            <File>
-              <FileName>station_manager.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\station_manager.c</FilePath>
-            </File>
-            <File>
-              <FileName>http_server.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\http_server.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -768,6 +743,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_hostname.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_wps.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_wps.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -852,6 +832,36 @@
               <FileName>fatfs_sd_sdio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\libs\fatfs\drivers\fatfs_sd_sdio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ESP SNIPPETS</GroupName>
+          <Files>
+            <File>
+              <FileName>http_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\http_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>station_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\station_manager.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1519,34 +1529,9 @@
               <FilePath>..\src\main.c</FilePath>
             </File>
             <File>
-              <FileName>mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\mqtt.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32fxxx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\stm32fxxx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>netconn_client.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\netconn_client.c</FilePath>
-            </File>
-            <File>
-              <FileName>netconn_server.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\netconn_server.c</FilePath>
-            </File>
-            <File>
-              <FileName>station_manager.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\station_manager.c</FilePath>
-            </File>
-            <File>
-              <FileName>http_server.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\http_server.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1693,6 +1678,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_hostname.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_wps.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_wps.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1777,6 +1767,36 @@
               <FileName>fatfs_sd_sdio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\libs\fatfs\drivers\fatfs_sd_sdio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ESP SNIPPETS</GroupName>
+          <Files>
+            <File>
+              <FileName>http_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\http_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>station_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\station_manager.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2186,7 +2206,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F769xx,USE_HAL_DRIVER,USE_FULL_LL_DRIVER,ARM_MATH_CM7,__FPU_PRESENT=1,STM32F7XX,STM32F769_DISCOVERY,HSE_VALUE=25000000,RCC_OSCILLATORTYPE=RCC_OSCILLATORTYPE_HSE,RCC_PLLSOURCE=RCC_PLLSOURCE_HSE,RCC_PLLM=25,RCC_PLLN=432,RCC_PLLP=2,RCC_PLLQ=9</Define>
               <Undefine></Undefine>
-              <IncludePath>..\include;..\..\src\include;..\..\libs;..\..\libs\st_hal\STM32F7xx_HAL_Driver\Inc;..\..\libs\st_hal\CMSIS\Device\ST\STM32F7xx\Include;..\..\libs\st_hal\CMSIS\Include;..\..\libs\FreeRTOS\include;..\..\libs\FreeRTOS\CMSIS_RTOS;..\..\libs\FreeRTOS\portable\RVDS\ARM_CM7\r0p1;..\..\libs\fatfs;..\..\libs\fatfs\drivers;..\..\libs\fatfs\option</IncludePath>
+              <IncludePath>..\include;..\..\src\include;..\..\snippets\include;..\..\libs;..\..\libs\st_hal\STM32F7xx_HAL_Driver\Inc;..\..\libs\st_hal\CMSIS\Device\ST\STM32F7xx\Include;..\..\libs\st_hal\CMSIS\Include;..\..\libs\FreeRTOS\include;..\..\libs\FreeRTOS\CMSIS_RTOS;..\..\libs\FreeRTOS\portable\RVDS\ARM_CM7\r0p1;..\..\libs\fatfs;..\..\libs\fatfs\drivers;..\..\libs\fatfs\option</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2376,34 +2396,9 @@
               <FilePath>..\src\main.c</FilePath>
             </File>
             <File>
-              <FileName>mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\mqtt.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32fxxx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\stm32fxxx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>netconn_client.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\netconn_client.c</FilePath>
-            </File>
-            <File>
-              <FileName>netconn_server.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\netconn_server.c</FilePath>
-            </File>
-            <File>
-              <FileName>station_manager.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\station_manager.c</FilePath>
-            </File>
-            <File>
-              <FileName>http_server.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\http_server.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2550,6 +2545,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_hostname.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_wps.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_wps.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2634,6 +2634,36 @@
               <FileName>fatfs_sd_sdio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\libs\fatfs\drivers\fatfs_sd_sdio.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>ESP SNIPPETS</GroupName>
+          <Files>
+            <File>
+              <FileName>http_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\http_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_server.c</FilePath>
+            </File>
+            <File>
+              <FileName>station_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\station_manager.c</FilePath>
             </File>
           </Files>
         </Group>

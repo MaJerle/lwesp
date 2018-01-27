@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\_ELECTRONICS\_ARM\esp\src\include;D:\_ELECTRONICS\_ARM\esp\dev\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\include;..\..\..\src\include;..\..\..\snippets\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -89,6 +89,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +144,11 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\snippets\http_server.c" />
+    <ClCompile Include="..\..\..\snippets\mqtt.c" />
+    <ClCompile Include="..\..\..\snippets\netconn_client.c" />
+    <ClCompile Include="..\..\..\snippets\netconn_server.c" />
+    <ClCompile Include="..\..\..\snippets\station_manager.c" />
     <ClCompile Include="..\..\..\src\api\esp_netconn.c" />
     <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server.c" />
     <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server_fs.c" />
@@ -165,13 +171,9 @@
     <ClCompile Include="..\..\..\src\esp\esp_threads.c" />
     <ClCompile Include="..\..\..\src\esp\esp_timeout.c" />
     <ClCompile Include="..\..\..\src\esp\esp_unicode.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_wps.c" />
     <ClCompile Include="..\..\..\src\system\esp_ll_win32.c" />
     <ClCompile Include="..\..\..\src\system\esp_sys_win32.c" />
-    <ClCompile Include="..\..\src\http_server.c" />
-    <ClCompile Include="..\..\src\mqtt.c" />
-    <ClCompile Include="..\..\src\netconn_client.c" />
-    <ClCompile Include="..\..\src\netconn_server.c" />
-    <ClCompile Include="..\..\src\station_manager.c" />
     <ClCompile Include="esp_dev_os.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

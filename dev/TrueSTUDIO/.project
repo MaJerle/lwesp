@@ -87,6 +87,151 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>ESP API/esp_netconn.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/api/esp_netconn.c</locationURI>
+		</link>
+		<link>
+			<name>ESP APP MQTT/esp_mqtt_client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/apps/mqtt/esp_mqtt_client.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_ap.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_ap.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_buff.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_buff.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_conn.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_conn.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_debug.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_debug.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_hostname.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_hostname.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_input.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_input.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_int.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_int.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_mem.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_mem.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_parser.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_parser.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_pbuf.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_pbuf.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_ping.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_ping.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_sntp.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_sntp.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_sta.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_sta.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_threads.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_threads.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_timeout.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_timeout.c</locationURI>
+		</link>
+		<link>
+			<name>ESP CORE/esp_unicode.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_unicode.c</locationURI>
+		</link>
+		<link>
+			<name>ESP HTPP SERVER/esp_http_server.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/apps/http_server/esp_http_server.c</locationURI>
+		</link>
+		<link>
+			<name>ESP HTPP SERVER/esp_http_server_fs.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/apps/http_server/esp_http_server_fs.c</locationURI>
+		</link>
+		<link>
+			<name>ESP HTPP SERVER/esp_http_server_fs_fat.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/apps/http_server/esp_http_server_fs_fat.c</locationURI>
+		</link>
+		<link>
+			<name>ESP LL/esp_ll_stm32f769_discovery.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_ll_stm32f769_discovery.c</locationURI>
+		</link>
+		<link>
+			<name>ESP LL/esp_sys_cmsis_os.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_sys_cmsis_os.c</locationURI>
+		</link>
+		<link>
+			<name>ESP SNIPPETS/http_server.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/snippets/http_server.c</locationURI>
+		</link>
+		<link>
+			<name>ESP SNIPPETS/mqtt.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/snippets/mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>ESP SNIPPETS/netconn_client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/snippets/netconn_client.c</locationURI>
+		</link>
+		<link>
+			<name>ESP SNIPPETS/netconn_server.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/snippets/netconn_server.c</locationURI>
+		</link>
+		<link>
+			<name>ESP SNIPPETS/station_manager.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/snippets/station_manager.c</locationURI>
+		</link>
+		<link>
 			<name>FATFS/diskio.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/libs/fatfs/diskio.c</locationURI>
@@ -197,34 +342,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/libs/tm_stm32_usart.c</locationURI>
 		</link>
 		<link>
-			<name>User/http_server.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/http_server.c</locationURI>
-		</link>
-		<link>
 			<name>User/main.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/src/main.c</locationURI>
-		</link>
-		<link>
-			<name>User/mqtt.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>User/netconn_client.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/netconn_client.c</locationURI>
-		</link>
-		<link>
-			<name>User/netconn_server.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/netconn_server.c</locationURI>
-		</link>
-		<link>
-			<name>User/station_manager.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/src/station_manager.c</locationURI>
 		</link>
 		<link>
 			<name>User/stm32fxxx_it.c</name>
@@ -365,126 +485,6 @@
 			<name>Drivers/STM32F7xx_HAL_Driver/stm32f7xx_ll_usart.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/libs/st_hal/STM32F7xx_HAL_Driver/Src/stm32f7xx_ll_usart.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/API/esp_netconn.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/api/esp_netconn.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_ap.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_ap.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_buff.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_buff.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_conn.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_conn.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_debug.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_debug.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_hostname.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_hostname.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_input.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_input.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_int.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_int.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_mem.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_mem.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_parser.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_parser.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_pbuf.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_pbuf.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_ping.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_ping.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_sntp.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_sntp.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_sta.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_sta.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_threads.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_threads.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_timeout.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_timeout.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/Core/esp_unicode.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/esp/esp_unicode.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/LL/esp_ll_stm32f769_discovery.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_ll_stm32f769_discovery.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/LL/esp_sys_cmsis_os.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_sys_cmsis_os.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/APP/HTTP Server/esp_http_server.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/apps/http_server/esp_http_server.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/APP/HTTP Server/esp_http_server_fs.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/apps/http_server/esp_http_server_fs.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/APP/HTTP Server/esp_http_server_fs_fat.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/apps/http_server/esp_http_server_fs_fat.c</locationURI>
-		</link>
-		<link>
-			<name>ESP AT/APP/MQTT Client/esp_mqtt_client.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/apps/mqtt/esp_mqtt_client.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
