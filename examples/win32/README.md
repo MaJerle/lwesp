@@ -25,3 +25,7 @@ Communication with NodeMCU hardware is using virtual files for COM ports.
 Implementation of low-level part (together with memory allocation for library) is available in [esp_ll_win32.c](/src/system/esp_ll_win32.c) file.
 
 > In order to start using this port, user must set the appropriate COM port name when opening a virtual file. Please check implementation file for details.
+
+### Visual Studio configuration
+
+It may happen that Visual Studio sets different configuration on first project load and this may lead to wrong build and possible errors. Active configuration must be `Debug` and `Win32` or `x86`. Default active build can be set in project settings.
