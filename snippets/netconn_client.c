@@ -30,19 +30,19 @@ netconn_client_thread(void const* arg) {
     /*
      * First create a new instance of netconn
      * connection and initialize system message boxes
-     * to accept clients and packet buffers
+     * to accept received packet buffers
      */
     client = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
-    if (client != NULL) {                       
+    if (client != NULL) {
         /*
          * Connect to external server as client
          * with custom NETCONN_CONN_HOST and CONN_PORT values
          *
-         * Function will block thread until we are successfully connected to server
+         * Function will block thread until we are successfully connected (or not) to server
          */
         res = esp_netconn_connect(client, NETCONN_HOST, NETCONN_PORT);
         if (res == espOK) {                     /* Are we successfully connected? */
-            printf("Connected to server " NETCONN_HOST "\r\n");
+            printf("Connected to " NETCONN_HOST "\r\n");
             res = esp_netconn_write(client, request_header, sizeof(request_header) - 1);    /* Send data to server */
             if (res == espOK) {
                 res = esp_netconn_flush(client);    /* Flush data to output */
@@ -62,12 +62,13 @@ netconn_client_thread(void const* arg) {
                      * Function will block thread until new packet
                      * is ready to be read from remote side
                      *
-                     * After function returns, check status as it
-                     * may happen that closed status was returned
+                     * After function returns, don't forgot the check value.
+                     * Returned status will give you info in case connection
+                     * was closed too early from remote side
                      */
                     res = esp_netconn_receive(client, &pbuf);
                     if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
-                        printf("Connection closed by remote side...Stopping\r\n");
+                        printf("Connection closed by remote side...\r\n");
                         break;
                     }
 
@@ -87,24 +88,23 @@ netconn_client_thread(void const* arg) {
 
             /*
              * Check if connection was closed by remote server
-             * and in case it wasn't, close it by yourself
+             * and in case it wasn't, close it manually
              */
             if (res != espCLOSED) {
                 esp_netconn_close(client);
             }
         } else {
-            printf("Cannot connect to external server!\r\n");
+            printf("Cannot connect to remote host %s:%d!\r\n", NETCONN_HOST, NETCONN_PORT);
         }
     }
 
     /*
      * Last step is to delete connection object
-     * from memory
      */
     esp_netconn_delete(client);
 
     /*
-     * Terminate thread once we finished with example
+     * Terminate thread once we are done with example
      */
     esp_sys_thread_terminate(NULL);
 }

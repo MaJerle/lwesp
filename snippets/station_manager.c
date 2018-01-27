@@ -1,7 +1,7 @@
 #include "station_manager.h"
 #include "esp/esp.h"
 
-/**
+/*
  * List of preferred access points for ESP device
  * SSID and password
  * 
@@ -10,6 +10,7 @@
  */
 ap_entry_t
 ap_list[] = {
+    //{ "SSID name", "SSID password" },
     { "Tilen\xE2\x80\x99s iPhone", "ni dostopa" },
     { "Majerle WiFi", "majerle_internet" },
     { "Slikop.", "slikop2012" },
@@ -30,21 +31,38 @@ espr_t
 connect_to_preferred_access_point(uint8_t unlimited) {
     size_t i, j;
     espr_t eres;
+
     /*
      * Scan for network access points
      * In case we have access point,
      * try to connect to known AP
      */
     do {
+        /*
+         * Scan for access points visible to ESP device
+         */
+        printf("Scanning access points...\r\n");
         if (esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
+            /* Print all access points found by ESP */
             for (i = 0; i < apf; i++) {
                 printf("AP found: %s\r\n", aps[i].ssid);
             }
+
+            /*
+             * Process array of preferred access points with array of found points
+             */
             for (j = 0; j < sizeof(ap_list) / sizeof(ap_list[0]); j++) {
                 for (i = 0; i < apf; i++) {
                     if (!strcmp(aps[i].ssid, ap_list[j].ssid)) {
-                        printf("Trying to connect to \"%s\" network\r\n", ap_list[j].ssid);
+                        printf("Connecting to \"%s\" network...\r\n", ap_list[j].ssid);
+                        /* Try to join to access point */
                         if ((eres = esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 0, 1)) == espOK) {
+                            esp_ip_t ip;
+                            esp_sta_copy_ip(&ip, NULL, NULL);
+
+                            printf("Connected to %s network!\r\n", ap_list[j].ssid);
+                            printf("Station IP address: %d.%d.%d.%d\r\n",
+                                (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3]);
                             return espOK;
                         } else {
                             printf("Connection error: %d\r\n", (int)eres);
