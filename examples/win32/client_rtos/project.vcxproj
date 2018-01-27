@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\..\..\src\include;.;..\..\..\..\snippets\include;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\src\include;.;..\..\..\snippets\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -144,28 +144,29 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\snippets\station_manager.c" />
-    <ClCompile Include="..\..\..\..\src\api\esp_netconn.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_ap.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_buff.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_conn.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_debug.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_hostname.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_input.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_int.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_mem.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_parser.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_pbuf.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_ping.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_sntp.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_sta.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_threads.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_timeout.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_unicode.c" />
-    <ClCompile Include="..\..\..\..\src\esp\esp_wps.c" />
-    <ClCompile Include="..\..\..\..\src\system\esp_ll_win32.c" />
-    <ClCompile Include="..\..\..\..\src\system\esp_sys_win32.c" />
+    <ClCompile Include="..\..\..\snippets\netconn_client.c" />
+    <ClCompile Include="..\..\..\snippets\station_manager.c" />
+    <ClCompile Include="..\..\..\src\api\esp_netconn.c" />
+    <ClCompile Include="..\..\..\src\esp\esp.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_ap.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_buff.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_conn.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_debug.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_hostname.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_input.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_int.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_mem.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_parser.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_pbuf.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_ping.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_sntp.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_sta.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_threads.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_timeout.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_unicode.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_wps.c" />
+    <ClCompile Include="..\..\..\src\system\esp_ll_win32.c" />
+    <ClCompile Include="..\..\..\src\system\esp_sys_win32.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
