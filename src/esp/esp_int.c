@@ -193,7 +193,7 @@ send_number(uint32_t num, uint8_t q) {
  * \param[in]       num: Number to send to AT port
  * \param[in]       q: Value to indicate starting and ending quotes, enabled (1) or disabled (0)
  */
-static void
+void
 send_signed_number(int32_t num, uint8_t q) {
     char str[11];
     
