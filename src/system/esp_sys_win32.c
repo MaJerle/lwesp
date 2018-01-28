@@ -46,7 +46,17 @@ typedef struct {
     void* entries[1];
 } win32_mbox_t;
 
+/**
+ * \brief           Thread lookup table
+ */
+typedef struct win32_thread {
+    struct win32_thread* next;                  /* Next entry on linked list */
+    HANDLE handle;                              /* Thread handle */
+    DWORD id;                                   /* Thread assigned ID */
+} win32_thread_t;
+
 static LARGE_INTEGER freq, sys_start_time;
+static win32_thread_t* threads;
 
 /**
  * \brief           Check if message box is full
@@ -475,7 +485,7 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     
     esp_sys_sem_wait(&mbox->sem, 0);            /* Wait exclusive access */
     if (mbox->in == mbox->out) {
-        esp_sys_sem_release(mbox->sem);         /* Release access */
+        esp_sys_sem_release(&mbox->sem);        /* Release access */
         return 0;
     }
     
@@ -484,8 +494,8 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     if (mbox->out >= mbox->size) {
         mbox->out = 0;
     }
-    esp_sys_sem_release(mbox->sem_not_full);    /* Queue not full anymore */
-    esp_sys_sem_release(mbox->sem);             /* Release semaphore */
+    esp_sys_sem_release(&mbox->sem_not_full);   /* Queue not full anymore */
+    esp_sys_sem_release(&mbox->sem);            /* Release semaphore */
     return 1;
 }
 
@@ -525,13 +535,13 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  */
 uint8_t
 esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
-	DWORD id;
-	HANDLE h;
-	h = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_func, arg, 0, &id);
-	if (t != NULL) {
-        *t = id;
+    HANDLE h;
+    DWORD id;
+    h = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_func, arg, 0, &id);
+    if (t != NULL) {
+        *t = h;
     }
-	return h != NULL;
+    return t != NULL;
 }
 
 /**
@@ -545,12 +555,15 @@ esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn t
  */
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
-    esp_sys_sem_t sem;
+    HANDLE h = NULL;
+    win32_thread_t* wt;
 
-    esp_sys_sem_create(&sem, 0);
-    while (1) {
-        esp_sys_sem_wait(&sem, 1000);
+    if (t == NULL) {                            /* Shall we terminate ourself? */
+        h = GetCurrentThread();                 /* Get current thread handle */
+    } else {                                    /* We have known thread, find handle by looking at ID */
+        h = *t;
     }
+    TerminateThread(h, 0);
 	return 1;
 }
 

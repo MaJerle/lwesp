@@ -60,31 +60,31 @@ extern "C" {
  * \brief           ESP system mutex ID type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef HANDLE				esp_sys_mutex_t;
+typedef HANDLE              esp_sys_mutex_t;
 
 /**
  * \brief           ESP system semaphore ID type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef HANDLE				esp_sys_sem_t;
+typedef HANDLE              esp_sys_sem_t;
 
 /**
  * \brief           ESP system message queue ID type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef HANDLE				esp_sys_mbox_t;
+typedef HANDLE              esp_sys_mbox_t;
 
 /**
  * \brief           ESP system thread ID type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef DWORD				esp_sys_thread_t;
+typedef HANDLE              esp_sys_thread_t;
 
 /**
  * \brief           ESP system thread priority type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef int					esp_sys_thread_prio_t;
+typedef int                 esp_sys_thread_prio_t;
 
 /**
  * \brief           Value indicating message queue is not valid
