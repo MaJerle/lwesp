@@ -46,17 +46,7 @@ typedef struct {
     void* entries[1];
 } win32_mbox_t;
 
-/**
- * \brief           Thread lookup table
- */
-typedef struct win32_thread {
-    struct win32_thread* next;                  /* Next entry on linked list */
-    HANDLE handle;                              /* Thread handle */
-    DWORD id;                                   /* Thread assigned ID */
-} win32_thread_t;
-
 static LARGE_INTEGER freq, sys_start_time;
-static win32_thread_t* threads;
 
 /**
  * \brief           Check if message box is full
@@ -556,7 +546,6 @@ esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn t
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
     HANDLE h = NULL;
-    win32_thread_t* wt;
 
     if (t == NULL) {                            /* Shall we terminate ourself? */
         h = GetCurrentThread();                 /* Get current thread handle */
