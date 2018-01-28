@@ -47,70 +47,70 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp.c">
+    <ClCompile Include="..\..\..\src\esp\esp.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_ap.c">
+    <ClCompile Include="..\..\..\src\esp\esp_ap.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_buff.c">
+    <ClCompile Include="..\..\..\src\esp\esp_buff.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_conn.c">
+    <ClCompile Include="..\..\..\src\esp\esp_conn.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_debug.c">
+    <ClCompile Include="..\..\..\src\esp\esp_debug.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_hostname.c">
+    <ClCompile Include="..\..\..\src\esp\esp_hostname.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_input.c">
+    <ClCompile Include="..\..\..\src\esp\esp_input.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_int.c">
+    <ClCompile Include="..\..\..\src\esp\esp_int.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_mem.c">
+    <ClCompile Include="..\..\..\src\esp\esp_mem.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_parser.c">
+    <ClCompile Include="..\..\..\src\esp\esp_parser.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_pbuf.c">
+    <ClCompile Include="..\..\..\src\esp\esp_pbuf.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_ping.c">
+    <ClCompile Include="..\..\..\src\esp\esp_ping.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_sntp.c">
+    <ClCompile Include="..\..\..\src\esp\esp_sntp.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_sta.c">
+    <ClCompile Include="..\..\..\src\esp\esp_sta.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_threads.c">
+    <ClCompile Include="..\..\..\src\esp\esp_threads.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_timeout.c">
+    <ClCompile Include="..\..\..\src\esp\esp_timeout.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_unicode.c">
+    <ClCompile Include="..\..\..\src\esp\esp_unicode.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\esp\esp_wps.c">
+    <ClCompile Include="..\..\..\src\esp\esp_wps.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\api\esp_netconn.c">
+    <ClCompile Include="..\..\..\src\system\esp_ll_win32.c">
+      <Filter>ESP LL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\system\esp_sys_win32.c">
+      <Filter>ESP LL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\api\esp_netconn.c">
       <Filter>ESP API</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\system\esp_ll_win32.c">
-      <Filter>ESP LL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\system\esp_sys_win32.c">
-      <Filter>ESP LL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\snippets\station_manager.c">
+    <ClCompile Include="..\..\..\snippets\station_manager.c">
       <Filter>ESP SNIPPETS</Filter>
     </ClCompile>
   </ItemGroup>

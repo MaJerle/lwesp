@@ -71,7 +71,7 @@
     <ClCompile Include="..\..\..\src\esp\esp_int.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\system\esp_ll_win32.c">
+    <ClCompile Include="..\..\..\src\esp\esp_mem.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\esp\esp_parser.c">
@@ -101,16 +101,19 @@
     <ClCompile Include="..\..\..\src\esp\esp_wps.c">
       <Filter>ESP CORE</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\system\esp_sys_win32.c">
+    <ClCompile Include="..\..\..\src\system\esp_ll_win32.c">
       <Filter>ESP LL</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\esp\esp_mem.c">
+    <ClCompile Include="..\..\..\src\system\esp_sys_win32.c">
       <Filter>ESP LL</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\api\esp_netconn.c">
       <Filter>ESP API</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\snippets\station_manager.c">
+      <Filter>ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\snippets\netconn_server.c">
       <Filter>ESP SNIPPETS</Filter>
     </ClCompile>
   </ItemGroup>
