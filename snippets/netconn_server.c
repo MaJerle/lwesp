@@ -47,11 +47,13 @@ netconn_server_thread(void const* arg) {
      */
     server = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
     if (server != NULL) {
+        printf("Server netconn created\r\n");
         /*
          * Bind network connection to port 80
          */
         res = esp_netconn_bind(server, 80);
         if (res == espOK) {
+            printf("Server netconn listens on port 80\r\n");
             /*
              * Start listening for incoming connections
              * on previously binded port
@@ -67,16 +69,25 @@ netconn_server_thread(void const* arg) {
                  */
                 res = esp_netconn_accept(server, &client);
                 if (res == espOK) {
+                    printf("Netconn new client connected. Starting new thread...\r\n");
                     /*
                      * Start new thread for this request.
                      *
                      * Read and write back data to user in separated thread
                      * to allow processing of multiple requests at the same time
                      */
-                    esp_sys_thread_create(NULL, "client", (esp_sys_thread_fn)netconn_server_processing_thread, client, 0, 0);
+                    if (esp_sys_thread_create(NULL, "client", (esp_sys_thread_fn)netconn_server_processing_thread, client, 512, ESP_SYS_THREAD_PRIO)) {
+                        printf("Netconn client thread created\r\n");
+                    } else {
+                        printf("Netconn client thread creation failed!\r\n");
+                    }
                 }
             }
+        } else {
+            printf("Netconn server cannot bind to port\r\n");
         }
+    } else {
+        printf("Cannot create server netconn\r\n");
     }
     
     /*
