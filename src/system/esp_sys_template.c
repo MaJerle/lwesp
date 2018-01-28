@@ -356,14 +356,14 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  * \param[in]       name: Name of a new thread
  * \param[in]       thread_func: Thread function to use as thread body
  * \param[in]       arg: Thread function argument
- * \param[in]       stack_size: Size of thread stack in uints of bytes
+ * \param[in]       stack_size: Size of thread stack in uints of bytes. If set to 0, reserve default stack size
  * \param[in]       prio: Thread priority 
  * \return          1 on success, 0 otherwise
  */
 uint8_t
 esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
     esp_sys_thread_t id;
-    const osThreadDef_t thread_def = {(char *)name, (os_pthread)thread_func, (osPriority)prio, 0, stack_size};  /* Create thread description */
+    const osThreadDef_t thread_def = {(char *)name, (os_pthread)thread_func, (osPriority)prio, 0, stack_size ? stack_size : ESP_SYS_THREAD_SS };    /* Create thread description */
     id = osThreadCreate(&thread_def, arg);      /* Create thread */
     if (t != NULL) {
         *t = id;

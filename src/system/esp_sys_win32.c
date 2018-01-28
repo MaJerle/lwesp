@@ -519,7 +519,7 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  * \param[in]       name: Name of a new thread
  * \param[in]       thread_func: Thread function to use as thread body
  * \param[in]       arg: Thread function argument
- * \param[in]       stack_size: Size of thread stack in uints of bytes
+ * \param[in]       stack_size: Size of thread stack in uints of bytes. If set to 0, reserve default stack size
  * \param[in]       prio: Thread priority 
  * \return          1 on success, 0 otherwise
  */

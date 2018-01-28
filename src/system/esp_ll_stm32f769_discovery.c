@@ -36,31 +36,32 @@
 #include "system/esp_ll.h"
 
 #if !__DOXYGEN__
+#include "stm32f7xx_ll_bus.h"
 #include "stm32f7xx_ll_usart.h"
 #include "stm32f7xx_ll_gpio.h"
 #include "stm32f7xx_ll_dma.h"
 #include "stm32f7xx_ll_rcc.h"
 
 #define ESP_USART                           UART5
-#define ESP_USART_CLK                       __HAL_RCC_UART5_CLK_ENABLE
+#define ESP_USART_CLK                       LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART5)
 #define ESP_USART_CLK_SOURCE                LL_RCC_UART5_CLKSOURCE
 #define ESP_USART_IRQ                       UART5_IRQn
 #define ESP_USART_IRQHANDLER                UART5_IRQHandler
 
-#define ESP_USART_TX_PORT_CLK               __HAL_RCC_GPIOC_CLK_ENABLE
+#define ESP_USART_TX_PORT_CLK               LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC)
 #define ESP_USART_TX_PORT                   GPIOC
 #define ESP_USART_TX_PIN                    LL_GPIO_PIN_12
 #define ESP_USART_TX_PIN_AF                 LL_GPIO_AF_8
-#define ESP_USART_RX_PORT_CLK               __HAL_RCC_GPIOD_CLK_ENABLE
+#define ESP_USART_RX_PORT_CLK               LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
 #define ESP_USART_RX_PORT                   GPIOD
 #define ESP_USART_RX_PIN                    LL_GPIO_PIN_2
 #define ESP_USART_RX_PIN_AF                 LL_GPIO_AF_8
-#define ESP_USART_RS_PORT_CLK               __HAL_RCC_GPIOJ_CLK_ENABLE
+#define ESP_USART_RS_PORT_CLK               LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOJ)
 #define ESP_USART_RS_PORT                   GPIOJ
 #define ESP_USART_RS_PIN                    LL_GPIO_PIN_14
 
 #define ESP_USART_DMA                       DMA1
-#define ESP_USART_DMA_CLK                   __HAL_RCC_DMA1_CLK_ENABLE
+#define ESP_USART_DMA_CLK                   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1)
 #define ESP_USART_DMA_RX_STREAM             LL_DMA_STREAM_0
 #define ESP_USART_DMA_RX_CH                 LL_DMA_CHANNEL_4
 #define ESP_USART_DMA_RX_STREAM_IRQ         DMA1_Stream0_IRQn
@@ -84,9 +85,9 @@
 #if USART_USE_DMA
 uint32_t usart_mem[0x1000 / 4] __attribute__((at(0x20010000)));
 uint16_t old_pos;
-
 static uint8_t is_running;
 #endif /* USART_USE_DMA */
+
 static uint8_t initialized;
 
 #if ESP_CFG_INPUT_USE_PROCESS
@@ -120,15 +121,15 @@ configure_uart(uint32_t baudrate) {
     if (initialized) {
         osDelay(10);
         //return;
-    }
-    
-    ESP_USART_CLK();              
-    ESP_USART_TX_PORT_CLK();
-    ESP_USART_RX_PORT_CLK();
-    ESP_USART_RS_PORT_CLK();
+    } else {
+        ESP_USART_CLK;              
+        ESP_USART_TX_PORT_CLK;
+        ESP_USART_RX_PORT_CLK;
+        ESP_USART_RS_PORT_CLK;
 #if USART_USE_DMA
-    ESP_USART_DMA_CLK();
+        ESP_USART_DMA_CLK;
 #endif /* USART_USE_DMA */
+    }
     
     if (!initialized) {
         /* Global pin configuration */
@@ -150,10 +151,7 @@ configure_uart(uint32_t baudrate) {
         gpio_init.Alternate = ESP_USART_RX_PIN_AF;
         gpio_init.Pin = ESP_USART_RX_PIN;
         LL_GPIO_Init(ESP_USART_RX_PORT, &gpio_init);
-    }
-    
-    /* Configure UART */
-    if (!initialized) {
+        
         LL_USART_DeInit(ESP_USART);
         LL_USART_StructInit(&usart_init);
         usart_init.BaudRate = baudrate;
@@ -164,19 +162,19 @@ configure_uart(uint32_t baudrate) {
         usart_init.StopBits = LL_USART_STOPBITS_1;
         usart_init.TransferDirection = LL_USART_DIRECTION_TX_RX;
         LL_USART_Init(ESP_USART, &usart_init);
+#if !USART_USE_DMA
+        LL_USART_EnableIT_RXNE(ESP_USART);
+#endif /* USART_USE_DMA */
         LL_USART_Enable(ESP_USART);
+    
+        NVIC_SetPriority(ESP_USART_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 1));
+        NVIC_EnableIRQ(ESP_USART_IRQ);
     } else {
         LL_USART_Disable(ESP_USART);
         LL_USART_SetBaudRate(ESP_USART, LL_RCC_GetUARTClockFreq(ESP_USART_CLK_SOURCE), LL_USART_OVERSAMPLING_16, baudrate);
         LL_USART_Enable(ESP_USART);
     }
-    
-    HAL_NVIC_SetPriority(ESP_USART_IRQ, 6, 1);
-    HAL_NVIC_EnableIRQ(ESP_USART_IRQ);
-    
-#if !USART_USE_DMA
-    LL_USART_EnableIT_RXNE(ESP_USART);
-#endif /* USART_USE_DMA */
+
 #if USART_USE_DMA
     
     /* Set DMA_InitStruct fields to default values */
@@ -206,8 +204,8 @@ configure_uart(uint32_t baudrate) {
         LL_DMA_EnableIT_DME(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         LL_DMA_EnableStream(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         
-        HAL_NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, 1, 0);
-        HAL_NVIC_EnableIRQ(ESP_USART_DMA_RX_STREAM_IRQ);
+        NVIC_SetPriority(ESP_USART_DMA_RX_STREAM_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+        NVIC_EnableIRQ(ESP_USART_DMA_RX_STREAM_IRQ);
         
         old_pos = 0;
         is_running = 1;
@@ -259,7 +257,9 @@ ESP_USART_IRQHANDLER(void) {
     if (LL_USART_IsActiveFlag_IDLE(ESP_USART)) {/*  */
         LL_USART_ClearFlag_IDLE(ESP_USART);     /* Clear IDLE flag */
 #if PROCESS_ON_EVENT
-        osMessagePut(usart_ll_mbox_id, 0, 0);   /* Send IDLE event to queue */
+        if (usart_ll_mbox_id != NULL) {
+            osMessagePut(usart_ll_mbox_id, 0, 0);   /* Send IDLE event to queue */
+        }
 #endif /* PROCESS_ON_EVENT */
     }
 #else /* USART_USE_DMA */
