@@ -30,9 +30,9 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#define ESP_INTERNAL
 #include "system/esp_ll.h"
 #include "esp/esp.h"
+#include "esp/esp_mem.h"
 #include "esp/esp_input.h"
 
 static uint8_t initialized = 0;

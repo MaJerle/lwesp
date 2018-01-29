@@ -28,7 +28,6 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#define ESP_INTERNAL
 #include "system/esp_sys.h"
 #include "cmsis_os.h"
 

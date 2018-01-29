@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#define ESP_INTERNAL
 #include "esp/esp.h"
+#include "esp/esp_mem.h"
 #include "esp/esp_input.h"
 #include "system/esp_ll.h"
 
