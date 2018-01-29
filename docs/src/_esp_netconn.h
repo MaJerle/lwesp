@@ -62,5 +62,9 @@
  *
  * \include         _example_netconn_server.c
  *
+ * \section         sect_netconn_server_thread Netconn server with separated threads
+ *
+ * \include         _example_netconn_server_threads.c
+ *
  * \}
  */
