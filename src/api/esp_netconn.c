@@ -67,26 +67,26 @@ static void
 flush_mboxes(esp_netconn_t* nc) {
     esp_pbuf_t* pbuf;
     esp_netconn_t* new_nc;
+    ESP_CORE_PROTECT();                         /* Protect ESP core */
     if (esp_sys_sem_isvalid(&nc->mbox_receive)) {
-        do {
-            if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
-                break;
-            }
+        while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
             if (pbuf != NULL && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
-                esp_pbuf_free(pbuf);
+                esp_pbuf_free(pbuf);            /* Free received data buffers */
             }
-        } while (1);
+        }
+        esp_sys_sem_delete(&nc->mbox_receive);  /* Delete message queue */
+        esp_sys_sem_invalid(&nc->mbox_receive); /* Invalid handle */
     }
     if (esp_sys_sem_isvalid(&nc->mbox_accept)) {
-        do {
-            if (!esp_sys_mbox_getnow(&nc->mbox_accept, (void *)&new_nc)) {
-                break;
-            }
+        while (esp_sys_mbox_getnow(&nc->mbox_accept, (void *)&new_nc)) {
             if (new_nc != NULL) {
                 esp_netconn_close(new_nc);      /* Close netconn connection */
             }
-        } while (1);
+        }
+        esp_sys_sem_delete(&nc->mbox_accept);   /* Delete message queue */
+        esp_sys_sem_invalid(&nc->mbox_accept);  /* Invalid handle */
     }
+    ESP_CORE_UNPROTECT();                       /* Release protection */
 }
 
 /**
