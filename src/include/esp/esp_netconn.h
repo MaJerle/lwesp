@@ -40,7 +40,7 @@ extern "C" {
 #include "esp/esp.h"
 
 /**
- * \addtogroup      ESP
+ * \addtogroup      ESP_API
  * \{
  */
 

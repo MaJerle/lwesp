@@ -7,3 +7,11 @@
  *
  * \}
  */
+
+/**
+ * \defgroup        ESP_API API architecture
+ * \brief           High level application architecture
+ * \{
+ *
+ * \}
+ */

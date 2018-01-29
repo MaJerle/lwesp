@@ -109,7 +109,7 @@ esp_cb(esp_cb_t* cb) {
         case ESP_CB_CONN_ACTIVE: {              /* A new connection active is active */
             if (esp_conn_is_client(conn)) {     /* Was connection started by us? */
                 nc = esp_conn_get_arg(conn);    /* Argument should be ready already */
-                if (nc) {                       /* Is netconn set? Should be already by us */
+                if (nc != NULL) {               /* Netconn should be set when connecting to server */
                     nc->conn = conn;            /* Save actual connection */
                 } else {
                     close = 1;                  /* Close this connection, invalid netconn */
@@ -128,8 +128,8 @@ esp_cb(esp_cb_t* cb) {
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
 #if ESP_CFG_NETCONN_ACCEPT_ON_CONNECT
                     /*
-                     * If user wants to write connection to accept mbox,
-                     * immediately after connection active,
+                     * If user wants to write connection to accept mbox
+                     * immediately after connection is active,
                      * process it here.
                      *
                      * In case there is no listening connection,
@@ -223,7 +223,7 @@ esp_cb(esp_cb_t* cb) {
     }
     if (close) {
         esp_conn_close(conn, 0);                /* Close the connection */
-        if (nc) {
+        if (nc != NULL) {
             esp_netconn_delete(nc);             /* Free memory for API */
         }
     }
