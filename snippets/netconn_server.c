@@ -15,11 +15,26 @@ static void netconn_server_processing_thread(void* const arg);
  * \brief           Main page response file
  */
 static const uint8_t
-resp_data_mainpage[] = ""
+resp_data_mainpage_top[] = ""
 "HTTP/1.1 200 OK\r\n"
 "Content-Type: text/html\r\n"
 "\r\n"
-"<html><head><link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\" /></head><body>Netconn driven website!</body></html>";;
+"<html>"
+"   <head>"
+"       <link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\" />"
+"       <meta http-equiv=\"refresh\" content=\"1\" />"
+"   </head>"
+"   <body>"
+"       Netconn driven website! <p>Total system up time: <b>";
+
+/**
+ * \brief           Bottom part of main page
+ */
+static const uint8_t
+resp_data_mainpage_bottom[] = ""
+"       </b></p>"
+"   </body>"
+"</html>";
 
 /**
  * \brief           Style file response
@@ -105,6 +120,7 @@ netconn_server_processing_thread(void* const arg) {
     esp_netconn_p client;
     esp_pbuf_p pbuf, p = NULL;
     espr_t res;
+    char strt[20];
 
     client = arg;                               /* Client handle is passed to argument */
                                                 
@@ -131,8 +147,13 @@ netconn_server_processing_thread(void* const arg) {
             }
             if (esp_pbuf_strfind(pbuf, "\r\n\r\n", 0) != ESP_SIZET_MAX) {
                 if (esp_pbuf_strfind(pbuf, "GET / ", 0) != ESP_SIZET_MAX) {
+                    uint32_t now;
                     printf("Main page request\r\n");
-                    esp_netconn_write(client, resp_data_mainpage, sizeof(resp_data_mainpage) - 1);
+                    now = esp_sys_now();        /* Get current time */
+                    sprintf(strt, "%u ms; %d s", (unsigned)now, (unsigned)(now / 1000));
+                    esp_netconn_write(client, resp_data_mainpage_top, sizeof(resp_data_mainpage_top) - 1);
+                    esp_netconn_write(client, strt, strlen(strt));
+                    esp_netconn_write(client, resp_data_mainpage_bottom, sizeof(resp_data_mainpage_bottom) - 1);
                 } else if (esp_pbuf_strfind(pbuf, "GET /style.css ", 0) != ESP_SIZET_MAX) {
                     printf("Style page request\r\n");
                     esp_netconn_write(client, resp_data_style, sizeof(resp_data_style) - 1);
