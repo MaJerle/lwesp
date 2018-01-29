@@ -46,6 +46,7 @@ typedef struct {
 } win32_mbox_t;
 
 static LARGE_INTEGER freq, sys_start_time;
+static esp_sys_mutex_t sys_mutex;				/* Mutex ID for main protection */
 
 /**
  * \brief           Check if message box is full
@@ -81,15 +82,10 @@ osKernelSysTick(void) {
 	LONGLONG ret;
 	LARGE_INTEGER now;
 
-	QueryPerformanceFrequency(&freq);
-	QueryPerformanceCounter(&sys_start_time);
-
-	QueryPerformanceCounter(&now);
+	QueryPerformanceCounter(&now);              /* Get current time */
 	ret = now.QuadPart - sys_start_time.QuadPart;
 	return (uint32_t)(((ret) * 1000) / freq.QuadPart);
 }
-
-static esp_sys_mutex_t sys_mutex;				/* Mutex ID for main protection */
 
 /**
  * \brief           Init system dependant parameters
@@ -99,7 +95,7 @@ static esp_sys_mutex_t sys_mutex;				/* Mutex ID for main protection */
 uint8_t
 esp_sys_init(void) {
 	QueryPerformanceFrequency(&freq);
-	QueryPerformanceCounter(&sys_start_time);
+	QueryPerformanceCounter(&sys_start_time);   /* Get start time */
 
     esp_sys_mutex_create(&sys_mutex);           /* Create system mutex */
     return 1;
