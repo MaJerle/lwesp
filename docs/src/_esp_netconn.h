@@ -62,7 +62,18 @@
  *
  * \include         _example_netconn_server.c
  *
- * \section         sect_netconn_server_thread Netconn server with separated threads
+ * \section         sect_netconn_server_thread Netconn server concurrency
+ *
+ * An improved version for netconn server is to use separate thread for every client.
+ * This add new option to process multiple clients concurrent instead of consecutive.
+ * Possible drawback is higher RAM usage due to multiple threads (each client own thread),
+ * but this makes communication much stable.
+ *
+ * \par             Example
+ *
+ * An example shows single netconn thread which waits for new client.
+ * When new client is accepted, it will initiate a new thread with client handle and will immediatelly wait for next client,
+ * instead of waiting to process current client.
  *
  * \include         _example_netconn_server_threads.c
  *
