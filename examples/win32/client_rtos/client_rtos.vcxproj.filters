@@ -110,9 +110,6 @@
     <ClCompile Include="..\..\..\snippets\station_manager.c">
       <Filter>ESP SNIPPETS</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\snippets\netconn_client.c">
-      <Filter>ESP SNIPPETS</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\api\esp_netconn.c">
       <Filter>ESP API</Filter>
     </ClCompile>

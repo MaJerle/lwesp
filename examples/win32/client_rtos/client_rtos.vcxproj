@@ -144,7 +144,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\snippets\netconn_client.c" />
     <ClCompile Include="..\..\..\snippets\station_manager.c" />
     <ClCompile Include="..\..\..\src\api\esp_netconn.c" />
     <ClCompile Include="..\..\..\src\esp\esp.c" />

@@ -43,10 +43,9 @@
 /*
  * Check default configuration settings for more information
  */
+#define ESP_CFG_AT_ECHO                     1
 #define ESP_CFG_SYS_PORT                    ESP_SYS_PORT_WIN32
 #define ESP_CFG_INPUT_USE_PROCESS           1
-
-#define ESP_CFG_NETCONN                     1
 
 /* After user configuration, call default config to merge config together */
 #include "esp/esp_config_default.h"

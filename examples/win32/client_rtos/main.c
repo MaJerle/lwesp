@@ -49,6 +49,7 @@ static const uint8_t
 request_data[] = ""
 "GET / HTTP/1.1\r\n"
 "Host: " CONN_HOST "\r\n"
+"Connection: close\r\n"
 "\r\n";
 
 /**
@@ -112,6 +113,16 @@ esp_conn_callback_func(esp_cb_t* cb) {
             printf("Connection %d active!\r\n", (int)esp_conn_getnum(conn));
             printf("Sending data on connection %d to remote server\r\n", (int)esp_conn_getnum(conn));
             esp_conn_send(conn, request_data, sizeof(request_data) - 1, NULL, 0);
+            break;
+        }
+        case ESP_CB_CONN_DATA_SENT: {           /* Data successfully sent */
+            size_t len = cb->cb.conn_data_sent.sent;
+            printf("Successfully sent %d bytes on connection %d\r\n", (int)len, (int)esp_conn_getnum(conn));
+            break;
+        }
+        case ESP_CB_CONN_DATA_SEND_ERR: {       /* Error trying to send data on connection */
+            size_t len = cb->cb.conn_data_send_err.sent;
+            printf("Error trying to send data on connection %d\r\n", (int)esp_conn_getnum(conn));
             break;
         }
         case ESP_CB_CONN_DATA_RECV: {           /* Connection data received */
