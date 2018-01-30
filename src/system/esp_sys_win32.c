@@ -82,6 +82,7 @@ osKernelSysTick(void) {
 	LONGLONG ret;
 	LARGE_INTEGER now;
 
+    QueryPerformanceFrequency(&freq);           /* Get frequency */
 	QueryPerformanceCounter(&now);              /* Get current time */
 	ret = now.QuadPart - sys_start_time.QuadPart;
 	return (uint32_t)(((ret) * 1000) / freq.QuadPart);
