@@ -26,7 +26,7 @@ main() {
     /* Create start main thread */
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)main_thread, NULL, 0, &main_thread_id);
 
-    /* Do nothing anymore at this point */
+    /* Do nothing at this point but do not close the program */
 	while (1) {
         esp_delay(1000);
 	}
@@ -37,10 +37,15 @@ main() {
  */
 static void
 main_thread(void* arg) {
+    esp_netconn_p c1;
+    espr_t res;
+    esp_pbuf_p p;
+
     /*
      * Init ESP library
      */
     esp_init(esp_cb);
+    esp_sta_autojoin(1, 1);
     
     /*
      * Start MQTT thread
@@ -70,6 +75,24 @@ main_thread(void* arg) {
         esp_sta_copy_ip(&ip, NULL, NULL);
         printf("Connected to WIFI!\r\n");
         printf("Device IP: %d.%d.%d.%d\r\n", ip.ip[0], ip.ip[1], ip.ip[2], ip.ip[3]);
+    }
+
+    c1 = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
+    res = esp_netconn_connect(c1, "majerle.eu", 80);
+    if (res == espOK) {
+        printf("Connected!\r\n");
+        do {
+            res = esp_netconn_receive(c1, &p);
+            if (res == espOK) {
+                printf("Received buffer\r\n");
+                esp_pbuf_free(p);
+            } else if (res == espCLOSED) {
+                printf("Connection closed!\r\n");
+            } else if (res == espTIMEOUT) {
+                printf("Read timeout\r\n");
+            }
+        } while (res == espOK);
+        esp_netconn_close(c1);
     }
 
     /*

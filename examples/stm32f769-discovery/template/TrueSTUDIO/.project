@@ -102,6 +102,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/src/esp/esp_debug.c</locationURI>
 		</link>
 		<link>
+			<name>ESP CORE/esp_evt.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/src/esp/esp_evt.c</locationURI>
+		</link>
+		<link>
 			<name>ESP CORE/esp_hostname.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/src/esp/esp_hostname.c</locationURI>

@@ -159,6 +159,7 @@
     <ClCompile Include="..\..\..\src\esp\esp_buff.c" />
     <ClCompile Include="..\..\..\src\esp\esp_conn.c" />
     <ClCompile Include="..\..\..\src\esp\esp_debug.c" />
+    <ClCompile Include="..\..\..\src\esp\esp_evt.c" />
     <ClCompile Include="..\..\..\src\esp\esp_hostname.c" />
     <ClCompile Include="..\..\..\src\esp\esp_input.c" />
     <ClCompile Include="..\..\..\src\esp\esp_int.c" />

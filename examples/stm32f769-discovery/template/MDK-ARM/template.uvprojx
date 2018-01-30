@@ -521,6 +521,11 @@
               <FilePath>..\..\..\..\src\esp\esp_debug.c</FilePath>
             </File>
             <File>
+              <FileName>esp_evt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\esp\esp_evt.c</FilePath>
+            </File>
+            <File>
               <FileName>esp_hostname.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\esp\esp_hostname.c</FilePath>

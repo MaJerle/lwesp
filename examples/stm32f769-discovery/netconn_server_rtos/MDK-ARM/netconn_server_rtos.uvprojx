@@ -48,7 +48,7 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>Template\</OutputDirectory>
+          <OutputDirectory>.\Netconn_Server_RTOS\</OutputDirectory>
           <OutputName>Netconn_Server_RTOS</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
@@ -519,6 +519,11 @@
               <FileName>esp_debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\esp\esp_debug.c</FilePath>
+            </File>
+            <File>
+              <FileName>esp_evt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\esp\esp_evt.c</FilePath>
             </File>
             <File>
               <FileName>esp_hostname.c</FileName>
