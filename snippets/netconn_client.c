@@ -70,17 +70,22 @@ netconn_client_thread(void const* arg) {
                     if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
                         printf("Connection closed by remote side...\r\n");
                         break;
+                    } else if (res == espTIMEOUT) {
+                        printf("Netconn timeout while receiving data. You may try multiple readings before deciding to close manually\r\n");
                     }
 
-                    /*
-                     * At this point read and manipulate
-                     * with received buffer and check if you expect more data
-                     *
-                     * After you are done using it, it is important
-                     * you free the memory otherwise memory leaks will appear
-                     */
-                    printf("Received new data packet of %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
-                    esp_pbuf_free(pbuf);        /* Free the memory after usage */
+                    if (pbuf != NULL) {         /* Make sure we have valid packet buffer */
+                        /*
+                         * At this point read and manipulate
+                         * with received buffer and check if you expect more data
+                         *
+                         * After you are done using it, it is important
+                         * you free the memory otherwise memory leaks will appear
+                         */
+                        printf("Received new data packet of %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
+                        esp_pbuf_free(pbuf);    /* Free the memory after usage */
+                        pbuf = NULL;
+                    }
                 } while (1);
             } else {
                 printf("Error writing data to remote host!\r\n");
