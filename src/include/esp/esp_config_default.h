@@ -31,7 +31,7 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #ifndef __ESP_DEFAULT_CONFIG_H
-#define __ESP_DEFAULT_CONFIG_H  100
+#define __ESP_DEFAULT_CONFIG_H
 
 /**
  * \defgroup        ESP_CONF Configuration
@@ -372,8 +372,22 @@
  *                  to accept mbox only when first data packet arrives to device,
  *                  otherwise it will be immediately written to receive mbox.
  */
-#ifndef ECP_CFG_NETCONN_ACCEPT_ON_CONNECT
-#define ECP_CFG_NETCONN_ACCEPT_ON_CONNECT   1
+#ifndef ESP_CFG_NETCONN_ACCEPT_ON_CONNECT
+#define ESP_CFG_NETCONN_ACCEPT_ON_CONNECT   1
+#endif
+
+/**
+ * \brief           Enables (1) or disables (0) receive timeout feature
+ *
+ *                  When this option is enabled, user will get an option
+ *                  to set timeout value for receive data on netconn,
+ *                  before function returns timeout error.
+ *
+ * \note            Even if this option is enabled, user must still manually set timeout, 
+ *                  by default time will be set to 0 which means no timeout.
+ */
+#ifndef ESP_CFG_NETCONN_RECEIVE_TIMEOUT
+#define ESP_CFG_NETCONN_RECEIVE_TIMEOUT     0
 #endif
 
 /**
