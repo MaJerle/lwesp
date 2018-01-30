@@ -11,6 +11,8 @@
  *
  *  - Supports latest ESP8266 and ESP32 AT commands software
  *  - Platform independent and very easy to port
+ *     - Development of library under Win32 platform
+ *     - Provided examples for ARM Cortex-M or Win32 platforms
  *  - Written in C language (C99)
  *  - Allows different configurations to optimize user requirements
  *  - Supports implementation with operating systems with advanced inter-thread communications
@@ -18,21 +20,15 @@
  *      - 2 different threads handling user data and received data
  *          - First (producer) thread (collects user commands from user threads and starts the command processing)
  *          - Second (process) thread reads the data from ESP device and does the job accordingly
+ *  - Allows sequential API for connections in client and server mode
  *  - Includes several applications built on top of library:
  *      - \ref ESP_APP_HTTP_SERVER with dynamic files (file system) support
  *      - \ref ESP_APP_MQTT_CLIENT for MQTT connection
- *
- *
- * \section         sect_requirements Requirements
- *
- * In order to start with this library, these requirements must be resolved:
- *
- *  - ESP8266 must include latest AT software
- *      - Currently supported AT version is <b>1.6.0</b> based on SDK version <b>2.2.0</b> which is not yet released officially from EspressIf Systems
- *      - Precompiled development AT version from Espressif is available on Github of this library
+ *  - Embeds other AT features, such as \ref ESP_WPS, \ref ESP_PING, \ref ESP_HOSTNAME and others
  *
  * \section         sect_resources Resources
  *
+ *  - Read \ref page_requirements before you choose this library
  *  - Read \ref page_appnote before you start development
  *  - <a href="https://github.com/MaJerle/ESP_AT_Lib">Official development repository on Github</a>
  *  - <a href="http://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf">Official AT commands instruction set by Espressif systems</a>

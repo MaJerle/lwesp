@@ -1,11 +1,11 @@
 /**
- * \page update_process Update ESP8266 AT software
+ * \page            page_update_at_software Update ESP8266 AT software
  * \tableofcontents
  *
  * This section will describe how to update ESP8266 AT commands software to latest version,
  * which is provided from Espressif Systems and is still under development process to be stable as much as possible.
  *
- * \section         update_process_preparations Before you start
+ * \section         sect_update_process_preparations Before you start
  *
  * ESP8266 device is a microcontroller itself which supports like any other MCU normal program custom written by yourself
  * or any other source who has done this job. AT commands software is a "project" which has implemented 
@@ -27,7 +27,7 @@
  * This software is still under development process to be very stable, but at the moment (at the time of writing this, AT 0.60 is out) 
  * software works really great without any serious problems (at least I didn't entered into).
  * 
- * \section update_process_hardware Hardware requirements for software
+ * \section         sect_update_process_hardware Hardware requirements for software
  *
  * Espressif Systems provide 2 AT version releases when new version comes out:
  *
@@ -52,7 +52,7 @@
  * AT commands software without OTA requried 4Mbit flash memory and basically works on any ESP module, even if bought at very beginning
  * when these modules were first time sold.
  *
- * \section update_process_download Download AT software
+ * \section         sect_update_process_download Download AT software
  *
  * You can always get latest NON_OS SDK from Espressif Official website.
  * Latest version when writing this tutorial is NONOS_SDK 2.1 and is available <a href="http://espressif.com/en/support/download/sdks-demos"><b>here</b></a>.
@@ -61,12 +61,12 @@
  *
  * \note            Before you start with update process, always make sure you have latest version downloaded.
  *
- * \section         update_process_download_flashtool Download flash tool
+ * \section         sect_update_process_download_flashtool Download flash tool
  *
  * Espressif provides download flash tool, available on website in section
  * <a href="http://espressif.com/en/support/download/other-tools"><b>other tools</b></a>.
  *
- * \section update_process_hardware_preparation Prepare ESP8266 module
+ * \section         sect_update_process_hardware_preparation Prepare ESP8266 module
  *
  * Before you can start updating software on ESP8266 module, make sure you have correct wiring.
  * For proper wiring, you should follow Google. I have ESP-01 and ESP-07 (also works with ESP-12) modules tested and for normal operation,
@@ -103,7 +103,7 @@ ANY     ANY     HIGH       BOot from SDCARD (if connected to SDIO port)
  *
  * \note    To start update process, connect ESP8266 module with USB<->UART converter and set <b>GPIO0 pin LOW</b> and set RST pin low and back high to reset module.
  *
- * \section update_process_start Start updating process
+ * \section         sect_update_process_start Start updating process
  *
  * Let's start with updating our ESP8266 device with latest version. I will go step-by-step and try to cover all steps and possible problems. Let's go!
  *
