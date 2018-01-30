@@ -190,12 +190,20 @@ esp_cb(esp_cb_t* cb) {
 
             nc->rcv_packets++;                  /* Increase number of received packets */
             if (!close) {
+                /*
+                 * First increase reference number to prevent
+                 * other thread to process the incoming packet
+                 * and free it while we still need it here
+                 *
+                 * In case of problems writing packet to queue,
+                 * simply force free to decrease reference counter back to previous value
+                 */
+                esp_pbuf_ref(pbuf);             /* Increase reference counter */
                 if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
                     !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
                     ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Ignoring more data for receive!\r\n");
+                    esp_pbuf_free(pbuf);        /* Free pbuf */
                     return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
-                } else {
-                    esp_pbuf_ref(pbuf);         /* Increase reference counter */
                 }
             }
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
