@@ -680,12 +680,12 @@ espi_parse_received(esp_recv_t* rcv) {
     }
     
     /*
-     * Check if connection is just active:
+     * Check if connection is just active (or closed):
      *
      * Since new ESP AT release, it is possible to get
      * connection status by using +LINK_CONN message.
      *
-     * Check LINK_CONN and x,CONNECT messages
+     * Check LINK_CONN messages
      */
     if (rcv->len > 20 && (s = strstr(rcv->data, "+LINK_CONN:")) != NULL) {
         if (espi_parse_link_conn(s) && esp.link_conn.num < ESP_CFG_MAX_CONNS) {
