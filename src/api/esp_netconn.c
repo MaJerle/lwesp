@@ -30,7 +30,6 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#define ESP_INTERNAL
 #include "esp/esp_netconn.h"
 #include "esp/esp_private.h"
 #include "esp/esp_conn.h"
@@ -46,7 +45,7 @@ typedef struct esp_netconn_t {
     esp_port_t listen_port;                     /*!< Port on which we are listening */
     
     size_t rcv_packets;                         /*!< Number of received packets so far on this connection */
-    esp_conn_t* conn;                           /*!< Pointer to actual connection */
+    esp_conn_p conn;                            /*!< Pointer to actual connection */
     
     esp_sys_sem_t mbox_accept;                  /*!< List of active connections waiting to be processed */
     esp_sys_sem_t mbox_receive;                 /*!< Message queue for receive mbox */
@@ -54,6 +53,10 @@ typedef struct esp_netconn_t {
     uint8_t* buff;                              /*!< Pointer to buffer for \ref esp_netconn_write function. used only on TCP connection */
     size_t buff_len;                            /*!< Total length of buffer */
     size_t buff_ptr;                            /*!< Current buffer pointer for write mode */
+
+#if ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__
+    uint32_t rcv_timeout;                       /*!< Receive timeout in unit of milliseconds */
+#endif
 } esp_netconn_t;
 
 static uint8_t recv_closed = 0xFF;
@@ -65,9 +68,9 @@ static esp_netconn_t* listen_api;              /* Main connection in listening m
  */
 static void
 flush_mboxes(esp_netconn_t* nc) {
-    esp_pbuf_t* pbuf;
+    esp_pbuf_p pbuf;
     esp_netconn_t* new_nc;
-    ESP_CORE_PROTECT();                         /* Protect ESP core */
+    esp_core_lock();                            /* Protect ESP core */
     if (esp_sys_sem_isvalid(&nc->mbox_receive)) {
         while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
             if (pbuf != NULL && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
@@ -78,7 +81,7 @@ flush_mboxes(esp_netconn_t* nc) {
         esp_sys_sem_invalid(&nc->mbox_receive); /* Invalid handle */
     }
     if (esp_sys_sem_isvalid(&nc->mbox_accept)) {
-        while (esp_sys_mbox_getnow(&nc->mbox_accept, (void *)&new_nc)) {
+        while (esp_sys_mbox_getnow(&nc->mbox_accept, (void **)&new_nc)) {
             if (new_nc != NULL) {
                 esp_netconn_close(new_nc);      /* Close netconn connection */
             }
@@ -86,7 +89,7 @@ flush_mboxes(esp_netconn_t* nc) {
         esp_sys_sem_delete(&nc->mbox_accept);   /* Delete message queue */
         esp_sys_sem_invalid(&nc->mbox_accept);  /* Invalid handle */
     }
-    ESP_CORE_UNPROTECT();                       /* Release protection */
+    esp_core_unlock();                          /* Release protection */
 }
 
 /**
@@ -96,7 +99,7 @@ flush_mboxes(esp_netconn_t* nc) {
  */
 static espr_t
 esp_cb(esp_cb_t* cb) {
-    esp_conn_t* conn;
+    esp_conn_p conn;
     esp_netconn_t* nc = NULL;
     uint8_t close = 0;
     
@@ -348,9 +351,9 @@ esp_netconn_listen(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
     
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     listen_api = nc;                            /* Set current main API in listening state */
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     return espOK;
 }
 
@@ -537,21 +540,28 @@ esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const 
  * \brief           Receive data from connection
  * \param[in]       nc: Netconn connection used to receive from
  * \param[in]       pbuf: Pointer to pointer to save new receive buffer to
- * \return          espOK on new data, espCLOSED when connection closed or member of \ref espr_t otherwise
+ * \return          \ref espOK when new data ready, \ref espCLOSED when connection closed by remote side,
+ *                  \ref espTIMEOUT when receive timeout occurs or any other member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
-    uint32_t time;
-    
+esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {    
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
-    
-    time = esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
-    if (time == ESP_SYS_TIMEOUT || (uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
-        *pbuf = NULL;
+
+    *pbuf = NULL;
+#if ESP_CFG_NETCONN_RECEIVE_TIMEOUT
+    if (esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, nc->rcv_timeout) == ESP_SYS_TIMEOUT) {
+        return espTIMEOUT;
+    }
+#else /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
+    esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
+#endif /* !ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
+
+    /* Check if connection closed */
+    if ((uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
         return espCLOSED;
     }
-    return espOK;
+    return espOK;                               /* We have data available */
 }
 
 /**
@@ -582,5 +592,29 @@ esp_netconn_getconnnum(esp_netconn_p nc) {
     }
     return -1;
 }
+
+#if ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__
+
+/**
+ * \brief           Set timeout value for receiving data
+ * \param[in]       nc: Netconn handle
+ * \param[in]       timeout: Timeout in units of milliseconds. Set to 0 to disable timeout (wait forever, default value)
+ */
+void
+esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout) {
+    nc->rcv_timeout = timeout;
+}
+
+/**
+ * \brief           Get netconn receive timeout value
+ * \param[in]       nc: Netconn handle
+ * \return          Timeout in units of milliseconds. When returned value is 0, timeout is disabled (wait forever)
+ */
+uint32_t
+esp_netconn_get_receive_timeout(esp_netconn_p nc) {
+    return nc->rcv_timeout;                     /* Return receive timeout */
+}
+
+#endif /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__ */
 
 #endif /* ESP_CFG_NETCONN || __DOXYGEN__ */
