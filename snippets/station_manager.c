@@ -56,7 +56,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
                     if (!strcmp(aps[i].ssid, ap_list[j].ssid)) {
                         printf("Connecting to \"%s\" network...\r\n", ap_list[j].ssid);
                         /* Try to join to access point */
-                        if ((eres = esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 0, 1)) == espOK) {
+                        if ((eres = esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 1, 1)) == espOK) {
                             esp_ip_t ip;
                             esp_sta_copy_ip(&ip, NULL, NULL);
 
