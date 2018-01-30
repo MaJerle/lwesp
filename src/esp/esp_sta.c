@@ -78,6 +78,23 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
 }
 
 /**
+ * \brief           Configure auto join to access point on startup
+ * \param[in]       en: Set to 1 to enable or 0 to disable
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_sta_autojoin(uint8_t en, uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWAUTOCONN;
+    ESP_MSG_VAR_REF(msg).msg.sta_autojoin.en = en;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 30000);   /* Send message to producer queue */
+}
+
+/**
  * \brief           Get station IP address
  * \param[out]      ip: Pointer to variable to save IP address
  * \param[out]      gw: Pointer to output variable to save gateway address

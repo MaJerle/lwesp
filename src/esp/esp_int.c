@@ -233,23 +233,29 @@ reset_connections(uint8_t forced) {
 
 /**
  * \brief           Reset everything after reset was detected
+ * \param[in]       forced: Set to 1 if reset forced by user
  */
 static void
-reset_everything(void) {
+reset_everything(uint8_t forced) {
     /**
      * \todo: Put stack to default state:
      *          - Close all the connection in memory
      *          - Clear entire data memory
-     *          - Reset esp structure with IP and everything else
+     *          - Reset esp structure with IP
+     *          - Start over init procedure
      */
     
     /*
      * Step 1: Close all connections in memory 
      */
-    reset_connections(0);
+    reset_connections(forced);
     
     esp.status.f.r_got_ip = 0;
     esp.status.f.r_w_conn = 0;
+
+    if (!forced) {
+        esp_reset(0);
+    }
 }
 
 /**
@@ -439,12 +445,12 @@ espi_parse_received(esp_recv_t* rcv) {
      */
     if (is_ready) {
         if (IS_CURR_CMD(ESP_CMD_RESET)) {       /* Did we force reset? */
-            
+            esp.cb.cb.reset.forced = 1;
         } else {                                /* Reset due unknown error */
-
+            esp.cb.cb.reset.forced = 0;
         }
+        reset_everything(esp.cb.cb.reset.forced);   /* Put everything to default state */
         espi_send_cb(ESP_CB_RESET);             /* Call user callback function */
-        reset_everything();                     /* Put everything to default state */
     }
     
     /*
@@ -592,6 +598,9 @@ espi_parse_received(esp_recv_t* rcv) {
         } else if (!strncmp(&rcv->data[5], "GOT IP", 6)) {
             esp.status.f.r_got_ip = 1;          /* Wifi got IP address */
             espi_send_cb(ESP_CB_WIFI_GOT_IP);   /* Call user callback function */
+            if (!IS_CURR_CMD(ESP_CMD_WIFI_CWJAP)) { /* In case of auto connection */
+                esp_sta_getip(NULL, NULL, NULL, 0, 0);  /* Get new IP address */
+            }
         }
     } else if (IS_CURR_CMD(ESP_CMD_GMR)) {
         if (!strncmp(rcv->data, "AT version", 10)) {
@@ -1323,6 +1332,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 ESP_AT_PORT_SEND_STR("=");
                 send_string(msg->msg.ap_list.ssid, 1, 1);
             }
+            ESP_AT_PORT_SEND_STR(CRLF);
+            break;
+        }
+        case ESP_CMD_WIFI_CWAUTOCONN: {         /* Set autoconnect feature */
+            ESP_AT_PORT_SEND_STR("AT+CWAUTOCONN=");
+            send_number(!!msg->msg.sta_autojoin.en, 0);
             ESP_AT_PORT_SEND_STR(CRLF);
             break;
         }

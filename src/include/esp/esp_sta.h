@@ -53,6 +53,7 @@ extern "C" {
 
 espr_t      esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_quit(uint32_t blocking);
+espr_t      esp_sta_autojoin(uint8_t en, uint32_t blocking);
 espr_t      esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, uint32_t blocking);
 espr_t      esp_sta_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking);

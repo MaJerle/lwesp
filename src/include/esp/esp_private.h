@@ -93,6 +93,7 @@ typedef enum {
     ESP_CMD_WIFI_CIPSTAMAC_SET,                 /*!< Set MAC address of ESP station */
     ESP_CMD_WIFI_CIPSTA_GET,                    /*!< Get IP address of ESP station */
     ESP_CMD_WIFI_CIPSTA_SET,                    /*!< Set IP address of ESP station */
+    ESP_CMD_WIFI_CWAUTOCONN,                    /*!< Configure auto connection to access point */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_CMD_WIFI_CWSAP_GET,                     /*!< Get software access point configuration */
@@ -224,6 +225,9 @@ typedef struct esp_msg {
             uint8_t def;                        /*!< Value indicates to connect as current only or as default */
             uint8_t error_num;                  /*!< Error number on connecting */
         } sta_join;                             /*!< Message for joining to access point */
+        struct {
+            uint8_t en;                         /*!< Status to enable/disable auto join feature */
+        } sta_autojoin;                         /*!< Message for auto join procedure */
         struct {
             esp_ip_t* ip;                       /*!< Pointer to IP variable */
             esp_ip_t* gw;                       /*!< Pointer to gateway variable */

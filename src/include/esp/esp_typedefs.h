@@ -268,6 +268,10 @@ typedef struct esp_cb_t {
             esp_ip_t* ip;                       /*!< Station IP address */
         } ap_ip_sta;                            /*!< Station got IP address from ESP's access point. Use with \ref ESP_CB_AP_IP_STA */
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
+
+        struct {
+            uint8_t forced;                     /*!< Set to 1 if reset forced by user */
+        } reset;                                /*!< Reset occurred */
     } cb;                                       /*!< Callback event union */
 } esp_cb_t;
 
