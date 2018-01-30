@@ -36,11 +36,14 @@ http_init = {
     .cgi_count = ESP_ARRAYSIZE(cgi_handlers),
     .ssi_fn = http_ssi_cb,
     
+    /*
+     * Use native WIN32 file system API
+     */
 #if WIN32
     .fs_open = http_fs_open,
     .fs_read = http_fs_read,
     .fs_close = http_fs_close,
-#endif
+#endif /* WIN32 */
 };
 
 /**
