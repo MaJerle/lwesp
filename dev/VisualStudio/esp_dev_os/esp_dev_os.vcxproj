@@ -145,7 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\snippets\http_server.c" />
-    <ClCompile Include="..\..\..\snippets\mqtt.c" />
+    <ClCompile Include="..\..\..\snippets\mqtt_client.c" />
     <ClCompile Include="..\..\..\snippets\netconn_client.c" />
     <ClCompile Include="..\..\..\snippets\netconn_server.c" />
     <ClCompile Include="..\..\..\snippets\station_manager.c" />

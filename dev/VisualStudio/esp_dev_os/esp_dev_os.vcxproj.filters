@@ -128,9 +128,6 @@
     <ClCompile Include="..\..\..\snippets\http_server.c">
       <Filter>Source Files\ESP SNIPPETS</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\snippets\mqtt.c">
-      <Filter>Source Files\ESP SNIPPETS</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\snippets\netconn_client.c">
       <Filter>Source Files\ESP SNIPPETS</Filter>
     </ClCompile>
@@ -142,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\src\esp\esp_evt.c">
       <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\snippets\mqtt_client.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
