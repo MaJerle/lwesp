@@ -130,7 +130,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
  *                  as it might make memory undefined for head pbuf.
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  * \sa              esp_pbuf_chain
  */
 espr_t
@@ -158,7 +158,7 @@ esp_pbuf_cat(esp_pbuf_p head, const esp_pbuf_p tail) {
  *                  its reference to tail pbuf and allow control to head pbuf: esp_pbuf_free(tail)
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  * \sa              esp_pbuf_cat
  */
 espr_t
@@ -179,7 +179,7 @@ esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
 /**
  * \brief           Increment reference count on pbuf
  * \param[in]       pbuf: pbuf to increase reference
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_pbuf_ref(esp_pbuf_p pbuf) {
@@ -195,7 +195,7 @@ esp_pbuf_ref(esp_pbuf_p pbuf) {
  * \param[in]       data: Input data to copy to pbuf memory
  * \param[in]       len: Length of input data to copy
  * \param[in]       offset: Start offset in pbuf where to start copying
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {

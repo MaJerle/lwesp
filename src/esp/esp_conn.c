@@ -80,7 +80,7 @@ conn_timeout_cb(void* arg) {
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
  * \param[in]       fau: "Free After Use" flag. Set to 1 if stack should free the memory after data sent
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 static espr_t
 conn_send(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw, size_t* bw, uint8_t fau, uint32_t blocking) {
@@ -155,7 +155,7 @@ espi_conn_init(void) {
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
  * \param[in]       cb_func: Callback function for this connection. Set to NULL in case of default user callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_port_t port, void* arg, esp_cb_fn cb_func, uint32_t blocking) {
@@ -178,7 +178,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_por
  * \brief           Close specific or all connections
  * \param[in]       conn: Connection handle to close. Set to NULL if you want to close all connections.
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_close(esp_conn_p conn, uint32_t blocking) {
@@ -225,7 +225,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
  * \param[in]       btw: Number of bytes to send
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
@@ -244,7 +244,7 @@ esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent.
  *                      Parameter value might not be accurate if you combine \ref esp_conn_write and \ref esp_conn_send functions
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking) {
@@ -286,7 +286,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
  *
  * \param[in]       conn: Connection hande
  * \param[in]       pbuf: Packet buffer received on connection
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
@@ -299,7 +299,7 @@ esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
  * \brief           Set argument variable for connection
  * \param[in]       conn: Connection handle to set argument
  * \param[in]       arg: Pointer to argument
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  * \sa              esp_conn_get_arg
  */
 espr_t
@@ -328,7 +328,7 @@ esp_conn_get_arg(esp_conn_p conn) {
 /**
  * \brief           Gets connections status
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_get_conns_status(uint32_t blocking) {
@@ -424,7 +424,7 @@ esp_conn_getnum(esp_conn_p conn) {
  * \note            Use this function first before you initialize first SSL connection
  * \param[in]       size: Size of buffer in units of bytes. Valid range is between 2048 and 4096 bytes
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
@@ -469,7 +469,7 @@ esp_conn_get_from_evt(esp_cb_t* evt) {
  *                  When the buffer length is reached, current one is sent and a new one is automatically created.
  *                  If function returns espOK and *mem_available = 0, there was a problem
  *                  allocating a new buffer for next operation
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, size_t* mem_available) {

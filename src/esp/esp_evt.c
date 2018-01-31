@@ -35,3 +35,13 @@
 #include "esp/esp_evt.h"
 #include "esp/esp_mem.h"
 
+/**
+ * \brief           Checks if reset was forced by user or not
+ * \note            This function may only be used when event type is \ref ESP_CB_RESET
+ * \param[in]       cb: Event data
+ * \return          1 if forced by user, 0 otherwise
+ */
+uint8_t
+esp_evt_reset_is_forced(esp_cb_t* cb) {
+    return cb->cb.reset.forced;                 /* Return forced reset status */
+}

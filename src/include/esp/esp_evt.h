@@ -51,7 +51,7 @@ extern "C" {
  * \{
  */
 
-
+uint8_t     esp_evt_reset_is_forced(esp_cb_t* cb);
  
 /**
  * \}

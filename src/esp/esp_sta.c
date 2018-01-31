@@ -40,7 +40,7 @@
 /**
  * \brief           Quit (disconnect) from access point
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_quit(uint32_t blocking) {
@@ -59,7 +59,7 @@ esp_sta_quit(uint32_t blocking) {
  * \param[in]       mac: Pointer to MAC address of AP. If you have APs with same name, you can use MAC to select proper one. Use NULL if not needed
  * \param[in]       def: Status whether this is default SSID or only current one
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
@@ -83,7 +83,7 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
  *                  Check \ref esp_sta_join for more information.
  * \param[in]       en: Set to 1 to enable or 0 to disable
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_autojoin(uint8_t en, uint32_t blocking) {
@@ -103,7 +103,7 @@ esp_sta_autojoin(uint8_t en, uint32_t blocking) {
  * \param[out]      nm: Pointer to output variable to save netmask address
  * \param[in]       def: Status whether default (1) or current (1) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t blocking) {
@@ -126,7 +126,7 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t bl
  * \param[in]       nm: Pointer to netmask address. Set to NULL to use default netmask
  * \param[in]       def: Status whether default (1) or current (1) IP to set
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, uint32_t blocking) {
@@ -149,7 +149,7 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
  * \param[out]      mac: Pointer to output variable to save MAC address. Memory of at least 6 bytes is required
  * \param[in]       def: Status whether default (1) or current (1) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking) {
@@ -168,7 +168,7 @@ esp_sta_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking) {
  * \param[in]       mac: Pointer to variable with MAC address. Memory of at least 6 bytes is required
  * \param[in]       def: Status whether default (1) or current (1) MAC to write
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
@@ -186,7 +186,7 @@ esp_sta_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
 
 /**
  * \brief           Check if ESP got IP from access point
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_has_ip(void) {
@@ -199,7 +199,7 @@ esp_sta_has_ip(void) {
 
 /**
  * \brief           Check if station is connected to WiFi network
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_joined(void) {
@@ -240,7 +240,7 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
  * \param[in]       apsl: Length of aps array
  * \param[out]      apf: Pointer to output variable to save number of access points found
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking) {

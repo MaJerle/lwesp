@@ -42,7 +42,7 @@
  * \param[in]       host: Host name to ping
  * \param[out]      time: Pointer to output variable to save ping time
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ping(const char* host, uint32_t* time, uint32_t blocking) {

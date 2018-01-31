@@ -60,7 +60,7 @@ def_callback(esp_cb_t* cb) {
  * \brief           Enable more data on +IPD command
  * \param[in]       info: Set to 1 or 0 if you want enable or disable more data on +IPD statement
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 espi_set_dinfo(uint8_t info, uint32_t blocking) {
@@ -116,7 +116,7 @@ esp_init(esp_cb_fn cb_func) {
 /**
  * \brief           Sets WiFi mode to either station only, access point only or both
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_reset(uint32_t blocking) {
@@ -132,7 +132,7 @@ esp_reset(uint32_t blocking) {
  * \brief           Sets WiFi mode to either station only, access point only or both
  * \param[in]       mode: Mode of operation. This parameter can be a value of \ref esp_mode_t enumeration
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking) {
@@ -149,7 +149,7 @@ esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking) {
  * \brief           Sets baudrate of AT port (usually UART)
  * \param[in]       baud: Baudrate in units of bits per second
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
@@ -166,7 +166,7 @@ esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
  * \brief           Set multiple connections mux
  * \param[in]       mux: Set to 1 or 0 if you want enable or disable multiple connections
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_set_mux(uint8_t mux, uint32_t blocking) {
@@ -186,7 +186,7 @@ esp_set_mux(uint8_t mux, uint32_t blocking) {
  * \param[in]       timeout: Time used to automatically close the connection in units of seconds. Use 0 to disable timeout feature (not recommended)
  * \param[in]       cb: Connection callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_set_server(esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking) {
@@ -206,7 +206,7 @@ esp_set_server(esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn c
 /**
  * \brief           Set default callback function for incoming server connections
  * \param[in]       cb_func: Callback function. Set to NULL to use default ESP callback function
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_set_default_server_callback(esp_cb_fn cb_func) {
@@ -223,7 +223,7 @@ esp_set_default_server_callback(esp_cb_fn cb_func) {
  * \param[in]       host: Pointer to host name to get IP for
  * \param[out]      ip: Pointer to output variable to save result. At least 4 bytes required
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking) {
@@ -244,7 +244,7 @@ esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking) {
 
 /**
  * \brief           Lock and protect ESP core from multiple access at a time
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_core_lock(void) {
@@ -254,7 +254,7 @@ esp_core_lock(void) {
 
 /**
  * \brief           Unlock and unprotect ESP core from multiple access at a time
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_core_unlock(void) {
@@ -265,7 +265,7 @@ esp_core_unlock(void) {
 /**
  * \brief           Register callback function for global (non-connection based) events
  * \param[in]       cb_fn: Callback function to call on specific event
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_cb_register(esp_cb_fn cb_fn) {
@@ -309,7 +309,7 @@ esp_cb_register(esp_cb_fn cb_fn) {
  * \brief           Unregister callback function for global (non-connection based) events
  * \note            Function must be first registered using \ref esp_cb_register
  * \param[in]       cb_fn: Callback function to call on specific event
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_cb_unregister(esp_cb_fn cb_fn) {

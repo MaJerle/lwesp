@@ -45,7 +45,7 @@
  * \param[in]       h2: Optional second SNTP server for time. Set to NULL if not used
  * \param[in]       h3: Optional third SNTP server for time. Set to NULL if not used
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3, uint32_t blocking) {
@@ -66,7 +66,7 @@ esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const 
  * \brief           Get time from SNTP servers
  * \param[out]      dt: Pointer to \ref esp_datetime_t structure to fill with date and time values
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sntp_gettime(esp_datetime_t* dt, uint32_t blocking) {

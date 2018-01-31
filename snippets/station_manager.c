@@ -25,7 +25,7 @@ size_t apf;
  *
  * \note            List of access points should be set by user in \ref ap_list structure
  * \param[in]       unlimited: When set to 1, function will block until SSID is found and connected
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 connect_to_preferred_access_point(uint8_t unlimited) {

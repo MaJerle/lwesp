@@ -282,7 +282,7 @@ free_ret:
 /**
  * \brief           Delete netconn connection
  * \param[in]       nc: Netconn handle
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_delete(esp_netconn_p nc) {
@@ -329,7 +329,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
  * \brief           Bind a connection to specific port, can be only used for server connections
  * \param[in]       nc: Netconn handle
  * \param[in]       port: Port used to bind a connection to
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
@@ -344,7 +344,7 @@ esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
 /**
  * \brief           Listen on previously binded connection
  * \param[in]       nc: Netconn handle used to listen for new connections
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_listen(esp_netconn_p nc) {
@@ -361,7 +361,7 @@ esp_netconn_listen(esp_netconn_p nc) {
  * \brief           Accept a new connection
  * \param[in]       nc: Netconn handle used as base connection to accept new clients
  * \param[out]      new_nc: Pointer to netconn handle to save new connection to
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
@@ -390,7 +390,7 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
  * \param[in]       nc: Netconn handle used to write data to
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
@@ -482,7 +482,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
  * \brief           Flush buffered data on netconn TCP connection
  * \note            Only you can only use it on TCP or SSL connections
  * \param[in]       nc: Netconn handle to flush data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_flush(esp_netconn_p nc) {
@@ -508,7 +508,7 @@ esp_netconn_flush(esp_netconn_p nc) {
  * \param[in]       nc: Netconn handle used to send
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
@@ -526,7 +526,7 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
  * \param[in]       port: Port number used to send data
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw) {
@@ -567,7 +567,7 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 /**
  * \brief           Close a netconn connection
  * \param[in]       nc: Netconn handle to close
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_netconn_close(esp_netconn_p nc) {

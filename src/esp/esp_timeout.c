@@ -116,7 +116,7 @@ espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t tim
  * \param[in]       time: Time in units of milliseconds for timeout execution
  * \param[in]       fn: Callback function to call when timeout expires
  * \param[in]       arg: Pointer to user specific argument to call when timeout callback function is executed
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
@@ -187,7 +187,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
 /**
  * \brief           Remove callback from timeout list
  * \param[in]       fn: Callback function to identify timeout to remove
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_timeout_remove(esp_timeout_fn_t fn) {

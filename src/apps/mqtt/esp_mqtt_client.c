@@ -352,7 +352,7 @@ send_data(mqtt_client_t* client) {
 /**
  * \brief           Close a MQTT connection with server
  * \param[in]       client: MQTT client
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 static espr_t
 mqtt_close(mqtt_client_t* client) {
@@ -853,7 +853,7 @@ mqtt_closed_cb(mqtt_client_t* client) {
 /**
  * \brief           Connection callback
  * \param[in]       cb: Callback parameters
- * \result          espOK on success, member of \ref espr_t otherwise
+ * \result          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 static espr_t
 mqtt_conn_cb(esp_cb_t* cb) {
@@ -1002,7 +1002,7 @@ mqtt_client_delete(mqtt_client_t* client) {
  * \param[in]       port: Host port number
  * \param[in]       evt_fn: Callback function for all events on this MQTT client
  * \param[in]       info: Information structure for connection
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 mqtt_client_connect(mqtt_client_t* client, const char* host, esp_port_t port,
@@ -1056,7 +1056,7 @@ mqtt_client_disconnect(mqtt_client_t* client) {
  *                      - \ref MQTT_QOS_AT_LEAST_ONCE
  *                      - \ref MQTT_QOS_EXACTLY_ONCE
  * \param[in]       arg: User custom argument used in callback
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 mqtt_client_subscribe(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg) {
@@ -1068,7 +1068,7 @@ mqtt_client_subscribe(mqtt_client_t* client, const char* topic, uint8_t qos, voi
  * \param[in]       client: MQTT client
  * \param[in]       topic: Topic name to unsubscribe from
  * \param[in]       arg: User custom argument used in callback
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 mqtt_client_unsubscribe(mqtt_client_t* client, const char* topic, void* arg) {
@@ -1087,7 +1087,7 @@ mqtt_client_unsubscribe(mqtt_client_t* client, const char* topic, void* arg) {
  *                      - \ref MQTT_QOS_EXACTLY_ONCE
  * \param[in]       retain: Retian parameter value
  * \param[in]       arg: User custom argument used in callback
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payload,
@@ -1155,7 +1155,7 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
  * \brief           Test if client is connected to server and accepted to MQTT protocol
  * \note            Function will return error if TCP is connected but MQTT not accepted
  * \param[in]       client: MQTT client
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 mqtt_client_is_connected(mqtt_client_t* client) {

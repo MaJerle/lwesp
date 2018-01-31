@@ -828,7 +828,7 @@ espi_parse_received(esp_recv_t* rcv) {
 #if !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
 /**
  * \brief           Process data from input buffer
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 espi_process_buffer(void) {
@@ -868,7 +868,7 @@ espi_process_buffer(void) {
  * \brief           Process input data received from ESP device
  * \param[in]       data: Pointer to data to process
  * \param[in]       data_len: Length of data to process in units of bytes
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 espi_process(const void* data, size_t data_len) {
@@ -1735,7 +1735,7 @@ espi_is_valid_conn_ptr(esp_conn_p conn) {
  * \param[in]       msg: New message to process
  * \param[in]       process_fn: callback function used to process message
  * \param[in]       block_time: Time used to block function. Use 0 for non-blocking call
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block, uint32_t max_block_time) {

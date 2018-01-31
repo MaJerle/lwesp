@@ -44,7 +44,7 @@
  * \param[out]      nm: Pointer to output variable to save netmask address
  * \param[in]       def: Status whether default (1) or current (0) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t blocking) {
@@ -67,7 +67,7 @@ esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t blo
  * \param[in]       nm: Pointer to netmask address. Set to NULL to use default netmask
  * \param[in]       def: Status whether default (1) or current (0) IP to set
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, uint32_t blocking) {
@@ -90,7 +90,7 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t
  * \param[out]      mac: Pointer to output variable to save MAC address
  * \param[in]       def: Status whether default (1) or current (0) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ap_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking) {
@@ -109,7 +109,7 @@ esp_ap_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking) {
  * \param[in]       mac: Pointer to variable with MAC address. Memory of at least 6 bytes is required
  * \param[in]       def: Status whether default (1) or current (0) MAC to write
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ap_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
@@ -137,7 +137,7 @@ esp_ap_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
  * \param[in]       hid: Set to 1 to hide access point from public access
  * \param[in]       def: Status whether default (1) or current (1) MAC to write
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, uint8_t max_sta, uint8_t hid, uint8_t def, uint32_t blocking) {
@@ -169,7 +169,7 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
  * \param[in]       stal: Number of array entries of sta parameter
  * \param[out]      staf: Number of stations connected to access point
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, uint32_t blocking) {
