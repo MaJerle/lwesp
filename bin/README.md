@@ -18,3 +18,5 @@ running on ESP8266 used for development purposes.
 
 This is the folder where latest releases of ESP8266 AT software are put,
 when custom built is done using official Espressif's SDK for AT software.
+Always use this binary files from this directory when you upgrade AT software,
+to test latest library development
