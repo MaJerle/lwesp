@@ -24,8 +24,8 @@
  *
  * Espressif Systems provide 2 AT version releases:
  *
- * - AT release with OTA (at least <b>8Mbit</b> flash memory)
- * - AT release without OTA (at least <b>4Mbit</b> flash memory)
+ * - AT release with OTA (at least `8-Mbit` flash memory)
+ * - AT release without OTA (at least `4-Mbit` flash memory)
  *
  * \par             AT with OTA (BOOT mode)
  *
@@ -33,10 +33,10 @@
  * software for AT commands if it exists. It if does, it will burn it to flash and from there, each new reset will start on 
  * new software.
  *
- * This option requires dual-bank flash with at least `8Mbit` of flash memory which is included on every ESP8266 module you buy on eBay.
+ * This option requires dual-bank flash with at least `8-Mbit` of flash memory which is included on every ESP8266 module you buy on eBay.
  * If your module does not have at least 8Mbit flash memory, you can't use OTA and `AT+CIUPDATE` will not be enabled in your program.
  *
- * Most of new ESP modules come with 8-Mbit module, however if you have old module, it may still include 4-Mbit only.
+ * Most of new ESP modules come with 8-Mbit module, however if you have old module, it may still include `4-Mbit` only.
  *
  * \par AT without OTA (Non BOOT mode)
  *
@@ -49,12 +49,12 @@
  * Latest version when writing this tutorial is NONOS_SDK 2.1 and is available <a href="http://espressif.com/en/support/download/sdks-demos"><b>here</b></a>.
  *
  * \note            Few notes:
- *                      - SDK also includes compiled AT project inside <b>bin</b> directory in package.
+ *                      - SDK also includes compiled AT project inside `bin` directory in package.
  *                      - Before you start with update process, always make sure you have latest version downloaded.
  *                      - Espressif developes AT software regulary together with SDK, but official releases are not published for every new feature.
  *                          To be able to follow Espressif developments, you can use precompiled binary files which come together on
  *                          official repository for <a href="https://github.com/MaJerle/ESP_AT_Lib"><b>ESP-AT library</b></a>.
- *                          Upgrade files are available in <b>bin</b> directory.
+ *                          Upgrade files are available in `bin` directory.
  *
  * \section         sect_update_process_download_flashtool Download flash tool
  *

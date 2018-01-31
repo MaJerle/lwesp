@@ -16,7 +16,7 @@
  *
  * \section         sect_send_data Send data methods
  *
- * User can choose between <b>2</b> different methods for sending the data:
+ * User can choose between `2` different methods for sending the data:
  *
  *  - Temporary connection write buffer
  *  - Send every packet separately
@@ -27,9 +27,9 @@
  * a temporary buffer is created on connection and data are copied to it,
  * but they might not be send to command queue for sending.
  *
- * ESP can send up to <b>x</b> bytes at a time in single AT command,
- * currently limited to <b>2048</b> bytes.
- * If we can optimize packets of <b>2048</b> bytes,
+ * ESP can send up to `x` bytes at a time in single AT command,
+ * currently limited to `2048` bytes.
+ * If we can optimize packets of `2048` bytes,
  * we would have best throughput speed and this is the purpose of write function.
  *
  * \note            If we write bigger amount than max data for packet

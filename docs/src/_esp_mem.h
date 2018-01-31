@@ -4,7 +4,7 @@
  *
  * Memory manager is light-weight implementation of malloc and free functions in standard C language.
  *
- * It uses <b>FIRST-FIT</b> allocation algorithm meaning it uses the first free region which suits available length of memory.
+ * It uses `FIRST-FIT` allocation algorithm meaning it uses the first free region which suits available length of memory.
  *
  * On top of everything, it supports different memory regions which means user doesn't need to provide one full block of memory.
  *
@@ -22,7 +22,7 @@
  * \note            The only limitation of regions is that region must be addressible in memory space.
  *                  If external memory is used, it must have memory mapping hardware to take care of addressing.
  *
- * Examples of defining 2 regions, one in internal memory, second on external SDRAM memory
+ * Examples of defining `2` regions, one in internal memory, second on external SDRAM memory
  *
  * \include         _example_mem.c
  *
@@ -54,11 +54,11 @@
  * When we try to free used memory, it is set as free and then inserted between 2 free blocks
  * which is visible on first part of image below.
  *
- * Later, we also decide to free block which is just between 2 free blocks.
+ * Later, we also decide to free block which is just between `2` free blocks.
  * When we do it, manager will detect that there is free memory before and after used one
  * and will mark everything together into one big block, which is visible on second part of image below.
  *
- * \image html memory_manager_structure_freeing.svg Memory structure after freeing 2 blocks
+ * \image html memory_manager_structure_freeing.svg Memory structure after freeing `2` blocks
  *
  * \}
  */

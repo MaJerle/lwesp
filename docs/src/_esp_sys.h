@@ -19,7 +19,7 @@
  * it must return time in units of milliseconds.
  *
  * For STM32 users with HAL driver support,
- * this function can be implemented by returning <b>HAL_GetTick</b> function.
+ * this function can be implemented by returning `osKernelSystick` function, implemented by `CMSIS-OS` ready RTOS.
  *
  * \par             OS required functions
  *
@@ -28,7 +28,7 @@
  * Some of CMSIS-OS supported operating systems:
  *
  *  - Keil RTX
- *  - FreeRTOS is not by default, but cmsis_os.c wrapper exists
+ *  - FreeRTOS is not by default, but `cmsis_os.c` wrapper exists
  *      which allows you compatibility with standard CMSIS-OS functions
  * 
  * \section         sect_os_functions OS functions
@@ -98,7 +98,7 @@
  *
  *  - \ref esp_sys_thread_create is called when a new thread should be created
  *  - \ref esp_sys_thread_terminate is called to terminate thread
- *  - \ref esp_sys_thread_yield is yield current thread and allow processing other threads
+ *  - \ref esp_sys_thread_yield to yield current thread and allow processing other threads
  *
  * \include         _example_sys_thread.c
  *

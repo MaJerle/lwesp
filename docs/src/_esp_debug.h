@@ -6,7 +6,7 @@
  *
  * \par				Debugging output function
  *
- * By default configuration, <b>printf</b> function is set as debug output function.
+ * By default configuration, `printf` function is set as debug output function.
  * If user wants to change behavior, check \ref ESP_CFG_DBG_OUT function in configuration.
  *
  * \par				Enable global debugging
@@ -51,5 +51,4 @@
  * Check \ref ESP_DEBUG section for more information
  *
  * \}
- *
  */

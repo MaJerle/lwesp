@@ -27,7 +27,7 @@
  *
  * It must be solved with caution not to miss any byte or process it wrongly.
  *
- * <b>2</b> different input methods are available:
+ * `2` different input methods are available:
  *  - Writing each byte to receive buffer, which is later read by middleware layer in processing thread
  *  - Direct call of processing buffer (available only when OS system is used and requires separate thread)
  *

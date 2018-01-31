@@ -4,10 +4,10 @@
  *
  * \section         sect_requirement_latest_at_software Latest ESP software.
  *
- * Development of this library follows latest ESP8266 AT software development from Espressif systems.
+ * Development of this library follows latest ESP8266 AT software development by Espressif systems.
  *
  *  - ESP8266 must include latest AT software
- *      - Currently supported AT version is <b>1.6.0</b> based on SDK version <b>2.2.0</b> which is not yet released officially from EspressIf Systems
+ *      - Currently supported AT version is <b>1.6.0</b> based on SDK version `2.2.0` which is not yet officially released by EspressIf Systems
  *      - Precompiled development AT version from Espressif is available on Github of this library: https://github.com/MaJerle/ESP_AT_Lib/tree/master/bin
  *      - If you are not sure which version is running on ESP, you may test it using `AT+GMR\r\n` command.
  *
