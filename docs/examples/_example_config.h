@@ -8,9 +8,9 @@
 /* First include debug */
 #include "esp/esp_debug.h"
 
- /*
-  * Increase default receive buffer length
-  */
+/*
+ * Increase default receive buffer length
+ */
 #define ESP_RCV_BUFF_SIZE                   0x800
  
 /* After user configuration, call default config to merge config together */
