@@ -281,7 +281,7 @@ free_ret:
 
 /**
  * \brief           Delete netconn connection
- * \param[in]       nc: Pointer to netconn structure
+ * \param[in]       nc: Netconn handle
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
@@ -303,7 +303,7 @@ esp_netconn_delete(esp_netconn_p nc) {
 
 /**
  * \brief           Connect to server as client
- * \param[in]       nc: Pointer to netconn structure
+ * \param[in]       nc: Netconn handle
  * \param[in]       host: Pointer to host, such as domain name or IP address in string format
  * \param[in]       port: Target port to use
  * \return          espOK if successfully connected, member of \ref espr_t otherwise
@@ -316,7 +316,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("port > NULL", port);            /* Assert input parameters */
     
-    /**
+    /*
      * Start a new connection as client and immediately
      * set current netconn structure as argument
      * and netconn callback function for connection management
@@ -327,7 +327,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
 
 /**
  * \brief           Bind a connection to specific port, can be only used for server connections
- * \param[in]       nc: Pointer to netconn structure
+ * \param[in]       nc: Netconn handle
  * \param[in]       port: Port used to bind a connection to
  * \return          espOK on success, member of \ref espr_t otherwise
  */
@@ -343,7 +343,7 @@ esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
 
 /**
  * \brief           Listen on previously binded connection
- * \param[in]       nc: Pointer to netconn used as base connection
+ * \param[in]       nc: Netconn handle used to listen for new connections
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
@@ -359,8 +359,8 @@ esp_netconn_listen(esp_netconn_p nc) {
 
 /**
  * \brief           Accept a new connection
- * \param[in]       nc: Pointer to netconn used as base connection
- * \param[in]       new_nc: Pointer to pointer to netconn to save new connection
+ * \param[in]       nc: Netconn handle used as base connection to accept new clients
+ * \param[out]      new_nc: Pointer to netconn handle to save new connection to
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
@@ -387,7 +387,7 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
 /**
  * \brief           Write data to connection output buffers
  * \note            Only you can only use it on TCP or SSL connections
- * \param[in]       nc: Netconn connection used to write to
+ * \param[in]       nc: Netconn handle used to write data to
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
  * \return          espOK on success, member of \ref espr_t otherwise
@@ -481,7 +481,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 /**
  * \brief           Flush buffered data on netconn TCP connection
  * \note            Only you can only use it on TCP or SSL connections
- * \param[in]       nc: Netconn connection to flush data
+ * \param[in]       nc: Netconn handle to flush data
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
@@ -505,7 +505,7 @@ esp_netconn_flush(esp_netconn_p nc) {
 
 /**
  * \brief           Send packet to specific IP and port
- * \param[in]       nc: Netconn connection used to send
+ * \param[in]       nc: Netconn handle used to send
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
  * \return          espOK on success, member of \ref espr_t otherwise
@@ -521,7 +521,7 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
 /**
  * \brief           Send packet to specific IP and port
  * \note            Use this function in case of UDP type netconn
- * \param[in]       nc: Netconn connection used to send
+ * \param[in]       nc: Netconn handle used to send
  * \param[in]       ip: Pointer to IP address
  * \param[in]       port: Port number used to send data
  * \param[in]       data: Pointer to data to write
@@ -538,7 +538,7 @@ esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const 
 
 /**
  * \brief           Receive data from connection
- * \param[in]       nc: Netconn connection used to receive from
+ * \param[in]       nc: Netconn handle used to receive from
  * \param[in]       pbuf: Pointer to pointer to save new receive buffer to
  * \return          \ref espOK when new data ready, \ref espCLOSED when connection closed by remote side,
  *                  \ref espTIMEOUT when receive timeout occurs or any other member of \ref espr_t otherwise
@@ -566,7 +566,7 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 
 /**
  * \brief           Close a netconn connection
- * \param[in]       nc: Netconn connection to close
+ * \param[in]       nc: Netconn handle to close
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 espr_t
@@ -582,7 +582,7 @@ esp_netconn_close(esp_netconn_p nc) {
 
 /**
  * \brief           Get connection number used for netconn
- * \param[in]       nc: Pointer to netconn for connection
+ * \param[in]       nc: Pointer to handle for connection
  * \return          -1 on failure, number otherwise
  */
 int8_t
