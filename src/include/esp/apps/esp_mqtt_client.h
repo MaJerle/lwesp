@@ -60,9 +60,9 @@ extern "C" {
 #define MQTT_MAX_REQUESTS               8
 #endif /* MQTT_MAX_REQUESTS */
 
-#define MQTT_QOS_AT_MOST_ONCE           0x00    /*!< Delivery is not guaranteed to arrive, but can arrive up to 1 times = non-critical packets where losses are allowed */
-#define MQTT_QOS_AT_LEAST_ONCE          0x01    /*!< Delivery is quaranteed to arrive at least once, but it may be delivered multiple times with the same content */
-#define MQTT_QOS_EXACTLY_ONCE           0x02    /*!< Delivery is quaranteed to exactly once = very critical packets such as billing informations or similar */
+#define MQTT_QOS_AT_MOST_ONCE           0x00    /*!< Delivery is not guaranteed to arrive, but can arrive up to `1 time` = non-critical packets where losses are allowed */
+#define MQTT_QOS_AT_LEAST_ONCE          0x01    /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple times with the same content */
+#define MQTT_QOS_EXACTLY_ONCE           0x02    /*!< Delivery is quaranteed `exactly once` = very critical packets such as billing informations or similar */
 
 struct mqtt_client;
 
