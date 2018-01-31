@@ -1,7 +1,19 @@
-#include "mqtt.h"
-#include "esp/esp.h"
+/*
+ * MQTT client example with ESP device.
+ *
+ * Once the device is ocnnected to network,
+ * it will try to connect to mosquitto test server and start the MQTT.
+ *
+ * If successful, it will publish data to "esp8266_mqtt_topic" topic every second.
+ *
+ * To check if data are sent, you can use mqtt-spy PC software to inspect
+ * test.mosquitto.org server if you can receive the data
+ */
+
 #include "esp/apps/esp_mqtt_client.h"
+#include "esp/esp.h"
 #include "esp/esp_timeout.h"
+#include "mqtt_client.h"
 
 mqtt_client_t* mqtt_client;
 
@@ -20,6 +32,9 @@ mqtt_client_info = {
 static void mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt);
 static void example_do_connect(mqtt_client_t* client);
 
+/**
+ * \brief           Custom callback function for ESP events
+ */
 static espr_t
 mqtt_esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
@@ -39,18 +54,21 @@ mqtt_esp_cb(esp_cb_t* cb) {
  * \param[in]       arg: User argument
  */
 void
-mqtt_thread(void const* arg) {
-    esp_cb_register(mqtt_esp_cb);
+mqtt_client_thread(void const* arg) {
+    esp_cb_register(mqtt_esp_cb);               /* Register new callback for general events from ESP stack */
     
     /*
      * Create a new client with 256 bytes of RAW TX data
      * and 128 bytes of RAW incoming data
      */
-    mqtt_client = mqtt_client_new(256, 128);
-    if (esp_sta_joined() == espOK) {
-        example_do_connect(mqtt_client);
+    mqtt_client = mqtt_client_new(256, 128);    /* Create new MQTT client */
+    if (esp_sta_joined() == espOK) {            /* If ESP is already joined to network */
+        example_do_connect(mqtt_client);        /* Start connection to MQTT server */
     }
     
+    /*
+     * Make dummy delay of thread
+     */
     while (1) {
         esp_delay(1000);
     }
@@ -67,14 +85,14 @@ mqtt_timeout_cb(void* arg) {
     espr_t res;
     
     if (mqtt_client_is_connected(client) == espOK) {
-        if ((res = mqtt_client_publish(client, "stm32f7_topic0", "TEST DATA", 9, MQTT_QOS_EXACTLY_ONCE, 0, (void *)num)) == espOK) {
+        if ((res = mqtt_client_publish(client, "esp8266_mqtt_topic", "TEST DATA", 9, MQTT_QOS_EXACTLY_ONCE, 0, (void *)num)) == espOK) {
             printf("Publishing %d...\r\n", (int)num);
             num++;
         } else {
             printf("Cannot publish...: %d, client->state: %d\r\n", (int)res, (int)client->conn_state);
         }
     }
-    esp_timeout_add(500, mqtt_timeout_cb, client);
+    esp_timeout_add(1000, mqtt_timeout_cb, client);
 }
 
 /**
@@ -96,18 +114,23 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
             if (status == MQTT_CONN_STATUS_ACCEPTED) {
                 printf("MQTT accepted!\r\n");
                 /*
-                 * Once we are accepted on server, 
-                 * it is time to subscribe to differen topics
+                 * Once we are accepted by server, 
+                 * it is time to subscribe to different topics
                  * We will subscrive to "mqtt_esp_example_topic" topic,
                  * and will also set the same name as subscribe argument for callback later
                  */
-                mqtt_client_subscribe(client, "stm32f7_topic0", MQTT_QOS_EXACTLY_ONCE, "mqtt_esp_example_topic");
+                mqtt_client_subscribe(client, "esp8266_mqtt_topic", MQTT_QOS_EXACTLY_ONCE, "esp8266_mqtt_topic");
                 
+                /*
+                 * Start timeout timer after 5000ms and call mqtt_timeout_cb function
+                 */
                 esp_timeout_add(5000, mqtt_timeout_cb, client);
             } else {
                 printf("MQTT server connection was not successful: %d\r\n", (int)status);
-                /* Maybe close connection at this point and try again? */
                 
+                /*
+                 * Try to connect all over again
+                 */
                 example_do_connect(client);
             }
             break;
@@ -119,18 +142,18 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
          */
         case MQTT_EVT_SUBSCRIBE: {
             const char* arg = evt->evt.sub_unsub_scribed.arg;   /* Get user argument */
-            espr_t res = evt->evt.sub_unsub_scribed.res;    /* Get result of subscribe event */
+            espr_t res = evt->evt.sub_unsub_scribed.res;/* Get result of subscribe event */
             
             if (res == espOK) {
                 printf("Successfully subscribed to %s topic\r\n", arg);
-                if (!strcmp(arg, "mqtt_esp_example_topic")) {   /* Check topic name we were subscribed */
-                    /* Subscribed to "example_topic" topic */
+                if (!strcmp(arg, "esp8266_mqtt_topic")) {   /* Check topic name we were subscribed */
+                    /* Subscribed to "esp8266_mqtt_topic" topic */
                     
                     /*
                      * Now publish an even on example topic
                      * and set QoS to minimal value which does not guarantee message delivery to received
                      */
-                    mqtt_client_publish(client, "mqtt_esp_example_topic", "my_data", 7, MQTT_QOS_AT_MOST_ONCE, 0, (void *)1);
+                    mqtt_client_publish(client, "esp8266_mqtt_topic", "test_data", 9, MQTT_QOS_AT_MOST_ONCE, 0, (void *)1);
                 }
             }
             
@@ -144,7 +167,6 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
             uint32_t val = (uint32_t)evt->evt.published.arg;    /* Get user argument, which is in fact our custom number */
             
             printf("Publish was successful, user argument on message was: %d\r\n", (int)val);
-            
             break;
         }
         
@@ -170,7 +192,7 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
          */
         case MQTT_EVT_DISCONNECT: {
             printf("MQTT client disconnected!\r\n");
-            example_do_connect(client);         /* Connect to server */
+            example_do_connect(client);         /* Connect to server all over again */
             break;
         }
         
@@ -193,4 +215,3 @@ example_do_connect(mqtt_client_t* client) {
     esp_timeout_remove(mqtt_timeout_cb);
     mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
 }
-
