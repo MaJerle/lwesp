@@ -77,5 +77,19 @@
  *
  * \include         _example_netconn_server_threads.c
  *
+ * \section         sect_netconn_nonblocking Non-blocking receive
+ *
+ * \ref esp_netconn_receive data will block thread by default until connect data received or connection was closed by remote side.
+ * In order to allow further processing even if there is no data, you can enable non-blocking support for netconn receive.
+ *
+ * \note            \ref ESP_CFG_NETCONN_RECEIVE_TIMEOUT must be set to 1 to use this feature
+ *
+ * Even if feature is enabled, netconn will (by default) still block until data are ready or connection closed.
+ * In order to enable non-blocking feature, you have to set maximal timeout value function may block to receive the data, using \ref esp_netconn_set_receive_timeout.
+ *
+ * This allows you to set different timeout values for different netconns.
+ *
+ * \note            When the feature is enabled, \ref esp_netconn_receive may return \ref espTIMEOUT to notify user about status
+ *
  * \}
  */
