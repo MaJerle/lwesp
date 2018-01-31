@@ -209,7 +209,8 @@ esp_cb(esp_cb_t* cb) {
                     return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
                 }
             }
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n", cb->cb.conn_data_recv.buff->len);
+            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n",
+                    (int)esp_pbuf_length(cb->cb.conn_data_recv.buff, 0));
             break;
         }
         
