@@ -56,23 +56,6 @@ def_callback(esp_cb_t* cb) {
 }
 
 /**
- * \brief           Enable more data on +IPD command
- * \param[in]       info: Set to 1 or 0 if you want enable or disable more data on +IPD statement
- * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
- */
-espr_t
-espi_set_dinfo(uint8_t info, uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDINFO;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_dinfo.info = info;
-    
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
-}
-
-/**
  * \brief           Init and prepare ESP stack
  * \param[in]       cb_func: Event callback function
  * \return          Member of \ref espr_t enumeration
@@ -113,7 +96,7 @@ esp_init(esp_cb_fn cb_func) {
 }
 
 /**
- * \brief           Sets WiFi mode to either station only, access point only or both
+ * \brief           Execute reset and send default commands
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
