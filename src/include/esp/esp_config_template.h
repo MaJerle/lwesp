@@ -31,7 +31,7 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #ifndef __ESP_CONFIG_H
-#define __ESP_CONFIG_H  100
+#define __ESP_CONFIG_H
 
 /*
  * Rename this file to "esp_config.h" for your application

@@ -1,5 +1,5 @@
 /**
- * \file            esp_threads.h
+ * \file            esp_threads.c
  * \brief           OS threads implementations
  */
 
@@ -41,7 +41,7 @@
 #include "system/esp_sys.h"
 
 /**
- * \brief           User input thread to process inputs packets from API functions
+ * \brief           User thread to process input packets from API functions
  */
 void
 esp_thread_producer(void* const arg) {
