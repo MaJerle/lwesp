@@ -30,7 +30,6 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#define ESP_INTERNAL
 #include "esp/esp_private.h"
 #include "esp/esp.h"
 #include "esp/esp_mem.h"
@@ -160,23 +159,6 @@ esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.uart.baudrate = baud;
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 2000);    /* Send message to producer queue */
-}
-
-/**
- * \brief           Set multiple connections mux
- * \param[in]       mux: Set to 1 or 0 if you want enable or disable multiple connections
- * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
- */
-espr_t
-esp_set_mux(uint8_t mux, uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPMUX;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_mux.mux = mux;
-    
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
 /**

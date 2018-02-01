@@ -30,7 +30,6 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#define ESP_INTERNAL
 #include "esp/esp_private.h"
 #include "esp/esp_sntp.h"
 #include "esp/esp_mem.h"

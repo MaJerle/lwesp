@@ -41,9 +41,8 @@ extern "C" {
 #include "stdlib.h"
 #include "string.h"
 
-#if defined(ESP_INTERNAL) || __DOXYGEN__
-
 #include "esp/esp.h"
+#include "esp/esp_typedefs.h"
 #include "esp/esp_debug.h"
 
 /**
@@ -172,6 +171,7 @@ typedef struct esp_conn_t {
 } esp_conn_t;
 
 /**
+ * \ingroup         ESP_PBUF
  * \brief           Packet buffer structure
  */
 typedef struct esp_pbuf_t {
@@ -275,7 +275,7 @@ typedef struct esp_msg {
             size_t length;                      /*!< Length of buffer when reading hostname */
         } wifi_hostname;                        /*!< Set or get hostname structure */
         
-        /**
+        /*
          * Connection based commands
          */
         struct {
@@ -443,63 +443,66 @@ typedef struct esp_unicode_t {
 /**
  * \}
  */
- 
+
+#if !__DOXYGEN__
 /**
  * \addtogroup      ESP
- * \{
- */
-
-/**
- * \defgroup        ESP_PRIVATE Private region
+ * \defgroup        ESP_PRIVATE Internal functions
  * \brief           functions, structures and enumerations
  * \{
  */
 
 extern esp_t esp;
 
-#if !__DOXYGEN__
+#define ESP_MSG_VAR_DEFINE(name)                esp_msg_t* name
+#define ESP_MSG_VAR_ALLOC(name)                 do {\
+    (name) = esp_mem_alloc(sizeof(*(name)));          \
+    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) != NULL, "MSG VAR: Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
+    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) == NULL, "MSG VAR: Error allocating %d bytes\r\n", sizeof(*(name))); \
+    if (!(name)) {                                  \
+        return espERRMEM;                           \
+    }                                               \
+    memset(name, 0x00, sizeof(*(name)));            \
+} while (0)
+#define ESP_MSG_VAR_REF(name)                   (*(name))
+#define ESP_MSG_VAR_FREE(name)                  do {\
+    ESP_DEBUGF(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, "MSG VAR: Free memory: %p\r\n", (name)); \
+    esp_mem_free(name);                             \
+    (name) = NULL;                                  \
+} while (0)
 
 #define ESP_CHARISNUM(x)                    ((x) >= '0' && (x) <= '9')
-#define ESP_CHARISHEXNUM(x)                 (((x) >= '0' && (x) <= '9') || ((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F'))
 #define ESP_CHARTONUM(x)                    ((x) - '0')
+#define ESP_CHARISHEXNUM(x)                 (((x) >= '0' && (x) <= '9') || ((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F'))
 #define ESP_CHARHEXTONUM(x)                 (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (((x) >= 'a' && (x) <= 'f') ? ((x) - 'a' + 10) : (((x) >= 'A' && (x) <= 'F') ? ((x) - 'A' + 10) : 0)))
 #define ESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
 
 /**
- * \brief           Protects (counts up) core from multiple accesses
+ * \brief           Protect (count up) OS protection (mutex)
  */
 #define ESP_CORE_PROTECT()                  esp_sys_protect()
 
 /**
- * \brief           Unprotects (counts down) OS protection (mutex)
+ * \brief           Unprotect (count down) OS protection (mutex)
  */
 #define ESP_CORE_UNPROTECT()                esp_sys_unprotect()
 
 const char * espi_dbg_msg_to_string(esp_cmd_t cmd);
-
 espr_t      espi_process(const void* data, size_t len);
 espr_t      espi_process_buffer(void);
-
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
 uint8_t     espi_is_valid_conn_ptr(esp_conn_p conn);
 espr_t      espi_send_cb(esp_cb_type_t type);
 espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb);
-
 void        espi_conn_init(void);
-
 espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block, uint32_t max_block_time);
+uint32_t    espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout);
+
+/**
+ * \}
+ */
 
 #endif /* !__DOXYGEN__ */
-
-/**
- * \}
- */
- 
-/**
- * \}
- */
-
-#endif /* ESP_INTERNAL || __DOXYGEN__ */
 
 #ifdef __cplusplus
 }

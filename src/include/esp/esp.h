@@ -80,7 +80,6 @@ espr_t      esp_init(esp_cb_fn cb_func);
 espr_t      esp_reset(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
-espr_t      esp_set_mux(uint8_t mux, uint32_t blocking);
 
 espr_t      esp_set_server(esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking);
 

@@ -42,18 +42,20 @@ extern "C" {
 #include "string.h"
 #include "stdio.h"
 
+
 /**
  * \addtogroup      ESP
- * \{
- */
- 
-/**
  * \defgroup        ESP_TYPEDEFS Structures and enumerations
  * \brief           List of core structures and enumerations
  * \{
  */
+    
+/**
+ * \}
+ */
 
 /**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           Result enumeration used across application functions
  */
 typedef enum {
@@ -75,6 +77,7 @@ typedef enum {
 } espr_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           List of encryptions of access point
  */
 typedef enum {
@@ -87,6 +90,7 @@ typedef enum {
 } esp_ecn_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           IP structure
  */
 typedef struct {
@@ -94,11 +98,13 @@ typedef struct {
 } esp_ip_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           Port variable
  */
 typedef uint16_t    esp_port_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           MAC address
  */
 typedef struct {
@@ -106,6 +112,7 @@ typedef struct {
 } esp_mac_t;
 
 /**
+ * \ingroup         ESP_AP
  * \brief           Access point data structure
  */
 typedef struct {
@@ -119,6 +126,7 @@ typedef struct {
 } esp_ap_t;
 
 /**
+ * \ingroup         ESP_STA
  * \brief           Station data structure
  */
 typedef struct {
@@ -127,6 +135,7 @@ typedef struct {
 } esp_sta_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           Date and time structure
  */
 typedef struct {
@@ -140,6 +149,7 @@ typedef struct {
 } esp_datetime_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           List of possible WiFi modes
  */
 typedef enum {
@@ -155,6 +165,7 @@ typedef enum {
 } esp_mode_t;
 
 /**
+ * \ingroup         ESP_CONN
  * \brief           List of possible connection types
  */
 typedef enum {
@@ -169,16 +180,19 @@ struct esp_conn_t;
 struct esp_pbuf_t;
 
 /**
+ * \ingroup         ESP_CONN
  * \brief           Pointer to \ref esp_conn_t structure
  */
 typedef struct esp_conn_t* esp_conn_p;
 
 /**
+ * \ingroup         ESP_PBUF
  * \brief           Pointer to \ref esp_pbuf_t structure
  */
 typedef struct esp_pbuf_t* esp_pbuf_p;
 
 /**
+ * \ingroup         ESP_EVT
  * \brief           Event function prototype
  * \param[in]       cb: Callback event data
  * \return          espOK on success, member of \ref espr_t otherwise
@@ -186,6 +200,7 @@ typedef struct esp_pbuf_t* esp_pbuf_p;
 typedef espr_t  (*esp_cb_fn)(struct esp_cb_t* cb);
 
 /**
+ * \ingroup         ESP_EVT
  * \brief           List of possible callback types received to user
  */
 typedef enum esp_cb_type_t {
@@ -216,6 +231,7 @@ typedef enum esp_cb_type_t {
 } esp_cb_type_t;
 
 /**
+ * \ingroup         ESP_EVT
  * \brief           Global callback structure to pass as parameter to callback function
  */
 typedef struct esp_cb_t {
@@ -276,17 +292,9 @@ typedef struct esp_cb_t {
 } esp_cb_t;
 
 #define ESP_SIZET_MAX                           ((size_t)(-1))  /*!< Maximal value of size_t variable type */
-
-/**
- * \}
- */
  
 /**
- * \addtogroup      ESP_LL
- * \{
- */
- 
-/**
+ * \ingroup         ESP_LL
  * \brief           Function prototype for AT output data
  * \param[in]       data: Pointer to data to send
  * \param[in]       len: Number of bytes to send
@@ -295,6 +303,7 @@ typedef struct esp_cb_t {
 typedef uint16_t (*esp_ll_send_fn)(const void* data, uint16_t len);
 
 /**
+ * \ingroup         ESP_LL
  * \brief           Low level user specific functions
  */
 typedef struct {
@@ -302,40 +311,22 @@ typedef struct {
 } esp_ll_t;
 
 /**
- * \}
+ * \ingroup         ESP_TIMEOUT
+ * \brief           Timeout callback function prototype
  */
+typedef void (*esp_timeout_fn_t)(void *);
 
 /**
- * \}
+ * \ingroup         ESP_TIMEOUT
+ * \brief           Timeout structure
  */
+typedef struct esp_timeout_t {
+    struct esp_timeout_t* next;                 /*!< Pointer to next timeout entry */
+    uint32_t time;                              /*!< Time difference from previous entry */
+    void* arg;                                  /*!< Argument to pass to callback function */
+    esp_timeout_fn_t fn;                        /*!< Callback function for timeout */
+} esp_timeout_t;
 
-#if defined(ESP_INTERNAL) || __DOXYGEN__
-
-#if 0
-#define ESP_MSG_VAR_DEFINE(name)                esp_msg_t name
-#define ESP_MSG_VAR_ALLOC(name)                  
-#define ESP_MSG_VAR_REF(name)                   name
-#define ESP_MSG_VAR_FREE(name)                      
-#else /* 1 */
-#define ESP_MSG_VAR_DEFINE(name)                esp_msg_t* name
-#define ESP_MSG_VAR_ALLOC(name)                 do {\
-    (name) = esp_mem_alloc(sizeof(*(name)));          \
-    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) != NULL, "MSG VAR: Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
-    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) == NULL, "MSG VAR: Error allocating %d bytes\r\n", sizeof(*(name))); \
-    if (!(name)) {                                  \
-        return espERRMEM;                           \
-    }                                               \
-    memset(name, 0x00, sizeof(*(name)));            \
-} while (0)
-#define ESP_MSG_VAR_REF(name)                   (*(name))
-#define ESP_MSG_VAR_FREE(name)                  do {\
-    ESP_DEBUGF(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, "MSG VAR: Free memory: %p\r\n", (name)); \
-    esp_mem_free(name);                             \
-    (name) = NULL;                                  \
-} while (0)
-#endif /* !1 */
-
-#endif /* defined(ESP_INTERNAL) || __DOXYGEN__ */
 
 #ifdef __cplusplus
 }

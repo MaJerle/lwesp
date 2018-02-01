@@ -37,12 +37,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#ifdef ESP_INTERNAL
-
-#include "esp_private.h"
-    
-#endif /* ESP_INTERNAL */
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
