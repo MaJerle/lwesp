@@ -396,7 +396,7 @@ espi_tcpip_process_data_sent(uint8_t sent) {
 static void
 espi_send_conn_error_cb(esp_msg_t* msg) {
     esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
-    esp.cb.type = ESP_CB_CONN_ERROR;        /* Connection error */
+    esp.cb.type = ESP_CB_CONN_ERROR;            /* Connection error */
     esp.cb.cb.conn_error.host = esp.msg->msg.conn_start.host;
     esp.cb.cb.conn_error.port = esp.msg->msg.conn_start.port;
     esp.cb.cb.conn_error.type = esp.msg->msg.conn_start.type;
@@ -801,7 +801,7 @@ espi_parse_received(esp_recv_t* rcv) {
      */
     if (is_ok || is_error || is_ready) {
         espr_t res = espOK;
-        if (esp.msg) {                          /* Do we have active message? */
+        if (esp.msg != NULL) {                  /* Do we have active message? */
             res = espi_process_sub_cmd(esp.msg, is_ok, is_error, is_ready);
             if (res != espCONT) {               /* Shall we continue with next subcommand under this one? */
                 if (is_ok || is_ready) {        /* Check ready or ok status */
