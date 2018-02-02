@@ -38,19 +38,14 @@
 extern "C" {
 #endif
 
-#include "stdint.h"
-#include "string.h"
-    
+#include "esp/esp.h"
+
 /**
- * \brief           Buffer structure
+ * \ingroup         ESP
+ * \defgroup        ESP_BUFF Ring buffer
+ * \brief           Generic ring buffer
+ * \{
  */
-typedef struct esp_buff {
-	size_t size;                                /*!< Size of buffer in units of bytes */
-	size_t in;                                  /*!< Input pointer to save next value */
-	size_t out;                                 /*!< Output pointer to read next value */
-	uint8_t* buff;                              /*!< Pointer to buffer data array */
-	uint8_t flags;                              /*!< Flags for buffer */
-} esp_buff_t;
 
 uint8_t     esp_buff_init(esp_buff_t* buff, size_t len);
 void        esp_buff_free(esp_buff_t* buff);
@@ -63,6 +58,10 @@ size_t      esp_buff_peek(esp_buff_t* buff, size_t skip_count, void* data, size_
 void *      esp_buff_get_linear_block_address(esp_buff_t* buff);
 size_t      esp_buff_get_linear_block_length(esp_buff_t* buff);
 size_t      esp_buff_skip(esp_buff_t* buff, size_t len);
+
+/**
+ * \}
+ */
 
 /* C++ detection */
 #ifdef __cplusplus

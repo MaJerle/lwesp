@@ -39,13 +39,9 @@ extern "C" {
 
 #include "string.h"
 #include "esp/esp.h"
-
+ 
 /**
- * \addtogroup      ESP
- * \{
- */
-    
-/**
+ * \ingroup         ESP
  * \defgroup        ESP_INPUT Input processing
  * \brief           Input function for received data
  * \{
@@ -53,10 +49,6 @@ extern "C" {
 
 espr_t      esp_input(const void* data, size_t len);
 espr_t      esp_input_process(const void* data, size_t len);
-
-/**
- * \}
- */
 
 /**
  * \}

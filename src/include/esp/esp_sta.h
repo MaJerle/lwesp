@@ -39,13 +39,9 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-
-/**
- * \addtogroup      ESP
- * \{
- */
     
 /**
+ * \ingroup         ESP
  * \defgroup        ESP_STA Station API
  * \brief           Station API
  * \{
@@ -63,10 +59,6 @@ espr_t      esp_sta_joined(void);
 espr_t      esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm);
 espr_t      esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking);
 
-/**
- * \}
- */
-    
 /**
  * \}
  */

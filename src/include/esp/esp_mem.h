@@ -41,11 +41,7 @@ extern "C" {
 #include "esp/esp.h"
 
 /**
- * \addtogroup      ESP
- * \{
- */
-
-/**
+ * \ingroup         ESP
  * \defgroup        ESP_MEM Memory manager
  * \brief           Dynamic memory manager
  * \{
@@ -73,10 +69,6 @@ size_t  esp_mem_getfull(void);
 size_t  esp_mem_getminfree(void);
 
 uint8_t esp_mem_assignmemory(const esp_mem_region_t* regions, size_t size);
-    
-/**
- * \}
- */
     
 /**
  * \}

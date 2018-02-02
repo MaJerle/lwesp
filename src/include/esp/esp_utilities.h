@@ -39,13 +39,9 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-
-/**
- * \addtogroup      ESP
- * \{
- */
     
 /**
+ * \ingroup         ESP
  * \defgroup        ESP_UTILITIES Utilities
  * \brief           Utilities
  * \{
@@ -135,10 +131,6 @@ extern "C" {
  */
 #define ESP_SZ(x)                           ((size_t)(x))
 
-/**
- * \}
- */
-    
 /**
  * \}
  */

@@ -40,23 +40,15 @@ extern "C" {
 
 #include "esp/esp.h"
 #include "esp_private.h"
-
-/**
- * \addtogroup      ESP
- * \{
- */
     
 /**
+ * \ingroup         ESP
  * \defgroup        ESP_UNICODE Unicode support
  * \brief           Unicode manager
  * \{
  */
     
 espr_t          espi_unicode_decode(esp_unicode_t* uni, uint8_t ch);
-    
-/**
- * \}
- */
     
 /**
  * \}

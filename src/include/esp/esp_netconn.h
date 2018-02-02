@@ -40,11 +40,7 @@ extern "C" {
 #include "esp/esp.h"
 
 /**
- * \addtogroup      ESP_API
- * \{
- */
-
-/**
+ * \ingroup         ESP_API
  * \defgroup        ESP_NETCONN Network connection
  * \brief           Network connection
  * \{
@@ -86,10 +82,6 @@ espr_t          esp_netconn_flush(esp_netconn_p nc);
 espr_t          esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw);
 espr_t          esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw);
 
-/**
- * \}
- */
- 
 /**
  * \}
  */

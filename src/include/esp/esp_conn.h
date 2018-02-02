@@ -39,13 +39,9 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-
-/**
- * \addtogroup      ESP
- * \{
- */
     
 /**
+ * \ingroup         ESP
  * \defgroup        ESP_CONN Connection API
  * \brief           Connection API functions
  * \{
@@ -68,10 +64,6 @@ esp_conn_p  esp_conn_get_from_evt(esp_cb_t* evt);
 espr_t      esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, size_t* mem_available);
 espr_t      esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf);
  
-/**
- * \}
- */
-    
 /**
  * \}
  */

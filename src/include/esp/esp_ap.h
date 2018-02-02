@@ -39,13 +39,9 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-
-/**
- * \addtogroup      ESP
- * \{
- */
     
 /**
+ * \ingroup         ESP
  * \defgroup        ESP_AP Access point
  * \brief           Access point
  * \{
@@ -64,10 +60,6 @@ espr_t      esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_
 
 espr_t      esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, uint32_t blocking);
 
-/**
- * \}
- */
-    
 /**
  * \}
  */

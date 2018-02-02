@@ -40,13 +40,9 @@ extern "C" {
 
 #include "stdint.h"
 #include "string.h"
-
-/**
- * \addtogroup      ESP
- * \{
- */
  
 /**
+ * \ingroup         ESP
  * \defgroup        ESP_DEBUG Debugging support
  * \brief           Debugging support module to track stack
  * \{
@@ -118,10 +114,6 @@ extern "C" {
 #define ESP_DEBUGF(c, fmt, ...)
 #define ESP_DEBUGW(c, cond, fmt, ...)
 #endif /* (ESP_CFG_DBG && defined(ESP_CFG_DBG_OUT)) || __DOXYGEN__ */
-
-/**
- * \}
- */
 
 /**
  * \}

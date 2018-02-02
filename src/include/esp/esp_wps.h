@@ -39,13 +39,9 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-
-/**
- * \addtogroup      ESP
- * \{
- */
     
 /**
+ * \ingroup         ESP
  * \defgroup        ESP_WPS WPS
  * \brief           WPS function on ESP device
  * \{
@@ -53,10 +49,6 @@ extern "C" {
 
 espr_t      esp_wps_configure(uint8_t en, uint32_t blocking);
  
-/**
- * \}
- */
-    
 /**
  * \}
  */

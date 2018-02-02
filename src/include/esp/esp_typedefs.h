@@ -327,6 +327,17 @@ typedef struct esp_timeout_t {
     esp_timeout_fn_t fn;                        /*!< Callback function for timeout */
 } esp_timeout_t;
 
+/**
+ * \ingroup         ESP_BUFF
+ * \brief           Buffer structure
+ */
+typedef struct esp_buff {
+	size_t size;                                /*!< Size of buffer in units of bytes */
+	size_t in;                                  /*!< Input pointer to save next value */
+	size_t out;                                 /*!< Output pointer to read next value */
+	uint8_t* buff;                              /*!< Pointer to buffer data array */
+	uint8_t flags;                              /*!< Flags for buffer */
+} esp_buff_t;
 
 #ifdef __cplusplus
 }

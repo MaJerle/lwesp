@@ -41,21 +41,13 @@ extern "C" {
 #include "esp/esp.h"
 
 /**
- * \addtogroup      ESP
- * \{
- */
-    
-/**
+ * \ingroup         ESP
  * \defgroup        ESP_EVT Event helpers
  * \brief           Event helper functions
  * \{
  */
 
 uint8_t     esp_evt_reset_is_forced(esp_cb_t* cb);
- 
-/**
- * \}
- */
     
 /**
  * \}

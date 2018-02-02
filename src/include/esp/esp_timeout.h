@@ -39,13 +39,9 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-
-/**
- * \addtogroup      ESP
- * \{
- */
     
 /**
+ * \ingroup         ESP
  * \defgroup        ESP_TIMEOUT Timeout manager
  * \brief           Timeout manager
  * \{
@@ -53,10 +49,6 @@ extern "C" {
 
 espr_t          esp_timeout_add(uint32_t time, void (*cb)(void *), void* arg);
 espr_t          esp_timeout_remove(esp_timeout_fn_t fn);
-    
-/**
- * \}
- */
     
 /**
  * \}

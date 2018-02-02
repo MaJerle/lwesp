@@ -41,11 +41,7 @@ extern "C" {
 #include "esp/esp.h"
 
 /**
- * \addtogroup      ESP
- * \{
- */
-    
-/**
+ * \ingroup         ESP
  * \defgroup        ESP_PING PING
  * \brief           Ping server and get response time
  * \{
@@ -53,10 +49,6 @@ extern "C" {
 
 espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
  
-/**
- * \}
- */
-    
 /**
  * \}
  */
