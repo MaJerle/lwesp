@@ -51,6 +51,7 @@ typedef void (*esp_sys_thread_fn)(void *);
 
 /**
  * \name            ESP_SYS_PORTS System ports
+ * \anchor          ESP_SYS_PORTS
  * \{
  *
  * List of already available system ports. 

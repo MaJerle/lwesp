@@ -40,11 +40,7 @@ extern "C" {
 #include "esp/apps/esp_apps.h"
 
 /**
- * \addtogroup      ESP_APPS
- * \{
- */
-
-/**
+ * \ingroup         ESP_APPS
  * \defgroup        ESP_APP_HTTP_SERVER HTTP server
  * \brief           HTTP server based on callback API
  * \{
@@ -388,10 +384,6 @@ typedef struct http_state {
 espr_t      esp_http_server_init(const http_init_t* init, esp_port_t port);
 size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
  
-/**
- * \}
- */
-
 /**
  * \}
  */

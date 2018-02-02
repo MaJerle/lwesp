@@ -1051,10 +1051,7 @@ mqtt_client_disconnect(mqtt_client_t* client) {
  * \brief           Subscribe to MQTT topic
  * \param[in]       client: MQTT client
  * \param[in]       topic: Topic name to subscribe to
- * \param[in]       qos: Quality of service:
- *                      - \ref MQTT_QOS_AT_MOST_ONCE
- *                      - \ref MQTT_QOS_AT_LEAST_ONCE
- *                      - \ref MQTT_QOS_EXACTLY_ONCE
+ * \param[in]       qos: Quality of service. This parameter can be a value of \ref ESP_APP_MQTT_CLIENT_QOS
  * \param[in]       arg: User custom argument used in callback
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -1081,10 +1078,7 @@ mqtt_client_unsubscribe(mqtt_client_t* client, const char* topic, void* arg) {
  * \param[in]       topic: Topic to send message to
  * \param[in]       payload: Message data
  * \param[in]       payload_len: Length of payload data
- * \param[in]       qos: Quality of service:
- *                      - \ref MQTT_QOS_AT_MOST_ONCE
- *                      - \ref MQTT_QOS_AT_LEAST_ONCE
- *                      - \ref MQTT_QOS_EXACTLY_ONCE
+ * \param[in]       qos: Quality of service. This parameter can be a value of \ref ESP_APP_MQTT_CLIENT_QOS
  * \param[in]       retain: Retian parameter value
  * \param[in]       arg: User custom argument used in callback
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise

@@ -44,7 +44,7 @@ extern "C" {
 
 
 /**
- * \addtogroup      ESP
+ * \ingroup         ESP
  * \defgroup        ESP_TYPEDEFS Structures and enumerations
  * \brief           List of core structures and enumerations
  * \{

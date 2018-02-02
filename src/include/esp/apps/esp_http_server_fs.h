@@ -40,12 +40,7 @@ extern "C" {
 #include "esp/apps/esp_http_server.h"
 
 /**
- * \addtogroup      ESP_APP_HTTP_SERVER
- * \{
- */
-
-
-/**
+ * \ingroup         ESP_APP_HTTP_SERVER
  * \defgroup        ESP_APP_HTTP_SERVER_FS_FAT FAT File System
  * \brief           FATFS file system implementation for dynamic files
  * \{
@@ -54,10 +49,6 @@ extern "C" {
 uint8_t     http_fs_open(http_fs_file_t* file, const char* path);
 uint32_t    http_fs_read(http_fs_file_t* file, void* buff, size_t btr);
 uint8_t     http_fs_close(http_fs_file_t* file);
-
-/**
- * \}
- */
 
 /**
  * \}

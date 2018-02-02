@@ -39,30 +39,34 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-
-/**
- * \addtogroup      ESP_APPS
- * \{
- */
     
 /**
- * \defgroup        ESP_APP_MQTT_CLIENT MQTT Client
+ * \ingroup         ESP_APPS
+ * \defgroup        ESP_APP_MQTT_CLIENT MQTT client
  * \brief           MQTT client
  * \{
  */
 
 /**
  * \brief           Maximal number of open connections at a time
- *
- * 
  */
 #ifndef MQTT_MAX_REQUESTS
 #define MQTT_MAX_REQUESTS               8
-#endif /* MQTT_MAX_REQUESTS */
+#endif
+
+/**
+ * \name            ESP_APP_MQTT_CLIENT_QOS Qualities of service
+ * \anchor          ESP_APP_MQTT_CLIENT_QOS
+ * \{
+ */
 
 #define MQTT_QOS_AT_MOST_ONCE           0x00    /*!< Delivery is not guaranteed to arrive, but can arrive up to `1 time` = non-critical packets where losses are allowed */
 #define MQTT_QOS_AT_LEAST_ONCE          0x01    /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple times with the same content */
 #define MQTT_QOS_EXACTLY_ONCE           0x02    /*!< Delivery is quaranteed `exactly once` = very critical packets such as billing informations or similar */
+
+/**
+ * \}
+ */
 
 struct mqtt_client;
 
@@ -211,10 +215,6 @@ espr_t          mqtt_client_subscribe(mqtt_client_t* client, const char* topic, 
 espr_t          mqtt_client_unsubscribe(mqtt_client_t* client, const char* topic, void* arg);
 
 espr_t          mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payload, uint16_t len, uint8_t qos, uint8_t retain, void* arg);
-    
-/**
- * \}
- */
     
 /**
  * \}
