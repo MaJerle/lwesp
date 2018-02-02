@@ -30,6 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
+#include "esp/esp_private.h"
 #include "esp/esp_buff.h"
 #include "esp/esp_mem.h"
 

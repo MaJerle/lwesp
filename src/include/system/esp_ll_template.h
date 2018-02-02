@@ -38,14 +38,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include "esp/esp.h"
-#include "esp/esp_mem.h"
 
 /**
- * \addtogroup      ESP_PORT
- * \{
- */
-
-/**
+ * \ingroup         ESP_PORT
  * \defgroup        ESP_LL Low level communication
  * \brief           Low-level, platform dependant communication module
  * \{
@@ -53,10 +48,6 @@ extern "C" {
     
 espr_t      esp_ll_init(esp_ll_t* ll, uint32_t baudrate);
  
-/**
- * \}
- */
-
 /**
  * \}
  */

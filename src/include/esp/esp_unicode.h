@@ -39,7 +39,6 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-#include "esp_private.h"
     
 /**
  * \ingroup         ESP

@@ -42,13 +42,9 @@ extern "C" {
 
 #include "esp_config.h"
 #include "esp_sys.h"
-
-/**
- * \addtogroup      ESP_PORT
- * \{
- */
  
 /**
+ * \ingroup         ESP_PORT
  * \defgroup        ESP_SYS System functions
  * \brief           System based function for OS management, timings, etc
  * \{
@@ -158,10 +154,6 @@ uint8_t     esp_sys_mbox_invalid(esp_sys_mbox_t* b);
 uint8_t     esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio);
 uint8_t     esp_sys_thread_terminate(esp_sys_thread_t* t);
 uint8_t     esp_sys_thread_yield(void);
- 
-/**
- * \}
- */
  
 /**
  * \}
