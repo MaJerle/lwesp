@@ -1,6 +1,6 @@
 /**
- * \file            esp.h
- * \brief           ESP AT commands parser
+ * \file            esp_includes.h
+ * \brief           All main includes
  */
 
 /*
@@ -30,45 +30,47 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_H
-#define __ESP_H
+#ifndef __ESP_INCLUDES_H
+#define __ESP_INCLUDES_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-/* Get most important include files */
-#include "esp/esp_includes.h"
+#include "esp_config.h"
+#include "esp/esp_typedefs.h"
+#include "esp/esp_buff.h"
+#include "esp/esp_input.h"
+#include "system/esp_sys.h"
+#include "esp/esp_debug.h"
+#include "esp/esp_utilities.h"
+#include "esp/esp_pbuf.h"
+#include "esp/esp_conn.h"
 
-/**
- * \defgroup        ESP ESP-AT Lib
- * \brief           ESP stack
- * \{
- */
-
-espr_t      esp_init(esp_cb_fn cb_func);
-espr_t      esp_reset(uint32_t blocking);
-espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
-espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
-
-espr_t      esp_set_server(esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking);
-
-espr_t      esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking);
-
-espr_t      esp_core_lock(void);
-espr_t      esp_core_unlock(void);
-
-espr_t      esp_cb_register(esp_cb_fn cb_fn);
-espr_t      esp_cb_unregister(esp_cb_fn cb_fn);
-
-void        esp_delay(uint32_t ms);
-
-/**
- * \}
- */
+#if ESP_CFG_MODE_STATION
+#include "esp/esp_sta.h"
+#endif /* ESP_CFG_MODE_STATION */
+#if ESP_CFG_MODE_ACCESS_POINT
+#include "esp/esp_ap.h"
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
+#if ESP_CFG_OS
+#include "esp/esp_netconn.h"
+#endif /* ESP_CFG_OS */
+#if ESP_CFG_PING
+#include "esp/esp_ping.h"
+#endif /* ESP_CFG_PING */
+#if ESP_CFG_WPS
+#include "esp/esp_wps.h"
+#endif /* ESP_CFG_WPS */
+#if ESP_CFG_SNTP
+#include "esp/esp_sntp.h"
+#endif /* ESP_CFG_SNTP */
+#if ESP_CFG_HOSTNAME
+#include "esp/esp_hostname.h"
+#endif /* ESP_CFG_HOSTNAME */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_H */
+#endif /* __ESP_INCLUDES_H */

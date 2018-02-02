@@ -37,10 +37,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "stdint.h"
-#include "stdlib.h"
-#include "string.h"
-
 #include "esp/esp.h"
 #include "esp/esp_typedefs.h"
 #include "esp/esp_debug.h"
@@ -445,8 +441,9 @@ typedef struct esp_unicode_t {
  */
 
 #if !__DOXYGEN__
+
 /**
- * \addtogroup      ESP
+ * \ingroup         ESP
  * \defgroup        ESP_PRIVATE Internal functions
  * \brief           Functions, structures and enumerations
  * \{

@@ -45,6 +45,13 @@ extern "C" {
  * \brief           Network connection
  * \{
  */
+
+struct esp_netconn_t;
+
+/**
+ * \brief           Netconn object structure
+ */
+typedef struct esp_netconn_t* esp_netconn_p;
  
 /**
  * \brief           Netconn connection type
@@ -54,13 +61,6 @@ typedef enum {
     ESP_NETCONN_TYPE_SSL = ESP_CONN_TYPE_SSL,   /*!< SSL connection */
     ESP_NETCONN_TYPE_UDP = ESP_CONN_TYPE_UDP,   /*!< UDP connection */
 } esp_netconn_type_t;
-
-struct esp_netconn_t;
-
-/**
- * \brief           Netconn object structure
- */
-typedef struct esp_netconn_t* esp_netconn_p;
 
 esp_netconn_p   esp_netconn_new(esp_netconn_type_t type);
 espr_t          esp_netconn_delete(esp_netconn_p nc);
