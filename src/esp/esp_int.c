@@ -1187,11 +1187,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         esp_cmd_t n_cmd = ESP_CMD_IDLE;
         switch (msg->cmd) {
             case ESP_CMD_RESET: {
-#if ESP_CFG_AT_ECHO
-                n_cmd = ESP_CMD_ATE1;           /* Enable ECHO mode */
-#else          
-                n_cmd = ESP_CMD_ATE0;           /* Disable ECHO mode */
-#endif /* !ESP_CFG_AT_ECHO */
+                n_cmd = ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0;  /* Set ECHO mode */
                 break;
             }
             case ESP_CMD_ATE0:
