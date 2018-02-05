@@ -1093,7 +1093,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         if (msg->cmd == ESP_CMD_WIFI_CWJAP) {   /* Is the current command join? */
             if (is_ok) {                        /* Did we join successfully? */
                 msg->cmd = ESP_CMD_WIFI_CIPSTA_GET; /* Go to next command to get IP address */
-                if (espi_initiate_cmd(msg) == espOK) {
+                if (msg->fn(msg) == espOK) {
                     return espCONT;             /* Return to continue and not to stop command */
                 }
             } else {
@@ -1113,7 +1113,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         } else if (msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) {
             if (is_ok) {
                 msg->cmd = ESP_CMD_WIFI_CIPSTAMAC_GET;  /* Go to next command to get MAC address */
-                if (espi_initiate_cmd(msg) == espOK) {
+                if (msg->fn(msg) == espOK) {
                     return espCONT;             /* Return to continue and not to stop command */
                 }
             }
@@ -1123,7 +1123,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         if (msg->i == 0 && msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
             if (is_ok) {
                 msg->cmd = ESP_CMD_WIFI_CIPSTA_GET;
-                if (espi_initiate_cmd(msg) == espOK) {
+                if (msg->fn(msg) == espOK) {
                     return espCONT;
                 }
             }
@@ -1146,14 +1146,14 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         if (msg->cmd == ESP_CMD_WIFI_CWMODE) {
             if (is_ok) {
                 msg->cmd = ESP_CMD_WIFI_CIPAP_GET;  /* Go to next command to get IP address */
-                if (espi_initiate_cmd(msg) == espOK) {
+                if (msg->fn(msg) == espOK) {
                     return espCONT;             /* Return to continue and not to stop command */
                 }
             }
         } else if (msg->cmd == ESP_CMD_WIFI_CIPAP_GET) {
             if (is_ok) {
                 msg->cmd = ESP_CMD_WIFI_CIPAPMAC_GET;   /* Go to next command to get IP address */
-                if (espi_initiate_cmd(msg) == espOK) {
+                if (msg->fn(msg) == espOK) {
                     return espCONT;             /* Return to continue and not to stop command */
                 }
             }
@@ -1165,7 +1165,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             if (is_ok) {
                 espr_t res;
                 msg->cmd = ESP_CMD_TCPIP_CIPSTART;  /* Now actually start connection */
-                res = espi_initiate_cmd(msg);   /* Start connection */
+                res = msg->fn(msg);   /* Start connection */
                 if (res == espOK) {
                     return espCONT;
                 } else {
@@ -1175,7 +1175,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         } else if (msg->i == 1 && msg->cmd == ESP_CMD_TCPIP_CIPSTART) {
             msg->cmd = ESP_CMD_TCPIP_CIPSTATUS; /* Go to status mode */
             if (is_ok) {
-                if (espi_initiate_cmd(msg) == espOK) {  /* Get connection status */
+                if (msg->fn(msg) == espOK) {  /* Get connection status */
                     return espCONT;
                 }
             }
@@ -1229,7 +1229,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         }
         if (n_cmd != ESP_CMD_IDLE) {            /* Is there a change of command? */
             msg->cmd = n_cmd;
-            if (espi_initiate_cmd(msg) == espOK) {  /* Try to start with new connection */
+            if (msg->fn(msg) == espOK) {        /* Try to start with new connection */
                 return espCONT;
             }
         }
@@ -1242,14 +1242,14 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         if (msg->cmd == ESP_CMD_TCPIP_CIPSERVERMAXCONN) {
             /* Since not all AT versions support CIPSERVERMAXCONN command, ignore result */
             msg->cmd = ESP_CMD_TCPIP_CIPSERVER;
-            if (espi_initiate_cmd(msg) == espOK) {  /* Try to start with new connection */
+            if (msg->fn(msg) == espOK) {        /* Try to start with new connection */
                 return espCONT;
             }
         } else if (msg->cmd == ESP_CMD_TCPIP_CIPSERVER) {
             if (is_ok) {
                 esp.cb_server = msg->msg.tcpip_server.cb;   /* Set server callback function */
 //                msg->cmd = ESP_CMD_TCPIP_CIPSTO;
-//                if (espi_initiate_cmd(msg) == espOK) {  /* Try to start with new connection */
+//                if (msg->fn(msg) == espOK) {  /* Try to start with new connection */
 //                    return espCONT;
 //                }
             }
@@ -1260,6 +1260,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
 
 /**
  * \brief           Function to initialize every AT command
+ * \note            Never call this function directly. Set as initialization function for command and use `msg->fn(msg)`
  * \param[in]       msg: Pointer to \ref esp_msg_t with data
  * \return          Member of \ref espr_t enumeration
  */
@@ -1751,6 +1752,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
         esp_sys_mbox_put(&esp.mbox_producer, msg);  /* Write message to producer queue and wait forever */
     } else {
         if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
+            ESP_MSG_VAR_FREE(msg);              /* Release message */
             res = espERR;
         }
     }
