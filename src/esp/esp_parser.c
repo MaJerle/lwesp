@@ -130,7 +130,7 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
             p++;
             break;
         }
-        if (dst) {
+        if (dst != NULL) {
             if (i < dst_len) {
                 *dst++ = *p;
                 i++;
@@ -140,7 +140,7 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
         }
         p++;
     }
-    if (dst) {
+    if (dst != NULL) {
         *dst = 0;
     }
     *src = p;
