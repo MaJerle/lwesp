@@ -50,15 +50,10 @@ extern "C" {
 /**
  * \brief           Single memory region descriptor
  */
-typedef struct mem_region_t {
-    void* StartAddress;                 /*!< Start address of region */
-    size_t Size;                        /*!< Size in units of bytes of region */
-} mem_region_t;
-
-/**
- * \brief           Wrapper for memory region for ESP
- */
-typedef mem_region_t esp_mem_region_t;
+typedef struct esp_mem_region {
+    void* start_addr;                           /*!< Start address of region */
+    size_t size;                                /*!< Size in units of bytes of region */
+} esp_mem_region_t;
 
 void*   esp_mem_alloc(uint32_t size);
 void*   esp_mem_realloc(void* ptr, size_t size);
