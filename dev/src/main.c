@@ -19,7 +19,7 @@
 #include "esp/apps/esp_http_server.h"
 #include "esp/esp_hostname.h"
 
-#include "mqtt.h"
+#include "mqtt_client.h"
 #include "station_manager.h"
 #include "netconn_client.h"
 #include "netconn_server.h"
@@ -46,9 +46,9 @@ main(void) {
     esp_sys_thread_create(NULL, "init", (esp_sys_thread_fn)init_thread, NULL, 512, (esp_sys_thread_prio_t)0);
     osKernelStart();                            /* Start OS kernel */
     
-	while (1) {
+    while (1) {
 
-	}
+    }
 }
 
 void
