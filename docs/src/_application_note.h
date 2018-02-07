@@ -57,12 +57,12 @@
  *
  * \subsection      subsect_conf_file Project configuration file
  *
- * Library comes with <b>2</b> configuration files:
+ * Library comes with `2` configuration files:
  *
- *  - Default configuration file <b>esp_config_default.h</b>
- *  - Project template configuration file <b>esp_config_template.h</b>
+ *  - Default configuration file `esp_config_default.h`
+ *  - Project template configuration file `esp_config_template.h`
  *
- * When project is started, user has to rename template file to <b>esp_config.h</b>
+ * When project is started, user has to rename template file to `esp_config.h`
  * and if required, it should override default settings in this file.
  *
  * Default template file comes with something like this:
@@ -75,10 +75,10 @@
  * \include         _example_config.h
  *
  * \note            Important notes:
- *                      - Always do default settings modifications in user custom <b>esp_config.h</b> file
- *                          which was previously renamed from <b>esp_config_template.h</b>,
- *                      - Always include <b>esp/esp_debug.h</b> before any custom settings and
- *                          <b>esp/esp_config_default.h</b> after custom settings
+ *                      - Always do default settings modifications in user custom `esp_config.h` file
+ *                          which was previously renamed from `esp_config_template.h`,
+ *                      - Always include `esp/esp_debug.h` before any custom settings and
+ *                          `esp/esp_config_default.h` after custom settings
  *
  * \section         sect_thread_comm Inter-thread communication
  *
@@ -97,11 +97,11 @@
  *  - Allocate memory for command message from memory manager
  *  - Assign command type to message
  *  - Set other parameters, related or required to command
- *  - If user wants to wait for response (blocking mode), then create system semaphore <b>sem</b> and lock it immediatelly
+ *  - If user wants to wait for response (blocking mode), then create system semaphore `sem` and lock it immediatelly
  *  - Send everything to producing message queue which is later read in producing thread
  *  - If user don't want blocking mode, return from function with status OK
- *      otherwise wait for semaphore <b>sem</b> to be released from producing thread
- *      - When <b>sem</b> semaphore is locked, user thread may sleep and release resources for other threads this time
+ *      otherwise wait for semaphore `sem` to be released from producing thread
+ *      - When `sem` semaphore is locked, user thread may sleep and release resources for other threads this time
  *  - If user selects blocking mode, wait for response, free command memory in memory manager and return command response status
  *
  * User may use different threads to communicate with ESP AT lib at the same time since memory manager
@@ -115,10 +115,10 @@
  * Once there is a command read from message queue, these steps are performed:
  *
  *  - Check if processing function is set and if command is valid
- *  - Locks <b>sync_sem</b> semaphore for synchronization between processing and producing threads
+ *  - Locks `sync_sem` semaphore for synchronization between processing and producing threads
  *  - Sends initial AT command to AT port according to command type
- *  - Waits for <b>sync_sem</b> to be ready again (released in processing thread)
- *  - If command was blocking, set result and unlock command <b>sem</b> semaphore
+ *  - Waits for `sync_sem` to be ready again (released in processing thread)
+ *  - If command was blocking, set result and unlock command `sem` semaphore
  *  - If command was not blocking, free command memory from memory manager
  *
  * \subsection      subsec_thread_process Process thread
@@ -126,14 +126,14 @@
  * Processing thread reads received data from AT port and processes them.
  *
  * If command is active and received data belongs to command, they are processed according to command.
- * If received data are not related to command (such as received network data <b>+IPD</b>),
+ * If received data are not related to command (such as received network data `+IPD`),
  * they are also processed and callback function is immediatelly called to notify user about received data.
  *
  * Here is a list of some events, which may be read from ESP device without triggering any command:
  *  
- *  - Received network data <b>+IPD</b>
- *  - Station just disconnected from access point <b>WIFI DISCONNECT</b>
- *  - Station just connected to access point <b>WIFI CONNECTED</b>
+ *  - Received network data `+IPD`
+ *  - Station just disconnected from access point `WIFI DISCONNECT`
+ *  - Station just connected to access point `WIFI CONNECTED`
  *  - ...
  *
  * All these commands must be reported to user. To do this, callback is triggered to notify user.
