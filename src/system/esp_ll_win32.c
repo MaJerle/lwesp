@@ -142,10 +142,10 @@ uart_thread(void* param) {
         do {
             ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
             if (bytes_read > 0) {
-                //DWORD i;
-                //for (i = 0; i < bytes_read; i++) {
-                //    printf("%c", data_buffer[i]);
-                //}
+                DWORD i;
+                for (i = 0; i < bytes_read; i++) {
+                    printf("%c", data_buffer[i]);
+                }
                 /*
                  * Send received data to input processing module
                  */
@@ -177,7 +177,7 @@ uart_thread(void* param) {
  *
  * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
  * \param[in]       baudrate: Baudrate to use on AT port
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
