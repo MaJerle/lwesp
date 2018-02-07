@@ -123,7 +123,7 @@ http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
     } else if (!strncmp(tag_name, "led_status", tag_len)) {
         esp_http_server_write_string(hs, "Led is on");
     } else if (!strncmp(tag_name, "wifi_list", tag_len)) {
-        size_t i;
+        size_t i = 0;
 
         ESP_UNUSED(i);
         esp_http_server_write_string(hs, "<table class=\"table\">");
