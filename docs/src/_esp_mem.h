@@ -32,7 +32,7 @@
  * \addtogroup      ESP_MEM
  * \{
  * \note            Even with multiple regions, maximal allocation size is length of biggest region.
- *                  In case of example, we have <b>0x9000</b> bytes of memory but theoretically only <b>0x8000</b> may be allocated. 
+ *                  In case of example, we have `0x9000` bytes of memory but theoretically maximal block may have `0x8000` bytes. 
  *                  Practically maximal value is little lower due to header values required to track blocks.
  *
  * \par             Allocating memory
@@ -51,7 +51,7 @@
  *
  * \par             Freeing memory
  * 
- * When we try to free used memory, it is set as free and then inserted between 2 free blocks
+ * When we try to free used memory, it is set as free and then inserted between `2` free blocks
  * which is visible on first part of image below.
  *
  * Later, we also decide to free block which is just between `2` free blocks.

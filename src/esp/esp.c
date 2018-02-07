@@ -186,7 +186,7 @@ esp_set_default_server_callback(esp_cb_fn cb_func) {
 /**
  * \brief           Get IP address from host name
  * \param[in]       host: Pointer to host name to get IP for
- * \param[out]      ip: Pointer to output variable to save result. At least 4 bytes required
+ * \param[out]      ip: Pointer to \ref esp_ip_t variable to save IP
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */

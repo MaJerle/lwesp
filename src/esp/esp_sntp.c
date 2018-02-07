@@ -39,10 +39,10 @@
 /**
  * \brief           Configure SNTP mode parameters
  * \param[in]       en: Status whether SNTP mode is enabled or disabled on ESP device
- * \param[in]       tz: Timezone to use when SNTP acquires time, between -11 and 13
- * \param[in]       h1: Optional first SNTP server for time. Set to NULL if not used
- * \param[in]       h2: Optional second SNTP server for time. Set to NULL if not used
- * \param[in]       h3: Optional third SNTP server for time. Set to NULL if not used
+ * \param[in]       tz: Timezone to use when SNTP acquires time, between `-11` and `13`
+ * \param[in]       h1: Optional first SNTP server for time. Set to `NULL` if not used
+ * \param[in]       h2: Optional second SNTP server for time. Set to `NULL` if not used
+ * \param[in]       h3: Optional third SNTP server for time. Set to `NULL` if not used
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */

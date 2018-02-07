@@ -137,7 +137,7 @@ create_packet_id(mqtt_client_t* client) {
  * \param[in]       client: MQTT client
  * \param[in]       packet_id: Packet ID for QoS 1 or 2
  * \param[in]       arg: User optional argument for identifying packets
- * \return          Pointer to new request ready to use or NULL if no available memory
+ * \return          Pointer to new request ready to use or `NULL` if no available memory
  */
 static mqtt_request_t *
 request_create(mqtt_client_t* client, uint16_t packet_id, void* arg) {
@@ -186,7 +186,7 @@ request_set_pending(mqtt_client_t* client, mqtt_request_t* request) {
  * \brief           Get pending request by specific packet ID
  * \param[in]       client: MQTT client
  * \param[in]       pkt_id: Packet id to get request for
- * \return          Request on success, NULL otherwise
+ * \return          Request on success, `NULL` otherwise
  */
 static mqtt_request_t *
 request_get_pending(mqtt_client_t* client, uint16_t pkt_id) {
@@ -299,7 +299,7 @@ output_check_enough_memory(mqtt_client_t* client, uint16_t rem_len) {
  * \param[in]       msg_type: Message type to respond
  * \param[in]       pkt_id: Packet ID to send response for
  * \param[in]       qos: Quality of service for packet
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 static uint8_t
 write_ack_rec_rel_resp(mqtt_client_t* client, mqtt_msg_type_t msg_type, uint16_t pkt_id, uint8_t qos) {
@@ -374,7 +374,7 @@ mqtt_close(mqtt_client_t* client) {
  * \param[in]       topic: MQTT topic to (un)subscribe
  * \param[in]       qos: Quality of service, used only on subscribe part
  * \param[in]       sub: Status set to 1 on subscribe or 0 on unsubscribe
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 static uint8_t
 sub_unsub(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg, uint8_t sub) {
@@ -423,7 +423,7 @@ sub_unsub(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg, uint
 /**
  * \brief           Process incoming fully received message
  * \param[in]       client: MQTT client
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 static uint8_t
 mqtt_process_incoming_message(mqtt_client_t* client) {
@@ -581,7 +581,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
  * \brief           Parse incoming buffer data and try to construct clean packet from it
  * \param[in]       client: MQTT client
  * \param[in]       pbuf: Received packet buffer with data
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 static uint8_t
 mqtt_parse_incoming(mqtt_client_t* client, esp_pbuf_p pbuf) {
@@ -734,7 +734,7 @@ mqtt_connected_cb(mqtt_client_t* client) {
  * \brief           Received data callback function
  * \param[in]       client: MQTT client
  * \param[in]       pbuf: Received packet buffer with data
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 static uint8_t
 mqtt_data_recv_cb(mqtt_client_t* client, esp_pbuf_p pbuf) {
@@ -747,8 +747,8 @@ mqtt_data_recv_cb(mqtt_client_t* client, esp_pbuf_p pbuf) {
 /**
  * \brief           Data sent callback
  * \param[in]       client: MQTT client
- * \param[in]       successful: Send status. Set to 1 on success or 0 if send error occurred
- * \return          1 on success, 0 otherwise
+ * \param[in]       successful: Send status. Set to `1` on success or `0` if send error occurred
+ * \return          `1` on success, `0` otherwise
  */
 static uint8_t
 mqtt_data_sent_cb(mqtt_client_t* client, size_t sent_len, uint8_t successful) {
@@ -799,7 +799,7 @@ mqtt_data_sent_cb(mqtt_client_t* client, size_t sent_len, uint8_t successful) {
  * \brief           Poll for client connection
  *                  Called every ESP_CFG_CONN_POLL_INTERVAL ms when MQTT client TCP connection is established
  * \param[in]       client: MQTT client
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 static uint8_t
 mqtt_poll_cb(mqtt_client_t* client) {
@@ -831,7 +831,7 @@ mqtt_poll_cb(mqtt_client_t* client) {
 /**
  * \brief           Connection closed callback
  * \param[in]       client: MQTT client
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 static uint8_t
 mqtt_closed_cb(mqtt_client_t* client) {
@@ -949,7 +949,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
  * \brief           Allocate a new MQTT client structure
  * \param[in]       tx_buff_len: Length of raw data output buffer
  * \param[in]       rx_buff_len: Length of raw data input buffer
- * \return          Pointer to new allocated MQTT client structure or NULL on failure
+ * \return          Pointer to new allocated MQTT client structure or `NULL` on failure
  */
 mqtt_client_t *
 mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {

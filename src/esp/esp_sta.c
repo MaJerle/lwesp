@@ -54,8 +54,9 @@ esp_sta_quit(uint32_t blocking) {
 /**
  * \brief           Join as station to access point
  * \param[in]       name: SSID of access point to connect to
- * \param[in]       pass: Password of access point. Use NULL if AP does not have password
- * \param[in]       mac: Pointer to MAC address of AP. If you have APs with same name, you can use MAC to select proper one. Use NULL if not needed
+ * \param[in]       pass: Password of access point. Use `NULL` if AP does not have password
+ * \param[in]       mac: Pointer to MAC address of AP. If you have APs with same name, you can use MAC to select proper one.
+ *                      Use `NULL` if not needed
  * \param[in]       def: Status whether this is default SSID or only current one
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -80,7 +81,7 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
  * \brief           Configure auto join to access point on startup
  * \note            For auto join feature, you need to do a join to access point with default mode.
  *                  Check \ref esp_sta_join for more information.
- * \param[in]       en: Set to 1 to enable or 0 to disable
+ * \param[in]       en: Set to `1` to enable or `0` to disable
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -100,7 +101,7 @@ esp_sta_autojoin(uint8_t en, uint32_t blocking) {
  * \param[out]      ip: Pointer to variable to save IP address
  * \param[out]      gw: Pointer to output variable to save gateway address
  * \param[out]      nm: Pointer to output variable to save netmask address
- * \param[in]       def: Status whether default (1) or current (1) IP to read
+ * \param[in]       def: Status whether default (`1`) or current (`0`) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -121,9 +122,9 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t bl
 /**
  * \brief           Set station IP address
  * \param[in]       ip: Pointer to IP address
- * \param[in]       gw: Pointer to gateway address. Set to NULL to use default gateway
- * \param[in]       nm: Pointer to netmask address. Set to NULL to use default netmask
- * \param[in]       def: Status whether default (1) or current (1) IP to set
+ * \param[in]       gw: Pointer to gateway address. Set to `NULL` to use default gateway
+ * \param[in]       nm: Pointer to netmask address. Set to `NULL` to use default netmask
+ * \param[in]       def: Status whether default (`1`) or current (`0`) IP to set
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -145,8 +146,8 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
 
 /**
  * \brief           Get station MAC address
- * \param[out]      mac: Pointer to output variable to save MAC address. Memory of at least 6 bytes is required
- * \param[in]       def: Status whether default (1) or current (1) IP to read
+ * \param[out]      mac: Pointer to output variable to save MAC address
+ * \param[in]       def: Status whether default (`1`) or current (`0`) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -164,8 +165,8 @@ esp_sta_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking) {
 
 /**
  * \brief           Set station MAC address
- * \param[in]       mac: Pointer to variable with MAC address. Memory of at least 6 bytes is required
- * \param[in]       def: Status whether default (1) or current (1) MAC to write
+ * \param[in]       mac: Pointer to variable with MAC address
+ * \param[in]       def: Status whether default (`1`) or current (`0`) MAC to write
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -208,9 +209,10 @@ esp_sta_joined(void) {
 /**
  * \brief           Copy IP address from internal value to user variable
  * \note            Use \ref esp_sta_getip to refresh actual IP value from device
- * \param[out]      ip: Pointer to output IP variable. Set to NULL if not interested in IP address
- * \param[out]      gw: Pointer to output gateway variable. Set to NULL if not interested in gateway address
- * \param[out]      nm: Pointer to output netmask variable. Set to NULL if not interested in netmask address
+ * \param[out]      ip: Pointer to output IP variable. Set to `NULL` if not interested in IP address
+ * \param[out]      gw: Pointer to output gateway variable. Set to `NULL` if not interested in gateway address
+ * \param[out]      nm: Pointer to output netmask variable. Set to `NULL` if not interested in netmask address
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
@@ -234,7 +236,7 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
 
 /**
  * \brief           List for available access points ESP can connect to
- * \param[in]       ssid: Optional SSID name to search for. Set to NULL to disable filter
+ * \param[in]       ssid: Optional SSID name to search for. Set to `NULL` to disable filter
  * \param[in]       aps: Pointer to array of available access point parameters
  * \param[in]       apsl: Length of aps array
  * \param[out]      apf: Pointer to output variable to save number of access points found

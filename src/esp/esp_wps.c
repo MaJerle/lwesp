@@ -38,7 +38,7 @@
 
 /**
  * \brief           Configure WPS function on ESP device
- * \param[in]       en: Set to 1 to enable WPS or 0 to disable WPS
+ * \param[in]       en: Set to `1` to enable WPS or `0` to disable WPS
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */

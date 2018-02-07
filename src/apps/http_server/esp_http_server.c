@@ -427,7 +427,7 @@ send_dynamic_headers(http_state_t* hs) {
  * \brief           Get file from uri in format /folder/file?param1=value1&...
  * \param[in]       hs: HTTP state
  * \param[in]       uri: Input URI to get file for
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 http_get_file_from_uri(http_state_t* hs, const char* uri) {

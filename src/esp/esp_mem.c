@@ -502,7 +502,7 @@ esp_mem_getminfree(void) {
  * \note            You can allocate multiple regions by assigning start address and region size in units of bytes
  * \param[in]       regions: Pointer to list of regions to use for allocations
  * \param[in]       len: Number of regions to use
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_mem_assignmemory(const esp_mem_region_t* regions, size_t len) {

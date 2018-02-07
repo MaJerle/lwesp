@@ -106,8 +106,8 @@ signed_number_to_str(int32_t num, char* str) {
 /**
  * \brief           Send IP or MAC address to AT port
  * \param[in]       d: Pointer to IP or MAC address
- * \param[in]       is_ip: Set to 1 when sending IP, or 0 when MAC
- * \param[in]       q: Set to 1 to include start and ending quotes
+ * \param[in]       is_ip: Set to `1` when sending IP, `0` when MAC
+ * \param[in]       q: Set to `1` to include start and ending quotes
  */
 static void
 send_ip_mac(const void* d, uint8_t is_ip, uint8_t q) {
@@ -232,7 +232,7 @@ reset_connections(uint8_t forced) {
 
 /**
  * \brief           Reset everything after reset was detected
- * \param[in]       forced: Set to 1 if reset forced by user
+ * \param[in]       forced: Set to `1` if reset forced by user
  */
 static void
 reset_everything(uint8_t forced) {
@@ -1713,7 +1713,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 /**
  * \brief           Checks if connection pointer has valid address
  * \param[in]       conn: Address to check if valid connection ptr
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_is_valid_conn_ptr(esp_conn_p conn) {

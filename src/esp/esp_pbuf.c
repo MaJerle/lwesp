@@ -42,7 +42,7 @@
  * \param[in]       p: Source pbuf to skip
  * \param[in]       off: Offset in units of bytes to skip
  * \param[out]      new_off: New offset on new returned pbuf
- * \return          New pbuf where offset was found or NULL if offset too big for pbuf chain
+ * \return          New pbuf where offset was found, `NULL` if offset too big for pbuf chain
  */
 static esp_pbuf_p
 pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
@@ -69,7 +69,7 @@ pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
 /**
  * \brief           Allocate packet buffer for network data of specific size
  * \param[in]       len: Length of payload memory to allocate
- * \return          Pointer to allocated memory or NULL in case of failure
+ * \return          Pointer to allocated memory, `NULL` otherwise
  */
 esp_pbuf_p
 esp_pbuf_new(size_t len) {
@@ -292,7 +292,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
  * \param[in]       pbuf: Pbuf used to get data from
  * \param[in]       pos: Position at which to get element
  * \param[out]      el: Output variable to save element value at desired position
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
@@ -315,7 +315,7 @@ esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
  * \param[in]       needle: Data memory used as needle
  * \param[in]       len: Length of needle memory
  * \param[in]       off: Starting offset in pbuf memory
- * \return          ESP_SIZET_MAX if no match or position where in pbuf we have a match
+ * \return          `ESP_SIZET_MAX` if no match or position where in pbuf we have a match
  * \sa              esp_pbuf_strfind
  */
 size_t
@@ -340,7 +340,7 @@ esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* needle, size_t len, size_t o
  * \param[in]       pbuf: Pbuf used as haystack
  * \param[in]       str: String to search for in pbuf
  * \param[in]       off: Starting offset in pbuf memory
- * \return          ESP_SIZET_MAX if no match or position where in pbuf we have a match
+ * \return          `ESP_SIZET_MAX` if no match or position where in pbuf we have a match
  * \sa              esp_pbuf_memfind
  */
 size_t
@@ -355,7 +355,7 @@ esp_pbuf_strfind(const esp_pbuf_p pbuf, const char* str, size_t off) {
  * \param[in]       data: Actual data to compare with
  * \param[in]       len: Length of input data in units of bytes
  * \param[in]       offset: Start offset to use when comparing data
- * \return          0 if equal, ESP_SIZET_MAX if memory/offset too big or anything between if not equal
+ * \return          `0` if equal, `ESP_SIZET_MAX` if memory/offset too big or anything between if not equal
  * \sa              esp_pbuf_strcmp
  */
 size_t
@@ -398,7 +398,7 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
  * \param[in]       pbuf: Pbuf used to compare with data memory
  * \param[in]       str: String to be compared with pbuf
  * \param[in]       offset: Start memory offset in pbuf
- * \return          0 if equal, ESP_SIZET_MAX if memory/offset too big or anything between if not equal
+ * \return          `0` if equal, `ESP_SIZET_MAX` if memory/offset too big or anything between if not equal
  * \sa              esp_pbuf_memcmp
  */
 size_t
@@ -413,7 +413,7 @@ esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t offset) {
  * \param[in]       pbuf: Pbuf to get linear address
  * \param[in]       offset: Start offset from where to start
  * \param[out]      new_len: Length of memory returned by function
- * \return          Pointer to memory on success, NULL on failure
+ * \return          Pointer to memory on success, `NULL` otherwise
  */
 const void *
 esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) {
@@ -442,7 +442,7 @@ esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) 
 /**
  * \brief           Get data pointer from packet buffer
  * \param[in]       pbuf: Packet buffer
- * \return          Pointer to data buffer or NULL if invalid buffer
+ * \return          Pointer to data buffer on success, `NULL` otherwise
  */
 const void *
 esp_pbuf_data(const esp_pbuf_p pbuf) {
@@ -452,7 +452,7 @@ esp_pbuf_data(const esp_pbuf_p pbuf) {
 /**
  * \brief           Get length of packet buffer
  * \param[in]       pbuf: Packet buffer to get length for
- * \param[in]       tot: Set to 1 to return total packet chain length or 0 to get only first packet length
+ * \param[in]       tot: Set to `1` to return total packet chain length or `0` to get only first packet length
  * \return          Length of data in units of bytes
  */
 size_t
@@ -483,7 +483,7 @@ esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port) {
  *
  * \param[in]       pbuf: Pbuf to advance
  * \param[in]       len: Number of bytes to advance. when negative is used, buffer size is increased by only if it was decreased before
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_pbuf_advance(esp_pbuf_p pbuf, int len) {
@@ -515,7 +515,7 @@ esp_pbuf_advance(esp_pbuf_p pbuf, int len) {
  * \param[in]       pbuf: Start of pbuf chain
  * \param[in]       offset: Offset in units of bytes to skip
  * \param[out]      new_offset: Pointer to output variable to save new offset in returned pbuf
- * \return          New pbuf on success or NULL on failure
+ * \return          New pbuf on success, `NULL` otherwise
  */
 esp_pbuf_p
 esp_pbuf_skip(esp_pbuf_p pbuf, size_t offset, size_t* new_offset) {

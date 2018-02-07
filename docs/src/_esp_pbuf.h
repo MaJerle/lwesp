@@ -12,14 +12,14 @@
  * From the image above, we can see that we can chain buffers together to create quasi-linear block of data.
  * Each packet buffer consists of:
  *
- *  - Pointer to next pbuf in a chain or NULL of last one
+ *  - Pointer to next pbuf in a chain or `NULL` of last one
  *  - Length of current pbuf
  *  - Length of current and all next in chain
  *      - When pbuf is last, this value is the same as length of it
  *  - Reference counter, which holds number of pointers pointing to this block.
  *
- * If we describe image more into details, we can see we have <b>3</b> pbufs in chain and we can also see that
- * there is some variable involved with pointing to second pbuf, therefore it has reference count set to <b>2</b>.
+ * If we describe image more into details, there are `3` pbufs in chain and we can see that
+ * there is some variable involved with pointing to second pbuf, therefore it has reference count set to `2`.
  *
  * In table below you can see what is written in memory on the image above.
  *
@@ -36,20 +36,20 @@
  * It is used when user wants to free the block. Since block may be referenced from different locations,
  * doing free from one reference would make undefined behavior for all other references pointing to this pbuf
  *
- * If we go back to image above, we can see that variable points to first pbuf and reference count is set to <b>1</b>,
+ * If we go back to image above, we can see that variable points to first pbuf and reference count is set to `1`,
  * which means we are the only one pointing to this pbuf at the moment.
  * If we try to free the memory, this operation is perfectly valid as nobody else is pointing to memory.
  *
  * Steps to remove packet buffers are:
  *
- *  - Decrease reference counter by <b>1</b>
- *  - If reference counter is now <b>0</b>, free the packet buffer
+ *  - Decrease reference counter by `1`
+ *  - If reference counter is now `0`, free the packet buffer
  *      - Set next pbuf in chain as current and start over
- *  - If reference counter is still not <b>0</b>, return from function
+ *  - If reference counter is still not `0`, return from function
  *
  * A new memory structure is visible on image below.
  *
- * \image html pbuf_block_diagram_after_free.svg Block diagram of pbuf chain after free from user variable 1.
+ * \image html pbuf_block_diagram_after_free.svg Block diagram of pbuf chain after free from user variable `1`.
  *
  * <table>
  *  <tr><th>Block number    <th>Next packet buffer  <th>Size of block   <th>Total size of chain <th>Reference counter   </tr>
@@ -61,7 +61,7 @@
  *
  * When we are dealing with application part, it is important to know what is the difference between \ref esp_pbuf_cat and \ref esp_pbuf_chain.
  *
- * Imagine we have <b>2</b> pbufs and each of them is pointed to by <b>2</b> different variables, like on image below.
+ * Imagine we have `2` pbufs and each of them is pointed to by `2` different variables, like on image below.
  *
  * \image html pbuf_cat_vs_chain_1.svg <b>2</b> independent pbufs with <b>2</b> variables
  *
@@ -69,9 +69,9 @@
  *
  * \image html pbuf_cat_vs_chain_2.svg Pbufs structure after calling esp_pbuf_cat
  * 
- * We can see that reference of second is still set to <b>1</b>, but <b>2</b> variables are pointing to this block.
- * After we call \ref esp_pbuf_cat, we have to forget using user variable 2, because if we somehow try to free pbuf from variable <b>1</b>, 
- * then we point with variable <b>2</b> to memory which is not defined anymore.
+ * We can see that reference of second is still set to `1`, but `2` variables are pointing to this block.
+ * After we call \ref esp_pbuf_cat, we have to forget using user variable `2`, because if we somehow try to free pbuf from variable `1`, 
+ * then variable `2` points to undefined memory.
  *
  * \include         _example_pbuf_cat.c
  *
@@ -79,8 +79,8 @@
  *
  * \image html pbuf_cat_vs_chain_3.svg Pbufs structure after calling esp_pbuf_chain
  *
- * When we use this method, second pbuf has reference set to <b>2</b> 
- * and now it is perfectly valid to use our user variable 2 to access the memory.
+ * When we use this method, second pbuf has reference set to `2` 
+ * and now it is perfectly valid to use our user variable `2` to access the memory.
  *
  * Once we are done using pbuf, we have to free it using \ref esp_pbuf_free function.
  *

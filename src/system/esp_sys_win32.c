@@ -91,7 +91,7 @@ osKernelSysTick(void) {
 /**
  * \brief           Init system dependant parameters
  * \note            Called from high-level application layer when required
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_init(void) {
@@ -116,7 +116,7 @@ esp_sys_now(void) {
  * \note            This function is required with OS
  *
  * \note            This function may be called multiple times, recursive protection is required
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_protect(void) {
@@ -127,7 +127,7 @@ esp_sys_protect(void) {
 /**
  * \brief           Protect stack core
  * \note            This function is required with OS
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_unprotect(void) {
@@ -140,7 +140,7 @@ esp_sys_unprotect(void) {
  * \note            This function is required with OS
  * \note            Recursive mutex must be created as it may be locked multiple times before unlocked
  * \param[out]      p: Pointer to mutex structure to save result to
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mutex_create(esp_sys_mutex_t* p) {
@@ -152,7 +152,7 @@ esp_sys_mutex_create(esp_sys_mutex_t* p) {
  * \brief           Delete mutex from OS
  * \note            This function is required with OS
  * \param[in]       p: Pointer to mutex structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mutex_delete(esp_sys_mutex_t* p) {
@@ -163,7 +163,7 @@ esp_sys_mutex_delete(esp_sys_mutex_t* p) {
  * \brief           Wait forever to lock the mutex
  * \note            This function is required with OS
  * \param[in]       p: Pointer to mutex structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mutex_lock(esp_sys_mutex_t* p) {
@@ -179,7 +179,7 @@ esp_sys_mutex_lock(esp_sys_mutex_t* p) {
  * \brief           Unlock mutex
  * \note            This function is required with OS
  * \param[in]       p: Pointer to mutex structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mutex_unlock(esp_sys_mutex_t* p) {
@@ -190,7 +190,7 @@ esp_sys_mutex_unlock(esp_sys_mutex_t* p) {
  * \brief           Check if mutex structure is valid OS entry
  * \note            This function is required with OS
  * \param[in]       p: Pointer to mutex structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mutex_isvalid(esp_sys_mutex_t* p) {
@@ -201,7 +201,7 @@ esp_sys_mutex_isvalid(esp_sys_mutex_t* p) {
  * \brief           Set mutex structure as invalid
  * \note            This function is required with OS
  * \param[in]       p: Pointer to mutex structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mutex_invalid(esp_sys_mutex_t* p) {
@@ -217,7 +217,7 @@ esp_sys_mutex_invalid(esp_sys_mutex_t* p) {
  * \param[in]       cnt: Count indicating default semaphore state:
  *                     0: Lock it immediteally
  *                     1: Leave it unlocked
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
@@ -231,7 +231,7 @@ esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
  * \brief           Delete binary semaphore
  * \note            This function is required with OS
  * \param[in]       p: Pointer to semaphore structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_sem_delete(esp_sys_sem_t* p) {
@@ -267,7 +267,7 @@ esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
  * \brief           Release semaphore
  * \note            This function is required with OS
  * \param[in]       p: Pointer to semaphore structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_sem_release(esp_sys_sem_t* p) {
@@ -278,7 +278,7 @@ esp_sys_sem_release(esp_sys_sem_t* p) {
  * \brief           Check if semaphore is valid
  * \note            This function is required with OS
  * \param[in]       p: Pointer to semaphore structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_sem_isvalid(esp_sys_sem_t* p) {
@@ -289,7 +289,7 @@ esp_sys_sem_isvalid(esp_sys_sem_t* p) {
  * \brief           Invalid semaphore
  * \note            This function is required with OS
  * \param[in]       p: Pointer to semaphore structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_sem_invalid(esp_sys_sem_t* p) {
@@ -302,7 +302,7 @@ esp_sys_sem_invalid(esp_sys_sem_t* p) {
  * \note            This function is required with OS
  * \param[out]      b: Pointer to message queue structure
  * \param[in]       size: Number of entries for message queue to hold
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
@@ -326,7 +326,7 @@ esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
  * \brief           Delete message queue
  * \note            This function is required with OS
  * \param[in]       b: Pointer to message queue structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mbox_delete(esp_sys_mbox_t* b) {
@@ -435,7 +435,7 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
  * \note            This function is required with OS
  * \param[in]       b: Pointer to message queue structure
  * \param[in]       m: Pointer to message to save to queue
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
@@ -463,7 +463,7 @@ esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
  * \note            This function is required with OS
  * \param[in]       b: Pointer to message queue structure
  * \param[in]       m: Pointer to pointer to result to save value from message queue to
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
@@ -489,7 +489,7 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
  * \brief           Check if message queue is valid
  * \note            This function is required with OS
  * \param[in]       b: Pointer to message queue structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mbox_isvalid(esp_sys_mbox_t* b) {
@@ -500,7 +500,7 @@ esp_sys_mbox_isvalid(esp_sys_mbox_t* b) {
  * \brief           Invalid message queue
  * \note            This function is required with OS
  * \param[in]       b: Pointer to message queue structure
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
@@ -517,7 +517,7 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  * \param[in]       arg: Thread function argument
  * \param[in]       stack_size: Size of thread stack in uints of bytes. If set to 0, reserve default stack size
  * \param[in]       prio: Thread priority 
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
@@ -537,7 +537,7 @@ esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn t
  *
  * \note            This function is required with OS
  * \param[in]       t: Thread handle to terminate. If set to NULL, terminate current thread (thread from where function is called)
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
@@ -555,7 +555,7 @@ esp_sys_thread_terminate(esp_sys_thread_t* t) {
 /**
  * \brief           Yield current thread
  * \note            This function is required with OS
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sys_thread_yield(void) {

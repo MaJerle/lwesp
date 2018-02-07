@@ -4,7 +4,7 @@
  *
  * Connection based functions to manage sending and receiving data
  *
- * \note            Functions are in general thread safe. If there is an expection, it is mentioned in function description
+ * \note            Functions are thread safe. If there is an expection, it is mentioned in function's description.
  *
  * In the below example, you can find frequent use case how to use connection API in non-blocking callback mode.
  *

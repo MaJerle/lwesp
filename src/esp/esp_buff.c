@@ -42,7 +42,7 @@
  * \brief           Initialize buffer
  * \param[in]       buff: Pointer to buffer structure
  * \param[in]       size: Size of buffer. This parameter must match length of memory used on memory param
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_buff_init(esp_buff_t* buff, size_t size) {

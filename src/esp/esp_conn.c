@@ -77,7 +77,7 @@ conn_timeout_cb(void* arg) {
  * \param[in]       data: Pointer to data to send
  * \param[in]       btw: Number of bytes to send
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
- * \param[in]       fau: "Free After Use" flag. Set to 1 if stack should free the memory after data sent
+ * \param[in]       fau: "Free After Use" flag. Set to `1` if stack should free the memory after data sent
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -342,7 +342,7 @@ esp_get_conns_status(uint32_t blocking) {
 /**
  * \brief           Check if connection type is client
  * \param[in]       conn: Pointer to connection to check for status
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_conn_is_client(esp_conn_p conn) {
@@ -358,7 +358,7 @@ esp_conn_is_client(esp_conn_p conn) {
 /**
  * \brief           Check if connection type is server
  * \param[in]       conn: Pointer to connection to check for status
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_conn_is_server(esp_conn_p conn) {
@@ -374,7 +374,7 @@ esp_conn_is_server(esp_conn_p conn) {
 /**
  * \brief           Check if connection is active
  * \param[in]       conn: Pointer to connection to check for status
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_conn_is_active(esp_conn_p conn) {
@@ -390,7 +390,7 @@ esp_conn_is_active(esp_conn_p conn) {
 /**
  * \brief           Check if connection is closed
  * \param[in]       conn: Pointer to connection to check for status
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_conn_is_closed(esp_conn_p conn) {
@@ -439,7 +439,7 @@ esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
 /**
  * \brief           Get connection from connection based event
  * \param[in]       evt: Event which happened for connection
- * \return          Connection pointer on success or NULL on failure
+ * \return          Connection pointer on success, `NULL` otherwise
  */
 esp_conn_p
 esp_conn_get_from_evt(esp_cb_t* evt) {
@@ -463,7 +463,7 @@ esp_conn_get_from_evt(esp_cb_t* evt) {
  * \param[in]       conn: Connection to write
  * \param[in]       data: Data to copy to write buffer
  * \param[in]       btw: Number of bytes to write
- * \param[in]       flush: Flush flag. Set to 1 if you want to send data immediatelly after copying
+ * \param[in]       flush: Flush flag. Set to `1` if you want to send data immediatelly after copying
  * \param[out]      mem_available: Available memory size available in current write buffer.
  *                  When the buffer length is reached, current one is sent and a new one is automatically created.
  *                  If function returns espOK and *mem_available = 0, there was a problem

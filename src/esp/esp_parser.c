@@ -106,9 +106,9 @@ espi_parse_hexnumber(const char** str) {
  * \brief           Parse input string as string part of AT command
  * \param[in,out]   src: Pointer to pointer to string to parse from
  * \param[in]       dst: Destination pointer. Use NULL in case you want only skip string in source
- * \param[in]       dst_len: Length of distance buffer, including memory for NULL termination
+ * \param[in]       dst_len: Length of distance buffer, including memory for `NULL` termination
  * \param[in]       trim: Set to 1 to process entire string, even if no memory anymore
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
@@ -151,7 +151,7 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
  * \brief           Parse string as IP address
  * \param[in,out]   src: Pointer to pointer to string to parse from
  * \param[in]       dst: Destination pointer
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_ip(const char** src, esp_ip_t* ip) {
@@ -176,7 +176,7 @@ espi_parse_ip(const char** src, esp_ip_t* ip) {
  * \brief           Parse string as MAC address
  * \param[in,out]   src: Pointer to pointer to string to parse from
  * \param[in]       dst: Destination pointer
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_mac(const char** src, esp_mac_t* mac) {
@@ -253,7 +253,7 @@ espi_parse_ipd(const char* str) {
  * \brief           Parse AT and SDK versions from AT+GMR response
  * \param[in]       str: String starting with version numbers
  * \param[out]      version_out: Output variable to save version
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_at_sdk_version(const char* str, uint32_t* version_out) {
@@ -302,7 +302,7 @@ espi_parse_link_conn(const char* str) {
  * \brief           Parse received message for list access points
  * \param[in]       str: Pointer to input string starting with +CWLAP
  * \param[in]       msg: Pointer to message
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_cwlap(const char* str, esp_msg_t* msg) {
@@ -348,7 +348,7 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
  * \brief           Parse received message for list stations
  * \param[in]       str: Pointer to input string starting with +CWLAP
  * \param[in]       msg: Pointer to message
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_cwlif(const char* str, esp_msg_t* msg) {
@@ -370,9 +370,9 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
 
 /**
  * \brief           Parse MAC address and send to user layer
- * \param[in]       str: Input string excluding "+DIST_STA_IP:" part
- * \param[in]       is_conn: Set to 1 if station connected or 0 if station disconnected
- * \return          1 on success, 0 otherwise
+ * \param[in]       str: Input string excluding `+DIST_STA_IP:` part
+ * \param[in]       is_conn: Set to `1` if station connected or `0` if station disconnected
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
@@ -387,7 +387,7 @@ espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
 /**
  * \brief           Parse received string "+DIST_STA_IP" and send notification to user layer
  * \param[in]       str: Input string excluding "+DIST_STA_IP:" part
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_ap_ip_sta(const char* str) {
@@ -409,7 +409,7 @@ espi_parse_ap_ip_sta(const char* str) {
  * \brief           Parse received message domain DNS name
  * \param[in]       str: Pointer to input string starting with +CWLAP
  * \param[in]       msg: Pointer to message
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
@@ -431,7 +431,7 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
  * \brief           Parse received message for SNTP time
  * \param[in]       str: Pointer to input string starting with +CWLAP
  * \param[in]       msg: Pointer to message
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
@@ -511,7 +511,7 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
  * \brief           Parse received message for HOSTNAME
  * \param[in]       str: Pointer to input string starting with +CWHOSTNAME
  * \param[in]       msg: Pointer to message
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_hostname(const char* str, esp_msg_t* msg) {

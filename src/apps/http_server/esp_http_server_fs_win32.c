@@ -40,7 +40,7 @@ static char fs_path[256];
  * \brief           Open a file of specific path
  * \param[in]       file: File structure to fill if file is successfully open
  * \param[in]       path: File path to open in format "/js/scripts.js" or "/index.html"
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 http_fs_open(http_fs_file_t* file, const char* path) {
@@ -104,7 +104,7 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
 /**
  * \brief           Close a file handle
  * \param[in]       file: File handle
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 http_fs_close(http_fs_file_t* file) {

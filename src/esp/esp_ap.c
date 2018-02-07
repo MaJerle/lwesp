@@ -41,7 +41,7 @@
  * \param[out]      ip: Pointer to variable to save IP address
  * \param[out]      gw: Pointer to output variable to save gateway address
  * \param[out]      nm: Pointer to output variable to save netmask address
- * \param[in]       def: Status whether default (1) or current (0) IP to read
+ * \param[in]       def: Status whether default (`1`) or current (`0`) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -62,9 +62,9 @@ esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t blo
 /**
  * \brief           Set IP of access point
  * \param[in]       ip: Pointer to IP address
- * \param[in]       gw: Pointer to gateway address. Set to NULL to use default gateway
- * \param[in]       nm: Pointer to netmask address. Set to NULL to use default netmask
- * \param[in]       def: Status whether default (1) or current (0) IP to set
+ * \param[in]       gw: Pointer to gateway address. Set to `NULL` to use default gateway
+ * \param[in]       nm: Pointer to netmask address. Set to `NULL` to use default netmask
+ * \param[in]       def: Status whether default (`1`) or current (`0`) IP to set
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -87,7 +87,7 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t
 /**
  * \brief           Get MAC of access point
  * \param[out]      mac: Pointer to output variable to save MAC address
- * \param[in]       def: Status whether default (1) or current (0) IP to read
+ * \param[in]       def: Status whether default (`1`) or current (`0`) IP to read
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -129,12 +129,12 @@ esp_ap_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
  * \brief           Configure access point
  * \note            Before you can configure access point, ESP device must be in AP mode. Check \ref esp_set_wifi_mode for more information
  * \param[in]       ssid: SSID name of access point
- * \param[in]       pwd: Password for network. Either set it to NULL or less than 64 characters
+ * \param[in]       pwd: Password for network. Either set it to `NULL` or less than `64` characters
  * \param[in]       ch: Wifi RF channel
- * \param[in]       ecn: Encryption type. Valid options are OPEN, WPA_PSK, WPA2_PSK and WPA_WPA2_PSK
+ * \param[in]       ecn: Encryption type. Valid options are `OPEN`, `WPA_PSK`, `WPA2_PSK` and `WPA_WPA2_PSK`
  * \param[in]       max_sta: Maximal number of stations access point can accept. Valid between 1 and 10 stations
- * \param[in]       hid: Set to 1 to hide access point from public access
- * \param[in]       def: Status whether default (1) or current (1) MAC to write
+ * \param[in]       hid: Set to `1` to hide access point from public access
+ * \param[in]       def: Status whether default (`1`) or current (`0`) MAC to write
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
