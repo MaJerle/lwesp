@@ -382,7 +382,6 @@ mem_realloc(void* ptr, size_t size) {
 
 /**
  * \brief           Get total free size available in memory to allocate
- * \note            Since this function is private, it can only be used by user inside ESP library
  * \retval          Number of bytes available to allocate
  */
 static size_t
@@ -392,7 +391,6 @@ mem_getfree(void) {
 
 /**
  * \brief           Get total currently allocated memory in regions
- * \note            Since this function is private, it can only be used by user inside ESP library
  * \retval          Number of bytes in use
  */
 static size_t
@@ -402,7 +400,6 @@ mem_getfull(void) {
 
 /**
  * \brief           Get minimal available number of bytes ever for allocation
- * \note            Since this function is private, it can only be used by user inside ESP library
  * \retval          Number of minimal available number of bytes ever
  */
 static size_t
@@ -445,7 +442,6 @@ esp_mem_realloc(void* ptr, size_t size) {
 
 /**
  * \brief           Allocate memory of specific size and set memory to zero
- * \note            Since this function is private, it can only be used by user inside ESP library
  * \param[in]       num: Number of elements to allocate
  * \param[in]       size: Size of each element
  * \return          NULL on failure or memory address on success
@@ -476,7 +472,6 @@ esp_mem_free(void* ptr) {
 
 /**
  * \brief           Get total free size available in memory to allocate
- * \note            Since this function is private, it can only be used by user inside ESP library
  * \retval          Number of bytes available to allocate
  */
 size_t
@@ -486,7 +481,6 @@ esp_mem_getfree(void) {
 
 /**
  * \brief           Get total currently allocated memory in regions
- * \note            Since this function is private, it can only be used by user inside ESP library
  * \retval          Number of bytes in use
  */
 size_t
@@ -496,7 +490,6 @@ esp_mem_getfull(void) {
 
 /**
  * \brief           Get minimal available number of bytes ever for allocation
- * \note            Since this function is private, it can only be used by user inside ESP library
  * \retval          Number of minimal available number of bytes ever
  */
 size_t
@@ -507,7 +500,7 @@ esp_mem_getminfree(void) {
 /**
  * \brief           Assign memory region(s) for allocation functions
  * \note            You can allocate multiple regions by assigning start address and region size in units of bytes
- * \param[in]       *regions: Pointer to list of regions to use for allocations
+ * \param[in]       regions: Pointer to list of regions to use for allocations
  * \param[in]       len: Number of regions to use
  * \return          1 on success, 0 otherwise
  */
