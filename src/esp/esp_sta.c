@@ -206,8 +206,8 @@ esp_sta_joined(void) {
 }
 
 /**
- * \brief           Copies IP address from internal value for user
- * \note            In case you want to refresh actual value from ESP device, use \ref esp_sta_getip function
+ * \brief           Copy IP address from internal value to user variable
+ * \note            Use \ref esp_sta_getip to refresh actual IP value from device
  * \param[out]      ip: Pointer to output IP variable. Set to NULL if not interested in IP address
  * \param[out]      gw: Pointer to output gateway variable. Set to NULL if not interested in gateway address
  * \param[out]      nm: Pointer to output netmask variable. Set to NULL if not interested in netmask address
