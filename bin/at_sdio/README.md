@@ -1,14 +1,3 @@
-# Binary files
-
-Binary files in this folder are precompiled from current Espressif development 
-repository due to the fact that Espressif did not release new AT software for almost 1 year,
-but they do work and develop new features.
-
-In order to test these features, you have to manually compile SDK from official repository.
-To ease this process, I made compilation of original repository for you.
-
-You may use these files as user files with official AT command to test ESP-AT lib.
-
 # BOOT MODE
 ## download
 ### Flash size 8Mbit: 512KB+512KB
