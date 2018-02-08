@@ -43,20 +43,13 @@
  * AT commands software without OTA requries `4-Mbit` flash memory and basically works on any ESP module, even if bought at very beginning
  * when these modules were first time sold.
  *
- * \section         sect_update_process_download Download AT software
+ * \section         sect_update_process_download Download software
  *
- * You can always get latest NON_OS SDK from Espressif Official website.
- * Latest version when writing this tutorial is NONOS_SDK 2.1 and is available <a href="http://espressif.com/en/support/download/sdks-demos"><b>here</b></a>.
+ * \par             AT Software
  *
- * \note            Few notes:
- *                      - SDK also includes compiled AT project inside `bin` directory in package.
- *                      - Before you start with update process, always make sure you have latest version downloaded.
- *                      - Espressif developes AT software regulary together with SDK, but official releases are not published for every new feature.
- *                          To be able to follow Espressif developments, you can use precompiled binary files which come together on
- *                          official repository for <a href="https://github.com/MaJerle/ESP_AT_Lib"><b>ESP-AT library</b></a>.
- *                          Upgrade files are available in `bin` directory.
+ * Download latest AT release from <a href="https://www.espressif.com/en/products/software/esp-at/resource">official website</a>.
  *
- * \section         sect_update_process_download_flashtool Download flash tool
+ * \par             Flash tool
  *
  * Espressif provides download flash tool, available on website in section
  * <a href="http://espressif.com/en/support/download/other-tools"><b>other tools</b></a>.
