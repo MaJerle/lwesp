@@ -427,6 +427,14 @@
 #endif
 
 /**
+ * \brief           Enables (1) or disables (0) support for mDNS
+ *
+ */
+#ifndef ESP_CFG_MDNS
+#define ESP_CFG_MDNS                        0
+#endif
+
+/**
  * \brief           Enables (1) or disables (0) support for SNTP protocol with AT commands
  *
  */
