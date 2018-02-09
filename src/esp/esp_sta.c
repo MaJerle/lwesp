@@ -80,7 +80,7 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
 /**
  * \brief           Configure auto join to access point on startup
  * \note            For auto join feature, you need to do a join to access point with default mode.
- *                  Check \ref esp_sta_join for more information.
+ *                  Check \ref esp_sta_join for more information
  * \param[in]       en: Set to `1` to enable or `0` to disable
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
