@@ -132,8 +132,9 @@
  * Here is a list of some events, which may be read from ESP device without triggering any command:
  *  
  *  - Received network data `+IPD`
- *  - Station just disconnected from access point `WIFI DISCONNECT`
- *  - Station just connected to access point `WIFI CONNECTED`
+ *  - Connection just active `+LINK_CONN`
+ *  - Station disconnected from access point `WIFI DISCONNECT`
+ *  - Station connected to access point `WIFI CONNECTED`
  *  - ...
  *
  * All these commands must be reported to user. To do this, callback is triggered to notify user.
@@ -144,8 +145,9 @@
  *
  * \subsection      subsect_blocking Blocking mode
  *
- * When blocking mode is selected, function will block execution until response is received 
- * and user has immediate result so linear code execution may be applied:
+ * When blocking mode is selected, function will block thread execution until response is received
+ * and ready for further processing. When the function returns, user has known result from ESP device.
+ * Linear programming style may be applied.
  *
  * \include         _example_blocking_pseudo.c
  *
