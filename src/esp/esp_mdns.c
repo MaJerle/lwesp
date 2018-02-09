@@ -37,22 +37,31 @@
 #if ESP_CFG_MDNS || __DOXYGEN__
 
 /**
- * \brief           Ping server and get response time from it
+ * \brief           Configure mDNS parameters with hostname and server
+ * \param[in]       en: Status to enable (`1`) or disable (`0`) mDNS function
+ * \param[in]       host: mDNS host name
+ * \param[in]       server: mDNS server name
+ * \param[in]       port: mDNS server port number
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_mdns(const char* host, uint32_t* time, uint32_t blocking) {
+esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
-    ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
-    ESP_ASSERT("time != NULL", time != NULL);   /* Assert input parameters */
+    if (en) {
+        ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
+        ESP_ASSERT("server != NULL", server != NULL);   /* Assert input parameters */
+        ESP_ASSERT("port", port);               /* Assert input parameters */
+    }
 		
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_PING;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ping.time = time;
-    
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_MDNS;
+    ESP_MSG_VAR_REF(msg).msg.mdns.en = en;
+    ESP_MSG_VAR_REF(msg).msg.mdns.host = host;
+    ESP_MSG_VAR_REF(msg).msg.mdns.server = server;
+    ESP_MSG_VAR_REF(msg).msg.mdns.port = port;
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);/* Send message to producer queue */
 }
 

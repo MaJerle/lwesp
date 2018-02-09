@@ -42,12 +42,12 @@ extern "C" {
 
 /**
  * \ingroup         ESP
- * \defgroup        ESP_MDNS mDNS
- * \brief           
+ * \defgroup        ESP_MDNS mDNS API
+ * \brief           mDNS function
  * \{
  */
 
-espr_t      esp_mdns(const char* host, uint32_t* time, uint32_t blocking);
+espr_t      esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port, uint32_t blocking);
  
 /**
  * \}

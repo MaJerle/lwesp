@@ -65,11 +65,12 @@ typedef enum {
     espPARERR,                                  /*!< Wrong parameters on function call */
     espERRMEM,                                  /*!< Memory error occurred */
     espTIMEOUT,                                 /*!< Timeout occurred on command */
-    espNOFREECONN,                              /*!< There is no free connection available to start */
     espCONT,                                    /*!< There is still some command to be processed in current command */
     espCLOSED,                                  /*!< Connection just closed */
     espINPROG,                                  /*!< Operation is in progress */
-    
+
+    espERRNOIP,                                 /*!< Station does not have IP address */
+    espERRNOFREECONN,                           /*!< There is no free connection available to start */
     espERRCONNTIMEOUT,                          /*!< Timeout received when connection to access point */
     espERRPASS,                                 /*!< Invalid password for access point */
     espERRNOAP,                                 /*!< No access point found with specific SSID and MAC address */
@@ -254,12 +255,13 @@ typedef struct esp_cb_t {
             esp_port_t port;                    /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
             void* arg;                          /*!< Connection argument used on connection */
-            /**
+            /*
              * \todo: Implement error reason:
              *  - No free connection to start
              *  - Remote host is not responding
              *  - ...
              */
+            espr_t err;                         /*!< Error value */
         } conn_error;                           /*!< Client connection start error */
         struct {
             esp_conn_p conn;                    /*!< Pointer to connection */
@@ -269,13 +271,12 @@ typedef struct esp_cb_t {
         struct {
             esp_conn_p conn;                    /*!< Set connection pointer */
         } conn_poll;                            /*!< Polling active connection to check for timeouts. Use with \ref ESP_CB_CONN_POLL event */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
         struct {
             espr_t status;                      /*!< Status of command */
             esp_ap_t* aps;                      /*!< Pointer to access points */
             size_t len;                         /*!< Number of access points found */
         } sta_list_ap;
-        
-#if ESP_CFG_MODE_ACCESS_POINT
         struct {
             esp_mac_t* mac;                     /*!< Station MAC address */
         } ap_conn_disconn_sta;                  /*!< A new station connected or disconnected to ESP's access point. Use with \ref ESP_CB_AP_CONNECTED_STA or \ref ESP_CB_AP_DISCONNECTED_STA events */
@@ -283,8 +284,7 @@ typedef struct esp_cb_t {
             esp_mac_t* mac;                     /*!< Station MAC address */
             esp_ip_t* ip;                       /*!< Station IP address */
         } ap_ip_sta;                            /*!< Station got IP address from ESP's access point. Use with \ref ESP_CB_AP_IP_STA */
-#endif /* ESP_CFG_MODE_ACCESS_POINT */
-
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
         struct {
             uint8_t forced;                     /*!< Set to 1 if reset forced by user */
         } reset;                                /*!< Reset occurred */

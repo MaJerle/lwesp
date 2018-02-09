@@ -99,8 +99,12 @@ typedef enum {
     ESP_CMD_WIFI_CIPAP_SET,                     /*!< Set IP address of ESP access point */
     ESP_CMD_WIFI_CWLIF,                         /*!< Get connected stations on access point */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_WPS || __DOXYGEN__
     ESP_CMD_WIFI_WPS,                           /*!< Set WPS option */
+#endif /* ESP_CFG_WPS || __DOXYGEN__ */
+#if ESP_CFG_MDNS || __DOXYGEN__
     ESP_CMD_WIFI_MDNS,                          /*!< Configure MDNS function */
+#endif /* ESP_CFG_MDNS || __DOXYGEN__ */
 #if ESP_CFG_HOSTNAME || __DOXYGEN__
     ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
     ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
@@ -214,6 +218,7 @@ typedef struct esp_msg {
         struct {
             esp_mode_t mode;                    /*!< Mode of operation */                    
         } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
             const char* name;                   /*!< AP name */
             const char* pass;                   /*!< AP password */
@@ -224,6 +229,31 @@ typedef struct esp_msg {
         struct {
             uint8_t en;                         /*!< Status to enable/disable auto join feature */
         } sta_autojoin;                         /*!< Message for auto join procedure */
+        struct {
+            const char* ssid;                   /*!< Pointer to optional filter SSID name to search */
+            esp_ap_t* aps;                      /*!< Pointer to array to save access points */
+            size_t apsl;                        /*!< Length of input array of access points */
+            size_t apsi;                        /*!< Current access point array */
+            size_t* apf;                        /*!< Pointer to output variable holding number of access points found */
+        } ap_list;                              /*!< List for access points */
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
+        struct {
+            const char* ssid;                   /*!< Name of access point */
+            const char* pwd;                    /*!< Password of access point */
+            esp_ecn_t ecn;                      /*!< Ecryption used */
+            uint8_t ch;                         /*!< RF Channel used */
+            uint8_t max_sta;                    /*!< Max allowed connected stations */
+            uint8_t hid;                        /*!< Configuration if network is hidden or visible */
+            uint8_t def;                        /*!< Save as default configuration */
+        } ap_conf;                              /*!< Parameters to configure access point */
+        struct {
+            esp_sta_t* stas;                    /*!< Pointer to array to save access points */
+            size_t stal;                        /*!< Length of input array of access points */
+            size_t stai;                        /*!< Current access point array */
+            size_t* staf;                       /*!< Pointer to output variable holding number of access points found */
+        } sta_list;                             /*!< List for stations */
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
         struct {
             esp_ip_t* ip;                       /*!< Pointer to IP variable */
             esp_ip_t* gw;                       /*!< Pointer to gateway variable */
@@ -244,28 +274,6 @@ typedef struct esp_msg {
             const esp_mac_t* mac;               /*!< Pointer to MAC variable */
             uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
-        struct {
-            const char* ssid;                   /*!< Pointer to optional filter SSID name to search */
-            esp_ap_t* aps;                      /*!< Pointer to array to save access points */
-            size_t apsl;                        /*!< Length of input array of access points */
-            size_t apsi;                        /*!< Current access point array */
-            size_t* apf;                        /*!< Pointer to output variable holding number of access points found */
-        } ap_list;                              /*!< List for access points */
-        struct {
-            esp_sta_t* stas;                    /*!< Pointer to array to save access points */
-            size_t stal;                        /*!< Length of input array of access points */
-            size_t stai;                        /*!< Current access point array */
-            size_t* staf;                       /*!< Pointer to output variable holding number of access points found */
-        } sta_list;                             /*!< List for stations */
-        struct {
-            const char* ssid;                   /*!< Name of access point */
-            const char* pwd;                    /*!< Password of access point */
-            esp_ecn_t ecn;                      /*!< Ecryption used */
-            uint8_t ch;                         /*!< RF Channel used */
-            uint8_t max_sta;                    /*!< Max allowed connected stations */
-            uint8_t hid;                        /*!< Configuration if network is hidden or visible */
-            uint8_t def;                        /*!< Save as default configuration */
-        } ap_conf;                              /*!< Parameters to configura access point */
         struct {
             char* hostname;                     /*!< Hostname set/get value */
             size_t length;                      /*!< Length of buffer when reading hostname */
@@ -316,19 +324,19 @@ typedef struct esp_msg {
             esp_cb_fn cb;                       /*!< Server default callback function */
         } tcpip_server;
         struct {
-            uint8_t info;                       /*!< New info status */
-        } tcpip_dinfo;                          /*!< Structure to enable more info on +IPD command */
-        struct {
-            const char* host;                   /*!< Hostname to ping */
-            uint32_t* time;                     /*!< Pointer to time variable */
-        } tcpip_ping;                           /*!< Pinging structure */
-        struct {
             size_t size;                        /*!< Size for SSL in uints of bytes */
         } tcpip_sslsize;                        /*!< TCP SSL size for SSL connections */
         struct {
             const char* host;                   /*!< Hostname to resolve IP address for */
             esp_ip_t* ip;                       /*!< Pointer to IP address to save result */
         } dns_getbyhostname;                    /*!< DNS function */
+#if ESP_CFG_PING || __DOXYGEN__
+        struct {
+            const char* host;                   /*!< Hostname to ping */
+            uint32_t* time;                     /*!< Pointer to time variable */
+        } tcpip_ping;                           /*!< Pinging structure */
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
+#if ESP_CFG_SNTP || __DOXYGEN__
         struct {
             uint8_t en;                         /*!< Status if SNTP is enabled or not */
             int8_t tz;                          /*!< Timezone setup */
@@ -339,10 +347,21 @@ typedef struct esp_msg {
         struct {
             esp_datetime_t* dt;                 /*!< Pointer to datetime structure */
         } tcpip_sntp_time;                      /*!< SNTP get time */
+#endif /* ESP_CFG_SNTP || __DOXYGEN__ */
+#if ESP_CFG_WPS || __DOXYGEN__
         struct {
             uint8_t en;                         /*!< Status if WPS is enabled or not */
         } wps_cfg;                              /*!< WPS configuration */
-    } msg;                                      /*!< Group of different possible message contents */
+#endif /* ESP_CFG_WPS || __DOXYGEN__ */
+#if ESP_CFG_MDNS || __DOXYGEN__
+        struct {
+            uint8_t en;                         /*!< Set to 1 to enable or 0 to disable */
+            const char* host;                   /*!< mDNS host name */
+            const char* server;                 /*!< mDNS server */
+            esp_port_t port;                    /*!< mDNS server port */
+        } mdns;                                 /*!< mDNS configuration */
+#endif /* ESP_CFG_MDNS || __DOXYGEN__ */
+    } msg;                                      /*!< Group of different message contents */
 } esp_msg_t;
 
 /**

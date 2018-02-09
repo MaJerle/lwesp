@@ -45,7 +45,7 @@ espi_parse_number(const char** str) {
     int32_t val = 0;
     uint8_t minus = 0;
     const char* p = *str;                       /*  */
-    
+
     if (*p == '"') {                            /* Skip leading quotes */
         p++;
     }
@@ -67,8 +67,22 @@ espi_parse_number(const char** str) {
         p++;
     }
     *str = p;                                   /* Save new pointer with new offset */
-    
+
     return minus ? -val : val;
+}
+
+/**
+ * \brief           Parse port from string
+ * \note            Input string pointer is changed and number is skipped
+ * \param[in]       Pointer to pointer to string to parse
+ * \return          Parsed port number
+ */
+esp_port_t
+espi_parse_port(const char** str) {
+    esp_port_t p;
+
+    p = (esp_port_t)espi_parse_number(str);     /* Parse port */
+    return p;
 }
 
 /**
@@ -236,7 +250,7 @@ espi_parse_ipd(const char* str) {
     conn = espi_parse_number(&str);             /* Parse number for connection number */
     len = espi_parse_number(&str);              /* Parse number for number of bytes to read */
     espi_parse_ip(&str, &esp.ipd.ip);           /* Parse incoming packet IP */
-    esp.ipd.port = espi_parse_number(&str);     /* Get port on IPD data */
+    esp.ipd.port = espi_parse_port(&str);       /* Get port on IPD data */
     
     memcpy(&esp.conns[conn].remote_ip, &esp.ipd.ip, sizeof(esp.ipd.ip));
     memcpy(&esp.conns[conn].remote_port, &esp.ipd.port, sizeof(esp.ipd.port));
