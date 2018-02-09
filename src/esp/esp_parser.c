@@ -339,16 +339,13 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = espi_parse_number(&str);
-    
-    /*
-     * New version of AT (not yet public) has some more data on AT+CWLAP 
-     * and these info are not known yet as there is no docs updated.
-     *
-     * For now just disable the check
-     */
-    if (*str++ != ')') {                        /* We must end with closing bracket */
-        //return 0;
-    }
+#if 0
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].pwc = espi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].gc = espi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = espi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = espi_parse_number(&str);
+#endif /* 0 */
+
     msg->msg.ap_list.apsi++;                    /* Increase number of found elements */
     if (msg->msg.ap_list.apf) {                 /* Set pointer if necessary */
         *msg->msg.ap_list.apf = msg->msg.ap_list.apsi;
