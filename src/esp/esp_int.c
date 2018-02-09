@@ -1228,15 +1228,17 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 break;
             }
             case ESP_CMD_TCPIP_CIPMUX: {
-                n_cmd = ESP_CMD_TCPIP_CIPDINFO; /* Set data info */
+#if ESP_CFG_MODE_STATION
+                n_cmd = ESP_CMD_WIFI_CWLAPOPT;  /* Set visible data for CWLAP command */
                 break;
             }
-            case ESP_CMD_TCPIP_CIPDINFO: {
+            case ESP_CMD_WIFI_CWLAPOPT: {
                 n_cmd = ESP_CMD_TCPIP_CIPSTATUS;/* Get connection status */
                 break;
             }
-#if ESP_CFG_MODE_ACCESS_POINT
             case ESP_CMD_TCPIP_CIPSTATUS: {
+#endif /* ESP_CFG_MODE_STATION */
+#if ESP_CFG_MODE_ACCESS_POINT
                 n_cmd = ESP_CMD_WIFI_CIPAP_GET; /* Get access point IP */
                 break;
             }
@@ -1244,7 +1246,11 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 n_cmd = ESP_CMD_WIFI_CIPAPMAC_GET;  /* Get access point MAC */
                 break;
             }
-#endif /* ESP_CFG_MODE_ACCESS_POINT */
+            case ESP_CMD_WIFI_CIPAPMAC_GET: {
+#endif /* ESP_CFG_MODE_STATION */
+                n_cmd = ESP_CMD_TCPIP_CIPDINFO; /* Set visible data on +IPD */
+                break;
+            }
             default: break;
         }
         if (n_cmd != ESP_CMD_IDLE) {            /* Is there a change of command? */
@@ -1312,6 +1318,10 @@ espi_initiate_cmd(esp_msg_t* msg) {
             send_number(ESP_U32(msg->msg.uart.baudrate), 0);
             ESP_AT_PORT_SEND_STR(",8,1,0,0");
             ESP_AT_PORT_SEND_STR(CRLF);
+            break;
+        }
+        case ESP_CMD_WIFI_CWLAPOPT: {
+            ESP_AT_PORT_SEND_STR("AT+CWLAPOPT=1,2048" CRLF);
             break;
         }
         

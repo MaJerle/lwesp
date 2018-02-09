@@ -271,12 +271,14 @@ typedef struct esp_cb_t {
         struct {
             esp_conn_p conn;                    /*!< Set connection pointer */
         } conn_poll;                            /*!< Polling active connection to check for timeouts. Use with \ref ESP_CB_CONN_POLL event */
-#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
             espr_t status;                      /*!< Status of command */
             esp_ap_t* aps;                      /*!< Pointer to access points */
             size_t len;                         /*!< Number of access points found */
         } sta_list_ap;
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
         struct {
             esp_mac_t* mac;                     /*!< Station MAC address */
         } ap_conn_disconn_sta;                  /*!< A new station connected or disconnected to ESP's access point. Use with \ref ESP_CB_AP_CONNECTED_STA or \ref ESP_CB_AP_DISCONNECTED_STA events */
