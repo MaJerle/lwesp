@@ -339,12 +339,11 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = espi_parse_number(&str);
-#if 0
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].pwc = espi_parse_number(&str);
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].gc = espi_parse_number(&str);
+
+    espi_parse_number(&str);                    /* Parse pwc */
+    espi_parse_number(&str);                    /* Parse gc */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = espi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = espi_parse_number(&str);
-#endif /* 0 */
 
     msg->msg.ap_list.apsi++;                    /* Increase number of found elements */
     if (msg->msg.ap_list.apf) {                 /* Set pointer if necessary */

@@ -188,21 +188,21 @@ esp_sta_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
  * \brief           Check if ESP got IP from access point
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
-espr_t
+uint8_t
 esp_sta_has_ip(void) {
     uint8_t res;
     ESP_CORE_PROTECT();
-    res = esp.status.f.r_got_ip;
+    res = ESP_U8(esp.status.f.r_got_ip);
     ESP_CORE_UNPROTECT();
-    return res ? espOK : espERR;
+    return res;
 }
 
 /**
  * \brief           Check if station is connected to WiFi network
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          1 on success, 0 otherwise
  */
-espr_t
-esp_sta_joined(void) {
+uint8_t
+esp_sta_is_joined(void) {
     return esp_sta_has_ip();
 }
 
@@ -217,7 +217,7 @@ esp_sta_joined(void) {
 espr_t
 esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
     espr_t res = espERR;
-    if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip() == espOK) {    /* Do we have a valid IP address? */
+    if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip()) { /* Do we have a valid IP address? */
         ESP_CORE_PROTECT();                     /* Protect ESP core */
         if (ip != NULL) {
             memcpy(ip, &esp.sta.ip, sizeof(esp.sta.ip));    /* Copy IP address */
@@ -259,6 +259,36 @@ esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint3
     ESP_MSG_VAR_REF(msg).msg.ap_list.apf = apf;
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 30000);   /* Send message to producer queue */
+}
+
+/**
+ * \brief           Check if access point is `802.11b` compatible
+ * \param[in]       ap: Access point detailes acquired by \ref esp_sta_list_ap
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+esp_sta_is_ap_802_11b(esp_ap_t* ap) {
+    return ESP_U8(!!(ap->bgn & 0x01));          /* Bit 0 is for b check */
+}
+
+/**
+ * \brief           Check if access point is `802.11g` compatible
+ * \param[in]       ap: Access point detailes acquired by \ref esp_sta_list_ap
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+esp_sta_is_ap_802_11g(esp_ap_t* ap) {
+    return ESP_U8(!!(ap->bgn & 0x02));          /* Bit 1 is for b check */
+}
+
+/**
+ * \brief           Check if access point is `802.11n` compatible
+ * \param[in]       ap: Access point detailes acquired by \ref esp_sta_list_ap
+ * \return          1 on success, 0 otherwise
+ */
+uint8_t
+esp_sta_is_ap_802_11n(esp_ap_t* ap) {
+    return ESP_U8(!!(ap->bgn & 0x04));          /* Bit 2 is for b check */
 }
 
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */

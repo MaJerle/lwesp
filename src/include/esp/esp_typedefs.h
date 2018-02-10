@@ -124,6 +124,8 @@ typedef struct {
     uint8_t ch;                                 /*!< WiFi channel used on access point */
     int8_t offset;                              /*!< Access point offset */
     uint8_t cal;                                /*!< Calibration value */
+    uint8_t bgn;                                /*!< Information about 802.11[b|g|n] support */
+    uint8_t wps;                                /*!< Status if WPS function is supported */
 } esp_ap_t;
 
 /**
