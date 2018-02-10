@@ -62,7 +62,7 @@ mqtt_client_thread(void const* arg) {
      * and 128 bytes of RAW incoming data
      */
     mqtt_client = mqtt_client_new(256, 128);    /* Create new MQTT client */
-    if (esp_sta_joined() == espOK) {            /* If ESP is already joined to network */
+    if (esp_sta_is_joined()) {                  /* If ESP is already joined to network */
         example_do_connect(mqtt_client);        /* Start connection to MQTT server */
     }
     

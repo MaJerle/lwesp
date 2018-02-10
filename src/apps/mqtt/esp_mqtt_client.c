@@ -1015,7 +1015,7 @@ mqtt_client_connect(mqtt_client_t* client, const char* host, esp_port_t port,
     ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
     
     esp_core_lock();                            /* Lock ESP core */
-    if (esp_sta_joined() == espOK && client->conn_state == MQTT_CONN_DISCONNECTED) {        
+    if (esp_sta_is_joined() && client->conn_state == MQTT_CONN_DISCONNECTED) {        
         client->info = info;                    /* Save client info parameters */
         client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
         
@@ -1091,8 +1091,7 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
     mqtt_request_t* request = NULL;
     espr_t res = espOK;
     
-    len_topic = ESP_U16(strlen(topic));         /* Get length of topic */
-    if (len_topic == 0) {
+    if ((len_topic = ESP_U16(strlen(topic))) == 0) {    /* Get length of topic */
         return espERR;
     }
     
