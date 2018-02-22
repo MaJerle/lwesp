@@ -241,7 +241,7 @@ typedef uint8_t (*http_fs_open_fn)(struct http_fs_file* file, const char* path);
 
 /**
  * \brief           File system read file function
- *                  Function may be called for 2 purposes. One is to read and one to get remaining length of file to read
+ *                  Function may be called for `2` purposes. First is to read data and second to get remaining length of file to read
  * \param[in]       file: File pointer to read content
  * \param[in]       buff: Buffer to read data to. When parameter is set to NULL, number of remaining bytes available to read should be returned
  * \param[in]       btr: Number of bytes to read from file. This parameter has no meaning when buff is NULL
@@ -252,7 +252,7 @@ typedef uint32_t    (*http_fs_read_fn)(struct http_fs_file* file, void* buff, si
 /**
  * \brief           Close file callback function
  * \param[in]       file: File to close
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 typedef uint8_t (*http_fs_close_fn)(struct http_fs_file* file);
 

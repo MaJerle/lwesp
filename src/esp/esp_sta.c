@@ -199,7 +199,7 @@ esp_sta_has_ip(void) {
 
 /**
  * \brief           Check if station is connected to WiFi network
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sta_is_joined(void) {
@@ -264,7 +264,7 @@ esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint3
 /**
  * \brief           Check if access point is `802.11b` compatible
  * \param[in]       ap: Access point detailes acquired by \ref esp_sta_list_ap
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sta_is_ap_802_11b(esp_ap_t* ap) {
@@ -274,7 +274,7 @@ esp_sta_is_ap_802_11b(esp_ap_t* ap) {
 /**
  * \brief           Check if access point is `802.11g` compatible
  * \param[in]       ap: Access point detailes acquired by \ref esp_sta_list_ap
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sta_is_ap_802_11g(esp_ap_t* ap) {
@@ -284,7 +284,7 @@ esp_sta_is_ap_802_11g(esp_ap_t* ap) {
 /**
  * \brief           Check if access point is `802.11n` compatible
  * \param[in]       ap: Access point detailes acquired by \ref esp_sta_list_ap
- * \return          1 on success, 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sta_is_ap_802_11n(esp_ap_t* ap) {

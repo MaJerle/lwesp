@@ -128,7 +128,7 @@ http_fs_static_files[] = {
  * \param[in]       hi: HTTP init structure
  * \param[in]       file: Pointer to file structure
  * \param[in]       path: File path to open
- * \return          1 on success or 0 otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* path) {
