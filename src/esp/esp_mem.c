@@ -367,17 +367,21 @@ mem_realloc(void* ptr, size_t size) {
     size_t oldSize;
     
     if (ptr == NULL) {                              /* If pointer is not valid */
-        return mem_alloc(size);                     /* Only allocate memory */
+        ESP_CORE_PROTECT();
+        newPtr = mem_alloc(size);                   /* Only allocate memory */
+        ESP_CORE_UNPROTECT();
+        return newPtr;
     }
     
+    ESP_CORE_PROTECT();
     oldSize = mem_getusersize(ptr);                 /* Get size of old pointer */
     newPtr = mem_alloc(size);                       /* Try to allocate new memory block */
     if (newPtr != NULL) {                           /* Check success */
         memcpy(newPtr, ptr, size > oldSize ? oldSize : size);   /* Copy old data to new array */
         mem_free(ptr);                              /* Free old pointer */
-        return newPtr;                              /* Return new pointer */
     }
-    return NULL;
+    ESP_CORE_UNPROTECT();
+    return newPtr;
 }
 
 /**
