@@ -1124,12 +1124,13 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                  * of error should be returned for user
                  */
                 switch (msg->msg.sta_join.error_num) {
-                    case 1: return espERRCONNTIMEOUT;
-                    case 2: return espERRPASS;
-                    case 3: return espERRNOAP;
-                    case 4: return espERRCONNFAIL;
-                    default: return espOK;
+                    case 1: esp.cb.cb.sta_join.status = espERRCONNTIMEOUT;  break;
+                    case 2: esp.cb.cb.sta_join.status = espERRPASS;         break;
+                    case 3: esp.cb.cb.sta_join.status = espERRNOAP;         break;
+                    case 4: esp.cb.cb.sta_join.status = espERRCONNFAIL;     break;
+                    default: esp.cb.cb.sta_join.status = espERR;
                 }
+                espi_send_cb(ESP_CB_JOIN_AP);       /* Notify upper layer */
             }
         } else if (msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) {
             if (is_ok) {
@@ -1138,6 +1139,9 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                     return espCONT;             /* Return to continue and not to stop command */
                 }
             }
+        } else {
+            esp.cb.cb.sta_join.status = espOK;  /* Connected ok */
+            espi_send_cb(ESP_CB_JOIN_AP);       /* Notify upper layer */
         }
     }
     if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_SET) {

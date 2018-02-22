@@ -225,6 +225,7 @@ typedef enum esp_cb_type_t {
     ESP_CB_WIFI_DISCONNECTED,                   /*!< Station just disconnected from AP */
   
     ESP_CB_STA_LIST_AP,                         /*!< Station listed APs event */
+    ESP_CB_JOIN_AP,                             /*!< Join to access point */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_CB_AP_CONNECTED_STA,                    /*!< New station just connected to ESP's access point */
@@ -279,6 +280,9 @@ typedef struct esp_cb_t {
             esp_ap_t* aps;                      /*!< Pointer to access points */
             size_t len;                         /*!< Number of access points found */
         } sta_list_ap;
+        struct {
+            espr_t status;                      /*!< Connection status */
+        } sta_join;                             /*!< Join to access point. Use with \ref ESP_CB_JOIN_AP event */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
         struct {
