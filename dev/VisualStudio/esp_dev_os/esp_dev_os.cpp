@@ -87,7 +87,7 @@ main_thread(void* arg) {
 /**
  * \brief           Global ESP event function callback
  * \param[in]       cb: Event information
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
 esp_cb(esp_cb_t* cb) {

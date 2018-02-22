@@ -79,7 +79,7 @@
  *
  * \section         sect_netconn_nonblocking Non-blocking receive
  *
- * \ref esp_netconn_receive data will block thread by default until connect data received or connection was closed by remote side.
+ * \ref esp_netconn_receive data will block thread by default until connection data received or connection was closed by remote side.
  * In order to allow further processing even if there is no data, you can enable non-blocking support for netconn receive.
  *
  * \note            \ref ESP_CFG_NETCONN_RECEIVE_TIMEOUT must be set to 1 to use this feature

@@ -48,7 +48,7 @@ http_init = {
 
 /**
  * \brief           Start HTTP server on port 80
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 http_server_start(void) {
@@ -70,7 +70,7 @@ http_server_start(void) {
  * \param[in]       hs: HTTP state
  * \param[in]       uri: NULL-terminated uri string for POST request
  * \param[in]       content_len: Total content length received by "Content-Length" header
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
 http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len) {
@@ -82,7 +82,7 @@ http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len) {
  * \brief           Callback function indicating post request data received
  * \param[in]       hs: HTTP state
  * \param[in]       pbuf: New chunk of received data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
 http_post_data_cb(http_state_t* hs, esp_pbuf_p pbuf) {
@@ -93,7 +93,7 @@ http_post_data_cb(http_state_t* hs, esp_pbuf_p pbuf) {
 /**
  * \brief           Callback function indicating post request finished
  * \param[in]       hs: HTTP state
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
 http_post_end_cb(http_state_t* hs) {

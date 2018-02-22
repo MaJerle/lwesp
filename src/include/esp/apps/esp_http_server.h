@@ -198,7 +198,7 @@ typedef struct {
  * \param[in]       hs: HTTP state
  * \param[in]       uri: POST request URI
  * \param[in]       content_length: Total content length (Content-Length HTTP parameter) in units of bytes
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 typedef espr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, uint32_t content_length);
 
@@ -207,14 +207,14 @@ typedef espr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, ui
  * \note            This function may be called multiple time until content_length from \ref http_post_start_fn callback is not reached
  * \param[in]       hs: HTTP state
  * \param[in]       pbuf: Packet buffer wit reciveed data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 typedef espr_t  (*http_post_data_fn)(struct http_state* hs, esp_pbuf_p pbuf);
 
 /**
  * \brief           End of POST data request function prototype
  * \param[in]       hs: HTTP state
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 typedef espr_t  (*http_post_end_fn)(struct http_state* hs);
 

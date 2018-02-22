@@ -893,7 +893,7 @@ send_response(http_state_t* hs, uint8_t ft) {
 /**
  * \brief           Server connection callback
  * \param[in]       cb: Pointer to callback data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
 http_evt_cb(esp_cb_t* cb) {
@@ -1189,7 +1189,7 @@ http_evt_cb(esp_cb_t* cb) {
  * \brief           Initialize HTTP server at specific port
  * \param[in]       init: Initialization structure for server
  * \param[in]       port: Port for HTTP server, usually 80
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 esp_http_server_init(const http_init_t* init, esp_port_t port) {

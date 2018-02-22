@@ -198,7 +198,7 @@ typedef struct esp_pbuf_t* esp_pbuf_p;
  * \ingroup         ESP_EVT
  * \brief           Event function prototype
  * \param[in]       cb: Callback event data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 typedef espr_t  (*esp_cb_fn)(struct esp_cb_t* cb);
 
