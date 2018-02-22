@@ -63,6 +63,7 @@
 #define ESP_CFG_SNTP                        1
 #define ESP_CFG_HOSTNAME                    1
 #define ESP_CFG_WPS                         1
+#define ESP_CFG_MDNS                        1
 
 #if defined(WIN32)
 #define ESP_CFG_SYS_PORT					ESP_SYS_PORT_WIN32

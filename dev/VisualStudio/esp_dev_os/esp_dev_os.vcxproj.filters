@@ -143,5 +143,8 @@
     <ClCompile Include="..\..\..\snippets\mqtt_client.c">
       <Filter>Source Files\ESP SNIPPETS</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\esp\esp_mdns.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
