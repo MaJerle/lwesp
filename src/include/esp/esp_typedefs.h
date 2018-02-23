@@ -75,6 +75,7 @@ typedef enum {
     espERRPASS,                                 /*!< Invalid password for access point */
     espERRNOAP,                                 /*!< No access point found with specific SSID and MAC address */
     espERRCONNFAIL,                             /*!< Connection failed to access point */
+    espERRWIFINOTCONNECTED,                     /*!< Wifi not connected to access point */
 } espr_t;
 
 /**

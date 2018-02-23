@@ -82,7 +82,7 @@ flush_mboxes(esp_netconn_t* nc) {
     }
     if (esp_sys_sem_isvalid(&nc->mbox_accept)) {
         while (esp_sys_mbox_getnow(&nc->mbox_accept, (void **)&new_nc)) {
-            if (new_nc != NULL) {
+            if (new_nc != NULL && (uint8_t *)new_nc != (uint8_t *)&recv_closed) {
                 esp_netconn_close(new_nc);      /* Close netconn connection */
             }
         }
@@ -243,6 +243,25 @@ esp_cb(esp_cb_t* cb) {
 }
 
 /**
+ * \brief           Global event callback function
+ * \param[in]       cb: Callback information and data
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+static espr_t
+esp_evt_func(esp_cb_t* cb) {
+    switch (cb->type) {
+        case ESP_CB_WIFI_DISCONNECTED: {
+            if (listen_api != NULL) {           /* Check if listen API active */
+                esp_sys_mbox_putnow(listen_api->mbox_accept, &recv_closed);
+            }
+            break;
+        }
+        default: break;
+    }
+    return espOK;
+}
+
+/**
  * \brief           Create new netconn connection
  * \param[in]       type: Type of netconn. This parameter can be a value of \ref esp_netconn_type_t enumeration
  * \return          New netconn connection
@@ -251,6 +270,7 @@ esp_netconn_p
 esp_netconn_new(esp_netconn_type_t type) {
     esp_netconn_t* a;
     
+    esp_cb_register(esp_evt_func);              /* Register global event function */
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a != NULL) {
         a->type = type;                         /* Save netconn type */
@@ -366,20 +386,24 @@ esp_netconn_listen(esp_netconn_p nc) {
  */
 espr_t
 esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
+    esp_netconn_t* tmp;
+    uint32_t time;
+    
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("new_nc != NULL", new_nc != NULL);   /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
-    
-    esp_netconn_t* tmp;
-    uint32_t time;
-    if (nc != listen_api) {                     /* Currently only one API is allowed in listening state */
-        return espERR;
-    }
+    ESP_ASSERT("nc != listen_api\r\n", nc != listen_api);   /* Assert input parameters */
     
     *new_nc = NULL;
     time = esp_sys_mbox_get(&nc->mbox_accept, (void **)&tmp, 0);
     if (time == ESP_SYS_TIMEOUT) {
         return espERR;
+    }
+    if ((uint8_t *)tmp == (uint8_t *)&recv_closed) {
+        ESP_CORE_PROTECT();
+        listen_api = NULL;                      /* Disable listening at this point */
+        ESP_CORE_UNPROTECT();
+        return espERRWIFINOTCONNECTED;          /* Wifi disconnected */
     }
     *new_nc = tmp;                              /* Set new pointer */
     return espOK;                               /* We have a new connection */

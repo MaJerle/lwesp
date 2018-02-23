@@ -186,7 +186,7 @@ esp_sta_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
 
 /**
  * \brief           Check if ESP got IP from access point
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_sta_has_ip(void) {
