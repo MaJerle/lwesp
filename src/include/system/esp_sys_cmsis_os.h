@@ -119,7 +119,7 @@ typedef osPriority          esp_sys_thread_prio_t;
  * \brief           Stack size of system threads
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-#define ESP_SYS_THREAD_SS           (512)
+#define ESP_SYS_THREAD_SS           (256)
 #endif /* ESP_OS || __DOXYGEN__ */
 
 uint8_t     esp_sys_init(void);
