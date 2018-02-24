@@ -138,8 +138,8 @@ esp_cb(esp_cb_t* cb) {
                      * In case there is no listening connection,
                      * simply close the connection
                      */
-                    if (!esp_sys_mbox_isvalid(listen_api->mbox_accept) ||
-                        !esp_sys_mbox_putnow(listen_api->mbox_accept, nc)) {
+                    if (!esp_sys_mbox_isvalid(&listen_api->mbox_accept) ||
+                        !esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
                         close = 1;
                     }
 #endif /* ESP_CFG_NETCONN_ACCEPT_ON_CONNECT */
@@ -252,7 +252,7 @@ esp_evt_func(esp_cb_t* cb) {
     switch (cb->type) {
         case ESP_CB_WIFI_DISCONNECTED: {
             if (listen_api != NULL) {           /* Check if listen API active */
-                esp_sys_mbox_putnow(listen_api->mbox_accept, &recv_closed);
+                esp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_closed);
             }
             break;
         }
@@ -335,7 +335,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
     
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
-    ESP_ASSERT("port > NULL", port);            /* Assert input parameters */
+    ESP_ASSERT("port > 0", port);               /* Assert input parameters */
     
     /*
      * Start a new connection as client and immediately
@@ -392,7 +392,7 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("new_nc != NULL", new_nc != NULL);   /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
-    ESP_ASSERT("nc != listen_api\r\n", nc != listen_api);   /* Assert input parameters */
+    ESP_ASSERT("nc == listen_api\r\n", nc == listen_api);   /* Assert input parameters */
     
     *new_nc = NULL;
     time = esp_sys_mbox_get(&nc->mbox_accept, (void **)&tmp, 0);
@@ -439,7 +439,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     /*
      * Step 1
      */
-    if (nc->buff != NULL) {                     /* Is there a write buffer ready to be written? */
+    if (nc->buff != NULL) {                     /* Is there a write buffer ready to accept more data? */
         len = ESP_MIN(nc->buff_len - nc->buff_ptr, btw);    /* Get number of bytes we can write to buffer */
         if (len) {
             memcpy(&nc->buff[nc->buff_ptr], data, len); /* Copy memory to temporary write buffer */
@@ -469,7 +469,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
      */
     if (btw >= ESP_CFG_CONN_MAX_DATA_LEN) {
         size_t rem;
-        rem = btw % ESP_CFG_CONN_MAX_DATA_LEN;      /* Get remaining bytes after sending everything */
+        rem = btw % ESP_CFG_CONN_MAX_DATA_LEN;  /* Get remaining bytes for max data length */
         res = esp_conn_send(nc->conn, d, btw - rem, &sent, 1);  /* Write data directly */
         if (res != espOK) {
             return res;
@@ -498,7 +498,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
         memcpy(&nc->buff[nc->buff_ptr], d, btw);    /* Copy data to buffer */
         nc->buff_ptr += btw;
     } else {                                    /* Still no memory available? */
-        return esp_conn_send(nc->conn, data, btw, NULL, 1); /* Simply send the blocking way */
+        return esp_conn_send(nc->conn, data, btw, NULL, 1); /* Simply send directly blocking */
     }
     return espOK;
 }
