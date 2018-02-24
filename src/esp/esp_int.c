@@ -1160,6 +1160,9 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         esp.cb.cb.sta_list_ap.status = is_ok ? espOK : espERR;
         espi_send_cb(ESP_CB_STA_LIST_AP);
     }
+    if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_GET) {
+        espi_send_cb(ESP_CB_WIFI_IP_ACQUIRED);  /* Notify upper layer */
+    }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
     if (msg->cmd_def == ESP_CMD_WIFI_CWMODE &&

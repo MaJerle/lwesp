@@ -224,6 +224,7 @@ typedef enum esp_cb_type_t {
     ESP_CB_WIFI_CONNECTED,                      /*!< Station just connected to AP */
     ESP_CB_WIFI_GOT_IP,                         /*!< Station has valid IP */
     ESP_CB_WIFI_DISCONNECTED,                   /*!< Station just disconnected from AP */
+    ESP_CB_WIFI_IP_ACQUIRED,                    /*!< Station IP address acquired */
   
     ESP_CB_STA_LIST_AP,                         /*!< Station listed APs event */
     ESP_CB_JOIN_AP,                             /*!< Join to access point */
