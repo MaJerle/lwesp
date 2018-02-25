@@ -84,7 +84,7 @@ mqtt_timeout_cb(void* arg) {
     mqtt_client_t* client = arg;
     espr_t res;
     
-    if (mqtt_client_is_connected(client) == espOK) {
+    if (mqtt_client_is_connected(client)) {
         if ((res = mqtt_client_publish(client, "esp8266_mqtt_topic", "TEST DATA", 9, MQTT_QOS_EXACTLY_ONCE, 0, (void *)num)) == espOK) {
             printf("Publishing %d...\r\n", (int)num);
             num++;
