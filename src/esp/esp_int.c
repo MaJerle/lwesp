@@ -1100,6 +1100,69 @@ espi_process(const void* data, size_t data_len) {
 }
 
 /**
+ * \brief           Get next sub command for reset sequence
+ * \param[in]       msg: Pointer to current message
+ * \param[in]       is_ok: Status whether last command result was OK
+ * \param[in]       is_error: Status whether last command result was ERROR
+ * \param[in]       is_ready: Status whether last command result was ready
+ * \return          Next command to execute
+ */
+static esp_cmd_t
+espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready) {
+    esp_cmd_t n_cmd = ESP_CMD_IDLE;
+    switch (msg->cmd) {
+        case ESP_CMD_RESET:
+        case ESP_CMD_RESTORE: {
+            n_cmd = ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0;  /* Set ECHO mode */
+            break;
+        }
+        case ESP_CMD_ATE0:
+        case ESP_CMD_ATE1: {
+            n_cmd = ESP_CMD_GMR;            /* Get AT software version */
+            break;
+        }
+        case ESP_CMD_GMR: {
+            n_cmd = ESP_CMD_WIFI_CWMODE;    /* Set Wifi mode */
+            break;
+        }
+        case ESP_CMD_WIFI_CWMODE: {
+            n_cmd = ESP_CMD_SYSMSG;         /* Set Wifi mode */
+            break;
+        }
+        case ESP_CMD_SYSMSG: {
+            n_cmd = ESP_CMD_TCPIP_CIPMUX;   /* Set multiple connections mode */
+            break;
+        }
+        case ESP_CMD_TCPIP_CIPMUX: {
+#if ESP_CFG_MODE_STATION
+            n_cmd = ESP_CMD_WIFI_CWLAPOPT;  /* Set visible data for CWLAP command */
+            break;
+        }
+        case ESP_CMD_WIFI_CWLAPOPT: {
+            n_cmd = ESP_CMD_TCPIP_CIPSTATUS;/* Get connection status */
+            break;
+        }
+        case ESP_CMD_TCPIP_CIPSTATUS: {
+#endif /* ESP_CFG_MODE_STATION */
+#if ESP_CFG_MODE_ACCESS_POINT
+            n_cmd = ESP_CMD_WIFI_CIPAP_GET; /* Get access point IP */
+            break;
+        }
+        case ESP_CMD_WIFI_CIPAP_GET: {
+            n_cmd = ESP_CMD_WIFI_CIPAPMAC_GET;  /* Get access point MAC */
+            break;
+        }
+        case ESP_CMD_WIFI_CIPAPMAC_GET: {
+#endif /* ESP_CFG_MODE_STATION */
+            n_cmd = ESP_CMD_TCPIP_CIPDINFO; /* Set visible data on +IPD */
+            break;
+        }
+        default: break;
+    }
+    return n_cmd;
+}
+
+/**
  * \brief           Process current command with known execution status and start another if necessary
  * \param[in]       msg: Pointer to current message
  * \param[in]       is_ok: Status whether last command result was OK
@@ -1109,14 +1172,22 @@ espi_process(const void* data, size_t data_len) {
  */
 static espr_t
 espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready) {
+    esp_cmd_t n_cmd = ESP_CMD_IDLE;
+    if (msg->cmd_def == ESP_CMD_RESET) {        /* Device is in reset mode */
+        n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
+    } else if (msg->cmd_def == ESP_CMD_RESTORE) {
+        if ((msg->cmd == ESP_CMD_RESTORE && is_ok) ||
+            msg->cmd != ESP_CMD_RESTORE) {
+            n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
+        }
+        if (n_cmd == ESP_CMD_IDLE) {
+            /* Send RESTORE info to user */
+        }
 #if ESP_CFG_MODE_STATION
-    if (msg->cmd_def == ESP_CMD_WIFI_CWJAP) {   /* Is our intention to join to access point? */
+    } else if (msg->cmd_def == ESP_CMD_WIFI_CWJAP) {   /* Is our intention to join to access point? */
         if (msg->cmd == ESP_CMD_WIFI_CWJAP) {   /* Is the current command join? */
             if (is_ok) {                        /* Did we join successfully? */
-                msg->cmd = ESP_CMD_WIFI_CIPSTA_GET; /* Go to next command to get IP address */
-                if (msg->fn(msg) == espOK) {
-                    return espCONT;             /* Return to continue and not to stop command */
-                }
+                n_cmd = ESP_CMD_WIFI_CIPSTA_GET;/* Go to next command to get IP address */
             } else {
                 /*
                  * Parse received error message,
@@ -1133,62 +1204,41 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 espi_send_cb(ESP_CB_JOIN_AP);       /* Notify upper layer */
             }
         } else if (msg->cmd == ESP_CMD_WIFI_CIPSTA_GET) {
-            if (is_ok) {
-                msg->cmd = ESP_CMD_WIFI_CIPSTAMAC_GET;  /* Go to next command to get MAC address */
-                if (msg->fn(msg) == espOK) {
-                    return espCONT;             /* Return to continue and not to stop command */
-                }
-            }
+            n_cmd = ESP_CMD_WIFI_CIPSTAMAC_GET; /* Go to next command to get MAC address */
         } else {
             esp.cb.cb.sta_join.status = espOK;  /* Connected ok */
             espi_send_cb(ESP_CB_JOIN_AP);       /* Notify upper layer */
         }
-    }
-    if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_SET) {
-        if (msg->i == 0 && msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
-            if (is_ok) {
-                msg->cmd = ESP_CMD_WIFI_CIPSTA_GET;
-                if (msg->fn(msg) == espOK) {
-                    return espCONT;
-                }
-            }
+    } else if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_SET) {
+        if (msg->cmd == ESP_CMD_WIFI_CIPSTA_SET) {
+            n_cmd = ESP_CMD_WIFI_CIPSTA_GET;
         }
-    }
-    if (msg->cmd_def == ESP_CMD_WIFI_CWLAP) {
+    } else if (msg->cmd_def == ESP_CMD_WIFI_CWLAP) {
         esp.cb.cb.sta_list_ap.aps = msg->msg.ap_list.aps;
         esp.cb.cb.sta_list_ap.len = msg->msg.ap_list.apsi;
         esp.cb.cb.sta_list_ap.status = is_ok ? espOK : espERR;
         espi_send_cb(ESP_CB_STA_LIST_AP);
-    }
-    if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_GET) {
+    } else if (msg->cmd_def == ESP_CMD_WIFI_CIPSTA_GET) {
         espi_send_cb(ESP_CB_WIFI_IP_ACQUIRED);  /* Notify upper layer */
-    }
-#endif /* ESP_CFG_MODE_STATION */
+#endif /* ESP_CFG_MODE_STATION */    
 #if ESP_CFG_MODE_ACCESS_POINT
-    if (msg->cmd_def == ESP_CMD_WIFI_CWMODE &&
+    } else if (msg->cmd_def == ESP_CMD_WIFI_CWMODE &&
         (msg->msg.wifi_mode.mode == ESP_MODE_AP
 #if ESP_CFG_MODE_STATION
-    || msg->msg.wifi_mode.mode == ESP_MODE_STA_AP
+        || msg->msg.wifi_mode.mode == ESP_MODE_STA_AP
 #endif /* ESP_CFG_MODE_STATION */
         )) {
         if (msg->cmd == ESP_CMD_WIFI_CWMODE) {
             if (is_ok) {
-                msg->cmd = ESP_CMD_WIFI_CIPAP_GET;  /* Go to next command to get IP address */
-                if (msg->fn(msg) == espOK) {
-                    return espCONT;             /* Return to continue and not to stop command */
-                }
+                n_cmd = ESP_CMD_WIFI_CIPAP_GET;  /* Go to next command to get IP address */
             }
         } else if (msg->cmd == ESP_CMD_WIFI_CIPAP_GET) {
             if (is_ok) {
-                msg->cmd = ESP_CMD_WIFI_CIPAPMAC_GET;   /* Go to next command to get IP address */
-                if (msg->fn(msg) == espOK) {
-                    return espCONT;             /* Return to continue and not to stop command */
-                }
+                n_cmd = ESP_CMD_WIFI_CIPAPMAC_GET;   /* Go to next command to get IP address */
             }
         }
-    }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
-    if (msg->cmd_def == ESP_CMD_TCPIP_CIPSTART) {   /* Is our intention to join to access point? */
+    } else if (msg->cmd_def == ESP_CMD_TCPIP_CIPSTART) {    /* Is our intention to join to access point? */
         if (msg->i == 0 && msg->cmd == ESP_CMD_TCPIP_CIPSTATUS) {   /* Was the current command status info? */
             if (is_ok) {
                 espr_t res;
@@ -1201,71 +1251,9 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 }
             }
         } else if (msg->i == 1 && msg->cmd == ESP_CMD_TCPIP_CIPSTART) {
-            msg->cmd = ESP_CMD_TCPIP_CIPSTATUS; /* Go to status mode */
-            if (is_ok) {
-                if (msg->fn(msg) == espOK) {  /* Get connection status */
-                    return espCONT;
-                }
-            }
+            n_cmd = ESP_CMD_TCPIP_CIPSTATUS;    /* Go to status mode */
         } else if (msg->i == 2 && msg->cmd == ESP_CMD_TCPIP_CIPSTATUS) {
             
-        }
-    }
-    if (msg->cmd_def == ESP_CMD_RESET) {        /* Device is in reset mode */
-        esp_cmd_t n_cmd = ESP_CMD_IDLE;
-        switch (msg->cmd) {
-            case ESP_CMD_RESET: {
-                n_cmd = ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0;  /* Set ECHO mode */
-                break;
-            }
-            case ESP_CMD_ATE0:
-            case ESP_CMD_ATE1: {
-                n_cmd = ESP_CMD_GMR;            /* Get AT software version */
-                break;
-            }
-            case ESP_CMD_GMR: {
-                n_cmd = ESP_CMD_WIFI_CWMODE;    /* Set Wifi mode */
-                break;
-            }
-            case ESP_CMD_WIFI_CWMODE: {
-                n_cmd = ESP_CMD_SYSMSG;         /* Set Wifi mode */
-                break;
-            }
-            case ESP_CMD_SYSMSG: {
-                n_cmd = ESP_CMD_TCPIP_CIPMUX;   /* Set multiple connections mode */
-                break;
-            }
-            case ESP_CMD_TCPIP_CIPMUX: {
-#if ESP_CFG_MODE_STATION
-                n_cmd = ESP_CMD_WIFI_CWLAPOPT;  /* Set visible data for CWLAP command */
-                break;
-            }
-            case ESP_CMD_WIFI_CWLAPOPT: {
-                n_cmd = ESP_CMD_TCPIP_CIPSTATUS;/* Get connection status */
-                break;
-            }
-            case ESP_CMD_TCPIP_CIPSTATUS: {
-#endif /* ESP_CFG_MODE_STATION */
-#if ESP_CFG_MODE_ACCESS_POINT
-                n_cmd = ESP_CMD_WIFI_CIPAP_GET; /* Get access point IP */
-                break;
-            }
-            case ESP_CMD_WIFI_CIPAP_GET: {
-                n_cmd = ESP_CMD_WIFI_CIPAPMAC_GET;  /* Get access point MAC */
-                break;
-            }
-            case ESP_CMD_WIFI_CIPAPMAC_GET: {
-#endif /* ESP_CFG_MODE_STATION */
-                n_cmd = ESP_CMD_TCPIP_CIPDINFO; /* Set visible data on +IPD */
-                break;
-            }
-            default: break;
-        }
-        if (n_cmd != ESP_CMD_IDLE) {            /* Is there a change of command? */
-            msg->cmd = n_cmd;
-            if (msg->fn(msg) == espOK) {        /* Try to start with new connection */
-                return espCONT;
-            }
         }
     }
     
@@ -1275,18 +1263,21 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
     if (msg->cmd_def == ESP_CMD_TCPIP_CIPSERVER && msg->msg.tcpip_server.port) {
         if (msg->cmd == ESP_CMD_TCPIP_CIPSERVERMAXCONN) {
             /* Since not all AT versions support CIPSERVERMAXCONN command, ignore result */
-            msg->cmd = ESP_CMD_TCPIP_CIPSERVER;
-            if (msg->fn(msg) == espOK) {        /* Try to start with new connection */
-                return espCONT;
-            }
+            n_cmd = ESP_CMD_TCPIP_CIPSERVER;
         } else if (msg->cmd == ESP_CMD_TCPIP_CIPSERVER) {
             if (is_ok) {
                 esp.cb_server = msg->msg.tcpip_server.cb;   /* Set server callback function */
-//                msg->cmd = ESP_CMD_TCPIP_CIPSTO;
-//                if (msg->fn(msg) == espOK) {  /* Try to start with new connection */
-//                    return espCONT;
-//                }
             }
+        }
+    }
+    
+    /*
+     * Check and start a new command
+     */
+    if (n_cmd != ESP_CMD_IDLE) {                /* Is there a change of command? */
+        msg->cmd = n_cmd;
+        if (msg->fn(msg) == espOK) {            /* Try to start with new connection */
+            return espCONT;
         }
     }
     return is_ok || is_ready ? espOK : espERR;
@@ -1304,6 +1295,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_RESET: {                   /* Reset MCU with AT commands */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+RST");
+            ESP_AT_PORT_SEND_END();             /* End AT command string */
+            break;
+        }
+        case ESP_CMD_RESTORE: {                 /* Reset MCU with AT commands */
+            ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
+            ESP_AT_PORT_SEND_STR("+RESTORE");
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
@@ -1391,7 +1388,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             esp_mode_t m;
             char c;
             
-            if (msg->cmd_def == ESP_CMD_RESET) {/* Is this command part of reset sequence? */
+            if (msg->cmd_def != ESP_CMD_WIFI_CWMODE) {  /* Is this command part of reset sequence? */
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
                 m = ESP_MODE_STA_AP;            /* Set station and access point mode */
 #elif ESP_CFG_MODE_STATION
@@ -1695,7 +1692,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_CIPMUX: {            /* Set multiple connections */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+CIPMUX=");
-            if (msg->cmd_def == ESP_CMD_RESET || msg->msg.tcpip_mux.mux) {  /* If reset command is active, enable CIPMUX */
+            if (msg->cmd_def != ESP_CMD_TCPIP_CIPMUX || msg->msg.tcpip_mux.mux) {  /* If reset command is active, enable CIPMUX */
                 ESP_AT_PORT_SEND_STR("1");
             } else {
                 ESP_AT_PORT_SEND_STR("0");
