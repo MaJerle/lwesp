@@ -280,7 +280,6 @@ esp_cb_register(esp_cb_fn cb_fn) {
             } else {
                 for (func = esp.cb_func; func->next != NULL; func = func->next) {}
                 func->next = newFunc;           /* Set new function as next */
-                res = espOK;
             }
             res = espOK;
         } else {
