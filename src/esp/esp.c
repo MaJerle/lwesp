@@ -111,6 +111,21 @@ esp_reset(uint32_t blocking) {
 }
 
 /**
+ * \brief           Execute restore command and set module to default values
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_restore(uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESTORE;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);    /* Send message to producer queue */
+}
+
+/**
  * \brief           Sets WiFi mode to either station only, access point only or both
  * \param[in]       mode: Mode of operation. This parameter can be a value of \ref esp_mode_t enumeration
  * \param[in]       blocking: Status whether command should be blocking or not
@@ -208,7 +223,11 @@ esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking) {
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
 /**
- * \brief           Lock and protect ESP core from multiple access at a time
+ * \brief           Increase protection counter
+ *
+ *                  If lock was `0` before func call, lock is enabled and increased
+ * \note            Function may be called multiple times to increase locks. 
+ *                  User must take care of calling \ref esp_core_unlock function the same times to decrease lock
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
@@ -218,7 +237,9 @@ esp_core_lock(void) {
 }
 
 /**
- * \brief           Unlock and unprotect ESP core from multiple access at a time
+ * \brief           Decrease protection counter
+ *
+ *                  If lock was non-zero before func call, it is decreased. In case of `lock = 0`, protection is disabled
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t

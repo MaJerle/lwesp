@@ -464,7 +464,7 @@ espi_parse_received(esp_recv_t* rcv) {
      * either forced by us or problem on device itself
      */
     if (is_ready) {
-        if (IS_CURR_CMD(ESP_CMD_RESET)) {       /* Did we force reset? */
+        if (IS_CURR_CMD(ESP_CMD_RESET) || IS_CURR_CMD(ESP_CMD_RESTORE)) {   /* Did we force reset? */
             esp.cb.cb.reset.forced = 1;
         } else {                                /* Reset due unknown error */
             esp.cb.cb.reset.forced = 0;
@@ -611,6 +611,9 @@ espi_parse_received(esp_recv_t* rcv) {
         if (!strncmp(&rcv->data[5], "CONNECTED", 9)) {
             esp.status.f.r_w_conn = 1;          /* Wifi is connected */
             espi_send_cb(ESP_CB_WIFI_CONNECTED);/* Call user callback function */
+            if (!IS_CURR_CMD(ESP_CMD_WIFI_CWJAP)) { /* In case of auto connection */
+                esp_sta_getip(NULL, NULL, NULL, 0, 0);  /* Get new IP address */
+            }
         } else if (!strncmp(&rcv->data[5], "DISCONNECT", 10)) {
             esp.status.f.r_w_conn = 0;          /* Wifi is disconnected */
             esp.status.f.r_got_ip = 0;          /* There is no valid IP */
@@ -635,7 +638,7 @@ espi_parse_received(esp_recv_t* rcv) {
      * Start processing received data
      */
     if (esp.msg != NULL) {                      /* Do we have valid message? */
-        if (IS_CURR_CMD(ESP_CMD_RESET) && is_ok) {  /* Check for reset command */
+        if ((IS_CURR_CMD(ESP_CMD_RESET) || IS_CURR_CMD(ESP_CMD_RESTORE)) && is_ok) {    /* Check for reset/restore command */
             is_ok = 0;                          /* We must wait for "ready", not only "OK" */
         } else if (IS_CURR_CMD(ESP_CMD_TCPIP_CIPSTATUS)) {
             if (!strncmp(rcv->data, "+CIPSTATUS", 10)) {
@@ -1100,7 +1103,7 @@ espi_process(const void* data, size_t data_len) {
 }
 
 /**
- * \brief           Get next sub command for reset sequence
+ * \brief           Get next sub command for reset or restore sequence
  * \param[in]       msg: Pointer to current message
  * \param[in]       is_ok: Status whether last command result was OK
  * \param[in]       is_error: Status whether last command result was ERROR
@@ -1176,12 +1179,12 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
     if (msg->cmd_def == ESP_CMD_RESET) {        /* Device is in reset mode */
         n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
     } else if (msg->cmd_def == ESP_CMD_RESTORE) {
-        if ((msg->cmd == ESP_CMD_RESTORE && is_ok) ||
+        if ((msg->cmd == ESP_CMD_RESTORE && is_ready) ||
             msg->cmd != ESP_CMD_RESTORE) {
             n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
         }
         if (n_cmd == ESP_CMD_IDLE) {
-            /* Send RESTORE info to user */
+            espi_send_cb(ESP_CB_RESTORE_FINISH);
         }
 #if ESP_CFG_MODE_STATION
     } else if (msg->cmd_def == ESP_CMD_WIFI_CWJAP) {   /* Is our intention to join to access point? */

@@ -48,6 +48,7 @@ extern "C" {
 
 espr_t      esp_init(esp_cb_fn cb_func);
 espr_t      esp_reset(uint32_t blocking);
+espr_t      esp_restore(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
 

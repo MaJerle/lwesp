@@ -211,6 +211,7 @@ typedef enum esp_cb_type_t {
     ESP_CB_RESET,                               /*!< Device reset detected */
     
     ESP_CB_INIT_FINISH,                         /*!< Initialization has been finished at this point */
+    ESP_CB_RESTORE_FINISH,                      /*!< Device restore operation finished */
     
     ESP_CB_CONN_DATA_RECV,                      /*!< Connection data received */
     ESP_CB_CONN_DATA_SENT,                      /*!< Data were successfully sent */
