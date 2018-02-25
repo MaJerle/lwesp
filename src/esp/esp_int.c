@@ -1134,14 +1134,18 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t 
             break;
         }
         case ESP_CMD_WIFI_CWMODE: {
-            n_cmd = ESP_CMD_SYSMSG;         /* Set Wifi mode */
-            break;
-        }
-        case ESP_CMD_SYSMSG: {
-            n_cmd = ESP_CMD_SYSMSG_CUR;     /* Set multiple connections mode */
+            n_cmd = ESP_CMD_SYSMSG_CUR;     /* Set system messages */
             break;
         }
         case ESP_CMD_SYSMSG_CUR: {
+            if (!is_ok) {
+                n_cmd = ESP_CMD_SYSMSG;     /* Set system messages without "_CUR" data */
+            } else {
+                n_cmd = ESP_CMD_TCPIP_CIPMUX;   /* Set multiple connections mode */
+            }
+            break;
+        }
+        case ESP_CMD_SYSMSG: {
             n_cmd = ESP_CMD_TCPIP_CIPMUX;   /* Set multiple connections mode */
             break;
         }
