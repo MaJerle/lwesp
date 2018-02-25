@@ -234,7 +234,7 @@ send_signed_number(int32_t num, uint8_t q, uint8_t c) {
 /**
  * \brief           Reset all connections
  * \note            Used to notify upper layer stack to close everything and reset the memory if necessary
- * \param[in]       forced: Flag indicating reset was forced by user
+ * \param[in]       forced: Flag indicating reset was forced by command
  */
 static void
 reset_connections(uint8_t forced) {
@@ -274,6 +274,11 @@ reset_everything(uint8_t forced) {
     reset_connections(forced);
     
     esp.status.f.r_got_ip = 0;
+#if ESP_CFG_MODE_STATION
+    if (esp.status.f.r_w_conn) {
+        espi_send_cb(ESP_CB_WIFI_DISCONNECTED);
+    }
+#endif /* ESP_CB_WIFI_DISCONNECTED */
     esp.status.f.r_w_conn = 0;
 
     if (!forced) {
@@ -460,8 +465,8 @@ espi_parse_received(esp_recv_t* rcv) {
     }
     
     /*
-     * In case ready is received, there was a reset on device,
-     * either forced by us or problem on device itself
+     * In case ready was received, there was a reset on device,
+     * either forced by command or problem on device itself
      */
     if (is_ready) {
         if (IS_CURR_CMD(ESP_CMD_RESET) || IS_CURR_CMD(ESP_CMD_RESTORE)) {   /* Did we force reset? */
