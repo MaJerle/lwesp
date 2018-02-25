@@ -1332,7 +1332,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_SYSMSG: {                  /* Set system messages */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
-            ESP_AT_PORT_SEND_STR("+SYSMSG_CUR=3");
+            ESP_AT_PORT_SEND_STR("+SYSMSG=3");
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
