@@ -1148,14 +1148,14 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
  * \brief           Test if client is connected to server and accepted to MQTT protocol
  * \note            Function will return error if TCP is connected but MQTT not accepted
  * \param[in]       client: MQTT client
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          `1` on success, `0` otherwise
  */
-espr_t
+uint8_t
 mqtt_client_is_connected(mqtt_client_t* client) {
-    espr_t res;
+    uint8_t res;
     
     esp_core_lock();                            /* Lock ESP core */
-    res = client->conn_state == MQTT_CONNECTED ? espOK : espERR;
+    res = ESP_U8(client->conn_state == MQTT_CONNECTED);
     esp_core_unlock();                          /* Unlock ESP core */
     
     return res;
