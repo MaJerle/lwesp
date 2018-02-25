@@ -1138,6 +1138,10 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t 
             break;
         }
         case ESP_CMD_SYSMSG: {
+            n_cmd = ESP_CMD_SYSMSG_CUR;     /* Set multiple connections mode */
+            break;
+        }
+        case ESP_CMD_SYSMSG_CUR: {
             n_cmd = ESP_CMD_TCPIP_CIPMUX;   /* Set multiple connections mode */
             break;
         }
@@ -1333,6 +1337,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_SYSMSG: {                  /* Set system messages */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+SYSMSG=3");
+            ESP_AT_PORT_SEND_END();             /* End AT command string */
+            break;
+        }
+        case ESP_CMD_SYSMSG_CUR: {              /* Set system messages */
+            ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
+            ESP_AT_PORT_SEND_STR("+SYSMSG_CUR=3");
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
