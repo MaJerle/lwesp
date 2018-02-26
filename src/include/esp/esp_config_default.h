@@ -43,7 +43,7 @@
 /**
  * \brief           Enables (1) or disables (0) operating system support for ESP library
  *
- * \note            Value must be set to 1 in the current revision
+ * \note            Value must be set to `1` in the current revision
  *
  * \note            Check \ref ESP_CONF_OS group for more configuration related to operating system
  *
@@ -66,14 +66,14 @@
 /**
  * \brief           Memory alignment for dynamic memory allocations
  *
- * \note            Some CPUs can work faster if memory is aligned, usually to 4 or 8 bytes.
+ * \note            Some CPUs can work faster if memory is aligned, usually to `4` or `8` bytes.
  *                  To speed up this possibilities, you can set memory alignment and library
  *                  will try to allocate memory on aligned boundaries.
  *
  * \note            Some CPUs such ARM Cortex-M0 dont't support unaligned memory access.
  *                  This CPUs must have set correct memory alignment value. 
  *
- * \note            This value must be power of 2
+ * \note            This value must be power of `2`
  */
 #ifndef ESP_CFG_MEM_ALIGNMENT
 #define ESP_CFG_MEM_ALIGNMENT               4
@@ -89,7 +89,7 @@
 
 /**
  * \brief           Maximal number of bytes we can send at single command to ESP
- * \note            Value can not exceed 2048 bytes or no data will be ever send
+ * \note            Value can not exceed `2048` bytes or no data will be ever send
  *
  * \note            This is limitation of ESP AT commands and on systems where RAM
  *                  is not an issue, it should be set to maximal value (2048)
@@ -102,8 +102,8 @@
 /**
  * \brief           Set number of retries for send data command.
  *
- *                  Sometimes it can happen that AT+SEND command fails due to different problems.
- *                  Trying to send the same data multiple times can raise chances we are successful.
+ *                  Sometimes it can happen that `AT+SEND` command fails due to different problems.
+ *                  Trying to send the same data multiple times can raise chances for success.
  */
 #ifndef ESP_CFG_MAX_SEND_RETRIES
 #define ESP_CFG_MAX_SEND_RETRIES            3
@@ -121,7 +121,7 @@
 /**
  * \brief           Default baudrate used for AT port
  *
- * \note            Later, user may call API function to change to desired baudrate if necessary
+ * \note            User may call API function to change to desired baudrate if necessary
  */
 #ifndef ESP_CFG_AT_PORT_BAUDRATE
 #define ESP_CFG_AT_PORT_BAUDRATE            115200

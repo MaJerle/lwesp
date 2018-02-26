@@ -236,7 +236,6 @@ esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void
 
 /**
  * \brief           Send data on already active connection either as client or server
- * \todo            In case there is buffer enabled, check if we can put some data to ready buffer and then flush
  * \param[in]       conn: Connection handle to send data
  * \param[in]       data: Data to send
  * \param[in]       btw: Number of bytes to send
@@ -255,7 +254,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
     ESP_ASSERT("btw > 0", btw > 0);             /* Assert input parameters */
 
     ESP_CORE_PROTECT();                         /* Protect ESP core */
-    if (conn->buff != NULL) {
+    if (conn->buff != NULL) {                   /* Check if memory available */
         size_t to_copy;
         to_copy = ESP_MIN(btw, conn->buff_len - conn->buff_ptr);
         if (to_copy) {
@@ -412,7 +411,7 @@ int8_t
 esp_conn_getnum(esp_conn_p conn) {
     int8_t res = -1;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        /* Protection not needed as every connection has always the same number */
+        /* Protection not needed as every connection always has the same number */
         res = conn->num;                        /* Get number */
     }
     return res;
@@ -420,7 +419,7 @@ esp_conn_getnum(esp_conn_p conn) {
 
 /**
  * \brief           Set internal buffer size for SSL connection on ESP device
- * \note            Use this function first before you initialize first SSL connection
+ * \note            Use this function before you start first SSL connection
  * \param[in]       size: Size of buffer in units of bytes. Valid range is between 2048 and 4096 bytes
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
