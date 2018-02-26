@@ -100,6 +100,13 @@ typedef struct {
 } esp_ip_t;
 
 /**
+ * \brief           Set IP address to \ref esp_ip_t variable
+ * \param[in]       ip: Pointer to IP structure
+ * \param[in]       ip1,ip2,ip3,ip4: IPv4 parts
+ */
+#define ESP_SET_IP(ip_str, ip1, ip2, ip3, ip4)      do { (ip_str)->ip[0] = (ip1); (ip_str)->ip[1] = (ip2); (ip_str)->ip[2] = (ip3); (ip_str)->ip[3] = (ip4); } while (0)
+
+/**
  * \ingroup         ESP_TYPEDEFS
  * \brief           Port variable
  */
