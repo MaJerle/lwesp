@@ -129,7 +129,7 @@
  * If received data are not related to command (such as received network data `+IPD`),
  * they are also processed and callback function is immediatelly called to notify user about received data.
  *
- * Here is a list of some events, which may be read from ESP device without triggering any command:
+ * Here is a list of some URC (Unsolicited Result Code) messages:
  *  
  *  - Received network data `+IPD`
  *  - Connection just active `+LINK_CONN`
@@ -160,7 +160,7 @@
  * In non-blocking mode, command is created, sent to producing message queue and function returns without waiting for response from device.
  * This mode does not allow linear programming style, because after non-blocking command, callback function is called.
  *
- * \note            As of now, fully implemented callbacks are done for \ref ESP_CONN API only
+ * \note            As of now, fully implemented callbacks are implemented for \ref ESP_CONN section onlyl
  *                  because these are used the most and therefore most focus was applied to this section.
  *
  * \note            When user wants to send command from callback function,

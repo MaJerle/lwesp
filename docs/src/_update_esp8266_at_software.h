@@ -74,9 +74,9 @@ RST           VCC          VCC          Connected to VCC using 10k pull-up resis
 EN (CH_PD)    VCC          VCC          Connected to VCC to enable ESP8266 operation
 \endverbatim
  *
- * \warning         GPIO pin levels should not be greater than 3.6V or you will blow ESP!
+ * \warning         GPIO pin levels should not be greater than 3.6V or you may damage device
  * 
- * \note            <b>Wiring for updating is the same as in normal operation, except GPIO0 must be tied LOW instead of HIGH</b>
+ * \note            <b>Wiring for updating is the same as in normal operation, except `GPIO0` must be tied to `LOW`</b>
  *
  * \par             Boot modes
  *
