@@ -444,7 +444,7 @@ typedef struct {
     } status;                                   /*!< Status structure */
     
     uint8_t conn_val_id;                        /*!< Validation ID increased each time device connects to wifi network or on reset.
-                                                    it is used for connections */
+                                                    It is used for connections */
 } esp_t;
 
 /**

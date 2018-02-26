@@ -146,7 +146,7 @@ espi_conn_init(void) {
 }
 
 /**
- * \brief           Starts a new connection of specific type
+ * \brief           Start a new connection of specific type
  * \param[out]      conn: Pointer to connection handle to set new connection reference in case of successful connection
  * \param[in]       type: Connection type. This parameter can be a value of \ref esp_conn_type_t enumeration
  * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
@@ -215,7 +215,7 @@ esp_conn_close(esp_conn_p conn, uint32_t blocking) {
 }
 
 /**
- * \brief           Send data on already active connection of type UDP to specific remote IP and port
+ * \brief           Send data on active connection of type UDP to specific remote IP and port
  * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP too)
  * \param[in]       conn: Connection handle to send data
  * \param[in]       ip: Remote IP address for UDP connection
