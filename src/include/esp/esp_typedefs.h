@@ -100,6 +100,7 @@ typedef struct {
 } esp_ip_t;
 
 /**
+ * \ingroup         ESP_UTILITIES
  * \brief           Set IP address to \ref esp_ip_t variable
  * \param[in]       ip: Pointer to IP structure
  * \param[in]       ip1,ip2,ip3,ip4: IPv4 parts
