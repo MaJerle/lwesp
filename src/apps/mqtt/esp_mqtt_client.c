@@ -1019,6 +1019,9 @@ mqtt_client_connect(mqtt_client_t* client, const char* host, esp_port_t port,
         client->info = info;                    /* Save client info parameters */
         client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
         
+        /*
+         * Start a new connection in non-blocking mode
+         */
         res = esp_conn_start(&client->conn, ESP_CONN_TYPE_TCP, host, port, client, mqtt_conn_cb, 0);
         if (res == espOK) {
             client->conn_state = MQTT_CONN_CONNECTING;
@@ -1134,10 +1137,11 @@ mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payloa
             
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos, (int)pkt_id);
         } else {
-            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT no memory to publish message\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT no free request available\r\n");
             res = espERRMEM;
         }
     } else {
+        ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT no enough memory to publish message\r\n");
         res = espERRMEM;
     }
     esp_core_unlock();                          /* Unlock ESP core */
