@@ -99,3 +99,14 @@ esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
     initialized = 1;
     return espOK;
 }
+
+/**
+ * \brief           Callback function to de-init low-level communication part
+ * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_ll_deinit(esp_ll_t* ll) {
+    initialized = 0;                            /* Clear initialized flag */
+    return espOK;
+}

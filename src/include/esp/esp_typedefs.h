@@ -327,6 +327,9 @@ typedef uint16_t (*esp_ll_send_fn)(const void* data, uint16_t len);
  */
 typedef struct {
     esp_ll_send_fn send_fn;                     /*!< Callback function to transmit data */
+    struct {
+        uint32_t baudrate;                      /*!< UART baudrate value */
+    } uart;
 } esp_ll_t;
 
 /**

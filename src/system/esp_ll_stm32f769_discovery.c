@@ -380,7 +380,7 @@ send_data(const void* data, uint16_t len) {
  * \return          Member of \ref espr_t enumeration
  */
 espr_t
-esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
+esp_ll_init(esp_ll_t* ll) {
     static uint8_t memory[0x10000];
     esp_mem_region_t mem_regions[] = {
         { memory, sizeof(memory) }
@@ -392,8 +392,30 @@ esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
         esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
     }
 
-    configure_uart(baudrate);                   /* Initialize UART for communication */
+    configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
     initialized = 1;
     return espOK;
 }
+
+/**
+ * \brief           Callback function to de-init low-level communication part
+ * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_ll_deinit(esp_ll_t* ll) {
+#if PROCESS_ON_EVENT
+    if (usart_ll_mbox_id != NULL) {
+        osMessageDelete(usart_ll_mbox_id);      /* Send IDLE event to queue */
+        usart_ll_mbox_id = NULL;
+    }
+#endif /* PROCESS_ON_EVENT */
+    if (usart_ll_thread_id != NULL) {
+        osThreadTerminate(usart_ll_thread_id);  /* Terminate thread */
+        usart_ll_thread_id = NULL;
+    }
+    initialized = 0;                            /* Clear initialized flag */
+    return espOK;
+}
+
 #endif /* !__DOXYGEN__ */

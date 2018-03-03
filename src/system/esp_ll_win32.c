@@ -72,7 +72,7 @@ configure_uart(uint32_t baudrate) {
      * as generic read and write
      */
 	if (!initialized) {
-		comPort = CreateFile(L"\\\\.\\COM13",
+		comPort = CreateFile(L"\\\\.\\COM6",
 			GENERIC_READ | GENERIC_WRITE,
 			0,
 			0,
@@ -176,11 +176,10 @@ uart_thread(void* param) {
  *                  When \ref ESP_CFG_INPUT_USE_PROCESS is set to 1, this function may be called from user UART thread.
  *
  * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
- * \param[in]       baudrate: Baudrate to use on AT port
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
+esp_ll_init(esp_ll_t* ll) {
     /*
      * Step 1: Configure memory for dynamic allocations
      */
@@ -208,7 +207,22 @@ esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
     /*
      * Step 3: Configure AT port to be able to send/receive data to/from ESP device
      */
-    configure_uart(baudrate);                   /* Initialize UART for communication */
+    configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
     initialized = 1;
+    return espOK;
+}
+
+/**
+ * \brief           Callback function to de-init low-level communication part
+ * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_ll_deinit(esp_ll_t* ll) {
+    if (thread_handle != NULL) {
+        CloseHandle(thread_handle);             /* Close handle */
+        thread_handle = NULL;
+    }
+    initialized = 0;                            /* Clear initialized flag */
     return espOK;
 }

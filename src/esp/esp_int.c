@@ -698,7 +698,8 @@ espi_parse_received(esp_recv_t* rcv) {
             }
         } else if (IS_CURR_CMD(ESP_CMD_UART)) { /* In case of UART command */
             if (is_ok) {                        /* We have valid OK result */
-                esp_ll_init(&esp.ll, esp.msg->msg.uart.baudrate);   /* Set new baudrate */
+                esp.ll.uart.baudrate = esp.msg->msg.uart.baudrate;  /* Save user baudrate */
+                esp_ll_init(&esp.ll);           /* Set new baudrate */
             }
 #if ESP_CFG_MODE_ACCESS_POINT
         } else if (IS_CURR_CMD(ESP_CMD_WIFI_CWLIF) && ESP_CHARISNUM(rcv->data[0])) {
@@ -765,6 +766,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
                 esp.cb.cb.conn_active_closed.forced = conn->status.f.client;    /* Set if action was forced = if client mode */
                 espi_send_conn_cb(conn, NULL);  /* Send event */
+                espi_conn_start_timeout();      /* Start connection timeout timer */
             }
         }
     /*

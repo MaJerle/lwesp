@@ -70,7 +70,8 @@ esp_init(esp_cb_fn cb_func) {
     esp.cb_server = NULL;                       /* Set default server callback function */
     
     esp_sys_init();                             /* Init low-level system */
-    esp_ll_init(&esp.ll, ESP_CFG_AT_PORT_BAUDRATE); /* Init low-level communication */
+    esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;    /* Set default baudrate value */
+    esp_ll_init(&esp.ll);                       /* Init low-level communication */
     
     esp_sys_sem_create(&esp.sem_sync, 1);       /* Create new semaphore with unlocked state */
     esp_sys_mbox_create(&esp.mbox_producer, ESP_CFG_THREAD_PRODUCER_MBOX_SIZE); /* Producer message queue */
