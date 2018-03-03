@@ -109,7 +109,7 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
          * or even if connection failed for some reason
          */
         case MQTT_EVT_CONNECT: {                /* MQTT connect event occurred */
-            mqtt_conn_status_t status = evt->evt.connect.status;
+            mqtt_conn_status_t status = mqtt_client_evt_connect_get_status(client, evt);
             
             if (status == MQTT_CONN_STATUS_ACCEPTED) {
                 printf("MQTT accepted!\r\n");
@@ -141,8 +141,8 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
          * Here it is time to check if it was successful or failed attempt
          */
         case MQTT_EVT_SUBSCRIBE: {
-            const char* arg = evt->evt.sub_unsub_scribed.arg;   /* Get user argument */
-            espr_t res = evt->evt.sub_unsub_scribed.res;/* Get result of subscribe event */
+            const char* arg = mqtt_client_evt_subscribe_get_argument(client, evt);  /* Get user argument */
+            espr_t res = mqtt_client_evt_subscribe_get_result(client, evt); /* Get result of subscribe event */
             
             if (res == espOK) {
                 printf("Successfully subscribed to %s topic\r\n", arg);
@@ -164,7 +164,7 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
          * Message published event occurred
          */
         case MQTT_EVT_PUBLISHED: {              /* MQTT publish was successful */
-            uint32_t val = (uint32_t)evt->evt.published.arg;    /* Get user argument, which is in fact our custom number */
+            uint32_t val = (uint32_t)mqtt_client_evt_published_get_argument(client, evt);   /* Get user argument, which is in fact our custom number */
             
             printf("Publish was successful, user argument on message was: %d\r\n", (int)val);
             break;
@@ -175,10 +175,10 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
          * and now it is time to read the data
          */
         case MQTT_EVT_PUBLISH_RECV: {
-            const char* topic = (const char *)evt->evt.publish_recv.topic;
-            size_t topic_len = evt->evt.publish_recv.topic_len;
-            const uint8_t* payload = evt->evt.publish_recv.payload;
-            size_t payload_len = evt->evt.publish_recv.payload_len;
+            const char* topic = mqtt_client_evt_publish_recv_get_topic(client, evt);
+            size_t topic_len = mqtt_client_evt_publish_recv_get_topic_len(client, evt);
+            const uint8_t* payload = mqtt_client_evt_publish_recv_get_payload(client, evt);
+            size_t payload_len = mqtt_client_evt_publish_recv_get_payload_len(client, evt);
             
             ESP_UNUSED(payload);
             ESP_UNUSED(payload_len);
