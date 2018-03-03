@@ -36,6 +36,36 @@
 #include "esp/esp_timeout.h"
 
 /**
+ * \brief           Timeout callback for connection
+ * \param[in]       arg: Timeout callback custom argument
+ */
+static void
+conn_timeout_cb(void* arg) {
+    uint16_t i;
+    uint8_t add = 0;
+
+    esp.cb.type = ESP_CB_CONN_POLL;             /* Set polling callback type */
+    for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Scan all connections */
+        if (esp.conns[i].status.f.active) {     /* If connection is active */
+            esp.cb.cb.conn_poll.conn = &esp.conns[i];   /* Set connection pointer */
+            espi_send_conn_cb(&esp.conns[i], NULL); /* Send connection callback */
+            add = 1;                            /* Add timeout again */
+        }
+    }
+    if (add) {
+        esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, NULL); /* Schedule timeout again */
+    }
+}
+
+/**
+ * \brief           Start timeout for connections
+ */
+void
+espi_conn_start_timeout(void) {
+    esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, NULL); /* Add connection timeout */
+}
+
+/**
  * \brief           Get connection validation ID
  * \param[in]       conn: Connection handle
  * \return          Connection current validation ID
@@ -48,24 +78,6 @@ conn_get_val_id(esp_conn_p conn) {
     ESP_CORE_UNPROTECT();
     
     return val_id;
-}
-
-/**
- * \brief           Timeout callback for connection
- * \param[in]       arg: Timeout callback custom argument
- */
-static void
-conn_timeout_cb(void* arg) {
-    uint16_t i;
-
-    esp.cb.type = ESP_CB_CONN_POLL;             /* Set polling callback type */
-    for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Scan all connections */
-        if (esp.conns[i].status.f.active) {     /* If connection is active */
-            esp.cb.cb.conn_poll.conn = &esp.conns[i];   /* Set connection pointer */
-            espi_send_conn_cb(&esp.conns[i], NULL); /* Send connection callback */
-        }
-    }
-    esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, NULL);/* Schedule timeout again */
 }
 
 /**
@@ -142,7 +154,7 @@ flush_buff(esp_conn_p conn) {
  */
 void
 espi_conn_init(void) {
-    esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, NULL); /* Add connection timeout */
+    
 }
 
 /**
