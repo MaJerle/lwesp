@@ -39,6 +39,7 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
+#include "esp/apps/esp_mqtt_client_evt.h"
     
 /**
  * \ingroup         ESP_APPS
@@ -49,6 +50,8 @@ extern "C" {
 
 /**
  * \brief           Maximal number of open connections at a time
+ * 
+ * \note            This is default value. To change it, override value in `esp_config.h` configuration file
  */
 #ifndef MQTT_MAX_REQUESTS
 #define MQTT_MAX_REQUESTS               8
@@ -60,7 +63,7 @@ extern "C" {
  * \{
  */
 
-#define MQTT_QOS_AT_MOST_ONCE           0x00    /*!< Delivery is not guaranteed to arrive, but can arrive up to `1 time` = non-critical packets where losses are allowed */
+#define MQTT_QOS_AT_MOST_ONCE           0x00    /*!< Delivery is not guaranteed to arrive, but can arrive `up to 1 time` = non-critical packets where losses are allowed */
 #define MQTT_QOS_AT_LEAST_ONCE          0x01    /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple times with the same content */
 #define MQTT_QOS_EXACTLY_ONCE           0x02    /*!< Delivery is quaranteed `exactly once` = very critical packets such as billing informations or similar */
 
@@ -116,13 +119,13 @@ typedef struct {
  * \brief           MQTT event types
  */
 typedef enum {
-    MQTT_EVT_CONNECT,                           /*!< MQTT client connected to server and ready to publish */
+    MQTT_EVT_CONNECT,                           /*!< MQTT client connect event */
     MQTT_EVT_SUBSCRIBE,                         /*!< MQTT client subscribed to specific topic */
     MQTT_EVT_UNSUBSCRIBE,                       /*!< MQTT client unsubscribed from specific topic */
     MQTT_EVT_PUBLISHED,                         /*!< MQTT client successfully published message to server */
     MQTT_EVT_PUBLISH_RECV,                      /*!< MQTT client received a publish message from server */
     MQTT_EVT_DISCONNECT,                        /*!< MQTT client disconnected from MQTT server */
-    MQTT_EVT_KEEP_ALIVE,                        /*!< MQTT keep-alive sent to server and received */
+    MQTT_EVT_KEEP_ALIVE,                        /*!< MQTT keep-alive sent to server and reply received */
 } mqtt_evt_type_t;
 
 /**
