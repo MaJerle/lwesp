@@ -6,9 +6,8 @@ b = esp_pbuf_new(20);                           /* Create pbuf with 20 bytes of 
 esp_pbuf_chain(a, b);                           /* Link them together and increase reference count on b */
 
 /*
- * When we are done using a pbuf,
- * call free function. This will
- * free only pbuf a as pbuf b has now 2 references
+ * When we are done using a pbuf, call free function.
+ * This will free only pbuf a, as pbuf b has now 2 references:
  *  - one from pbuf a
  *  - one from variable b
  */

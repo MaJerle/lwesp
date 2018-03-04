@@ -42,7 +42,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
          * Scan for access points visible to ESP device
          */
         printf("Scanning access points...\r\n");
-        if (esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1) == espOK) {
+        if ((eres = esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1)) == espOK) {
             /* Print all access points found by ESP */
             for (i = 0; i < apf; i++) {
                 printf("AP found: %s\r\n", aps[i].ssid);
@@ -70,6 +70,9 @@ connect_to_preferred_access_point(uint8_t unlimited) {
                     }
                 }
             }
+        } else if (eres == espERRNODEVICE) {
+            printf("Device is not present!\r\n");
+            break;
         } else {
             printf("No WIFI to connect!\r\n");
         }

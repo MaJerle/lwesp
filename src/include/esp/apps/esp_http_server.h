@@ -77,7 +77,7 @@ extern "C" {
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) support for POST request
+ * \brief           Enables (`1`) or disables (`0`) support for POST request
  */
 #ifndef HTTP_SUPPORT_POST
 #define HTTP_SUPPORT_POST                   1
@@ -98,7 +98,7 @@ extern "C" {
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) method not allowed response.
+ * \brief           Enables (`1`) or disables (`0`) method not allowed response.
  *
  *                  Response is used in case user makes HTTP request with method
  *                  which is not on the list of allowed methods. See \ref http_req_method_t
@@ -124,7 +124,7 @@ extern "C" {
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) dynamic headers support
+ * \brief           Enables (`1`) or disables (`0`) dynamic headers support
  *
  *                  With dynamic headers enabled, script will try to detect most common
  *                  file extensions and will try to response with:
@@ -137,7 +137,7 @@ extern "C" {
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) content length header for response
+ * \brief           Enables (`1`) or disables (`0`) content length header for response
  *
  *                  If response has fixed length without SSI tags,
  *                  dynamic headers will try to include "Content-Length" header

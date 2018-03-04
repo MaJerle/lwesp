@@ -258,8 +258,8 @@ reset_connections(uint8_t forced) {
  * \brief           Reset everything after reset was detected
  * \param[in]       forced: Set to `1` if reset forced by user
  */
-static void
-reset_everything(uint8_t forced) {
+void
+espi_reset_everything(uint8_t forced) {
     /**
      * \todo: Put stack to default state:
      *          - Close all the connection in memory
@@ -474,7 +474,7 @@ espi_parse_received(esp_recv_t* rcv) {
         } else {                                /* Reset due unknown error */
             esp.cb.cb.reset.forced = 0;
         }
-        reset_everything(esp.cb.cb.reset.forced);   /* Put everything to default state */
+        espi_reset_everything(esp.cb.cb.reset.forced);  /* Put everything to default state */
         espi_send_cb(ESP_CB_RESET);             /* Call user callback function */
     }
     
@@ -1193,6 +1193,9 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
     esp_cmd_t n_cmd = ESP_CMD_IDLE;
     if (msg->cmd_def == ESP_CMD_RESET) {        /* Device is in reset mode */
         n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
+        if (n_cmd == ESP_CMD_IDLE) {            /* Last command? */
+            espi_send_cb(ESP_CB_RESET_FINISH);  /* Notify upper layer */
+        }
     } else if (msg->cmd_def == ESP_CMD_RESTORE) {
         if ((msg->cmd == ESP_CMD_RESTORE && is_ready) ||
             msg->cmd != ESP_CMD_RESTORE) {
@@ -1209,7 +1212,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             } else {
                 /*
                  * Parse received error message,
-                 * if final result was error and decide what type
+                 * if final result was error, decide what type
                  * of error should be returned for user
                  */
                 switch (msg->msg.sta_join.error_num) {
@@ -1809,7 +1812,17 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     espr_t res = msg->res = espOK;
     
     /* Check here if stack is even enabled or shall we disable new command entry? */
-    
+    ESP_CORE_PROTECT();
+    if (!esp.status.f.dev_present) {
+        if (msg->cmd_def != ESP_CMD_RESET) {    /* Only reset is allowed */
+            res = espERRNODEVICE;               /* No device connected */
+        }
+    }
+    ESP_CORE_UNPROTECT();
+    if (res != espOK) {
+        ESP_MSG_VAR_FREE(msg);                  /* Free memory and return */
+        return res;
+    }
     
     if (block) {                                /* In case message is blocking */
         if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */

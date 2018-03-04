@@ -41,7 +41,7 @@
  */
 
 /**
- * \brief           Enables (1) or disables (0) operating system support for ESP library
+ * \brief           Enables (`1`) or disables (`0`) operating system support for ESP library
  *
  * \note            Value must be set to `1` in the current revision
  *
@@ -111,7 +111,8 @@
 
 /**
  * \brief           Maximal buffer size for entries in +IPD statement from ESP
- * \note            If +IPD length is larger that this value, 
+ *
+ * \note            If `+IPD` length is larger that this value, 
  *                  multiple pbuf entries will be created to hold entire +IPD
  */
 #ifndef ESP_CFG_IPD_MAX_BUFF_SIZE
@@ -128,7 +129,7 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (1) ESP acting as station
+ * \brief           Enables (`1`) or disables (`0`) ESP acting as station
  * 
  * \note            When device is in station mode, it can connect to other access points
  */
@@ -137,7 +138,7 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (1) ESP acting as access point
+ * \brief           Enables (`1`) or disables (`0`) ESP acting as access point
  * 
  * \note            When device is in access point mode, it can accept connections from other stations
  */
@@ -158,6 +159,23 @@
  */
 #ifndef ESP_CFG_RCV_BUFF_SIZE
 #define ESP_CFG_RCV_BUFF_SIZE               0x400
+#endif
+
+/**
+ * \brief           Enables (`1`) or disables (`0`) reset sequence after \ref esp_init call
+ *
+ * \note            When this functionality is disabled, user must manually call \ref esp_reset to send
+ *                  reset sequence to ESP device.
+ */
+#ifndef ESP_CFG_RESET_ON_INIT
+#define ESP_CFG_RESET_ON_INIT               1
+#endif
+
+/**
+ * \brief           Default delay (milliseconds unit) before sending first AT command on reset sequence
+ */
+#ifndef ESP_CFG_RESET_DELAY_DEFAULT
+#define ESP_CFG_RESET_DELAY_DEFAULT         1000
 #endif
 
 /**
@@ -285,7 +303,7 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) echo mode on AT commands
+ * \brief           Enables (`1`) or disables (`0`) echo mode on AT commands
  *                  sent to ESP device.
  *
  * \note            This mode is useful when debugging ESP communication
@@ -323,7 +341,7 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) direct support for processing input data
+ * \brief           Enables (`1`) or disables (`0`) direct support for processing input data
  *
  *                  When this mode is enabled, no overhead is included for copying data
  *                  to receive buffer because bytes are processed directly.
@@ -356,7 +374,7 @@
  */
  
 /**
- * \brief           Enables (1) or disables (0) NETCONN sequential API support for OS systems
+ * \brief           Enables (`1`) or disables (`0`) NETCONN sequential API support for OS systems
  *
  * \note            To use this feature, OS support is mandatory. 
  * \sa              ESP_CFG_OS
@@ -377,7 +395,7 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) receive timeout feature
+ * \brief           Enables (`1`) or disables (`0`) receive timeout feature
  *
  *                  When this option is enabled, user will get an option
  *                  to set timeout value for receive data on netconn,
@@ -395,7 +413,7 @@
  */
  
 /**
- * \brief           Enables (1) or disables (0) support for DNS functions
+ * \brief           Enables (`1`) or disables (`0`) support for DNS functions
  *
  */
 #ifndef ESP_CFG_DNS
@@ -403,7 +421,7 @@
 #endif
  
 /**
- * \brief           Enables (1) or disables (0) support for ping functions
+ * \brief           Enables (`1`) or disables (`0`) support for ping functions
  *
  */
 #ifndef ESP_CFG_PING
@@ -411,7 +429,7 @@
 #endif
  
 /**
- * \brief           Enables (1) or disables (0) support for WPS functions
+ * \brief           Enables (`1`) or disables (`0`) support for WPS functions
  *
  */
 #ifndef ESP_CFG_WPS
@@ -419,7 +437,7 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) support for SNTP protocol with AT commands
+ * \brief           Enables (`1`) or disables (`0`) support for SNTP protocol with AT commands
  *
  */
 #ifndef ESP_CFG_SNTP
@@ -427,7 +445,7 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) support for mDNS
+ * \brief           Enables (`1`) or disables (`0`) support for mDNS
  *
  */
 #ifndef ESP_CFG_MDNS
@@ -435,7 +453,7 @@
 #endif
 
 /**
- * \brief           Enables (1) or disables (0) support for SNTP protocol with AT commands
+ * \brief           Enables (`1`) or disables (`0`) support for SNTP protocol with AT commands
  *
  */
 #ifndef ESP_CFG_HOSTNAME

@@ -46,8 +46,10 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_init(esp_cb_fn cb_func);
+espr_t      esp_init(esp_cb_fn cb_func, uint32_t blocking);
 espr_t      esp_reset(uint32_t blocking);
+espr_t      esp_reset_with_delay(uint32_t delay, uint32_t blocking);
+
 espr_t      esp_restore(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
@@ -61,6 +63,9 @@ espr_t      esp_core_unlock(void);
 
 espr_t      esp_cb_register(esp_cb_fn cb_fn);
 espr_t      esp_cb_unregister(esp_cb_fn cb_fn);
+
+espr_t      esp_device_set_present(uint8_t present, uint32_t blocking);
+uint8_t     esp_device_is_present(void);
 
 void        esp_delay(uint32_t ms);
 

@@ -47,7 +47,7 @@ main(void) {
     /*
      * Initialize ESP with default callback function
      */
-    esp_init(esp_callback_func);
+    esp_init(esp_callback_func, 1);
 
     /*
      * Connect to access point.

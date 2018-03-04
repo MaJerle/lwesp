@@ -59,7 +59,7 @@ typedef struct esp_netconn_t {
 #endif
 } esp_netconn_t;
 
-static uint8_t recv_closed = 0xFF;
+static uint8_t recv_closed = 0xFF, recv_not_present = 0xFF;
 static esp_netconn_t* listen_api;              /* Main connection in listening mode */
 
 /**
@@ -250,11 +250,16 @@ esp_cb(esp_cb_t* cb) {
 static espr_t
 esp_evt_func(esp_cb_t* cb) {
     switch (cb->type) {
-        case ESP_CB_WIFI_DISCONNECTED: {
+        case ESP_CB_WIFI_DISCONNECTED: {        /* Wifi disconnected event */
             if (listen_api != NULL) {           /* Check if listen API active */
                 esp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_closed);
             }
             break;
+        }
+        case ESP_CB_DEVICE_PRESENT: {           /* Device present event */
+            if (listen_api != NULL && !esp_device_is_present()) {   /* Check if device present */
+                esp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_not_present);
+            }
         }
         default: break;
     }
@@ -404,6 +409,11 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
         listen_api = NULL;                      /* Disable listening at this point */
         ESP_CORE_UNPROTECT();
         return espERRWIFINOTCONNECTED;          /* Wifi disconnected */
+    } else if ((uint8_t *)tmp == (uint8_t *)&recv_not_present) {
+        ESP_CORE_PROTECT();
+        listen_api = NULL;                      /* Disable listening at this point */
+        ESP_CORE_UNPROTECT();
+        return espERRNODEVICE;                  /* Device not present */
     }
     *new_nc = tmp;                              /* Set new pointer */
     return espOK;                               /* We have a new connection */
@@ -575,10 +585,17 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 
     *pbuf = NULL;
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT
+    /*
+     * Wait for new received data for up to specific timeout
+     * or throw error for timeout notification
+     */
     if (esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, nc->rcv_timeout) == ESP_SYS_TIMEOUT) {
         return espTIMEOUT;
     }
 #else /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
+    /*
+     * Forever wait for new receive packet
+     */
     esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
 #endif /* !ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
 

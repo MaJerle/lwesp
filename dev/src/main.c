@@ -10,6 +10,7 @@
 #include "tm_stm32_disco.h"
 #include "tm_stm32_delay.h"
 #include "tm_stm32_usart.h"
+#include "stm32f7xx_ll_gpio.h"
 #include "esp/esp.h"
 #include "esp/esp_sntp.h"
 #include "cmsis_os.h"
@@ -30,6 +31,12 @@ static void init_thread(void const* arg);
 osThreadId init_thread_id, server_thread_id, client_thread_id;
 
 esp_datetime_t dt;
+
+uint8_t
+is_device_present(void) {
+    uint8_t pin_state = !!(GPIOJ->IDR & GPIO_PIN_3);
+    return pin_state;
+}
 
 /**
  * \brief           Application entry point
@@ -69,8 +76,29 @@ static espr_t esp_cb(esp_cb_t* cb);
  */
 static void
 init_thread(void const* arg) {
+    GPIO_InitTypeDef init;
     printf("Initialization thread started!\r\n");
-    esp_init(esp_cb);                           /* Init ESP stack */
+    
+    __HAL_RCC_GPIOJ_CLK_ENABLE();
+    init.Pin = GPIO_PIN_3;
+    init.Mode = GPIO_MODE_IT_RISING_FALLING;
+    init.Pull = GPIO_PULLDOWN;
+    init.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOJ, &init);
+    
+    HAL_NVIC_SetPriority(EXTI3_IRQn, 2, 4);
+    HAL_NVIC_EnableIRQ(EXTI3_IRQn);
+    
+    esp_init(esp_cb, 1);                        /* Init ESP stack */
+    
+    if (is_device_present()) {
+        printf("Device connected...starting with reset!\r\n");
+        esp_delay(2000);
+        esp_reset(1);
+    } else {
+        printf("Device not connected!\r\n");
+        esp_device_set_present(0, 1);
+    }
     
     /*
      * Start MQTT thread
@@ -103,6 +131,9 @@ init_thread(void const* arg) {
         printf("Device IP: %d.%d.%d.%d\r\n", ip.ip[0], ip.ip[0], ip.ip[0], ip.ip[0]);
     }
     
+    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_cb, 0);
+    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_cb, 0);
+    
     /*
      * Terminate thread
      */
@@ -121,23 +152,74 @@ esp_cb(esp_cb_t* cb) {
             printf("Device reset!\r\n");
             break;
         }
-        case ESP_CB_INIT_FINISH:
-            esp_set_at_baudrate(115200, 0);     /* Init ESP stack */
-                                                
+        case ESP_CB_INIT_FINISH: {                                                
             break;
+        }
 #if ESP_CFG_MODE_STATION
-        case ESP_CB_STA_LIST_AP:
+        case ESP_CB_STA_LIST_AP: {
             printf("List AP finished!\r\n");                        
             break;
+        }
         case ESP_CB_WIFI_GOT_IP: {
-            printf("WIFI GOT IP FROM MAIN!\r\n");
+            printf("WIFI got IP!\r\n");
+            break;
+        }
+        case ESP_CB_WIFI_CONNECTED: {
+            printf("WIFI connected!\r\n");
+            break;
+        }
+        case ESP_CB_WIFI_DISCONNECTED: {
+            printf("WIFI disconnected!\r\n");
             break;
         }
 #endif /* ESP_CFG_MODE_STATION */
+        case ESP_CB_CONN_ACTIVE: {
+            printf("Connection active, time: %d, conn: %p\r\n", (int)esp_sys_now(), cb->cb.conn_active_closed.conn);
+            break;
+        }
+        case ESP_CB_CONN_POLL: {
+            printf("Connection poll, time: %d, conn: %p\r\n", (int)esp_sys_now(), cb->cb.conn_poll.conn);
+            break;
+        }
+        case ESP_CB_CONN_CLOSED: {
+            printf("Connection closed, time: %d, conn: %p\r\n", (int)esp_sys_now(), cb->cb.conn_poll.conn);
+            break;
+        }
         default:
             break;
     }
     return espOK;
+}
+
+void
+application_sleep(uint32_t idle) {
+    printf("S:%u\r\n", (unsigned)idle);
+    if (idle > 1000 && !esp_device_is_present()) {
+        printf("Low-power stop mode\r\n");
+        __disable_irq();
+        HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
+        TM_RCC_InitSystem();                    /* Init system */
+        __enable_irq();
+        printf("Wake up from IRQ!\r\n");
+    } else {
+        __WFI();                                /* Wait for next interrupt only */
+    }
+}
+
+/**
+ * \brief           Interrupt handler for EXTI 3 line
+ */
+void
+EXTI3_IRQHandler(void) {
+    if (is_device_present()) {
+        printf("Device present!\r\n");
+        esp_device_set_present(1, 0);           /* Notify stack about device present */
+        esp_reset_with_delay(2000, 0);
+    } else {
+        printf("Device disconnected!\r\n");
+        esp_device_set_present(0, 0);           /* Notify stack about device not connected anymore */
+    }
+    EXTI->PR = GPIO_PIN_3;
 }
 
 /* printf handler */

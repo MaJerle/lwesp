@@ -76,6 +76,7 @@ typedef enum {
     espERRNOAP,                                 /*!< No access point found with specific SSID and MAC address */
     espERRCONNFAIL,                             /*!< Connection failed to access point */
     espERRWIFINOTCONNECTED,                     /*!< Wifi not connected to access point */
+    espERRNODEVICE,                             /*!< Device is not present */
 } espr_t;
 
 /**
@@ -217,9 +218,12 @@ typedef espr_t  (*esp_cb_fn)(struct esp_cb_t* cb);
  */
 typedef enum esp_cb_type_t {
     ESP_CB_RESET,                               /*!< Device reset detected */
+    ESP_CB_RESET_FINISH,                        /*!< Reset operation finished */
     
     ESP_CB_INIT_FINISH,                         /*!< Initialization has been finished at this point */
     ESP_CB_RESTORE_FINISH,                      /*!< Device restore operation finished */
+    
+    ESP_CB_DEVICE_PRESENT,                      /*!< Notification when device present status changes */
     
     ESP_CB_CONN_DATA_RECV,                      /*!< Connection data received */
     ESP_CB_CONN_DATA_SENT,                      /*!< Data were successfully sent */
@@ -329,7 +333,7 @@ typedef struct {
     esp_ll_send_fn send_fn;                     /*!< Callback function to transmit data */
     struct {
         uint32_t baudrate;                      /*!< UART baudrate value */
-    } uart;
+    } uart;                                     /*!< UART communication parameters */
 } esp_ll_t;
 
 /**

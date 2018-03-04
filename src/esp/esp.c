@@ -40,8 +40,8 @@
 #error ESP_CFG_OS must be set to 1!
 #endif
 
-static espr_t   def_callback(esp_cb_t* cb);
-static esp_cb_func_t def_cb_link;
+static espr_t           def_callback(esp_cb_t* cb);
+static esp_cb_func_t    def_cb_link;
 
 esp_t esp;
 
@@ -57,11 +57,14 @@ def_callback(esp_cb_t* cb) {
 
 /**
  * \brief           Init and prepare ESP stack
+ * \note            When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device.
+ *                  In this case, `blocking` parameter indicates if we shall wait or not for response
  * \param[in]       cb_func: Event callback function
- * \return          Member of \ref espr_t enumeration
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_init(esp_cb_fn cb_func) {
+esp_init(esp_cb_fn cb_func, uint32_t blocking) {
     esp.status.f.initialized = 0;               /* Clear possible init flag */
     
     def_cb_link.fn = cb_func ? cb_func : def_callback;
@@ -84,13 +87,20 @@ esp_init(esp_cb_fn cb_func) {
     esp_buff_init(&esp.buff, ESP_CFG_RCV_BUFF_SIZE);    /* Init buffer for input data */
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */
     esp.status.f.initialized = 1;               /* We are initialized now */
+    esp.status.f.dev_present = 1;               /* We assume device is present at this point */
     
     /*
      * Call reset command and call default
      * AT commands to prepare basic setup for device
      */
     espi_conn_init();                           /* Init connection module */
-    esp_reset(1);
+#if ESP_CFG_RESET_ON_INIT
+    if (esp.status.f.dev_present) {             /* In case device exists */
+        esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking);    /* Send reset sequence with delay */
+    }
+#else
+    ESP_UNUSED(blocking);                       /* Unused variable */
+#endif /* ESP_CFG_RESET_ON_INIT */
     espi_send_cb(ESP_CB_INIT_FINISH);           /* Call user callback function */
     
     return espOK;
@@ -107,6 +117,24 @@ esp_reset(uint32_t blocking) {
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
+    ESP_MSG_VAR_REF(msg).msg.reset.delay = 0;
+    
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);    /* Send message to producer queue */
+}
+
+/**
+ * \brief           Execute reset and send default commands with delay before first command
+ * \param[in]       delay: Number of milliseconds to wait before initiating first command to device
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_reset_with_delay(uint32_t delay, uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
+    ESP_MSG_VAR_REF(msg).msg.reset.delay = delay;
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);    /* Send message to producer queue */
 }
@@ -313,6 +341,52 @@ esp_cb_unregister(esp_cb_fn cb_fn) {
     }
     ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
     return espOK;
+}
+
+/**
+ * \brief           Notify stack if device is present or not
+ * 
+ *                  Use this function to notify stack that device is not connected and not ready to communicate with host device
+ * \param[in]       present: Flag indicating device is present
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_device_set_present(uint8_t present, uint32_t blocking) {
+    espr_t res = espOK;
+    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    esp.status.f.dev_present = ESP_U8(!!present);   /* Device is present */
+    
+    if (!esp.status.f.dev_present) {
+        espi_reset_everything(1);               /* Reset everything */
+    }
+#if ESP_CFG_RESET_ON_INIT
+    else  {                                     /* Is new device present? */
+        ESP_CORE_UNPROTECT();                   /* Unlock ESP core */
+        res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking); /* Reset with delay */
+        ESP_CORE_PROTECT();                     /* Lock ESP core */
+    }
+#else
+    ESP_UNUSED(blocking);                       /* Unused variable */
+#endif /* ESP_CFG_RESET_ON_INIT */
+    
+    espi_send_cb(ESP_CB_DEVICE_PRESENT);        /* Send present event */
+    
+    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    return res;
+}
+
+/**
+ * \brief           Check if device is present
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_device_is_present(void) {
+    uint8_t res;
+    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    res = esp.status.f.dev_present;
+    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    return res;
 }
 
 /**
