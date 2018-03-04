@@ -766,7 +766,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.cb.cb.conn_active_closed.client = conn->status.f.client;    /* Set if it is client or not */
                 esp.cb.cb.conn_active_closed.forced = conn->status.f.client;    /* Set if action was forced = if client mode */
                 espi_send_conn_cb(conn, NULL);  /* Send event */
-                espi_conn_start_timeout();      /* Start connection timeout timer */
+                espi_conn_start_timeout(conn);  /* Start connection timeout timer */
             }
         }
     /*
@@ -1807,6 +1807,10 @@ espi_is_valid_conn_ptr(esp_conn_p conn) {
 espr_t
 espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block, uint32_t max_block_time) {
     espr_t res = msg->res = espOK;
+    
+    /* Check here if stack is even enabled or shall we disable new command entry? */
+    
+    
     if (block) {                                /* In case message is blocking */
         if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */
             ESP_MSG_VAR_FREE(msg);              /* Release memory and return */

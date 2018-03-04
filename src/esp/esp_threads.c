@@ -124,7 +124,7 @@ esp_thread_process(void* const arg) {
 #else
     while (1) {
         /* Check timeouts only */
-        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 100);
+        time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 0xFFFFFFFF);
         ESP_UNUSED(time);
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */
     }

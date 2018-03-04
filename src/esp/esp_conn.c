@@ -41,28 +41,25 @@
  */
 static void
 conn_timeout_cb(void* arg) {
-    uint16_t i;
-    uint8_t add = 0;
+    esp_conn_p conn = arg;
 
-    esp.cb.type = ESP_CB_CONN_POLL;             /* Set polling callback type */
-    for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Scan all connections */
-        if (esp.conns[i].status.f.active) {     /* If connection is active */
-            esp.cb.cb.conn_poll.conn = &esp.conns[i];   /* Set connection pointer */
-            espi_send_conn_cb(&esp.conns[i], NULL); /* Send connection callback */
-            add = 1;                            /* Add timeout again */
-        }
-    }
-    if (add) {
-        esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, NULL); /* Schedule timeout again */
+    if (conn->status.f.active) {
+        esp.cb.type = ESP_CB_CONN_POLL;         /* Poll connection event */
+        esp.cb.cb.conn_poll.conn = conn;        /* Set connection pointer */
+        espi_send_conn_cb(conn, NULL);          /* Send connection callback */
+        
+        esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Schedule timeout again */
+        ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "Connection %p poll event\r\n", conn);
     }
 }
 
 /**
- * \brief           Start timeout for connections
+ * \brief           Start timeout function for connection
+ * \param[in]       conn: Connection handle as user argument
  */
 void
-espi_conn_start_timeout(void) {
-    esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, NULL); /* Add connection timeout */
+espi_conn_start_timeout(esp_conn_p conn) {
+    esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Add connection timeout */
 }
 
 /**
@@ -294,7 +291,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
  *
  * \note            Function is not thread safe and may only be called from callback function
  *
- * \param[in]       conn: Connection hande
+ * \param[in]       conn: Connection handle
  * \param[in]       pbuf: Packet buffer received on connection
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */

@@ -180,6 +180,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
             }
         }
     }
+    esp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write message to process queue to wakeup process thread and to start */
     return espOK;
 }
 
