@@ -448,7 +448,8 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
     if (*str == '+') {                              /* Check input string */
         str += 13;
     }
-    /**
+    
+    /*
      * Scan for day in a week
      */
     if (!strncmp(str, "Mon", 3)) {
@@ -468,7 +469,7 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
     }
     str += 4;
     
-    /**
+    /*
      * Scan for month in a year
      */
     if (!strncmp(str, "Jan", 3)) {
@@ -532,7 +533,7 @@ espi_parse_hostname(const char* str, esp_msg_t* msg) {
     msg->msg.wifi_hostname.hostname[0] = 0;
     if (*str != '\r') {
         i = 0;
-        while (i < msg->msg.wifi_hostname.length - 1 && *str && *str != '\r') {
+        while (i < (msg->msg.wifi_hostname.length - 1) && *str && *str != '\r') {
             msg->msg.wifi_hostname.hostname[i] = *str;
             i++;
             str++;
