@@ -320,9 +320,8 @@ espi_parse_link_conn(const char* str) {
  */
 uint8_t
 espi_parse_cwlap(const char* str, esp_msg_t* msg) {
-    if (msg == NULL || msg->cmd != ESP_CMD_WIFI_CWLAP ||    /* Do we have valid message here and enough memory to save everything? */
-        msg->msg.ap_list.aps == NULL || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl ||
-        msg->cmd_def != msg->cmd) {   
+    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWLAP) ||      /* Do we have valid message here and enough memory to save everything? */
+        msg->msg.ap_list.aps == NULL || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl) {   
         return 0;
     }
     if (*str == '+') {                          /* Does string contain '+' as first character */
@@ -362,9 +361,8 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
  */
 uint8_t
 espi_parse_cwlif(const char* str, esp_msg_t* msg) {
-    if (msg == NULL || msg->cmd != ESP_CMD_WIFI_CWLIF ||    /* Do we have valid message here and enough memory to save everything? */
-        msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal ||
-        msg->cmd_def != msg->cmd) {   
+    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWLIF) ||      /* Do we have valid message here and enough memory to save everything? */
+        msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal) {   
         return 0;
     }
     
@@ -423,8 +421,7 @@ espi_parse_ap_ip_sta(const char* str) {
  */
 uint8_t
 espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
-    if (msg == NULL || msg->cmd != ESP_CMD_TCPIP_CIPDOMAIN ||   /* Do we have valid message here and enough memory to save everything? */
-        msg->cmd_def != msg->cmd) {   
+    if (!CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {   
         return 0;
     }
     if (*str == '+') {
@@ -445,7 +442,7 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
  */
 uint8_t
 espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
-    if (msg == NULL || msg->cmd_def != ESP_CMD_TCPIP_CIPSNTPTIME) {
+    if (!CMD_IS_DEF(ESP_CMD_TCPIP_CIPSNTPTIME)) {
         return 0;
     }
     if (*str == '+') {                              /* Check input string */
@@ -526,7 +523,7 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
 uint8_t
 espi_parse_hostname(const char* str, esp_msg_t* msg) {
     size_t i;
-    if (msg == NULL || msg->cmd_def != ESP_CMD_WIFI_CWHOSTNAME_GET) {
+    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWHOSTNAME_GET)) {
         return 0;
     }
     if (*str == '+') {                              /* Check input string */

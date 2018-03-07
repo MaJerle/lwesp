@@ -59,7 +59,7 @@ esp_thread_producer(void* const arg) {
         }
         
         /* For reset message, we can have delay! */
-        if (msg->cmd_def == ESP_CMD_RESET && msg->msg.reset.delay) {
+        if (CMD_IS_DEF(ESP_CMD_RESET) && msg->msg.reset.delay) {
             esp_delay(msg->msg.reset.delay);
         }
         
