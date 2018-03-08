@@ -413,6 +413,7 @@ espi_parse_ap_ip_sta(const char* str) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 
 #if ESP_CFG_DNS || __DOXYGEN__
+
 /**
  * \brief           Parse received message domain DNS name
  * \param[in]       str: Pointer to input string starting with +CWLAP
@@ -430,6 +431,7 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
     espi_parse_ip(&str, msg->msg.dns_getbyhostname.ip); /* Parse IP address */
     return 1;
 }
+
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
 #if ESP_CFG_SNTP || __DOXYGEN__

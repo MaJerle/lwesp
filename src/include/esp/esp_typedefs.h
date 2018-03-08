@@ -247,6 +247,9 @@ typedef enum esp_cb_type_t {
     ESP_CB_AP_DISCONNECTED_STA,                 /*!< New station just disconnected from ESP's access point */
     ESP_CB_AP_IP_STA,                           /*!< New station just received IP from ESP's access point */
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+#if ESP_CFG_DNS || __DOXYGEN__
+    ESP_CB_DNS_HOSTBYNAME,                      /*!< DNS domain service finished */
+#endif /* ESP_CFG_DNS || __DOXYGEN__ */
 } esp_cb_type_t;
 
 /**
@@ -256,6 +259,10 @@ typedef enum esp_cb_type_t {
 typedef struct esp_cb_t {
     esp_cb_type_t type;                         /*!< Callback type */
     union {
+        struct {
+            uint8_t forced;                     /*!< Set to 1 if reset forced by user */
+        } reset;                                /*!< Reset occurred. Use with \ref ESP_CB_RESET event */
+
         struct {
             esp_conn_p conn;                    /*!< Connection where data were received */
             esp_pbuf_p buff;                    /*!< Pointer to received data */
@@ -306,11 +313,15 @@ typedef struct esp_cb_t {
         struct {
             esp_mac_t* mac;                     /*!< Station MAC address */
             esp_ip_t* ip;                       /*!< Station IP address */
-        } ap_ip_sta;                            /*!< Station got IP address from ESP's access point. Use with \ref ESP_CB_AP_IP_STA */
+        } ap_ip_sta;                            /*!< Station got IP address from ESP's access point. Use with \ref ESP_CB_AP_IP_STA event */
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+#if ESP_CFG_DNS || __DOXYGEN__
         struct {
-            uint8_t forced;                     /*!< Set to 1 if reset forced by user */
-        } reset;                                /*!< Reset occurred */
+            espr_t status;                      /*!< Operation status */
+            const char* host;                   /*!< Host name for DNS lookup */
+            esp_ip_t* ip;                       /*!< Pointer to IP result */
+        } dns_hostbyname;                       /*!< DNS domain service finished. Use with \ref ESP_CB_DNS_HOSTBYNAME event */
+#endif /* ESP_CFG_DNS || __DOXYGEN__ */        
     } cb;                                       /*!< Callback event union */
 } esp_cb_t;
 

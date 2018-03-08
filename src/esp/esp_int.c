@@ -1227,6 +1227,13 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             }
         }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
+#if ESP_CFG_DNS
+    } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {
+        esp.cb.cb.dns_hostbyname.status = is_ok ? espOK : espERR;
+        esp.cb.cb.dns_hostbyname.host = msg->msg.dns_getbyhostname.host;
+        esp.cb.cb.dns_hostbyname.ip = msg->msg.dns_getbyhostname.ip;
+        espi_send_cb(ESP_CB_DNS_HOSTBYNAME);    /* Send to user layer */
+#endif /* ESP_CFG_DNS */
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSTART)) {/* Is our intention to join to access point? */
         if (msg->i == 0 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
             if (is_ok) {

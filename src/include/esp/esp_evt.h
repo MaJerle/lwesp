@@ -50,7 +50,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_RESET
  * \anchor          ESP_EVT_RESET
- * \brief           Event helper functions for \ref ESP_CB_RESET
+ * \brief           Event helper functions for \ref ESP_CB_RESET event
  */
 
 /**
@@ -68,7 +68,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_AP_IP_STA
  * \anchor          ESP_EVT_AP_IP_STA
- * \brief           Event helper functions for \ref ESP_CB_AP_IP_STA
+ * \brief           Event helper functions for \ref ESP_CB_AP_IP_STA event
  */
 
 /**
@@ -94,7 +94,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_AP_CONNECTED_STA
  * \anchor          ESP_EVT_AP_CONNECTED_STA
- * \brief           Event helper functions for \ref ESP_CB_AP_CONNECTED_STA
+ * \brief           Event helper functions for \ref ESP_CB_AP_CONNECTED_STA event
  */
 
 /**
@@ -112,7 +112,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_AP_DISCONNECTED_STA
  * \anchor          ESP_EVT_AP_DISCONNECTED_STA
- * \brief           Event helper functions for \ref ESP_CB_AP_DISCONNECTED_STA
+ * \brief           Event helper functions for \ref ESP_CB_AP_DISCONNECTED_STA event
  */
 
 /**
@@ -130,7 +130,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_CONN_DATA_RECV
  * \anchor          ESP_EVT_CONN_DATA_RECV
- * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_RECV
+ * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_RECV event
  */
 
 /**
@@ -156,7 +156,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_CONN_DATA_SENT
  * \anchor          ESP_EVT_CONN_DATA_SENT
- * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_SENT
+ * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_SENT event
  */
 
 /**
@@ -182,7 +182,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_CONN_DATA_SEND_ERR
  * \anchor          ESP_EVT_CONN_DATA_SEND_ERR
- * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_SEND_ERR
+ * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_SEND_ERR event
  */
 
 /**
@@ -208,7 +208,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_CONN_ACTIVE
  * \anchor          ESP_EVT_CONN_ACTIVE
- * \brief           Event helper functions for \ref ESP_CB_CONN_ACTIVE
+ * \brief           Event helper functions for \ref ESP_CB_CONN_ACTIVE event
  */
 
 /**
@@ -234,7 +234,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_CONN_CLOSED
  * \anchor          ESP_EVT_CONN_CLOSED
- * \brief           Event helper functions for \ref ESP_CB_CONN_CLOSED
+ * \brief           Event helper functions for \ref ESP_CB_CONN_CLOSED event
  */
 
 /**
@@ -268,7 +268,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_CONN_POLL
  * \anchor          ESP_EVT_CONN_POLL
- * \brief           Event helper functions for \ref ESP_CB_CONN_POLL
+ * \brief           Event helper functions for \ref ESP_CB_CONN_POLL event
  */
 
 /**
@@ -286,7 +286,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_STA_LIST_AP
  * \anchor          ESP_EVT_STA_LIST_AP
- * \brief           Event helper functions for \ref ESP_CB_STA_LIST_AP
+ * \brief           Event helper functions for \ref ESP_CB_STA_LIST_AP event
  */
 
 /**
@@ -320,7 +320,7 @@ extern "C" {
 /**
  * \name            ESP_EVT_STA_JOIN_AP
  * \anchor          ESP_EVT_STA_JOIN_AP
- * \brief           Event helper functions for \ref ESP_CB_STA_JOIN_AP
+ * \brief           Event helper functions for \ref ESP_CB_STA_JOIN_AP event
  */
 
 /**
@@ -330,6 +330,40 @@ extern "C" {
  * \hideinitializer
  */
 #define esp_evt_sta_join_ap_get_status(cb)      ((cb)->cb.sta_join_ap.status)
+
+/**
+ * \}
+ */
+
+/**
+ * \name            ESP_EVT_DNS_HOSTBYNAME
+ * \anchor          ESP_EVT_DNS_HOSTBYNAME
+ * \brief           Event helper functions for \ref ESP_CB_DNS_HOSTBYNAME event
+ */
+
+/**
+ * \brief           Get resolve status
+ * \param[in]       cb: Event handle
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \hideinitializer
+ */
+#define esp_evt_dns_hostbyname_get_status(cb)   ((cb)->cb.dns_hostbyname.status)
+
+/**
+ * \brief           Get hostname used to resolve IP address
+ * \param[in]       cb: Event handle
+ * \return          Hostname
+ * \hideinitializer
+ */
+#define esp_evt_dns_hostbyname_get_host(cb)     ((cb)->cb.dns_hostbyname.host)
+
+/**
+ * \brief           Get IP address from DNS function
+ * \param[in]       cb: Event handle
+ * \return          IP address
+ * \hideinitializer
+ */
+#define esp_evt_dns_hostbyname_get_ip(cb)       ((cb)->cb.dns_hostbyname.ip)
 
 /**
  * \}
