@@ -240,7 +240,7 @@ typedef enum esp_cb_type_t {
     ESP_CB_WIFI_IP_ACQUIRED,                    /*!< Station IP address acquired */
   
     ESP_CB_STA_LIST_AP,                         /*!< Station listed APs event */
-    ESP_CB_JOIN_AP,                             /*!< Join to access point */
+    ESP_CB_STA_JOIN_AP,                         /*!< Join to access point */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_CB_AP_CONNECTED_STA,                    /*!< New station just connected to ESP's access point */
@@ -280,11 +280,11 @@ typedef struct esp_cb_t {
              *  - ...
              */
             espr_t err;                         /*!< Error value */
-        } conn_error;                           /*!< Client connection start error */
+        } conn_error;                           /*!< Client connection start error. Use with \ref ESP_CB_CONN_ERROR event */
         struct {
             esp_conn_p conn;                    /*!< Pointer to connection */
             uint8_t client;                     /*!< Set to 1 if connection is/was client mode */
-            uint8_t forced;                     /*!< Set to 1 if connection action was forced (when active, 1 = CLIENT, 0 = SERVER; when closed, 1 = CMD, 0 = REMOTE) */
+            uint8_t forced;                     /*!< Set to 1 if connection action was forced (when active: 1 = CLIENT, 0 = SERVER: when closed, 1 = CMD, 0 = REMOTE) */
         } conn_active_closed;                   /*!< Process active and closed statuses at the same time. Use with \ref ESP_CB_CONN_ACTIVE or \ref ESP_CB_CONN_CLOSED events */
         struct {
             esp_conn_p conn;                    /*!< Set connection pointer */
@@ -294,10 +294,10 @@ typedef struct esp_cb_t {
             espr_t status;                      /*!< Status of command */
             esp_ap_t* aps;                      /*!< Pointer to access points */
             size_t len;                         /*!< Number of access points found */
-        } sta_list_ap;
+        } sta_list_ap;                          /*!< Station list access points. Use with \ref ESP_CB_STA_LIST_AP event */
         struct {
             espr_t status;                      /*!< Connection status */
-        } sta_join;                             /*!< Join to access point. Use with \ref ESP_CB_JOIN_AP event */
+        } sta_join_ap;                          /*!< Join to access point. Use with \ref ESP_CB_STA_JOIN_AP event */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
         struct {

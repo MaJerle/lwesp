@@ -1184,19 +1184,19 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                  * of error should be returned for user
                  */
                 switch (msg->msg.sta_join.error_num) {
-                    case 1: esp.cb.cb.sta_join.status = espERRCONNTIMEOUT;  break;
-                    case 2: esp.cb.cb.sta_join.status = espERRPASS;         break;
-                    case 3: esp.cb.cb.sta_join.status = espERRNOAP;         break;
-                    case 4: esp.cb.cb.sta_join.status = espERRCONNFAIL;     break;
-                    default: esp.cb.cb.sta_join.status = espERR;
+                    case 1: esp.cb.cb.sta_join_ap.status = espERRCONNTIMEOUT;  break;
+                    case 2: esp.cb.cb.sta_join_ap.status = espERRPASS;         break;
+                    case 3: esp.cb.cb.sta_join_ap.status = espERRNOAP;         break;
+                    case 4: esp.cb.cb.sta_join_ap.status = espERRCONNFAIL;     break;
+                    default: esp.cb.cb.sta_join_ap.status = espERR;
                 }
-                espi_send_cb(ESP_CB_JOIN_AP);       /* Notify upper layer */
+                espi_send_cb(ESP_CB_STA_JOIN_AP);   /* Notify upper layer */
             }
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
             n_cmd = ESP_CMD_WIFI_CIPSTAMAC_GET; /* Go to next command to get MAC address */
         } else {
-            esp.cb.cb.sta_join.status = espOK;  /* Connected ok */
-            espi_send_cb(ESP_CB_JOIN_AP);       /* Notify upper layer */
+            esp.cb.cb.sta_join_ap.status = espOK;   /* Connected ok */
+            espi_send_cb(ESP_CB_STA_JOIN_AP);   /* Notify upper layer */
         }
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_SET)) {
         if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_SET)) {

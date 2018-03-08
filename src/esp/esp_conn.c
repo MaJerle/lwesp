@@ -70,9 +70,9 @@ espi_conn_start_timeout(esp_conn_p conn) {
 uint8_t
 conn_get_val_id(esp_conn_p conn) {
     uint8_t val_id;
-    ESP_CORE_PROTECT();
+    ESP_CORE_PROTECT();                         /* Protect core */
     val_id = conn->val_id;
-    ESP_CORE_UNPROTECT();
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     
     return val_id;
 }
@@ -311,9 +311,9 @@ esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
  */
 espr_t
 esp_conn_set_arg(esp_conn_p conn, void* arg) {
-    ESP_CORE_PROTECT();
+    ESP_CORE_PROTECT();                         /* Protect core */
     conn->arg = arg;                            /* Set argument for connection */
-    ESP_CORE_UNPROTECT();
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return espOK;
 }
 
@@ -326,9 +326,9 @@ esp_conn_set_arg(esp_conn_p conn, void* arg) {
 void *
 esp_conn_get_arg(esp_conn_p conn) {
     void* arg;
-    ESP_CORE_PROTECT();
+    ESP_CORE_PROTECT();                         /* Protect core */
     arg = conn->arg;                            /* Set argument for connection */
-    ESP_CORE_UNPROTECT();
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return arg;
 }
 
@@ -356,9 +356,9 @@ uint8_t
 esp_conn_is_client(esp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        ESP_CORE_PROTECT();
+        ESP_CORE_PROTECT();                     /* Protect core */
         res = conn->status.f.active && conn->status.f.client;
-        ESP_CORE_UNPROTECT();
+        ESP_CORE_UNPROTECT();                   /* Unprotect core */
     }
     return res;
 }

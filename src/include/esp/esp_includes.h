@@ -42,6 +42,7 @@ extern "C" {
 #include "esp/esp_buff.h"
 #include "esp/esp_input.h"
 #include "system/esp_sys.h"
+#include "esp/esp_evt.h"
 #include "esp/esp_debug.h"
 #include "esp/esp_utilities.h"
 #include "esp/esp_pbuf.h"
