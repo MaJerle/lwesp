@@ -215,19 +215,6 @@ esp_set_server(esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn c
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
-/**
- * \brief           Set default callback function for incoming server connections
- * \param[in]       cb_func: Callback function. Set to NULL to use default ESP callback function
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
- */
-espr_t
-esp_set_default_server_callback(esp_cb_fn cb_func) {
-    ESP_CORE_PROTECT();                         /* Protect system */
-    esp.cb_server = cb_func != NULL ? cb_func : esp.cb_func->fn;/* Set default callback */
-    ESP_CORE_UNPROTECT();                       /* Unprotect system */
-    return espOK;
-}
-
 #if ESP_CFG_DNS || __DOXYGEN__
 
 /**
