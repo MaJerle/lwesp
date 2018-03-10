@@ -451,16 +451,18 @@ esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
  */
 esp_conn_p
 esp_conn_get_from_evt(esp_cb_t* evt) {
-    if (evt->type == ESP_CB_CONN_ACTIVE || evt->type == ESP_CB_CONN_CLOSED) {
-        return evt->cb.conn_active_closed.conn;
+    if (evt->type == ESP_CB_CONN_ACTIVE) {
+        return esp_evt_conn_active_get_conn(evt);
+    } else if (evt->type == ESP_CB_CONN_CLOSED) {
+        return esp_evt_conn_closed_get_conn(evt);
     } else if (evt->type == ESP_CB_CONN_DATA_RECV) {
-        return evt->cb.conn_data_recv.conn;
+        return esp_evt_conn_data_recv_get_conn(evt);
     } else if (evt->type == ESP_CB_CONN_DATA_SEND_ERR) {
-        return evt->cb.conn_data_send_err.conn;
+        return esp_evt_conn_data_send_err_get_conn(evt);
     } else if (evt->type == ESP_CB_CONN_DATA_SENT) {
-        return evt->cb.conn_data_sent.conn;
+        return esp_evt_conn_data_sent_get_conn(evt);
     } else if (evt->type == ESP_CB_CONN_POLL) {
-        return evt->cb.conn_poll.conn;
+        return esp_evt_conn_poll_get_conn(evt);
     }
     return NULL;
 }
