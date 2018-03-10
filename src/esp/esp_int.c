@@ -761,7 +761,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.cb.cb.conn_active_closed.forced = CMD_IS_CUR(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
                 espi_send_conn_cb(conn, NULL);  /* Send event */
                 
-                /**
+                /*
                  * In case we received x,CLOSED on connection we are currently sending data,
                  * terminate sending of connection with failure
                  */

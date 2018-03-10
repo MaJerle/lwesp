@@ -845,7 +845,7 @@ mqtt_closed_cb(mqtt_client_t* client) {
     
     client->is_sending = client->sent_total = client->written_total = 0;
     client->parser_state = MQTT_PARSER_STATE_INIT;
-    esp_buff_reset(&client->tx_buff);           /* Rese TX buffer */
+    esp_buff_reset(&client->tx_buff);           /* Reset TX buffer */
     
     return 1;
 }
