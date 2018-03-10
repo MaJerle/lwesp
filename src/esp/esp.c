@@ -190,9 +190,10 @@ esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
 
 /**
  * \brief           Enables or disables server mode
- * \param[in]       port: Set port number to enable server on. Use 0 to disable server mode
+ * \param[in]       port: Set port number used to listen on. Set to `0` to disable server
  * \param[in]       max_conn: Number of maximal connections populated by server
- * \param[in]       timeout: Time used to automatically close the connection in units of seconds. Use 0 to disable timeout feature (not recommended)
+ * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
+ *                  Set to `0` to disable timeout feature (not recommended)
  * \param[in]       cb: Connection callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -203,7 +204,9 @@ esp_set_server(esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn c
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSERVER;
-    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSERVERMAXCONN;  /* First command is to set maximal number of connections for server */
+    if (port > 0) {
+        ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSERVERMAXCONN;  /* First command is to set maximal number of connections for server */
+    }
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.port = port;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.max_conn = max_conn;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.timeout = timeout;
