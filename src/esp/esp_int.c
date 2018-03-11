@@ -1249,14 +1249,27 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
     /*
      * Are we enabling server mode for some reason?
      */
-    if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSERVER) && msg->msg.tcpip_server.port) {
-        if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSERVERMAXCONN)) {
-            /* Since not all AT versions support CIPSERVERMAXCONN command, ignore result */
-            n_cmd = ESP_CMD_TCPIP_CIPSERVER;
-        } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSERVER)) {
-            if (is_ok) {
-                esp.cb_server = msg->msg.tcpip_server.cb;   /* Set server callback function */
+    if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSERVER)) {
+        if (msg->msg.tcpip_server.en) {
+            if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSERVERMAXCONN)) {
+                /* Since not all AT versions support CIPSERVERMAXCONN command, ignore result */
+                n_cmd = ESP_CMD_TCPIP_CIPSERVER;
+            } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSERVER)) {
+                if (is_ok) {
+                    esp.cb_server = msg->msg.tcpip_server.cb;   /* Set server callback function */
+                    n_cmd = ESP_CMD_TCPIP_CIPSTO;
+                }
+            } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTO)) {
+                if (!is_ok) {
+                    is_ok = 1;
+                }
             }
+        }
+        if (n_cmd == ESP_CMD_IDLE) {            /* Do we still have execution? */
+            esp.cb.cb.server.status = is_ok ? espOK : espERR;
+            esp.cb.cb.server.en = msg->msg.tcpip_server.en;
+            esp.cb.cb.server.port = msg->msg.tcpip_server.port;
+            espi_send_cb(ESP_CB_SERVER);        /* Send to upper layer */
         }
     }
     
@@ -1574,7 +1587,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_CIPSERVER: {         /* Enable or disable server */  
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+CIPSERVER=");
-            if (msg->msg.tcpip_server.port) {   /* Do we have valid port? */
+            if (msg->msg.tcpip_server.en) {     /* Do we want to enable server? */
                 ESP_AT_PORT_SEND_STR("1");
                 send_port(msg->msg.tcpip_server.port, 0, 1);
             } else {                            /* Disable server */
