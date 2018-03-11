@@ -926,9 +926,10 @@ http_evt_cb(esp_cb_t* cb) {
          * Data received on connection
          */
         case ESP_CB_CONN_DATA_RECV: {
-            esp_pbuf_p p = cb->cb.conn_data_recv.buff;
+            esp_pbuf_p p;
             size_t pos;
             
+            p = esp_evt_conn_data_recv_get_buff(cb);    /* Get received buffer */
             if (hs != NULL) {                   /* Do we have a valid http state? */
                 /*
                  * Check if we have to receive headers data first
@@ -1109,10 +1110,12 @@ http_evt_cb(esp_cb_t* cb) {
          * Data were successfully sent on a connection
          */
         case ESP_CB_CONN_DATA_SENT: {
+            size_t len;
             if (hs != NULL) {
+                len = esp_evt_conn_data_sent_get_length(cb);    /* Get length */
                 ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE,
-                    "SERVER: data sent with %d bytes\r\n", (int)cb->cb.conn_data_sent.sent);
-                hs->sent_total += cb->cb.conn_data_sent.sent;   /* Increase number of bytes sent */
+                    "SERVER: data sent with %d bytes\r\n", (int)len);
+                hs->sent_total += len;          /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
                 close = 1;
@@ -1194,7 +1197,7 @@ http_evt_cb(esp_cb_t* cb) {
 espr_t
 esp_http_server_init(const http_init_t* init, esp_port_t port) {
     espr_t res;
-    if ((res = esp_set_server(port, ESP_CFG_MAX_CONNS, 80, http_evt_cb, 1)) == espOK) {
+    if ((res = esp_set_server(1, port, ESP_CFG_MAX_CONNS, 80, http_evt_cb, 1)) == espOK) {
         hi = init;
     }
     return res;

@@ -165,8 +165,10 @@ esp_cb(esp_cb_t* cb) {
          * should have netconn structure as argument
          */
         case ESP_CB_CONN_DATA_RECV: {
-            esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;
+            esp_pbuf_p pbuf;
+
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
+            pbuf = esp_evt_conn_data_recv_get_buff(cb); /* Get received buff */
 
             esp_conn_recved(conn, pbuf);        /* Notify stack about received data */
 #if !ESP_CFG_NETCONN_ACCEPT_ON_CONNECT
@@ -210,7 +212,7 @@ esp_cb(esp_cb_t* cb) {
                 }
             }
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n",
-                    (int)esp_pbuf_length(cb->cb.conn_data_recv.buff, 0));
+                    (int)esp_pbuf_length(pbuf, 0));
             break;
         }
         
@@ -364,7 +366,7 @@ esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
     /*
      * Enable server on port and set default callback
      */
-    return esp_set_server(port, ESP_CFG_MAX_CONNS, 100, esp_cb, 1);
+    return esp_set_server(1, port, ESP_CFG_MAX_CONNS, 100, esp_cb, 1);
 }
 
 /**

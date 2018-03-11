@@ -880,7 +880,8 @@ mqtt_conn_cb(esp_cb_t* cb) {
          * server was not successful
          */
         case ESP_CB_CONN_ERROR: {
-            mqtt_client_t* client = cb->cb.conn_error.arg;  /* Get argument from connection */
+            mqtt_client_t* client;
+            client = esp_evt_conn_error_get_arg(cb);/* Get connection argument */
             if (client != NULL) {
                 client->conn_state = MQTT_CONN_DISCONNECTED;    /* Set back to disconnected state */
                 /* Notify user upper layer */
@@ -904,7 +905,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
          * on MQTT client connection
          */
         case ESP_CB_CONN_DATA_RECV: {
-            mqtt_data_recv_cb(client, cb->cb.conn_data_recv.buff);  /* Call user to process received data */
+            mqtt_data_recv_cb(client, esp_evt_conn_data_recv_get_buff(cb)); /* Call user to process received data */
             break;
         }
         
@@ -912,7 +913,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
          * Data were sent on MQTT client connection
          */
         case ESP_CB_CONN_DATA_SENT: {
-            mqtt_data_sent_cb(client, cb->cb.conn_data_sent.sent, 1);   /* Data sent callback */
+            mqtt_data_sent_cb(client, esp_evt_conn_data_sent_get_length(cb), 1);    /* Data sent callback */
             break;
         }
         
@@ -920,7 +921,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
          * There was an error sending data to remote
          */
         case ESP_CB_CONN_DATA_SEND_ERR: {
-            mqtt_data_sent_cb(client, cb->cb.conn_data_send_err.sent, 0);   /* Data sent error */
+            mqtt_data_sent_cb(client, esp_evt_conn_data_send_err_get_length(cb), 0);/* Data sent error */
             break;
         }
         
