@@ -323,6 +323,7 @@ typedef struct esp_msg {
             uint8_t mux;                        /*!< Mux status, either enabled or disabled */
         } tcpip_mux;                            /*!< Used for setting up multiple connections */
         struct {
+            uint8_t en;                         /*!< Enable/Disable server status */
             esp_port_t port;                    /*!< Server port number */
             uint16_t max_conn;                  /*!< Maximal number of connections available for server */
             uint16_t timeout;                   /*!< Connection timeout */

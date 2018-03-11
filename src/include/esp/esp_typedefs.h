@@ -233,6 +233,8 @@ typedef enum esp_cb_type_t {
     ESP_CB_CONN_CLOSED,                         /*!< Connection was just closed */
     ESP_CB_CONN_POLL,                           /*!< Poll for connection if there are any changes */
     
+    ESP_CB_SERVER,                              /*!< Server status changed */
+
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     ESP_CB_WIFI_CONNECTED,                      /*!< Station just connected to AP */
     ESP_CB_WIFI_GOT_IP,                         /*!< Station has valid IP */
@@ -296,6 +298,12 @@ typedef struct esp_cb_t {
         struct {
             esp_conn_p conn;                    /*!< Set connection pointer */
         } conn_poll;                            /*!< Polling active connection to check for timeouts. Use with \ref ESP_CB_CONN_POLL event */
+
+        struct {
+            espr_t status;                      /*!< Status of command */
+            uint8_t en;                         /*!< Status to enable/disable server */
+            esp_port_t port;                    /*!< Server port number */
+        } server;                               /*!< Server change event. Use with \ref ESP_CB_SERVER event */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
             espr_t status;                      /*!< Status of command */
