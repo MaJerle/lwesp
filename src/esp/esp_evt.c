@@ -210,8 +210,8 @@ esp_evt_conn_poll_get_conn(esp_cb_t* cc) {
  * \return          Member of \ref espr_t enumeration
  */
 espr_t
-esp_evt_conn_error_get_error(esp_cb_t* cb) {
-    return cb->cb.conn_error.err;
+esp_evt_conn_error_get_error(esp_cb_t* cc) {
+    return cc->cb.conn_error.err;
 }
 
 /**
@@ -220,8 +220,8 @@ esp_evt_conn_error_get_error(esp_cb_t* cb) {
  * \return          Member of \ref espr_t enumeration
  */
 esp_conn_type_t
-esp_evt_conn_error_get_type(esp_cb_t* cb) {
-    return cb->cb.conn_error.type;
+esp_evt_conn_error_get_type(esp_cb_t* cc) {
+    return cc->cb.conn_error.type;
 }
 
 /**
@@ -230,8 +230,8 @@ esp_evt_conn_error_get_type(esp_cb_t* cb) {
  * \return          Host name for connection
  */
 const char *
-esp_evt_conn_error_get_host(esp_cb_t* cb) {
-    return cb->cb.conn_error.host;
+esp_evt_conn_error_get_host(esp_cb_t* cc) {
+    return cc->cb.conn_error.host;
 }
 
 /**
@@ -240,8 +240,8 @@ esp_evt_conn_error_get_host(esp_cb_t* cb) {
  * \return          Host port number
  */
 esp_port_t
-esp_evt_conn_error_get_port(esp_cb_t* cb) {
-    return cb->cb.conn_error.port;
+esp_evt_conn_error_get_port(esp_cb_t* cc) {
+    return cc->cb.conn_error.port;
 }
 
 /**
@@ -250,8 +250,8 @@ esp_evt_conn_error_get_port(esp_cb_t* cb) {
  * \return          User argument
  */
 void *
-esp_evt_conn_error_get_arg(esp_cb_t* cb) {
-    return cb->cb.conn_error.arg;
+esp_evt_conn_error_get_arg(esp_cb_t* cc) {
+    return cc->cb.conn_error.arg;
 }
 
 /**

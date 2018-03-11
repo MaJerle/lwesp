@@ -180,11 +180,11 @@ esp_conn_p  esp_evt_conn_poll_get_conn(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_CONN_ERROR event
  */
 
-espr_t              esp_evt_conn_error_get_error(esp_cb_t* cb);
-esp_conn_type_t     esp_evt_conn_error_get_type(esp_cb_t* cb);
-const char*         esp_evt_conn_error_get_host(esp_cb_t* cb);
-esp_port_t          esp_evt_conn_error_get_port(esp_cb_t* cb);
-void*               esp_evt_conn_error_get_arg(esp_cb_t* cb);
+espr_t              esp_evt_conn_error_get_error(esp_cb_t* cc);
+esp_conn_type_t     esp_evt_conn_error_get_type(esp_cb_t* cc);
+const char*         esp_evt_conn_error_get_host(esp_cb_t* cc);
+esp_port_t          esp_evt_conn_error_get_port(esp_cb_t* cc);
+void*               esp_evt_conn_error_get_arg(esp_cb_t* cc);
 
 /**
  * \}
