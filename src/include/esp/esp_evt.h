@@ -53,13 +53,7 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_RESET event
  */
 
-/**
- * \brief           Check if reset was forced by user
- * \param[in]       cc: Event handle
- * \return          `1` if forced by user, `0` otherwise
- * \hideinitializer
- */
-#define esp_evt_reset_is_forced(cc)             ESP_U8(!!((cc)->cb.reset.forced))
+uint8_t     esp_evt_reset_is_forced(esp_cb_t* cc);
 
 /**
  * \}
@@ -71,21 +65,8 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_AP_IP_STA event
  */
 
-/**
- * \brief           Get MAC address from station
- * \param[in]       cc: Event handle
- * \return          MAC address
- * \hideinitializer
- */
-#define esp_evt_ap_ip_sta_get_mac(cc)           ((cc)->cb.ap_ip_sta.mac)
-
-/**
- * \brief           Get IP address from station
- * \param[in]       cc: Event handle
- * \return          IP address
- * \hideinitializer
- */
-#define esp_evt_ap_ip_sta_get_ip(cc)            ((cc)->cb.ap_ip_sta.ip)
+esp_mac_t*  esp_evt_ap_ip_sta_get_mac(esp_cb_t* cc);
+esp_ip_t*   esp_evt_ap_ip_sta_get_ip(esp_cb_t* cc);
     
 /**
  * \}
@@ -97,13 +78,7 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_AP_CONNECTED_STA event
  */
 
-/**
- * \brief           Get MAC address from connected station
- * \param[in]       cc: Event handle
- * \return          MAC address
- * \hideinitializer
- */
-#define esp_evt_ap_connected_sta_get_mac(cc)    ((cc)->cb.ap_conn_disconn_sta.mac)
+esp_mac_t*  esp_evt_ap_connected_sta_get_mac(esp_cb_t* cc);
 
 /**
  * \}
@@ -115,13 +90,7 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_AP_DISCONNECTED_STA event
  */
 
-/**
- * \brief           Get MAC address from disconnected station
- * \param[in]       cc: Event handle
- * \return          MAC address
- * \hideinitializer
- */
-#define esp_evt_ap_disconnected_sta_get_mac(cc) ((cc)->cb.ap_conn_disconn_sta.mac)
+esp_mac_t*  esp_evt_ap_disconnected_sta_get_mac(esp_cb_t* cc);
 
 /**
  * \}
@@ -133,21 +102,8 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_RECV event
  */
 
-/**
- * \brief           Get buffer from received data
- * \param[in]       cc: Event handle
- * \return          Buffer handle
- * \hideinitializer
- */
-#define esp_evt_conn_data_recv_get_buff(cc)     ((cc)->cb.conn_data_recv.buff)
-
-/**
- * \brief           Get connection handle for receive
- * \param[in]       cc: Event handle
- * \return          Connection handle
- * \hideinitializer
- */
-#define esp_evt_conn_data_recv_get_conn(cc)     ((cc)->cb.conn_data_recv.conn)
+esp_pbuf_p  esp_evt_conn_data_recv_get_buff(esp_cb_t* cc);
+esp_conn_p  esp_evt_conn_data_recv_get_conn(esp_cb_t* cc);
 
 /**
  * \}
@@ -159,21 +115,8 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_SENT event
  */
 
-/**
- * \brief           Get connection handle for data sent event
- * \param[in]       cc: Event handle
- * \return          Connection handle
- * \hideinitializer
- */
-#define esp_evt_conn_data_sent_get_conn(cc)     ((cc)->cb.conn_data_sent.conn)
-
-/**
- * \brief           Get number of bytes sent on connection
- * \param[in]       cc: Event handle
- * \return          Number of bytes sent
- * \hideinitializer
- */
-#define esp_evt_conn_data_sent_get_length(cc)   ((cc)->cb.conn_data_sent.size)
+esp_conn_p  esp_evt_conn_data_sent_get_conn(esp_cb_t* cc);
+size_t      esp_evt_conn_data_sent_get_length(esp_cb_t* cc);
 
 /**
  * \}
@@ -185,21 +128,8 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_SEND_ERR event
  */
 
-/**
- * \brief           Get connection handle
- * \param[in]       cc: Event handle
- * \return          Connection handle
- * \hideinitializer
- */
-#define esp_evt_conn_data_send_err_get_conn(cc)   ((cc)->cb.conn_data_send_err.conn)
-
-/**
- * \brief           Get number of bytes successfully sent on failed send command
- * \param[in]       cc: Event handle
- * \return          Connection handle
- * \hideinitializer
- */
-#define esp_evt_conn_data_send_err_get_length(cc)   ((cc)->cb.conn_data_send_err.size)
+esp_conn_p  esp_evt_conn_data_send_err_get_conn(esp_cb_t* cc);
+size_t      esp_evt_conn_data_send_err_get_length(esp_cb_t* cc);
 
 /**
  * \}
@@ -211,21 +141,8 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_CONN_ACTIVE event
  */
 
-/**
- * \brief           Get connection handle
- * \param[in]       cc: Event handle
- * \return          Connection handle
- * \hideinitializer
- */
-#define esp_evt_conn_active_get_conn(cc)        ((cc)->cb.conn_active_closed.conn)
-
-/**
- * \brief           Check if new connection is client
- * \param[in]       cc: Event handle
- * \return          `1` if client, `0` otherwise
- * \hideinitializer
- */
-#define esp_evt_conn_active_is_client(cc)       ESP_U8(!!((cc)->cb.conn_active_closed.client))
+esp_conn_p  esp_evt_conn_active_get_conn(esp_cb_t* cc);
+uint8_t     esp_evt_conn_active_is_client(esp_cb_t* cc);
 
 /**
  * \}
@@ -237,29 +154,9 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_CONN_CLOSED event
  */
 
-/**
- * \brief           Get connection handle
- * \param[in]       cc: Event handle
- * \return          Connection handle
- * \hideinitializer
- */
-#define esp_evt_conn_closed_get_conn(cc)        ((cc)->cb.conn_active_closed.conn)
-
-/**
- * \brief           Check if just closed connection was client
- * \param[in]       cc: Event handle
- * \return          `1` if client, `0` otherwise
- * \hideinitializer
- */
-#define esp_evt_conn_closed_is_client(cc)       ((cc)->cb.conn_active_closed.client)
-
-/**
- * \brief           Check if connection close even was forced by user
- * \param[in]       cc: Event handle
- * \return          `1` if forced, `0` otherwise
- * \hideinitializer
- */
-#define esp_evt_conn_closed_is_forced(cc)       ((cc)->cb.conn_active_closed.forced)
+esp_conn_p  esp_evt_conn_closed_get_conn(esp_cb_t* cc);
+uint8_t     esp_evt_conn_closed_is_client(esp_cb_t* cc);
+uint8_t     esp_evt_conn_closed_is_forced(esp_cb_t* cc);
 
 /**
  * \}
@@ -271,17 +168,29 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_CONN_POLL event
  */
 
-/**
- * \brief           Get connection handle
- * \param[in]       cc: Event handle
- * \return          Connection handle
- * \hideinitializer
- */
-#define esp_evt_conn_poll_get_conn(cc)          ((cc)->cb.conn_poll.conn)
+esp_conn_p  esp_evt_conn_poll_get_conn(esp_cb_t* cc);
 
 /**
  * \}
  */
+
+/**
+ * \name            ESP_EVT_CONN_ERROR
+ * \anchor          ESP_EVT_CONN_ERROR
+ * \brief           Event helper functions for \ref ESP_CB_CONN_ERROR event
+ */
+
+espr_t              esp_evt_conn_error_get_error(esp_cb_t* cb);
+esp_conn_type_t     esp_evt_conn_error_get_type(esp_cb_t* cb);
+const char*         esp_evt_conn_error_get_host(esp_cb_t* cb);
+esp_port_t          esp_evt_conn_error_get_port(esp_cb_t* cb);
+void*               esp_evt_conn_error_get_arg(esp_cb_t* cb);
+
+/**
+ * \}
+ */
+
+
 
 /**
  * \name            ESP_EVT_STA_LIST_AP
@@ -289,29 +198,9 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_STA_LIST_AP event
  */
 
-/**
- * \brief           Get command success status
- * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
- * \hideinitializer
- */
-#define esp_evt_sta_list_ap_get_status(cc)      ((cc)->cb.sta_list_ap.status)
-
-/**
- * \brief           Get command success status
- * \param[in]       cc: Event handle
- * \return          Pointer to \ref esp_ap_t with first access point description
- * \hideinitializer
- */
-#define esp_evt_sta_list_ap_get_aps(cc)         ((cc)->cb.sta_list_ap.aps)
-
-/**
- * \brief           Get number of access points found
- * \param[in]       cc: Event handle
- * \return          Number of access points found
- * \hideinitializer
- */
-#define esp_evt_sta_list_ap_get_length(cc)      ((cc)->cb.sta_list_ap.len)
+espr_t      esp_evt_sta_list_ap_get_status(esp_cb_t* cc);
+esp_ap_t*   esp_evt_sta_list_ap_get_aps(esp_cb_t* cc);
+size_t      esp_evt_sta_list_ap_get_length(esp_cb_t* cc);
 
 /**
  * \}
@@ -323,13 +212,7 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_STA_JOIN_AP event
  */
 
-/**
- * \brief           Get command success status
- * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
- * \hideinitializer
- */
-#define esp_evt_sta_join_ap_get_status(cc)      ((cc)->cb.sta_join_ap.status)
+espr_t      esp_evt_sta_join_ap_get_status(esp_cb_t* cc);
 
 /**
  * \}
@@ -341,29 +224,23 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_DNS_HOSTBYNAME event
  */
 
-/**
- * \brief           Get resolve status
- * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
- * \hideinitializer
- */
-#define esp_evt_dns_hostbyname_get_status(cc)   ((cc)->cb.dns_hostbyname.status)
+espr_t      esp_evt_dns_hostbyname_get_status(esp_cb_t* cc);
+const char* esp_evt_dns_hostbyname_get_host(esp_cb_t* cc);
+esp_ip_t*   esp_evt_dns_hostbyname_get_ip(esp_cb_t* cc);
 
 /**
- * \brief           Get hostname used to resolve IP address
- * \param[in]       cc: Event handle
- * \return          Hostname
- * \hideinitializer
+ * \}
  */
-#define esp_evt_dns_hostbyname_get_host(cc)     ((cc)->cb.dns_hostbyname.host)
 
 /**
- * \brief           Get IP address from DNS function
- * \param[in]       cc: Event handle
- * \return          IP address
- * \hideinitializer
+ * \name            ESP_EVT_SERVER
+ * \anchor          ESP_EVT_SERVER
+ * \brief           Event helper functions for \ref ESP_CB_SERVER event
  */
-#define esp_evt_dns_hostbyname_get_ip(cc)       ((cc)->cb.dns_hostbyname.ip)
+
+espr_t      esp_evt_server_get_status(esp_cb_t* cc);
+esp_port_t  esp_evt_server_get_port(esp_cb_t* cc);
+uint8_t     esp_evt_server_is_enable(esp_cb_t* cc);
 
 /**
  * \}
