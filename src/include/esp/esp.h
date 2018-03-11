@@ -54,7 +54,7 @@ espr_t      esp_restore(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
 
-espr_t      esp_set_server(esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking);
+espr_t      esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking);
 
 espr_t      esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking);
 
