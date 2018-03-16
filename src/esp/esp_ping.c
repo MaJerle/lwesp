@@ -39,7 +39,7 @@
 /**
  * \brief           Ping server and get response time from it
  * \param[in]       host: Host name to ping
- * \param[out]      time: Pointer to output variable to save ping time
+ * \param[out]      time: Pointer to output variable to save ping time in units of milliseconds
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */

@@ -566,8 +566,7 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_PING) && ESP_CHARISNUM(rcv->data[1])) {
-                const char* tmp = &rcv->data[1];
-                *esp.msg->msg.tcpip_ping.time = espi_parse_number(&tmp);
+                espi_parse_ping_time(rcv->data, esp.msg);   /* Parse ping time */
 #endif /* ESP_CFG_PING */
 #if ESP_CFG_SNTP
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSNTPTIME) && !strncmp(rcv->data, "+CIPSNTPTIME", 12)) {
@@ -1234,6 +1233,13 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         esp.cb.cb.dns_hostbyname.ip = msg->msg.dns_getbyhostname.ip;
         espi_send_cb(ESP_CB_DNS_HOSTBYNAME);    /* Send to user layer */
 #endif /* ESP_CFG_DNS */
+#if ESP_CFG_PING
+    } else if (CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
+        esp.cb.cb.ping.status = is_ok ? espOK : espERR;
+        esp.cb.cb.ping.host = esp.msg->msg.tcpip_ping.host;
+        esp.cb.cb.ping.time = *esp.msg->msg.tcpip_ping.time;
+        espi_send_cb(ESP_CB_PING);              /* Send to upper layer */
+#endif
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSTART)) {/* Is our intention to join to access point? */
         if (msg->i == 0 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
             if (is_ok) {

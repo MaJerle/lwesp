@@ -252,6 +252,9 @@ typedef enum esp_cb_type_t {
 #if ESP_CFG_DNS || __DOXYGEN__
     ESP_CB_DNS_HOSTBYNAME,                      /*!< DNS domain service finished */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
+#if ESP_CFG_PING || __DOXYGEN__
+    ESP_CB_PING,                                /*!< PING service finished */
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
 } esp_cb_type_t;
 
 /**
@@ -330,6 +333,13 @@ typedef struct esp_cb_t {
             esp_ip_t* ip;                       /*!< Pointer to IP result */
         } dns_hostbyname;                       /*!< DNS domain service finished. Use with \ref ESP_CB_DNS_HOSTBYNAME event */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */        
+#if ESP_CFG_PING || __DOXYGEN__
+        struct {
+            espr_t status;                      /*!< Operation status */
+            const char* host;                   /*!< Host name for ping */
+            uint32_t time;                      /*!< Time required for ping. Valid only if operation succedded */
+        } ping;                                 /*!< Ping finished. Use with \ref ESP_CB_PING event */
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
     } cb;                                       /*!< Callback event union */
 } esp_cb_t;
 

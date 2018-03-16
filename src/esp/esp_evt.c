@@ -44,6 +44,7 @@ esp_evt_reset_is_forced(esp_cb_t* cc) {
     return ESP_U8(!!cc->cb.reset.forced);
 }
 
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
 /**
  * \brief           Get MAC address from station
  * \param[in]       cc: Event handle
@@ -83,6 +84,8 @@ esp_mac_t *
 esp_evt_ap_disconnected_sta_get_mac(esp_cb_t* cc) {
     return cc->cb.ap_conn_disconn_sta.mac;
 }
+
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 
 /**
  * \brief           Get buffer from received data
@@ -254,6 +257,8 @@ esp_evt_conn_error_get_arg(esp_cb_t* cc) {
     return cc->cb.conn_error.arg;
 }
 
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
+
 /**
  * \brief           Get command success status
  * \param[in]       cc: Event handle
@@ -294,6 +299,10 @@ esp_evt_sta_join_ap_get_status(esp_cb_t* cc) {
     return cc->cb.sta_join_ap.status;
 }
 
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+
+#if ESP_CFG_DNS || __DOXYGEN__
+
 /**
  * \brief           Get resolve status
  * \param[in]       cc: Event handle
@@ -323,6 +332,42 @@ esp_ip_t *
 esp_evt_dns_hostbyname_get_ip(esp_cb_t* cc) {
     return cc->cb.dns_hostbyname.ip;
 }
+
+#endif /* ESP_CFG_DNS || __DOXYGEN__ */
+
+#if ESP_CFG_PING || __DOXYGEN__
+
+/**
+ * \brief           Get ping status
+ * \param[in]       cc: Event handle
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_evt_ping_get_status(esp_cb_t* cc) {
+    return cc->cb.ping.status;
+}
+
+/**
+ * \brief           Get hostname used to ping
+ * \param[in]       cc: Event handle
+ * \return          Hostname
+ */
+const char *
+esp_evt_ping_get_host(esp_cb_t* cc) {
+    return cc->cb.ping.host;
+}
+
+/**
+ * \brief           Get time required for ping
+ * \param[in]       cc: Event handle
+ * \return          Ping time
+ */
+uint32_t
+esp_evt_ping_get_time(esp_cb_t* cc) {
+    return cc->cb.ping.time;
+}
+
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
 
 /**
  * \brief           Get server command result status

@@ -247,6 +247,20 @@ uint8_t     esp_evt_server_is_enable(esp_cb_t* cc);
  */
 
 /**
+ * \name            ESP_EVT_PING
+ * \anchor          ESP_EVT_PING
+ * \brief           Event helper functions for \ref ESP_CB_PING event
+ */
+
+espr_t      esp_evt_ping_get_status(esp_cb_t* cc);
+const char* esp_evt_ping_get_host(esp_cb_t* cc);
+uint32_t    esp_evt_ping_get_time(esp_cb_t* cc);
+
+/**
+ * \}
+ */
+
+/**
  * \}
  */
 
