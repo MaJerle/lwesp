@@ -54,13 +54,13 @@ pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
     }
     
     /*
-     * Skip pbufs until we reach pbuf where offset is placed
+     * Skip pbufs until we reach offset
      */
     for (; p != NULL && p->len <= off; p = p->next) {
         off -= p->len;                          /* Decrease offset by current pbuf length */
     }
     
-    if (new_off != NULL) {                      /* Check new offset */
+    if (new_off != NULL) {                      /* Check new offset in current pbuf */
         *new_off = off;                         /* Set offset to output variable */
     }
     return p;
@@ -75,7 +75,7 @@ esp_pbuf_p
 esp_pbuf_new(size_t len) {
     esp_pbuf_p p;
     
-    p = esp_mem_calloc(1, SIZEOF_PBUF_STRUCT + len);    /* Allocate memory for packet buffer */
+    p = esp_mem_alloc(SIZEOF_PBUF_STRUCT + len);/* Allocate memory for packet buffer */
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p == NULL, "PBUF: Failed to allocate %d bytes\r\n", (int)len);
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p != NULL, "PBUF: Allocated %d bytes on %p\r\n", (int)len, p);
     if (p != NULL) {
@@ -165,12 +165,12 @@ esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
     espr_t res;
     
     /*
-     * First concatenate them together
-     * Second create a new reference from head buffer to tail buffer
-     * so user can normally use tail pbuf and free it when it wants    
+     * To prevent issues with multi-thread access,
+     * first reference pbuf and increase counter
      */
-    if ((res = esp_pbuf_cat(head, tail)) == espOK) {    /* Did we contencate them together successfully? */
-        esp_pbuf_ref(tail);                     /* Reference tail pbuf by head pbuf now */
+    esp_pbuf_ref(tail);                         /* Reference tail pbuf by head pbuf now */
+    if ((res = esp_pbuf_cat(head, tail)) != espOK) {    /* Did we contencate them together successfully? */
+        esp_pbuf_free(tail);                    /* Call free to decrease reference counter */
     }
     return res;
 }
