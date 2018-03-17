@@ -1828,14 +1828,14 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     } else {
         if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
             ESP_MSG_VAR_FREE(msg);              /* Release message */
-            res = espERR;
+            res = espERRMEM;
         }
     }
     if (block && res == espOK) {                /* In case we have blocking request */
         uint32_t time;
         time = esp_sys_sem_wait(&msg->sem, max_block_time * 100);   /* Wait forever for semaphore access for max block time */
         if (ESP_SYS_TIMEOUT == time) {          /* If semaphore was not accessed in given time */
-            res = espERR;                       /* Semaphore not released in time */
+            res = espTIMEOUT;                   /* Semaphore not released in time */
         } else {
             res = msg->res;                     /* Set response status from message response */
         }
