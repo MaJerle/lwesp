@@ -58,6 +58,8 @@ espr_t      esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint1
 
 espr_t      esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking);
 
+espr_t      esp_update_sw(uint32_t blocking);
+
 espr_t      esp_core_lock(void);
 espr_t      esp_core_unlock(void);
 

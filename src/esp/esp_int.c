@@ -1397,6 +1397,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
+        case ESP_CMD_TCPIP_CIUPDATE: {          /* Update ESP software remotely */
+            ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
+            ESP_AT_PORT_SEND_STR("+CIUPDATE");
+            ESP_AT_PORT_SEND_END();             /* End AT command string */
+            break;
+        }
 #endif /* ESP_CFG_MODE_STATION */
         case ESP_CMD_WIFI_CWMODE: {             /* Set WIFI mode */
             esp_mode_t m;

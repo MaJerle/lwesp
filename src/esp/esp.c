@@ -219,6 +219,25 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
+
+/**
+ * \brief           Updated ESP software remotely
+ * \note            ESP must be connected to access point to use this feature
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_update_sw(uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIUPDATE;
+    
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 180000);  /* Send message to producer queue */
+}
+
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+
 #if ESP_CFG_DNS || __DOXYGEN__
 
 /**
