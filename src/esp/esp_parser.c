@@ -456,6 +456,7 @@ espi_parse_ping_time(const char* str, esp_msg_t* msg) {
     if (msg->msg.tcpip_ping.time != NULL) {
         *msg->msg.tcpip_ping.time = time;
     }
+    return 1;
 }
 
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
