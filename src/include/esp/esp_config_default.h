@@ -356,7 +356,25 @@
 #ifndef ESP_CFG_INPUT_USE_PROCESS
 #define ESP_CFG_INPUT_USE_PROCESS           0
 #endif
- 
+
+/**
+ * \brief           Producer thread hook, called each time thread wakes-up and do the processing.
+ *
+ *                  It can be used to check if thread is alive.
+ */
+#ifndef ESP_THREAD_PRODUCER_HOOK
+#define ESP_THREAD_PRODUCER_HOOK()
+#endif
+
+/**
+ * \brief           Process thread hook, called each time thread wakes-up and do the processing.
+ *
+ *                  It can be used to check if thread is alive.
+ */
+#ifndef ESP_THREAD_PROCESS_HOOK
+#define ESP_THREAD_PROCESS_HOOK()
+#endif
+
 /**
  * \}
  */

@@ -53,6 +53,7 @@ esp_thread_producer(void* const arg) {
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
         time = esp_sys_mbox_get(&esp.mbox_producer, (void **)&msg, 0);  /* Get message from queue */
+        ESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
         ESP_CORE_PROTECT();                     /* Protect system */
         if (time == ESP_SYS_TIMEOUT || msg == NULL) {   /* Check valid message */
             continue;
@@ -120,6 +121,7 @@ esp_thread_process(void* const arg) {
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
         time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 10);    /* Get message from queue */
+        ESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
         ESP_CORE_PROTECT();                     /* Protect system */
         
         if (time == ESP_SYS_TIMEOUT || msg == NULL) {
@@ -135,6 +137,7 @@ esp_thread_process(void* const arg) {
          * In case new timeout occurs, thread will wake up by writing new element to mbox process queue
          */
         time = espi_get_from_mbox_with_timeout_checks(&esp.mbox_process, (void **)&msg, 0);
+        ESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
         ESP_UNUSED(time);
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */
     }
