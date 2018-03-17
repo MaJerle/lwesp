@@ -57,7 +57,7 @@
  *  <tr><td>Block 3         <td>NULL                <td>270             <td>270                 <td>1                   </tr>
  * </table>
  *
- * \par             Concatenating vs chaining
+ * \section        	sect_pbuf_concat_chain Concatenating vs chaining
  *
  * When we are dealing with application part, it is important to know what is the difference between \ref esp_pbuf_cat and \ref esp_pbuf_chain.
  *
@@ -86,5 +86,11 @@
  *
  * \include         _example_pbuf_chain.c
  *
+ * \section 		sect_pbuf_extract Extract data from contatenated pbufs
+ *
+ * Chain of pbufs does not include linear data memory. To extract data from chained pbufs, we have to read pbuf by pbuf.
+ *
+ * \include         _example_pbuf_extract.c
+ * 
  * \}
  */
