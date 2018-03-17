@@ -427,6 +427,24 @@
 #endif
 
 /**
+ * \brief           Accept queue length for new client when netconn server is used
+ *
+ *                  Defines number of maximal clients waiting in accept queue of server connection
+ */
+#ifndef ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN
+#define ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN    5
+#endif
+
+/**
+ * \brief           Receive queue length for pbuf entries
+ *
+ *                  Defines maximal number of pbuf data packet references for receive
+ */
+#ifndef ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN
+#define ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN   8
+#endif
+
+/**
  * \}
  */
  
