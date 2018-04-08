@@ -41,6 +41,8 @@
  * \brief           Sequential API structure
  */
 typedef struct esp_netconn_t {
+    struct esp_netconn_t* next;                 /*!< Linked list entry */
+
     esp_netconn_type_t type;                    /*!< Netconn type */
     esp_port_t listen_port;                     /*!< Port on which we are listening */
     
@@ -60,7 +62,8 @@ typedef struct esp_netconn_t {
 } esp_netconn_t;
 
 static uint8_t recv_closed = 0xFF, recv_not_present = 0xFF;
-static esp_netconn_t* listen_api;              /* Main connection in listening mode */
+static esp_netconn_t* listen_api;               /*!< Main connection in listening mode */
+static esp_netconn_t* netconn_list;             /*!< Linked list of netconn entries */
 
 /**
  * \brief           Flush all mboxes and clear possible used memories
@@ -282,12 +285,20 @@ esp_netconn_new(esp_netconn_type_t type) {
     if (a != NULL) {
         a->type = type;                         /* Save netconn type */
         if (!esp_sys_mbox_create(&a->mbox_accept, ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {  /* Allocate memory for accepting message box */
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER, "NETCONN: Cannot create accept MBOX\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
+                "NETCONN: Cannot create accept MBOX\r\n");
             goto free_ret;
         }
         if (!esp_sys_mbox_create(&a->mbox_receive, ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {    /* Allocate memory for receiving message box */
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER, "NETCONN: Cannot create receive MBOX\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
+                "NETCONN: Cannot create receive MBOX\r\n");
             goto free_ret;
+        }
+        if (netconn_list == NULL) {             /* Add new netconn to the existing list */
+            netconn_list = a;
+        } else {
+            a->next = netconn_list;             /* Add it to beginning of the list */
+            netconn_list = a;
         }
     }
     return a;
@@ -324,7 +335,23 @@ esp_netconn_delete(esp_netconn_p nc) {
         esp_sys_mbox_delete(&nc->mbox_receive);
         esp_sys_mbox_invalid(&nc->mbox_receive);
     }
-    esp_mem_free(nc);
+    
+    /* Remove netconn from linkedlist */
+    if (netconn_list == nc) {
+        netconn_list = netconn_list->next;      /* Remove first from linked list */
+    } else if (netconn_list != NULL) {
+        esp_netconn_p tmp, prev;
+        /* Find element on the list */
+        for (prev = netconn_list, tmp = netconn_list->next;
+            tmp != NULL; prev = tmp, tmp = tmp->next) {
+            if (nc == tmp) {
+                prev->next = tmp->next;         /* Remove tmp from linked list */
+                break;
+            }
+        }
+    }
+
+    esp_mem_free(nc);                           /* Free the memory */
     nc = NULL;
     return espOK;
 }
@@ -345,9 +372,11 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
     ESP_ASSERT("port > 0", port);               /* Assert input parameters */
     
     /*
-     * Start a new connection as client and immediately
-     * set current netconn structure as argument
-     * and netconn callback function for connection management
+     * Start a new connection as client and:
+     *
+     *  - Set current netconn structure as argument
+     *  - Set netconn callback function for connection management
+     *  - Start connection in blocking mode
      */
     res = esp_conn_start(NULL, (esp_conn_type_t)nc->type, host, port, nc, esp_cb, 1);
     return res;
@@ -364,7 +393,7 @@ esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
     /*
-     * Enable server on port and set default callback
+     * Enable server on port and set default netconn callback
      */
     return esp_set_server(1, port, ESP_CFG_MAX_CONNS, 100, esp_cb, 1);
 }
@@ -378,10 +407,10 @@ espr_t
 esp_netconn_listen(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
-    
-    esp_core_lock();
+
+    ESP_CORE_PROTECT();
     listen_api = nc;                            /* Set current main API in listening state */
-    esp_core_unlock();
+    ESP_CORE_UNPROTECT();
     return espOK;
 }
 
