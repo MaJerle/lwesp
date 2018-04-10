@@ -96,6 +96,10 @@ netconn_server_thread(void const* arg) {
                     } else {
                         printf("Netconn client thread creation failed!\r\n");
                     }
+                } else {
+                    printf("Netconn connection accept error!\r\n");
+                    esp_netconn_delete(server); /* Delete netconn structure */
+                    esp_sys_thread_terminate(NULL); /* Stop this thread */
                 }
             }
         } else {
