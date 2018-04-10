@@ -81,7 +81,7 @@
 
 /**
  * \brief           Maximal number of connections AT software can support on ESP device
- * \note            In case of official AT software, leave this on default value (5)
+ * \note            In case of official AT software, leave this on default value (`5`)
  */
 #ifndef ESP_CFG_MAX_CONNS
 #define ESP_CFG_MAX_CONNS                   5
@@ -89,10 +89,10 @@
 
 /**
  * \brief           Maximal number of bytes we can send at single command to ESP
- * \note            Value can not exceed `2048` bytes or no data will be ever send
+ * \note            Value can not exceed `2048` bytes or no data won't be send at all (ESP8266 AT SW limitation)
  *
  * \note            This is limitation of ESP AT commands and on systems where RAM
- *                  is not an issue, it should be set to maximal value (2048)
+ *                  is not an issue, it should be set to maximal value (`2048`)
  *                  to optimize speed performance of sending data
  */
 #ifndef ESP_CFG_CONN_MAX_DATA_LEN
@@ -113,7 +113,7 @@
  * \brief           Maximal buffer size for entries in +IPD statement from ESP
  *
  * \note            If `+IPD` length is larger that this value, 
- *                  multiple pbuf entries will be created to hold entire +IPD
+ *                  multiple pbuf entries will be created to hold entire `+IPD`
  */
 #ifndef ESP_CFG_IPD_MAX_BUFF_SIZE
 #define ESP_CFG_IPD_MAX_BUFF_SIZE           1460
@@ -151,7 +151,7 @@
  * \note            When server mode is active and a lot of connections are in queue
  *                  this should be set high otherwise your buffer may overflow
  * 
- * \note            Buffer size also depends on TX user driver if it uses DMA or blocking mode
+ * \note            Buffer size also depends on TX user driver if it uses DMA or blocking mode.
  *                  In case of DMA (CPU can work other tasks), buffer may be smaller as CPU
  *                  will have more time to process all the incoming bytes
  *
@@ -344,12 +344,16 @@
  * \brief           Enables (`1`) or disables (`0`) direct support for processing input data
  *
  *                  When this mode is enabled, no overhead is included for copying data
- *                  to receive buffer because bytes are processed directly.
+ *                  to receive buffer because bytes are processed directly by \ref esp_input_process function
+ *
+ *                  If this mode is not enabled, then user have to send every received byte via \ref esp_input
+ *                  function to the internal buffer for future processing. This may introduce additional overhead
+ *                  with data copy and may decrease library performance
  *
  * \note            This mode can only be used when \ref ESP_CFG_OS is enabled
  *
  * \note            When using this mode, separate thread must be dedicated only 
- *                  for reading data on AT port
+ *                  for reading data on AT port. It is usually implemented in LL driver
  *
  * \note            Best case for using this mode is if DMA receive is supported by host device
  */
@@ -358,7 +362,7 @@
 #endif
 
 /**
- * \brief           Producer thread hook, called each time thread wakes-up and do the processing.
+ * \brief           Producer thread hook, called each time thread wakes-up and does the processing.
  *
  *                  It can be used to check if thread is alive.
  */
@@ -367,7 +371,7 @@
 #endif
 
 /**
- * \brief           Process thread hook, called each time thread wakes-up and do the processing.
+ * \brief           Process thread hook, called each time thread wakes-up and does the processing.
  *
  *                  It can be used to check if thread is alive.
  */

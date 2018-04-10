@@ -45,6 +45,7 @@ esp_evt_reset_is_forced(esp_cb_t* cc) {
 }
 
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
+
 /**
  * \brief           Get MAC address from station
  * \param[in]       cc: Event handle

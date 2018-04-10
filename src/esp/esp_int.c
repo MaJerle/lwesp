@@ -38,6 +38,7 @@
 #include "esp/esp_unicode.h"
 #include "system/esp_ll.h"
 
+static esp_recv_t recv_buff;
 static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready);
 
 /**

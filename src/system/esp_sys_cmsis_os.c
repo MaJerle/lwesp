@@ -1,6 +1,6 @@
 /**	
  * \file            esp_sys_cmsis_os.c
- * \brief           System dependant functions for STM32 MCU with CMSIS OS
+ * \brief           System dependant functions for CMSIS based operating system
  */
  
 /*

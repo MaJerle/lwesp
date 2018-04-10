@@ -510,7 +510,6 @@ typedef struct {
     char data[128];
     uint8_t len;
 } esp_recv_t;
-static esp_recv_t recv_buff;
 #endif /* !__DOXYGEN__ */
 
 #define CRLF                            "\r\n"
