@@ -11,7 +11,7 @@
 ap_entry_t
 ap_list[] = {
     //{ "SSID name", "SSID password" },
-    { "Tilen\xE2\x80\x99s iPhone", "ni dostopa" },
+    { "TilenM_ST", "its private" },
     { "Majerle WiFi", "majerle_internet" },
     { "Slikop.", "slikop2012" },
     { "Amis3789606848", "majerle_internet_private" },
@@ -31,6 +31,7 @@ espr_t
 connect_to_preferred_access_point(uint8_t unlimited) {
     size_t i, j;
     espr_t eres;
+    uint8_t tried;
 
     /*
      * Scan for network access points
@@ -43,6 +44,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
          */
         printf("Scanning access points...\r\n");
         if ((eres = esp_sta_list_ap(NULL, aps, sizeof(aps) / sizeof(aps[0]), &apf, 1)) == espOK) {
+            tried = 0;
             /* Print all access points found by ESP */
             for (i = 0; i < apf; i++) {
                 printf("AP found: %s\r\n", aps[i].ssid);
@@ -54,6 +56,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
             for (j = 0; j < sizeof(ap_list) / sizeof(ap_list[0]); j++) {
                 for (i = 0; i < apf; i++) {
                     if (!strcmp(aps[i].ssid, ap_list[j].ssid)) {
+                        tried = 1;
                         printf("Connecting to \"%s\" network...\r\n", ap_list[j].ssid);
                         /* Try to join to access point */
                         if ((eres = esp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, 1, 1)) == espOK) {
@@ -69,6 +72,9 @@ connect_to_preferred_access_point(uint8_t unlimited) {
                         }
                     }
                 }
+            }
+            if (!tried) {
+                printf("No access points available with preferred SSID!\r\nPlease check station_manager.c file and edit preferred SSID access points!\r\n");
             }
         } else if (eres == espERRNODEVICE) {
             printf("Device is not present!\r\n");
