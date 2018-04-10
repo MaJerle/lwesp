@@ -75,16 +75,18 @@ esp_input(const void* data, size_t len) {
  */
 espr_t
 esp_input_process(const void* data, size_t len) {
-    espr_t res;
+    espr_t res = espOK;
     esp_recv_total_len += len;                  /* Update total number of received bytes */
     esp_recv_calls++;                           /* Update number of calls */
     
     if (!esp.status.f.initialized) {
         return espERR;
     }
-    ESP_CORE_PROTECT();                         /* Protect core */
-    res = espi_process(data, len);              /* Process input data */
-    ESP_CORE_UNPROTECT();                       /* Release core */
+    if (len) {
+        ESP_CORE_PROTECT();                     /* Protect core */
+        res = espi_process(data, len);          /* Process input data */
+        ESP_CORE_UNPROTECT();                   /* Release core */
+    }
     return res;
 }
 
