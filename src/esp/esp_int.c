@@ -1193,6 +1193,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 espi_send_cb(ESP_CB_STA_JOIN_AP);   /* Notify upper layer */
             }
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
+            espi_send_cb(ESP_CB_WIFI_IP_ACQUIRED);  /* Notify upper layer */
             n_cmd = ESP_CMD_WIFI_CIPSTAMAC_GET; /* Go to next command to get MAC address */
         } else {
             esp.cb.cb.sta_join_ap.status = espOK;   /* Connected ok */
@@ -1207,7 +1208,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         esp.cb.cb.sta_list_ap.len = msg->msg.ap_list.apsi;
         esp.cb.cb.sta_list_ap.status = is_ok ? espOK : espERR;
         espi_send_cb(ESP_CB_STA_LIST_AP);
-    } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_GET)) {
+    } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_GET) || CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
         espi_send_cb(ESP_CB_WIFI_IP_ACQUIRED);  /* Notify upper layer */
 #endif /* ESP_CFG_MODE_STATION */    
 #if ESP_CFG_MODE_ACCESS_POINT
