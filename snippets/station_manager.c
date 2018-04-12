@@ -80,7 +80,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
             printf("Device is not present!\r\n");
             break;
         } else {
-            printf("No WIFI to connect!\r\n");
+            printf("Error on WIFI scan procedure!\r\n");
         }
         if (!unlimited) {
             break;

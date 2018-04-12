@@ -74,7 +74,7 @@ netconn_client_thread(void const* arg) {
                         printf("Netconn timeout while receiving data. You may try multiple readings before deciding to close manually\r\n");
                     }
 
-                    if (pbuf != NULL) {         /* Make sure we have valid packet buffer */
+                    if (res == espOK && pbuf != NULL) { /* Make sure we have valid packet buffer */
                         /*
                          * At this point read and manipulate
                          * with received buffer and check if you expect more data
