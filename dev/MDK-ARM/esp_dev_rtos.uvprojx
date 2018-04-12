@@ -764,9 +764,9 @@
           <GroupName>ESP LL</GroupName>
           <Files>
             <File>
-              <FileName>esp_ll_stm32f769_discovery.c</FileName>
+              <FileName>esp_ll_stm32f769i_discovery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_ll_stm32f769_discovery.c</FilePath>
+              <FilePath>..\..\src\system\esp_ll_stm32f769i_discovery.c</FilePath>
             </File>
             <File>
               <FileName>esp_sys_cmsis_os.c</FileName>
@@ -1699,9 +1699,9 @@
           <GroupName>ESP LL</GroupName>
           <Files>
             <File>
-              <FileName>esp_ll_stm32f769_discovery.c</FileName>
+              <FileName>esp_ll_stm32f769i_discovery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_ll_stm32f769_discovery.c</FilePath>
+              <FilePath>..\..\src\system\esp_ll_stm32f769i_discovery.c</FilePath>
             </File>
             <File>
               <FileName>esp_sys_cmsis_os.c</FileName>
@@ -2566,9 +2566,9 @@
           <GroupName>ESP LL</GroupName>
           <Files>
             <File>
-              <FileName>esp_ll_stm32f769_discovery.c</FileName>
+              <FileName>esp_ll_stm32f769i_discovery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\src\system\esp_ll_stm32f769_discovery.c</FilePath>
+              <FilePath>..\..\src\system\esp_ll_stm32f769i_discovery.c</FilePath>
             </File>
             <File>
               <FileName>esp_sys_cmsis_os.c</FileName>

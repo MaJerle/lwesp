@@ -110,6 +110,8 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
+*.out
+*.sim
 
 # Chutzpah Test files
 _Chutzpah*
@@ -352,3 +354,10 @@ ASALocalRun/
 log_file.txt
 /dev/VisualStudio/esp_dev_os/log_file.txt
 /at_over_hspi-master.zip
+
+.metadata/
+.mxproject
+.settings/
+template/
+project.ioc
+mx.scratch

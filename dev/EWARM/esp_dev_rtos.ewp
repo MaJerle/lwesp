@@ -1113,7 +1113,7 @@
     <group>
         <name>ESP LL</name>
         <file>
-            <name>$PROJ_DIR$\..\..\src\system\esp_ll_stm32f769_discovery.c</name>
+            <name>$PROJ_DIR$\..\..\src\system\esp_ll_stm32f769i_discovery.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\src\system\esp_sys_cmsis_os.c</name>

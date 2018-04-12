@@ -197,9 +197,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/src/apps/http_server/esp_http_server_fs_fat.c</locationURI>
 		</link>
 		<link>
-			<name>ESP LL/esp_ll_stm32f769_discovery.c</name>
+			<name>ESP LL/esp_ll_stm32f769i_discovery.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_ll_stm32f769_discovery.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/src/system/esp_ll_stm32f769i_discovery.c</locationURI>
 		</link>
 		<link>
 			<name>ESP LL/esp_sys_cmsis_os.c</name>

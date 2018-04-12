@@ -2031,8 +2031,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\src\system\esp_ll_stm32f769_discovery.c</PathWithFileName>
-      <FilenameWithoutPath>esp_ll_stm32f769_discovery.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\src\system\esp_ll_stm32f769i_discovery.c</PathWithFileName>
+      <FilenameWithoutPath>esp_ll_stm32f769i_discovery.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
