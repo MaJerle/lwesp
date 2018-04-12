@@ -49,8 +49,8 @@ typedef struct esp_netconn_t {
     size_t rcv_packets;                         /*!< Number of received packets so far on this connection */
     esp_conn_p conn;                            /*!< Pointer to actual connection */
     
-    esp_sys_sem_t mbox_accept;                  /*!< List of active connections waiting to be processed */
-    esp_sys_sem_t mbox_receive;                 /*!< Message queue for receive mbox */
+    esp_sys_mbox_t mbox_accept;                 /*!< List of active connections waiting to be processed */
+    esp_sys_mbox_t mbox_receive;                /*!< Message queue for receive mbox */
     
     uint8_t* buff;                              /*!< Pointer to buffer for \ref esp_netconn_write function. used only on TCP connection */
     size_t buff_len;                            /*!< Total length of buffer */
@@ -74,23 +74,23 @@ flush_mboxes(esp_netconn_t* nc) {
     esp_pbuf_p pbuf;
     esp_netconn_t* new_nc;
     esp_core_lock();                            /* Protect ESP core */
-    if (esp_sys_sem_isvalid(&nc->mbox_receive)) {
+    if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
         while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
             if (pbuf != NULL && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
                 esp_pbuf_free(pbuf);            /* Free received data buffers */
             }
         }
-        esp_sys_sem_delete(&nc->mbox_receive);  /* Delete message queue */
-        esp_sys_sem_invalid(&nc->mbox_receive); /* Invalid handle */
+        esp_sys_mbox_delete(&nc->mbox_receive); /* Delete message queue */
+        esp_sys_mbox_invalid(&nc->mbox_receive);/* Invalid handle */
     }
-    if (esp_sys_sem_isvalid(&nc->mbox_accept)) {
+    if (esp_sys_mbox_isvalid(&nc->mbox_accept)) {
         while (esp_sys_mbox_getnow(&nc->mbox_accept, (void **)&new_nc)) {
             if (new_nc != NULL && (uint8_t *)new_nc != (uint8_t *)&recv_closed) {
                 esp_netconn_close(new_nc);      /* Close netconn connection */
             }
         }
-        esp_sys_sem_delete(&nc->mbox_accept);   /* Delete message queue */
-        esp_sys_sem_invalid(&nc->mbox_accept);  /* Invalid handle */
+        esp_sys_mbox_delete(&nc->mbox_accept);  /* Delete message queue */
+        esp_sys_mbox_invalid(&nc->mbox_accept); /* Invalid handle */
     }
     esp_core_unlock();                          /* Release protection */
 }
