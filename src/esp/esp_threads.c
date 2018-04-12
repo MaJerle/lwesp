@@ -88,10 +88,11 @@ esp_thread_producer(void* const arg) {
         } else {
             res = espERR;                       /* Simply set error message */
         }
+        msg->res = res;                         /* Save response */
         
         /*
          * In case message is blocking,
-         * release semaphore and notify finished with processing
+         * release semaphore and notify processing finished,
          * otherwise directly free memory of message structure
          */
         if (msg->is_blocking) {

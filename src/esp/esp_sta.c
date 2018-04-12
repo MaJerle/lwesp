@@ -278,7 +278,7 @@ esp_sta_is_ap_802_11b(esp_ap_t* ap) {
  */
 uint8_t
 esp_sta_is_ap_802_11g(esp_ap_t* ap) {
-    return ESP_U8(!!(ap->bgn & 0x02));          /* Bit 1 is for b check */
+    return ESP_U8(!!(ap->bgn & 0x02));          /* Bit 1 is for g check */
 }
 
 /**
@@ -288,7 +288,7 @@ esp_sta_is_ap_802_11g(esp_ap_t* ap) {
  */
 uint8_t
 esp_sta_is_ap_802_11n(esp_ap_t* ap) {
-    return ESP_U8(!!(ap->bgn & 0x04));          /* Bit 2 is for b check */
+    return ESP_U8(!!(ap->bgn & 0x04));          /* Bit 2 is for n check */
 }
 
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
