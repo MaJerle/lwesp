@@ -45,5 +45,5 @@ espi_dbg_msg_to_string(esp_cmd_t cmd) {
     }
     return "";
 }
-    
+
 #endif /* ESP_CFG_DBG || __DOXYGEN__ */

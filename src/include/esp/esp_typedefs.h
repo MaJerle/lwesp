@@ -59,7 +59,7 @@ extern "C" {
  * \brief           Result enumeration used across application functions
  */
 typedef enum {
-    espOK = 0,                                  /*!< Function returned OK */
+    espOK = 0,                                  /*!< Function succeeded */
     espOKIGNOREMORE,                            /*!< Function succedded, should continue as espOK but ignore sending more data. This result is possible on connection data receive callback */
     espERR,
     espPARERR,                                  /*!< Wrong parameters on function call */
