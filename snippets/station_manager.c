@@ -17,7 +17,10 @@ ap_list[] = {
     { "Amis3789606848", "majerle_internet_private" },
 };
 
+static
 esp_ap_t aps[100];
+
+static
 size_t apf;
 
 /**

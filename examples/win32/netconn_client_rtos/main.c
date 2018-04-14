@@ -85,11 +85,11 @@ static espr_t
 esp_callback_func(esp_cb_t* cb) {
     switch (cb->type) {
         case ESP_CB_INIT_FINISH: {
-            printf("Device initialized!\r\n");
+            printf("Library initialized!\r\n");
             break;
         }
         case ESP_CB_RESET: {
-            printf("Device reset!\r\n");
+            printf("Device reset detected!\r\n");
             break;
         }
         default: break;

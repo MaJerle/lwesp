@@ -44,9 +44,5 @@
 
 /* Include default configuration setup */
 #include "esp/esp_config_default.h"
- 
-/**
- * \}
- */
 
 #endif /* __ESP_CONFIG_H */
