@@ -452,7 +452,7 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
 
 /**
  * \brief           Write data to connection output buffers
- * \note            Only you can only use it on TCP or SSL connections
+ * \note            This function may only be used on TCP or SSL connections
  * \param[in]       nc: Netconn handle used to write data to
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
@@ -546,7 +546,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 
 /**
  * \brief           Flush buffered data on netconn TCP connection
- * \note            Only you can only use it on TCP or SSL connections
+ * \note            This function may only be used on TCP or SSL connections
  * \param[in]       nc: Netconn handle to flush data
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
