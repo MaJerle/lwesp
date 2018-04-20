@@ -227,7 +227,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
      */
     if (offset) {
         copy_len = ESP_MIN(pbuf->len - offset, len);    /* Get length to copy to current pbuf */
-        memcpy(pbuf->payload + offset, d, copy_len);    /* Copy to memory with offset */
+        ESP_MEMCPY(pbuf->payload + offset, d, copy_len);/* Copy to memory with offset */
         len -= copy_len;                        /* Decrease remaining bytes to copy */
         d += copy_len;                          /* Increase data pointer */
         pbuf = pbuf->next;                      /* Go to next pbuf */
@@ -238,7 +238,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
      */
     for (; len; pbuf = pbuf->next) {
         copy_len = ESP_MIN(len, pbuf->len);     /* Get copy length */
-        memcpy(pbuf->payload, d, copy_len);     /* Copy memory to pbuf payload */
+        ESP_MEMCPY(pbuf->payload, d, copy_len); /* Copy memory to pbuf payload */
         len -= copy_len;                        /* Decrease number of remaining bytes to send */
         d += copy_len;                          /* Increase data pointer */
     }
@@ -280,7 +280,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
     tot = 0;
     for (; pbuf != NULL && len; pbuf = pbuf->next) {
         tc = ESP_MIN(pbuf->len - offset, len);      /* Get length of data to copy */
-        memcpy(d, pbuf->payload + offset, tc);      /* Copy data from pbuf */
+        ESP_MEMCPY(d, pbuf->payload + offset, tc);  /* Copy data from pbuf */
         d += tc;
         len -= tc;
         tot += tc;
@@ -471,7 +471,7 @@ esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot) {
 void
 esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port) {
     if (pbuf != NULL && ip != NULL) {
-        memcpy(&pbuf->ip, ip, sizeof(*ip));
+        ESP_MEMCPY(&pbuf->ip, ip, sizeof(*ip));
         pbuf->port = port;
     }
 }

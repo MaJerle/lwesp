@@ -267,7 +267,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
         size_t to_copy;
         to_copy = ESP_MIN(btw, conn->buff_len - conn->buff_ptr);
         if (to_copy) {
-            memcpy(&conn->buff[conn->buff_ptr], d, to_copy);
+            ESP_MEMCPY(&conn->buff[conn->buff_ptr], d, to_copy);
             conn->buff_ptr += to_copy;
             d += to_copy;
             btw -= to_copy;
@@ -506,7 +506,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
      */
     if (conn->buff != NULL) {
         len = ESP_MIN(conn->buff_len - conn->buff_ptr, btw);
-        memcpy(&conn->buff[conn->buff_ptr], d, len);
+        ESP_MEMCPY(&conn->buff[conn->buff_ptr], d, len);
         
         d += len;
         btw -= len;
@@ -532,7 +532,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         uint8_t* buff;
         buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN);    /* Allocate memory */
         if (buff != NULL) {
-            memcpy(buff, d, ESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
+            ESP_MEMCPY(buff, d, ESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
             if (conn_send(conn, NULL, 0, buff, ESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
                 ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer3: %p\r\n", (void *)buff);
                 esp_mem_free(buff);             /* Manually free memory */
@@ -562,7 +562,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
     }
     if (btw) {
         if (conn->buff != NULL) {
-            memcpy(conn->buff, d, btw);         /* Copy data to memory */
+            ESP_MEMCPY(conn->buff, d, btw);     /* Copy data to memory */
             conn->buff_ptr = btw;
         } else {
             return espERRMEM;

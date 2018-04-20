@@ -220,13 +220,13 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
     if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip()) { /* Do we have a valid IP address? */
         ESP_CORE_PROTECT();                     /* Protect ESP core */
         if (ip != NULL) {
-            memcpy(ip, &esp.sta.ip, sizeof(esp.sta.ip));    /* Copy IP address */
+            ESP_MEMCPY(ip, &esp.sta.ip, sizeof(esp.sta.ip));/* Copy IP address */
         }
         if (gw != NULL) {
-            memcpy(gw, &esp.sta.gw, sizeof(esp.sta.gw));    /* Copy gateway address */
+            ESP_MEMCPY(gw, &esp.sta.gw, sizeof(esp.sta.gw));/* Copy gateway address */
         }
         if (nm != NULL) {
-            memcpy(nm, &esp.sta.nm, sizeof(esp.sta.nm));    /* Copy netmask address */
+            ESP_MEMCPY(nm, &esp.sta.nm, sizeof(esp.sta.nm));/* Copy netmask address */
         }
         res = espOK;
         ESP_CORE_UNPROTECT();                   /* Unprotect ESP core */

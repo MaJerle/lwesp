@@ -483,11 +483,11 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     if (nc->buff != NULL) {                     /* Is there a write buffer ready to accept more data? */
         len = ESP_MIN(nc->buff_len - nc->buff_ptr, btw);    /* Get number of bytes we can write to buffer */
         if (len) {
-            memcpy(&nc->buff[nc->buff_ptr], data, len); /* Copy memory to temporary write buffer */
+            ESP_MEMCPY(&nc->buff[nc->buff_ptr], data, len); /* Copy memory to temporary write buffer */
+            d += len;
+            nc->buff_ptr += len;
+            btw -= len;
         }
-        d += len;
-        nc->buff_ptr += len;
-        btw -= len;
         
         /*
          * Step 1.1
@@ -536,7 +536,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
      * Step 4
      */
     if (nc->buff != NULL) {                     /* Memory available? */
-        memcpy(&nc->buff[nc->buff_ptr], d, btw);    /* Copy data to buffer */
+        ESP_MEMCPY(&nc->buff[nc->buff_ptr], d, btw);/* Copy data to buffer */
         nc->buff_ptr += btw;
     } else {                                    /* Still no memory available? */
         return esp_conn_send(nc->conn, data, btw, NULL, 1); /* Simply send directly blocking */

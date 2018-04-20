@@ -489,15 +489,15 @@ espi_parse_received(esp_recv_t* rcv) {
                 espi_parse_mac(&tmp, &mac);     /* Save as current MAC address */
                 if (is_received_current_setting(rcv->data)) {
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
-                    memcpy(CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET) ? &esp.sta.mac : &esp.ap.mac, &mac, 6);   /* Copy to current setup */
+                    ESP_MEMCPY(CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET) ? &esp.sta.mac : &esp.ap.mac, &mac, 6);   /* Copy to current setup */
 #elif ESP_CFG_MODE_STATION
-                    memcpy(&esp.sta.mac, &mac, 6);  /* Copy to current setup */
+                    ESP_MEMCPY(&esp.sta.mac, &mac, 6);  /* Copy to current setup */
 #else
-                    memcpy(&esp.ap.mac, &mac, 6);   /* Copy to current setup */
+                    ESP_MEMCPY(&esp.ap.mac, &mac, 6);   /* Copy to current setup */
 #endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
                 }
                 if (esp.msg->msg.sta_ap_getmac.mac != NULL && CMD_IS_CUR(CMD_GET_DEF())) {
-                    memcpy(esp.msg->msg.sta_ap_getmac.mac, &mac, sizeof(mac));  /* Copy to current setup */
+                    ESP_MEMCPY(esp.msg->msg.sta_ap_getmac.mac, &mac, sizeof(mac));  /* Copy to current setup */
                 }
             } else if (
 #if ESP_CFG_MODE_STATION
@@ -548,10 +548,10 @@ espi_parse_received(esp_recv_t* rcv) {
                     }
                     espi_parse_ip(&tmp, &ip);   /* Parse IP address */
                     if (is_received_current_setting(rcv->data)) {
-                        memcpy(a, &ip, sizeof(ip)); /* Copy to current setup */
+                        ESP_MEMCPY(a, &ip, sizeof(ip)); /* Copy to current setup */
                     }
                     if (b != NULL && CMD_IS_CUR(CMD_GET_DEF())) {   /* Is current command the same as default one? */
-                        memcpy(b, &ip, sizeof(ip)); /* Copy to user variable */
+                        ESP_MEMCPY(b, &ip, sizeof(ip)); /* Copy to user variable */
                     }
                 }
 #if ESP_CFG_MODE_STATION
@@ -706,13 +706,13 @@ espi_parse_received(esp_recv_t* rcv) {
                 }
             } else if (!esp.link_conn.failed && !conn->status.f.active) {
                 id = conn->val_id;
-                memset(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
+                ESP_MEMSET(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
                 conn->num = esp.link_conn.num;  /* Set connection number */
                 conn->status.f.active = !esp.link_conn.failed;  /* Check if connection active */
                 conn->val_id = ++id;            /* Set new validation ID */
                 
                 conn->type = esp.link_conn.type;/* Set connection type */
-                memcpy(&conn->remote_ip, &esp.link_conn.remote_ip, sizeof(conn->remote_ip));
+                ESP_MEMCPY(&conn->remote_ip, &esp.link_conn.remote_ip, sizeof(conn->remote_ip));
                 conn->remote_port = esp.link_conn.remote_port;
                 conn->local_port = esp.link_conn.local_port;
                 conn->status.f.client = !esp.link_conn.is_server;
@@ -907,7 +907,7 @@ espi_process(const void* data, size_t data_len) {
             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: New length to read: %d bytes\r\n", (int)len);
             if (len) {
                 if (esp.ipd.buff != NULL) {     /* Is buffer valid? */
-                    memcpy(&esp.ipd.buff->payload[esp.ipd.buff_ptr], d, len);
+                    ESP_MEMCPY(&esp.ipd.buff->payload[esp.ipd.buff_ptr], d, len);
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Bytes read: %d\r\n", (int)len);
                 } else {                        /* Simply skip the data in buffer */
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Bytes skipped: %d\r\n", (int)len);

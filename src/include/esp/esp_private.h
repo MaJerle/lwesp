@@ -485,7 +485,7 @@ extern esp_t esp;
     if ((name) == NULL) {                           \
         return espERRMEM;                           \
     }                                               \
-    memset(name, 0x00, sizeof(*(name)));            \
+    ESP_MEMSET(name, 0x00, sizeof(*(name)));        \
 } while (0)
 #define ESP_MSG_VAR_REF(name)                   (*(name))
 #define ESP_MSG_VAR_FREE(name)                  do {\

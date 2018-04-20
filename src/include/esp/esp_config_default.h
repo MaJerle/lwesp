@@ -516,6 +516,59 @@
 #endif
 
 /**
+ * \defgroup        ESP_CONF_STD_LIB Standard library
+ * \brief           Standard C library configuration
+ * \{
+ *
+ * Configuration allows you to overwrite default C language function
+ * in case of better implementation with hardware (for example DMA for data copy).
+ */
+
+/**
+ * \brief           Memory copy function declaration
+ * 
+ *                  User is able to change the memory function and in case
+ *                  hardware supports copy operation, it may implement its own implementation
+ *
+ *                  Function prototype must be similar to:
+ * \code{c}
+void *  my_memcpy(void* dst, const void* src, size_t len);
+\endcode
+ *
+ * \param[in]       dst: Destination memory start address
+ * \param[in]       src: Source memory start address
+ * \param[in]       len: Number of bytes to copy
+ * \return          Destination memory start address
+ */
+#ifndef ESP_MEMCPY
+#define ESP_MEMCPY(dst, src, len)           memcpy(dst, src, len)
+#endif
+
+/**
+ * \brief           Memory set function declaration
+ * 
+ *                  User is able to change the memory function and in case
+ *                  hardware supports copy operation, it may implement its own implementation
+ *
+ *                  Function prototype must be similar to:
+ * \code{c}
+void *  my_memset(void* dst, int b, size_t len);
+\endcode
+ *
+ * \param[in]       dst: Destination memory start address
+ * \param[in]       b: Value (byte) to set in memory
+ * \param[in]       len: Number of bytes to set
+ * \return          Destination memory start address
+ */
+#ifndef ESP_MEMSET
+#define ESP_MEMSET(dst, b, len)             memset(dst, b, len)
+#endif
+ 
+/**
+ * \}
+ */
+
+/**
  * \}
  */
  

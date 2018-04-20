@@ -49,7 +49,7 @@ esp_buff_init(esp_buff_t* buff, size_t size) {
     if (buff == NULL) {                         /* Check buffer structure */
         return 0;
     }
-    memset(buff, 0, sizeof(*buff));             /* Set buffer values to all zeros */
+    ESP_MEMSET(buff, 0, sizeof(*buff));         /* Set buffer values to all zeros */
 
     buff->size = size;                          /* Set default values */
     buff->buff = esp_mem_alloc(size);           /* Allocate memory for buffer */
@@ -105,13 +105,13 @@ esp_buff_write(esp_buff_t* buff, const void* data, size_t count) {
     if (tocopy > count) {                       /* Check for copy count */
         tocopy = count;
     }
-    memcpy(&buff->buff[buff->in], d, tocopy);   /* Copy content to buffer */
+    ESP_MEMCPY(&buff->buff[buff->in], d, tocopy);   /* Copy content to buffer */
     i += tocopy;                                /* Increase number of bytes we copied already */
     buff->in += tocopy;	
     count -= tocopy;
     if (count > 0) {                            /* Check if anything to write */	
-        memcpy(buff->buff, (void *)&d[i], count);   /* Copy content */
-        buff->in = count;									/* Set input pointer */
+        ESP_MEMCPY(buff->buff, (void *)&d[i], count);   /* Copy content */
+        buff->in = count;                       /* Set input pointer */
     }
     if (buff->in >= buff->size) {               /* Check input overflow */
         buff->in = 0;
@@ -150,12 +150,12 @@ esp_buff_read(esp_buff_t* buff, void* data, size_t count) {
     if (tocopy > count) {                       /* Check for copy count */
         tocopy = count;
     }
-    memcpy(d, &buff->buff[buff->out], tocopy);  /* Copy content from buffer */
+    ESP_MEMCPY(d, &buff->buff[buff->out], tocopy);  /* Copy content from buffer */
     i += tocopy;                                /* Increase number of bytes we copied already */
     buff->out += tocopy;
     count -= tocopy;
     if (count > 0) {                            /* Check if anything to read */
-        memcpy(&d[i], buff->buff, count);       /* Copy content */
+        ESP_MEMCPY(&d[i], buff->buff, count);   /* Copy content */
         buff->out = count;                      /* Set input pointer */
     }
     if (buff->out >= buff->size) {              /* Check output overflow */
@@ -204,11 +204,11 @@ esp_buff_peek(esp_buff_t* buff, size_t skip_count, void* data, size_t count) {
     if (tocopy > count) {                       /* Check for copy count */
         tocopy = count;
     }
-    memcpy(d, &buff->buff[out], tocopy);        /* Copy content from buffer */
+    ESP_MEMCPY(d, &buff->buff[out], tocopy);    /* Copy content from buffer */
     i += tocopy;                                /* Increase number of bytes we copied already */
     count -= tocopy;
     if (count > 0) {                            /* Check if anything to read */
-        memcpy(&d[i], buff->buff, count);       /* Copy content */
+        ESP_MEMCPY(&d[i], buff->buff, count);   /* Copy content */
     }
     return i + count;                           /* Return number of elements stored in memory */
 }

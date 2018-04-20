@@ -315,7 +315,7 @@ esp_cb_register(esp_cb_fn cb_fn) {
     if (res == espOK) {
         newFunc = esp_mem_alloc(sizeof(*newFunc));  /* Get memory for new function */
         if (newFunc != NULL) {
-            memset(newFunc, 0x00, sizeof(*newFunc));/* Reset memory */
+            ESP_MEMSET(newFunc, 0x00, sizeof(*newFunc));/* Reset memory */
             newFunc->fn = cb_fn;                /* Set function pointer */
             if (esp.cb_func == NULL) {
                 esp.cb_func = newFunc;          /* This should never happen! */

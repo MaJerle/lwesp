@@ -252,8 +252,8 @@ espi_parse_ipd(const char* str) {
     espi_parse_ip(&str, &esp.ipd.ip);           /* Parse incoming packet IP */
     esp.ipd.port = espi_parse_port(&str);       /* Get port on IPD data */
     
-    memcpy(&esp.conns[conn].remote_ip, &esp.ipd.ip, sizeof(esp.ipd.ip));
-    memcpy(&esp.conns[conn].remote_port, &esp.ipd.port, sizeof(esp.ipd.port));
+    ESP_MEMCPY(&esp.conns[conn].remote_ip, &esp.ipd.ip, sizeof(esp.ipd.ip));
+    ESP_MEMCPY(&esp.conns[conn].remote_port, &esp.ipd.port, sizeof(esp.ipd.port));
     
     esp.ipd.read = 1;                           /* Start reading network data */
     esp.ipd.tot_len = len;                      /* Total number of bytes in this received packet */
