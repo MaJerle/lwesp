@@ -88,7 +88,9 @@ esp_thread_producer(void* const arg) {
         } else {
             res = espERR;                       /* Simply set error message */
         }
-        msg->res = res;                         /* Save response */
+        if (res != espOK) {
+            msg->res = res;                     /* Save response */
+        }
         
         /*
          * In case message is blocking,
