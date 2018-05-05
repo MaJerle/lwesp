@@ -178,6 +178,22 @@ typedef enum {
 } esp_mode_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
+ * \brief           List of possible HTTP methods
+ */
+typedef enum {
+    ESP_HTTP_METHOD_GET,                        /*!< HTTP method GET */
+    ESP_HTTP_METHOD_HEAD,                       /*!< HTTP method HEAD */
+    ESP_HTTP_METHOD_POST,                       /*!< HTTP method POST */
+    ESP_HTTP_METHOD_PUT,                        /*!< HTTP method PUT */
+    ESP_HTTP_METHOD_DELETE,                     /*!< HTTP method DELETE */
+    ESP_HTTP_METHOD_CONNECT,                    /*!< HTTP method CONNECT */
+    ESP_HTTP_METHOD_OPTIONS,                    /*!< HTTP method OPTIONS */
+    ESP_HTTP_METHOD_TRACE,                      /*!< HTTP method TRACE */
+    ESP_HTTP_METHOD_PATCH,                      /*!< HTTP method PATCH */
+} esp_http_method_t;
+
+/**
  * \ingroup         ESP_CONN
  * \brief           List of possible connection types
  */
