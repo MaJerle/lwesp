@@ -1178,6 +1178,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             if (is_ok) {                        /* Did we join successfully? */
                 n_cmd = ESP_CMD_WIFI_CIPSTA_GET;/* Go to next command to get IP address */
             } else {
+                esp.status.f.r_w_conn = 0;      /* Force disconnected status */
                 /*
                  * Parse received error message,
                  * if final result was error, decide what type
