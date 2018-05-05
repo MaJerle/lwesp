@@ -451,7 +451,27 @@
 /**
  * \}
  */
+
+/**
+ * \defgroup        ESP_CONF_MODULES_REST_CLIENT HTTP client module
+ * \brief           Configuration of HTTP REST client API module
+ * \{
+ */
  
+/**
+ * \brief           Enables (`1`) or disables (`0`) HTTP REST client sequential API support for OS systems
+ *
+ * \note            To use this feature, OS support is mandatory. 
+ * \sa              ESP_CFG_OS
+ */
+#ifndef ESP_CFG_REST_CLIENT
+#define ESP_CFG_REST_CLIENT                 0
+#endif
+
+/**
+ * \}
+ */
+
 /**
  * \brief           Enables (`1`) or disables (`0`) support for DNS functions
  *
