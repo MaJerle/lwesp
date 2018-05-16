@@ -112,7 +112,7 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
         port = is_ssl ? 443 : 80;
     }
 
-    /* Check for request uri, including parameters on URI */
+    /* Check for request uri, including parameters */
     if (*uri == '/') {
         uri_path = uri;
         uri_path_len = strlen(uri);
@@ -194,7 +194,7 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                     }
                 } else {
                     if (res == espCLOSED) {     /* Connection closed at this point */
-
+                        res = espOK;
                     }
                     break;
                 }
@@ -232,14 +232,15 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                 }
             }
         }
+        esp_netconn_delete(nc);                 /* Delete netconn connection */
+    } else {
+        res = espERRMEM;
     }
-    esp_netconn_delete(nc);                     /* Delete netconn connection */
-
     if (domain != NULL) {                       /* Clear domain memory */
         esp_mem_free(domain);
         domain = NULL;
     }
-    return espOK;
+    return res;
 }
 
 #endif /* ESP_CFG_REST_CLIENT || __DOXYGEN__ */
