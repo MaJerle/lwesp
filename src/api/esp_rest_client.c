@@ -48,10 +48,11 @@
  * \param[out]      http_code: HTTP code received from server
  * \param[out]      p: Pointer to pbuf for output data
  * \param[out]      p_off: Offset position in output pbuf where HTTP data part exists, skipping headers
+ * \param[in]       cb: Pointer to callbacks used for request
  * \return          \ref espr_t on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size_t tx_len, uint16_t* http_code, esp_pbuf_p* p, size_t* p_off) {
+esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size_t tx_len, esp_rest_resp_t* r, void* arg) {
     esp_netconn_p nc;
     uint8_t is_ssl;
     const char *uri_domain, *uri_domain_end, *uri_path;
@@ -62,13 +63,12 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
     esp_pbuf_p pbuf;
 
     ESP_ASSERT("uri != NULL", uri != NULL);     /* Check input parameters */
-    ESP_ASSERT("http_code != NULL", http_code != NULL); /* Check input parameters */
-    ESP_ASSERT("p != NULL", p != NULL);         /* Check input parameters */
+    ESP_ASSERT("r != NULL", r != NULL);         /* Check input parameters */
     if (tx_len > 0) {                           /* In case of any length passed */
         ESP_ASSERT("tx_data != NULL", tx_data != NULL); /* Check input parameters */
     }
 
-    *p = NULL;                                  /* Reset pbuf pointer */
+    r->p = NULL;                                /* Reset pbuf pointer */
 
     /* Check for SSL/TCP first */
     uri_domain = NULL;
@@ -93,7 +93,7 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
         if (uri_domain_end != NULL) {
             uri_domain_len = uri_domain_end - uri_domain;
         } else {
-            uri_domain_len = strlen(uri_domain);/* Get domain length */
+            uri_domain_len = strlen(uri_domain);
         }
         uri += uri_domain_len;                  /* Advance uri for domain length */
     } else {
@@ -137,6 +137,8 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
     if (nc != NULL) {
         res = esp_netconn_connect(nc, domain, port);
         if (res == espOK) {
+            uint8_t check_http_code = 1, check_headers_end = 1;
+            
             /* Request method + uri + HTTP version */
             switch (m) {
                 case ESP_HTTP_METHOD_POST:      esp_netconn_write(nc, "POST", 4);       break;
@@ -159,22 +161,19 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
             esp_netconn_write(nc, uri_domain, uri_domain_len);
             esp_netconn_write(nc, "\r\n", 2);
 
-            /* Connection close */
-            esp_netconn_write(nc, "Connection: close\r\n", 19);
-
-            /* Content length */
-            if (tx_len && tx_data != NULL) {
+            esp_netconn_write(nc, "Connection: close\r\n", 19); /* Connection close */
+            
+            if (tx_len && tx_data != NULL) {    /* Content length */
                 char tx_len_str[11];
                 sprintf(tx_len_str, "%d", (int)tx_len);
                 esp_netconn_write(nc, "Content-Length: ", 16);
                 esp_netconn_write(nc, tx_len_str, strlen(tx_len_str));
                 esp_netconn_write(nc, "\r\n", 2);
             }
-
-            /* End of headers */
-            esp_netconn_write(nc, "\r\n", 2);
-
-            /* Send data */
+            
+            esp_netconn_write(nc, "\r\n", 2);   /* End of headers */
+    
+            /* Send user data if exists */
             if (tx_len && tx_data != NULL) {
                 esp_netconn_write(nc, tx_data, tx_len);
             }
@@ -187,10 +186,10 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                 res = esp_netconn_receive(nc, &pbuf);   /* Receive new packet of data */
 
                 if (res == espOK) {             /* We have new data */
-                    if (*p == NULL) {           /* Check if we already have first buffer */
-                        *p = pbuf;              /* Set as first buffer */
+                    if (r->p == NULL) {         /* Check if we already have first buffer */
+                        r->p = pbuf;            /* Set as first buffer */
                     } else {
-                        esp_pbuf_cat(*p, pbuf); /* Concat buffers together */
+                        esp_pbuf_cat(r->p, pbuf);   /* Concat buffers together */
                     }
                 } else {
                     if (res == espCLOSED) {     /* Connection closed at this point */
@@ -198,34 +197,39 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                     }
                     break;
                 }
-            }
+                
+                /*
+                 * Check if we can detect HTTP response code
+                 *
+                 * Response is: "HTTP/1.1 code", minimum `12` characters
+                 */
+                if (check_http_code && r->p != NULL &&
+                    esp_pbuf_length(r->p, 1) >= 12 && !esp_pbuf_memcmp(r->p, "HTTP/", 5, 0)) {
+                    size_t pos = 9;
+                    uint8_t el;
 
-            /*
-             * Check if we can detect HTTP response code
-             *
-             * Response is: "HTTP/1.1 code", minimum `12` characters
-             */
-            if (http_code != NULL && *p != NULL &&
-                esp_pbuf_length(*p, 1) >= 12 && !esp_pbuf_memcmp(*p, "HTTP/", 5, 0)) {
-                size_t pos = 9;
-                uint8_t el;
-
-                *http_code = 0;
-                while (esp_pbuf_get_at(*p, pos++, &el)
-                    && (el >= '0' && el <= '9')) {
-                    *http_code = 10 * (*http_code) + (el - '0');
+                    r->http_code = 0;
+                    while (1) {
+                        /* Get entry for HTTP code */
+                        if (!esp_pbuf_get_at(r->p, pos++, &el) || (el < '0' || el > '9')) {
+                            break;
+                        }
+                        r->http_code = 10 * (r->http_code) + (el - '0');
+                    }
+                    check_http_code = 0;        /* No need to check for HTTP code anymore */
                 }
-            }
-
-            /*
-             * Calculate offset in pbuf where actual data start
-             */
-            if (p_off != NULL && *p != NULL) {
-                *p_off = esp_pbuf_memfind(*p, "\r\n\r\n", 4, 0);
-                if (*p_off != ESP_SIZET_MAX) {
-                    *p_off += 4;
-                } else {
-                    *p_off = 0;
+                    
+                /*
+                 * Calculate offset in pbuf where actual data start
+                 */
+                if (check_headers_end && r->p != NULL) {
+                    r->p_offset = esp_pbuf_memfind(r->p, "\r\n\r\n", 4, 0);
+                    if (r->p_offset != ESP_SIZET_MAX) {
+                        check_headers_end = 0;  /* No need to check for headers anymore */
+                        r->p_offset += 4;
+                    } else {
+                        r->p_offset = 0;
+                    }
                 }
             }
         }
