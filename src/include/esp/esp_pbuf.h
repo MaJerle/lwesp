@@ -56,6 +56,7 @@ size_t          esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t of
 
 espr_t          esp_pbuf_cat(esp_pbuf_p head, const esp_pbuf_p tail);
 espr_t          esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail);
+esp_pbuf_p      esp_pbuf_unchain(esp_pbuf_p head);
 espr_t          esp_pbuf_ref(esp_pbuf_p pbuf);
 
 uint8_t         esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el);

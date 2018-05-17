@@ -175,6 +175,26 @@ esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
     return res;
 }
 
+/** 
+ * \brief           Unchain first pbuf from list and return second one
+ *                  
+ *                  `tot_len` and `len` fields are adjusted to reflect new values and reference counter is as is
+ * \note            After unchain, user must take care of both pbufs (`head` and `new returned one`)
+ * \param[in]       head: First pbuf in chain to remove from chain
+ * \return          Next pbuf after `head`
+ */
+esp_pbuf_p
+esp_pbuf_unchain(esp_pbuf_p head) {
+    esp_pbuf_p r = NULL;
+    if (head != NULL && head->next != NULL) {   /* Check for valid pbuf */
+        r = head->next;                         /* Set return value as next pbuf */
+        
+        head->next = NULL;                      /* Clear next pbuf */
+        head->tot_len = head->len;              /* Set new length of head pbuf */
+    }
+    return r;
+}
+
 /**
  * \brief           Increment reference count on pbuf
  * \param[in]       pbuf: pbuf to increase reference
