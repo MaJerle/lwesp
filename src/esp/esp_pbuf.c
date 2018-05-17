@@ -106,7 +106,9 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
      */
     cnt = 0;
     for (p = pbuf; p != NULL;) {
+        ESP_CORE_PROTECT();                     /* Protect core */
         ref = --p->ref;                         /* Decrease current value and save it */
+        ESP_CORE_UNPROTECT();                   /* Unprotect core */
         if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
                 "PBUF deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
@@ -122,11 +124,11 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
 }
 
 /**
- * \brief           Concatenate 2 packet buffers together to one big packet
- * \note            After tail pbuf has been added to head pbuf chain,
- *                  it must not be referenced by user anymore as it is now completelly controlled by head pbuf.
- *                  In simple words, when user calls this function, it should not call esp_pbuf_free function anymore,
- *                  as it might make memory undefined for head pbuf.
+ * \brief           Concatenate `2` packet buffers together to one big packet
+ * \note            After `tail` pbuf has been added to `head` pbuf chain,
+ *                  it must not be referenced by user anymore as it is now completelly controlled by `head` pbuf.
+ *                  In simple words, when user calls this function, it should not call \ref esp_pbuf_free function anymore,
+ *                  as it might make memory undefined for `head` pbuf.
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -299,12 +301,11 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
 uint8_t
 esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
     esp_pbuf_p p;
-    size_t off;
     
     if (pbuf != NULL) {
-        p = pbuf_skip(pbuf, pos, &off);         /* Skip pbufs to desired position and get new offset from new pbuf */
+        p = pbuf_skip(pbuf, pos, &pos);         /* Skip pbufs to desired position and get new offset from new pbuf */
         if (p != NULL) {                        /* Do we have new pbuf? */
-            *el = p->payload[off];              /* Return memory at desired new offset from latest pbuf */
+            *el = p->payload[pos];              /* Return memory at desired new offset from latest pbuf */
             return 1;
         }
     }
@@ -522,4 +523,24 @@ esp_pbuf_advance(esp_pbuf_p pbuf, int len) {
 esp_pbuf_p
 esp_pbuf_skip(esp_pbuf_p pbuf, size_t offset, size_t* new_offset) {
     return pbuf_skip(pbuf, offset, new_offset); /* Skip pbufs with internal function */
+}
+
+/**
+ * \brief           Dump and debug pbuf chain
+ * \param[in]       p: Head pbuf to dump
+ * \param[in]       seq: Set to `1` to dump all `pbufs` in linked list or `0` to dump first one only
+ */
+void
+esp_pbuf_dump(esp_pbuf_p p, uint8_t seq) {
+    if (p != NULL) {
+        ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, "PBUF dump start: %p\r\n", p);
+        for (; p != NULL; p = p->next) {
+            ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
+                "PBUF: %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n", p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
+            if (!seq) {
+                break;
+            }
+        }
+        ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, "pbuf dump end\r\n");
+    }
 }

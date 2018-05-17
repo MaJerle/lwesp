@@ -12,9 +12,9 @@ ap_entry_t
 ap_list[] = {
     //{ "SSID name", "SSID password" },
     { "TilenM_ST", "its private" },
-    { "Majerle WiFi", "majerle_internet" },
-    { "Slikop.", "slikop2012" },
+    //{ "Majerle WiFi", "majerle_internet" },
     { "Amis3789606848", "majerle_internet_private" },
+    { "Slikop.", "slikop2012" },
 };
 
 static

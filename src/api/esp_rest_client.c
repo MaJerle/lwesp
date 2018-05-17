@@ -93,7 +93,7 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
         if (uri_domain_end != NULL) {
             uri_domain_len = uri_domain_end - uri_domain;
         } else {
-            uri_domain_len = strlen(uri_domain);
+            uri_domain_len = strlen(uri_domain);/* Get domain length */
         }
         uri += uri_domain_len;                  /* Advance uri for domain length */
     } else {
@@ -211,11 +211,8 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                 uint8_t el;
 
                 *http_code = 0;
-                while (1) {
-                    /* Get entry for HTTP code */
-                    if (!esp_pbuf_get_at(*p, pos++, &el) || (el < '0' || el > '9')) {
-                        break;
-                    }
+                while (esp_pbuf_get_at(*p, pos++, &el)
+                    && (el >= '0' && el <= '9')) {
                     *http_code = 10 * (*http_code) + (el - '0');
                 }
             }
@@ -224,7 +221,7 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
              * Calculate offset in pbuf where actual data start
              */
             if (p_off != NULL && *p != NULL) {
-                *p_off = esp_pbuf_strfind(*p, "\r\n\r\n", 0);
+                *p_off = esp_pbuf_memfind(*p, "\r\n\r\n", 4, 0);
                 if (*p_off != ESP_SIZET_MAX) {
                     *p_off += 4;
                 } else {

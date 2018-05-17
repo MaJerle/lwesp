@@ -70,6 +70,8 @@ esp_pbuf_p      esp_pbuf_skip(esp_pbuf_p pbuf, size_t offset, size_t* new_offset
 const void *    esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len);
 
 void            esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port);
+
+void            esp_pbuf_dump(esp_pbuf_p p, uint8_t seq);
     
 /**
  * \}
