@@ -41,7 +41,7 @@
 
 /**
  * \brief           Execute REST call and pass everything in single shot
- * \param[in]       m: HTTP method to ue
+ * \param[in]       m: HTTP method used in request header
  * \param[in]       uri: URI to open, including "http[s]://". Example: "http://example.com:80/test/data?param1=param2..."
  * \param[in]       tx_data: Optional TX data to send. Usually not used on `GET` method
  * \param[in]       tx_len: Optional length of TX data in units of bytes
@@ -112,7 +112,7 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
         port = is_ssl ? 443 : 80;
     }
 
-    /* Check for request uri, including parameters on URI */
+    /* Check for request uri, including parameters */
     if (*uri == '/') {
         uri_path = uri;
         uri_path_len = strlen(uri);
@@ -194,7 +194,7 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                     }
                 } else {
                     if (res == espCLOSED) {     /* Connection closed at this point */
-
+                        res = espOK;
                     }
                     break;
                 }
@@ -229,14 +229,15 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                 }
             }
         }
+        esp_netconn_delete(nc);                 /* Delete netconn connection */
+    } else {
+        res = espERRMEM;
     }
-    esp_netconn_delete(nc);                     /* Delete netconn connection */
-
     if (domain != NULL) {                       /* Clear domain memory */
         esp_mem_free(domain);
         domain = NULL;
     }
-    return espOK;
+    return res;
 }
 
 #endif /* ESP_CFG_REST_CLIENT || __DOXYGEN__ */
