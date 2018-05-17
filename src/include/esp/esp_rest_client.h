@@ -53,7 +53,23 @@ typedef struct {
     esp_netconn_p nc;                           /*!< Netconn sequential API handle */
 } esp_rest_t;
 
-espr_t  esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size_t tx_len, uint16_t* http_code, esp_pbuf_p* p, size_t* p_off);
+typedef struct {
+    /**
+     * \param[in]           hc: HTTP code on response
+     */
+    uint8_t     (*resp_start_fn)(uint16_t hc, void* arg);
+    uint8_t     (*resp_data_fn)(esp_pbuf_p p, size_t offset, void* arg);
+    uint8_t     (*resp_end_fn)(void* arg);
+} esp_rest_cb_t;
+
+typedef struct {
+    uint16_t    http_code;
+    esp_pbuf_p  p;
+    size_t      p_offset;
+} esp_rest_resp_t;
+
+espr_t  esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size_t tx_len, esp_rest_resp_t* r, void* arg);
+espr_t  esp_rest_execute_async(void);
 
 /**
  * \}
