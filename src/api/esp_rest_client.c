@@ -41,7 +41,7 @@
 
 /**
  * \brief           Execute REST call and pass everything in single shot
- * \param[in]       m: HTTP method to ue
+ * \param[in]       m: HTTP method used in request header
  * \param[in]       uri: URI to open, including "http[s]://". Example: "http://example.com:80/test/data?param1=param2..."
  * \param[in]       tx_data: Optional TX data to send. Usually not used on `GET` method
  * \param[in]       tx_len: Optional length of TX data in units of bytes
