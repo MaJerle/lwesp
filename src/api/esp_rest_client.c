@@ -40,28 +40,27 @@
 #endif /* !ESP_CFG_NETCONN */
 
 /**
- * \brief           Execute REST call and pass everything in single shot
+ * \brief           Execute REST call and pass everything in single shot.
+ *                  
+ *                  Function will block until all data received. 
+ *                  User must ensure there is enough memory to handle entire response.
+ *                  Take a look at \ref esp_rest_execute_with_cb to use callback for every received 
+ *                  packet and to ensure there is always available memory for future packets
+ * \param[in]       desc: Pointer to request descriptor information
  * \param[in]       m: HTTP method used in request header
- * \param[in]       uri: URI to open, including "http[s]://". Example: "http://example.com:80/test/data?param1=param2..."
+ * \param[in]       uri: URI to open, example: "/test/data?param1=param2..."
  * \param[in]       tx_data: Optional TX data to send. Usually not used on `GET` method
  * \param[in]       tx_len: Optional length of TX data in units of bytes
- * \param[out]      http_code: HTTP code received from server
- * \param[out]      p: Pointer to pbuf for output data
- * \param[out]      p_off: Offset position in output pbuf where HTTP data part exists, skipping headers
- * \param[in]       cb: Pointer to callbacks used for request
+ * \param[out]      r: Pointer to response information structure for later usage
  * \return          \ref espr_t on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size_t tx_len, esp_rest_resp_t* r, void* arg) {
+esp_rest_execute(const esp_rest_desc_t* desc, esp_http_method_t m, const char* uri, const void* tx_data, size_t tx_len, esp_rest_resp_t* r, void* arg) {
     esp_netconn_p nc;
-    uint8_t is_ssl;
-    const char *uri_domain, *uri_domain_end, *uri_path;
-    char* domain;
-    size_t uri_domain_len, uri_path_len;
-    esp_port_t port;
     espr_t res;
     esp_pbuf_p pbuf;
 
+    ESP_ASSERT("desc != NULL", desc != NULL);   /* Check input parameters */
     ESP_ASSERT("uri != NULL", uri != NULL);     /* Check input parameters */
     ESP_ASSERT("r != NULL", r != NULL);         /* Check input parameters */
     if (tx_len > 0) {                           /* In case of any length passed */
@@ -70,72 +69,12 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
 
     r->p = NULL;                                /* Reset pbuf pointer */
 
-    /* Check for SSL/TCP first */
-    uri_domain = NULL;
-    if (!strncmp(uri, "https://", 8)) {
-        is_ssl = 1;
-        uri_domain = &uri[8];
-        uri += 8;
-    } else if (!strncmp(uri, "http://", 7)) {
-        is_ssl = 0;
-        uri_domain = &uri[7];
-        uri += 7;
-    } else {
-        return espERR;
-    }
-
-    /* Check for domain and domain length */
-    if (uri_domain != NULL) {
-        uri_domain_end = strchr(uri_domain, ':');   /* Scan for port if exists */
-        if (uri_domain_end == NULL) {           /* There is no port specified, use default one */
-            uri_domain_end = strchr(uri_domain, '/');   /* Check for request URI part for domain */
-        }
-        if (uri_domain_end != NULL) {
-            uri_domain_len = uri_domain_end - uri_domain;
-        } else {
-            uri_domain_len = strlen(uri_domain);
-        }
-        uri += uri_domain_len;                  /* Advance uri for domain length */
-    } else {
-        return espERR;
-    }
-
-    /* Check for port */
-    if (*uri == ':') {                          /* Check if port is specified */
-        uri++;
-        port = 0;
-        while (uri != NULL && *uri >= '0' && *uri <= '9') {
-            port = 10 * port + (*uri - '0');
-            uri++;
-        }
-    } else {
-        port = is_ssl ? 443 : 80;
-    }
-
-    /* Check for request uri, including parameters */
-    if (*uri == '/') {
-        uri_path = uri;
-        uri_path_len = strlen(uri);
-    } else {
-        uri_path = "/";
-        uri_path_len = 1;
-    }
-
-    /* Allocate memory for domain */
-    domain = esp_mem_alloc(sizeof(*domain) * (uri_domain_len + 1));
-    if (domain != NULL) {
-        ESP_MEMCPY(domain, uri_domain, uri_domain_len);
-        domain[uri_domain_len] = 0;
-    } else {
-        return espERRMEM;
-    }
-
     /*
      * Start netconn and connect to server
      */
-    nc = esp_netconn_new(is_ssl ? ESP_NETCONN_TYPE_SSL : ESP_NETCONN_TYPE_TCP);
+    nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
     if (nc != NULL) {
-        res = esp_netconn_connect(nc, domain, port);
+        res = esp_netconn_connect(nc, desc->domain, desc->port);
         if (res == espOK) {
             uint8_t check_http_code = 1, check_headers_end = 1;
             
@@ -153,12 +92,12 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                 default:                        esp_netconn_write(nc, "GET", 3);        break;
             }
             esp_netconn_write(nc, " ", 1);
-            esp_netconn_write(nc, uri_path, uri_path_len);
+            esp_netconn_write(nc, uri, strlen(uri));
             esp_netconn_write(nc, " HTTP/1.1\r\n", 11);
 
             /* Host */
             esp_netconn_write(nc, "Host: ", 6);
-            esp_netconn_write(nc, uri_domain, uri_domain_len);
+            esp_netconn_write(nc, desc->domain, strlen(desc->domain));
             esp_netconn_write(nc, "\r\n", 2);
 
             esp_netconn_write(nc, "Connection: close\r\n", 19); /* Connection close */
@@ -209,11 +148,8 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                     uint8_t el;
 
                     r->http_code = 0;
-                    while (1) {
-                        /* Get entry for HTTP code */
-                        if (!esp_pbuf_get_at(r->p, pos++, &el) || (el < '0' || el > '9')) {
-                            break;
-                        }
+                    while (esp_pbuf_get_at(r->p, pos++, &el) &&
+                        (el >= '0' && el <= '9')) {
                         r->http_code = 10 * (r->http_code) + (el - '0');
                     }
                     check_http_code = 0;        /* No need to check for HTTP code anymore */
@@ -224,11 +160,28 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
                  */
                 if (check_headers_end && r->p != NULL) {
                     r->p_offset = esp_pbuf_memfind(r->p, "\r\n\r\n", 4, 0);
-                    if (r->p_offset != ESP_SIZET_MAX) {
-                        check_headers_end = 0;  /* No need to check for headers anymore */
+                    if (r->p_offset != ESP_SIZET_MAX) { /* Did we receive all headers now? */
+                        size_t p;
                         r->p_offset += 4;
+                        
+                        /* Parse Content-Length header if exists */
+                        r->content_length = 0;
+                        if ((p = esp_pbuf_memfind(r->p, "Content-Length:", 15, 0)) != ESP_SIZET_MAX ||
+                            (p = esp_pbuf_memfind(r->p, "content-length:", 15, 0)) != ESP_SIZET_MAX) {
+                            uint8_t el;
+                            p += 15;            /* Skip content part */
+                            if (esp_pbuf_get_at(r->p, p, &el) && el == ' ') {   /* Skip space entry */
+                                p++;
+                            }
+                            while (esp_pbuf_get_at(r->p, p++, &el) &&
+                                (el >= '0' && el <= '9')) {
+                                r->content_length = 10 * (r->content_length) + (el - '0');
+                            }
+                        }
+
+                        check_headers_end = 0;  /* No need to check for headers anymore */
                     } else {
-                        r->p_offset = 0;
+                        r->p_offset = 0;        
                     }
                 }
             }
@@ -236,10 +189,6 @@ esp_rest_execute(esp_http_method_t m, const char* uri, const void* tx_data, size
         esp_netconn_delete(nc);                 /* Delete netconn connection */
     } else {
         res = espERRMEM;
-    }
-    if (domain != NULL) {                       /* Clear domain memory */
-        esp_mem_free(domain);
-        domain = NULL;
     }
     return res;
 }
