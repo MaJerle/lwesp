@@ -40,33 +40,129 @@
 #endif /* !ESP_CFG_NETCONN */
 
 /**
+ * \brief           Begin rest operation, allocate memory and prepare server descriptor
+ * \param[in]       rh: Pointer to \ref esp_rest_p structure
+ * \param[in]       desc: Server rest descriptor, used for request generation
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_rest_begin(esp_rest_p* rh, const esp_rest_desc_t* desc) {
+    ESP_ASSERT("rh != NULL", rh != NULL);       /* Check input parameters */
+    ESP_ASSERT("desc != NULL", desc != NULL);   /* Check input parameters */
+
+    *rh = esp_mem_alloc(sizeof(**rh));          /* Allocate memory for handle */
+    if (*rh != NULL) {
+        ESP_MEMSET(*rh, 0x00, sizeof(**rh));    /* Reset memory */
+        (*rh)->desc = desc;                     /* Set descriptor */
+        return espOK;
+    }
+    return espERRMEM;
+}
+
+/**
+ * \brief           End rest operation, free all allocated memory
+ * \param[in]       rh: Pointer to \ref esp_rest_p structure
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_rest_end(esp_rest_p* rh) {
+    ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
+
+    esp_mem_free(*rh);                          /* Release memory */
+    *rh = NULL;                                 /* Reset user variable to NULL */
+    return espOK;
+}
+
+/**
+ * \brief           Reset memory after rest operation to be ready for next one with the same handle
+ * \param[in]       rh: Pointer to \ref esp_rest_p structure
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_rest_reset(esp_rest_p* rh) {
+    const esp_rest_desc_t* desc;
+    ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
+
+    desc = (*rh)->desc;
+    memset(*rh, 0x00, sizeof(**rh));            /* Reset memory */
+    (*rh)->desc = desc;
+    return espOK;
+}
+
+/**
+ * \brief           Set URI params for request
+ * \param[in]       rh: Pointer to \ref esp_rest_p structure
+ * \param[in]       params: URI params used on request method
+ * \param[in]       len: Number of params in params argument
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_rest_set_params(esp_rest_p* rh, const esp_rest_param_t* params, size_t len) {
+    ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
+    if (len > 0) {
+        ESP_ASSERT("params != NULL", params != NULL); /* Check input parameters */
+    }
+
+    (*rh)->params = params;
+    (*rh)->params_len = len;
+    return espOK;
+}
+
+/**
+ * \brief           Set user custom argument
+ * \param[in]       rh: Pointer to \ref esp_rest_p structure
+ * \param[in]       arg: User argument
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_rest_set_arg(esp_rest_p* rh, void* arg) {
+    ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
+
+    (*rh)->arg = arg;
+    return espOK;
+}
+
+/**
+ * \brief           Set user TX data to send on request
+ * \param[in]       rh: Pointer to \ref esp_rest_p structure
+ * \param[in]       d: Pointer to user data
+ * \param[in]       len: Length of data in units of bytes
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_rest_set_tx_data(esp_rest_p* rh, const void* d, size_t len) {
+    ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
+
+    (*rh)->tx_data = d;                         /* Set TX data */
+    (*rh)->tx_data_len = len;                   /* Set TX data length in units of bytes */
+    return espOK;
+}
+
+/**
  * \brief           Execute REST call and pass everything in single shot.
  *                  
  *                  Function will block until all data received. 
  *                  User must ensure there is enough memory to handle entire response.
  *                  Take a look at \ref esp_rest_execute_with_cb to use callback for every received 
  *                  packet and to ensure there is always available memory for future packets
- * \param[in]       desc: Pointer to request descriptor information
+ * \param[in]       rh: Pointer to \ref esp_rest_p structure
  * \param[in]       m: HTTP method used in request header
- * \param[in]       uri: URI to open, example: "/test/data?param1=param2..."
- * \param[in]       tx_data: Optional TX data to send. Usually not used on `GET` method
- * \param[in]       tx_len: Optional length of TX data in units of bytes
+ * \param[in]       uri: URI to open, example: "/test/data", excluding URI params
  * \param[out]      r: Pointer to response information structure for later usage
  * \return          \ref espr_t on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_rest_execute(const esp_rest_desc_t* desc, esp_http_method_t m, const char* uri, const void* tx_data, size_t tx_len, esp_rest_resp_t* r, void* arg) {
+esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_resp_t* r) {
     esp_netconn_p nc;
     espr_t res;
     esp_pbuf_p pbuf;
+    esp_rest_p rhh;
 
-    ESP_ASSERT("desc != NULL", desc != NULL);   /* Check input parameters */
+    ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
     ESP_ASSERT("uri != NULL", uri != NULL);     /* Check input parameters */
     ESP_ASSERT("r != NULL", r != NULL);         /* Check input parameters */
-    if (tx_len > 0) {                           /* In case of any length passed */
-        ESP_ASSERT("tx_data != NULL", tx_data != NULL); /* Check input parameters */
-    }
 
+    rhh = *rh;                                  /* Get REST handle */
     r->p = NULL;                                /* Reset pbuf pointer */
 
     /*
@@ -74,7 +170,7 @@ esp_rest_execute(const esp_rest_desc_t* desc, esp_http_method_t m, const char* u
      */
     nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
     if (nc != NULL) {
-        res = esp_netconn_connect(nc, desc->domain, desc->port);
+        res = esp_netconn_connect(nc, rhh->desc->domain, rhh->desc->port);
         if (res == espOK) {
             uint8_t check_http_code = 1, check_headers_end = 1;
             
@@ -93,18 +189,33 @@ esp_rest_execute(const esp_rest_desc_t* desc, esp_http_method_t m, const char* u
             }
             esp_netconn_write(nc, " ", 1);
             esp_netconn_write(nc, uri, strlen(uri));
+            if (rhh->params_len && rhh->params != NULL) {
+                size_t p_i;
+                esp_netconn_write(nc, "?", 1);
+                for (p_i = 0; p_i < rhh->params_len; p_i++) {
+                    if (rhh->params[p_i].name != NULL && rhh->params[p_i].value != NULL) {
+                        esp_netconn_write(nc, rhh->params[p_i].name, strlen(rhh->params[p_i].name));
+                        esp_netconn_write(nc, "=", 1);
+                        esp_netconn_write(nc, rhh->params[p_i].value, strlen(rhh->params[p_i].value));
+
+                        if (p_i < (rhh->params_len - 1)) {
+                            esp_netconn_write(nc, "&", 1);
+                        }
+                    }
+                }
+            }
             esp_netconn_write(nc, " HTTP/1.1\r\n", 11);
 
             /* Host */
             esp_netconn_write(nc, "Host: ", 6);
-            esp_netconn_write(nc, desc->domain, strlen(desc->domain));
+            esp_netconn_write(nc, rhh->desc->domain, strlen(rhh->desc->domain));
             esp_netconn_write(nc, "\r\n", 2);
 
             esp_netconn_write(nc, "Connection: close\r\n", 19); /* Connection close */
             
-            if (tx_len && tx_data != NULL) {    /* Content length */
+            if (rhh->tx_data_len && rhh->tx_data != NULL) { /* Content length */
                 char tx_len_str[11];
-                sprintf(tx_len_str, "%d", (int)tx_len);
+                sprintf(tx_len_str, "%d", (int)rhh->tx_data_len);
                 esp_netconn_write(nc, "Content-Length: ", 16);
                 esp_netconn_write(nc, tx_len_str, strlen(tx_len_str));
                 esp_netconn_write(nc, "\r\n", 2);
@@ -113,8 +224,8 @@ esp_rest_execute(const esp_rest_desc_t* desc, esp_http_method_t m, const char* u
             esp_netconn_write(nc, "\r\n", 2);   /* End of headers */
     
             /* Send user data if exists */
-            if (tx_len && tx_data != NULL) {
-                esp_netconn_write(nc, tx_data, tx_len);
+            if (rhh->tx_data_len && rhh->tx_data != NULL) {
+                esp_netconn_write(nc, rhh->tx_data, rhh->tx_data_len);
             }
 
             /* Flush and force send everything */

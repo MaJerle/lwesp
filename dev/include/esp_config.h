@@ -50,6 +50,8 @@
 #define ESP_CFG_DBG_VAR                     ESP_DBG_OFF
 #define ESP_CFG_RCV_BUFF_SIZE               0x1000
 
+#define ESP_CFG_REST_CLIENT                 1
+
 #define ESP_CFG_IPD_MAX_BUFF_SIZE           1460
 
 #define ESP_CFG_INPUT_USE_PROCESS           1

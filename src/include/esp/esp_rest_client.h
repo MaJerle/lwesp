@@ -54,13 +54,6 @@ typedef struct {
     esp_port_t port;                            /*!< Server REST port */
 } esp_rest_desc_t;
 
-/**
- * \brief           HTTP REST handle
- */
-typedef struct {
-    esp_netconn_p nc;                           /*!< Netconn sequential API handle */
-} esp_rest_t;
-
 typedef struct {
     /**
      * \param[in]           hc: HTTP code on response
@@ -70,18 +63,54 @@ typedef struct {
     uint8_t     (*resp_end_fn)(void* arg);
 } esp_rest_cb_t;
 
+/**
+ * \brief           REST response structure
+ */
 typedef struct {
-    uint16_t    http_code;
-    esp_pbuf_p  p;
-    size_t      p_offset;
-    size_t      content_length;
+    uint16_t    http_code;                      /*!< Response HTTP code */
+    esp_pbuf_p  p;                              /*!< Pbuf chain of received data */
+    size_t      p_offset;                       /*!< Offset in pbuf where data start, ignoring header */
+    size_t      content_length;                 /*!< Content-length header value (if exists) */
 } esp_rest_resp_t;
 
-espr_t  esp_rest_execute(const esp_rest_desc_t* desc,
-                        esp_http_method_t m, const char* uri,
-                        const void* tx_data, size_t tx_len,
-                        esp_rest_resp_t* r,
-                        void* arg);
+/**
+ * \brief           URI parameter structure
+ */
+typedef struct {
+    const char* name;                           /*!< Param name */
+    const char* value;                          /*!< Param value */
+} esp_rest_param_t;
+
+/**
+ * \brief           HTTP REST handle
+ */
+typedef struct {
+    const esp_rest_desc_t* desc;                /*!< Descriptor handle */
+
+    const void* tx_data;                        /*!< TX data handle */
+    size_t tx_data_len;                         /*!< Length of TX data */
+
+    const esp_rest_param_t* params;             /*!< Pointer to URI parameters */
+    size_t params_len;                          /*!< Number of parameters */
+
+    void* arg;                                  /*!< User argument for callbacks */
+} esp_rest_t;
+
+/**
+ * \brief           Pointer type of \ref esp_rest_t
+ */
+typedef esp_rest_t* esp_rest_p;
+
+espr_t  esp_rest_begin(esp_rest_p* rh, const esp_rest_desc_t* desc);
+espr_t  esp_rest_end(esp_rest_p* rh);
+espr_t  esp_rest_reset(esp_rest_p* rh);
+espr_t  esp_rest_set_params(esp_rest_p* rh, const esp_rest_param_t* params, size_t len);
+espr_t  esp_rest_set_arg(esp_rest_p* rh, void* arg);
+espr_t  esp_rest_set_tx_data(esp_rest_p* rh, const void* d, size_t len);
+espr_t  esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_resp_t* r);
+
+// Future use cases
+espr_t  esp_rest_set_tx_data_cb(esp_rest_p* rh);
 
 /**
  * \}
