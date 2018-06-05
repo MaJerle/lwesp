@@ -81,8 +81,8 @@ esp_buff_free(esp_buff_t* buff) {
  */
 size_t
 esp_buff_write(esp_buff_t* buff, const void* data, size_t count) {
-	size_t i = 0;
-	size_t free;
+    size_t i = 0;
+    size_t free;
     const uint8_t* d = data;
     size_t tocopy;
 
@@ -267,11 +267,11 @@ esp_buff_get_full(esp_buff_t* buff) {
  */
 void
 esp_buff_reset(esp_buff_t* buff) {
-	if (buff == NULL) {                         /* Check buffer structure */
-		return;
-	}
-	buff->in = 0;                               /* Reset values */
-	buff->out = 0;
+    if (buff == NULL) {                         /* Check buffer structure */
+        return;
+    }
+    buff->in = 0;                               /* Reset values */
+    buff->out = 0;
 }
 
 /**
