@@ -898,12 +898,7 @@ espi_process(const void* data, size_t data_len) {
             /*
              * Try to read more data directly from buffer
              */
-            if (d_len) {
-                len = ESP_MIN(esp.ipd.rem_len, esp.ipd.buff != NULL ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len);
-                len = ESP_MIN(len, d_len);      /* Get number of bytes we can read/skip */
-            } else {
-                len = 0;                        /* No data to process more */
-            }
+            len = ESP_MIN(d_len, ESP_MIN(esp.ipd.rem_len, esp.ipd.buff != NULL ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len));
             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: New length to read: %d bytes\r\n", (int)len);
             if (len) {
                 if (esp.ipd.buff != NULL) {     /* Is buffer valid? */
