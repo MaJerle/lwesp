@@ -244,21 +244,67 @@ espi_parse_cipstatus(const char* str) {
  */
 espr_t
 espi_parse_ipd(const char* str) {
-    uint8_t conn;
+    uint8_t conn, is_data_ipd;
     size_t len;
+    esp_conn_p c;
     
+
+    /*
+     * First check if this string is "notification only" or actual "data packet".
+     *
+     * Take decision based on ':' character before data. We can expect 3 types of format:
+     *
+     * +IPD,conn_num,available_bytes<CR><LF>                    : Notification only, for TCP connection
+     * +IPD,conn_num,bytes_in_packet:data                       : Data packet w/o remote ip/port, 
+     *                                                              as response on manual TCP read or if AT+CIPDINFO=0
+     * +IPD,conn_num,bytes_in_packet,remote_ip,remote_port:data : Data packet w/ remote ip/port,
+     *                                                              as response on automatic read of all connection types
+     */
+    is_data_ipd = strchr(str, ':') != NULL;     /* Check if we have ':' in string */
+
     conn = espi_parse_number(&str);             /* Parse number for connection number */
-    len = espi_parse_number(&str);              /* Parse number for number of bytes to read */
-    espi_parse_ip(&str, &esp.ipd.ip);           /* Parse incoming packet IP */
-    esp.ipd.port = espi_parse_port(&str);       /* Get port on IPD data */
+    len = espi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
+
+    c = conn < ESP_CFG_MAX_CONNS ? &esp.conns[conn] : NULL; /* Get connection handle */
+    if (c == NULL) {                            /* Invalid connection number */
+        return espERR;
+    }
+
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+    /*
+     * Check if +IPD is only notification and not actual data packet
+     */
+    if (!is_data_ipd) {                         /* If not data packet */
+        c->tcp_available_data = len;            /* Set new value for number of bytes available to read from device */
+    } else
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+    /*
+     * If additional information are enabled (IP and PORT),
+     * parse them and save.
+     *
+     * Even if information is enabled, in case of manual TCP
+     * receive, these information are not present. 
+     *
+     * Check for ':' character if it is end of string and determine how to proceed
+     */
+    if (*str != ':') {
+        espi_parse_ip(&str, &esp.ipd.ip);       /* Parse incoming packet IP */
+        esp.ipd.port = espi_parse_port(&str);   /* Get port on IPD data */
+
+        ESP_MEMCPY(&esp.conns[conn].remote_ip, &esp.ipd.ip, sizeof(esp.ipd.ip));
+        ESP_MEMCPY(&esp.conns[conn].remote_port, &esp.ipd.port, sizeof(esp.ipd.port));
+    }
     
-    ESP_MEMCPY(&esp.conns[conn].remote_ip, &esp.ipd.ip, sizeof(esp.ipd.ip));
-    ESP_MEMCPY(&esp.conns[conn].remote_port, &esp.ipd.port, sizeof(esp.ipd.port));
-    
-    esp.ipd.read = 1;                           /* Start reading network data */
-    esp.ipd.tot_len = len;                      /* Total number of bytes in this received packet */
-    esp.ipd.rem_len = len;                      /* Number of remaining bytes to read */
-    esp.ipd.conn = &esp.conns[conn];            /* Pointer to connection we have data for */
+    /*
+     * Data read procedure may only happen in case there is
+     * data packet available, otherwise do nothing further about this information
+     */
+    if (is_data_ipd) {                          /* Shall we start IPD read procedure? */
+        esp.ipd.read = 1;                       /* Start reading network data */
+        esp.ipd.tot_len = len;                  /* Total number of bytes in this received packet */
+        esp.ipd.rem_len = len;                  /* Number of remaining bytes to read */
+        esp.ipd.conn = c;                       /* Pointer to connection we have data for */
+    }
     
     return espOK;
 }
