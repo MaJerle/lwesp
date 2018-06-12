@@ -1130,6 +1130,12 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t 
         }
         case ESP_CMD_TCPIP_CIPSTATUS: {
 #endif /* ESP_CFG_MODE_STATION */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+            n_cmd = ESP_CMD_TCPIP_CIPRECVMODE;  /* Set receive mode for TCP */
+            break;
+        }
+        case ESP_CMD_TCPIP_CIPRECVMODE: {
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_ACCESS_POINT
             n_cmd = ESP_CMD_WIFI_CIPAP_GET; /* Get access point IP */
             break;
@@ -1730,6 +1736,22 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+        case ESP_CMD_TCPIP_CIPRECVMODE: {       /* Set TCP data receive mode */
+            ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
+            ESP_AT_PORT_SEND_STR("+CIPRECVMODE=1");
+            ESP_AT_PORT_SEND_END();             /* End AT command string */
+            break;
+        }
+        case ESP_CMD_TCPIP_CIPRECVDATA: {       /* Set TCP data receive mode */
+            ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
+            ESP_AT_PORT_SEND_STR("+CIPRECVDATA=");
+            /* send_number(ESP_U32(connection_number_here), 0, 0); */
+            /* send_number(ESP_U32(number_of_bytes_to_read), 0, 1); */
+            ESP_AT_PORT_SEND_END();             /* End AT command string */
+            break;
+        }
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_DNS
         case ESP_CMD_TCPIP_CIPDOMAIN: {         /* DNS function */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */

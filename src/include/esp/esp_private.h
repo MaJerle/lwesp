@@ -129,6 +129,10 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSERVERMAXCONN,             /*!< Sets maximal number of connections allowed for server population */
     ESP_CMD_TCPIP_CIPMODE,                      /*!< Transmission mode, either transparent or normal one */
     ESP_CMD_TCPIP_CIPSTO,                       /*!< Sets connection timeout */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
+    ESP_CMD_TCPIP_CIPRECVMODE,                  /*!< Sets mode for TCP data receive (manual or automatic) */
+    ESP_CMD_TCPIP_CIPRECVDATA,                  /*!< Manually reads TCP data from device */
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
 #if ESP_CFG_PING || __DOXYGEN__
     ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
 #endif /* ESP_CFG_PING || __DOXYGEN__ */

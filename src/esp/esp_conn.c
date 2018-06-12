@@ -297,12 +297,12 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
  */
 espr_t
 esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
-#if ESP_CFG_CONN_TCP_MANUAL_RECEIVE
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
 
-#else /* ESP_CFG_CONN_TCP_MANUAL_RECEIVE */
+#else /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     ESP_UNUSED(conn);
     ESP_UNUSED(pbuf);
-#endif /* !ESP_CFG_CONN_TCP_MANUAL_RECEIVE */
+#endif /* !ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     return espOK;
 }
 
