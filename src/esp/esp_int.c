@@ -307,7 +307,7 @@ espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb) {
     
     /*
      * On normal API operation,
-     * this part of code should never be entered!
+     * we should never enter to this part of code
      */
     
     /*
