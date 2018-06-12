@@ -161,7 +161,7 @@ espi_conn_init(void) {
  * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
  * \param[in]       port: Connection port
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
- * \param[in]       cb_func: Callback function for this connection. Set to NULL in case of default user callback function
+ * \param[in]       cb_func: Callback function for this connection. Set to `NULL` in case of default user callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -424,7 +424,7 @@ int8_t
 esp_conn_getnum(esp_conn_p conn) {
     int8_t res = -1;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        /* Protection not needed as every connection always has the same number */
+        /* Protection not needed as every connection has always the same number */
         res = conn->num;                        /* Get number */
     }
     return res;
