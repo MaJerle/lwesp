@@ -536,6 +536,22 @@
 #endif
 
 /**
+ * \brief           Enables (`1`) or disables (`0`) Manual receive for `TCP` data from ESP device
+ *
+ *                  Normally ESP automatically sends received TCP data to host MCU
+ *                  in async way. When host device is slow or if there is memory constrain,
+ *                  it may happen that processing cannot handle all received data.
+ *
+ *                  When feature is enabled, ESP will notify host device about new data
+ *                  available for read and then user may start read process
+ *
+ * \note            This feature is only available for `TCP` connection
+ */
+#ifndef ESP_CFG_CONN_TCP_MANUAL_RECEIVE
+#define ESP_CFG_CONN_TCP_MANUAL_RECEIVE     1
+#endif
+
+/**
  * \defgroup        ESP_CONF_STD_LIB Standard library
  * \brief           Standard C library configuration
  * \{
