@@ -96,6 +96,10 @@ typedef struct {
     void* arg;                                  /*!< User argument for callbacks */
 } esp_rest_t;
 
+typedef struct {
+    void* arg;
+} esp_rest_rx_callbacks_t;
+
 /**
  * \brief           Pointer type of \ref esp_rest_t
  */
@@ -107,7 +111,9 @@ espr_t  esp_rest_reset(esp_rest_p* rh);
 espr_t  esp_rest_set_params(esp_rest_p* rh, const esp_rest_param_t* params, size_t len);
 espr_t  esp_rest_set_arg(esp_rest_p* rh, void* arg);
 espr_t  esp_rest_set_tx_data(esp_rest_p* rh, const void* d, size_t len);
+
 espr_t  esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_resp_t* r);
+espr_t  esp_rest_execute_with_rx_callback(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_resp_t* r, esp_rest_rx_callbacks_t* cb);
 
 // Future use cases
 espr_t  esp_rest_set_tx_data_cb(esp_rest_p* rh);
