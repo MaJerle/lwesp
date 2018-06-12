@@ -164,7 +164,11 @@ typedef struct esp_conn_t {
     uint8_t*        buff;                       /*!< Pointer to buffer when using \ref esp_conn_write function */
     size_t          buff_len;                   /*!< Total length of buffer */
     size_t          buff_ptr;                   /*!< Current write pointer of buffer */
-    
+
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
+    size_t          tcp_available_data;         /*!< Number of bytes ready to read from ESP device on TCP connection */
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
+
     union {
         struct {
             uint8_t active:1;                   /*!< Status whether connection is active */
