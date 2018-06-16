@@ -298,6 +298,8 @@ espi_parse_ipd(const char* str) {
     /*
      * Data read procedure may only happen in case there is
      * data packet available, otherwise do nothing further about this information
+     *
+     * This check should be always positive when ESP_CFG_CONN_MANUAL_TCP_RECEIVE is disabled
      */
     if (is_data_ipd) {                          /* Shall we start IPD read procedure? */
         esp.ipd.read = 1;                       /* Start reading network data */
