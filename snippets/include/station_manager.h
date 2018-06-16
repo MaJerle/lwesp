@@ -17,6 +17,7 @@ typedef struct {
 } ap_entry_t;
 
 espr_t      connect_to_preferred_access_point(uint8_t unlimited);
+void        start_access_point_scan_and_connect_procedure(void);
 
 #ifdef __cplusplus
 }
