@@ -46,7 +46,7 @@
 #define ESP_CFG_DBG_MQTT                    ESP_DBG_OFF
 #define ESP_CFG_DBG_MEM                     ESP_DBG_OFF
 #define ESP_CFG_DBG_PBUF                    ESP_DBG_OFF
-#define ESP_CFG_DBG_CONN                    ESP_DBG_ON
+#define ESP_CFG_DBG_CONN                    ESP_DBG_OFF
 #define ESP_CFG_DBG_VAR                     ESP_DBG_OFF
 #define ESP_CFG_RCV_BUFF_SIZE               0x1000
 
@@ -68,6 +68,8 @@
 #define ESP_CFG_MDNS                        1
 
 #define ESP_CFG_RESET_ON_INIT               1
+
+#define ESP_CFG_CONN_MANUAL_TCP_RECEIVE     1
 
 #if defined(WIN32)
 #define ESP_CFG_SYS_PORT					ESP_SYS_PORT_WIN32
