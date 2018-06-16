@@ -161,14 +161,18 @@ espi_conn_init(void) {
  * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
  * \param[in]       port: Connection port
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
- * \param[in]       cb_func: Callback function for this connection. Set to `NULL` in case of default user callback function
+ * \param[in]       cb_func: Callback function for this connection
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_port_t port, void* arg, esp_cb_fn cb_func, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
+
+    ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
+    ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
+    ESP_ASSERT("cb_func != NULL", cb_func != NULL); /* Assert input parameters */
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTART;
     ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSTATUS;
