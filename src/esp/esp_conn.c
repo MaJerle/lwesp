@@ -126,21 +126,21 @@ static espr_t
 flush_buff(esp_conn_p conn) {
     espr_t res = espOK;
     ESP_CORE_PROTECT();                         /* Protect core */
-    if (conn != NULL && conn->buff != NULL) {   /* Do we have something ready? */
+    if (conn != NULL && conn->buff.buff != NULL) {  /* Do we have something ready? */
         /*
          * If there is nothing to write or if write was not successful,
          * simply free the memory and stop execution
          */
-        if (conn->buff_ptr) {                   /* Anything to send at the moment? */
-            res = conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0);
+        if (conn->buff.ptr) {                   /* Anything to send at the moment? */
+            res = conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0);
         } else {
             res = espERR;
         }
         if (res != espOK) {
-            ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer1: %p\r\n", (void *)conn->buff);
-            esp_mem_free(conn->buff);           /* Manually free memory */
+            ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer1: %p\r\n", (void *)conn->buff.buff);
+            esp_mem_free(conn->buff.buff);      /* Manually free memory */
         }
-        conn->buff = NULL;
+        conn->buff.buff = NULL;
     }
     ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return res;
@@ -267,12 +267,12 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
     ESP_ASSERT("btw > 0", btw > 0);             /* Assert input parameters */
 
     ESP_CORE_PROTECT();                         /* Protect ESP core */
-    if (conn->buff != NULL) {                   /* Check if memory available */
+    if (conn->buff.buff != NULL) {              /* Check if memory available */
         size_t to_copy;
-        to_copy = ESP_MIN(btw, conn->buff_len - conn->buff_ptr);
+        to_copy = ESP_MIN(btw, conn->buff.len - conn->buff.ptr);
         if (to_copy) {
-            ESP_MEMCPY(&conn->buff[conn->buff_ptr], d, to_copy);
-            conn->buff_ptr += to_copy;
+            ESP_MEMCPY(&conn->buff.buff[conn->buff.ptr], d, to_copy);
+            conn->buff.ptr += to_copy;
             d += to_copy;
             btw -= to_copy;
         }
@@ -512,24 +512,25 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
     /*
      * Step 1
      */
-    if (conn->buff != NULL) {
-        len = ESP_MIN(conn->buff_len - conn->buff_ptr, btw);
-        ESP_MEMCPY(&conn->buff[conn->buff_ptr], d, len);
+    if (conn->buff.buff != NULL) {
+        len = ESP_MIN(conn->buff.len - conn->buff.ptr, btw);
+        ESP_MEMCPY(&conn->buff.buff[conn->buff.ptr], d, len);
         
         d += len;
         btw -= len;
-        conn->buff_ptr += len;
+        conn->buff.ptr += len;
         
         /*
          * Step 1.1
          */
-        if (conn->buff_ptr == conn->buff_len || flush) {
+        if (conn->buff.ptr == conn->buff.len || flush) {
             /* Try to send to processing queue in non-blocking way */
-            if (conn_send(conn, NULL, 0, conn->buff, conn->buff_ptr, NULL, 1, 0) != espOK) {
-                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer2: %p\r\n", conn->buff);
-                esp_mem_free(conn->buff);       /* Manually free memory */
+            if (conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != espOK) {
+                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
+                    "CONN: Free write buffer2: %p\r\n", conn->buff.buff);
+                esp_mem_free(conn->buff.buff);  /* Manually free memory */
             }
-            conn->buff = NULL;                  /* Reset pointer */
+            conn->buff.buff = NULL;             /* Reset pointer */
         }
     }
     
@@ -558,20 +559,20 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
     /*
      * Step 3
      */
-    if (conn->buff == NULL) {
-        conn->buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN);  /* Allocate memory for temp buffer */
-        conn->buff_len = ESP_CFG_CONN_MAX_DATA_LEN;
-        conn->buff_ptr = 0;
+    if (conn->buff.buff == NULL) {
+        conn->buff.buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN); /* Allocate memory for temp buffer */
+        conn->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;
+        conn->buff.ptr = 0;
         
-        ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff != NULL,
-            "CONN: New write buffer allocated, addr = %p\r\n", conn->buff);
-        ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff == NULL,
+        ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff.buff != NULL,
+            "CONN: New write buffer allocated, addr = %p\r\n", conn->buff.buff);
+        ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff.buff == NULL,
             "CONN: Cannot allocate new write buffer\r\n");
     }
     if (btw) {
-        if (conn->buff != NULL) {
-            ESP_MEMCPY(conn->buff, d, btw);     /* Copy data to memory */
-            conn->buff_ptr = btw;
+        if (conn->buff.buff != NULL) {
+            ESP_MEMCPY(conn->buff.buff, d, btw);    /* Copy data to memory */
+            conn->buff.ptr = btw;
         } else {
             return espERRMEM;
         }
@@ -580,7 +581,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
     /*
      * Step 4
      */
-    if (flush && conn->buff != NULL) {
+    if (flush && conn->buff.buff != NULL) {
         flush_buff(conn);
     }
     
@@ -588,8 +589,8 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
      * Calculate number of available memory after write operation
      */
     if (mem_available != NULL) {
-        if (conn->buff != NULL) {
-            *mem_available = conn->buff_len - conn->buff_ptr;
+        if (conn->buff.buff != NULL) {
+            *mem_available = conn->buff.len - conn->buff.ptr;
         } else {
             *mem_available = 0;
         }

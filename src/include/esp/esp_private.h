@@ -161,9 +161,7 @@ typedef struct esp_conn_t {
                                                      It protects sending data to wrong connection in case we have data in send queue,
                                                      and connection was closed and active again in between. */
     
-    uint8_t*        buff;                       /*!< Pointer to buffer when using \ref esp_conn_write function */
-    size_t          buff_len;                   /*!< Total length of buffer */
-    size_t          buff_ptr;                   /*!< Current write pointer of buffer */
+    esp_linbuff_t   buff;                       /*!< Linear buffer structure */
 
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
     size_t          tcp_available_data;         /*!< Number of bytes ready to read from ESP device on TCP connection */

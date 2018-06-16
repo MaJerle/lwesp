@@ -52,9 +52,7 @@ typedef struct esp_netconn_t {
     esp_sys_mbox_t mbox_accept;                 /*!< List of active connections waiting to be processed */
     esp_sys_mbox_t mbox_receive;                /*!< Message queue for receive mbox */
     
-    uint8_t* buff;                              /*!< Pointer to buffer for \ref esp_netconn_write function. used only on TCP connection */
-    size_t buff_len;                            /*!< Total length of buffer */
-    size_t buff_ptr;                            /*!< Current buffer pointer for write mode */
+    esp_linbuff_t buff;                         /*!< Linear buffer structure */
 
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__
     uint32_t rcv_timeout;                       /*!< Receive timeout in unit of milliseconds */
@@ -480,23 +478,23 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     /*
      * Step 1
      */
-    if (nc->buff != NULL) {                     /* Is there a write buffer ready to accept more data? */
-        len = ESP_MIN(nc->buff_len - nc->buff_ptr, btw);    /* Get number of bytes we can write to buffer */
+    if (nc->buff.buff != NULL) {                     /* Is there a write buffer ready to accept more data? */
+        len = ESP_MIN(nc->buff.len - nc->buff.ptr, btw);    /* Get number of bytes we can write to buffer */
         if (len) {
-            ESP_MEMCPY(&nc->buff[nc->buff_ptr], data, len); /* Copy memory to temporary write buffer */
+            ESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], data, len);/* Copy memory to temporary write buffer */
             d += len;
-            nc->buff_ptr += len;
+            nc->buff.ptr += len;
             btw -= len;
         }
         
         /*
          * Step 1.1
          */
-        if (nc->buff_ptr == nc->buff_len) {
-            res = esp_conn_send(nc->conn, nc->buff, nc->buff_len, &sent, 1);
+        if (nc->buff.ptr == nc->buff.len) {
+            res = esp_conn_send(nc->conn, nc->buff.buff, nc->buff.len, &sent, 1);
             
-            esp_mem_free(nc->buff);             /* Free memory */
-            nc->buff = NULL;                    /* Invalidate buffer */
+            esp_mem_free(nc->buff.buff);        /* Free memory */
+            nc->buff.buff = NULL;               /* Invalidate buffer */
             if (res != espOK) {
                 return res;
             }
@@ -526,18 +524,18 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     /*
      * Step 3
      */
-    if (nc->buff == NULL) {                     /* Check if we should allocate a new buffer */
-        nc->buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN * sizeof(*nc->buff));
-        nc->buff_len = ESP_CFG_CONN_MAX_DATA_LEN;   /* Save buffer length */
-        nc->buff_ptr = 0;                       /* Save buffer pointer */
+    if (nc->buff.buff == NULL) {                /* Check if we should allocate a new buffer */
+        nc->buff.buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN * sizeof(*nc->buff.buff));
+        nc->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;   /* Save buffer length */
+        nc->buff.ptr = 0;                       /* Save buffer pointer */
     }
     
     /*
      * Step 4
      */
-    if (nc->buff != NULL) {                     /* Memory available? */
-        ESP_MEMCPY(&nc->buff[nc->buff_ptr], d, btw);/* Copy data to buffer */
-        nc->buff_ptr += btw;
+    if (nc->buff.buff != NULL) {                /* Memory available? */
+        ESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], d, btw);   /* Copy data to buffer */
+        nc->buff.ptr += btw;
     } else {                                    /* Still no memory available? */
         return esp_conn_send(nc->conn, data, btw, NULL, 1); /* Simply send directly blocking */
     }
@@ -559,12 +557,12 @@ esp_netconn_flush(esp_netconn_p nc) {
      * In case we have data in write buffer,
      * flush them out to network
      */
-    if (nc->buff != NULL) {                     /* Check remaining data */
-        if (nc->buff_ptr > 0) {                 /* Do we have data in current buffer? */
-            esp_conn_send(nc->conn, nc->buff, nc->buff_ptr, NULL, 1);   /* Send data */
+    if (nc->buff.buff != NULL) {                /* Check remaining data */
+        if (nc->buff.ptr > 0) {                 /* Do we have data in current buffer? */
+            esp_conn_send(nc->conn, nc->buff.buff, nc->buff.ptr, NULL, 1);  /* Send data */
         }
-        esp_mem_free(nc->buff);                 /* Free memory */
-        nc->buff = NULL;                        /* Invalid memory */
+        esp_mem_free(nc->buff.buff);            /* Free memory */
+        nc->buff.buff = NULL;                   /* Invalid memory */
     }
     return espOK;
 }

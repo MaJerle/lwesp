@@ -410,6 +410,15 @@ typedef struct esp_buff {
 	uint8_t flags;                              /*!< Flags for buffer */
 } esp_buff_t;
 
+/**
+ * \brief           Linear buffer structure
+ */
+typedef struct {
+    uint8_t* buff;                              /*!< Pointer to buffer data array */
+    size_t len;                                 /*!< Length of buffer array */
+    size_t ptr;                                 /*!< Current buffer pointer */
+} esp_linbuff_t;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

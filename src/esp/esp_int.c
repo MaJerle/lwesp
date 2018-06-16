@@ -699,10 +699,11 @@ espi_parse_received(esp_recv_t* rcv) {
                 espi_send_conn_cb(conn, NULL);  /* Send event */
             
                 /* Check if write buffer is set */
-                if (conn->buff != NULL) {
-                    ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer: %p\r\n", conn->buff);
-                    esp_mem_free(conn->buff);   /* Free the memory */
-                    conn->buff = NULL;
+                if (conn->buff.buff != NULL) {
+                    ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
+                        "CONN: Free write buffer: %p\r\n", conn->buff.buff);
+                    esp_mem_free(conn->buff.buff);  /* Free memory */
+                    conn->buff.buff = NULL;
                 }
             } else if (!esp.link_conn.failed && !conn->status.f.active) {
                 id = conn->val_id;
@@ -774,10 +775,11 @@ espi_parse_received(esp_recv_t* rcv) {
             }
             
             /* Check if write buffer is set */
-            if (conn->buff != NULL) {
-                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, "CONN: Free write buffer: %p\r\n", conn->buff);
-                esp_mem_free(conn->buff);       /* Free the memory */
-                conn->buff = NULL;
+            if (conn->buff.buff != NULL) {
+                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
+                    "CONN: Free write buffer: %p\r\n", conn->buff.buff);
+                esp_mem_free(conn->buff.buff);  /* Free the memory */
+                conn->buff.buff = NULL;
             }
         }
     } else if (is_error && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {
