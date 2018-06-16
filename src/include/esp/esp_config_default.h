@@ -563,8 +563,8 @@
 /**
  * \brief           Memory copy function declaration
  * 
- *                  User is able to change the memory function and in case
- *                  hardware supports copy operation, it may implement its own implementation
+ *                  User is able to change the memory function, in case
+ *                  hardware supports copy operation, it may implement its own
  *
  *                  Function prototype must be similar to:
  * \code{c}
