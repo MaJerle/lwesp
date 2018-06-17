@@ -48,8 +48,8 @@ uint16_t http_fs_opened_files_cnt;
 
 #define CRLF                        "\r\n"
 
-char http_uri[HTTP_MAX_URI_LEN + 1];
-http_param_t http_params[HTTP_MAX_PARAMS];
+static char http_uri[HTTP_MAX_URI_LEN + 1];
+static http_param_t http_params[HTTP_MAX_PARAMS];
 
 /* HTTP init structure with user settings */
 static const http_init_t* hi;
@@ -352,7 +352,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
         }
 
         /*
-         * Step 2: Compare extension with known pairs
+         * Step 2: Compare extension against known pairs
          */
         i = 0;
         if (ext != NULL) {                      /* Do we have an extension? */

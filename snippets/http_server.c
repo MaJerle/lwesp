@@ -129,20 +129,20 @@ http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
         esp_http_server_write_string(hs, "<table class=\"table\">");
         esp_http_server_write_string(hs, "<thead><tr><th>#</th><th>SSID</th><th>MAC</th><th>RSSI</th></tr></thead><tbody>");
         
-//        for (i = 0; i < apf; i++) {
-//            esp_http_server_write_string(hs, "<tr><td>");
-//            sprintf(ssi_buffer, "%d", (int)i);
-//            esp_http_server_write_string(hs, ssi_buffer);
-//            esp_http_server_write_string(hs, "</td><td>");
-//            esp_http_server_write_string(hs, aps[i].ssid);
-//            esp_http_server_write_string(hs, "</td><td>");
-//            sprintf(ssi_buffer, "%02X:%02X:%02X:%02X:%02X:%02X", aps[i].mac[0], aps[i].mac[1], aps[i].mac[2], aps[i].mac[3], aps[i].mac[4], aps[i].mac[5]);
-//            esp_http_server_write_string(hs, ssi_buffer);
-//            esp_http_server_write_string(hs, "</td><td>");
-//            sprintf(ssi_buffer, "%d", (int)aps[i].rssi);
-//            esp_http_server_write_string(hs, ssi_buffer);
-//            esp_http_server_write_string(hs, "</td></tr>");
-//        }
+        //for (i = 0; i < apf; i++) {
+        //    esp_http_server_write_string(hs, "<tr><td>");
+        //    sprintf(ssi_buffer, "%d", (int)i);
+        //    esp_http_server_write_string(hs, ssi_buffer);
+        //    esp_http_server_write_string(hs, "</td><td>");
+        //    esp_http_server_write_string(hs, aps[i].ssid);
+        //    esp_http_server_write_string(hs, "</td><td>");
+        //    sprintf(ssi_buffer, "%02X:%02X:%02X:%02X:%02X:%02X", aps[i].mac[0], aps[i].mac[1], aps[i].mac[2], aps[i].mac[3], aps[i].mac[4], aps[i].mac[5]);
+        //    esp_http_server_write_string(hs, ssi_buffer);
+        //    esp_http_server_write_string(hs, "</td><td>");
+        //    sprintf(ssi_buffer, "%d", (int)aps[i].rssi);
+        //    esp_http_server_write_string(hs, ssi_buffer);
+        //    esp_http_server_write_string(hs, "</td></tr>");
+        //}
         esp_http_server_write_string(hs, "</tbody></table>");
     }
     return 0;

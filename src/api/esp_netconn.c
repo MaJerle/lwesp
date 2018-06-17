@@ -128,7 +128,7 @@ esp_cb(esp_cb_t* cb) {
                     nc == NULL, "NETCONN: Cannot create new structure for incoming server connection!\r\n");
                 
                 if (nc != NULL) {
-                    nc->conn = conn;            /* Set connection callback */
+                    nc->conn = conn;            /* Set connection handle */
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
 #if ESP_CFG_NETCONN_ACCEPT_ON_CONNECT
                     /*
