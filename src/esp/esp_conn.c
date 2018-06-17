@@ -302,7 +302,14 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_
 espr_t
 esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
-
+    size_t len;
+    len = esp_pbuf_length(pbuf, 1);             /* Get length of pbuf */
+    if (conn->tcp_available_data > len) {
+        conn->tcp_available_data -= len;        /* Decrease for available length */
+        if (conn->tcp_available_data) {
+            /* Start new manual receive here... */
+        }
+    }
 #else /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     ESP_UNUSED(conn);
     ESP_UNUSED(pbuf);
@@ -596,4 +603,21 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         }
     }
     return espOK;
+}
+
+/**
+ * \brief           Get total number of bytes ever received on connection and sent to user
+ * \param[in]       conn: Connection handle
+ */
+size_t
+esp_conn_get_total_recved_count(esp_conn_p conn) {
+    size_t tot;
+
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
+
+    ESP_CORE_PROTECT();                         /* Protect core */
+    tot = conn->total_recved;                   /* Get total received bytes */
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+
+    return tot;
 }

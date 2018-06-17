@@ -163,6 +163,8 @@ typedef struct esp_conn_t {
     
     esp_linbuff_t   buff;                       /*!< Linear buffer structure */
 
+    size_t          total_recved;               /*!< Total number of bytes received */
+
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
     size_t          tcp_available_data;         /*!< Number of bytes ready to read from ESP device on TCP connection */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */

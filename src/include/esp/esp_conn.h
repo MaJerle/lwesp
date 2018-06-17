@@ -63,6 +63,7 @@ espr_t      esp_get_conns_status(uint32_t blocking);
 esp_conn_p  esp_conn_get_from_evt(esp_cb_t* evt);
 espr_t      esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, size_t* mem_available);
 espr_t      esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf);
+size_t      esp_conn_get_total_recved_count(esp_conn_p conn);
  
 /**
  * \}

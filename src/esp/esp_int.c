@@ -924,7 +924,9 @@ espi_process(const void* data, size_t data_len) {
                 /*
                  * Call user callback function with received data
                  */
-                if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */                  
+                if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */
+                    esp.ipd.conn->total_recved += esp.ipd.buff->tot_len;    /* Increase number of bytes received */
+
                     /*
                      * Send data buffer to upper layer
                      *
