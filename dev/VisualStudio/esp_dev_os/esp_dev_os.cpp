@@ -16,6 +16,8 @@ static void main_thread(void* arg);
 DWORD main_thread_id;
 
 static espr_t esp_cb(esp_cb_t* cb);
+static espr_t esp_conn_cb(esp_cb_t* cb);
+
 
 /**
  * \brief           Program entry point
@@ -41,12 +43,12 @@ main_thread(void* arg) {
     esp_netconn_p c1;
     espr_t res;
     esp_pbuf_p p;
+    esp_ip_t ip;
 
     /*
      * Init ESP library
      */
-    esp_init(esp_cb);
-    esp_sta_autojoin(1, 1);
+    esp_init(esp_cb, 1);
     
     /*
      * Start MQTT thread
@@ -59,12 +61,15 @@ main_thread(void* arg) {
      * Follow function implementation for more info
      * on how to setup preferred access points for fast connection
      */
+    //start_access_point_scan_and_connect_procedure();
+    //esp_sys_thread_terminate(NULL);
     connect_to_preferred_access_point(1);
 
     /*
      * Start server on port 80
      */
-    http_server_start();
+    //http_server_start();
+    esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 0, ESP_SYS_THREAD_PRIO);    
 
     /*
      * Check if device has set IP address
@@ -93,7 +98,9 @@ static espr_t
 esp_cb(esp_cb_t* cb) {
     switch (cb->type) {
         case ESP_CB_INIT_FINISH: {
+            esp_restore(0);
             esp_set_at_baudrate(115200, 0);
+            esp_hostname_set("esp_device", 0);
             break;
         }
         case ESP_CB_RESET: {
@@ -125,4 +132,41 @@ esp_cb(esp_cb_t* cb) {
         default: break;
     }
 	return espOK;
+}
+
+static espr_t
+esp_conn_cb(esp_cb_t* cb) {
+    static char data[] = ""
+        "GET /examples/file_10k.txt HTTP/1.1\r\n"
+        "Host: majerle.eu\r\n"
+        "Connection: close\r\n"
+        "\r\n";
+
+    switch (cb->type) {
+        case ESP_CB_CONN_ACTIVE: {
+            printf("Connection active!\r\n");
+            esp_conn_send(esp_evt_conn_active_get_conn(cb), data, sizeof(data) - 1, NULL, 0);
+            break;
+        }
+        case ESP_CB_CONN_DATA_SENT: {
+            printf("Connection data sent!\r\n");
+            break;
+        }
+        case ESP_CB_CONN_DATA_RECV: {
+            esp_pbuf_p pbuf = esp_evt_conn_data_recv_get_buff(cb);
+            esp_conn_p conn = esp_evt_conn_data_recv_get_conn(cb);
+            printf("\r\nConnection data received: %d / %d bytes\r\n",
+                (int)esp_pbuf_length(pbuf, 1),
+                (int)esp_conn_get_total_recved_count(conn)
+            );
+            esp_conn_recved(conn, pbuf);
+            break;
+        }
+        case ESP_CB_CONN_CLOSED: {
+            printf("Connection closed!\r\n");
+            esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_conn_cb, 0);
+            break;
+        }
+    }
+    return espOK;
 }
