@@ -362,3 +362,4 @@ template/
 project.ioc
 mx.scratch
 *.tilen majerle
+/dev/VisualStudio/esp_dev_os/log_file.txt
