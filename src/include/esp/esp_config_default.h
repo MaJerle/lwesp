@@ -548,7 +548,7 @@
  * \note            This feature is only available for `TCP` connections.
  */
 #ifndef ESP_CFG_CONN_MANUAL_TCP_RECEIVE
-#define ESP_CFG_CONN_MANUAL_TCP_RECEIVE     1
+#define ESP_CFG_CONN_MANUAL_TCP_RECEIVE     0
 #endif
 
 /**

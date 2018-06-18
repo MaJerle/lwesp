@@ -36,9 +36,14 @@
 #include "esp/esp_threads.h"
 #include "system/esp_ll.h"
 
+/* Check for configuration */
 #if ESP_CFG_OS != 1
-#error ESP_CFG_OS must be set to 1!
-#endif
+#error ESP_CFG_OS must be set to 1 in current revision!
+#endif /* ESP_CFG_OS != 1 */
+
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+#error ESP_CFG_CONN_MANUAL_TCP_RECEIVE must be set to 0 in current revision!
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
 static espr_t           def_callback(esp_cb_t* cb);
 static esp_cb_func_t    def_cb_link;
