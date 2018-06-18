@@ -69,7 +69,7 @@
 
 #define ESP_CFG_RESET_ON_INIT               1
 
-#define ESP_CFG_CONN_MANUAL_TCP_RECEIVE     1
+#define ESP_CFG_CONN_MANUAL_TCP_RECEIVE     0
 
 #if defined(WIN32)
 #define ESP_CFG_SYS_PORT					ESP_SYS_PORT_WIN32

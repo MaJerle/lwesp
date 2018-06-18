@@ -156,7 +156,6 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
                     mqtt_client_publish(client, "esp8266_mqtt_topic", "test_data", 9, MQTT_QOS_AT_MOST_ONCE, 0, (void *)1);
                 }
             }
-            
             break;
         }
         
