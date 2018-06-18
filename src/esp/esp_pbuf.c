@@ -36,6 +36,7 @@
 
 /* Set size of pbuf structure */
 #define SIZEOF_PBUF_STRUCT          ESP_MEM_ALIGN(sizeof(esp_pbuf_t))
+#define SET_NEW_LEN(v, len)         do { if ((v) != NULL) { *(v) = (len); } } while (0)
 
 /**
  * \brief           Skip pbufs for desired offset
@@ -289,7 +290,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
      * skip to necessary pbuf
      */
     if (offset) {
-        pbuf = pbuf_skip(pbuf, offset, &offset);    /* Skip offset if necessary */
+        pbuf = pbuf_skip(pbuf, offset, &offset);/* Skip offset if necessary */
         if (pbuf == NULL) {
             return 0;
         }
@@ -301,12 +302,12 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
      */
     tot = 0;
     for (; pbuf != NULL && len; pbuf = pbuf->next) {
-        tc = ESP_MIN(pbuf->len - offset, len);      /* Get length of data to copy */
+        tc = ESP_MIN(pbuf->len - offset, len);  /* Get length of data to copy */
         ESP_MEMCPY(d, pbuf->payload + offset, tc);  /* Copy data from pbuf */
         d += tc;
         len -= tc;
         tot += tc;
-        offset = 0;                                 /* No more offset in this case */
+        offset = 0;                             /* No more offset in this case */
     }
     return tot;
 }
@@ -321,7 +322,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
 uint8_t
 esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
     esp_pbuf_p p;
-    
+
     if (pbuf != NULL) {
         p = pbuf_skip(pbuf, pos, &pos);         /* Skip pbufs to desired position and get new offset from new pbuf */
         if (p != NULL) {                        /* Do we have new pbuf? */
@@ -441,24 +442,20 @@ esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t offset) {
 const void *
 esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) {
     esp_pbuf_p p = pbuf;
+
     if (pbuf == NULL || pbuf->tot_len < offset) {   /* Check input parameters */
-        if (new_len != NULL) {
-            *new_len = 0;
-        }
+        SET_NEW_LEN(new_len, 0);
         return NULL;
     }
     if (offset) {                               /* Is there any offset? */
         p = pbuf_skip(pbuf, offset, &offset);   /* Skip pbuf to desired length */
         if (p == NULL) {
-            if (new_len != NULL) {
-                *new_len = 0;
-            }
+            SET_NEW_LEN(new_len, 0);
             return NULL;
         }
     }
-    if (new_len != NULL) {
-        *new_len = p->len - offset;             /* Save memory length user can use */
-    }
+
+    SET_NEW_LEN(new_len, p->len - offset);
     return &p->payload[offset];                 /* Return memory at desired offset */
 }
 
