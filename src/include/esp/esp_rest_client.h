@@ -44,6 +44,8 @@ extern "C" {
  * \defgroup        ESP_REST_CLIENT HTTP REST client
  * \brief           HTTP REST client
  * \{
+ *
+ * \warning         Module is under development and not all features are supported and documented
  */
 
 /**
@@ -54,6 +56,9 @@ typedef struct {
     esp_port_t port;                            /*!< Server REST port */
 } esp_rest_desc_t;
 
+/**
+ * \brief           REST async callback structure
+ */
 typedef struct {
     /**
      * \param[in]           hc: HTTP code on response

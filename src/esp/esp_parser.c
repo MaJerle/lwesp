@@ -237,6 +237,29 @@ espi_parse_cipstatus(const char* str) {
     return espOK;
 }
 
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
+/**
+ * \brief           Parse +CIPRECVDATA statement
+ * \param[in]       str: Input string to parse
+ * \return          Member of \ref espr_t enumeration
+ */
+espr_t
+espi_parse_ciprecvdata(const char* str) {
+    size_t len;
+    if (*str == '+') {
+        str += 13;
+    }
+
+    /* Check data length */
+    if ((len = espi_parse_number(&str)) > 0) {  /* Get number of bytes to read */
+        esp.ipd.read = 1;                       /* Start reading network data */
+        esp.ipd.tot_len = len;                  /* Total number of bytes in this received packet */
+        esp.ipd.rem_len = len;                  /* Number of remaining bytes to read */
+    }
+    return espOK;
+}
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
+
 /**
  * \brief           Parse +IPD statement
  * \param[in]       str: Input string to parse
@@ -248,6 +271,9 @@ espi_parse_ipd(const char* str) {
     size_t len;
     esp_conn_p c;
     
+    if (*str == '+') {
+        str += 5;
+    }
 
     /*
      * First check if this string is "notification only" or actual "data packet".

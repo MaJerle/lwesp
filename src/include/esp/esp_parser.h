@@ -39,13 +39,14 @@ extern "C" {
 
 #include "esp/esp.h"
 
-espr_t      espi_parse_cipstatus(const char* str);
-espr_t      espi_parse_ipd(const char* str);
-    
 int32_t     espi_parse_number(const char** str);
 uint8_t     espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim);
 uint8_t     espi_parse_ip(const char** src, esp_ip_t* ip);
 uint8_t     espi_parse_mac(const char** src, esp_mac_t* mac);
+
+espr_t      espi_parse_cipstatus(const char* str);
+espr_t      espi_parse_ipd(const char* str);
+espr_t      espi_parse_ciprecvdata(const char* str);
     
 uint8_t     espi_parse_cwlap(const char* src, esp_msg_t* msg);
 uint8_t     espi_parse_cwlif(const char* str, esp_msg_t* msg);

@@ -41,9 +41,9 @@
  */
 static void
 conn_timeout_cb(void* arg) {
-    esp_conn_p conn = arg;
+    esp_conn_p conn = arg;                      /* Argument is actual connection */
 
-    if (conn->status.f.active) {
+    if (conn->status.f.active) {                /* Handle only active connections */
         esp.cb.type = ESP_CB_CONN_POLL;         /* Poll connection event */
         esp.cb.cb.conn_poll.conn = conn;        /* Set connection pointer */
         espi_send_conn_cb(conn, NULL);          /* Send connection callback */
@@ -61,6 +61,49 @@ void
 espi_conn_start_timeout(esp_conn_p conn) {
     esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Add connection timeout */
 }
+
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+/**
+ * \brief           Manually start data read operation with desired length on specific connection
+ * \param[in]       conn: Connection handle
+ * \param[in]       len: Number of bytes to read
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
+    esp_pbuf_p p;
+    espr_t res;
+
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
+    ESP_ASSERT("len > 0", len > 0);             /* Assert input parameters */
+
+    len = ESP_MIN(ESP_CFG_CONN_MAX_DATA_LEN, ESP_MIN(len, conn->tcp_available_data));   /* Get maximal number of bytes we can read */
+
+    do {
+        p = esp_pbuf_new(len);                  /* Try to allocate buffer */
+        if (p == NULL) {                        /* In case of failure */
+            len /= 2;                           /* Try with half of value on next try */
+        }
+    } while (p == NULL && len > 10);
+
+    if (p == NULL) {                            /* Stop if we were not successful */
+        return espERRMEM;
+    }
+
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    msg->msg.ciprecvdata.len = len;
+    msg->msg.ciprecvdata.buff = p;
+    msg->msg.ciprecvdata.conn = conn;
+
+    /* Send command to queue */
+    if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 0, 60000)) != espOK) {
+        esp_pbuf_free(p);
+    }
+    return res;
+}
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
 /**
  * \brief           Get connection validation ID

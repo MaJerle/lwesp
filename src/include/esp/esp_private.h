@@ -317,12 +317,19 @@ typedef struct esp_msg {
             size_t sent_all;                    /*!< Number of bytes sent all together */
             uint8_t tries;                      /*!< Number of tries used for last packet */
             uint8_t wait_send_ok_err;           /*!< Set to 1 when we wait for SEND OK or SEND ERROR */
-            const esp_ip_t* remote_ip;           /*!< Remote IP address for UDP connection */
-            esp_port_t remote_port;               /*!< Remote port address for UDP connection */
+            const esp_ip_t* remote_ip;          /*!< Remote IP address for UDP connection */
+            esp_port_t remote_port;             /*!< Remote port address for UDP connection */
             uint8_t fau;                        /*!< Free after use flag to free memory after data are sent (or not) */
             size_t* bw;                         /*!< Number of bytes written so far */
             uint8_t val_id;                     /*!< Connection current validation ID when command was sent to queue */
         } conn_send;                            /*!< Structure to send data on connection */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+        struct {
+            esp_conn_t* conn;                   /*!< Connection handle */
+            size_t len;                         /*!< Number of bytes to read */
+            esp_pbuf_p buff;                    /*!< Buffer handle */
+        } ciprecvdata;                          /*!< Structure to manually read TCP data */
+#endif
         
         /*
          * TCP/IP based commands
@@ -561,6 +568,7 @@ espr_t      espi_send_cb(esp_cb_type_t type);
 espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb);
 void        espi_conn_init(void);
 void        espi_conn_start_timeout(esp_conn_p conn);
+espr_t      espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len);
 espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block, uint32_t max_block_time);
 uint32_t    espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout);
 

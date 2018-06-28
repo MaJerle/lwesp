@@ -452,7 +452,11 @@ espi_parse_received(esp_recv_t* rcv) {
      */
     if (rcv->data[0] == '+') {
         if (!strncmp("+IPD", rcv->data, 4)) {   /* Check received network data */
-            espi_parse_ipd(rcv->data + 5);      /* Parse IPD statement and start receiving network data */
+            espi_parse_ipd(rcv->data);          /* Parse IPD statement and start receiving network data */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+        } else if (!strncmp("+CIPRECVDATA", rcv->data, 12)) {
+            espi_parse_ciprecvdata(rcv->data);  /* Parse CIPRECVDATA statement and start receiving network data */
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_ACCESS_POINT
         } else if (!strncmp(rcv->data, "+STA_CONNECTED", 14)) {
             espi_parse_ap_conn_disconn_sta(&rcv->data[15], 1);  /* Parse string and send to user layer */
@@ -1019,13 +1023,37 @@ espi_process(const void* data, size_t data_len) {
                         }
                     }
                     
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+                    /*
+                     * Check if "+CIPRECVDATA" statement is in array and now we received color,
+                     * indicating end of +CIPRECVDATA statement and start of actual data
+                     */
+                    if (ch == ':' && RECV_LEN() > 12 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)) {
+                        espi_parse_received(&recv_buff);    /* Parse received string */
+                        if (esp.ipd.read) {     /* Shall we start read procedure? */
+                            /*
+                             * We should have already allocated pbuf memory at this stage
+                             * in current message from actual command handle
+                             *
+                             * Pbuf length should not be bigger than number of received bytes
+                             */
+                            esp.ipd.buff = esp.msg->msg.ciprecvdata.buff;
+                            esp.ipd.conn = esp.msg->msg.ciprecvdata.conn;
+                            if (esp.ipd.buff != NULL) {
+
+                            }
+                            esp.msg->msg.ciprecvdata.buff = NULL;   /* Clear reference for this pbuf */
+                        }
+                    } else
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+
                     /*
                      * Check if "+IPD" statement is in array and now we received colon,
                      * indicating end of +IPD and start of actual data
                      */
                     if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+IPD", 4)) {
                         espi_parse_received(&recv_buff);	/* Parse received string */
-                        if (esp.ipd.read) {     /* Are we going into read mode? */
+                        if (esp.ipd.read) {     /* Shall we start read procedure? */
                             size_t len;
                             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                                 "IPD: Data on connection %d with total size %d byte(s)\r\n", (int)esp.ipd.conn->num, esp.ipd.tot_len);
