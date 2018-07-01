@@ -15,8 +15,8 @@
 static void main_thread(void* arg);
 DWORD main_thread_id;
 
-static espr_t esp_cb(esp_cb_t* cb);
-static espr_t esp_conn_cb(esp_cb_t* cb);
+static espr_t esp_evt(esp_evt_t* evt);
+static espr_t esp_conn_evt(esp_evt_t* evt);
 
 
 /**
@@ -48,7 +48,7 @@ main_thread(void* arg) {
     /*
      * Init ESP library
      */
-    esp_init(esp_cb, 1);
+    esp_init(esp_evt, 1);
     
     /*
      * Start MQTT thread
@@ -66,12 +66,6 @@ main_thread(void* arg) {
     connect_to_preferred_access_point(1);
 
     /*
-     * Start server on port 80
-     */
-    //http_server_start();
-    esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 0, ESP_SYS_THREAD_PRIO);    
-
-    /*
      * Check if device has set IP address
      *
      * This should always pass
@@ -84,6 +78,54 @@ main_thread(void* arg) {
     }
 
     /*
+     * Start server on port 80
+     */
+    //http_server_start();
+    //esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 0, ESP_SYS_THREAD_PRIO);    
+
+    while (1) {
+        esp_netconn_p nc;
+        espr_t res;
+        esp_pbuf_p p;
+
+        nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
+        if (nc != NULL) {
+            res = esp_netconn_connect(nc, "majerle.eu", 80);
+            if (res == espOK) {
+                size_t total = 0, len;
+                const char tx_data[] = ""
+                    "GET /examples/file_10k.txt HTTP/1.1\r\n"
+                    "Host: majerle.eu\r\n"
+                    "Connection: close\r\n"
+                    "\r\n";
+
+                /* Send data */
+                esp_netconn_write(nc, tx_data, strlen(tx_data));
+                esp_netconn_flush(nc);
+
+                /* Process receive data */
+                do {
+                    res = esp_netconn_receive(nc, &p);
+                    if (res == espOK) {
+                        len = esp_pbuf_length(p, 1);
+                        total += len;
+                        printf("\r\n\r\nReceived %d bytes of data, total %d bytes\r\n", (int)len, (int)total);
+                        esp_pbuf_free(p);
+                    } else if (res == espCLOSED) {
+                        printf("\r\nConnection closed!\r\n");
+                    } else {
+                        printf("\r\nRes: %d\r\n", (int)res);
+                    }
+                } while (res == espOK);
+                esp_netconn_delete(nc);
+                nc = NULL;
+            }
+        }
+
+        esp_delay(5000);
+    }
+
+    /*
      * Terminate thread
      */
     esp_sys_thread_terminate(NULL);
@@ -91,12 +133,12 @@ main_thread(void* arg) {
 
 /**
  * \brief           Global ESP event function callback
- * \param[in]       cb: Event information
+ * \param[in]       evt: Event information
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-esp_cb(esp_cb_t* cb) {
-    switch (cb->type) {
+esp_evt(esp_evt_t* evt) {
+    switch (evt->type) {
         case ESP_CB_INIT_FINISH: {
             esp_restore(0);
             esp_set_at_baudrate(115200, 0);
@@ -109,20 +151,20 @@ esp_cb(esp_cb_t* cb) {
         }
 #if ESP_CFG_MODE_ACCESS_POINT
         case ESP_CB_AP_CONNECTED_STA: {
-            esp_mac_t* mac = cb->cb.ap_conn_disconn_sta.mac;
+            esp_mac_t* mac = esp_evt_ap_connected_sta_get_mac(evt);
             printf("New station connected to ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
             break;
         }
         case ESP_CB_AP_DISCONNECTED_STA: {
-            esp_mac_t* mac = cb->cb.ap_conn_disconn_sta.mac;
+            esp_mac_t* mac = esp_evt_ap_disconnected_sta_get_mac(evt);
             printf("Station disconnected from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
             break;
         }
         case ESP_CB_AP_IP_STA: {
-            esp_mac_t* mac = cb->cb.ap_ip_sta.mac;
-            esp_ip_t* ip = cb->cb.ap_ip_sta.ip;
+            esp_mac_t* mac = esp_evt_ap_ip_sta_get_mac(evt);
+            esp_ip_t* ip = esp_evt_ap_ip_sta_get_ip(evt);
             printf("Station received IP address from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X and IP: %d.%d.%d.%d\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5],
                 ip->ip[0], ip->ip[1], ip->ip[2], ip->ip[3]);
@@ -135,17 +177,17 @@ esp_cb(esp_cb_t* cb) {
 }
 
 static espr_t
-esp_conn_cb(esp_cb_t* cb) {
+esp_conn_evt(esp_evt_t* evt) {
     static char data[] = ""
         "GET /examples/file_10k.txt HTTP/1.1\r\n"
         "Host: majerle.eu\r\n"
         "Connection: close\r\n"
         "\r\n";
 
-    switch (cb->type) {
+    switch (evt->type) {
         case ESP_CB_CONN_ACTIVE: {
             printf("Connection active!\r\n");
-            esp_conn_send(esp_evt_conn_active_get_conn(cb), data, sizeof(data) - 1, NULL, 0);
+            esp_conn_send(esp_evt_conn_active_get_conn(evt), data, sizeof(data) - 1, NULL, 0);
             break;
         }
         case ESP_CB_CONN_DATA_SENT: {
@@ -153,8 +195,8 @@ esp_conn_cb(esp_cb_t* cb) {
             break;
         }
         case ESP_CB_CONN_DATA_RECV: {
-            esp_pbuf_p pbuf = esp_evt_conn_data_recv_get_buff(cb);
-            esp_conn_p conn = esp_evt_conn_data_recv_get_conn(cb);
+            esp_pbuf_p pbuf = esp_evt_conn_data_recv_get_buff(evt);
+            esp_conn_p conn = esp_evt_conn_data_recv_get_conn(evt);
             printf("\r\nConnection data received: %d / %d bytes\r\n",
                 (int)esp_pbuf_length(pbuf, 1),
                 (int)esp_conn_get_total_recved_count(conn)
@@ -164,7 +206,7 @@ esp_conn_cb(esp_cb_t* cb) {
         }
         case ESP_CB_CONN_CLOSED: {
             printf("Connection closed!\r\n");
-            esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_conn_cb, 0);
+            esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_conn_evt, 0);
             break;
         }
     }

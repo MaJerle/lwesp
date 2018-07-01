@@ -44,8 +44,8 @@ conn_timeout_cb(void* arg) {
     esp_conn_p conn = arg;                      /* Argument is actual connection */
 
     if (conn->status.f.active) {                /* Handle only active connections */
-        esp.cb.type = ESP_CB_CONN_POLL;         /* Poll connection event */
-        esp.cb.cb.conn_poll.conn = conn;        /* Set connection pointer */
+        esp.evt.type = ESP_CB_CONN_POLL;        /* Poll connection event */
+        esp.evt.evt.conn_poll.conn = conn;      /* Set connection pointer */
         espi_send_conn_cb(conn, NULL);          /* Send connection callback */
         
         esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Schedule timeout again */
@@ -204,17 +204,17 @@ espi_conn_init(void) {
  * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
  * \param[in]       port: Connection port
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
- * \param[in]       cb_func: Callback function for this connection
+ * \param[in]       evt_fn: Callback function for this connection
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_port_t port, void* arg, esp_cb_fn cb_func, uint32_t blocking) {
+esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_port_t port, void* arg, esp_evt_fn evt_fn, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
 
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
-    ESP_ASSERT("cb_func != NULL", cb_func != NULL); /* Assert input parameters */
+    ESP_ASSERT("evt_func != NULL", evt_fn != NULL);   /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTART;
@@ -223,7 +223,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_por
     ESP_MSG_VAR_REF(msg).msg.conn_start.type = type;
     ESP_MSG_VAR_REF(msg).msg.conn_start.host = host;
     ESP_MSG_VAR_REF(msg).msg.conn_start.port = port;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.cb_func = cb_func;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.cb_func = evt_fn;
     ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);   /* Send message to producer queue */
@@ -508,7 +508,7 @@ esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
  * \return          Connection pointer on success, `NULL` otherwise
  */
 esp_conn_p
-esp_conn_get_from_evt(esp_cb_t* evt) {
+esp_conn_get_from_evt(esp_evt_t* evt) {
     if (evt->type == ESP_CB_CONN_ACTIVE) {
         return esp_evt_conn_active_get_conn(evt);
     } else if (evt->type == ESP_CB_CONN_CLOSED) {

@@ -45,18 +45,18 @@
 #error ESP_CFG_CONN_MANUAL_TCP_RECEIVE must be set to 0 in current revision!
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
-static espr_t           def_callback(esp_cb_t* cb);
-static esp_cb_func_t    def_cb_link;
+static espr_t           def_callback(esp_evt_t* evt);
+static esp_evt_func_t   def_evt_link;
 
 esp_t esp;
 
 /**
  * \brief           Default callback function for events
- * \param[in]       cb: Pointer to callback data structure
+ * \param[in]       evt: Pointer to callback data structure
  * \return          Member of \ref espr_t enumeration
  */
 static espr_t
-def_callback(esp_cb_t* cb) {
+def_callback(esp_evt_t* evt) {
     return espOK;
 }
 
@@ -64,18 +64,18 @@ def_callback(esp_cb_t* cb) {
  * \brief           Init and prepare ESP stack
  * \note            When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device.
  *                  In this case, `blocking` parameter indicates if we shall wait or not for response
- * \param[in]       cb_func: Event callback function
+ * \param[in]       evt_func: Event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_init(esp_cb_fn cb_func, uint32_t blocking) {
+esp_init(esp_evt_fn evt_func, uint32_t blocking) {
     esp.status.f.initialized = 0;               /* Clear possible init flag */
     
-    def_cb_link.fn = cb_func ? cb_func : def_callback;
-    esp.cb_func = &def_cb_link;                 /* Set callback function */
+    def_evt_link.fn = evt_func != NULL ? evt_func : def_callback;
+    esp.evt_func = &def_evt_link;               /* Set callback function */
     
-    esp.cb_server = NULL;                       /* Set default server callback function */
+    esp.evt_server = NULL;                      /* Set default server callback function */
     
     esp_sys_init();                             /* Init low-level system */
     esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;    /* Set default baudrate value */
@@ -200,12 +200,12 @@ esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
  * \param[in]       max_conn: Number of maximal connections populated by server
  * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
  *                  Set to `0` to disable timeout feature (not recommended)
- * \param[in]       cb: Connection callback function
+ * \param[in]       evt_fn: Connection callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking) {
+esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn evt_fn, uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
@@ -219,7 +219,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.port = port;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.max_conn = max_conn;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.timeout = timeout;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = cb;
+    ESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = evt_fn;
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
@@ -296,22 +296,22 @@ esp_core_unlock(void) {
 }
 
 /**
- * \brief           Register callback function for global (non-connection based) events
- * \param[in]       cb_fn: Callback function to call on specific event
+ * \brief           Register event function for global (non-connection based) events
+ * \param[in]       fn: Callback function to call on specific event
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_cb_register(esp_cb_fn cb_fn) {
+esp_evt_register(esp_evt_fn fn) {
     espr_t res = espOK;
-    esp_cb_func_t* func, *newFunc;
+    esp_evt_func_t* func, *newFunc;
     
-    ESP_ASSERT("cb_fn != NULL", cb_fn != NULL); /* Assert input parameters */
+    ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
     
     ESP_CORE_PROTECT();                         /* Lock ESP core */
     
     /* Check if function already exists on list */
-    for (func = esp.cb_func; func != NULL; func = func->next) {
-        if (func->fn == cb_fn) {
+    for (func = esp.evt_func; func != NULL; func = func->next) {
+        if (func->fn == fn) {
             res = espERR;
             break;
         }
@@ -321,11 +321,11 @@ esp_cb_register(esp_cb_fn cb_fn) {
         newFunc = esp_mem_alloc(sizeof(*newFunc));  /* Get memory for new function */
         if (newFunc != NULL) {
             ESP_MEMSET(newFunc, 0x00, sizeof(*newFunc));/* Reset memory */
-            newFunc->fn = cb_fn;                /* Set function pointer */
-            if (esp.cb_func == NULL) {
-                esp.cb_func = newFunc;          /* This should never happen! */
+            newFunc->fn = fn;                   /* Set function pointer */
+            if (esp.evt_func == NULL) {
+                esp.evt_func = newFunc;         /* This should never happen! */
             } else {
-                for (func = esp.cb_func; func->next != NULL; func = func->next) {}
+                for (func = esp.evt_func; func->next != NULL; func = func->next) {}
                 func->next = newFunc;           /* Set new function as next */
             }
             res = espOK;
@@ -339,18 +339,19 @@ esp_cb_register(esp_cb_fn cb_fn) {
 
 /**
  * \brief           Unregister callback function for global (non-connection based) events
- * \note            Function must be first registered using \ref esp_cb_register
- * \param[in]       cb_fn: Callback function to call on specific event
+ * \note            Function must be first registered using \ref esp_evt_register
+ * \param[in]       fn: Callback function to call on specific event
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_cb_unregister(esp_cb_fn cb_fn) {
-    esp_cb_func_t* func, *prev;
-    ESP_ASSERT("cb_fn != NULL", cb_fn != NULL); /* Assert input parameters */
+esp_evt_unregister(esp_evt_fn fn) {
+    esp_evt_func_t* func, *prev;
+
+    ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
     
     ESP_CORE_PROTECT();                         /* Lock ESP core */
-    for (prev = esp.cb_func, func = esp.cb_func->next; func != NULL; prev = func, func = func->next) {
-        if (func->fn == cb_fn) {
+    for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {
+        if (func->fn == fn) {
             prev->next = func->next;
             esp_mem_free(func);
             func = NULL;

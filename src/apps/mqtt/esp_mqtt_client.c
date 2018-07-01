@@ -43,7 +43,7 @@
 #define ESP_CFG_DBG_MQTT_STATE                  ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_STATE
 #define ESP_CFG_DBG_MQTT_TRACE_WARNING          ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_STATE | ESP_DBG_LVL_WARNING
 
-static espr_t   mqtt_conn_cb(esp_cb_t* cb);
+static espr_t   mqtt_conn_cb(esp_evt_t* evt);
 static void     send_data(mqtt_client_t* client);
 
 /**
@@ -852,36 +852,36 @@ mqtt_closed_cb(mqtt_client_t* client) {
 
 /**
  * \brief           Connection callback
- * \param[in]       cb: Callback parameters
+ * \param[in]       evt: Callback parameters
  * \result          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 static espr_t
-mqtt_conn_cb(esp_cb_t* cb) {
+mqtt_conn_cb(esp_evt_t* evt) {
     esp_conn_p conn;
     mqtt_client_t* client = NULL;
     
-    conn = esp_conn_get_from_evt(cb);           /* Get connection from event */
+    conn = esp_conn_get_from_evt(evt);          /* Get connection from event */
     if (conn != NULL) {
         client = esp_conn_get_arg(conn);        /* Get client structure from connection */
         if (client == NULL) {
             esp_conn_close(conn, 0);            /* Force connection close immediatelly */
             return espERR;
         }
-    } else if (cb->type != ESP_CB_CONN_ERROR) {
+    } else if (evt->type != ESP_CB_CONN_ERROR) {
         return espERR;
     }
     
     /*
      * Check and process events
      */
-    switch (cb->type) {
+    switch (evt->type) {
         /*
          * Connection error. Connection to external
          * server was not successful
          */
         case ESP_CB_CONN_ERROR: {
             mqtt_client_t* client;
-            client = esp_evt_conn_error_get_arg(cb);/* Get connection argument */
+            client = esp_evt_conn_error_get_arg(evt);   /* Get connection argument */
             if (client != NULL) {
                 client->conn_state = MQTT_CONN_DISCONNECTED;    /* Set back to disconnected state */
                 /* Notify user upper layer */
@@ -905,7 +905,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
          * on MQTT client connection
          */
         case ESP_CB_CONN_DATA_RECV: {
-            mqtt_data_recv_cb(client, esp_evt_conn_data_recv_get_buff(cb)); /* Call user to process received data */
+            mqtt_data_recv_cb(client, esp_evt_conn_data_recv_get_buff(evt));/* Call user to process received data */
             break;
         }
         
@@ -913,7 +913,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
          * Data were sent on MQTT client connection
          */
         case ESP_CB_CONN_DATA_SENT: {
-            mqtt_data_sent_cb(client, esp_evt_conn_data_sent_get_length(cb), 1);    /* Data sent callback */
+            mqtt_data_sent_cb(client, esp_evt_conn_data_sent_get_length(evt), 1);   /* Data sent callback */
             break;
         }
         
@@ -921,7 +921,7 @@ mqtt_conn_cb(esp_cb_t* cb) {
          * There was an error sending data to remote
          */
         case ESP_CB_CONN_DATA_SEND_ERR: {
-            mqtt_data_sent_cb(client, esp_evt_conn_data_send_err_get_length(cb), 0);/* Data sent error */
+            mqtt_data_sent_cb(client, esp_evt_conn_data_send_err_get_length(evt), 0);   /* Data sent error */
             break;
         }
         

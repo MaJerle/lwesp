@@ -892,20 +892,20 @@ send_response(http_state_t* hs, uint8_t ft) {
 
 /**
  * \brief           Server connection callback
- * \param[in]       cb: Pointer to callback data
+ * \param[in]       evt: Pointer to callback data
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-http_evt_cb(esp_cb_t* cb) {
+http_evt(esp_evt_t* evt) {
     uint8_t close = 0;
     esp_conn_p conn;
     http_state_t* hs = NULL;
     
-    conn = esp_conn_get_from_evt(cb);           /* Get connection from event */
+    conn = esp_conn_get_from_evt(evt);          /* Get connection from event */
     if (conn != NULL) {
         hs = esp_conn_get_arg(conn);            /* Get connection argument */
     }
-    switch (cb->type) {
+    switch (evt->type) {
         /*
          * A new connection just became active
          */
@@ -929,7 +929,7 @@ http_evt_cb(esp_cb_t* cb) {
             esp_pbuf_p p;
             size_t pos;
             
-            p = esp_evt_conn_data_recv_get_buff(cb);    /* Get received buffer */
+            p = esp_evt_conn_data_recv_get_buff(evt);   /* Get received buffer */
             if (hs != NULL) {                   /* Do we have a valid http state? */
                 /*
                  * Check if we have to receive headers data first
@@ -1112,7 +1112,7 @@ http_evt_cb(esp_cb_t* cb) {
         case ESP_CB_CONN_DATA_SENT: {
             size_t len;
             if (hs != NULL) {
-                len = esp_evt_conn_data_sent_get_length(cb);    /* Get length */
+                len = esp_evt_conn_data_sent_get_length(evt);   /* Get length */
                 ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE,
                     "SERVER: data sent with %d bytes\r\n", (int)len);
                 hs->sent_total += len;          /* Increase number of bytes sent */
@@ -1197,7 +1197,7 @@ http_evt_cb(esp_cb_t* cb) {
 espr_t
 esp_http_server_init(const http_init_t* init, esp_port_t port) {
     espr_t res;
-    if ((res = esp_set_server(1, port, ESP_CFG_MAX_CONNS, 80, http_evt_cb, 1)) == espOK) {
+    if ((res = esp_set_server(1, port, ESP_CFG_MAX_CONNS, 80, http_evt, 1)) == espOK) {
         hi = init;
     }
     return res;

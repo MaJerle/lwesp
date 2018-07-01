@@ -95,17 +95,17 @@ flush_mboxes(esp_netconn_t* nc) {
 
 /**
  * \brief           Callback function for every server connection
- * \param[in]       cb: Pointer to callback structure
+ * \param[in]       evt: Pointer to callback structure
  * \return          Member of \ref espr_t enumeration
  */
 static espr_t
-esp_cb(esp_cb_t* cb) {
+netconn_evt(esp_evt_t* evt) {
     esp_conn_p conn;
     esp_netconn_t* nc = NULL;
     uint8_t close = 0;
     
-    conn = esp_conn_get_from_evt(cb);           /* Get connection from event */
-    switch (cb->type) {
+    conn = esp_conn_get_from_evt(evt);          /* Get connection from event */
+    switch (evt->type) {
         /*
          * A new connection has been active
          * and should be handled by netconn API
@@ -169,7 +169,7 @@ esp_cb(esp_cb_t* cb) {
             esp_pbuf_p pbuf;
 
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
-            pbuf = esp_evt_conn_data_recv_get_buff(cb); /* Get received buff */
+            pbuf = esp_evt_conn_data_recv_get_buff(evt);/* Get received buff */
 
             esp_conn_recved(conn, pbuf);        /* Notify stack about received data */
 #if !ESP_CFG_NETCONN_ACCEPT_ON_CONNECT
@@ -247,12 +247,12 @@ esp_cb(esp_cb_t* cb) {
 
 /**
  * \brief           Global event callback function
- * \param[in]       cb: Callback information and data
+ * \param[in]       evt: Callback information and data
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-esp_evt_func(esp_cb_t* cb) {
-    switch (cb->type) {
+esp_evt(esp_evt_t* evt) {
+    switch (evt->type) {
         case ESP_CB_WIFI_DISCONNECTED: {        /* Wifi disconnected event */
             if (listen_api != NULL) {           /* Check if listen API active */
                 esp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_closed);
@@ -277,8 +277,15 @@ esp_evt_func(esp_cb_t* cb) {
 esp_netconn_p
 esp_netconn_new(esp_netconn_type_t type) {
     esp_netconn_t* a;
+    static uint8_t first = 1;
     
-    esp_cb_register(esp_evt_func);              /* Register global event function */
+    /* Register only once! */
+    ESP_CORE_PROTECT();
+    if (first) {
+        first = 0;
+        esp_evt_register(esp_evt);              /* Register global event function */
+    }
+    ESP_CORE_UNPROTECT();
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a != NULL) {
         a->type = type;                         /* Save netconn type */
@@ -376,7 +383,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
      *  - Set netconn callback function for connection management
      *  - Start connection in blocking mode
      */
-    res = esp_conn_start(NULL, (esp_conn_type_t)nc->type, host, port, nc, esp_cb, 1);
+    res = esp_conn_start(NULL, (esp_conn_type_t)nc->type, host, port, nc, netconn_evt, 1);
     return res;
 }
 
@@ -393,7 +400,7 @@ esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
     /*
      * Enable server on port and set default netconn callback
      */
-    return esp_set_server(1, port, ESP_CFG_MAX_CONNS, 100, esp_cb, 1);
+    return esp_set_server(1, port, ESP_CFG_MAX_CONNS, 100, netconn_evt, 1);
 }
 
 /**

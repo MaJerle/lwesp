@@ -40,8 +40,8 @@
  * \return          `1` if forced by user, `0` otherwise
  */
 uint8_t
-esp_evt_reset_is_forced(esp_cb_t* cc) {
-    return ESP_U8(!!cc->cb.reset.forced);
+esp_evt_reset_is_forced(esp_evt_t* cc) {
+    return ESP_U8(!!cc->evt.reset.forced);
 }
 
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
@@ -52,8 +52,8 @@ esp_evt_reset_is_forced(esp_cb_t* cc) {
  * \return          MAC address
  */
 esp_mac_t *
-esp_evt_ap_ip_sta_get_mac(esp_cb_t* cc) {
-    return cc->cb.ap_ip_sta.mac;
+esp_evt_ap_ip_sta_get_mac(esp_evt_t* cc) {
+    return cc->evt.ap_ip_sta.mac;
 }
 
 /**
@@ -62,8 +62,8 @@ esp_evt_ap_ip_sta_get_mac(esp_cb_t* cc) {
  * \return          IP address
  */
 esp_ip_t *
-esp_evt_ap_ip_sta_get_ip(esp_cb_t* cc) {
-    return cc->cb.ap_ip_sta.ip;
+esp_evt_ap_ip_sta_get_ip(esp_evt_t* cc) {
+    return cc->evt.ap_ip_sta.ip;
 }
 
 /**
@@ -72,8 +72,8 @@ esp_evt_ap_ip_sta_get_ip(esp_cb_t* cc) {
  * \return          MAC address
  */
 esp_mac_t *
-esp_evt_ap_connected_sta_get_mac(esp_cb_t* cc) {
-    return cc->cb.ap_conn_disconn_sta.mac;
+esp_evt_ap_connected_sta_get_mac(esp_evt_t* cc) {
+    return cc->evt.ap_conn_disconn_sta.mac;
 }
 
 /**
@@ -82,8 +82,8 @@ esp_evt_ap_connected_sta_get_mac(esp_cb_t* cc) {
  * \return          MAC address
  */
 esp_mac_t *
-esp_evt_ap_disconnected_sta_get_mac(esp_cb_t* cc) {
-    return cc->cb.ap_conn_disconn_sta.mac;
+esp_evt_ap_disconnected_sta_get_mac(esp_evt_t* cc) {
+    return cc->evt.ap_conn_disconn_sta.mac;
 }
 
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
@@ -94,8 +94,8 @@ esp_evt_ap_disconnected_sta_get_mac(esp_cb_t* cc) {
  * \return          Buffer handle
  */
 esp_pbuf_p
-esp_evt_conn_data_recv_get_buff(esp_cb_t* cc) {
-    return cc->cb.conn_data_recv.buff;
+esp_evt_conn_data_recv_get_buff(esp_evt_t* cc) {
+    return cc->evt.conn_data_recv.buff;
 }
 
 /**
@@ -104,8 +104,8 @@ esp_evt_conn_data_recv_get_buff(esp_cb_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_data_recv_get_conn(esp_cb_t* cc) {
-    return cc->cb.conn_data_recv.conn;
+esp_evt_conn_data_recv_get_conn(esp_evt_t* cc) {
+    return cc->evt.conn_data_recv.conn;
 }
 
 /**
@@ -114,8 +114,8 @@ esp_evt_conn_data_recv_get_conn(esp_cb_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_data_sent_get_conn(esp_cb_t* cc) {
-    return cc->cb.conn_data_sent.conn;
+esp_evt_conn_data_sent_get_conn(esp_evt_t* cc) {
+    return cc->evt.conn_data_sent.conn;
 }
 
 /**
@@ -124,8 +124,8 @@ esp_evt_conn_data_sent_get_conn(esp_cb_t* cc) {
  * \return          Number of bytes sent
  */
 size_t
-esp_evt_conn_data_sent_get_length(esp_cb_t* cc) {
-    return cc->cb.conn_data_sent.sent;
+esp_evt_conn_data_sent_get_length(esp_evt_t* cc) {
+    return cc->evt.conn_data_sent.sent;
 }
 
 /**
@@ -134,8 +134,8 @@ esp_evt_conn_data_sent_get_length(esp_cb_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_data_send_err_get_conn(esp_cb_t* cc) {
-    return cc->cb.conn_data_send_err.conn;
+esp_evt_conn_data_send_err_get_conn(esp_evt_t* cc) {
+    return cc->evt.conn_data_send_err.conn;
 }
 
 /**
@@ -144,8 +144,8 @@ esp_evt_conn_data_send_err_get_conn(esp_cb_t* cc) {
  * \return          Connection handle
  */
 size_t
-esp_evt_conn_data_send_err_get_length(esp_cb_t* cc) {
-    return cc->cb.conn_data_send_err.sent;
+esp_evt_conn_data_send_err_get_length(esp_evt_t* cc) {
+    return cc->evt.conn_data_send_err.sent;
 }
 
 /**
@@ -154,8 +154,8 @@ esp_evt_conn_data_send_err_get_length(esp_cb_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_active_get_conn(esp_cb_t* cc) {
-    return cc->cb.conn_active_closed.conn;
+esp_evt_conn_active_get_conn(esp_evt_t* cc) {
+    return cc->evt.conn_active_closed.conn;
 }
 
 /**
@@ -164,8 +164,8 @@ esp_evt_conn_active_get_conn(esp_cb_t* cc) {
  * \return          `1` if client, `0` otherwise
  */
 uint8_t
-esp_evt_conn_active_is_client(esp_cb_t* cc) {
-    return ESP_U8(!!cc->cb.conn_active_closed.client);
+esp_evt_conn_active_is_client(esp_evt_t* cc) {
+    return ESP_U8(!!cc->evt.conn_active_closed.client);
 }
 
 /**
@@ -174,8 +174,8 @@ esp_evt_conn_active_is_client(esp_cb_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_closed_get_conn(esp_cb_t* cc) {
-    return cc->cb.conn_active_closed.conn;
+esp_evt_conn_closed_get_conn(esp_evt_t* cc) {
+    return cc->evt.conn_active_closed.conn;
 }
 
 /**
@@ -184,8 +184,8 @@ esp_evt_conn_closed_get_conn(esp_cb_t* cc) {
  * \return          `1` if client, `0` otherwise
  */
 uint8_t
-esp_evt_conn_closed_is_client(esp_cb_t* cc) {
-    return cc->cb.conn_active_closed.client;
+esp_evt_conn_closed_is_client(esp_evt_t* cc) {
+    return cc->evt.conn_active_closed.client;
 }
 
 /**
@@ -194,8 +194,8 @@ esp_evt_conn_closed_is_client(esp_cb_t* cc) {
  * \return          `1` if forced, `0` otherwise
  */
 uint8_t
-esp_evt_conn_closed_is_forced(esp_cb_t* cc) {
-    return cc->cb.conn_active_closed.forced;
+esp_evt_conn_closed_is_forced(esp_evt_t* cc) {
+    return cc->evt.conn_active_closed.forced;
 }
 
 /**
@@ -204,8 +204,8 @@ esp_evt_conn_closed_is_forced(esp_cb_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_poll_get_conn(esp_cb_t* cc) {
-    return cc->cb.conn_poll.conn;
+esp_evt_conn_poll_get_conn(esp_evt_t* cc) {
+    return cc->evt.conn_poll.conn;
 }
 
 /**
@@ -214,8 +214,8 @@ esp_evt_conn_poll_get_conn(esp_cb_t* cc) {
  * \return          Member of \ref espr_t enumeration
  */
 espr_t
-esp_evt_conn_error_get_error(esp_cb_t* cc) {
-    return cc->cb.conn_error.err;
+esp_evt_conn_error_get_error(esp_evt_t* cc) {
+    return cc->evt.conn_error.err;
 }
 
 /**
@@ -224,8 +224,8 @@ esp_evt_conn_error_get_error(esp_cb_t* cc) {
  * \return          Member of \ref espr_t enumeration
  */
 esp_conn_type_t
-esp_evt_conn_error_get_type(esp_cb_t* cc) {
-    return cc->cb.conn_error.type;
+esp_evt_conn_error_get_type(esp_evt_t* cc) {
+    return cc->evt.conn_error.type;
 }
 
 /**
@@ -234,8 +234,8 @@ esp_evt_conn_error_get_type(esp_cb_t* cc) {
  * \return          Host name for connection
  */
 const char *
-esp_evt_conn_error_get_host(esp_cb_t* cc) {
-    return cc->cb.conn_error.host;
+esp_evt_conn_error_get_host(esp_evt_t* cc) {
+    return cc->evt.conn_error.host;
 }
 
 /**
@@ -244,8 +244,8 @@ esp_evt_conn_error_get_host(esp_cb_t* cc) {
  * \return          Host port number
  */
 esp_port_t
-esp_evt_conn_error_get_port(esp_cb_t* cc) {
-    return cc->cb.conn_error.port;
+esp_evt_conn_error_get_port(esp_evt_t* cc) {
+    return cc->evt.conn_error.port;
 }
 
 /**
@@ -254,8 +254,8 @@ esp_evt_conn_error_get_port(esp_cb_t* cc) {
  * \return          User argument
  */
 void *
-esp_evt_conn_error_get_arg(esp_cb_t* cc) {
-    return cc->cb.conn_error.arg;
+esp_evt_conn_error_get_arg(esp_evt_t* cc) {
+    return cc->evt.conn_error.arg;
 }
 
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
@@ -266,8 +266,8 @@ esp_evt_conn_error_get_arg(esp_cb_t* cc) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_sta_list_ap_get_status(esp_cb_t* cc) {
-    return cc->cb.sta_list_ap.status;
+esp_evt_sta_list_ap_get_status(esp_evt_t* cc) {
+    return cc->evt.sta_list_ap.status;
 }
 
 /**
@@ -276,8 +276,8 @@ esp_evt_sta_list_ap_get_status(esp_cb_t* cc) {
  * \return          Pointer to \ref esp_ap_t with first access point description
  */
 esp_ap_t *
-esp_evt_sta_list_ap_get_aps(esp_cb_t* cc) {
-    return cc->cb.sta_list_ap.aps;
+esp_evt_sta_list_ap_get_aps(esp_evt_t* cc) {
+    return cc->evt.sta_list_ap.aps;
 }
 
 /**
@@ -286,8 +286,8 @@ esp_evt_sta_list_ap_get_aps(esp_cb_t* cc) {
  * \return          Number of access points found
  */
 size_t
-esp_evt_sta_list_ap_get_length(esp_cb_t* cc) {
-    return cc->cb.sta_list_ap.len;
+esp_evt_sta_list_ap_get_length(esp_evt_t* cc) {
+    return cc->evt.sta_list_ap.len;
 }
 
 /**
@@ -296,8 +296,8 @@ esp_evt_sta_list_ap_get_length(esp_cb_t* cc) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_sta_join_ap_get_status(esp_cb_t* cc) {
-    return cc->cb.sta_join_ap.status;
+esp_evt_sta_join_ap_get_status(esp_evt_t* cc) {
+    return cc->evt.sta_join_ap.status;
 }
 
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
@@ -310,8 +310,8 @@ esp_evt_sta_join_ap_get_status(esp_cb_t* cc) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_dns_hostbyname_get_status(esp_cb_t* cc) {
-    return cc->cb.dns_hostbyname.status;
+esp_evt_dns_hostbyname_get_status(esp_evt_t* cc) {
+    return cc->evt.dns_hostbyname.status;
 }
 
 /**
@@ -320,8 +320,8 @@ esp_evt_dns_hostbyname_get_status(esp_cb_t* cc) {
  * \return          Hostname
  */
 const char *
-esp_evt_dns_hostbyname_get_host(esp_cb_t* cc) {
-    return cc->cb.dns_hostbyname.host;
+esp_evt_dns_hostbyname_get_host(esp_evt_t* cc) {
+    return cc->evt.dns_hostbyname.host;
 }
 
 /**
@@ -330,8 +330,8 @@ esp_evt_dns_hostbyname_get_host(esp_cb_t* cc) {
  * \return          IP address
  */
 esp_ip_t *
-esp_evt_dns_hostbyname_get_ip(esp_cb_t* cc) {
-    return cc->cb.dns_hostbyname.ip;
+esp_evt_dns_hostbyname_get_ip(esp_evt_t* cc) {
+    return cc->evt.dns_hostbyname.ip;
 }
 
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
@@ -344,8 +344,8 @@ esp_evt_dns_hostbyname_get_ip(esp_cb_t* cc) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_ping_get_status(esp_cb_t* cc) {
-    return cc->cb.ping.status;
+esp_evt_ping_get_status(esp_evt_t* cc) {
+    return cc->evt.ping.status;
 }
 
 /**
@@ -354,8 +354,8 @@ esp_evt_ping_get_status(esp_cb_t* cc) {
  * \return          Hostname
  */
 const char *
-esp_evt_ping_get_host(esp_cb_t* cc) {
-    return cc->cb.ping.host;
+esp_evt_ping_get_host(esp_evt_t* cc) {
+    return cc->evt.ping.host;
 }
 
 /**
@@ -364,8 +364,8 @@ esp_evt_ping_get_host(esp_cb_t* cc) {
  * \return          Ping time
  */
 uint32_t
-esp_evt_ping_get_time(esp_cb_t* cc) {
-    return cc->cb.ping.time;
+esp_evt_ping_get_time(esp_evt_t* cc) {
+    return cc->evt.ping.time;
 }
 
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
@@ -376,8 +376,8 @@ esp_evt_ping_get_time(esp_cb_t* cc) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_server_get_status(esp_cb_t* cc) {
-    return cc->cb.server.status;
+esp_evt_server_get_status(esp_evt_t* cc) {
+    return cc->evt.server.status;
 }
 
 /**
@@ -386,8 +386,8 @@ esp_evt_server_get_status(esp_cb_t* cc) {
  * \return          Server port
  */
 esp_port_t
-esp_evt_server_get_port(esp_cb_t* cc) {
-    return cc->cb.server.port;
+esp_evt_server_get_port(esp_evt_t* cc) {
+    return cc->evt.server.port;
 }
 
 /**
@@ -396,6 +396,6 @@ esp_evt_server_get_port(esp_cb_t* cc) {
 * \return          `1` if enable, `0` otherwise
 */
 uint8_t
-esp_evt_server_is_enable(esp_cb_t* cc) {
-    return cc->cb.server.en;
+esp_evt_server_is_enable(esp_evt_t* cc) {
+    return cc->evt.server.en;
 }

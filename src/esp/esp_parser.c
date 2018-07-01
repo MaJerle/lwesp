@@ -459,9 +459,10 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
 uint8_t
 espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
     esp_mac_t mac;
+
     espi_parse_mac(&str, &mac);                 /* Parse MAC address */
 
-    esp.cb.cb.ap_conn_disconn_sta.mac = &mac;
+    esp.evt.evt.ap_conn_disconn_sta.mac = &mac;
     espi_send_cb(is_conn ? ESP_CB_AP_CONNECTED_STA : ESP_CB_AP_DISCONNECTED_STA);   /* Send event function */
     return 1;
 }
@@ -479,8 +480,8 @@ espi_parse_ap_ip_sta(const char* str) {
     espi_parse_mac(&str, &mac);                 /* Parse MAC address */
     espi_parse_ip(&str, &ip);                   /* Parse IP address */
 
-    esp.cb.cb.ap_ip_sta.mac = &mac;
-    esp.cb.cb.ap_ip_sta.ip = &ip;
+    esp.evt.evt.ap_ip_sta.mac = &mac;
+    esp.evt.evt.ap_ip_sta.ip = &ip;
     espi_send_cb(ESP_CB_AP_IP_STA);             /* Send event function */
     return 1;
 }

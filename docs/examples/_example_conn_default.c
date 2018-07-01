@@ -8,16 +8,16 @@ uint8_t req_data[] = ""
 /*
  * \brief           Connection callback function
  *                  Called on several connection events, such as connected, closed, data received, data sent, ...
- * \param[in]       cb: ESP callback event
+ * \param[in]       evt: ESP callback event
  */ 
 static espr_t
-conn_cb(esp_cb_t* cb) {
-    esp_conn_p conn = esp_conn_get_from_evt(cb);/* Get connection from current event */
+conn_evt(esp_evt_t* evt) {
+    esp_conn_p conn = esp_conn_get_from_evt(evt);   /* Get connection from current event */
     if (conn == NULL) {
         return espERR;                          /* Return error at this point as this should never happen! */ 
     }
     
-    switch (cb->type) {
+    switch (evt->type) {
         /*
          * A new connection just became active
          */
@@ -37,7 +37,7 @@ conn_cb(esp_cb_t* cb) {
          */
         case ESP_CB_CONN_CLOSED: {
             printf("Connection closed!\r\n");
-            if (cb->cb.conn_active_closed.forced) { /* Was it forced by user? */
+            if (evt->evt.conn_active_closed.forced) {   /* Was it forced by user? */
                 printf("Connection closed by user\r\n");
             } else {
                 printf("Connection closed by remote host\r\n");
@@ -48,7 +48,7 @@ conn_cb(esp_cb_t* cb) {
          * Data received on connection
          */
         case ESP_CB_CONN_DATA_RECV: {
-            esp_pbuf_p pbuf = cb->cb.conn_data_recv.buff;   /* Get data buffer */
+            esp_pbuf_p pbuf = cb->evt.conn_data_recv.buff;   /* Get data buffer */
             
             /*
              * Connection data buffer is automatically
@@ -84,9 +84,9 @@ static void
 thread_or_main_func(void) {
     /*
      * Start the connection in non-blocking way and set the
-     * function argument to NULL and callback function to conn_cb
+     * function argument to NULL and callback function to conn_evt
      */
-    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "example.com", 80, NULL, conn_cb, 0);
+    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "example.com", 80, NULL, conn_evt, 0);
     
     // Do other tasks...
 }

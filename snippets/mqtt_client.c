@@ -36,8 +36,8 @@ static void example_do_connect(mqtt_client_t* client);
  * \brief           Custom callback function for ESP events
  */
 static espr_t
-mqtt_esp_cb(esp_cb_t* cb) {
-    switch (cb->type) {
+mqtt_esp_cb(esp_evt_t* evt) {
+    switch (evt->type) {
 #if ESP_CFG_MODE_STATION
         case ESP_CB_WIFI_GOT_IP: {
             example_do_connect(mqtt_client);    /* Start connection after we have a connection to network client */
@@ -55,7 +55,7 @@ mqtt_esp_cb(esp_cb_t* cb) {
  */
 void
 mqtt_client_thread(void const* arg) {
-    esp_cb_register(mqtt_esp_cb);               /* Register new callback for general events from ESP stack */
+    esp_evt_register(mqtt_esp_cb);              /* Register new callback for general events from ESP stack */
     
     /*
      * Create a new client with 256 bytes of RAW TX data

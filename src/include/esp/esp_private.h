@@ -154,7 +154,7 @@ typedef struct esp_conn_t {
     esp_ip_t        remote_ip;                  /*!< Remote IP address */
     esp_port_t      remote_port;                /*!< Remote port number */
     esp_port_t      local_port;                 /*!< Local IP address */
-    esp_cb_fn       cb_func;                    /*!< Callback function for connection */
+    esp_evt_fn      evt_func;                   /*!< Callback function for connection */
     void*           arg;                        /*!< User custom argument */
     
     uint8_t         val_id;                     /*!< Validation ID number. It is increased each time a new connection is established.
@@ -301,7 +301,7 @@ typedef struct esp_msg {
             esp_port_t port;                    /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
             void* arg;                          /*!< Connection custom argument */
-            esp_cb_fn cb_func;                  /*!< Callback function to use on connection */
+            esp_evt_fn cb_func;                 /*!< Callback function to use on connection */
             uint8_t num;                        /*!< Connection number used for start */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
@@ -342,7 +342,7 @@ typedef struct esp_msg {
             esp_port_t port;                    /*!< Server port number */
             uint16_t max_conn;                  /*!< Maximal number of connections available for server */
             uint16_t timeout;                   /*!< Connection timeout */
-            esp_cb_fn cb;                       /*!< Server default callback function */
+            esp_evt_fn cb;                      /*!< Server default callback function */
         } tcpip_server;
         struct {
             size_t size;                        /*!< Size for SSL in uints of bytes */
@@ -411,10 +411,10 @@ typedef struct {
 /**
  * \brief           Callback function linked list prototype
  */
-typedef struct esp_cb_func {
-    struct esp_cb_func* next;                   /*!< Next function in the list */
-    esp_cb_fn fn;                               /*!< Function pointer itself */
-} esp_cb_func_t;
+typedef struct esp_evt_func {
+    struct esp_evt_func* next;                  /*!< Next function in the list */
+    esp_evt_fn fn;                              /*!< Function pointer itself */
+} esp_evt_func_t;
 
 /**
  * \brief           ESP global structure
@@ -442,10 +442,10 @@ typedef struct {
     
     esp_link_conn_t     link_conn;              /*!< Link connection handle */
     esp_ipd_t           ipd;                    /*!< Incoming data structure */
-    esp_cb_t            cb;                     /*!< Callback processing structure */
+    esp_evt_t           evt;                    /*!< Callback processing structure */
     
-    esp_cb_func_t*      cb_func;                /*!< Callback function linked list */
-    esp_cb_fn           cb_server;              /*!< Default callback function for server connections */
+    esp_evt_func_t*     evt_func;               /*!< Callback function linked list */
+    esp_evt_fn          evt_server;             /*!< Default callback function for server connections */
     
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */
@@ -565,7 +565,7 @@ espr_t      espi_process_buffer(void);
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
 uint8_t     espi_is_valid_conn_ptr(esp_conn_p conn);
 espr_t      espi_send_cb(esp_cb_type_t type);
-espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_cb_fn cb);
+espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn cb);
 void        espi_conn_init(void);
 void        espi_conn_start_timeout(esp_conn_p conn);
 espr_t      espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len);

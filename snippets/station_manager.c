@@ -144,8 +144,8 @@ join_to_next_ap(void) {
  * \brief           Callback function for access points operation
  */
 static espr_t
-access_points_cb(esp_cb_t* cb) {
-    switch (cb->type) {
+access_points_cb(esp_evt_t* evt) {
+    switch (evt->type) {
         case ESP_CB_STA_LIST_AP: {
             is_listing = 0;
             printf("Access points listed!\r\n");
@@ -172,7 +172,7 @@ access_points_cb(esp_cb_t* cb) {
             break;
         }
         case ESP_CB_STA_JOIN_AP: {
-            espr_t status = esp_evt_sta_join_ap_get_status(cb);
+            espr_t status = esp_evt_sta_join_ap_get_status(evt);
             if (status != espOK) {
                 printf("Join NOT OK.\r\n");
                 join_to_next_ap();
@@ -189,6 +189,6 @@ access_points_cb(esp_cb_t* cb) {
  */
 void
 start_access_point_scan_and_connect_procedure(void) {
-    esp_cb_register(access_points_cb);          /* Register access points */
+    esp_evt_register(access_points_cb);         /* Register access points */
     scan_access_points();                       /* Scan for access points */
 }

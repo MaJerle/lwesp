@@ -53,7 +53,7 @@ extern "C" {
  * \brief           Event helper functions for \ref ESP_CB_RESET event
  */
 
-uint8_t     esp_evt_reset_is_forced(esp_cb_t* cc);
+uint8_t     esp_evt_reset_is_forced(esp_evt_t* cc);
 
 /**
  * \}
@@ -65,8 +65,8 @@ uint8_t     esp_evt_reset_is_forced(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_AP_IP_STA event
  */
 
-esp_mac_t*  esp_evt_ap_ip_sta_get_mac(esp_cb_t* cc);
-esp_ip_t*   esp_evt_ap_ip_sta_get_ip(esp_cb_t* cc);
+esp_mac_t*  esp_evt_ap_ip_sta_get_mac(esp_evt_t* cc);
+esp_ip_t*   esp_evt_ap_ip_sta_get_ip(esp_evt_t* cc);
     
 /**
  * \}
@@ -78,7 +78,7 @@ esp_ip_t*   esp_evt_ap_ip_sta_get_ip(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_AP_CONNECTED_STA event
  */
 
-esp_mac_t*  esp_evt_ap_connected_sta_get_mac(esp_cb_t* cc);
+esp_mac_t*  esp_evt_ap_connected_sta_get_mac(esp_evt_t* cc);
 
 /**
  * \}
@@ -90,7 +90,7 @@ esp_mac_t*  esp_evt_ap_connected_sta_get_mac(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_AP_DISCONNECTED_STA event
  */
 
-esp_mac_t*  esp_evt_ap_disconnected_sta_get_mac(esp_cb_t* cc);
+esp_mac_t*  esp_evt_ap_disconnected_sta_get_mac(esp_evt_t* cc);
 
 /**
  * \}
@@ -102,8 +102,8 @@ esp_mac_t*  esp_evt_ap_disconnected_sta_get_mac(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_RECV event
  */
 
-esp_pbuf_p  esp_evt_conn_data_recv_get_buff(esp_cb_t* cc);
-esp_conn_p  esp_evt_conn_data_recv_get_conn(esp_cb_t* cc);
+esp_pbuf_p  esp_evt_conn_data_recv_get_buff(esp_evt_t* cc);
+esp_conn_p  esp_evt_conn_data_recv_get_conn(esp_evt_t* cc);
 
 /**
  * \}
@@ -115,8 +115,8 @@ esp_conn_p  esp_evt_conn_data_recv_get_conn(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_SENT event
  */
 
-esp_conn_p  esp_evt_conn_data_sent_get_conn(esp_cb_t* cc);
-size_t      esp_evt_conn_data_sent_get_length(esp_cb_t* cc);
+esp_conn_p  esp_evt_conn_data_sent_get_conn(esp_evt_t* cc);
+size_t      esp_evt_conn_data_sent_get_length(esp_evt_t* cc);
 
 /**
  * \}
@@ -128,8 +128,8 @@ size_t      esp_evt_conn_data_sent_get_length(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_CONN_DATA_SEND_ERR event
  */
 
-esp_conn_p  esp_evt_conn_data_send_err_get_conn(esp_cb_t* cc);
-size_t      esp_evt_conn_data_send_err_get_length(esp_cb_t* cc);
+esp_conn_p  esp_evt_conn_data_send_err_get_conn(esp_evt_t* cc);
+size_t      esp_evt_conn_data_send_err_get_length(esp_evt_t* cc);
 
 /**
  * \}
@@ -141,8 +141,8 @@ size_t      esp_evt_conn_data_send_err_get_length(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_CONN_ACTIVE event
  */
 
-esp_conn_p  esp_evt_conn_active_get_conn(esp_cb_t* cc);
-uint8_t     esp_evt_conn_active_is_client(esp_cb_t* cc);
+esp_conn_p  esp_evt_conn_active_get_conn(esp_evt_t* cc);
+uint8_t     esp_evt_conn_active_is_client(esp_evt_t* cc);
 
 /**
  * \}
@@ -154,9 +154,9 @@ uint8_t     esp_evt_conn_active_is_client(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_CONN_CLOSED event
  */
 
-esp_conn_p  esp_evt_conn_closed_get_conn(esp_cb_t* cc);
-uint8_t     esp_evt_conn_closed_is_client(esp_cb_t* cc);
-uint8_t     esp_evt_conn_closed_is_forced(esp_cb_t* cc);
+esp_conn_p  esp_evt_conn_closed_get_conn(esp_evt_t* cc);
+uint8_t     esp_evt_conn_closed_is_client(esp_evt_t* cc);
+uint8_t     esp_evt_conn_closed_is_forced(esp_evt_t* cc);
 
 /**
  * \}
@@ -168,7 +168,7 @@ uint8_t     esp_evt_conn_closed_is_forced(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_CONN_POLL event
  */
 
-esp_conn_p  esp_evt_conn_poll_get_conn(esp_cb_t* cc);
+esp_conn_p  esp_evt_conn_poll_get_conn(esp_evt_t* cc);
 
 /**
  * \}
@@ -180,11 +180,11 @@ esp_conn_p  esp_evt_conn_poll_get_conn(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_CONN_ERROR event
  */
 
-espr_t              esp_evt_conn_error_get_error(esp_cb_t* cc);
-esp_conn_type_t     esp_evt_conn_error_get_type(esp_cb_t* cc);
-const char*         esp_evt_conn_error_get_host(esp_cb_t* cc);
-esp_port_t          esp_evt_conn_error_get_port(esp_cb_t* cc);
-void*               esp_evt_conn_error_get_arg(esp_cb_t* cc);
+espr_t              esp_evt_conn_error_get_error(esp_evt_t* cc);
+esp_conn_type_t     esp_evt_conn_error_get_type(esp_evt_t* cc);
+const char*         esp_evt_conn_error_get_host(esp_evt_t* cc);
+esp_port_t          esp_evt_conn_error_get_port(esp_evt_t* cc);
+void*               esp_evt_conn_error_get_arg(esp_evt_t* cc);
 
 /**
  * \}
@@ -198,9 +198,9 @@ void*               esp_evt_conn_error_get_arg(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_STA_LIST_AP event
  */
 
-espr_t      esp_evt_sta_list_ap_get_status(esp_cb_t* cc);
-esp_ap_t*   esp_evt_sta_list_ap_get_aps(esp_cb_t* cc);
-size_t      esp_evt_sta_list_ap_get_length(esp_cb_t* cc);
+espr_t      esp_evt_sta_list_ap_get_status(esp_evt_t* cc);
+esp_ap_t*   esp_evt_sta_list_ap_get_aps(esp_evt_t* cc);
+size_t      esp_evt_sta_list_ap_get_length(esp_evt_t* cc);
 
 /**
  * \}
@@ -212,7 +212,7 @@ size_t      esp_evt_sta_list_ap_get_length(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_STA_JOIN_AP event
  */
 
-espr_t      esp_evt_sta_join_ap_get_status(esp_cb_t* cc);
+espr_t      esp_evt_sta_join_ap_get_status(esp_evt_t* cc);
 
 /**
  * \}
@@ -224,9 +224,9 @@ espr_t      esp_evt_sta_join_ap_get_status(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_DNS_HOSTBYNAME event
  */
 
-espr_t      esp_evt_dns_hostbyname_get_status(esp_cb_t* cc);
-const char* esp_evt_dns_hostbyname_get_host(esp_cb_t* cc);
-esp_ip_t*   esp_evt_dns_hostbyname_get_ip(esp_cb_t* cc);
+espr_t      esp_evt_dns_hostbyname_get_status(esp_evt_t* cc);
+const char* esp_evt_dns_hostbyname_get_host(esp_evt_t* cc);
+esp_ip_t*   esp_evt_dns_hostbyname_get_ip(esp_evt_t* cc);
 
 /**
  * \}
@@ -238,9 +238,9 @@ esp_ip_t*   esp_evt_dns_hostbyname_get_ip(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_SERVER event
  */
 
-espr_t      esp_evt_server_get_status(esp_cb_t* cc);
-esp_port_t  esp_evt_server_get_port(esp_cb_t* cc);
-uint8_t     esp_evt_server_is_enable(esp_cb_t* cc);
+espr_t      esp_evt_server_get_status(esp_evt_t* cc);
+esp_port_t  esp_evt_server_get_port(esp_evt_t* cc);
+uint8_t     esp_evt_server_is_enable(esp_evt_t* cc);
 
 /**
  * \}
@@ -252,9 +252,9 @@ uint8_t     esp_evt_server_is_enable(esp_cb_t* cc);
  * \brief           Event helper functions for \ref ESP_CB_PING event
  */
 
-espr_t      esp_evt_ping_get_status(esp_cb_t* cc);
-const char* esp_evt_ping_get_host(esp_cb_t* cc);
-uint32_t    esp_evt_ping_get_time(esp_cb_t* cc);
+espr_t      esp_evt_ping_get_status(esp_evt_t* cc);
+const char* esp_evt_ping_get_host(esp_evt_t* cc);
+uint32_t    esp_evt_ping_get_time(esp_evt_t* cc);
 
 /**
  * \}

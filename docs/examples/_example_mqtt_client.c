@@ -16,7 +16,7 @@ mqtt_client_info = {
     // .pass = "test_password",
 };
 
-static void mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt);
+static void mqtt_evt(mqtt_client_t* client, mqtt_evt_t* evt);
 static void example_do_connect(mqtt_client_t* client);
 
 /*
@@ -30,7 +30,7 @@ mqtt_thread(void const* arg) {
      * and 128 bytes of RAW incoming data
      */
     mqtt_client = mqtt_client_new(256, 128);
-    mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
+    mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_evt, &mqtt_client_info);
     
     while (1) {
         osDelay(5000);
@@ -43,7 +43,7 @@ mqtt_thread(void const* arg) {
  * \param[in]       evt: Event type and data
  */
 static void
-mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
+mqtt_evt(mqtt_client_t* client, mqtt_evt_t* evt) {
     switch (evt->type) {
         /*
          * Connect event
@@ -144,5 +144,5 @@ example_do_connect(mqtt_client_t* client) {
      * Start a simple connection to open source
      * MQTT server on mosquitto.org
      */
-    mqtt_client_connect(client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
+    mqtt_client_connect(client, "test.mosquitto.org", 1883, mqtt_evt, &mqtt_client_info);
 }

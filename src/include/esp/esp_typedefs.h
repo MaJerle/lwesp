@@ -204,7 +204,7 @@ typedef enum {
 } esp_conn_type_t;
 
 /* Forward declarations */
-struct esp_cb_t;
+struct esp_evt_t;
 struct esp_conn_t;
 struct esp_pbuf_t;
 
@@ -223,10 +223,10 @@ typedef struct esp_pbuf_t* esp_pbuf_p;
 /**
  * \ingroup         ESP_EVT
  * \brief           Event function prototype
- * \param[in]       cb: Callback event data
+ * \param[in]       evt: Callback event data
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
-typedef espr_t  (*esp_cb_fn)(struct esp_cb_t* cb);
+typedef espr_t  (*esp_evt_fn)(struct esp_evt_t* evt);
 
 /**
  * \ingroup         ESP_EVT
@@ -277,7 +277,7 @@ typedef enum esp_cb_type_t {
  * \ingroup         ESP_EVT
  * \brief           Global callback structure to pass as parameter to callback function
  */
-typedef struct esp_cb_t {
+typedef struct esp_evt_t {
     esp_cb_type_t type;                         /*!< Callback type */
     union {
         struct {
@@ -356,8 +356,8 @@ typedef struct esp_cb_t {
             uint32_t time;                      /*!< Time required for ping. Valid only if operation succedded */
         } ping;                                 /*!< Ping finished. Use with \ref ESP_CB_PING event */
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
-    } cb;                                       /*!< Callback event union */
-} esp_cb_t;
+    } evt;                                      /*!< Callback event union */
+} esp_evt_t;
 
 #define ESP_SIZET_MAX                           ((size_t)(-1))  /*!< Maximal value of size_t variable type */
  

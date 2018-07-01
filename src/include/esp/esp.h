@@ -46,7 +46,7 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_init(esp_cb_fn cb_func, uint32_t blocking);
+espr_t      esp_init(esp_evt_fn cb_func, uint32_t blocking);
 espr_t      esp_reset(uint32_t blocking);
 espr_t      esp_reset_with_delay(uint32_t delay, uint32_t blocking);
 
@@ -54,7 +54,7 @@ espr_t      esp_restore(uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking);
 
-espr_t      esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_cb_fn cb, uint32_t blocking);
+espr_t      esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn cb, uint32_t blocking);
 
 espr_t      esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking);
 
@@ -63,8 +63,8 @@ espr_t      esp_update_sw(uint32_t blocking);
 espr_t      esp_core_lock(void);
 espr_t      esp_core_unlock(void);
 
-espr_t      esp_cb_register(esp_cb_fn cb_fn);
-espr_t      esp_cb_unregister(esp_cb_fn cb_fn);
+espr_t      esp_evt_register(esp_evt_fn fn);
+espr_t      esp_evt_unregister(esp_evt_fn fn);
 
 espr_t      esp_device_set_present(uint8_t present, uint32_t blocking);
 uint8_t     esp_device_is_present(void);
