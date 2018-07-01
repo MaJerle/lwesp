@@ -42,7 +42,7 @@ static void USART_Printf_Init(void);
 static void init_thread(void const* arg);
 osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
 
-static espr_t esp_callback_func(esp_cb_t* cb);
+static espr_t esp_callback_func(esp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -94,17 +94,17 @@ init_thread(void const* arg) {
 
 /**
  * \brief           Event callback function for ESP stack
- * \param[in]       cb: Event information with data
+ * \param[in]       evt: Event information with data
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-esp_callback_func(esp_cb_t* cb) {
-    switch (cb->type) {
-        case ESP_CB_INIT_FINISH: {
+esp_callback_func(esp_evt_t* evt) {
+    switch (esp_evt_get_type(evt)) {
+        case ESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
             break;
         }
-        case ESP_CB_RESET: {
+        case ESP_EVT_RESET: {
             printf("Device reset detected!\r\n");
             break;
         }

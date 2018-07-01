@@ -150,6 +150,7 @@
     <ClCompile Include="..\..\..\snippets\netconn_server.c" />
     <ClCompile Include="..\..\..\snippets\station_manager.c" />
     <ClCompile Include="..\..\..\src\api\esp_netconn.c" />
+    <ClCompile Include="..\..\..\src\api\esp_rest_client.c" />
     <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server.c" />
     <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server_fs.c" />
     <ClCompile Include="..\..\..\src\apps\http_server\esp_http_server_fs_win32.c" />

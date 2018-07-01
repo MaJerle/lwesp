@@ -146,5 +146,8 @@
     <ClCompile Include="..\..\..\src\esp\esp_mdns.c">
       <Filter>Source Files\ESP CORE</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\api\esp_rest_client.c">
+      <Filter>Source Files\ESP API</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

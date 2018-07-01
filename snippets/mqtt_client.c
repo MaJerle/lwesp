@@ -37,9 +37,9 @@ static void example_do_connect(mqtt_client_t* client);
  */
 static espr_t
 mqtt_esp_cb(esp_evt_t* evt) {
-    switch (evt->type) {
+    switch (esp_evt_get_type(evt)) {
 #if ESP_CFG_MODE_STATION
-        case ESP_CB_WIFI_GOT_IP: {
+        case ESP_EVT_WIFI_GOT_IP: {
             example_do_connect(mqtt_client);    /* Start connection after we have a connection to network client */
             break;
         }
@@ -102,7 +102,7 @@ mqtt_timeout_cb(void* arg) {
  */
 static void
 mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
-    switch (evt->type) {
+    switch (esp_evt_get_type(evt)) {
         /*
          * Connect event
          * Called if user successfully connected to MQTT server

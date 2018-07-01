@@ -116,5 +116,8 @@
     <ClCompile Include="..\..\..\snippets\netconn_server.c">
       <Filter>ESP SNIPPETS</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\esp\esp_evt.c">
+      <Filter>ESP CORE</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

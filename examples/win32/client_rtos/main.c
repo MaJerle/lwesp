@@ -36,8 +36,8 @@
 #include "station_manager.h"
 #include "netconn_client.h"
 
-static espr_t esp_callback_func(esp_cb_t* cb);
-static espr_t esp_conn_callback_func(esp_cb_t* cb);
+static espr_t esp_callback_func(esp_evt_t* evt);
+static espr_t esp_conn_callback_func(esp_evt_t* evt);
 
 #define CONN_HOST           "example.com"
 #define CONN_PORT           80
@@ -82,7 +82,7 @@ main(void) {
     
     /*
      * An example of connection which should fail in connecting.
-     * In this case, \ref ESP_CB_CONN_ERROR event should be triggered
+     * In this case, \ref ESP_EVT_CONN_ERROR event should be triggered
      * in callback function processing
      */
     esp_conn_start(NULL, ESP_CONN_TYPE_TCP, CONN_HOST, 10, NULL, esp_conn_callback_func, 0);
@@ -100,47 +100,47 @@ main(void) {
 
 /**
  * \brief           Callback function for connection events
- * \param[in]       cb: Event information with data
+ * \param[in]       evt: Event information with data
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-esp_conn_callback_func(esp_cb_t* cb) {
+esp_conn_callback_func(esp_evt_t* evt) {
     esp_conn_p conn;
 
-    conn = esp_conn_get_from_evt(cb);           /* Get connection handle from event */
-    switch (cb->type) {
-        case ESP_CB_CONN_ACTIVE: {              /* Connection just active */
+    conn = esp_conn_get_from_evt(evt);          /* Get connection handle from event */
+    switch (esp_evt_get_type(evt)) {
+        case ESP_EVT_CONN_ACTIVE: {             /* Connection just active */
             printf("Connection %d active!\r\n", (int)esp_conn_getnum(conn));
             printf("Sending data on connection %d to remote server\r\n", (int)esp_conn_getnum(conn));
             esp_conn_send(conn, request_data, sizeof(request_data) - 1, NULL, 0);
             break;
         }
-        case ESP_CB_CONN_DATA_SENT: {           /* Data successfully sent */
-            size_t len = cb->cb.conn_data_sent.sent;
+        case ESP_EVT_CONN_DATA_SENT: {          /* Data successfully sent */
+            size_t len = esp_evt_conn_data_sent_get_length(evt);
             printf("Successfully sent %d bytes on connection %d\r\n", (int)len, (int)esp_conn_getnum(conn));
             break;
         }
-        case ESP_CB_CONN_DATA_SEND_ERR: {       /* Error trying to send data on connection */
-            size_t len = cb->cb.conn_data_send_err.sent;
+        case ESP_EVT_CONN_DATA_SEND_ERR: {      /* Error trying to send data on connection */
+            size_t len = esp_evt_conn_data_send_err_get_length(evt);
             printf("Error trying to send data on connection %d\r\n", (int)esp_conn_getnum(conn));
             break;
         }
-        case ESP_CB_CONN_DATA_RECV: {           /* Connection data received */
+        case ESP_EVT_CONN_DATA_RECV: {          /* Connection data received */
             esp_pbuf_p p;
-            p = cb->cb.conn_data_recv.buff;     /* Get received buffer */
+            p = esp_evt_conn_data_recv_get_buff(evt);   /* Get received buffer */
             if (p != NULL) {
                 printf("Connection %d data received with %d bytes\r\n",
                     (int)esp_conn_getnum(conn), (int)esp_pbuf_length(p, 1));
             }
             break;
         }
-        case ESP_CB_CONN_CLOSED: {              /* Connection closed */
+        case ESP_EVT_CONN_CLOSED: {             /* Connection closed */
             printf("Connection %d closed!\r\n", (int)esp_conn_getnum(conn));
             break;
         }
-        case ESP_CB_CONN_ERROR: {               /* Error connecting to server */
-            const char* host = cb->cb.conn_error.host;
-            esp_port_t port = cb->cb.conn_error.port;
+        case ESP_EVT_CONN_ERROR: {              /* Error connecting to server */
+            const char* host = esp_evt_conn_error_get_host(evt);
+            esp_port_t port = esp_evt_conn_error_get_port(evt);
             printf("Error connecting to %s:%d\r\n", host, (int)port);
             break;
         }
@@ -150,17 +150,17 @@ esp_conn_callback_func(esp_cb_t* cb) {
 
 /**
 * \brief           Event callback function for ESP stack
-* \param[in]       cb: Event information with data
+* \param[in]       evt: Event information with data
 * \return          espOK on success, member of \ref espr_t otherwise
 */
 static espr_t
-esp_callback_func(esp_cb_t* cb) {
-    switch (cb->type) {
-    case ESP_CB_INIT_FINISH: {
+esp_callback_func(esp_evt_t* evt) {
+    switch (esp_evt_get_type(evt)) {
+    case ESP_EVT_INIT_FINISH: {
         printf("Library initialized!\r\n");
         break;
     }
-    case ESP_CB_RESET: {
+    case ESP_EVT_RESET: {
         printf("Device reset detected!\r\n");
         break;
     }

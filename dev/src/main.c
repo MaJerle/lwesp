@@ -69,7 +69,7 @@ vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName ) {
     while (1);
 }
 
-static espr_t esp_cb(esp_cb_t* cb);
+static espr_t esp_evt(esp_evt_t* evt);
 
 /**
  * \brief           Initialization thread for entire process
@@ -89,7 +89,7 @@ init_thread(void const* arg) {
     HAL_NVIC_SetPriority(EXTI3_IRQn, 2, 4);
     HAL_NVIC_EnableIRQ(EXTI3_IRQn);
     
-    esp_init(esp_cb, 1);                        /* Init ESP stack */
+    esp_init(esp_evt, 1);                       /* Init ESP stack */
     
     if (is_device_present()) {
         printf("Device connected...starting with reset!\r\n");
@@ -142,47 +142,47 @@ init_thread(void const* arg) {
 
 /**
  * \brief           Global ESP callback for general info
- * \param[in]       cb: Pointer to callback data
+ * \param[in]       evt: Pointer to callback data
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-esp_cb(esp_cb_t* cb) {
-    switch (cb->type) {
-        case ESP_CB_RESET: {
+esp_evt(esp_evt_t* evt) {
+    switch (esp_evt_get_type(evt)) {
+        case ESP_EVT_RESET: {
             printf("Device reset!\r\n");
             break;
         }
-        case ESP_CB_INIT_FINISH: {                                                
+        case ESP_EVT_INIT_FINISH: {                                                
             break;
         }
 #if ESP_CFG_MODE_STATION
-        case ESP_CB_STA_LIST_AP: {
+        case ESP_EVT_STA_LIST_AP: {
             printf("List AP finished!\r\n");                        
             break;
         }
-        case ESP_CB_WIFI_GOT_IP: {
+        case ESP_EVT_WIFI_GOT_IP: {
             printf("WIFI got IP!\r\n");
             break;
         }
-        case ESP_CB_WIFI_CONNECTED: {
+        case ESP_EVT_WIFI_CONNECTED: {
             printf("WIFI connected!\r\n");
             break;
         }
-        case ESP_CB_WIFI_DISCONNECTED: {
+        case ESP_EVT_WIFI_DISCONNECTED: {
             printf("WIFI disconnected!\r\n");
             break;
         }
 #endif /* ESP_CFG_MODE_STATION */
-        case ESP_CB_CONN_ACTIVE: {
-            printf("Connection active, time: %d, conn: %p\r\n", (int)esp_sys_now(), cb->cb.conn_active_closed.conn);
+        case ESP_EVT_CONN_ACTIVE: {
+            printf("Connection active, time: %d, conn: %p\r\n", (int)esp_sys_now(), evt->evt.conn_active_closed.conn);
             break;
         }
-        case ESP_CB_CONN_POLL: {
-            printf("Connection poll, time: %d, conn: %p\r\n", (int)esp_sys_now(), cb->cb.conn_poll.conn);
+        case ESP_EVT_CONN_POLL: {
+            printf("Connection poll, time: %d, conn: %p\r\n", (int)esp_sys_now(), evt->evt.conn_poll.conn);
             break;
         }
-        case ESP_CB_CONN_CLOSED: {
-            printf("Connection closed, time: %d, conn: %p\r\n", (int)esp_sys_now(), cb->cb.conn_poll.conn);
+        case ESP_EVT_CONN_CLOSED: {
+            printf("Connection closed, time: %d, conn: %p\r\n", (int)esp_sys_now(), evt->evt.conn_poll.conn);
             break;
         }
         default:

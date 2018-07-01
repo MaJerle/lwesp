@@ -44,7 +44,7 @@ conn_timeout_cb(void* arg) {
     esp_conn_p conn = arg;                      /* Argument is actual connection */
 
     if (conn->status.f.active) {                /* Handle only active connections */
-        esp.evt.type = ESP_CB_CONN_POLL;        /* Poll connection event */
+        esp.evt.type = ESP_EVT_CONN_POLL;       /* Poll connection event */
         esp.evt.evt.conn_poll.conn = conn;      /* Set connection pointer */
         espi_send_conn_cb(conn, NULL);          /* Send connection callback */
         
@@ -509,17 +509,17 @@ esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking) {
  */
 esp_conn_p
 esp_conn_get_from_evt(esp_evt_t* evt) {
-    if (evt->type == ESP_CB_CONN_ACTIVE) {
+    if (evt->type == ESP_EVT_CONN_ACTIVE) {
         return esp_evt_conn_active_get_conn(evt);
-    } else if (evt->type == ESP_CB_CONN_CLOSED) {
+    } else if (evt->type == ESP_EVT_CONN_CLOSED) {
         return esp_evt_conn_closed_get_conn(evt);
-    } else if (evt->type == ESP_CB_CONN_DATA_RECV) {
+    } else if (evt->type == ESP_EVT_CONN_DATA_RECV) {
         return esp_evt_conn_data_recv_get_conn(evt);
-    } else if (evt->type == ESP_CB_CONN_DATA_SEND_ERR) {
+    } else if (evt->type == ESP_EVT_CONN_DATA_SEND_ERR) {
         return esp_evt_conn_data_send_err_get_conn(evt);
-    } else if (evt->type == ESP_CB_CONN_DATA_SENT) {
+    } else if (evt->type == ESP_EVT_CONN_DATA_SENT) {
         return esp_evt_conn_data_sent_get_conn(evt);
-    } else if (evt->type == ESP_CB_CONN_POLL) {
+    } else if (evt->type == ESP_EVT_CONN_POLL) {
         return esp_evt_conn_poll_get_conn(evt);
     }
     return NULL;

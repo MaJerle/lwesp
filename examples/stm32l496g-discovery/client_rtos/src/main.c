@@ -42,8 +42,8 @@ static void USART_Printf_Init(void);
 static void init_thread(void const* arg);
 osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
 
-static espr_t esp_callback_func(esp_cb_t* cb);
-static espr_t conn_callback_func(esp_cb_t* cb);
+static espr_t esp_callback_func(esp_evt_t* evt);
+static espr_t conn_callback_func(esp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -109,20 +109,20 @@ uint8_t req_data[] = ""
 
 /**
  * \brief           Event callback function for connection-only
- * \param[in]       cb: Event information with data
+ * \param[in]       evt: Event information with data
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-conn_callback_func(esp_cb_t* cb) {
+conn_callback_func(esp_evt_t* evt) {
     esp_conn_p conn;
     espr_t res;
 
-    conn = esp_conn_get_from_evt(cb);           /* Get connection handle from event */
+    conn = esp_conn_get_from_evt(evt);          /* Get connection handle from event */
     if (conn == NULL) {
         return espERR;
     }
-    switch (cb->type) {                         /* Check event type */
-        case ESP_CB_CONN_ACTIVE: {              /* Connection just active */
+    switch (esp_evt_get_type(evt)) {
+        case ESP_EVT_CONN_ACTIVE: {             /* Connection just active */
             printf("Connection active!\r\n");
             res = esp_conn_send(conn, req_data, sizeof(req_data) - 1, NULL, 0); /* Start sending data in non-blocking mode */
             if (res == espOK) {
@@ -133,20 +133,20 @@ conn_callback_func(esp_cb_t* cb) {
             }
             break;
         }
-        case ESP_CB_CONN_CLOSED: {              /* Connection closed */
-            if (esp_evt_conn_closed_is_forced(cb)) {
+        case ESP_EVT_CONN_CLOSED: {              /* Connection closed */
+            if (esp_evt_conn_closed_is_forced(evt)) {
                 printf("Connection closed by client!\r\n");
             } else {
                 printf("Connection closed by remote side!\r\n");
             }
             break;
         }
-        case ESP_CB_CONN_DATA_SENT: {           /* Data successfully sent to remote side */
+        case ESP_EVT_CONN_DATA_SENT: {          /* Data successfully sent to remote side */
             printf("Data sent successfully...waiting to receive data from remote side...\r\n");
             break;
         }
-        case ESP_CB_CONN_DATA_RECV: {           /* Data received from remote side */
-            esp_pbuf_p pbuf = esp_evt_conn_data_recv_get_buff(cb);
+        case ESP_EVT_CONN_DATA_RECV: {          /* Data received from remote side */
+            esp_pbuf_p pbuf = esp_evt_conn_data_recv_get_buff(evt);
             esp_conn_recved(conn, pbuf);        /* Notify stack about received pbuf */
             printf("Received %d bytes on connection..\r\n", (int)esp_pbuf_length(pbuf, 1));
             break;
@@ -158,21 +158,21 @@ conn_callback_func(esp_cb_t* cb) {
 
 /**
  * \brief           Event callback function for ESP stack
- * \param[in]       cb: Event information with data
+ * \param[in]       evt: Event information with data
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-esp_callback_func(esp_cb_t* cb) {
-    switch (cb->type) {
-        case ESP_CB_INIT_FINISH: {
+esp_callback_func(esp_evt_t* evt) {
+    switch (esp_evt_get_type(evt)) {
+        case ESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
             break;
         }
-        case ESP_CB_RESET_FINISH: {
+        case ESP_EVT_RESET_FINISH: {
             printf("Device reset sequence finished!\r\n");
             break;
         }
-        case ESP_CB_RESET: {
+        case ESP_EVT_RESET: {
             printf("Device reset detected!\r\n");
             break;
         }

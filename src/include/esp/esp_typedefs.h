@@ -232,70 +232,70 @@ typedef espr_t  (*esp_evt_fn)(struct esp_evt_t* evt);
  * \ingroup         ESP_EVT
  * \brief           List of possible callback types received to user
  */
-typedef enum esp_cb_type_t {
-    ESP_CB_RESET,                               /*!< Device reset detected */
-    ESP_CB_RESET_FINISH,                        /*!< Reset operation finished */
+typedef enum esp_evt_type_t {
+    ESP_EVT_RESET,                              /*!< Device reset detected */
+    ESP_EVT_RESET_FINISH,                       /*!< Reset operation finished */
     
-    ESP_CB_INIT_FINISH,                         /*!< Initialization has been finished at this point */
-    ESP_CB_RESTORE_FINISH,                      /*!< Device restore operation finished */
+    ESP_EVT_INIT_FINISH,                        /*!< Initialization has been finished at this point */
+    ESP_EVT_RESTORE_FINISH,                     /*!< Device restore operation finished */
     
-    ESP_CB_DEVICE_PRESENT,                      /*!< Notification when device present status changes */
+    ESP_EVT_DEVICE_PRESENT,                     /*!< Notification when device present status changes */
     
-    ESP_CB_CONN_DATA_RECV,                      /*!< Connection data received */
-    ESP_CB_CONN_DATA_SENT,                      /*!< Data were successfully sent */
-    ESP_CB_CONN_DATA_SEND_ERR,                  /*!< Error trying to send data */
-    ESP_CB_CONN_ACTIVE,                         /*!< Connection just became active */
-    ESP_CB_CONN_ERROR,                          /*!< Client connection start was not successful */
-    ESP_CB_CONN_CLOSED,                         /*!< Connection was just closed */
-    ESP_CB_CONN_POLL,                           /*!< Poll for connection if there are any changes */
+    ESP_EVT_CONN_DATA_RECV,                     /*!< Connection data received */
+    ESP_EVT_CONN_DATA_SENT,                     /*!< Data were successfully sent */
+    ESP_EVT_CONN_DATA_SEND_ERR,                 /*!< Error trying to send data */
+    ESP_EVT_CONN_ACTIVE,                        /*!< Connection just became active */
+    ESP_EVT_CONN_ERROR,                         /*!< Client connection start was not successful */
+    ESP_EVT_CONN_CLOSED,                        /*!< Connection was just closed */
+    ESP_EVT_CONN_POLL,                          /*!< Poll for connection if there are any changes */
     
-    ESP_CB_SERVER,                              /*!< Server status changed */
+    ESP_EVT_SERVER,                             /*!< Server status changed */
 
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
-    ESP_CB_WIFI_CONNECTED,                      /*!< Station just connected to AP */
-    ESP_CB_WIFI_GOT_IP,                         /*!< Station has valid IP */
-    ESP_CB_WIFI_DISCONNECTED,                   /*!< Station just disconnected from AP */
-    ESP_CB_WIFI_IP_ACQUIRED,                    /*!< Station IP address acquired */
+    ESP_EVT_WIFI_CONNECTED,                     /*!< Station just connected to AP */
+    ESP_EVT_WIFI_GOT_IP,                        /*!< Station has valid IP */
+    ESP_EVT_WIFI_DISCONNECTED,                  /*!< Station just disconnected from AP */
+    ESP_EVT_WIFI_IP_ACQUIRED,                   /*!< Station IP address acquired */
   
-    ESP_CB_STA_LIST_AP,                         /*!< Station listed APs event */
-    ESP_CB_STA_JOIN_AP,                         /*!< Join to access point */
+    ESP_EVT_STA_LIST_AP,                        /*!< Station listed APs event */
+    ESP_EVT_STA_JOIN_AP,                        /*!< Join to access point */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-    ESP_CB_AP_CONNECTED_STA,                    /*!< New station just connected to ESP's access point */
-    ESP_CB_AP_DISCONNECTED_STA,                 /*!< New station just disconnected from ESP's access point */
-    ESP_CB_AP_IP_STA,                           /*!< New station just received IP from ESP's access point */
+    ESP_EVT_AP_CONNECTED_STA,                   /*!< New station just connected to ESP's access point */
+    ESP_EVT_AP_DISCONNECTED_STA,                /*!< New station just disconnected from ESP's access point */
+    ESP_EVT_AP_IP_STA,                          /*!< New station just received IP from ESP's access point */
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 #if ESP_CFG_DNS || __DOXYGEN__
-    ESP_CB_DNS_HOSTBYNAME,                      /*!< DNS domain service finished */
+    ESP_EVT_DNS_HOSTBYNAME,                     /*!< DNS domain service finished */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 #if ESP_CFG_PING || __DOXYGEN__
-    ESP_CB_PING,                                /*!< PING service finished */
+    ESP_EVT_PING,                               /*!< PING service finished */
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
-} esp_cb_type_t;
+} esp_evt_type_t;
 
 /**
  * \ingroup         ESP_EVT
  * \brief           Global callback structure to pass as parameter to callback function
  */
 typedef struct esp_evt_t {
-    esp_cb_type_t type;                         /*!< Callback type */
+    esp_evt_type_t type;                        /*!< Callback type */
     union {
         struct {
             uint8_t forced;                     /*!< Set to 1 if reset forced by user */
-        } reset;                                /*!< Reset occurred. Use with \ref ESP_CB_RESET event */
+        } reset;                                /*!< Reset occurred. Use with \ref ESP_EVT_RESET event */
 
         struct {
             esp_conn_p conn;                    /*!< Connection where data were received */
             esp_pbuf_p buff;                    /*!< Pointer to received data */
-        } conn_data_recv;                       /*!< Network data received. Use with \ref ESP_CB_CONN_DATA_RECV event */
+        } conn_data_recv;                       /*!< Network data received. Use with \ref ESP_EVT_CONN_DATA_RECV event */
         struct {
             esp_conn_p conn;                    /*!< Connection where data were sent */
             size_t sent;                        /*!< Number of bytes sent on connection */
-        } conn_data_sent;                       /*!< Data successfully sent. Use with \ref ESP_CB_CONN_DATA_SENT event */
+        } conn_data_sent;                       /*!< Data successfully sent. Use with \ref ESP_EVT_CONN_DATA_SENT event */
         struct {
             esp_conn_p conn;                    /*!< Connection where data were sent */
             size_t sent;                        /*!< Number of bytes sent on connection before error occurred */
-        } conn_data_send_err;                   /*!< Data were not sent. Use with \ref ESP_CB_CONN_DATA_SEND_ERR event */
+        } conn_data_send_err;                   /*!< Data were not sent. Use with \ref ESP_EVT_CONN_DATA_SEND_ERR event */
         struct {
             const char* host;                   /*!< Host to use for connection */
             esp_port_t port;                    /*!< Remote port used for connection */
@@ -308,53 +308,53 @@ typedef struct esp_evt_t {
              *  - ...
              */
             espr_t err;                         /*!< Error value */
-        } conn_error;                           /*!< Client connection start error. Use with \ref ESP_CB_CONN_ERROR event */
+        } conn_error;                           /*!< Client connection start error. Use with \ref ESP_EVT_CONN_ERROR event */
         struct {
             esp_conn_p conn;                    /*!< Pointer to connection */
             uint8_t client;                     /*!< Set to 1 if connection is/was client mode */
             uint8_t forced;                     /*!< Set to 1 if connection action was forced (when active: 1 = CLIENT, 0 = SERVER: when closed, 1 = CMD, 0 = REMOTE) */
-        } conn_active_closed;                   /*!< Process active and closed statuses at the same time. Use with \ref ESP_CB_CONN_ACTIVE or \ref ESP_CB_CONN_CLOSED events */
+        } conn_active_closed;                   /*!< Process active and closed statuses at the same time. Use with \ref ESP_EVT_CONN_ACTIVE or \ref ESP_EVT_CONN_CLOSED events */
         struct {
             esp_conn_p conn;                    /*!< Set connection pointer */
-        } conn_poll;                            /*!< Polling active connection to check for timeouts. Use with \ref ESP_CB_CONN_POLL event */
+        } conn_poll;                            /*!< Polling active connection to check for timeouts. Use with \ref ESP_EVT_CONN_POLL event */
 
         struct {
             espr_t status;                      /*!< Status of command */
             uint8_t en;                         /*!< Status to enable/disable server */
             esp_port_t port;                    /*!< Server port number */
-        } server;                               /*!< Server change event. Use with \ref ESP_CB_SERVER event */
+        } server;                               /*!< Server change event. Use with \ref ESP_EVT_SERVER event */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
             espr_t status;                      /*!< Status of command */
             esp_ap_t* aps;                      /*!< Pointer to access points */
             size_t len;                         /*!< Number of access points found */
-        } sta_list_ap;                          /*!< Station list access points. Use with \ref ESP_CB_STA_LIST_AP event */
+        } sta_list_ap;                          /*!< Station list access points. Use with \ref ESP_EVT_STA_LIST_AP event */
         struct {
             espr_t status;                      /*!< Connection status */
-        } sta_join_ap;                          /*!< Join to access point. Use with \ref ESP_CB_STA_JOIN_AP event */
+        } sta_join_ap;                          /*!< Join to access point. Use with \ref ESP_EVT_STA_JOIN_AP event */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
         struct {
             esp_mac_t* mac;                     /*!< Station MAC address */
-        } ap_conn_disconn_sta;                  /*!< A new station connected or disconnected to ESP's access point. Use with \ref ESP_CB_AP_CONNECTED_STA or \ref ESP_CB_AP_DISCONNECTED_STA events */
+        } ap_conn_disconn_sta;                  /*!< A new station connected or disconnected to ESP's access point. Use with \ref ESP_EVT_AP_CONNECTED_STA or \ref ESP_EVT_AP_DISCONNECTED_STA events */
         struct {
             esp_mac_t* mac;                     /*!< Station MAC address */
             esp_ip_t* ip;                       /*!< Station IP address */
-        } ap_ip_sta;                            /*!< Station got IP address from ESP's access point. Use with \ref ESP_CB_AP_IP_STA event */
+        } ap_ip_sta;                            /*!< Station got IP address from ESP's access point. Use with \ref ESP_EVT_AP_IP_STA event */
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 #if ESP_CFG_DNS || __DOXYGEN__
         struct {
             espr_t status;                      /*!< Operation status */
             const char* host;                   /*!< Host name for DNS lookup */
             esp_ip_t* ip;                       /*!< Pointer to IP result */
-        } dns_hostbyname;                       /*!< DNS domain service finished. Use with \ref ESP_CB_DNS_HOSTBYNAME event */
+        } dns_hostbyname;                       /*!< DNS domain service finished. Use with \ref ESP_EVT_DNS_HOSTBYNAME event */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */        
 #if ESP_CFG_PING || __DOXYGEN__
         struct {
             espr_t status;                      /*!< Operation status */
             const char* host;                   /*!< Host name for ping */
             uint32_t time;                      /*!< Time required for ping. Valid only if operation succedded */
-        } ping;                                 /*!< Ping finished. Use with \ref ESP_CB_PING event */
+        } ping;                                 /*!< Ping finished. Use with \ref ESP_EVT_PING event */
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
     } evt;                                      /*!< Callback event union */
 } esp_evt_t;

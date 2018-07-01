@@ -106,7 +106,7 @@ esp_init(esp_evt_fn evt_func, uint32_t blocking) {
 #else
     ESP_UNUSED(blocking);                       /* Unused variable */
 #endif /* ESP_CFG_RESET_ON_INIT */
-    espi_send_cb(ESP_CB_INIT_FINISH);           /* Call user callback function */
+    espi_send_cb(ESP_EVT_INIT_FINISH);          /* Call user callback function */
     
     return espOK;
 }
@@ -389,7 +389,7 @@ esp_device_set_present(uint8_t present, uint32_t blocking) {
     ESP_UNUSED(blocking);                       /* Unused variable */
 #endif /* ESP_CFG_RESET_ON_INIT */
     
-    espi_send_cb(ESP_CB_DEVICE_PRESENT);        /* Send present event */
+    espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
     
     ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
     return res;

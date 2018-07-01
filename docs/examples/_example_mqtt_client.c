@@ -44,7 +44,7 @@ mqtt_thread(void const* arg) {
  */
 static void
 mqtt_evt(mqtt_client_t* client, mqtt_evt_t* evt) {
-    switch (evt->type) {
+    switch (esp_evt_get_type(evt)) {
         /*
          * Connect event
          * Called if user successfully connected to MQTT server

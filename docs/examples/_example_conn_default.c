@@ -9,7 +9,7 @@ uint8_t req_data[] = ""
  * \brief           Connection callback function
  *                  Called on several connection events, such as connected, closed, data received, data sent, ...
  * \param[in]       evt: ESP callback event
- */ 
+ */
 static espr_t
 conn_evt(esp_evt_t* evt) {
     esp_conn_p conn = esp_conn_get_from_evt(evt);   /* Get connection from current event */
@@ -17,11 +17,11 @@ conn_evt(esp_evt_t* evt) {
         return espERR;                          /* Return error at this point as this should never happen! */ 
     }
     
-    switch (evt->type) {
+    switch (esp_evt_get_type(evt)) {
         /*
          * A new connection just became active
          */
-        case ESP_CB_CONN_ACTIVE: {
+        case ESP_EVT_CONN_ACTIVE: {
             printf("Connection active!\r\n");
             
             /*
@@ -35,7 +35,7 @@ conn_evt(esp_evt_t* evt) {
         /*
          * Connection closed event
          */
-        case ESP_CB_CONN_CLOSED: {
+        case ESP_EVT_CONN_CLOSED: {
             printf("Connection closed!\r\n");
             if (evt->evt.conn_active_closed.forced) {   /* Was it forced by user? */
                 printf("Connection closed by user\r\n");
@@ -47,7 +47,7 @@ conn_evt(esp_evt_t* evt) {
         /*
          * Data received on connection
          */
-        case ESP_CB_CONN_DATA_RECV: {
+        case ESP_EVT_CONN_DATA_RECV: {
             esp_pbuf_p pbuf = cb->evt.conn_data_recv.buff;   /* Get data buffer */
             
             /*

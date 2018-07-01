@@ -145,25 +145,25 @@ join_to_next_ap(void) {
  */
 static espr_t
 access_points_cb(esp_evt_t* evt) {
-    switch (evt->type) {
-        case ESP_CB_STA_LIST_AP: {
+    switch (esp_evt_get_type(evt)) {
+        case ESP_EVT_STA_LIST_AP: {
             is_listing = 0;
             printf("Access points listed!\r\n");
             last_index = 0;
             join_to_next_ap();
             break;
         }
-        case ESP_CB_WIFI_CONNECTED: {
+        case ESP_EVT_WIFI_CONNECTED: {
             is_connected = 1;
             printf("Wifi connected!\r\n");
             break;
         }
-        case ESP_CB_WIFI_GOT_IP: {
+        case ESP_EVT_WIFI_GOT_IP: {
             printf("Wifi got IP!\r\n");
             is_connected = 1;
             break;
         }
-        case ESP_CB_WIFI_DISCONNECTED: {
+        case ESP_EVT_WIFI_DISCONNECTED: {
             if (is_connected) {
                 scan_access_points();
             }
@@ -171,7 +171,7 @@ access_points_cb(esp_evt_t* evt) {
             join_to_next_ap();
             break;
         }
-        case ESP_CB_STA_JOIN_AP: {
+        case ESP_EVT_STA_JOIN_AP: {
             espr_t status = esp_evt_sta_join_ap_get_status(evt);
             if (status != espOK) {
                 printf("Join NOT OK.\r\n");
@@ -179,6 +179,7 @@ access_points_cb(esp_evt_t* evt) {
             }
             break;
         }
+        default: break;
     }
     return espOK;
 }

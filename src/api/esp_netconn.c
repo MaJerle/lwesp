@@ -105,12 +105,12 @@ netconn_evt(esp_evt_t* evt) {
     uint8_t close = 0;
     
     conn = esp_conn_get_from_evt(evt);          /* Get connection from event */
-    switch (evt->type) {
+    switch (esp_evt_get_type(evt)) {
         /*
          * A new connection has been active
          * and should be handled by netconn API
          */
-        case ESP_CB_CONN_ACTIVE: {              /* A new connection active is active */
+        case ESP_EVT_CONN_ACTIVE: {             /* A new connection active is active */
             if (esp_conn_is_client(conn)) {     /* Was connection started by us? */
                 nc = esp_conn_get_arg(conn);    /* Argument should be ready already */
                 if (nc != NULL) {               /* Netconn should be set when connecting to server */
@@ -165,7 +165,7 @@ netconn_evt(esp_evt_t* evt) {
          * We have a new data received which
          * should have netconn structure as argument
          */
-        case ESP_CB_CONN_DATA_RECV: {
+        case ESP_EVT_CONN_DATA_RECV: {
             esp_pbuf_p pbuf;
 
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
@@ -220,7 +220,7 @@ netconn_evt(esp_evt_t* evt) {
         /*
          * Connection was just closed
          */
-        case ESP_CB_CONN_CLOSED: {
+        case ESP_EVT_CONN_CLOSED: {
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
             
             /*
@@ -252,14 +252,14 @@ netconn_evt(esp_evt_t* evt) {
  */
 static espr_t
 esp_evt(esp_evt_t* evt) {
-    switch (evt->type) {
-        case ESP_CB_WIFI_DISCONNECTED: {        /* Wifi disconnected event */
+    switch (esp_evt_get_type(evt)) {
+        case ESP_EVT_WIFI_DISCONNECTED: {       /* Wifi disconnected event */
             if (listen_api != NULL) {           /* Check if listen API active */
                 esp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_closed);
             }
             break;
         }
-        case ESP_CB_DEVICE_PRESENT: {           /* Device present event */
+        case ESP_EVT_DEVICE_PRESENT: {          /* Device present event */
             if (listen_api != NULL && !esp_device_is_present()) {   /* Check if device present */
                 esp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_not_present);
             }

@@ -905,11 +905,11 @@ http_evt(esp_evt_t* evt) {
     if (conn != NULL) {
         hs = esp_conn_get_arg(conn);            /* Get connection argument */
     }
-    switch (evt->type) {
+    switch (esp_evt_get_type(evt)) {
         /*
          * A new connection just became active
          */
-        case ESP_CB_CONN_ACTIVE: {
+        case ESP_EVT_CONN_ACTIVE: {
             ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "SERVER: Conn %d active\r\n", (int)esp_conn_getnum(conn));
             hs = esp_mem_calloc(1, sizeof(*hs));
             if (hs != NULL) {
@@ -925,7 +925,7 @@ http_evt(esp_evt_t* evt) {
         /*
          * Data received on connection
          */
-        case ESP_CB_CONN_DATA_RECV: {
+        case ESP_EVT_CONN_DATA_RECV: {
             esp_pbuf_p p;
             size_t pos;
             
@@ -1109,7 +1109,7 @@ http_evt(esp_evt_t* evt) {
         /*
          * Data were successfully sent on a connection
          */
-        case ESP_CB_CONN_DATA_SENT: {
+        case ESP_EVT_CONN_DATA_SENT: {
             size_t len;
             if (hs != NULL) {
                 len = esp_evt_conn_data_sent_get_length(evt);   /* Get length */
@@ -1126,7 +1126,7 @@ http_evt(esp_evt_t* evt) {
         /*
          * There was a problem with sending connection data
          */
-        case ESP_CB_CONN_DATA_SEND_ERR: {
+        case ESP_EVT_CONN_DATA_SEND_ERR: {
             ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_DANGER, "SERVER: data send error. Closing connection..\r\n");
             close = 1;                          /* Close the connection */
             break;
@@ -1135,7 +1135,7 @@ http_evt(esp_evt_t* evt) {
         /*
          * Connection was just closed, either forced by user or by remote side
          */
-        case ESP_CB_CONN_CLOSED: {
+        case ESP_EVT_CONN_CLOSED: {
             ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: connection closed\r\n");
             if (hs != NULL) {
 #if HTTP_SUPPORT_POST
@@ -1169,7 +1169,7 @@ http_evt(esp_evt_t* evt) {
         /*
          * Poll the connection
          */
-        case ESP_CB_CONN_POLL: {
+        case ESP_EVT_CONN_POLL: {
             if (hs != NULL) {
                 send_response(hs, 0);           /* Send more data if possible */
             } else {

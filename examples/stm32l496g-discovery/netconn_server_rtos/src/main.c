@@ -42,7 +42,7 @@ static void USART_Printf_Init(void);
 static void init_thread(void const* arg);
 osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
 
-static espr_t esp_callback_func(esp_cb_t* cb);
+static espr_t esp_callback_func(esp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -94,21 +94,21 @@ init_thread(void const* arg) {
 
 /**
  * \brief           Event callback function for ESP stack
- * \param[in]       cb: Event information with data
+ * \param[in]       evt: Event information with data
  * \return          espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
-esp_callback_func(esp_cb_t* cb) {
-    switch (cb->type) {
-        case ESP_CB_INIT_FINISH: {
+esp_callback_func(esp_evt_t* evt) {
+    switch (esp_evt_get_type(evt)) {
+        case ESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
             break;
         }
-        case ESP_CB_RESET: {
+        case ESP_EVT_RESET: {
             printf("Device reset detected!\r\n");
             break;
         }
-        case ESP_CB_WIFI_DISCONNECTED: {        /* Wifi connection disabled */
+        case ESP_EVT_WIFI_DISCONNECTED: {       /* Wifi connection disabled */
             /*
              * We do not need to reach on this event.
              *
@@ -116,7 +116,7 @@ esp_callback_func(esp_cb_t* cb) {
              */
             break;
         }
-        case ESP_CB_WIFI_IP_ACQUIRED: {         /* We have IP address and we are fully ready to work */
+        case ESP_EVT_WIFI_IP_ACQUIRED: {        /* We have IP address and we are fully ready to work */
             if (esp_sta_is_joined()) {          /* Check if joined on any network */
                 /*
                  * Create a Netconn based server in separated thread

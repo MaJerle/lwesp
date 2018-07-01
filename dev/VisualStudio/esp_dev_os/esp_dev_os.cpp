@@ -139,30 +139,30 @@ main_thread(void* arg) {
 static espr_t
 esp_evt(esp_evt_t* evt) {
     switch (evt->type) {
-        case ESP_CB_INIT_FINISH: {
+        case ESP_EVT_INIT_FINISH: {
             esp_restore(0);
             esp_set_at_baudrate(115200, 0);
             esp_hostname_set("esp_device", 0);
             break;
         }
-        case ESP_CB_RESET: {
+        case ESP_EVT_RESET: {
             printf("Device reset!\r\n");
             break;
         }
 #if ESP_CFG_MODE_ACCESS_POINT
-        case ESP_CB_AP_CONNECTED_STA: {
+        case ESP_EVT_AP_CONNECTED_STA: {
             esp_mac_t* mac = esp_evt_ap_connected_sta_get_mac(evt);
             printf("New station connected to ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
             break;
         }
-        case ESP_CB_AP_DISCONNECTED_STA: {
+        case ESP_EVT_AP_DISCONNECTED_STA: {
             esp_mac_t* mac = esp_evt_ap_disconnected_sta_get_mac(evt);
             printf("Station disconnected from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
             break;
         }
-        case ESP_CB_AP_IP_STA: {
+        case ESP_EVT_AP_IP_STA: {
             esp_mac_t* mac = esp_evt_ap_ip_sta_get_mac(evt);
             esp_ip_t* ip = esp_evt_ap_ip_sta_get_ip(evt);
             printf("Station received IP address from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X and IP: %d.%d.%d.%d\r\n",
@@ -185,16 +185,16 @@ esp_conn_evt(esp_evt_t* evt) {
         "\r\n";
 
     switch (evt->type) {
-        case ESP_CB_CONN_ACTIVE: {
+        case ESP_EVT_CONN_ACTIVE: {
             printf("Connection active!\r\n");
             esp_conn_send(esp_evt_conn_active_get_conn(evt), data, sizeof(data) - 1, NULL, 0);
             break;
         }
-        case ESP_CB_CONN_DATA_SENT: {
+        case ESP_EVT_CONN_DATA_SENT: {
             printf("Connection data sent!\r\n");
             break;
         }
-        case ESP_CB_CONN_DATA_RECV: {
+        case ESP_EVT_CONN_DATA_RECV: {
             esp_pbuf_p pbuf = esp_evt_conn_data_recv_get_buff(evt);
             esp_conn_p conn = esp_evt_conn_data_recv_get_conn(evt);
             printf("\r\nConnection data received: %d / %d bytes\r\n",
@@ -204,7 +204,7 @@ esp_conn_evt(esp_evt_t* evt) {
             esp_conn_recved(conn, pbuf);
             break;
         }
-        case ESP_CB_CONN_CLOSED: {
+        case ESP_EVT_CONN_CLOSED: {
             printf("Connection closed!\r\n");
             esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_conn_evt, 0);
             break;

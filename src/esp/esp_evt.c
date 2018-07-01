@@ -35,6 +35,16 @@
 #include "esp/esp_mem.h"
 
 /**
+ * \brief           Get event type
+ * \param[in]       cc: Event handle
+ * \return          Event type. Member of \ref esp_evt_type_t enumeration
+ */
+esp_evt_type_t
+esp_evt_get_type(esp_evt_t* cc) {
+    return cc->type;
+}
+
+/**
  * \brief           Check if reset was forced by user
  * \param[in]       cc: Event handle
  * \return          `1` if forced by user, `0` otherwise

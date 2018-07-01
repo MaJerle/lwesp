@@ -867,19 +867,19 @@ mqtt_conn_cb(esp_evt_t* evt) {
             esp_conn_close(conn, 0);            /* Force connection close immediatelly */
             return espERR;
         }
-    } else if (evt->type != ESP_CB_CONN_ERROR) {
+    } else if (evt->type != ESP_EVT_CONN_ERROR) {
         return espERR;
     }
     
     /*
      * Check and process events
      */
-    switch (evt->type) {
+    switch (esp_evt_get_type(evt)) {
         /*
          * Connection error. Connection to external
          * server was not successful
          */
-        case ESP_CB_CONN_ERROR: {
+        case ESP_EVT_CONN_ERROR: {
             mqtt_client_t* client;
             client = esp_evt_conn_error_get_arg(evt);   /* Get connection argument */
             if (client != NULL) {
@@ -895,7 +895,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
         /*
          * Connection active to MQTT server
          */
-        case ESP_CB_CONN_ACTIVE: {
+        case ESP_EVT_CONN_ACTIVE: {
             mqtt_connected_cb(client);          /* Call function to process status */
             break;
         }
@@ -904,7 +904,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
          * A new packet of data received
          * on MQTT client connection
          */
-        case ESP_CB_CONN_DATA_RECV: {
+        case ESP_EVT_CONN_DATA_RECV: {
             mqtt_data_recv_cb(client, esp_evt_conn_data_recv_get_buff(evt));/* Call user to process received data */
             break;
         }
@@ -912,7 +912,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
         /*
          * Data were sent on MQTT client connection
          */
-        case ESP_CB_CONN_DATA_SENT: {
+        case ESP_EVT_CONN_DATA_SENT: {
             mqtt_data_sent_cb(client, esp_evt_conn_data_sent_get_length(evt), 1);   /* Data sent callback */
             break;
         }
@@ -920,7 +920,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
         /*
          * There was an error sending data to remote
          */
-        case ESP_CB_CONN_DATA_SEND_ERR: {
+        case ESP_EVT_CONN_DATA_SEND_ERR: {
             mqtt_data_sent_cb(client, esp_evt_conn_data_send_err_get_length(evt), 0);   /* Data sent error */
             break;
         }
@@ -928,7 +928,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
         /*
          * Periodic poll for connection
          */
-        case ESP_CB_CONN_POLL: {
+        case ESP_EVT_CONN_POLL: {
             mqtt_poll_cb(client);               /* Poll client */
             break;
         }
@@ -936,7 +936,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
         /*
          * Connection closed for some reason
          */
-        case ESP_CB_CONN_CLOSED: {
+        case ESP_EVT_CONN_CLOSED: {
             mqtt_closed_cb(client);             /* Closed connection callback */
             break;
         }

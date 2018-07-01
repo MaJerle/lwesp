@@ -122,5 +122,8 @@
     <ClCompile Include="..\..\..\src\apps\mqtt\esp_mqtt_client.c">
       <Filter>ESP APP MQTT CLIENT</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\esp\esp_evt.c">
+      <Filter>ESP CORE</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
