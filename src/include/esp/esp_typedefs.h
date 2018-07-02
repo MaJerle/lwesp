@@ -172,7 +172,7 @@ typedef enum {
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_MODE_AP = 2,                            /*!< Set WiFi mode to access point only */
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
-#if (ESP_CFG_MODE_STATION_ACCESS_POINT) || __DOXYGEN__
+#if ESP_CFG_MODE_STATION_ACCESS_POINT || __DOXYGEN__
     ESP_MODE_STA_AP = 3,                        /*!< Set WiFi mode to station and access point */
 #endif /* (ESP_CFG_MODE_STATION_ACCESS_POINT) || __DOXYGEN__ */
 } esp_mode_t;
