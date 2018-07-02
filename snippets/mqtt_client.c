@@ -102,7 +102,7 @@ mqtt_timeout_cb(void* arg) {
  */
 static void
 mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
-    switch (esp_evt_get_type(evt)) {
+    switch (mqtt_client_evt_get_type(client, evt)) {
         /*
          * Connect event
          * Called if user successfully connected to MQTT server

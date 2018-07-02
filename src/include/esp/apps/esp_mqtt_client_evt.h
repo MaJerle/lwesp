@@ -46,7 +46,7 @@ extern "C" {
  * \brief           Event helper functions
  * \{
  */
- 
+
 /**
  * \brief           Get MQTT event type
  * \param[in]       client: MQTT client
