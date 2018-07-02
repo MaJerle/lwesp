@@ -323,11 +323,10 @@ esp_evt_register(esp_evt_fn fn) {
             ESP_MEMSET(newFunc, 0x00, sizeof(*newFunc));/* Reset memory */
             newFunc->fn = fn;                   /* Set function pointer */
             if (esp.evt_func == NULL) {
-                esp.evt_func = newFunc;         /* This should never happen! */
-            } else {
-                for (func = esp.evt_func; func->next != NULL; func = func->next) {}
-                func->next = newFunc;           /* Set new function as next */
+                esp.evt_func = &def_evt_link;   /* This should never happen! */
             }
+            for (func = esp.evt_func; func->next != NULL; func = func->next) {}
+            func->next = newFunc;               /* Set new function as next */
             res = espOK;
         } else {
             res = espERRMEM;
