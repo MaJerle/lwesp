@@ -43,8 +43,8 @@ extern "C" {
  
 /**
  * \ingroup         ESP
- * \defgroup        ESP_DEBUG Debugging support
- * \brief           Debugging support module to track stack
+ * \defgroup        ESP_DEBUG Debug support
+ * \brief           Debug support module to track library flow
  * \{
  */
  
@@ -92,7 +92,7 @@ extern "C" {
  */
 #define ESP_DEBUGF(c, fmt, ...)         do {\
     if (((c) & (ESP_DBG_ON)) && ((c) & (ESP_CFG_DBG_TYPES_ON)) && ((c) & ESP_DBG_LVL_MASK) >= (ESP_CFG_DBG_LVL_MIN)) {    \
-        ESP_CFG_DBG_OUT(fmt, ## __VA_ARGS__); \
+        ESP_CFG_DBG_OUT(fmt, ## __VA_ARGS__);   \
     }                                       \
 } while (0)
 
