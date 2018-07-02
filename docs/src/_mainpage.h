@@ -28,7 +28,7 @@
  *
  * \section         sect_resources Resources
  *
- *  - Read \ref page_requirements before you choose this library
+ *  - Read \ref page_faq before you choose this library
  *  - Read \ref page_appnote before you start development
  *  - <a href="https://github.com/MaJerle/ESP_AT_Lib">Official development repository on Github</a>
  *  - <a href="http://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf">Official AT commands instruction set by Espressif systems</a>
