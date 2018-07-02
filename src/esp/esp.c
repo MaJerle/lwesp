@@ -379,7 +379,7 @@ esp_device_set_present(uint8_t present, uint32_t blocking) {
         espi_reset_everything(1);               /* Reset everything */
     }
 #if ESP_CFG_RESET_ON_INIT
-    else  {                                     /* Is new device present? */
+    else {                                      /* Is new device present? */
         ESP_CORE_UNPROTECT();                   /* Unlock ESP core */
         res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking); /* Reset with delay */
         ESP_CORE_PROTECT();                     /* Lock ESP core */
