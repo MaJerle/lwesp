@@ -35,6 +35,8 @@
 #include "esp/esp_mem.h"
 #include "esp/esp_input.h"
 
+#if !__DOXYGEN__
+
 static uint8_t initialized = 0;
 
 DWORD thread_id;
@@ -226,3 +228,5 @@ esp_ll_deinit(esp_ll_t* ll) {
     initialized = 0;                            /* Clear initialized flag */
     return espOK;
 }
+
+#endif /* !__DOXYGEN__ */
