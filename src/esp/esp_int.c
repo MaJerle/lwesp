@@ -262,7 +262,7 @@ espi_reset_everything(uint8_t forced) {
  */
 static uint8_t
 is_received_current_setting(const char* str) {
-    return !strstr(str, "_DEF");                /* In case there is no "_DEF", we have current setting active */
+    return strstr(str, "_DEF") == NULL;         /* In case there is no "_DEF", we have current setting active */
 }
 
 /**
@@ -332,15 +332,14 @@ espi_tcpip_process_send_data(void) {
         CONN_SEND_DATA_FREE(esp.msg);           /* Free message data */
         return espERR;
     }
+    esp.msg->msg.conn_send.sent = ESP_MIN(esp.msg->msg.conn_send.btw, ESP_CFG_CONN_MAX_DATA_LEN);
+
     ESP_AT_PORT_SEND_BEGIN();                   /* Begin AT command string */
     ESP_AT_PORT_SEND_STR("+CIPSEND=");
     send_number(ESP_U32(esp.msg->msg.conn_send.conn->num), 0, 0);
-    esp.msg->msg.conn_send.sent = ESP_MIN(esp.msg->msg.conn_send.btw, ESP_CFG_CONN_MAX_DATA_LEN);
     send_number(ESP_U32(esp.msg->msg.conn_send.sent), 0, 1);    /* Send length number */
     
-    /*
-     * On UDP connections, IP address and port may be selected
-     */
+    /* On UDP connections, IP address and port may be included */
     if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {        
         if (esp.msg->msg.conn_send.remote_ip != NULL && esp.msg->msg.conn_send.remote_port) {
             send_ip_mac(esp.msg->msg.conn_send.remote_ip, 1, 1, 1); /* Send IP address including quotes */
@@ -411,7 +410,7 @@ espi_parse_received(esp_recv_t* rcv) {
     if ((rcv->len == 2 && rcv->data[0] == '\r' && rcv->data[1] == '\n')
         /*
          * Condition below can only be used if AT echo is disabled
-         * otherwise it may happen that some message is inserted in between AT command echo, such as:
+         * otherwise it may happen that message is inserted in between AT command echo, such as:
          *
          * AT+CIPCLOSE=0+LINK_CONN:0,2,"TCP",1,"192.168.0.14",57551,80\r\n\r\n
          *
@@ -583,7 +582,7 @@ espi_parse_received(esp_recv_t* rcv) {
             }
         }
 #if ESP_CFG_MODE_STATION
-    } else if (!strncmp(rcv->data, "WIFI", 4)) {
+    } else if (strlen(rcv->data) > 4 && !strncmp(rcv->data, "WIFI", 4)) {
         if (!strncmp(&rcv->data[5], "CONNECTED", 9)) {
             esp.status.f.r_w_conn = 1;          /* Wifi is connected */
             espi_send_cb(ESP_EVT_WIFI_CONNECTED);   /* Call user callback function */

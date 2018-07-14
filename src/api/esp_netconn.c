@@ -153,10 +153,11 @@ netconn_evt(esp_evt_t* evt) {
                 close = 1;                      /* Close the connection at this point */
             }
             if (close) {
-                esp_conn_close(conn, 0);        /* Close the connection */
                 if (nc != NULL) {
+                    esp_conn_set_arg(conn, NULL);   /* Reset argument */
                     esp_netconn_delete(nc);     /* Free memory for API */
                 }
+                esp_conn_close(conn, 0);        /* Close the connection */
             }
             break;
         }
