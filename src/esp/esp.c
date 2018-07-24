@@ -196,7 +196,7 @@ esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
 /**
  * \brief           Enables or disables server mode
  * \param[in]       en: Set to `1` to enable server, `0` otherwise
- * \param[in]       port: Set port number used to listen on. Set to `0` to disable server
+ * \param[in]       port: Set port number used to listen on. Must also be used when disabling server mode
  * \param[in]       max_conn: Number of maximal connections populated by server
  * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
  *                  Set to `0` to disable timeout feature (not recommended)
