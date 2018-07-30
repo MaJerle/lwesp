@@ -26,9 +26,9 @@
  *      - \ref ESP_APP_MQTT_CLIENT for MQTT connection
  *  - Embeds other AT features, such as \ref ESP_WPS, \ref ESP_PING, \ref ESP_HOSTNAME and others
  *
- * \section         sect_resources Resources
+ * \section         sect_resources Download & Resources
  *
- *  - Read \ref page_faq before you choose this library
+ *  - <a class="download_url" href="https://github.com/MaJerle/ESP_AT_Lib/releases">Download library from Github releases</a>
  *  - Read \ref page_appnote before you start development
  *  - <a href="https://github.com/MaJerle/ESP_AT_Lib">Official development repository on Github</a>
  *  - <a href="http://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf">Official AT commands instruction set by Espressif systems</a>
