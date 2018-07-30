@@ -60,6 +60,10 @@ typedef void (*esp_sys_thread_fn)(void *);
  
 #define ESP_SYS_PORT_CMSIS_OS               1   /*!< CMSIS-OS based port for OS systems capable of ARM CMSIS standard */
 #define ESP_SYS_PORT_WIN32                  2   /*!< WIN32 based port to use ESP library with Windows applications */
+#define ESP_SYS_PORT_USER                   99  /*!< User custom implementation.
+                                                    When port is selected to user mode, user must provide "esp_sys_user.h" file,
+                                                    which is not provided with library. Refer to `system/esp_sys_template.h` file for more information
+                                                    */
 
 /**
  * \}
@@ -70,6 +74,8 @@ typedef void (*esp_sys_thread_fn)(void *);
 #include "system/esp_sys_cmsis_os.h"
 #elif ESP_CFG_SYS_PORT == ESP_SYS_PORT_WIN32
 #include "system/esp_sys_win32.h"
+#elif ESP_CFG_SYS_PORT == ESP_SYS_PORT_USER
+#include "esp_sys_user.h"
 #endif
 
 uint8_t     esp_sys_init(void);
