@@ -412,4 +412,4 @@ ESP_USART_DMA_RX_CH_IRQHANDLER(void) {
     }
 }
 
-#endif /* !DOXYGEN */
+#endif /* !__DOXYGEN__ */

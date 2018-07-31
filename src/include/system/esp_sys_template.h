@@ -43,9 +43,7 @@ extern "C" {
 #include "esp_config.h"
 
 /**
- * \ingroup         ESP_PORT
- * \defgroup        ESP_SYS System functions
- * \brief           System based function for OS management, timings, etc
+ * \addtogroup      ESP_SYS
  * \{
  */
 

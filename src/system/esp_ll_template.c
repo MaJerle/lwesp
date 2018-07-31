@@ -60,14 +60,13 @@ send_data(const void* data, uint16_t len) {
  *                  It is important that every configuration except AT baudrate is configured only once!
  *
  * \note            This function may be called from different threads in ESP stack when using OS.
- *                  When \ref ESP_CFG_INPUT_USE_PROCESS is set to 1, this function may be called from user UART thread.
+ *                  When \ref ESP_CFG_INPUT_USE_PROCESS is set to `1`, this function may be called from user UART thread.
  *
  * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
- * \param[in]       baudrate: Baudrate to use on AT port
- * \return          espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
+esp_ll_init(esp_ll_t* ll) {
     /*
      * Step 1: Configure memory for dynamic allocations
      */
@@ -95,7 +94,7 @@ esp_ll_init(esp_ll_t* ll, uint32_t baudrate) {
     /*
      * Step 3: Configure AT port to be able to send/receive data to/from ESP device
      */
-    configure_uart(baudrate);                   /* Initialize UART for communication */
+    configure_uart(->uart.baudrate);            /* Initialize UART for communication */
     initialized = 1;
     return espOK;
 }

@@ -39,8 +39,19 @@ extern "C" {
 
 #include "esp/esp.h"
 
+/**
+ * \ingroup         ESP_PORT
+ * \defgroup        ESP_LL Low-level functions
+ * \brief           Low-level communication functions
+ * \{
+ */
+
 espr_t      esp_ll_init(esp_ll_t* ll);
 espr_t      esp_ll_deinit(esp_ll_t* ll);
+
+/**
+ * \}
+ */
 
 #ifdef __cplusplus
 }

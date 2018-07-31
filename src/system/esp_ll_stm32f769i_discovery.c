@@ -377,4 +377,4 @@ ESP_USART_DMA_RX_STREAM_IRQHANDLER(void) {
     }
 }
 
-#endif /* !DOXYGEN */
+#endif /* !__DOXYGEN__ */
