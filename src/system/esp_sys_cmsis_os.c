@@ -34,150 +34,150 @@
 #include "cmsis_os.h"
 
 #if !__DOXYGEN__
-static osMutexId sys_mutex;                     /* Mutex ID for main protection */
+static osMutexId sys_mutex;
 
 uint8_t
 esp_sys_init(void) {
-    esp_sys_mutex_create(&sys_mutex);           /* Create system mutex */
+    esp_sys_mutex_create(&sys_mutex);
     return 1;
 }
 
 uint32_t
 esp_sys_now(void) {
-    return osKernelSysTick();                   /* Get current tick in units of milliseconds */
+    return osKernelSysTick();
 }
 
 #if ESP_CFG_OS
 
 uint8_t
 esp_sys_protect(void) {
-    esp_sys_mutex_lock(&sys_mutex);             /* Lock system and protect it */
+    esp_sys_mutex_lock(&sys_mutex);
     return 1;
 }
 
 uint8_t
 esp_sys_unprotect(void) {
-    esp_sys_mutex_unlock(&sys_mutex);           /* Release lock */
+    esp_sys_mutex_unlock(&sys_mutex);
     return 1;
 }
 
 uint8_t
 esp_sys_mutex_create(esp_sys_mutex_t* p) {
-    osMutexDef(MUT);                            /* Define a mutex */
-    *p = osRecursiveMutexCreate(osMutex(MUT));  /* Create recursive mutex */
-    return !!*p;                                /* Return status */
+    osMutexDef(MUT);
+    *p = osRecursiveMutexCreate(osMutex(MUT));
+    return *p != NULL;
 }
 
 uint8_t
 esp_sys_mutex_delete(esp_sys_mutex_t* p) {
-    return osMutexDelete(*p) == osOK;           /* Delete mutex */
+    return osMutexDelete(*p) == osOK;
 }
 
 uint8_t
 esp_sys_mutex_lock(esp_sys_mutex_t* p) {
-    return osRecursiveMutexWait(*p, osWaitForever) == osOK; /* Wait forever for mutex */
+    return osRecursiveMutexWait(*p, osWaitForever) == osOK;
 }
 
 uint8_t
 esp_sys_mutex_unlock(esp_sys_mutex_t* p) {
-    return osRecursiveMutexRelease(*p) == osOK; /* Release mutex */
+    return osRecursiveMutexRelease(*p) == osOK;
 }
 
 uint8_t
 esp_sys_mutex_isvalid(esp_sys_mutex_t* p) {
-    return !!*p;                                /* Check if mutex is valid */
+    return *p != NULL;
 }
 
 uint8_t
 esp_sys_mutex_invalid(esp_sys_mutex_t* p) {
-    *p = ESP_SYS_MUTEX_NULL;                    /* Set mutex as invalid */
+    *p = ESP_SYS_MUTEX_NULL;
     return 1;
 }
 
 uint8_t
 esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
-    osSemaphoreDef(SEM);                        /* Define semaphore info */
-    *p = osSemaphoreCreate(osSemaphore(SEM), 1);/* Create semaphore with one token */
+    osSemaphoreDef(SEM);
+    *p = osSemaphoreCreate(osSemaphore(SEM), 1);
     
-    if (*p && !cnt) {                           /* We have valid entry */
-        osSemaphoreWait(*p, 0);                 /* Lock semaphore immediatelly */
+    if (*p != NULL && !cnt) {
+        osSemaphoreWait(*p, 0);
     }
-    return !!*p;
+    return *p != NULL;
 }
 
 uint8_t
 esp_sys_sem_delete(esp_sys_sem_t* p) {
-    return osSemaphoreDelete(*p) == osOK;       /* Delete semaphore */
+    return osSemaphoreDelete(*p) == osOK;
 }
 
 uint32_t
 esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
-    uint32_t tick = osKernelSysTick();          /* Get start tick time */
-    return (osSemaphoreWait(*p, !timeout ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;    /* Wait for semaphore with specific time */
+    uint32_t tick = osKernelSysTick();
+    return (osSemaphoreWait(*p, !timeout ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
 }
 
 uint8_t
 esp_sys_sem_release(esp_sys_sem_t* p) {
-    return osSemaphoreRelease(*p) == osOK;      /* Release semaphore */
+    return osSemaphoreRelease(*p) == osOK;
 }
 
 uint8_t
 esp_sys_sem_isvalid(esp_sys_sem_t* p) {
-    return !!*p;                                /* Check if valid */
+    return *p != NULL;
 }
 
 uint8_t
 esp_sys_sem_invalid(esp_sys_sem_t* p) {
-    *p = ESP_SYS_SEM_NULL;                      /* Invaldiate semaphore */
+    *p = ESP_SYS_SEM_NULL;
     return 1;
 }
 
 uint8_t
 esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
-    osMessageQDef(MBOX, size, void *);          /* Define message box */
-    *b = osMessageCreate(osMessageQ(MBOX), NULL);   /* Create message box */
-    return !!*b;
+    osMessageQDef(MBOX, size, void *);
+    *b = osMessageCreate(osMessageQ(MBOX), NULL);
+    return *b != NULL;
 }
 
 uint8_t
 esp_sys_mbox_delete(esp_sys_mbox_t* b) {
-    if (osMessageWaiting(*b)) {                 /* We still have messages in queue, should not delete queue */
-        return 0;                               /* Return error as we still have entries in message queue */
+    if (osMessageWaiting(*b)) {
+        return 0;
     }
-    return osMessageDelete(*b) == osOK;         /* Delete message queue */
+    return osMessageDelete(*b) == osOK;
 }
 
 uint32_t
 esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
-    uint32_t tick = osKernelSysTick();          /* Get start time */
-    return osMessagePut(*b, (uint32_t)m, osWaitForever) == osOK ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT; /* Put new message with forever timeout */
+    uint32_t tick = osKernelSysTick();
+    return osMessagePut(*b, (uint32_t)m, osWaitForever) == osOK ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
 }
 
 uint32_t
 esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     osEvent evt;
-    uint32_t time = osKernelSysTick();          /* Get current time */
+    uint32_t time = osKernelSysTick();
     
-    evt = osMessageGet(*b, !timeout ? osWaitForever : timeout); /* Get message event */
-    if (evt.status == osEventMessage) {         /* Did we get a message? */
-        *m = evt.value.p;                       /* Set value */
-        return osKernelSysTick() - time;        /* Return time required for reading message */
+    evt = osMessageGet(*b, !timeout ? osWaitForever : timeout);
+    if (evt.status == osEventMessage) {
+        *m = evt.value.p;
+        return osKernelSysTick() - time;
     }
     return ESP_SYS_TIMEOUT;
 }
 
 uint8_t
 esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
-    return osMessagePut(*b, (uint32_t)m, 0) == osOK;   /* Put new message without timeout */
+    return osMessagePut(*b, (uint32_t)m, 0) == osOK;
 }
 
 uint8_t
 esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     osEvent evt;
     
-    evt = osMessageGet(*b, 0);                  /* Get message event */
-    if (evt.status == osEventMessage) {         /* Did we get a message? */
-        *m = evt.value.p;                       /* Set value */
+    evt = osMessageGet(*b, 0);
+    if (evt.status == osEventMessage) {
+        *m = evt.value.p;
         return 1;
     }
     return 0;
@@ -185,12 +185,12 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
 
 uint8_t
 esp_sys_mbox_isvalid(esp_sys_mbox_t* b) {
-    return !!*b;                                /* Return status if message box is valid */
+    return *b != NULL;
 }
 
 uint8_t
 esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
-    *b = ESP_SYS_MBOX_NULL;                     /* Invalidate message box */
+    *b = ESP_SYS_MBOX_NULL;
     return 1;
 }
 
@@ -198,22 +198,22 @@ uint8_t
 esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
     esp_sys_thread_t id;
     const osThreadDef_t thread_def = {(char *)name, (os_pthread)thread_func, (osPriority)prio, 0, stack_size ? stack_size : ESP_SYS_THREAD_SS };    /* Create thread description */
-    id = osThreadCreate(&thread_def, arg);      /* Create thread */
+    id = osThreadCreate(&thread_def, arg);
     if (t != NULL) {
         *t = id;
     }
-    return !!id;
+    return id != NULL;
 }
 
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
-    osThreadTerminate(t != NULL ? *t : NULL);   /* Terminate thread */
+    osThreadTerminate(t != NULL ? *t : NULL);
     return 1;
 }
 
 uint8_t
 esp_sys_thread_yield(void) {
-    osThreadYield();                            /* Yield current thread */
+    osThreadYield();
     return 1;
 }
 
