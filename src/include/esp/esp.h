@@ -69,7 +69,7 @@ espr_t      esp_evt_unregister(esp_evt_fn fn);
 espr_t      esp_device_set_present(uint8_t present, uint32_t blocking);
 uint8_t     esp_device_is_present(void);
 
-void        esp_delay(uint32_t ms);
+uint8_t     esp_delay(const uint32_t ms);
 
 /**
  * \}

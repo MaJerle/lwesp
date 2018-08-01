@@ -410,14 +410,19 @@ esp_device_is_present(void) {
 /**
  * \brief           Delay for amount of milliseconds
  * \param[in]       ms: Milliseconds to delay
+ * \return          `1` on success, `0` otherwise
  */
-void
-esp_delay(uint32_t ms) {
+uint8_t
+esp_delay(const uint32_t ms) {
     esp_sys_sem_t sem;
-    if (ms != 0) {
-        esp_sys_sem_create(&sem, 0);            /* Create semaphore in locked state */
-        esp_sys_sem_wait(&sem, ms);             /* Wait for semaphore, timeout should occur */
-        esp_sys_sem_release(&sem);              /* Release semaphore */
-        esp_sys_sem_delete(&sem);               /* Delete semaphore */
+    if (!ms) {
+        return 1;
     }
+    if (esp_sys_sem_create(&sem, 0)) {
+        esp_sys_sem_wait(&sem, ms);
+        esp_sys_sem_release(&sem);
+        esp_sys_sem_delete(&sem);
+        return 1;
+    }
+    return 0;
 }
