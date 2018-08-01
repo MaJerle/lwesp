@@ -272,8 +272,8 @@ esp_evt(esp_evt_t* evt) {
 
 /**
  * \brief           Create new netconn connection
- * \param[in]       type: Type of netconn. This parameter can be a value of \ref esp_netconn_type_t enumeration
- * \return          New netconn connection
+ * \param[in]       type: Netconn connection type
+ * \return          New netconn connection on success, `NULL` otherwise
  */
 esp_netconn_p
 esp_netconn_new(esp_netconn_type_t type) {
@@ -300,12 +300,14 @@ esp_netconn_new(esp_netconn_type_t type) {
                 "NETCONN: Cannot create receive MBOX\r\n");
             goto free_ret;
         }
+        ESP_CORE_PROTECT();
         if (netconn_list == NULL) {             /* Add new netconn to the existing list */
             netconn_list = a;
         } else {
             a->next = netconn_list;             /* Add it to beginning of the list */
             netconn_list = a;
         }
+        ESP_CORE_UNPROTECT();
     }
     return a;
 free_ret:
@@ -551,8 +553,8 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 }
 
 /**
- * \brief           Flush buffered data on netconn TCP connection
- * \note            This function may only be used on TCP or SSL connections
+ * \brief           Flush buffered data on netconn `TCP/SSL` connection
+ * \note            This function may only be used on `TCP/SSL` connection
  * \param[in]       nc: Netconn handle to flush data
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -611,7 +613,8 @@ esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const 
 /**
  * \brief           Receive data from connection
  * \param[in]       nc: Netconn handle used to receive from
- * \param[in]       pbuf: Pointer to pointer to save new receive buffer to
+ * \param[in]       pbuf: Pointer to pointer to save new receive buffer to. 
+ *                     When function returns, user must check for valid pbuf value `pbuf != NULL`
  * \return          \ref espOK when new data ready, \ref espCLOSED when connection closed by remote side,
  *                  \ref espTIMEOUT when receive timeout occurs or any other member of \ref espr_t otherwise
  */
@@ -630,9 +633,7 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
         return espTIMEOUT;
     }
 #else /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
-    /*
-     * Forever wait for new receive packet
-     */
+    /* Forever wait for new receive packet */
     esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
 #endif /* !ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
 
@@ -662,7 +663,7 @@ esp_netconn_close(esp_netconn_p nc) {
 /**
  * \brief           Get connection number used for netconn
  * \param[in]       nc: Pointer to handle for connection
- * \return          -1 on failure, number otherwise
+ * \return          `-1` on failure, number otherwise
  */
 int8_t
 esp_netconn_getconnnum(esp_netconn_p nc) {
@@ -675,9 +676,13 @@ esp_netconn_getconnnum(esp_netconn_p nc) {
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__
 
 /**
- * \brief           Set timeout value for receiving data
+ * \brief           Set timeout value for receiving data.
+ *
+ *                  When enabled, \ref esp_netconn_receive will only block for up to
+ *                  \arg timeout value and will return if no new data within this time
  * \param[in]       nc: Netconn handle
- * \param[in]       timeout: Timeout in units of milliseconds. Set to 0 to disable timeout (wait forever, default value)
+ * \param[in]       timeout: Timeout in units of milliseconds.
+ *                  Set to `0` to disable timeout for \ref esp_netconn_receive function
  */
 void
 esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout) {
@@ -687,7 +692,7 @@ esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout) {
 /**
  * \brief           Get netconn receive timeout value
  * \param[in]       nc: Netconn handle
- * \return          Timeout in units of milliseconds. When returned value is 0, timeout is disabled (wait forever)
+ * \return          Timeout in units of milliseconds. If value is `0`, timeout is disabled (wait forever)
  */
 uint32_t
 esp_netconn_get_receive_timeout(esp_netconn_p nc) {
