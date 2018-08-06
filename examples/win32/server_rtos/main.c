@@ -116,15 +116,37 @@ esp_server_callback_func(esp_evt_t* evt) {
 static espr_t
 esp_callback_func(esp_evt_t* evt) {
     switch (esp_evt_get_type(evt)) {
-    case ESP_EVT_INIT_FINISH: {
-        printf("Library initialized!\r\n");
-        break;
-    }
-    case ESP_EVT_RESET: {
-        printf("Device reset detected!\r\n");
-        break;
-    }
-    default: break;
+        case ESP_EVT_AT_VERSION_NOT_SUPPORTED: {
+            esp_sw_version_t v_min, v_curr;
+
+            esp_get_min_at_fw_version(&v_min);
+            esp_get_current_at_fw_version(&v_curr);
+
+            printf("Current ESP8266 AT version is not supported by library!\r\n");
+            printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
+            printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
+            break;
+        }
+        case ESP_EVT_AT_VERSION_NOT_SUPPORTED: {
+            esp_sw_version_t v_min, v_curr;
+
+            esp_get_min_at_fw_version(&v_min);
+            esp_get_current_at_fw_version(&v_curr);
+
+            printf("Current ESP8266 AT version is not supported by library!\r\n");
+            printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
+            printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
+            break;
+        }
+        case ESP_EVT_INIT_FINISH: {
+            printf("Library initialized!\r\n");
+            break;
+        }
+        case ESP_EVT_RESET: {
+            printf("Device reset detected!\r\n");
+            break;
+        }
+        default: break;
     }
     return espOK;
 }
