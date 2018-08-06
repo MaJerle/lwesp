@@ -351,7 +351,8 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
 /**
  * \brief           Create a new thread
  * \note            This function is required with OS
- * \param[out]      t: Pointer to thread identifier if create was successful
+ * \param[out]      t: Pointer to thread identifier if create was successful.
+ *                     It may be set to `NULL`
  * \param[in]       name: Name of a new thread
  * \param[in]       thread_func: Thread function to use as thread body
  * \param[in]       arg: Thread function argument
