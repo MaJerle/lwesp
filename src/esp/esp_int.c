@@ -612,7 +612,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 if (esp.version_at.minor > ESP_MIN_AT_VERSION_MINOR) {
                     ok = 1;
                 } else if (esp.version_at.minor == ESP_MIN_AT_VERSION_MINOR) {
-                    if (esp.version_at.patch >= ESP_MIN_AT_VERSION_PATCH) {
+                    if ((int8_t)esp.version_at.patch >= (int8_t)ESP_MIN_AT_VERSION_PATCH) {
                         ok = 1;
                     }
                 }
