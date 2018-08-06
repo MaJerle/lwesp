@@ -71,6 +71,21 @@ uint8_t     esp_device_is_present(void);
 
 uint8_t     esp_delay(const uint32_t ms);
 
+#define     esp_set_fw_version(v, major_, minor_, patch_)          do { (v)->major = (major_); (v)->minor = (minor_); (v)->patch = (patch_); } while (0)
+
+uint8_t     esp_get_current_at_fw_version(esp_sw_version_t* version);
+
+/**
+ * \brief           Get minimal AT version supported by library
+ * \param[out]      v: Version output
+ * \hideinitializer
+ */
+#define     esp_get_min_at_fw_version(v)   do {    \
+    (v)->major = ESP_MIN_AT_VERSION_MAJOR;                              \
+    (v)->minor = ESP_MIN_AT_VERSION_MINOR;                              \
+    (v)->patch = ESP_MIN_AT_VERSION_PATCH;                              \
+} while (0)
+
 /**
  * \}
  */

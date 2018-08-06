@@ -602,16 +602,31 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     } else if (CMD_IS_CUR(ESP_CMD_GMR)) {
         if (!strncmp(rcv->data, "AT version", 10)) {
+            uint8_t ok = 0;
             espi_parse_at_sdk_version(&rcv->data[11], &esp.version_at);
+
+            /* Compare versions */
+            if (esp.version_at.major > ESP_MIN_AT_VERSION_MAJOR) {
+                ok = 1;
+            } else if (esp.version_at.major == ESP_MIN_AT_VERSION_MAJOR) {
+                if (esp.version_at.minor > ESP_MIN_AT_VERSION_MINOR) {
+                    ok = 1;
+                } else if (esp.version_at.minor == ESP_MIN_AT_VERSION_MINOR) {
+                    if (esp.version_at.patch >= ESP_MIN_AT_VERSION_PATCH) {
+                        ok = 1;
+                    }
+                }
+            }
+            if (!ok) {
+                espi_send_cb(ESP_EVT_AT_VERSION_NOT_SUPPORTED);
+            }
         } else if (!strncmp(rcv->data, "SDK version", 11)) {
             espi_parse_at_sdk_version(&rcv->data[12], &esp.version_sdk);
         }
 #endif /* ESP_CFG_MODE_STATION */
     }
     
-    /*
-     * Start processing received data
-     */
+    /* Start processing received data */
     if (esp.msg != NULL) {                      /* Do we have valid message? */
         if ((CMD_IS_CUR(ESP_CMD_RESET) || CMD_IS_CUR(ESP_CMD_RESTORE)) && is_ok) {  /* Check for reset/restore command */
             is_ok = 0;                          /* We must wait for "ready", not only "OK" */

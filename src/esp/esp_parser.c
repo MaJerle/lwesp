@@ -344,13 +344,10 @@ espi_parse_ipd(const char* str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_at_sdk_version(const char* str, uint32_t* version_out) {
-    *version_out = 0;
-    
-    *version_out |= ((uint8_t)espi_parse_number(&str)) << 24;   str++;
-    *version_out |= ((uint8_t)espi_parse_number(&str)) << 16;   str++;
-    *version_out |= ((uint8_t)espi_parse_number(&str)) << 8;    str++;
-    *version_out |= ((uint8_t)espi_parse_number(&str));
+espi_parse_at_sdk_version(const char* str, esp_sw_version_t* version_out) { 
+    version_out->major |= ((uint8_t)espi_parse_number(&str));   str++;
+    version_out->minor |= ((uint8_t)espi_parse_number(&str));   str++;
+    version_out->patch |= ((uint8_t)espi_parse_number(&str));
     
     return 1;
 }

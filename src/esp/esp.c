@@ -408,6 +408,17 @@ esp_device_is_present(void) {
 }
 
 /**
+ * \brief           Get current AT firmware version
+ * \param[out]      version: Output version variable
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_get_current_at_fw_version(esp_sw_version_t* version) {
+    memcpy(version, &esp.version_at, sizeof(*version));
+    return 1;
+}
+
+/**
  * \brief           Delay for amount of milliseconds
  * \param[in]       ms: Milliseconds to delay
  * \return          `1` on success, `0` otherwise

@@ -123,6 +123,16 @@ typedef struct {
 } esp_mac_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
+ * \brief           SW version in semantic versioning format
+ */
+typedef struct {
+    uint8_t major;                              /*!< Major version */
+    uint8_t minor;                              /*!< Minor version */
+    uint8_t patch;                              /*!< Patch version */
+} esp_sw_version_t;
+
+/**
  * \ingroup         ESP_AP
  * \brief           Access point data structure
  */
@@ -235,10 +245,12 @@ typedef espr_t  (*esp_evt_fn)(struct esp_evt_t* evt);
 typedef enum esp_evt_type_t {
     ESP_EVT_RESET,                              /*!< Device reset detected */
     ESP_EVT_RESET_FINISH,                       /*!< Reset operation finished */
-    
+
     ESP_EVT_INIT_FINISH,                        /*!< Initialization has been finished at this point */
     ESP_EVT_RESTORE_FINISH,                     /*!< Device restore operation finished */
-    
+
+    ESP_EVT_AT_VERSION_NOT_SUPPORTED,           /*!< Library does not support firmware version on ESP device. */
+
     ESP_EVT_DEVICE_PRESENT,                     /*!< Notification when device present status changes */
     
     ESP_EVT_CONN_DATA_RECV,                     /*!< Connection data received */
@@ -411,6 +423,7 @@ typedef struct esp_buff {
 } esp_buff_t;
 
 /**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           Linear buffer structure
  */
 typedef struct {

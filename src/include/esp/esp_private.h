@@ -420,8 +420,8 @@ typedef struct esp_evt_func {
  * \brief           ESP global structure
  */
 typedef struct {    
-    uint32_t version_at;                        /*!< Version of AT command software on ESP device */
-    uint32_t version_sdk;                       /*!< Version of SDK used to build AT software */
+    esp_sw_version_t version_at;                /*!< Version of AT command software on ESP device */
+    esp_sw_version_t version_sdk;               /*!< Version of SDK used to build AT software */
 
     esp_sys_sem_t       sem_sync;               /*!< Synchronization semaphore between threads */
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */

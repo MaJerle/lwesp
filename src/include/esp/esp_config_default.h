@@ -604,6 +604,10 @@ void *  my_memset(void* dst, int b, size_t len);
  * \}
  */
 
+#define ESP_MIN_AT_VERSION_MAJOR            1   /*!< Minimal major version */
+#define ESP_MIN_AT_VERSION_MINOR            6   /*!< Minimal minor version */
+#define ESP_MIN_AT_VERSION_PATCH            0   /*!< Minimal patch version */
+
 /**
  * \}
  */
