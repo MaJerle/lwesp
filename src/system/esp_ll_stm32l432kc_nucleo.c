@@ -1,5 +1,5 @@
 /**
- * \file            esp_ll_stm32l432kc_discovery.c
+ * \file            esp_ll_stm32l432kc_nucleo.c
  * \brief           Low-level communication with ESP device for STM32L432KC-Nucleo using DMA
  */
 
@@ -29,11 +29,10 @@
  * This file is part of ESP-AT.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
+ * Author:          Miha Česnik
  */
 
 /*
- * STM32L496G-Discovery comes with external STMOD+ board with CN4 ESP-01 connector
- *
  * UART configuration is:
  *
  * UART:                USART1
