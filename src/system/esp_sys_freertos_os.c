@@ -1,4 +1,4 @@
-/**	
+/** 
  * \file            esp_sys_freertos_os.c
  * \brief           System dependant functions
  */
@@ -118,7 +118,8 @@ esp_sys_sem_delete(esp_sys_sem_t* p) {
 
 uint32_t
 esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
-    return xSemaphoreTake(*p, timeout == 0 ? portMAX_DELAY : timeout);
+    uint32_t t = xTaskGetTickCount();
+    return xSemaphoreTake(*p, timeout == 0 ? portMAX_DELAY : timeout) == pdPASS ? (xTaskGetTickCount() - t) : ESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -168,8 +169,8 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t t = xTaskGetTickCount();
 
     if (xQueueReceive(*b, &mb, timeout == 0 ? portMAX_DELAY : timeout)) {
-	   *m = mb.d;
-	   return xTaskGetTickCount()-t;	
+       *m = mb.d;
+       return xTaskGetTickCount()-t;
     }
     return ESP_SYS_TIMEOUT;
 }
@@ -187,8 +188,8 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     freertos_mbox mb;
 
     if (xQueueReceive(*b, &mb, 0)) {
-	   *m = mb.d;
-	   return 1;
+       *m = mb.d;
+       return 1;
     }
     return 0;
 }
