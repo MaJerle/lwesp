@@ -46,15 +46,15 @@ Implementation of low-level part (together with memory allocation for library) i
 
 Use connector **CN2** to connect ESP-01 module with the board
 ```
-Detailed pinout on STM32F769I-Discovery board
+Detailed pinout for STM32F769I-Discovery board
 
 ESP-01 connection
-- ESP_TX:      		PC12
-- ESP_RX:      		PD2
-- ESP_RESET:    	PJ14
+- ESP_RX:           PC12
+- ESP_TX:           PD2
+- ESP_RESET:        PJ14
 
-- UART:         	UART5
-- UART DMA:     	DMA1
+- UART:             UART5
+- UART DMA:         DMA1
 - UART DMA STREAM:  DMA_STREAM_0
 - UART DMA CHANNEL: DMA_CHANNEL_4
 
@@ -71,17 +71,17 @@ Driver implementation is available in [esp_ll_stm32f769i_discovery.c](/src/syste
 
 Use connector **CN14** to connect ESP-01 module with the board
 ```
-Detailed pinout on STM32F723E-Discovery board
+Detailed pinout for STM32F723E-Discovery board
 
 ESP-01 connection
-- ESP_TX:      		PC12
-- ESP_RX:      		PD2
-- ESP_RESET:    	PG14
-- ESP_CH_PD:    	PD3
-- ESP_GPIO_2:   	PD6
+- ESP_RX:           PC12
+- ESP_TX:           PD2
+- ESP_RESET:        PG14
+- ESP_CH_PD:        PD3
+- ESP_GPIO_2:       PD6
 
-- UART:         	UART5
-- UART DMA:     	DMA1
+- UART:             UART5
+- UART DMA:         DMA1
 - UART DMA STREAM:  DMA_STREAM_0
 - UART DMA CHANNEL: DMA_CHANNEL_4
 
@@ -99,18 +99,18 @@ Driver implementation is available in [esp_ll_stm32f723e_discovery.c](/src/syste
 Discovery comes with STMOD+ extensions board which includes connector marked as **ESP-01**.
 
 ```
-Detailed pinout on STM32L496G-Discovery board
+Detailed pinout for STM32L496G-Discovery board
 
 ESP-01 connection
-- ESP_TX:      		PB6
-- ESP_RX:      		PG10, pin connected on VDDIO2 domain, make sure it is enabled in PWR registers
-- ESP_RESET:    	PB2
-- ESP_CH_PD:    	PA4
-- ESP_GPIO_0:   	PH0
-- ESP_GPIO_2:   	PA0
+- ESP_RX:           PB6
+- ESP_TX:           PG10, pin connected on VDDIO2 domain, make sure it is enabled in PWR registers
+- ESP_RESET:        PB2
+- ESP_CH_PD:        PA4
+- ESP_GPIO_0:       PH0
+- ESP_GPIO_2:       PA0
 
-- UART:         	USART1
-- UART DMA:     	DMA1
+- UART:             USART1
+- UART DMA:         DMA1
 - UART DMA CHANNEL: DMA_CHANNEL_5
 - UART DMA REQUEST: DMA_REQUEST_2
 
@@ -122,3 +122,30 @@ DEBUG UART, connected through ST-LinkV2/1
 ```
 
 Driver implementation is available in [esp_ll_stm32l496g_discovery.c](/src/system/esp_ll_stm32l496g_discovery.c)
+
+## STM32L432KC-Nucleo
+
+```
+Detailed pinout for STM32L432KC-Nucleo board
+
+ESP-01 connection
+- ESP_RX:           PA9
+- ESP_TX:           PA10
+- ESP_RESET:        PA12
+- ESP_CH_PD:        PB0
+- ESP_GPIO_0:       PA7
+- ESP_GPIO_2:       PA6
+
+- UART:             USART1
+- UART DMA:         DMA1
+- UART DMA CHANNEL: DMA_CHANNEL_5
+- UART DMA REQUEST: DMA_REQUEST_2
+
+DEBUG UART, connected through ST-LinkV2/1
+- UART:             USART2
+- UART_TX:          PA2
+- UART_RX:          PA3
+- UART baudrate:    921600
+```
+
+Driver implementation is available in [esp_ll_stm32l432kc_nucleo.c](/src/system/esp_ll_stm32l432kc_nucleo.c)
