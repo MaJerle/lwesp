@@ -47,7 +47,7 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port, uint32_t blocking);
+espr_t      esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port, const uint32_t blocking);
  
 /**
  * \}

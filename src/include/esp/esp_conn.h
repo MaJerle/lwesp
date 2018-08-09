@@ -47,10 +47,10 @@ extern "C" {
  * \{
  */
  
-espr_t      esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_port_t port, void* arg, esp_evt_fn cb_func, uint32_t blocking);
-espr_t      esp_conn_close(esp_conn_p conn, uint32_t blocking);
-espr_t      esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, uint32_t blocking);
-espr_t      esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw, size_t* bw, uint32_t blocking);
+espr_t      esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* host, esp_port_t port, void* arg, esp_evt_fn cb_func, const uint32_t blocking);
+espr_t      esp_conn_close(esp_conn_p conn, const uint32_t blocking);
+espr_t      esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* bw, const uint32_t blocking);
+espr_t      esp_conn_sendto(esp_conn_p conn, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw, size_t* bw, const uint32_t blocking);
 espr_t      esp_conn_set_arg(esp_conn_p conn, void* arg);
 void *      esp_conn_get_arg(esp_conn_p conn);
 uint8_t     esp_conn_is_client(esp_conn_p conn);
@@ -58,7 +58,7 @@ uint8_t     esp_conn_is_server(esp_conn_p conn);
 uint8_t     esp_conn_is_active(esp_conn_p conn);
 uint8_t     esp_conn_is_closed(esp_conn_p conn);
 int8_t      esp_conn_getnum(esp_conn_p conn);
-espr_t      esp_conn_set_ssl_buffersize(size_t size, uint32_t blocking);
+espr_t      esp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking);
 espr_t      esp_get_conns_status(uint32_t blocking);
 esp_conn_p  esp_conn_get_from_evt(esp_evt_t* evt);
 espr_t      esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, size_t* mem_available);

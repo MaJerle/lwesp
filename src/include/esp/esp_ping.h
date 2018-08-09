@@ -47,7 +47,7 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_ping(const char* host, uint32_t* time, uint32_t blocking);
+espr_t      esp_ping(const char* host, uint32_t* time, const uint32_t blocking);
  
 /**
  * \}

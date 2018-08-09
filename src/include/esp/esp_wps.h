@@ -47,7 +47,7 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_wps_configure(uint8_t en, uint32_t blocking);
+espr_t      esp_wps_configure(uint8_t en, const uint32_t blocking);
  
 /**
  * \}

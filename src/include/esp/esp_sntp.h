@@ -47,8 +47,8 @@ extern "C" {
  * \{
  */
  
-espr_t      esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3, uint32_t blocking);
-espr_t      esp_sntp_gettime(esp_datetime_t* dt, uint32_t blocking);
+espr_t      esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3, const uint32_t blocking);
+espr_t      esp_sntp_gettime(esp_datetime_t* dt, const uint32_t blocking);
  
 /**
  * \}

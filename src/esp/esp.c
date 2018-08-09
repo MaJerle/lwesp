@@ -69,7 +69,7 @@ def_callback(esp_evt_t* evt) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_init(esp_evt_fn evt_func, uint32_t blocking) {
+esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     esp.status.f.initialized = 0;               /* Clear possible init flag */
     
     def_evt_link.fn = evt_func != NULL ? evt_func : def_callback;
@@ -134,7 +134,7 @@ esp_reset(uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_reset_with_delay(uint32_t delay, uint32_t blocking) {
+esp_reset_with_delay(uint32_t delay, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -166,7 +166,7 @@ esp_restore(uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking) {
+esp_set_wifi_mode(esp_mode_t mode, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -183,7 +183,7 @@ esp_set_wifi_mode(esp_mode_t mode, uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
+esp_set_at_baudrate(uint32_t baud, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -205,7 +205,7 @@ esp_set_at_baudrate(uint32_t baud, uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn evt_fn, uint32_t blocking) {
+esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn evt_fn, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
@@ -253,7 +253,7 @@ esp_update_sw(uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_dns_getbyhostname(const char* host, esp_ip_t* ip, uint32_t blocking) {
+esp_dns_getbyhostname(const char* host, esp_ip_t* const ip, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
@@ -370,7 +370,7 @@ esp_evt_unregister(esp_evt_fn fn) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_device_set_present(uint8_t present, uint32_t blocking) {
+esp_device_set_present(uint8_t present, const uint32_t blocking) {
     espr_t res = espOK;
     ESP_CORE_PROTECT();                         /* Lock ESP core */
     esp.status.f.dev_present = ESP_U8(!!present);   /* Device is present */
@@ -413,7 +413,7 @@ esp_device_is_present(void) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-esp_get_current_at_fw_version(esp_sw_version_t* version) {
+esp_get_current_at_fw_version(esp_sw_version_t* const version) {
     memcpy(version, &esp.version_at, sizeof(*version));
     return 1;
 }

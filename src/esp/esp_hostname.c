@@ -43,7 +43,7 @@
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_hostname_set(const char* hostname, uint32_t blocking) {
+esp_hostname_set(const char* hostname, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
@@ -63,7 +63,7 @@ esp_hostname_set(const char* hostname, uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_hostname_get(char* hostname, size_t length, uint32_t blocking) {
+esp_hostname_get(char* hostname, size_t length, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */

@@ -46,7 +46,7 @@
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port, uint32_t blocking) {
+esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     if (en) {

@@ -47,8 +47,8 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_hostname_set(const char* hostname, uint32_t blocking);
-espr_t      esp_hostname_get(char* hostname, size_t length, uint32_t blocking);
+espr_t      esp_hostname_set(const char* hostname, const uint32_t blocking);
+espr_t      esp_hostname_get(char* hostname, size_t length, const uint32_t blocking);
 
 /**
  * \}

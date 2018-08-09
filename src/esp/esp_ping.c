@@ -44,7 +44,7 @@
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_ping(const char* host, uint32_t* time, uint32_t blocking) {
+esp_ping(const char* host, uint32_t* time, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */

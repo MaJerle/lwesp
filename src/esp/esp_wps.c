@@ -43,7 +43,7 @@
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_wps_configure(uint8_t en, uint32_t blocking) {
+esp_wps_configure(uint8_t en, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
 		
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */

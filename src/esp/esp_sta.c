@@ -62,7 +62,7 @@ esp_sta_quit(uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
+esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("name != NULL", name != NULL);   /* Assert input parameters */
@@ -86,7 +86,7 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_autojoin(uint8_t en, uint32_t blocking) {
+esp_sta_autojoin(uint8_t en, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
 
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -106,7 +106,7 @@ esp_sta_autojoin(uint8_t en, uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t blocking) {
+esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -129,7 +129,7 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, uint32_t bl
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, uint32_t blocking) {
+esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
@@ -152,7 +152,7 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking) {
+esp_sta_getmac(esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
@@ -171,7 +171,7 @@ esp_sta_getmac(esp_mac_t* mac, uint8_t def, uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_setmac(const esp_mac_t* mac, uint8_t def, uint32_t blocking) {
+esp_sta_setmac(const esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("mac != NULL", mac != NULL);     /* Assert input parameters */
@@ -244,7 +244,7 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, uint32_t blocking) {
+esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     if (apf != NULL) {
