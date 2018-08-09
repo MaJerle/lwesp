@@ -257,7 +257,7 @@ configure_uart(uint32_t baudrate) {
         LL_USART_Enable(ESP_USART);
     
         /* Enable USART interrupts */
-        NVIC_SetPriority(ESP_USART_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 1));
+        NVIC_SetPriority(ESP_USART_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x0F, 0x00));
         NVIC_EnableIRQ(ESP_USART_IRQ);
         
         /* Configure DMA */
@@ -280,7 +280,7 @@ configure_uart(uint32_t baudrate) {
         LL_DMA_EnableIT_TE(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
         LL_DMA_EnableChannel(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
         
-        NVIC_SetPriority(ESP_USART_DMA_RX_CH_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 1, 0));
+        NVIC_SetPriority(ESP_USART_DMA_RX_CH_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x0F, 0x00));
         NVIC_EnableIRQ(ESP_USART_DMA_RX_CH_IRQ);
         
         old_pos = 0;
