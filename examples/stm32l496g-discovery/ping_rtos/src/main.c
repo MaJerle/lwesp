@@ -79,10 +79,10 @@ init_thread(void const* arg) {
         "example.org"
     };
 
-    /*
-     * Initialize ESP with default callback function
-     */
-    esp_init(esp_callback_func, 1);
+    /* Initialize ESP with default callback function */
+    if (esp_init(esp_callback_func, 1) != espOK) {
+        printf("Cannot initialize ESP-AT Library\r\n");
+    }
 
     /*
      * Connect to access point.
@@ -92,9 +92,7 @@ init_thread(void const* arg) {
      */
     connect_to_preferred_access_point(1);
 
-    /*
-     * Process and ping all hosts
-     */
+    /* Process and ping all hosts */
     for (i = 0; i < ESP_ARRAYSIZE(hosts); i++) {
         printf("Pinging %s...", hosts[i]);
         if ((res = esp_ping(hosts[i], &time, 1)) == espOK) {

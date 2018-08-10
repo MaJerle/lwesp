@@ -70,6 +70,8 @@ def_callback(esp_evt_t* evt) {
  */
 espr_t
 esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
+    espr_t res = espOK;
+    
     esp.status.f.initialized = 0;               /* Clear possible init flag */
     
     def_evt_link.fn = evt_func != NULL ? evt_func : def_callback;
@@ -101,14 +103,16 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     espi_conn_init();                           /* Init connection module */
 #if ESP_CFG_RESET_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
-        esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking);    /* Send reset sequence with delay */
+        res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking);  /* Send reset sequence with delay */
     }
 #else
     ESP_UNUSED(blocking);                       /* Unused variable */
 #endif /* ESP_CFG_RESET_ON_INIT */
-    espi_send_cb(ESP_EVT_INIT_FINISH);          /* Call user callback function */
+    if (res == espOK) {
+        espi_send_cb(ESP_EVT_INIT_FINISH);      /* Call user callback function */
+    }
     
-    return espOK;
+    return res;
 }
 
 /**

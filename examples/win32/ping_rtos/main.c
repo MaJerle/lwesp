@@ -45,10 +45,10 @@ main(void) {
     uint32_t time;
     printf("Starting ESP application!\r\n");
 
-    /*
-     * Initialize ESP with default callback function
-     */
-    esp_init(esp_callback_func, 1);
+    /* Initialize ESP with default callback function */
+    if (esp_init(esp_callback_func, 1) != espOK) {
+        printf("Cannot initialize ESP-AT Library\r\n");
+    }
 
     /*
      * Connect to access point.
@@ -58,9 +58,7 @@ main(void) {
      */
     connect_to_preferred_access_point(1);
 
-    /*
-     * Try to ping host
-     */
+    /* Try to ping host */
     if (esp_ping("example.com", &time, 1) == espOK) {
         printf("Host example.com successfully pinged in %d milliseconds\r\n", (int)time);
     } else {

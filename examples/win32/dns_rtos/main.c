@@ -45,10 +45,10 @@ main(void) {
     esp_ip_t ip;
     printf("Starting ESP application!\r\n");
 
-    /*
-     * Initialize ESP with default callback function
-     */
-    esp_init(esp_callback_func, 1);
+    /* Initialize ESP with default callback function */
+    if (esp_init(esp_callback_func, 1) != espOK) {
+        printf("Cannot initialize ESP-AT Library\r\n");
+    }
 
     /*
      * Connect to access point.
@@ -58,9 +58,7 @@ main(void) {
      */
     connect_to_preferred_access_point(1);
 
-    /*
-     * Use DNS protocol to get IP address of domain name
-     */
+    /* Use DNS protocol to get IP address of domain name */
     if (esp_dns_getbyhostname("example.com", &ip, 1) == espOK) {
         printf("DNS record for example.com: %d.%d.%d.%d\r\n",
             (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3]);

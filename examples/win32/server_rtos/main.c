@@ -46,10 +46,10 @@ int
 main(void) {
     printf("Starting ESP application!\r\n");
 
-    /*
-     * Initialize ESP with default callback function
-     */
-    esp_init(esp_callback_func, 1);
+    /* Initialize ESP with default callback function */
+    if (esp_init(esp_callback_func, 1) != espOK) {
+        printf("Cannot initialize ESP-AT Library\r\n");
+    }
 
     /*
      * Connect to access point.
@@ -59,9 +59,7 @@ main(void) {
      */
     connect_to_preferred_access_point(1);
 
-    /*
-     * Start server on port 80
-     */
+    /* Start server on port 80 */
     esp_set_server(1, 80, ESP_CFG_MAX_CONNS, 0, esp_server_callback_func, 1);
 
     /*

@@ -45,10 +45,10 @@ int
 main(void) {
     printf("Starting ESP application!\r\n");
 
-    /*
-     * Initialize ESP with default callback function
-     */
-    esp_init(esp_callback_func, 1);
+    /* Initialize ESP with default callback function */
+    if (esp_init(esp_callback_func, 1) != espOK) {
+        printf("Cannot initialize ESP-AT Library\r\n");
+    }
 
     /*
      * Connect to access point.
@@ -58,9 +58,7 @@ main(void) {
      */
     connect_to_preferred_access_point(1);
 
-    /*
-     * Start a new thread for MQTT client
-     */
+    /* Start a new thread for MQTT client */
     esp_sys_thread_create(NULL, "mqtt_client", (esp_sys_thread_fn)mqtt_client_thread, NULL, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
 
     while (1) {
