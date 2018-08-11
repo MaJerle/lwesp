@@ -624,11 +624,9 @@ send_response_ssi(http_state_t* hs) {
     
     ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: processing with SSI\r\n");
     
-    /*
-     * First get available memory in output buffer
-     */
+    /* First get available memory in output buffer */
     esp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);  /* Get available memory and/or create a new buffer if possible */
-    
+
     /*
      * Check if we have to send temporary buffer,
      * because of wrong TAG format set by user
@@ -647,9 +645,7 @@ send_response_ssi(http_state_t* hs) {
         }
     }
     
-    /*
-     * Are we ready to read more data?
-     */
+    /* Are we ready to read more data? */
     if (hs->buff == NULL || hs->buff_ptr == hs->buff_len) {
         read_resp_file(hs);                     /* Read more file at this point */
     }
@@ -706,16 +702,15 @@ send_response_ssi(http_state_t* hs) {
                         
                         hs->ssi_tag_buff[hs->ssi_tag_buff_ptr++] = ch;
                         
-                        /*
-                         * Did we reach end of tag and are ready to get replacement from user?
-                         */
+                        /* Did we reach end of tag and are ready to get replacement from user? */
                         if (hs->ssi_tag_buff_ptr == (HTTP_SSI_TAG_START_LEN + hs->ssi_tag_len + HTTP_SSI_TAG_END_LEN)) {
                             hs->ssi_tag_buff[HTTP_SSI_TAG_START_LEN + hs->ssi_tag_len] = 0;
                             
+                            hs->ssi_tag_process_more = 0;
                             if (hi != NULL && hi->ssi_fn != NULL) {
-                                hi->ssi_fn(hs, &hs->ssi_tag_buff[HTTP_SSI_TAG_START_LEN], hs->ssi_tag_len);
+                                /* Call user function */
+                                hs->ssi_tag_process_more = !hi->ssi_fn(hs, &hs->ssi_tag_buff[HTTP_SSI_TAG_START_LEN], hs->ssi_tag_len);
                             }
-                            
                             hs->ssi_state = HTTP_SSI_STATE_WAIT_BEGIN;
                             hs->ssi_tag_len = 0;
                             hs->ssi_tag_buff_ptr = 0;   /* Manually reset everything to prevent anything to be sent */

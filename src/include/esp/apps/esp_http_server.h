@@ -369,6 +369,7 @@ typedef struct http_state {
     size_t ssi_tag_buff_ptr;                    /*!< Current write pointer */
     size_t ssi_tag_buff_written;                /*!< Number of bytes written so far to output buffer in case tag is not valid */
     size_t ssi_tag_len;                         /*!< Length of SSI tag */
+    size_t ssi_tag_process_more;                /*!< Set to `1` when we have to process tag multiple times */
 } http_state_t;
 
 /**

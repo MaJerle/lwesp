@@ -116,10 +116,14 @@ http_post_end_cb(http_state_t* hs) {
 static size_t
 http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
     static char ssi_buffer[32];
+    static uint32_t cnt;
+
+    cnt++;
     
     ESP_UNUSED(ssi_buffer);
     if (!strncmp(tag_name, "title", tag_len)) {
         esp_http_server_write_string(hs, "ESP8266 SSI TITLE");
+        return cnt % 3;
     } else if (!strncmp(tag_name, "led_status", tag_len)) {
         esp_http_server_write_string(hs, "Led is on");
     } else if (!strncmp(tag_name, "wifi_list", tag_len)) {
@@ -145,7 +149,7 @@ http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
         //}
         esp_http_server_write_string(hs, "</tbody></table>");
     }
-    return 0;
+    return 1;
 }
 
 /**
