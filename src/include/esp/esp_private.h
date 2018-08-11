@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -45,13 +45,13 @@ extern "C" {
  * \addtogroup      ESP_TYPEDEFS
  * \{
  */
- 
+
 /**
  * \brief           List of possible messages
  */
 typedef enum {
     ESP_CMD_IDLE = 0,                           /*!< IDLE mode */
-    
+
     /*
      * Basic AT commands
      */
@@ -76,7 +76,7 @@ typedef enum {
     ESP_CMD_SYSGPIOREAD,
     ESP_CMD_SYSMSG,                             /*!< Configure system messages */
     ESP_CMD_SYSMSG_CUR,
-    
+
     /*
      * WiFi based commands
      */
@@ -84,6 +84,7 @@ typedef enum {
     ESP_CMD_WIFI_CWLAPOPT,                      /*!< Configure what is visible on CWLAP response */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     ESP_CMD_WIFI_CWJAP,                         /*!< Connect to access point */
+    ESP_CMD_WIFI_CWJAP_GET,                     /*!< Info of the connected access point */
     ESP_CMD_WIFI_CWQAP,                         /*!< Disconnect from access point */
     ESP_CMD_WIFI_CWLAP,                         /*!< List available access points */
     ESP_CMD_WIFI_CIPSTAMAC_GET,                 /*!< Get MAC address of ESP station */
@@ -111,7 +112,7 @@ typedef enum {
     ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
     ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
 #endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
-    
+
     /*
      * TCP/IP related commands
      */
@@ -156,11 +157,11 @@ typedef struct esp_conn_t {
     esp_port_t      local_port;                 /*!< Local IP address */
     esp_evt_fn      evt_func;                   /*!< Callback function for connection */
     void*           arg;                        /*!< User custom argument */
-    
+
     uint8_t         val_id;                     /*!< Validation ID number. It is increased each time a new connection is established.
                                                      It protects sending data to wrong connection in case we have data in send queue,
                                                      and connection was closed and active again in between. */
-    
+
     esp_linbuff_t   buff;                       /*!< Linear buffer structure */
 
     size_t          total_recved;               /*!< Total number of bytes received */
@@ -204,7 +205,7 @@ typedef struct {
     esp_conn_p          conn;                   /*!< Pointer to connection for network data */
     esp_ip_t            ip;                     /*!< Remote IP address on from IPD data */
     esp_port_t          port;                   /*!< Remote port on IPD data */
-    
+
     size_t              buff_ptr;               /*!< Buffer pointer to save data to */
     esp_pbuf_p          buff;                   /*!< Pointer to data buffer used for receiving data */
 } esp_ipd_t;
@@ -229,7 +230,7 @@ typedef struct esp_msg {
             uint32_t baudrate;                  /*!< Baudrate for AT port */
         } uart;
         struct {
-            esp_mode_t mode;                    /*!< Mode of operation */                    
+            esp_mode_t mode;                    /*!< Mode of operation */
         } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
@@ -242,6 +243,13 @@ typedef struct esp_msg {
         struct {
             uint8_t en;                         /*!< Status to enable/disable auto join feature */
         } sta_autojoin;                         /*!< Message for auto join procedure */
+        struct {
+            char* name;                         /*!< AP name */
+            size_t name_length;                 /*!< Length of buffer for AP name */
+            esp_mac_t* mac;                     /*!< AP MAC address */
+            uint8_t* channel;                   /*!< AP channel */
+            int16_t* rssi;                      /*!< AP current RSSI */
+        } sta_info;                             /*!< Message for reading the AP information */
         struct {
             const char* ssid;                   /*!< Pointer to optional filter SSID name to search */
             esp_ap_t* aps;                      /*!< Pointer to array to save access points */
@@ -291,7 +299,7 @@ typedef struct esp_msg {
             char* hostname;                     /*!< Hostname set/get value */
             size_t length;                      /*!< Length of buffer when reading hostname */
         } wifi_hostname;                        /*!< Set or get hostname structure */
-        
+
         /*
          * Connection based commands
          */
@@ -330,7 +338,7 @@ typedef struct esp_msg {
             esp_pbuf_p buff;                    /*!< Buffer handle */
         } ciprecvdata;                          /*!< Structure to manually read TCP data */
 #endif
-        
+
         /*
          * TCP/IP based commands
          */
@@ -419,7 +427,7 @@ typedef struct esp_evt_func {
 /**
  * \brief           ESP global structure
  */
-typedef struct {    
+typedef struct {
     esp_sw_version_t version_at;                /*!< Version of AT command software on ESP device */
     esp_sw_version_t version_sdk;               /*!< Version of SDK used to build AT software */
 
@@ -432,28 +440,28 @@ typedef struct {
     esp_buff_t          buff;                   /*!< Input processing buffer */
 #endif /* !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
     esp_ll_t            ll;                     /*!< Low level functions */
-    
+
     esp_msg_t*          msg;                    /*!< Pointer to current user message being executed */
-    
+
     uint32_t            active_conns;           /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
     uint32_t            active_conns_last;      /*!< The same as previous but status before last check */
-    
+
     esp_conn_t          conns[ESP_CFG_MAX_CONNS];   /*!< Array of all connection structures */
-    
+
     esp_link_conn_t     link_conn;              /*!< Link connection handle */
     esp_ipd_t           ipd;                    /*!< Incoming data structure */
     esp_evt_t           evt;                    /*!< Callback processing structure */
-    
+
     esp_evt_func_t*     evt_func;               /*!< Callback function linked list */
     esp_evt_fn          evt_server;             /*!< Default callback function for server connections */
-    
+
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     esp_ip_mac_t        ap;                     /*!< Access point IP and MAC addressed */
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
-    
+
     union {
         struct {
             uint8_t     initialized:1;          /*!< Flag indicating ESP library is initialized */
@@ -462,7 +470,7 @@ typedef struct {
             uint8_t     r_w_conn:1;             /*!< Flag indicating ESP is connected to wifi */
         } f;                                    /*!< Flags structure */
     } status;                                   /*!< Status structure */
-    
+
     uint8_t conn_val_id;                        /*!< Validation ID increased each time device connects to wifi network or on reset.
                                                     It is used for connections */
 } esp_t;

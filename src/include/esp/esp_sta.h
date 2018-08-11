@@ -1,28 +1,28 @@
-/**	
+/**
  * \file            esp_sta.h
  * \brief           Station API
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -39,7 +39,7 @@ extern "C" {
 #endif
 
 #include "esp/esp.h"
-    
+
 /**
  * \ingroup         ESP
  * \defgroup        ESP_STA Station API
@@ -50,6 +50,7 @@ extern "C" {
 espr_t      esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, const uint32_t blocking);
 espr_t      esp_sta_quit(uint32_t blocking);
 espr_t      esp_sta_autojoin(uint8_t en, const uint32_t blocking);
+espr_t      esp_sta_get_info(char * name, size_t name_length, esp_mac_t * mac, uint8_t * channel, int16_t * rssi, const uint32_t blocking);
 espr_t      esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, const uint32_t blocking);
 espr_t      esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, const uint32_t blocking);
 espr_t      esp_sta_getmac(esp_mac_t* mac, uint8_t def, const uint32_t blocking);

@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -71,7 +71,7 @@
  *                  will try to allocate memory on aligned boundaries.
  *
  * \note            Some CPUs such ARM Cortex-M0 dont't support unaligned memory access.
- *                  This CPUs must have set correct memory alignment value. 
+ *                  This CPUs must have set correct memory alignment value.
  *
  * \note            This value must be power of `2`
  */
@@ -112,7 +112,7 @@
 /**
  * \brief           Maximal buffer size for entries in +IPD statement from ESP
  *
- * \note            If `+IPD` length is larger that this value, 
+ * \note            If `+IPD` length is larger that this value,
  *                  multiple pbuf entries will be created to hold entire `+IPD`
  */
 #ifndef ESP_CFG_IPD_MAX_BUFF_SIZE
@@ -130,7 +130,7 @@
 
 /**
  * \brief           Enables `1` or disables `0` ESP acting as station
- * 
+ *
  * \note            When device is in station mode, it can connect to other access points
  */
 #ifndef ESP_CFG_MODE_STATION
@@ -139,7 +139,7 @@
 
 /**
  * \brief           Enables `1` or disables `0` ESP acting as access point
- * 
+ *
  * \note            When device is in access point mode, it can accept connections from other stations
  */
 #ifndef ESP_CFG_MODE_ACCESS_POINT
@@ -150,7 +150,7 @@
  * \brief           Buffer size for received data waiting to be processed
  * \note            When server mode is active and a lot of connections are in queue
  *                  this should be set high otherwise your buffer may overflow
- * 
+ *
  * \note            Buffer size also depends on TX user driver if it uses DMA or blocking mode.
  *                  In case of DMA (CPU can work other tasks), buffer may be smaller as CPU
  *                  will have more time to process all the incoming bytes
@@ -178,6 +178,13 @@
 #define ESP_CFG_RESET_DELAY_DEFAULT         1000
 #endif
 
+
+/**
+ * \brief           Default delay (milliseconds unit) before sending first AT command on reset sequence
+ */
+#ifndef ESP_CFG_MAX_SSID_LENGTH
+#define ESP_CFG_MAX_SSID_LENGTH             21
+#endif
 /**
  * \defgroup        ESP_CONF_DBG Debugging
  * \brief           Debugging configurations
@@ -196,7 +203,7 @@
 
 /**
  * \brief           Debugging output function
- * 
+ *
  *                  Called with format and optional parameters for printf style debug
  */
 #ifndef ESP_CFG_DBG_OUT
@@ -213,7 +220,7 @@
 
 /**
  * \brief           Enabled debug types
- *                  
+ *
  *                  When debug is globally enabled with \ref ESP_CFG_DBG parameter,
  *                  user must enable debug types such as TRACE or STATE messages.
  */
@@ -311,7 +318,7 @@
 #ifndef ESP_CFG_AT_ECHO
 #define ESP_CFG_AT_ECHO                     0
 #endif
- 
+
 /**
  * \}
  */
@@ -321,7 +328,7 @@
  * \brief           Operating system dependant configuration
  * \{
  */
- 
+
 /**
  * \brief           Set number of message queue entries for procuder thread
  *
@@ -352,7 +359,7 @@
  *
  * \note            This mode can only be used when \ref ESP_CFG_OS is enabled
  *
- * \note            When using this mode, separate thread must be dedicated only 
+ * \note            When using this mode, separate thread must be dedicated only
  *                  for reading data on AT port. It is usually implemented in LL driver
  *
  * \note            Best case for using this mode is if DMA receive is supported by host device
@@ -394,11 +401,11 @@
  * \brief           Configuration of netconn API module
  * \{
  */
- 
+
 /**
  * \brief           Enables `1` or disables `0` NETCONN sequential API support for OS systems
  *
- * \note            To use this feature, OS support is mandatory. 
+ * \note            To use this feature, OS support is mandatory.
  * \sa              ESP_CFG_OS
  */
 #ifndef ESP_CFG_NETCONN
@@ -408,7 +415,7 @@
 /**
  * \brief           Accept and put a new connection to receive message queue immediately when connections starts
  *
- *                  If this parameter is set to 0, a new connection info will be written 
+ *                  If this parameter is set to 0, a new connection info will be written
  *                  to accept mbox only when first data packet arrives to device,
  *                  otherwise it will be immediately written to receive mbox.
  */
@@ -423,7 +430,7 @@
  *                  to set timeout value for receive data on netconn,
  *                  before function returns timeout error.
  *
- * \note            Even if this option is enabled, user must still manually set timeout, 
+ * \note            Even if this option is enabled, user must still manually set timeout,
  *                  by default time will be set to 0 which means no timeout.
  */
 #ifndef ESP_CFG_NETCONN_RECEIVE_TIMEOUT
@@ -457,11 +464,11 @@
  * \brief           Configuration of HTTP REST client API module
  * \{
  */
- 
+
 /**
  * \brief           Enables `1` or disables `0` HTTP REST client sequential API support for OS systems
  *
- * \note            To use this feature, OS support is mandatory. 
+ * \note            To use this feature, OS support is mandatory.
  * \sa              ESP_CFG_OS, ESP_CFG_NETCONN
  */
 #ifndef ESP_CFG_REST_CLIENT
@@ -479,7 +486,7 @@
 #ifndef ESP_CFG_DNS
 #define ESP_CFG_DNS                         0
 #endif
- 
+
 /**
  * \brief           Enables `1` or disables `0` support for ping functions
  *
@@ -487,7 +494,7 @@
 #ifndef ESP_CFG_PING
 #define ESP_CFG_PING                        0
 #endif
- 
+
 /**
  * \brief           Enables `1` or disables `0` support for WPS functions
  *
@@ -562,7 +569,7 @@
 
 /**
  * \brief           Memory copy function declaration
- * 
+ *
  *                  User is able to change the memory function, in case
  *                  hardware supports copy operation, it may implement its own
  *
@@ -582,7 +589,7 @@ void *  my_memcpy(void* dst, const void* src, size_t len);
 
 /**
  * \brief           Memory set function declaration
- * 
+ *
  *                  User is able to change the memory function and in case
  *                  hardware supports copy operation, it may implement its own implementation
  *
@@ -599,7 +606,7 @@ void *  my_memset(void* dst, int b, size_t len);
 #ifndef ESP_MEMSET
 #define ESP_MEMSET(dst, b, len)             memset(dst, b, len)
 #endif
- 
+
 /**
  * \}
  */
@@ -611,7 +618,7 @@ void *  my_memset(void* dst, int b, size_t len);
 /**
  * \}
  */
- 
+
 #if !__DOXYGEN__
 
 /* Define group mode value */

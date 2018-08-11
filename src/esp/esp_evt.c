@@ -1,28 +1,28 @@
-/**	
+/**
  * \file            esp_evt.c
  * \brief           Event helper functions
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -309,6 +309,47 @@ espr_t
 esp_evt_sta_join_ap_get_status(esp_evt_t* cc) {
     return cc->evt.sta_join_ap.status;
 }
+
+/**
+ * \brief           Get current AP name
+ * \param[in]       cc: Event handle
+ * \return          AP name
+ */
+char *
+esp_evt_sta_info_ap_get_name(esp_evt_t* cc) {
+    return cc->evt.sta_info_ap.name;
+}
+
+/**
+ * \brief           Get current AP MAC address
+ * \param[in]       cc: Event handle
+ * \return          AP MAC address
+ */
+esp_mac_t
+esp_evt_sta_info_ap_get_mac(esp_evt_t* cc) {
+    return cc->evt.sta_info_ap.mac;
+}
+
+/**
+ * \brief           Get current AP channel
+ * \param[in]       cc: Event handle
+ * \return          AP channel
+ */
+uint8_t
+esp_evt_sta_info_ap_get_channel(esp_evt_t* cc) {
+    return cc->evt.sta_info_ap.channel;
+}
+
+/**
+ * \brief           Get current AP rssi
+ * \param[in]       cc: Event handle
+ * \return          AP rssi
+ */
+int16_t
+esp_evt_sta_info_ap_get_rssi(esp_evt_t* cc) {
+    return cc->evt.sta_info_ap.rssi;
+}
+
 
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 

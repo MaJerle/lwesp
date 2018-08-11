@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
  * publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, 
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -127,13 +127,13 @@ send_ip_mac(const void* d, uint8_t is_ip, uint8_t q, uint8_t c) {
 static void
 send_string(const char* str, uint8_t e, uint8_t q, uint8_t c) {
     char special = '\\';
-    
+
     ESP_AT_PORT_SEND_COMMA_COND(c);             /* Send comma */
     ESP_AT_PORT_SEND_QUOTE_COND(q);             /* Send quote */
     if (str != NULL) {
         if (e) {                                /* Do we have to escape string? */
             while (*str) {                      /* Go through string */
-                if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */    
+                if (*str == ',' || *str == '"' || *str == '\\') {   /* Check for special character */
                     ESP_AT_PORT_SEND_CHR(&special); /* Send special character */
                 }
                 ESP_AT_PORT_SEND_CHR(str);      /* Send character */
@@ -157,7 +157,7 @@ send_number(uint32_t num, uint8_t q, uint8_t c) {
     char str[11];
 
     number_to_str(num, str);                    /* Convert digit to decimal string */
-    
+
     ESP_AT_PORT_SEND_COMMA_COND(c);             /* Send comma */
     ESP_AT_PORT_SEND_QUOTE_COND(q);             /* Send quote */
     ESP_AT_PORT_SEND_STR(str);                  /* Send string with number */
@@ -175,7 +175,7 @@ send_port(esp_port_t port, uint8_t q, uint8_t c) {
     char str[6];
 
     number_to_str(ESP_PORT2NUM(port), str);     /* Convert digit to decimal string */
-    
+
     ESP_AT_PORT_SEND_COMMA_COND(c);             /* Send comma */
     ESP_AT_PORT_SEND_QUOTE_COND(q);             /* Send quote */
     ESP_AT_PORT_SEND_STR(str);                  /* Send string with number */
@@ -191,9 +191,9 @@ send_port(esp_port_t port, uint8_t q, uint8_t c) {
 void
 send_signed_number(int32_t num, uint8_t q, uint8_t c) {
     char str[11];
-    
+
     signed_number_to_str(num, str);             /* Convert digit to decimal string */
-    
+
     ESP_AT_PORT_SEND_COMMA_COND(c);             /* Send comma */
     ESP_AT_PORT_SEND_QUOTE_COND(q);             /* Send quote */
     ESP_AT_PORT_SEND_STR(str);                  /* Send string with number */
@@ -208,14 +208,14 @@ send_signed_number(int32_t num, uint8_t q, uint8_t c) {
 static void
 reset_connections(uint8_t forced) {
     size_t i;
-    
+
     esp.evt.type = ESP_EVT_CONN_CLOSED;
     esp.evt.evt.conn_active_closed.forced = forced;
-    
+
     for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Check all connections */
         if (esp.conns[i].status.f.active) {
             esp.conns[i].status.f.active = 0;
-            
+
             esp.evt.evt.conn_active_closed.conn = &esp.conns[i];
             esp.evt.evt.conn_active_closed.client = esp.conns[i].status.f.client;
             espi_send_conn_cb(&esp.conns[i], NULL); /* Send callback function */
@@ -236,12 +236,12 @@ espi_reset_everything(uint8_t forced) {
      *          - Reset esp structure with IP
      *          - Start over init procedure
      */
-    
+
     /*
-     * Step 1: Close all connections in memory 
+     * Step 1: Close all connections in memory
      */
     reset_connections(forced);
-    
+
     esp.status.f.r_got_ip = 0;
 #if ESP_CFG_MODE_STATION
     if (esp.status.f.r_w_conn) {
@@ -275,7 +275,7 @@ espi_send_cb(esp_evt_type_t type) {
     esp_evt_func_t* link;
 
     esp.evt.type = type;                        /* Set callback type to process */
-    
+
     /* Call callback function for all registered functions */
     for (link = esp.evt_func; link != NULL; link = link->next) {
         link->fn(&esp.evt);
@@ -295,7 +295,7 @@ espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn evt) {
     if (conn->status.f.in_closing && esp.evt.type != ESP_EVT_CONN_CLOSED) { /* Do not continue if in closing mode */
         return espOK;
     }
-    
+
     if (evt != NULL) {                          /* Try with user connection */
         return evt(&esp.evt);                   /* Call temporary function */
     } else if (conn != NULL && conn->evt_func != NULL) {/* Connection custom callback? */
@@ -303,12 +303,12 @@ espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn evt) {
     } else if (conn == NULL) {
         return espOK;
     }
-    
+
     /*
      * On normal API operation,
      * we should never enter to this part of code
      */
-    
+
     /*
      * If connection doesn't have callback function
      * automatically close the connection?
@@ -338,9 +338,9 @@ espi_tcpip_process_send_data(void) {
     ESP_AT_PORT_SEND_STR("+CIPSEND=");
     send_number(ESP_U32(esp.msg->msg.conn_send.conn->num), 0, 0);
     send_number(ESP_U32(esp.msg->msg.conn_send.sent), 0, 1);    /* Send length number */
-    
+
     /* On UDP connections, IP address and port may be included */
-    if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {        
+    if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {
         if (esp.msg->msg.conn_send.remote_ip != NULL && esp.msg->msg.conn_send.remote_port) {
             send_ip_mac(esp.msg->msg.conn_send.remote_ip, 1, 1, 1); /* Send IP address including quotes */
             send_port(esp.msg->msg.conn_send.remote_port, 0, 1);    /* Send length number */
@@ -352,7 +352,7 @@ espi_tcpip_process_send_data(void) {
 
 /**
  * \brief           Process data sent and send remaining
- * \param[in]       sent: Status whether data were sent or not, info received from ESP with "SEND OK" or "SEND FAIL" 
+ * \param[in]       sent: Status whether data were sent or not, info received from ESP with "SEND OK" or "SEND FAIL"
  * \return          1 in case we should stop sending or 0 if we still have data to process
  */
 static uint8_t
@@ -398,7 +398,7 @@ espi_send_conn_error_cb(esp_msg_t* msg, espr_t error) {
 }
 
 /**
- * \brief           Process received string from ESP 
+ * \brief           Process received string from ESP
  * \param[in]       recv: Pointer to \ref esp_rect_t structure with input string
  */
 static void
@@ -421,7 +421,7 @@ espi_parse_received(esp_recv_t* rcv) {
         /* || (rcv->len > 3 && rcv->data[0] == 'A' && rcv->data[1] == 'T' && rcv->data[2] == '+') */) {
         return;
     }
-    
+
     /* Detect most common responses from device */
     is_ok = !strcmp(rcv->data, "OK" CRLF);      /* Check if received string is OK */
     if (!is_ok) {
@@ -430,7 +430,7 @@ espi_parse_received(esp_recv_t* rcv) {
             is_ready = !strcmp(rcv->data, "ready" CRLF);    /* Check if received string is ready */
         }
     }
-    
+
     /*
      * In case ready was received, there was a reset on device,
      * either forced by command or problem on device itself
@@ -444,7 +444,7 @@ espi_parse_received(esp_recv_t* rcv) {
         espi_reset_everything(esp.evt.evt.reset.forced);/* Put everything to default state */
         espi_send_cb(ESP_EVT_RESET);            /* Call user callback function */
     }
-    
+
     /*
      * Read and process statements starting with '+' character
      */
@@ -469,7 +469,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET) && !strncmp(rcv->data, "+CIPSTAMAC", 10))
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
-                    || 
+                    ||
 #endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
 #if ESP_CFG_MODE_ACCESS_POINT
                 (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_GET) && !strncmp(rcv->data, "+CIPAPMAC", 9))
@@ -477,7 +477,7 @@ espi_parse_received(esp_recv_t* rcv) {
             ) {
                 const char* tmp;
                 esp_mac_t mac;
-                
+
                 if (rcv->data[9] == '_') {      /* Do we have "_CUR" or "_DEF" included? */
                     tmp = &rcv->data[14];
                 } else if (rcv->data[10] == '_') {
@@ -487,7 +487,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 } else if (rcv->data[10] == ':') {
                     tmp = &rcv->data[11];
                 }
-                
+
                 espi_parse_mac(&tmp, &mac);     /* Save as current MAC address */
                 if (is_received_current_setting(rcv->data)) {
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
@@ -506,7 +506,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET) && !strncmp(rcv->data, "+CIPSTA", 7))
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
-                    || 
+                    ||
 #endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
 #if ESP_CFG_MODE_ACCESS_POINT
                 (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET) && !strncmp(rcv->data, "+CIPAP", 6))
@@ -516,15 +516,15 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp_ip_t ip, *a = NULL, *b = NULL;
                 esp_ip_mac_t* im;
                 uint8_t ch = 0;
-                         
-#if ESP_CFG_MODE_STATION_ACCESS_POINT              
+
+#if ESP_CFG_MODE_STATION_ACCESS_POINT
                 im = CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET) ? &esp.sta : &esp.ap;    /* Get IP and MAC structure first */
 #elif ESP_CFG_MODE_STATION
                 im = &esp.sta;                  /* Get IP and MAC structure first */
 #else
                 im = &esp.ap;                   /* Get IP and MAC structure first */
 #endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
-                
+
                 /* We expect "+CIPSTA_CUR:" or "+CIPSTA_DEF:" or "+CIPAP_CUR:" or "+CIPAP_DEF:" or "+CIPSTA:" or "+CIPAP:" ... */
                 if (rcv->data[6] == '_') {
                     ch = rcv->data[11];
@@ -562,6 +562,9 @@ espi_parse_received(esp_recv_t* rcv) {
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWJAP) && !strncmp(rcv->data, "+CWJAP", 6)) {
                 const char* tmp = &rcv->data[7];/* Go to the number position */
                 esp.msg->msg.sta_join.error_num = (uint8_t)espi_parse_number(&tmp);
+            } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWJAP_GET) && !strncmp(rcv->data, "+CWJAP", 6)) {
+                espi_parse_cwjap(rcv->data, esp.msg, &esp.evt);   /* Parse CWJAP Get entry */
+                espi_send_cb(ESP_EVT_STA_AP_INFO);   /* Call user callback function */
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_DNS
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
@@ -625,7 +628,7 @@ espi_parse_received(esp_recv_t* rcv) {
         }
 #endif /* ESP_CFG_MODE_STATION */
     }
-    
+
     /* Start processing received data */
     if (esp.msg != NULL) {                      /* Do we have valid message? */
         if ((CMD_IS_CUR(ESP_CMD_RESET) || CMD_IS_CUR(ESP_CMD_RESTORE)) && is_ok) {  /* Check for reset/restore command */
@@ -645,11 +648,11 @@ espi_parse_received(esp_recv_t* rcv) {
              */
             /*
             if (!strncmp(rcv->data, "DNS Fail", 8)) {
-                
+
             } else if (!strncmp(rcv->data, "ID ERROR", 8)) {
-                
+
             } else if (!strncmp(rcv->data, "Link type ERROR", 15)) {
-                
+
             }
             */
         } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSEND)) {
@@ -692,7 +695,7 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
         }
     }
-    
+
     /*
      * Check if connection is just active (or closed):
      *
@@ -707,14 +710,14 @@ espi_parse_received(esp_recv_t* rcv) {
             esp_conn_t* conn = &esp.conns[esp.link_conn.num];   /* Get connection pointer */
             if (esp.link_conn.failed && conn->status.f.active) {/* Connection failed and now closed? */
                 conn->status.f.active = 0;      /* Connection was just closed */
-                
+
                 esp.evt.type = ESP_EVT_CONN_CLOSED; /* Connection just active */
                 esp.evt.evt.conn_active_closed.conn = conn; /* Set connection */
                 esp.evt.evt.conn_active_closed.client = conn->status.f.client;  /* Set if it is client or not */
                 /** @todo: Check if we really tried to close connection which was just closed */
                 esp.evt.evt.conn_active_closed.forced = CMD_IS_CUR(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
                 espi_send_conn_cb(conn, NULL);  /* Send event */
-            
+
                 /* Check if write buffer is set */
                 if (conn->buff.buff != NULL) {
                     ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
@@ -728,13 +731,13 @@ espi_parse_received(esp_recv_t* rcv) {
                 conn->num = esp.link_conn.num;  /* Set connection number */
                 conn->status.f.active = !esp.link_conn.failed;  /* Check if connection active */
                 conn->val_id = ++id;            /* Set new validation ID */
-                
+
                 conn->type = esp.link_conn.type;/* Set connection type */
                 ESP_MEMCPY(&conn->remote_ip, &esp.link_conn.remote_ip, sizeof(conn->remote_ip));
                 conn->remote_port = esp.link_conn.remote_port;
                 conn->local_port = esp.link_conn.local_port;
                 conn->status.f.client = !esp.link_conn.is_server;
-                
+
                 if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)
                     && esp.link_conn.num == esp.msg->msg.conn_start.num
                     && conn->status.f.client) { /* Did we start connection on our own and connection is client? */
@@ -746,7 +749,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     conn->arg = NULL;
                     conn->type = ESP_CONN_TYPE_TCP; /* Set connection type to TCP. @todo: Wait for ESP team to upgrade AT commands to set other type */
                 }
-                
+
                 esp.evt.type = ESP_EVT_CONN_ACTIVE; /* Connection just active */
                 esp.evt.evt.conn_active_closed.conn = conn; /* Set connection */
                 esp.evt.evt.conn_active_closed.client = conn->status.f.client;  /* Set if it is client or not */
@@ -758,7 +761,7 @@ espi_parse_received(esp_recv_t* rcv) {
     /*
     } else if (!strncmp(",CLOSED", &rcv->data[1], 7)) {
         const char* tmp = rcv->data; */
-    } else if ( (rcv->len > 9  && (s = strstr(rcv->data, ",CLOSED" CRLF)) != NULL) || 
+    } else if ( (rcv->len > 9  && (s = strstr(rcv->data, ",CLOSED" CRLF)) != NULL) ||
                 (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL" CRLF)) != NULL)) {
         const char* tmp = s;
         uint32_t num = 0;
@@ -771,14 +774,14 @@ espi_parse_received(esp_recv_t* rcv) {
             conn->num = num;                    /* Set connection number */
             if (conn->status.f.active) {        /* Is connection actually active? */
                 conn->status.f.active = 0;      /* Connection was just closed */
-                
+
                 esp.evt.type = ESP_EVT_CONN_CLOSED; /* Connection just active */
                 esp.evt.evt.conn_active_closed.conn = conn; /* Set connection */
                 esp.evt.evt.conn_active_closed.client = conn->status.f.client;  /* Set if it is client or not */
                 /** @todo: Check if we really tried to close connection which was just closed */
                 esp.evt.evt.conn_active_closed.forced = CMD_IS_CUR(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
                 espi_send_conn_cb(conn, NULL);  /* Send event */
-                
+
                 /*
                  * In case we received x,CLOSED on connection we are currently sending data,
                  * terminate sending of connection with failure
@@ -790,7 +793,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     }
                 }
             }
-            
+
             /* Check if write buffer is set */
             if (conn->buff.buff != NULL) {
                 ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
@@ -812,7 +815,7 @@ espi_parse_received(esp_recv_t* rcv) {
             espi_send_conn_error_cb(esp.msg, espERRCONNFAIL);
         }
     }
-    
+
     /*
      * In case of any of these events, simply release semaphore
      * and proceed with next command
@@ -851,7 +854,7 @@ espr_t
 espi_process_buffer(void) {
     void* data;
     size_t len;
-    
+
     do {
         /*
          * Get length of linear memory in buffer
@@ -864,12 +867,12 @@ espi_process_buffer(void) {
              * in linear block to process
              */
             data = esp_buff_get_linear_block_address(&esp.buff);
-            
+
             /*
              * Process actual received data
              */
             espi_process(data, len);
-            
+
             /*
              * Once they are processed, simply skip
              * the buffer memory and start over
@@ -894,26 +897,26 @@ espi_process(const void* data, size_t data_len) {
     const uint8_t* d;
     static uint8_t ch_prev1, ch_prev2;
     static esp_unicode_t unicode;
-    
+
     d = data;                                   /* Go to byte format */
     d_len = data_len;
     while (d_len) {                             /* Read entire set of characters from buffer */
         ch = *d++;                              /* Get next character */
         d_len--;                                /* Decrease remaining length */
-        
+
         /*
          * First check if we are in IPD mode and process plain data
          * without checking for valid ASCII or unicode format
          */
         if (esp.ipd.read) {                     /* Do we have to read incoming IPD data? */
             size_t len;
-            
+
             if (esp.ipd.buff != NULL) {         /* Do we have active buffer? */
                 esp.ipd.buff->payload[esp.ipd.buff_ptr] = ch;   /* Save data character */
             }
             esp.ipd.buff_ptr++;
             esp.ipd.rem_len--;
-            
+
             /*
              * Try to read more data directly from buffer
              */
@@ -931,13 +934,13 @@ espi_process(const void* data, size_t data_len) {
                 esp.ipd.buff_ptr += len;        /* Forward buffer pointer */
                 esp.ipd.rem_len -= len;         /* Decrease remaining length */
             }
-            
+
             /*
              * Did we reach end of buffer or no more data?
              */
             if (!esp.ipd.rem_len || (esp.ipd.buff != NULL && esp.ipd.buff_ptr == esp.ipd.buff->len)) {
                 espr_t res = espOK;
-                
+
                 /*
                  * Call user callback function with received data
                  */
@@ -954,29 +957,29 @@ espi_process(const void* data, size_t data_len) {
                     esp.evt.evt.conn_data_recv.buff = esp.ipd.buff;
                     esp.evt.evt.conn_data_recv.conn = esp.ipd.conn;
                     res = espi_send_conn_cb(esp.ipd.conn, NULL);    /* Send connection callback */
-                    
+
                     esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer at this point */
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Free packet buffer\r\n");
                     if (res == espOKIGNOREMORE) {   /* We should ignore more data */
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Ignoring more data from this IPD if available\r\n");
                         esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
                     }
-                        
+
                     /*
                      * Create new data packet if case if:
-                     * 
+                     *
                      *  - Previous one was successful and more data to read and
                      *  - Connection is not in closing state
                      */
                     if (esp.ipd.buff != NULL && esp.ipd.rem_len && !esp.ipd.conn->status.f.in_closing) {
                         size_t new_len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);   /* Calculate new buffer length */
-                        
+
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE, "IPD: Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
                         esp.ipd.buff = esp_pbuf_new(new_len);   /* Allocate new packet buffer */
 
                         ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
                             esp.ipd.buff == NULL, "IPD: Buffer allocation failed for %d bytes\r\n", (int)new_len);
-                        
+
                         if (esp.ipd.buff != NULL) {
                             esp_pbuf_set_ip(esp.ipd.buff, &esp.ipd.ip, esp.ipd.port);   /* Set IP and port for received data */
                         }
@@ -990,7 +993,7 @@ espi_process(const void* data, size_t data_len) {
                 }
                 esp.ipd.buff_ptr = 0;           /* Reset input buffer pointer */
             }
-            
+
         /*
          * We are in command mode where we have to process byte by byte
          * Simply check for ASCII and unicode format and process data accordingly
@@ -1004,7 +1007,7 @@ espi_process(const void* data, size_t data_len) {
             } else if (ch >= 0x80) {            /* Process only if more than ASCII can hold */
                 res = espi_unicode_decode(&unicode, ch);    /* Try to decode unicode format */
             }
-            
+
             if (res == espERR) {                /* In case of an ERROR */
                 unicode.r = 0;
             }
@@ -1020,14 +1023,14 @@ espi_process(const void* data, size_t data_len) {
                             RECV_ADD(ch);       /* Any ASCII valid character */
                             break;
                     }
-                    
+
                     /*
                      * If we are waiting for "\n> " sequence when CIPSEND command is active
                      */
                     if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSEND)) {
                         if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
                             RECV_RESET();       /* Reset received object */
-                            
+
                             /*
                              * Now actually send the data prepared before
                              */
@@ -1035,7 +1038,7 @@ espi_process(const void* data, size_t data_len) {
                             esp.msg->msg.conn_send.wait_send_ok_err = 1;    /* Now we are waiting for "SEND OK" or "SEND ERROR" */
                         }
                     }
-                    
+
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
                     /*
                      * Check if "+CIPRECVDATA" statement is in array and now we received color,
@@ -1070,12 +1073,12 @@ espi_process(const void* data, size_t data_len) {
                             size_t len;
                             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                                 "IPD: Data on connection %d with total size %d byte(s)\r\n", (int)esp.ipd.conn->num, esp.ipd.tot_len);
-                            
+
                             len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
-                            
+
                             /*
                              * Read received data in case of:
-                             * 
+                             *
                              *  - Connection is active and
                              *  - Connection is not in closing mode
                              */
@@ -1110,7 +1113,7 @@ espi_process(const void* data, size_t data_len) {
                 RECV_RESET();                   /* Invalid character in sequence */
             }
         }
-        
+
         ch_prev2 = ch_prev1;                    /* Save previous character to previous previous */
         ch_prev1 = ch;                          /* Char current to previous */
     }
@@ -1257,7 +1260,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         espi_send_cb(ESP_EVT_STA_LIST_AP);
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_GET) || CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
         espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
-#endif /* ESP_CFG_MODE_STATION */    
+#endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWMODE) &&
         (msg->msg.wifi_mode.mode == ESP_MODE_AP
@@ -1297,10 +1300,10 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         } else if (msg->i == 1 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {
             n_cmd = ESP_CMD_TCPIP_CIPSTATUS;    /* Go to status mode */
         } else if (msg->i == 2 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {
-            
+
         }
     }
-    
+
     /*
      * Are we enabling server mode for some reason?
      */
@@ -1327,7 +1330,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             espi_send_cb(ESP_EVT_SERVER);       /* Send to upper layer */
         }
     }
-    
+
     /*
      * Check and start a new command
      */
@@ -1405,12 +1408,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
-        
+
         /*
          * WiFi related commands
          */
- 
-#if ESP_CFG_MODE_STATION       
+
+#if ESP_CFG_MODE_STATION
         case ESP_CMD_WIFI_CWJAP: {              /* Try to join to access point */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+CWJAP");
@@ -1423,6 +1426,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
+        case ESP_CMD_WIFI_CWJAP_GET: {          /* Get the info of the connected access point */
+            ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
+            ESP_AT_PORT_SEND_STR("+CWJAP?");
+            ESP_AT_PORT_SEND_END();             /* End AT command string */
+            break;
+        }
         case ESP_CMD_WIFI_CWQAP: {              /* Quit from access point */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+CWQAP");
@@ -1432,7 +1441,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_WIFI_CWLAP: {              /* List access points */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+CWLAP");
-            if (msg->msg.ap_list.ssid != NULL) {/* Do we want to filter by SSID? */   
+            if (msg->msg.ap_list.ssid != NULL) {/* Do we want to filter by SSID? */
                 ESP_AT_PORT_SEND_STR("=");
                 send_string(msg->msg.ap_list.ssid, 1, 1, 0);
             }
@@ -1456,7 +1465,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_WIFI_CWMODE: {             /* Set WIFI mode */
             esp_mode_t m;
             char c;
-            
+
             if (!CMD_IS_DEF(ESP_CMD_WIFI_CWMODE)) { /* Is this command part of reset sequence? */
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
                 m = ESP_MODE_STA_AP;            /* Set station and access point mode */
@@ -1580,7 +1589,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
-        
+
 #if ESP_CFG_MODE_ACCESS_POINT
         case ESP_CMD_WIFI_CWSAP_SET: {          /* Set access point parameters */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
@@ -1640,12 +1649,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_MDNS */
-        
+
         /*
          * TCP/IP related commands
          */
-        
-        case ESP_CMD_TCPIP_CIPSERVER: {         /* Enable or disable server */  
+
+        case ESP_CMD_TCPIP_CIPSERVER: {         /* Enable or disable server */
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+CIPSERVER=");
             if (msg->msg.tcpip_server.en) {     /* Do we want to enable server? */
@@ -1683,17 +1692,17 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_END();             /* End AT command string */
             break;
         }
-#if ESP_CFG_MODE_STATION        
+#if ESP_CFG_MODE_STATION
         case ESP_CMD_TCPIP_CIPSTART: {          /* Start a new connection */
             int16_t i = 0;
             esp_conn_t* c = NULL;
-            
+
             /* Do we have wifi connection? */
             if (!esp_sta_has_ip()) {
                 espi_send_conn_error_cb(msg, espERRNOIP);
                 return espERRNOIP;
             }
-            
+
             msg->msg.conn_start.num = 0;        /* Reset to make sure default value is set */
             for (i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
                 if (!esp.conns[i].status.f.active || !(esp.active_conns & (1 << i))) {
@@ -1707,7 +1716,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 espi_send_conn_error_cb(msg, espERRNOFREECONN);
                 return espERRNOFREECONN;        /* We don't have available connection */
             }
-            
+
             if (msg->msg.conn_start.conn != NULL) { /* Is user interested about connection info? */
                 *msg->msg.conn_start.conn = c;  /* Save connection for user */
             }
@@ -1835,8 +1844,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_SNTP */
-        
-        default: 
+
+        default:
             return espERR;                      /* Invalid command */
     }
     return espOK;                               /* Valid command */
@@ -1868,7 +1877,7 @@ espi_is_valid_conn_ptr(esp_conn_p conn) {
 espr_t
 espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block, uint32_t max_block_time) {
     espr_t res = msg->res = espOK;
-    
+
     /* Check here if stack is even enabled or shall we disable new command entry? */
     ESP_CORE_PROTECT();
     if (!esp.status.f.dev_present) {
@@ -1881,7 +1890,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
         ESP_MSG_VAR_FREE(msg);                  /* Free memory and return */
         return res;
     }
-    
+
     if (block) {                                /* In case message is blocking */
         if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */
             ESP_MSG_VAR_FREE(msg);              /* Release memory and return */
