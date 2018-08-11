@@ -96,29 +96,24 @@ esp_sta_autojoin(uint8_t en, const uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 30000);   /* Send message to producer queue */
 }
 
-
 /**
- * \brief           Get access points information (name, mac, channel, rssi)
- * \param[in]       name: Pointer to output variable holding memory to save AP name
- * \param[in]       name_length: Length of buffer for AP name. Length includes NULL termination
- * \param[in]       mac: Pointer to output variable to save AP MAC address
- * \param[in]       channel: Pointer to output variable to save AP channel
- * \param[in]       rssi: Pointer to output variable to save AP current rssi
+ * \brief           Get current access point information (name, mac, channel, rssi)
+ * \note            Access point station is currently connected to
+ * \param[in]       ap_info: Pointer to connected access point information
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_get_info(char * name, size_t name_length, esp_mac_t * mac, uint8_t * channel, int16_t * rssi, const uint32_t blocking) {
+esp_sta_get_ap_info(esp_sta_info_ap_t* info, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
 
+    if (!esp_sta_is_joined()) {
+        return espERRWIFINOTCONNECTED;
+    }
 
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWJAP_GET;
-    ESP_MSG_VAR_REF(msg).msg.sta_info.name = name;
-    ESP_MSG_VAR_REF(msg).msg.sta_info.name_length = name_length;
-    ESP_MSG_VAR_REF(msg).msg.sta_info.mac = mac;
-    ESP_MSG_VAR_REF(msg).msg.sta_info.channel = channel;
-    ESP_MSG_VAR_REF(msg).msg.sta_info.rssi = rssi;
+    ESP_MSG_VAR_REF(msg).msg.sta_info_ap.info = info;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }

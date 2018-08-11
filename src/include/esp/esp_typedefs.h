@@ -149,6 +149,17 @@ typedef struct {
 } esp_ap_t;
 
 /**
+ * \ingroup         ESP_AP
+ * \brief           Access point information on which station is connected to
+ */
+typedef struct {
+    char ssid[ESP_CFG_MAX_SSID_LENGTH];         /*!< Access point name */
+    int16_t rssi;                               /*!< RSSI */
+    esp_mac_t mac;                              /*!< MAC address */
+    uint8_t ch;                                 /*!< Channel information */
+} esp_sta_info_ap_t;
+
+/**
  * \ingroup         ESP_STA
  * \brief           Station data structure
  */
@@ -271,7 +282,7 @@ typedef enum esp_evt_type_t {
 
     ESP_EVT_STA_LIST_AP,                        /*!< Station listed APs event */
     ESP_EVT_STA_JOIN_AP,                        /*!< Join to access point */
-    ESP_EVT_STA_AP_INFO,                        /*!< Station AP info (name, mac, channel, rssi) */
+    ESP_EVT_STA_INFO_AP,                        /*!< Station AP info (name, mac, channel, rssi) */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_EVT_AP_CONNECTED_STA,                   /*!< New station just connected to ESP's access point */
@@ -346,10 +357,7 @@ typedef struct esp_evt_t {
             espr_t status;                      /*!< Connection status */
         } sta_join_ap;                          /*!< Join to access point. Use with \ref ESP_EVT_STA_JOIN_AP event */
         struct {
-            char name[ESP_CFG_MAX_SSID_LENGTH]; /*!< AP name */
-            esp_mac_t mac;                      /*!< AP MAC address */
-            uint8_t channel;                    /*!< AP channel */
-            int16_t rssi;                       /*!< AP current RSSI */
+            esp_sta_info_ap_t* info;            /*!< AP info of current station */
         } sta_info_ap;                          /*!< Current AP informations. Use with \ref ESP_EVT_STA_AP_INFO event */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__

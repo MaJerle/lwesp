@@ -49,7 +49,7 @@ espr_t      espi_parse_ipd(const char* str);
 espr_t      espi_parse_ciprecvdata(const char* str);
 
 uint8_t     espi_parse_cwlap(const char* str, esp_msg_t* msg);
-uint8_t     espi_parse_cwjap(const char* str, esp_msg_t* msg, esp_evt_t* evt);
+uint8_t     espi_parse_cwjap(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_cwlif(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_cipdomain(const char* src, esp_msg_t* msg);
 uint8_t     espi_parse_ping_time(const char* str, esp_msg_t* msg);

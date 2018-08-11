@@ -50,7 +50,6 @@ extern "C" {
 espr_t      esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, const uint32_t blocking);
 espr_t      esp_sta_quit(uint32_t blocking);
 espr_t      esp_sta_autojoin(uint8_t en, const uint32_t blocking);
-espr_t      esp_sta_get_info(char * name, size_t name_length, esp_mac_t * mac, uint8_t * channel, int16_t * rssi, const uint32_t blocking);
 espr_t      esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, const uint32_t blocking);
 espr_t      esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, const uint32_t blocking);
 espr_t      esp_sta_getmac(esp_mac_t* mac, uint8_t def, const uint32_t blocking);
@@ -59,6 +58,7 @@ uint8_t     esp_sta_has_ip(void);
 uint8_t     esp_sta_is_joined(void);
 espr_t      esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm);
 espr_t      esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, const uint32_t blocking);
+espr_t      esp_sta_get_ap_info(esp_sta_info_ap_t* info, const uint32_t blocking);
 uint8_t     esp_sta_is_ap_802_11b(esp_ap_t* ap);
 uint8_t     esp_sta_is_ap_802_11g(esp_ap_t* ap);
 uint8_t     esp_sta_is_ap_802_11n(esp_ap_t* ap);

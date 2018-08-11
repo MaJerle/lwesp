@@ -430,7 +430,7 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwjap(const char* str, esp_msg_t* msg, esp_evt_t* evt) {
+espi_parse_cwjap(const char* str, esp_msg_t* msg) {
     if (!CMD_IS_DEF(ESP_CMD_WIFI_CWJAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
         return 0;
     }
@@ -441,29 +441,10 @@ espi_parse_cwjap(const char* str, esp_msg_t* msg, esp_evt_t* evt) {
         return 0;
     }
 
-    /* Read and store AP Name to event structure */
-    espi_parse_string(&str, evt->evt.sta_info_ap.name, ESP_CFG_MAX_SSID_LENGTH, 1);
-    if (msg->msg.sta_info.name != NULL) {       /* If name pointer in massage is provided copy the name */
-        ESP_MEMCPY(msg->msg.sta_info.name, evt->evt.sta_info_ap.name, ESP_MIN(ESP_CFG_MAX_SSID_LENGTH, msg->msg.sta_info.name_length));
-    }
-
-    /* Read and store AP MAC to event structure */
-    espi_parse_mac(&str, &evt->evt.sta_info_ap.mac);
-    if (msg->msg.sta_info.mac != NULL) {        /* If mac pointer in massage is provided copy the MAC address */
-        ESP_MEMCPY(msg->msg.sta_info.mac, &evt->evt.sta_info_ap.mac , sizeof(esp_mac_t));
-    }
-
-    /* Read and store AP channel to event structure */
-    evt->evt.sta_info_ap.channel = espi_parse_number(&str);
-    if (msg->msg.sta_info.channel != NULL) {    /* If channel pointer in massage is provided copy the channel */
-        *msg->msg.sta_info.channel = evt->evt.sta_info_ap.channel;
-    }
-
-    /* Read and store AP rssi to event structure */
-    evt->evt.sta_info_ap.rssi = espi_parse_number(&str);
-    if (msg->msg.sta_info.rssi != NULL) {       /* If rssi pointer in massage is provided copy the rssi */
-        *msg->msg.sta_info.rssi = evt->evt.sta_info_ap.rssi;
-    }
+    espi_parse_string(&str, esp.msg->msg.sta_info_ap.info->ssid, ESP_CFG_MAX_SSID_LENGTH, 1);
+    espi_parse_mac(&str, &esp.msg->msg.sta_info_ap.info->mac);
+    esp.msg->msg.sta_info_ap.info->ch = espi_parse_number(&str);
+    esp.msg->msg.sta_info_ap.info->rssi = espi_parse_number(&str);
 
     return 1;
 }

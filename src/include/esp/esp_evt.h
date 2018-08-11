@@ -222,15 +222,15 @@ espr_t      esp_evt_sta_join_ap_get_status(esp_evt_t* cc);
  */
 
 /**
- * \name            ESP_EVT_STA_AP_INFO
- * \anchor          ESP_EVT_STA_AP_INFO
- * \brief           Event helper functions for \ref ESP_EVT_STA_AP_INFO event
+ * \name            ESP_EVT_STA_INFO_AP
+ * \anchor          ESP_EVT_STA_INFO_AP
+ * \brief           Event helper functions for \ref ESP_EVT_STA_INFO_AP event
  */
 
-char * esp_evt_sta_info_ap_get_name(esp_evt_t* cc);
-esp_mac_t esp_evt_sta_info_ap_get_mac(esp_evt_t* cc);
-uint8_t esp_evt_sta_info_ap_get_channel(esp_evt_t* cc);
-int16_t esp_evt_sta_info_ap_get_rssi(esp_evt_t* cc);
+const char* esp_evt_sta_info_ap_get_ssid(esp_evt_t* cc);
+esp_mac_t   esp_evt_sta_info_ap_get_mac(esp_evt_t* cc);
+uint8_t     esp_evt_sta_info_ap_get_channel(esp_evt_t* cc);
+int16_t     esp_evt_sta_info_ap_get_rssi(esp_evt_t* cc);
 
 /**
  * \}

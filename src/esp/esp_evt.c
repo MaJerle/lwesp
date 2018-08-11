@@ -315,9 +315,9 @@ esp_evt_sta_join_ap_get_status(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          AP name
  */
-char *
-esp_evt_sta_info_ap_get_name(esp_evt_t* cc) {
-    return cc->evt.sta_info_ap.name;
+const char *
+esp_evt_sta_info_ap_get_ssid(esp_evt_t* cc) {
+    return cc->evt.sta_info_ap.info->ssid;
 }
 
 /**
@@ -327,7 +327,7 @@ esp_evt_sta_info_ap_get_name(esp_evt_t* cc) {
  */
 esp_mac_t
 esp_evt_sta_info_ap_get_mac(esp_evt_t* cc) {
-    return cc->evt.sta_info_ap.mac;
+    return cc->evt.sta_info_ap.info->mac;
 }
 
 /**
@@ -337,7 +337,7 @@ esp_evt_sta_info_ap_get_mac(esp_evt_t* cc) {
  */
 uint8_t
 esp_evt_sta_info_ap_get_channel(esp_evt_t* cc) {
-    return cc->evt.sta_info_ap.channel;
+    return cc->evt.sta_info_ap.info->ch;
 }
 
 /**
@@ -347,7 +347,7 @@ esp_evt_sta_info_ap_get_channel(esp_evt_t* cc) {
  */
 int16_t
 esp_evt_sta_info_ap_get_rssi(esp_evt_t* cc) {
-    return cc->evt.sta_info_ap.rssi;
+    return cc->evt.sta_info_ap.info->rssi;
 }
 
 

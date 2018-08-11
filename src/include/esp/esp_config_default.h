@@ -178,13 +178,15 @@
 #define ESP_CFG_RESET_DELAY_DEFAULT         1000
 #endif
 
-
 /**
  * \brief           Default delay (milliseconds unit) before sending first AT command on reset sequence
+ *
+ * \note            This parameter must include trailling zero
  */
 #ifndef ESP_CFG_MAX_SSID_LENGTH
 #define ESP_CFG_MAX_SSID_LENGTH             21
 #endif
+
 /**
  * \defgroup        ESP_CONF_DBG Debugging
  * \brief           Debugging configurations

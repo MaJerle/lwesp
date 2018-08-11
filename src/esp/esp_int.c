@@ -563,8 +563,9 @@ espi_parse_received(esp_recv_t* rcv) {
                 const char* tmp = &rcv->data[7];/* Go to the number position */
                 esp.msg->msg.sta_join.error_num = (uint8_t)espi_parse_number(&tmp);
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWJAP_GET) && !strncmp(rcv->data, "+CWJAP", 6)) {
-                espi_parse_cwjap(rcv->data, esp.msg, &esp.evt);   /* Parse CWJAP Get entry */
-                espi_send_cb(ESP_EVT_STA_AP_INFO);   /* Call user callback function */
+                espi_parse_cwjap(rcv->data, esp.msg);/* Parse CWJAP */
+                esp.evt.evt.sta_info_ap.info = esp.msg->msg.sta_info_ap.info;
+                espi_send_cb(ESP_EVT_STA_INFO_AP);  /* Call user callback function */
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_DNS
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
