@@ -98,8 +98,7 @@ netconn_server_thread(void const* arg) {
                     }
                 } else {
                     printf("Netconn connection accept error!\r\n");
-                    esp_netconn_delete(server); /* Delete netconn structure */
-                    esp_sys_thread_terminate(NULL); /* Stop this thread immediately */
+                    break;
                 }
             }
         } else {
@@ -109,10 +108,8 @@ netconn_server_thread(void const* arg) {
         printf("Cannot create server netconn\r\n");
     }
     
-    /*
-     * Terminate current thread
-     */
-    esp_sys_thread_terminate(NULL);
+    esp_netconn_delete(server);                 /* Delete netconn structure */
+    esp_sys_thread_terminate(NULL);             /* Terminate current thread */
 }
 
 /**

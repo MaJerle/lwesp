@@ -68,10 +68,12 @@ static esp_netconn_t* netconn_list;             /*!< Linked list of netconn entr
  * \param[in]       nc: Pointer to netconn to flush
  */
 static void
-flush_mboxes(esp_netconn_t* nc) {
+flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
     esp_pbuf_p pbuf;
     esp_netconn_t* new_nc;
-    esp_core_lock();                            /* Protect ESP core */
+    if (protect) {
+        esp_core_lock();                        /* Protect ESP core */
+    }
     if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
         while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
             if (pbuf != NULL && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
@@ -90,7 +92,9 @@ flush_mboxes(esp_netconn_t* nc) {
         esp_sys_mbox_delete(&nc->mbox_accept);  /* Delete message queue */
         esp_sys_mbox_invalid(&nc->mbox_accept); /* Invalid handle */
     }
-    esp_core_unlock();                          /* Release protection */
+    if (protect) {
+        esp_core_unlock();                      /* Release protection */
+    }
 }
 
 /**
@@ -334,14 +338,17 @@ free_ret:
 espr_t
 esp_netconn_delete(esp_netconn_p nc) {
     ESP_ASSERT("netconn != NULL", nc != NULL);  /* Assert input parameters */
-    
-    if (esp_sys_mbox_isvalid(&nc->mbox_accept)) {
-        esp_sys_mbox_delete(&nc->mbox_accept);
-        esp_sys_mbox_invalid(&nc->mbox_accept);
-    }
-    if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
-        esp_sys_mbox_delete(&nc->mbox_receive);
-        esp_sys_mbox_invalid(&nc->mbox_receive);
+
+    ESP_CORE_PROTECT();
+
+    flush_mboxes(nc, 0);                        /* Clear mboxes */
+
+    /* Stop listening on netconn */
+    if (nc == listen_api) {
+        listen_api = NULL;
+        ESP_CORE_UNPROTECT();
+        esp_set_server(0, nc->listen_port, 0, 0, NULL, 1);
+        ESP_CORE_PROTECT();
     }
     
     /* Remove netconn from linkedlist */
@@ -358,6 +365,7 @@ esp_netconn_delete(esp_netconn_p nc) {
             }
         }
     }
+    ESP_CORE_PROTECT();
 
     esp_mem_free(nc);                           /* Free the memory */
     nc = NULL;
@@ -398,12 +406,16 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
  */
 espr_t
 esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
+    espr_t res;
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
-    /*
-     * Enable server on port and set default netconn callback
-     */
-    return esp_set_server(1, port, ESP_CFG_MAX_CONNS, 100, netconn_evt, 1);
+    /* Enable server on port and set default netconn callback */
+    if ((res = esp_set_server(1, port, ESP_CFG_MAX_CONNS, 100, netconn_evt, 1)) == espOK) {
+        ESP_CORE_PROTECT();
+        nc->listen_port = port;
+        ESP_CORE_UNPROTECT();
+    }
+    return res;
 }
 
 /**
@@ -485,10 +497,8 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
      * 4. In case buffer allocation fails, send data directly (may affect on speed and effectivenes)
      */
     
-    /*
-     * Step 1
-     */
-    if (nc->buff.buff != NULL) {                     /* Is there a write buffer ready to accept more data? */
+    /* Step 1 */
+    if (nc->buff.buff != NULL) {                /* Is there a write buffer ready to accept more data? */
         len = ESP_MIN(nc->buff.len - nc->buff.ptr, btw);    /* Get number of bytes we can write to buffer */
         if (len) {
             ESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], data, len);/* Copy memory to temporary write buffer */
@@ -497,9 +507,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
             btw -= len;
         }
         
-        /*
-         * Step 1.1
-         */
+        /* Step 1.1 */
         if (nc->buff.ptr == nc->buff.len) {
             res = esp_conn_send(nc->conn, nc->buff.buff, nc->buff.len, &sent, 1);
             
@@ -513,9 +521,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
         }
     }
     
-    /*
-     * Step 2
-     */
+    /* Step 2 */
     if (btw >= ESP_CFG_CONN_MAX_DATA_LEN) {
         size_t rem;
         rem = btw % ESP_CFG_CONN_MAX_DATA_LEN;  /* Get remaining bytes for max data length */
@@ -531,18 +537,14 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
         return espOK;
     }
     
-    /*
-     * Step 3
-     */
+    /* Step 3 */
     if (nc->buff.buff == NULL) {                /* Check if we should allocate a new buffer */
         nc->buff.buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN * sizeof(*nc->buff.buff));
         nc->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;   /* Save buffer length */
         nc->buff.ptr = 0;                       /* Save buffer pointer */
     }
     
-    /*
-     * Step 4
-     */
+    /* Step 4 */
     if (nc->buff.buff != NULL) {                /* Memory available? */
         ESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], d, btw);   /* Copy data to buffer */
         nc->buff.ptr += btw;
@@ -656,7 +658,7 @@ esp_netconn_close(esp_netconn_p nc) {
     esp_netconn_flush(nc);                      /* Flush data and ignore result */
     esp_conn_set_arg(nc->conn, NULL);           /* Reset argument */
     esp_conn_close(nc->conn, 1);                /* Close the connection */
-    flush_mboxes(nc);                           /* Flush message queues */
+    flush_mboxes(nc, 1);                        /* Flush message queues */
     return espOK;
 }
 
