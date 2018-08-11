@@ -1,28 +1,28 @@
-/**	
+/**
  * \file            esp_sta.c
  * \brief           Station API
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -44,10 +44,10 @@
 espr_t
 esp_sta_quit(uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWQAP;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
@@ -64,16 +64,16 @@ esp_sta_quit(uint32_t blocking) {
 espr_t
 esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
+
     ESP_ASSERT("name != NULL", name != NULL);   /* Assert input parameters */
-    
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWJAP;
     ESP_MSG_VAR_REF(msg).msg.sta_join.def = def;
     ESP_MSG_VAR_REF(msg).msg.sta_join.name = name;
     ESP_MSG_VAR_REF(msg).msg.sta_join.pass = pass;
     ESP_MSG_VAR_REF(msg).msg.sta_join.mac = mac;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 30000);   /* Send message to producer queue */
 }
 
@@ -96,6 +96,33 @@ esp_sta_autojoin(uint8_t en, const uint32_t blocking) {
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 30000);   /* Send message to producer queue */
 }
 
+
+/**
+ * \brief           Get access points information (name, mac, channel, rssi)
+ * \param[in]       name: Pointer to output variable holding memory to save AP name
+ * \param[in]       name_length: Length of buffer for AP name. Length includes NULL termination
+ * \param[in]       mac: Pointer to output variable to save AP MAC address
+ * \param[in]       channel: Pointer to output variable to save AP channel
+ * \param[in]       rssi: Pointer to output variable to save AP current rssi
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_sta_get_info(char * name, size_t name_length, esp_mac_t * mac, uint8_t * channel, int16_t * rssi, const uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+
+
+    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWJAP_GET;
+    ESP_MSG_VAR_REF(msg).msg.sta_info.name = name;
+    ESP_MSG_VAR_REF(msg).msg.sta_info.name_length = name_length;
+    ESP_MSG_VAR_REF(msg).msg.sta_info.mac = mac;
+    ESP_MSG_VAR_REF(msg).msg.sta_info.channel = channel;
+    ESP_MSG_VAR_REF(msg).msg.sta_info.rssi = rssi;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+}
+
 /**
  * \brief           Get station IP address
  * \param[out]      ip: Pointer to variable to save IP address
@@ -108,14 +135,14 @@ esp_sta_autojoin(uint8_t en, const uint32_t blocking) {
 espr_t
 esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTA_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.gw = gw;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.nm = nm;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.def = def;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
@@ -131,16 +158,16 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, const uint3
 espr_t
 esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
+
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
-    
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTA_SET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw = gw;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm = nm;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.def = def;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
@@ -154,12 +181,12 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
 espr_t
 esp_sta_getmac(esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTAMAC_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.def = def;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
@@ -173,14 +200,14 @@ esp_sta_getmac(esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
 espr_t
 esp_sta_setmac(const esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
+
     ESP_ASSERT("mac != NULL", mac != NULL);     /* Assert input parameters */
-    
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTAMAC_SET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.def = def;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
 }
 
@@ -246,18 +273,18 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
 espr_t
 esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
+
     if (apf != NULL) {
         *apf = 0;
     }
-    
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWLAP;
     ESP_MSG_VAR_REF(msg).msg.ap_list.ssid = ssid;
     ESP_MSG_VAR_REF(msg).msg.ap_list.aps = aps;
     ESP_MSG_VAR_REF(msg).msg.ap_list.apsl = apsl;
     ESP_MSG_VAR_REF(msg).msg.ap_list.apf = apf;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 30000);   /* Send message to producer queue */
 }
 

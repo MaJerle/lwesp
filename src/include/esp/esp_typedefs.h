@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -49,7 +49,7 @@ extern "C" {
  * \brief           List of core structures and enumerations
  * \{
  */
-    
+
 /**
  * \}
  */
@@ -138,7 +138,7 @@ typedef struct {
  */
 typedef struct {
     esp_ecn_t ecn;                              /*!< Encryption mode */
-    char ssid[21];                              /*!< Access point name */
+    char ssid[ESP_CFG_MAX_SSID_LENGTH];         /*!< Access point name */
     int16_t rssi;                               /*!< Received signal strength indicator */
     esp_mac_t mac;                              /*!< MAC physical address */
     uint8_t ch;                                 /*!< WiFi channel used on access point */
@@ -252,7 +252,7 @@ typedef enum esp_evt_type_t {
     ESP_EVT_AT_VERSION_NOT_SUPPORTED,           /*!< Library does not support firmware version on ESP device. */
 
     ESP_EVT_DEVICE_PRESENT,                     /*!< Notification when device present status changes */
-    
+
     ESP_EVT_CONN_DATA_RECV,                     /*!< Connection data received */
     ESP_EVT_CONN_DATA_SENT,                     /*!< Data were successfully sent */
     ESP_EVT_CONN_DATA_SEND_ERR,                 /*!< Error trying to send data */
@@ -260,7 +260,7 @@ typedef enum esp_evt_type_t {
     ESP_EVT_CONN_ERROR,                         /*!< Client connection start was not successful */
     ESP_EVT_CONN_CLOSED,                        /*!< Connection was just closed */
     ESP_EVT_CONN_POLL,                          /*!< Poll for connection if there are any changes */
-    
+
     ESP_EVT_SERVER,                             /*!< Server status changed */
 
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
@@ -268,9 +268,10 @@ typedef enum esp_evt_type_t {
     ESP_EVT_WIFI_GOT_IP,                        /*!< Station has valid IP */
     ESP_EVT_WIFI_DISCONNECTED,                  /*!< Station just disconnected from AP */
     ESP_EVT_WIFI_IP_ACQUIRED,                   /*!< Station IP address acquired */
-  
+
     ESP_EVT_STA_LIST_AP,                        /*!< Station listed APs event */
     ESP_EVT_STA_JOIN_AP,                        /*!< Join to access point */
+    ESP_EVT_STA_AP_INFO,                        /*!< Station AP info (name, mac, channel, rssi) */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_EVT_AP_CONNECTED_STA,                   /*!< New station just connected to ESP's access point */
@@ -344,6 +345,12 @@ typedef struct esp_evt_t {
         struct {
             espr_t status;                      /*!< Connection status */
         } sta_join_ap;                          /*!< Join to access point. Use with \ref ESP_EVT_STA_JOIN_AP event */
+        struct {
+            char name[ESP_CFG_MAX_SSID_LENGTH]; /*!< AP name */
+            esp_mac_t mac;                      /*!< AP MAC address */
+            uint8_t channel;                    /*!< AP channel */
+            int16_t rssi;                       /*!< AP current RSSI */
+        } sta_info_ap;                          /*!< Current AP informations. Use with \ref ESP_EVT_STA_AP_INFO event */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
         struct {
@@ -360,7 +367,7 @@ typedef struct esp_evt_t {
             const char* host;                   /*!< Host name for DNS lookup */
             esp_ip_t* ip;                       /*!< Pointer to IP result */
         } dns_hostbyname;                       /*!< DNS domain service finished. Use with \ref ESP_EVT_DNS_HOSTBYNAME event */
-#endif /* ESP_CFG_DNS || __DOXYGEN__ */        
+#endif /* ESP_CFG_DNS || __DOXYGEN__ */
 #if ESP_CFG_PING || __DOXYGEN__
         struct {
             espr_t status;                      /*!< Operation status */
@@ -372,7 +379,7 @@ typedef struct esp_evt_t {
 } esp_evt_t;
 
 #define ESP_SIZET_MAX                           ((size_t)(-1))  /*!< Maximal value of size_t variable type */
- 
+
 /**
  * \ingroup         ESP_LL
  * \brief           Function prototype for AT output data

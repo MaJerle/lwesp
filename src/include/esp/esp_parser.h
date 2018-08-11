@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -47,8 +47,9 @@ uint8_t     espi_parse_mac(const char** src, esp_mac_t* mac);
 espr_t      espi_parse_cipstatus(const char* str);
 espr_t      espi_parse_ipd(const char* str);
 espr_t      espi_parse_ciprecvdata(const char* str);
-    
-uint8_t     espi_parse_cwlap(const char* src, esp_msg_t* msg);
+
+uint8_t     espi_parse_cwlap(const char* str, esp_msg_t* msg);
+uint8_t     espi_parse_cwjap(const char* str, esp_msg_t* msg, esp_evt_t* evt);
 uint8_t     espi_parse_cwlif(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_cipdomain(const char* src, esp_msg_t* msg);
 uint8_t     espi_parse_ping_time(const char* str, esp_msg_t* msg);

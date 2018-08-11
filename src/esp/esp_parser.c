@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -95,7 +95,7 @@ uint32_t
 espi_parse_hexnumber(const char** str) {
     int32_t val = 0;
     const char* p = *str;                       /*  */
-    
+
     if (*p == '"') {                            /* Skip leading quotes */
         p++;
     }
@@ -128,7 +128,7 @@ uint8_t
 espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
     const char* p = *src;
     size_t i;
-    
+
     if (*p == ',') {
         p++;
     }
@@ -170,7 +170,7 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
 uint8_t
 espi_parse_ip(const char** src, esp_ip_t* ip) {
     const char* p = *src;
-    
+
     if (*p == '"') {
         p++;
     }
@@ -181,7 +181,7 @@ espi_parse_ip(const char** src, esp_ip_t* ip) {
     if (*p == '"') {
         p++;
     }
-    
+
     *src = p;                                   /* Set new pointer */
     return 1;
 }
@@ -195,7 +195,7 @@ espi_parse_ip(const char** src, esp_ip_t* ip) {
 uint8_t
 espi_parse_mac(const char** src, esp_mac_t* mac) {
     const char* p = *src;
-    
+
     if (*p == '"') {                            /* Go to next entry if possible */
         p++;
     }
@@ -223,17 +223,17 @@ espi_parse_mac(const char** src, esp_mac_t* mac) {
 espr_t
 espi_parse_cipstatus(const char* str) {
     uint8_t cn_num = 0;
-    
+
     cn_num = espi_parse_number(&str);           /* Parse connection number */
     esp.active_conns |= 1 << cn_num;            /* Set flag as active */
-    
+
     espi_parse_string(&str, NULL, 0, 1);        /* Parse string and ignore result */
-    
+
     espi_parse_ip(&str, &esp.conns[cn_num].remote_ip);
     esp.conns[cn_num].remote_port = espi_parse_number(&str);
     esp.conns[cn_num].local_port = espi_parse_number(&str);
     esp.conns[cn_num].status.f.client = !espi_parse_number(&str);
-    
+
     return espOK;
 }
 
@@ -270,7 +270,7 @@ espi_parse_ipd(const char* str) {
     uint8_t conn, is_data_ipd;
     size_t len;
     esp_conn_p c;
-    
+
     if (*str == '+') {
         str += 5;
     }
@@ -281,7 +281,7 @@ espi_parse_ipd(const char* str) {
      * Take decision based on ':' character before data. We can expect 3 types of format:
      *
      * +IPD,conn_num,available_bytes<CR><LF>                    : Notification only, for TCP connection
-     * +IPD,conn_num,bytes_in_packet:data                       : Data packet w/o remote ip/port, 
+     * +IPD,conn_num,bytes_in_packet:data                       : Data packet w/o remote ip/port,
      *                                                              as response on manual TCP read or if AT+CIPDINFO=0
      * +IPD,conn_num,bytes_in_packet,remote_ip,remote_port:data : Data packet w/ remote ip/port,
      *                                                              as response on automatic read of all connection types
@@ -309,7 +309,7 @@ espi_parse_ipd(const char* str) {
      * parse them and save.
      *
      * Even if information is enabled, in case of manual TCP
-     * receive, these information are not present. 
+     * receive, these information are not present.
      *
      * Check for ':' character if it is end of string and determine how to proceed
      */
@@ -320,7 +320,7 @@ espi_parse_ipd(const char* str) {
         ESP_MEMCPY(&esp.conns[conn].remote_ip, &esp.ipd.ip, sizeof(esp.ipd.ip));
         ESP_MEMCPY(&esp.conns[conn].remote_port, &esp.ipd.port, sizeof(esp.ipd.port));
     }
-    
+
     /*
      * Data read procedure may only happen in case there is
      * data packet available, otherwise do nothing further about this information
@@ -333,7 +333,7 @@ espi_parse_ipd(const char* str) {
         esp.ipd.rem_len = len;                  /* Number of remaining bytes to read */
         esp.ipd.conn = c;                       /* Pointer to connection we have data for */
     }
-    
+
     return espOK;
 }
 
@@ -344,11 +344,11 @@ espi_parse_ipd(const char* str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_at_sdk_version(const char* str, esp_sw_version_t* version_out) { 
+espi_parse_at_sdk_version(const char* str, esp_sw_version_t* version_out) {
     version_out->major |= ((uint8_t)espi_parse_number(&str));   str++;
     version_out->minor |= ((uint8_t)espi_parse_number(&str));   str++;
     version_out->patch |= ((uint8_t)espi_parse_number(&str));
-    
+
     return 1;
 }
 
@@ -392,7 +392,7 @@ espi_parse_link_conn(const char* str) {
 uint8_t
 espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     if (!CMD_IS_DEF(ESP_CMD_WIFI_CWLAP) ||      /* Do we have valid message here and enough memory to save everything? */
-        msg->msg.ap_list.aps == NULL || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl) {   
+        msg->msg.ap_list.aps == NULL || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl) {
         return 0;
     }
     if (*str == '+') {                          /* Does string contain '+' as first character */
@@ -401,7 +401,7 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     if (*str++ != '(') {                        /* We must start with opening bracket */
         return 0;
     }
-    
+
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (esp_ecn_t)espi_parse_number(&str);
     espi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = espi_parse_number(&str);
@@ -421,6 +421,54 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     }
     return 1;
 }
+
+/**
+ * \brief           Parse received message for current AP information
+ * \param[in]       str: Pointer to input string starting with +CWJAP
+ * \param[in]       msg: Pointer to message
+ * \param[in]       evt: Pointer to event
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+espi_parse_cwjap(const char* str, esp_msg_t* msg, esp_evt_t* evt) {
+    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWJAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
+        return 0;
+    }
+    if (*str == '+') {                          /* Does string contain '+' as first character */
+        str += 7;                               /* Skip this part */
+    }
+    if (*str++ != '"') {                        /* We must start with quotation mark */
+        return 0;
+    }
+
+    /* Read and store AP Name to event structure */
+    espi_parse_string(&str, evt->evt.sta_info_ap.name, ESP_CFG_MAX_SSID_LENGTH, 1);
+    if (msg->msg.sta_info.name != NULL) {       /* If name pointer in massage is provided copy the name */
+        ESP_MEMCPY(msg->msg.sta_info.name, evt->evt.sta_info_ap.name, ESP_MIN(ESP_CFG_MAX_SSID_LENGTH, msg->msg.sta_info.name_length));
+    }
+
+    /* Read and store AP MAC to event structure */
+    espi_parse_mac(&str, &evt->evt.sta_info_ap.mac);
+    if (msg->msg.sta_info.mac != NULL) {        /* If mac pointer in massage is provided copy the MAC address */
+        ESP_MEMCPY(msg->msg.sta_info.mac, &evt->evt.sta_info_ap.mac , sizeof(esp_mac_t));
+    }
+
+    /* Read and store AP channel to event structure */
+    evt->evt.sta_info_ap.channel = espi_parse_number(&str);
+    if (msg->msg.sta_info.channel != NULL) {    /* If channel pointer in massage is provided copy the channel */
+        *msg->msg.sta_info.channel = evt->evt.sta_info_ap.channel;
+    }
+
+    /* Read and store AP rssi to event structure */
+    evt->evt.sta_info_ap.rssi = espi_parse_number(&str);
+    if (msg->msg.sta_info.rssi != NULL) {       /* If rssi pointer in massage is provided copy the rssi */
+        *msg->msg.sta_info.rssi = evt->evt.sta_info_ap.rssi;
+    }
+
+    return 1;
+}
+
+
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
@@ -433,10 +481,10 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
 uint8_t
 espi_parse_cwlif(const char* str, esp_msg_t* msg) {
     if (!CMD_IS_DEF(ESP_CMD_WIFI_CWLIF) ||      /* Do we have valid message here and enough memory to save everything? */
-        msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal) {   
+        msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal) {
         return 0;
     }
-    
+
     espi_parse_ip(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].ip);
     espi_parse_mac(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].mac);
 
@@ -494,7 +542,7 @@ espi_parse_ap_ip_sta(const char* str) {
  */
 uint8_t
 espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {   
+    if (!CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {
         return 0;
     }
     if (*str == '+') {
@@ -549,7 +597,7 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
     if (*str == '+') {                              /* Check input string */
         str += 13;
     }
-    
+
     /*
      * Scan for day in a week
      */
@@ -569,7 +617,7 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
         msg->msg.tcpip_sntp_time.dt->day = 7;
     }
     str += 4;
-    
+
     /*
      * Scan for month in a year
      */
@@ -599,7 +647,7 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
         msg->msg.tcpip_sntp_time.dt->month = 12;
     }
     str += 4;
-    
+
     msg->msg.tcpip_sntp_time.dt->date = espi_parse_number(&str);
     str++;
     msg->msg.tcpip_sntp_time.dt->hours = espi_parse_number(&str);

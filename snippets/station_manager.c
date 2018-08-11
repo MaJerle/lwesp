@@ -4,8 +4,8 @@
 /*
  * List of preferred access points for ESP device
  * SSID and password
- * 
- * ESP will try to scan for access points 
+ *
+ * ESP will try to scan for access points
  * and then compare them with the one on the list below
  */
 ap_entry_t
@@ -56,7 +56,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
             tried = 0;
             /* Print all access points found by ESP */
             for (i = 0; i < apf; i++) {
-                printf("AP found: %s\r\n", aps[i].ssid);
+                printf("AP found: %s, CH: %d, RSSI: %d\r\n", aps[i].ssid, aps[i].ch, aps[i].rssi);
             }
 
             /*
