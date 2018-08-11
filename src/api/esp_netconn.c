@@ -406,15 +406,13 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
  */
 espr_t
 esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
-    espr_t res;
+    espr_t res = espOK;
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     
-    /* Enable server on port and set default netconn callback */
-    if ((res = esp_set_server(1, port, ESP_CFG_MAX_CONNS, 100, netconn_evt, 1)) == espOK) {
-        ESP_CORE_PROTECT();
-        nc->listen_port = port;
-        ESP_CORE_UNPROTECT();
-    }
+    ESP_CORE_PROTECT();
+    nc->listen_port = port;
+    ESP_CORE_UNPROTECT();
+
     return res;
 }
 
@@ -425,12 +423,29 @@ esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
  */
 espr_t
 esp_netconn_listen(esp_netconn_p nc) {
+    return esp_netconn_listen_with_max_conn(nc, ESP_CFG_MAX_CONNS);
+}
+
+/**
+ * \brief           Listen on previously binded connection with max allowed connections at a time
+ * \param[in]       nc: Netconn handle used to listen for new connections
+ * \param[in]       max_connections: Maximal number of connections server can accept at a time
+ *                      This parameter may not be larger than \ref ESP_CFG_MAX_CONNS
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_netconn_listen_with_max_conn(esp_netconn_p nc, size_t max_connections) {
+    espr_t res;
+
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
 
-    ESP_CORE_PROTECT();
-    listen_api = nc;                            /* Set current main API in listening state */
-    ESP_CORE_UNPROTECT();
+    /* Enable server on port and set default netconn callback */
+    if ((res = esp_set_server(1, nc->listen_port, ESP_MIN(max_connections, ESP_CFG_MAX_CONNS), 100, netconn_evt, 1)) == espOK) {
+        ESP_CORE_PROTECT();
+        listen_api = nc;                        /* Set current main API in listening state */
+        ESP_CORE_UNPROTECT();
+    }
     return espOK;
 }
 
