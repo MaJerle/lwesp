@@ -99,7 +99,7 @@ esp_sta_autojoin(uint8_t en, const uint32_t blocking) {
 /**
  * \brief           Get current access point information (name, mac, channel, rssi)
  * \note            Access point station is currently connected to
- * \param[in]       ap_info: Pointer to connected access point information
+ * \param[in]       info: Pointer to connected access point information
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -110,6 +110,7 @@ esp_sta_get_ap_info(esp_sta_info_ap_t* info, const uint32_t blocking) {
     if (!esp_sta_is_joined()) {
         return espERRWIFINOTCONNECTED;
     }
+    ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWJAP_GET;
