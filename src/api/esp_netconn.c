@@ -156,6 +156,8 @@ netconn_evt(esp_evt_t* evt) {
                     "NETCONN: Closing connection as there is no listening API in netconn!\r\n");
                 close = 1;                      /* Close the connection at this point */
             }
+            /* When closing netconn,
+               we may only close netconn if connection was not successfully written to accept mbox */
             if (close) {
                 if (nc != NULL) {
                     esp_conn_set_arg(conn, NULL);   /* Reset argument */
@@ -217,15 +219,13 @@ netconn_evt(esp_evt_t* evt) {
                     esp_pbuf_free(pbuf);        /* Free pbuf */
                     return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
                 }
-            }
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n",
+                ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n",
                     (int)esp_pbuf_length(pbuf, 0));
+            }
             break;
         }
 
-        /*
-         * Connection was just closed
-         */
+        /* Connection was just closed */
         case ESP_EVT_CONN_CLOSED: {
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
 
@@ -242,6 +242,17 @@ netconn_evt(esp_evt_t* evt) {
         default:
             return espERR;
     }
+
+    /*
+     * We may only delete netconn if netconn is not already placed
+     * in listen mbox and accepted by user.
+     *
+     * This close check may only happen in 2 scenarious:
+     *
+     * - New connection which cannot be put into listen_connection mbox
+     * - New data received and connection not in accept mbox yet
+     *      when `ESP_CFG_NETCONN_ACCEPT_ON_CONNECT = 0`
+     */
     if (close) {
         esp_conn_close(conn, 0);                /* Close the connection */
         if (nc != NULL) {
