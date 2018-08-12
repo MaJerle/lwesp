@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -45,13 +45,13 @@ typedef struct esp_netconn_t {
 
     esp_netconn_type_t type;                    /*!< Netconn type */
     esp_port_t listen_port;                     /*!< Port on which we are listening */
-    
+
     size_t rcv_packets;                         /*!< Number of received packets so far on this connection */
     esp_conn_p conn;                            /*!< Pointer to actual connection */
-    
+
     esp_sys_mbox_t mbox_accept;                 /*!< List of active connections waiting to be processed */
     esp_sys_mbox_t mbox_receive;                /*!< Message queue for receive mbox */
-    
+
     esp_linbuff_t buff;                         /*!< Linear buffer structure */
 
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__
@@ -107,7 +107,7 @@ netconn_evt(esp_evt_t* evt) {
     esp_conn_p conn;
     esp_netconn_t* nc = NULL;
     uint8_t close = 0;
-    
+
     conn = esp_conn_get_from_evt(evt);          /* Get connection from event */
     switch (esp_evt_get_type(evt)) {
         /*
@@ -130,7 +130,7 @@ netconn_evt(esp_evt_t* evt) {
                 nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Create new API */
                 ESP_DEBUGW(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
                     nc == NULL, "NETCONN: Cannot create new structure for incoming server connection!\r\n");
-                
+
                 if (nc != NULL) {
                     nc->conn = conn;            /* Set connection handle */
                     esp_conn_set_arg(conn, nc); /* Set argument for connection */
@@ -165,7 +165,7 @@ netconn_evt(esp_evt_t* evt) {
             }
             break;
         }
-        
+
         /*
          * We have a new data received which
          * should have netconn structure as argument
@@ -210,7 +210,7 @@ netconn_evt(esp_evt_t* evt) {
                  * simply force free to decrease reference counter back to previous value
                  */
                 esp_pbuf_ref(pbuf);             /* Increase reference counter */
-                if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) || 
+                if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) ||
                     !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
                     ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Ignoring more data for receive!\r\n");
                     esp_pbuf_free(pbuf);        /* Free pbuf */
@@ -221,21 +221,21 @@ netconn_evt(esp_evt_t* evt) {
                     (int)esp_pbuf_length(pbuf, 0));
             break;
         }
-        
+
         /*
          * Connection was just closed
          */
         case ESP_EVT_CONN_CLOSED: {
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
-            
+
             /*
-             * In case we have a netconn available, 
+             * In case we have a netconn available,
              * simply write pointer to received variable to indicate closed state
              */
             if (nc != NULL && esp_sys_mbox_isvalid(&nc->mbox_receive)) {
                 esp_sys_mbox_putnow(&nc->mbox_receive, (void *)&recv_closed);
             }
-            
+
             break;
         }
         default:
@@ -283,7 +283,7 @@ esp_netconn_p
 esp_netconn_new(esp_netconn_type_t type) {
     esp_netconn_t* a;
     static uint8_t first = 1;
-    
+
     /* Register only once! */
     ESP_CORE_PROTECT();
     if (first) {
@@ -350,7 +350,7 @@ esp_netconn_delete(esp_netconn_p nc) {
         esp_set_server(0, nc->listen_port, 0, 0, NULL, 1);
         ESP_CORE_PROTECT();
     }
-    
+
     /* Remove netconn from linkedlist */
     if (netconn_list == nc) {
         netconn_list = netconn_list->next;      /* Remove first from linked list */
@@ -382,11 +382,11 @@ esp_netconn_delete(esp_netconn_p nc) {
 espr_t
 esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
     espr_t res;
-    
+
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("port > 0", port);               /* Assert input parameters */
-    
+
     /*
      * Start a new connection as client and:
      *
@@ -408,7 +408,7 @@ espr_t
 esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
     espr_t res = espOK;
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    
+
     ESP_CORE_PROTECT();
     nc->listen_port = port;
     ESP_CORE_UNPROTECT();
@@ -446,7 +446,7 @@ esp_netconn_listen_with_max_conn(esp_netconn_p nc, size_t max_connections) {
         listen_api = nc;                        /* Set current main API in listening state */
         ESP_CORE_UNPROTECT();
     }
-    return espOK;
+    return res;
 }
 
 /**
@@ -459,12 +459,12 @@ espr_t
 esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
     esp_netconn_t* tmp;
     uint32_t time;
-    
+
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("new_nc != NULL", new_nc != NULL);   /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
     ESP_ASSERT("nc == listen_api\r\n", nc == listen_api);   /* Assert input parameters */
-    
+
     *new_nc = NULL;
     time = esp_sys_mbox_get(&nc->mbox_accept, (void **)&tmp, 0);
     if (time == ESP_SYS_TIMEOUT) {
@@ -498,10 +498,10 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     size_t len, sent;
     const uint8_t* d = data;
     espr_t res;
-    
+
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP or SSL\r\n", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
-    
+
     /*
      * Several steps are done in write process
      *
@@ -511,7 +511,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
      * 3. Try to allocate a new buffer and copy remaining input data to it
      * 4. In case buffer allocation fails, send data directly (may affect on speed and effectivenes)
      */
-    
+
     /* Step 1 */
     if (nc->buff.buff != NULL) {                /* Is there a write buffer ready to accept more data? */
         len = ESP_MIN(nc->buff.len - nc->buff.ptr, btw);    /* Get number of bytes we can write to buffer */
@@ -521,11 +521,11 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
             nc->buff.ptr += len;
             btw -= len;
         }
-        
+
         /* Step 1.1 */
         if (nc->buff.ptr == nc->buff.len) {
             res = esp_conn_send(nc->conn, nc->buff.buff, nc->buff.len, &sent, 1);
-            
+
             esp_mem_free(nc->buff.buff);        /* Free memory */
             nc->buff.buff = NULL;               /* Invalidate buffer */
             if (res != espOK) {
@@ -535,7 +535,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
             return espOK;                       /* Buffer is not yet full yet */
         }
     }
-    
+
     /* Step 2 */
     if (btw >= ESP_CFG_CONN_MAX_DATA_LEN) {
         size_t rem;
@@ -547,18 +547,18 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
         d += sent;                              /* Advance in data pointer */
         btw -= sent;                            /* Decrease remaining data to send */
     }
-    
+
     if (!btw) {                                 /* Sent everything? */
         return espOK;
     }
-    
+
     /* Step 3 */
     if (nc->buff.buff == NULL) {                /* Check if we should allocate a new buffer */
         nc->buff.buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN * sizeof(*nc->buff.buff));
         nc->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;   /* Save buffer length */
         nc->buff.ptr = 0;                       /* Save buffer pointer */
     }
-    
+
     /* Step 4 */
     if (nc->buff.buff != NULL) {                /* Memory available? */
         ESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], d, btw);   /* Copy data to buffer */
@@ -605,7 +605,7 @@ espr_t
 esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be UDP\r\n", nc->type == ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
-    
+
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
 }
 
@@ -623,20 +623,20 @@ espr_t
 esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be UDP\r\n", nc->type == ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
-    
+
     return esp_conn_sendto(nc->conn, ip, port, data, btw, NULL, 1);
 }
 
 /**
  * \brief           Receive data from connection
  * \param[in]       nc: Netconn handle used to receive from
- * \param[in]       pbuf: Pointer to pointer to save new receive buffer to. 
+ * \param[in]       pbuf: Pointer to pointer to save new receive buffer to.
  *                     When function returns, user must check for valid pbuf value `pbuf != NULL`
  * \return          \ref espOK when new data ready, \ref espCLOSED when connection closed by remote side,
  *                  \ref espTIMEOUT when receive timeout occurs or any other member of \ref espr_t otherwise
  */
 espr_t
-esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {    
+esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
 
@@ -669,7 +669,7 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 espr_t
 esp_netconn_close(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    
+
     esp_netconn_flush(nc);                      /* Flush data and ignore result */
     esp_conn_set_arg(nc->conn, NULL);           /* Reset argument */
     esp_conn_close(nc->conn, 1);                /* Close the connection */
