@@ -162,6 +162,7 @@ netconn_evt(esp_evt_t* evt) {
                     esp_netconn_delete(nc);     /* Free memory for API */
                 }
                 esp_conn_close(conn, 0);        /* Close the connection */
+                close = 0;
             }
             break;
         }
