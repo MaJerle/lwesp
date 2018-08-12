@@ -122,7 +122,10 @@ typedef enum {
     MQTT_EVT_CONNECT,                           /*!< MQTT client connect event */
     MQTT_EVT_SUBSCRIBE,                         /*!< MQTT client subscribed to specific topic */
     MQTT_EVT_UNSUBSCRIBE,                       /*!< MQTT client unsubscribed from specific topic */
-    MQTT_EVT_PUBLISHED,                         /*!< MQTT client successfully published message to server */
+    MQTT_EVT_PUBLISHED,                         /*!< MQTT client successfully published message to server.
+                                                    \note   When publishing packet with quality of service \ref MQTT_QOS_AT_MOST_ONCE,
+                                                            you may not receive event, even if packet was successfully sent,
+                                                            thus do not rely on this event for packet with `qos = MQTT_QOS_AT_MOST_ONCE` */
     MQTT_EVT_PUBLISH_RECV,                      /*!< MQTT client received a publish message from server */
     MQTT_EVT_DISCONNECT,                        /*!< MQTT client disconnected from MQTT server */
     MQTT_EVT_KEEP_ALIVE,                        /*!< MQTT keep-alive sent to server and reply received */
