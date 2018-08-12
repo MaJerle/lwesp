@@ -25,7 +25,8 @@ resp_data_mainpage_top[] = ""
 "       <meta http-equiv=\"refresh\" content=\"1\" />"
 "   </head>"
 "   <body>"
-"       <p>Netconn driven website! <p>Total system up time: <b>";
+"       <p>Netconn driven website!</p>"
+"       <p>Total system up time: <b>";
 
 /**
  * \brief           Bottom part of main page
