@@ -446,14 +446,14 @@ esp_netconn_listen(esp_netconn_p nc) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_netconn_listen_with_max_conn(esp_netconn_p nc, size_t max_connections) {
+esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections) {
     espr_t res;
 
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
 
     /* Enable server on port and set default netconn callback */
-    if ((res = esp_set_server(1, nc->listen_port, ESP_MIN(max_connections, ESP_CFG_MAX_CONNS), 100, netconn_evt, 1)) == espOK) {
+    if ((res = esp_set_server(1, nc->listen_port, ESP_U16(ESP_MIN(max_connections, ESP_CFG_MAX_CONNS)), 100, netconn_evt, 1)) == espOK) {
         ESP_CORE_PROTECT();
         listen_api = nc;                        /* Set current main API in listening state */
         ESP_CORE_UNPROTECT();

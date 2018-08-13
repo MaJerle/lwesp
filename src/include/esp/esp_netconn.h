@@ -74,7 +74,7 @@ uint32_t        esp_netconn_get_receive_timeout(esp_netconn_p nc);
 
 /* TCP only */
 espr_t          esp_netconn_listen(esp_netconn_p nc);
-espr_t          esp_netconn_listen_with_max_conn(esp_netconn_p nc, size_t max_connections);
+espr_t          esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections);
 espr_t          esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_api);
 espr_t          esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw);
 espr_t          esp_netconn_flush(esp_netconn_p nc);
