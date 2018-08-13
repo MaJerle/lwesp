@@ -6,7 +6,7 @@
 #include "cli/cli_config.h"
 
 static cli_commands_t cli_command_table[CLI_MAX_MODULES];
-static int num_of_modules= 0;
+static int num_of_modules;
 
 static void cli_list(cli_printf cliprintf, int argc, char** argv);
 static void cli_help(cli_printf cliprintf, int argc, char** argv);
@@ -17,7 +17,7 @@ static const cli_command_t commands[] = {
 };
 
 /**
- * \brief           Found the CLI command that matches the input string
+ * \brief           Find the CLI command that matches the input string
  * \param[in]       command: pointer to command string for which we are searching
  * \return          pointer of the command if we found a match, else NULL
  */

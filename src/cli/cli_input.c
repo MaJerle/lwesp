@@ -6,8 +6,8 @@
 #include "cli/cli_config.h"
 
 /* Statically allocate CLI buffer to eliminate overhead of using */
-static char cmd_buffer[CLI_MAX_CMD_LENGTH] = {{0}};
-static uint32_t cmd_pos = 0;
+static char cmd_buffer[CLI_MAX_CMD_LENGTH];
+static uint32_t cmd_pos;
 
 /**
  * \brief           Special key sequence check
@@ -36,10 +36,10 @@ static bool cli_special_key_check(char ch) {
                 // TODO for now don't do anything (need history)
                 break;
             case 'C': /* right */
-                // TODO for now don't do anything (need courser location)
+                // TODO for now don't do anything (need cursor location)
                 break;
             case 'D': /* left */
-                // TODO for now don't do anything (need courser location)
+                // TODO for now don't do anything (need cursor location)
                 break;
         }
         return true;
@@ -125,7 +125,7 @@ void cli_in_data(cli_printf cliprintf, char ch) {
                 }
                 else {
                     clear_cmd_buffer();
-                    cliprintf(CLI_NL"\aERR: Command to long"CLI_NL CLI_PROMPT);
+                    cliprintf(CLI_NL"\aERR: Command too long"CLI_NL CLI_PROMPT);
                     return;
                 }
                 cliprintf("%c", ch);
