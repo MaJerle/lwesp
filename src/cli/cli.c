@@ -57,8 +57,7 @@ void cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd
                      */
                     matched_command = command->name;
                     common_command_len = strlen(matched_command);
-                }
-                else {
+                } else {
                     /* More then one match
                      * in case of print_option we need to print all options
                      */

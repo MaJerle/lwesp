@@ -91,32 +91,29 @@ telnet_client_config(esp_netconn_p nc) {
 static bool
 telnet_command_sequence_check(char ch) {
     static uint32_t telnet_command_sequence = 0;
+    bool command_sequence_found = false;
 
     if (telnet_command_sequence == 0 && ch == 0xff) {
+        command_sequence_found = true;
         telnet_command_sequence = 1;
         printf("AIC   ");
-        return true;
-    }
-    else if(telnet_command_sequence == 1) {
+    } else if(telnet_command_sequence == 1) {
+        command_sequence_found = true;
         telnet_command_sequence = 2;
         if (ch == 251) {
             printf("%-8s ", "WILL");
-        }
-        else if (ch == 252) {
+        } else if (ch == 252) {
             printf("%-8s ", "WON'T");
-        }
-        else if (ch == 253) {
+        } else if (ch == 253) {
             printf("%-8s ", "DO");
-        }
-        else if (ch == 254) {
+        } else if (ch == 254) {
             printf("%-8s ", "DON'T");
-        }
-        else {
+        } else {
             printf("%-8s ", "UNKNOWN");
         }
-        return true;
-    }
-    else if (telnet_command_sequence == 2) {
+    } else if (telnet_command_sequence == 2) {
+        command_sequence_found = true;
+        telnet_command_sequence = 0;
         switch(ch) {
             case 0 : printf("Binary Transmission 0x%02x-%d\r\n", ch, ch); break;
             case 1 : printf("Echo 0x%02x-%d\r\n", ch, ch); break;
@@ -156,11 +153,9 @@ telnet_command_sequence_check(char ch) {
             case 35: printf("X Display Location 0x%02x-%d\r\n", ch, ch); break;
             default: printf("UNKNOWN 0x%02x-%d \n\r", ch, ch);
         }
-        telnet_command_sequence = 0;
-        return true;
     }
 
-    return false;
+    return command_sequence_found;
 }
 
 /**
