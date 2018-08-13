@@ -66,7 +66,7 @@ telnet_client_config(esp_netconn_p nc) {
     cfg_data[3] = 0xff;
     cfg_data[4] = 0xfb;
     cfg_data[5] = 0x1;
-    /* will  */
+    /* will SGA */
     cfg_data[6] = 0xff;
     cfg_data[7] = 0xfb;
     cfg_data[8] = 0x3;

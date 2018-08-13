@@ -5,47 +5,147 @@
 #include "cli/cli_input.h"
 #include "cli/cli_config.h"
 
-/* Statically allocate CLI buffer to eliminate overhead of using */
+/* Statically allocate CLI buffer to eliminate overhead of using heap*/
 static char cmd_buffer[CLI_MAX_CMD_LENGTH];
 static uint32_t cmd_pos;
 
+static char cmd_history_buffer[CLI_CMD_HISTORY][CLI_MAX_CMD_LENGTH];
+static uint32_t cmd_history_pos;
+static uint32_t cmd_history_full;
+
+/**
+ * \brief           Clear the command buffer and reset the position
+ */
+static void clear_cmd_buffer( void ) {
+    memset(cmd_buffer, 0x0, sizeof(cmd_buffer));
+    cmd_pos = 0;
+}
+
+/**
+ * \brief           Stores the command to history
+ */
+static void store_command_to_history( void ) {
+    uint32_t hist_count;
+    if (strcmp(cmd_history_buffer[0], cmd_buffer)) {
+        for (hist_count = CLI_CMD_HISTORY-1; hist_count > 0; hist_count--) {
+            memcpy(cmd_history_buffer[hist_count], cmd_history_buffer[hist_count-1], CLI_MAX_CMD_LENGTH);
+        }
+        cmd_history_full++;
+        if (cmd_history_full > CLI_CMD_HISTORY) {
+            cmd_history_full = CLI_CMD_HISTORY;
+        }
+        memcpy(cmd_history_buffer[0], cmd_buffer, CLI_MAX_CMD_LENGTH);
+        cmd_history_buffer[0][CLI_MAX_CMD_LENGTH-1] = '\0';
+    }
+}
+
 /**
  * \brief           Special key sequence check
+ *                      ^[3~ : Delete (TODO)
+ *                      ^[A  : Up
+ *                      ^[B  : Down
+ *                      ^[C  : Right
+ *                      ^[D  : Left
+ *                      ^[1~ : Home (TODO)
+ *                      ^OF  : End (TODO)
+ * \param[in]       cliprintf: Pointer CLI printf function
  * \param[in]       ch: input char from CLI
  * \return          true when special key sequence is active, else false
  */
-static bool cli_special_key_check(char ch) {
+static bool cli_special_key_check(cli_printf cliprintf, char ch) {
     static uint32_t key_sequence = 0;
+    static char last_ch;
+    bool special_key_found = false;
 
     if (key_sequence == 0 && ch == 27) {
+        special_key_found = true;
         key_sequence = 1;
-        return true;
-    }
-    else if (key_sequence == 1 && ch == '[') {
+    } else if (key_sequence == 1 && (ch == '[' || ch == 'O')) {
+        special_key_found = true;
         key_sequence = 2;
-        return true;
-    }
-    else if (key_sequence == 2 && ch >= 'A' && ch <= 'D') {
+    } else if (key_sequence == 2 && ch >= 'A' && ch <= 'D') {
+        special_key_found = true;
         key_sequence = 0;
-        //char * histBuf;
         switch (ch) {
-            case 'A': /* up */
-                // TODO for now don't do anything (need history)
+            case 'A': /* Up */
+                if (cmd_history_pos < cmd_history_full) {
+                    /* Clear the line */
+                    memset(cmd_buffer, ' ', cmd_pos);
+                    cliprintf("\r%s       \r" CLI_PROMPT, cmd_buffer);
+
+                    strcpy(cmd_buffer, cmd_history_buffer[cmd_history_pos]);
+                    cmd_pos = strlen(cmd_buffer);
+                    cliprintf("%s", cmd_buffer);
+
+                    cmd_history_pos++;
+                } else {
+                    cliprintf("\a");
+                }
                 break;
-            case 'B': /* down */
-                // TODO for now don't do anything (need history)
+            case 'B': /* Down */
+                if (cmd_history_pos) {
+                    /* Clear the line */
+                    memset(cmd_buffer, ' ', cmd_pos);
+                    cliprintf("\r%s       \r" CLI_PROMPT, cmd_buffer);
+
+                    if (--cmd_history_pos != 0) {
+                        strcpy(cmd_buffer, cmd_history_buffer[cmd_history_pos]);
+                        cmd_pos = strlen(cmd_buffer);
+                        cliprintf("%s", cmd_buffer);
+                    } else {
+                        clear_cmd_buffer();
+                    }
+                } else {
+                    cliprintf("\a");
+                }
+
                 break;
-            case 'C': /* right */
-                // TODO for now don't do anything (need cursor location)
+            case 'C': /* Right */
+                /* TODO not finnished
+                 * because "^[C" doesn't move the cursor,
+                 * don't know why
+                 */
+                if (cmd_pos < strlen(cmd_buffer)) {
+                    cmd_pos++;
+                    cliprintf("^[C");
+                } else {
+                    cliprintf("\a");
+                }
                 break;
-            case 'D': /* left */
-                // TODO for now don't do anything (need cursor location)
+            case 'D': /* Left */
+                /* TODO not finnished
+                 * because "^[D" doesn't move the cursor,
+                 * don't know why
+                 */
+                if (cmd_pos > 0) {
+                    cmd_pos--;
+                    cliprintf("^[D");
+                } else {
+                    cliprintf("\a");
+                }
                 break;
         }
-        return true;
+    } else if (key_sequence == 2 && (ch == 'F')) {
+        /* End*/
+        /* TODO: for now just return invalid key */
+        cliprintf("\a");
+    } else if (key_sequence == 2 && (ch == '1' || ch == '3')) {
+        /* Home or Delete, we need to check one more character */
+        special_key_found = true;
+        key_sequence = 3;
+    } else if (key_sequence == 3) {
+        /* TODO Home and Delete: for now just return invalid key */
+        cliprintf("\a");
+        special_key_found = true;
+    } else {
+        /* Unknown sequence */
+        key_sequence = 0;
     }
 
-    return false;
+    /* Store the last character */
+    last_ch = ch;
+
+    return special_key_found;
 }
 
 /**
@@ -75,37 +175,35 @@ static bool cli_parse_and_execute_command(cli_printf cliprintf, char *input) {
 }
 
 /**
- * \brief           clear the command buffer and reset the position
- */
-static void clear_cmd_buffer( void ) {
-    memset(cmd_buffer, 0x0, sizeof(cmd_buffer));
-    cmd_pos = 0;
-}
-
-/**
  * \brief           parse new characters to the CLI
  * \param[in]       cliprintf: Pointer CLI printf function
  * \param[in]       ch: new character to CLI
  */
 void cli_in_data(cli_printf cliprintf, char ch) {
-    static char last_key = 0;
+    static char last_ch = 0;
 
-    if (!cli_special_key_check(ch)) {
+    if (!cli_special_key_check(cliprintf, ch)) {
         /* Parse the characters only if they are not part of the special key sequence */
         switch (ch) {
             /* Backspace */
             case '\b':
             case 127:
+                if (cmd_pos != 0) {
+                    cmd_buffer[--cmd_pos] = '\0';
+                    cliprintf("%c", ch);
+                } else {
+                    cliprintf("\a");
+                }
                 // TODO
                 break;
             /* Tab for autocomplete */
             case '\t':
-                cli_tab_auto_complete(cliprintf, cmd_buffer, &cmd_pos, (last_key == '\t'));
+                cli_tab_auto_complete(cliprintf, cmd_buffer, &cmd_pos, (last_ch == '\t'));
                 break;
             /* New line -> new command */
             case '\n':
             case '\r':
-                //TODO store history
+                cmd_history_pos = 0;
                 if (strlen(cmd_buffer) == 0) {
                     clear_cmd_buffer();
                     cliprintf(CLI_NL CLI_PROMPT);
@@ -113,6 +211,7 @@ void cli_in_data(cli_printf cliprintf, char ch) {
                 }
 
                 cliprintf(CLI_NL);
+                store_command_to_history();
                 cli_parse_and_execute_command(cliprintf, cmd_buffer);
 
                 clear_cmd_buffer();
@@ -122,8 +221,7 @@ void cli_in_data(cli_printf cliprintf, char ch) {
             default:
                 if (cmd_pos < CLI_MAX_CMD_LENGTH) {
                     cmd_buffer[cmd_pos++] = ch;
-                }
-                else {
+                } else {
                     clear_cmd_buffer();
                     cliprintf(CLI_NL"\aERR: Command too long"CLI_NL CLI_PROMPT);
                     return;
@@ -132,7 +230,7 @@ void cli_in_data(cli_printf cliprintf, char ch) {
         }
     }
 
-    /* Store last key for double key detection */
-    last_key = ch;
+    /* Store last character for double tab detection */
+    last_ch = ch;
 }
 
