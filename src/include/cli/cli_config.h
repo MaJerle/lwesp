@@ -68,6 +68,14 @@ extern "C" {
 #endif
 
 /**
+ * \brief           Max sotred CLI commands to history
+ */
+#ifndef CLI_CMD_HISTORY
+#define CLI_CMD_HISTORY             10
+#endif
+
+
+/**
  * \brief           Max CLI arguments in a single command
  */
 #ifndef CLI_MAX_NUM_OF_ARGS
