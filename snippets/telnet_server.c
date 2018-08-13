@@ -251,10 +251,10 @@ telnet_server_thread(void const* arg) {
                 break;
             }
         }
-
-        if (client != NULL) {
-            esp_netconn_delete(client);         /* Delete netconn connection */
-        }
+    }
+    if (client != NULL) {
+        esp_netconn_delete(client);             /* Delete netconn connection */
+        client = NULL;
     }
 
     esp_netconn_delete(server);                 /* Delete netconn structure */
