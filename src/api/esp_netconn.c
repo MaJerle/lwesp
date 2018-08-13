@@ -377,7 +377,7 @@ esp_netconn_delete(esp_netconn_p nc) {
             }
         }
     }
-    ESP_CORE_PROTECT();
+    ESP_CORE_UNPROTECT();
 
     esp_mem_free(nc);                           /* Free the memory */
     nc = NULL;
