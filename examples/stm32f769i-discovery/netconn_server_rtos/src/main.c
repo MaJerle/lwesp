@@ -69,10 +69,10 @@ main(void) {
  */
 static void
 init_thread(void const* arg) {
-    /*
-     * Initialize ESP with default callback function
-     */
-    esp_init(esp_callback_func, 1);
+    /* Initialize ESP with default callback function */
+    if (esp_init(esp_callback_func, 1) != espOK) {
+        printf("Cannot initialize ESP-AT Library\r\n");
+    }
 
     /*
      * Connect to access point.
