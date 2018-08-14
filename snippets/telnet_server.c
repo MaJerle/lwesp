@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdarg.h> /* Required for printf */
 #include "esp/esp.h"
+#include "esp/esp_cli.h"
 #include "cli/cli.h"
 #include "cli/cli_input.h"
 
@@ -200,6 +201,7 @@ telnet_server_thread(void const* arg) {
      */
     cli_init();
     cli_register_commands(telnet_commands, sizeof(telnet_commands)/sizeof(telnet_commands[0]));
+    esp_cli_register_commands();
 
     /*
      * Start listening for incoming connections
@@ -236,7 +238,7 @@ telnet_server_thread(void const* arg) {
                 break;
             }
 
-            uint8_t * in_data = (uint8_t*)esp_pbuf_data(pbuf);
+            const uint8_t * in_data = esp_pbuf_data(pbuf);
             size_t length = esp_pbuf_length(pbuf, 1); /* Get length of received packet */
 
             for (int i = 0; i < length; i++) {
