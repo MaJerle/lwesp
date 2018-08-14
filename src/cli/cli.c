@@ -1,3 +1,34 @@
+/**
+ * \file            cli.c
+ * \brief           Command line interface
+ */
+
+/*
+ * Copyright (c) 2018 Miha Cesnik
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Author:          Miha ČESNIK
+ */
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -21,7 +52,8 @@ static const cli_command_t commands[] = {
  * \param[in]       command: pointer to command string for which we are searching
  * \return          pointer of the command if we found a match, else NULL
  */
-const cli_command_t * cli_lookup_command(char* command) {
+const cli_command_t *
+cli_lookup_command(char* command) {
     uint32_t module_index, command_index;
     for (module_index = 0; module_index < num_of_modules; module_index++) {
         for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; command_index++) {
@@ -35,12 +67,13 @@ const cli_command_t * cli_lookup_command(char* command) {
 
 /**
  * \brief           CLI auto completion function
- * \param[in]       cliprintf: Pointer CLI printf function
+ * \param[in]       cliprintf: Pointer to CLI printf function
  * \param[in]       cmd_buffer: CLI command buffer
  * \param[in]       cmd_pos: pointer to current courser postion in command buffer
  * \param[in]       print_options: additional prints in case of double tab
  */
-void cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos, bool print_options) {
+void
+cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos, bool print_options) {
     const char* matched_command = NULL;
     uint32_t module_index, command_index;
     uint32_t num_of_matched_commands = 0;
@@ -57,8 +90,7 @@ void cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd
                      */
                     matched_command = command->name;
                     common_command_len = strlen(matched_command);
-                }
-                else {
+                } else {
                     /* More then one match
                      * in case of print_option we need to print all options
                      */
@@ -104,7 +136,8 @@ void cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd
  * \param[in]       num_of_commands: Number of new commands
  * \return          true when new commands where succesfully added, else false
  */
-bool cli_register_commands(const cli_command_t *commands, int num_of_commands) {
+bool
+cli_register_commands(const cli_command_t *commands, int num_of_commands) {
     if (num_of_modules >= CLI_MAX_MODULES) {
         printf("Exceeded the maximum number of CLI modules\n\r");
         return false;
@@ -123,14 +156,19 @@ bool cli_register_commands(const cli_command_t *commands, int num_of_commands) {
 /**
  * \brief           CLI Init function for adding basic CLI commands
  */
-void cli_init(void) {
+void
+cli_init(void) {
     cli_register_commands(commands, sizeof(commands)/sizeof(commands[0]));
 }
 
 /**
  * \brief           CLI command for printing help text of specific command
+ * \param[in]       cliprintf: Pointer to CLI printf function
+ * \param[in]       argc: Number fo arguments in argv
+ * \param[in]       argv: Pointer to the commands arguments
  */
-static void cli_help(cli_printf cliprintf, int argc, char** argv) {
+static void
+cli_help(cli_printf cliprintf, int argc, char** argv) {
     const cli_command_t *command;
 
     if (argc < 2) {
@@ -150,8 +188,12 @@ static void cli_help(cli_printf cliprintf, int argc, char** argv) {
 
 /**
  * \brief           CLI command for listing all available commands
+ * \param[in]       cliprintf: Pointer to CLI printf function
+ * \param[in]       argc: Number fo arguments in argv
+ * \param[in]       argv: Pointer to the commands arguments
  */
-static void cli_list(cli_printf cliprintf, int argc, char** argv) {
+static void
+cli_list(cli_printf cliprintf, int argc, char** argv) {
     uint32_t module_index, command_index;
 
     cliprintf("%-20s%s"CLI_NL, "Command", "Description");

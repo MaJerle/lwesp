@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdarg.h> /* Required for printf */
 #include "esp/esp.h"
+#include "esp/esp_cli.h"
 #include "cli/cli.h"
 #include "cli/cli_input.h"
 
@@ -23,8 +24,12 @@ static const cli_command_t telnet_commands[] = {
 
 /**
  * \brief           Telnet CLI to terminate the telnet connection
+ * \param[in]       cliprintf: Pointer to CLI printf function
+ * \param[in]       argc: Number fo arguments in argv
+ * \param[in]       argv: Pointer to the commands arguments
  */
-static void telnet_cli_exit(cli_printf cliprintf, int argc, char** argv) {
+static void
+telnet_cli_exit(cli_printf cliprintf, int argc, char** argv) {
     close_conn = true;
 }
 
@@ -91,32 +96,29 @@ telnet_client_config(esp_netconn_p nc) {
 static bool
 telnet_command_sequence_check(char ch) {
     static uint32_t telnet_command_sequence = 0;
+    bool command_sequence_found = false;
 
     if (telnet_command_sequence == 0 && ch == 0xff) {
+        command_sequence_found = true;
         telnet_command_sequence = 1;
         printf("AIC   ");
-        return true;
-    }
-    else if(telnet_command_sequence == 1) {
+    } else if(telnet_command_sequence == 1) {
+        command_sequence_found = true;
         telnet_command_sequence = 2;
         if (ch == 251) {
             printf("%-8s ", "WILL");
-        }
-        else if (ch == 252) {
+        } else if (ch == 252) {
             printf("%-8s ", "WON'T");
-        }
-        else if (ch == 253) {
+        } else if (ch == 253) {
             printf("%-8s ", "DO");
-        }
-        else if (ch == 254) {
+        } else if (ch == 254) {
             printf("%-8s ", "DON'T");
-        }
-        else {
+        } else {
             printf("%-8s ", "UNKNOWN");
         }
-        return true;
-    }
-    else if (telnet_command_sequence == 2) {
+    } else if (telnet_command_sequence == 2) {
+        command_sequence_found = true;
+        telnet_command_sequence = 0;
         switch(ch) {
             case 0 : printf("Binary Transmission 0x%02x-%d\r\n", ch, ch); break;
             case 1 : printf("Echo 0x%02x-%d\r\n", ch, ch); break;
@@ -156,11 +158,9 @@ telnet_command_sequence_check(char ch) {
             case 35: printf("X Display Location 0x%02x-%d\r\n", ch, ch); break;
             default: printf("UNKNOWN 0x%02x-%d \n\r", ch, ch);
         }
-        telnet_command_sequence = 0;
-        return true;
     }
 
-    return false;
+    return command_sequence_found;
 }
 
 /**
@@ -201,6 +201,7 @@ telnet_server_thread(void const* arg) {
      */
     cli_init();
     cli_register_commands(telnet_commands, sizeof(telnet_commands)/sizeof(telnet_commands[0]));
+    esp_cli_register_commands();
 
     /*
      * Start listening for incoming connections
@@ -222,8 +223,12 @@ telnet_server_thread(void const* arg) {
 
         printf("Telnet new client connected.\r\n");
 
-        telnet_client_config(client);
-        if (res == espCLOSED) {
+        /*
+         * Inform telnet client that it should disable LINEMODE
+         * and that we will echo for him.
+         */
+        res = telnet_client_config(client);
+        if (res != espOK) {
             break;
         }
 
@@ -233,7 +238,7 @@ telnet_server_thread(void const* arg) {
                 break;
             }
 
-            uint8_t * in_data = (uint8_t*)esp_pbuf_data(pbuf);
+            const uint8_t * in_data = esp_pbuf_data(pbuf);
             size_t length = esp_pbuf_length(pbuf, 1); /* Get length of received packet */
 
             for (int i = 0; i < length; i++) {

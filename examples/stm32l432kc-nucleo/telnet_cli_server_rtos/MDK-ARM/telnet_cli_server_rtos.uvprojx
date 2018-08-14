@@ -517,6 +517,11 @@
               <FilePath>..\..\..\..\src\esp\esp_conn.c</FilePath>
             </File>
             <File>
+              <FileName>esp_cli.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\esp\esp_cli.c</FilePath>
+            </File>
+            <File>
               <FileName>esp_debug.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\esp\esp_debug.c</FilePath>
