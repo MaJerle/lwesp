@@ -192,8 +192,6 @@ void*               esp_evt_conn_error_get_arg(esp_evt_t* cc);
  * \}
  */
 
-
-
 /**
  * \name            ESP_EVT_STA_LIST_AP
  * \anchor          ESP_EVT_STA_LIST_AP
@@ -215,7 +213,6 @@ size_t      esp_evt_sta_list_ap_get_length(esp_evt_t* cc);
  */
 
 espr_t      esp_evt_sta_join_ap_get_status(esp_evt_t* cc);
-
 
 /**
  * \}
