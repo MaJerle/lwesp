@@ -1,3 +1,34 @@
+/**
+ * \file            cli_input.c
+ * \brief           Command line interface helper funcions for paring input data
+ */
+
+/*
+ * Copyright (c) 2018 Miha Cesnik
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge,
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * Author:          Miha ČESNIK
+ */
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -16,7 +47,8 @@ static uint32_t cmd_history_full;
 /**
  * \brief           Clear the command buffer and reset the position
  */
-static void clear_cmd_buffer( void ) {
+static void
+clear_cmd_buffer( void ) {
     memset(cmd_buffer, 0x0, sizeof(cmd_buffer));
     cmd_pos = 0;
 }
@@ -24,7 +56,8 @@ static void clear_cmd_buffer( void ) {
 /**
  * \brief           Stores the command to history
  */
-static void store_command_to_history( void ) {
+static void
+store_command_to_history( void ) {
     uint32_t hist_count;
     if (strcmp(cmd_history_buffer[0], cmd_buffer)) {
         for (hist_count = CLI_CMD_HISTORY-1; hist_count > 0; hist_count--) {
@@ -48,11 +81,12 @@ static void store_command_to_history( void ) {
  *                      ^[D  : Left
  *                      ^[1~ : Home (TODO)
  *                      ^OF  : End (TODO)
- * \param[in]       cliprintf: Pointer CLI printf function
+ * \param[in]       cliprintf: Pointer to CLI printf function
  * \param[in]       ch: input char from CLI
  * \return          true when special key sequence is active, else false
  */
-static bool cli_special_key_check(cli_printf cliprintf, char ch) {
+static bool
+cli_special_key_check(cli_printf cliprintf, char ch) {
     static uint32_t key_sequence = 0;
     static char last_ch;
     bool special_key_found = false;
@@ -150,11 +184,12 @@ static bool cli_special_key_check(cli_printf cliprintf, char ch) {
 
 /**
  * \brief           parse and execute the given command
- * \param[in]       cliprintf: Pointer CLI printf function
+ * \param[in]       cliprintf: Pointer to CLI printf function
  * \param[in]       input: input string to parse
  * \return          true when command is found and parsed, else false
  */
-static bool cli_parse_and_execute_command(cli_printf cliprintf, char *input) {
+static bool
+cli_parse_and_execute_command(cli_printf cliprintf, char *input) {
     const cli_command_t *command;
     char * argv[CLI_MAX_NUM_OF_ARGS];
     uint32_t argc = 0;
@@ -176,10 +211,11 @@ static bool cli_parse_and_execute_command(cli_printf cliprintf, char *input) {
 
 /**
  * \brief           parse new characters to the CLI
- * \param[in]       cliprintf: Pointer CLI printf function
+ * \param[in]       cliprintf: Pointer to CLI printf function
  * \param[in]       ch: new character to CLI
  */
-void cli_in_data(cli_printf cliprintf, char ch) {
+void
+cli_in_data(cli_printf cliprintf, char ch) {
     static char last_ch = 0;
 
     if (!cli_special_key_check(cliprintf, ch)) {

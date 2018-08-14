@@ -23,8 +23,12 @@ static const cli_command_t telnet_commands[] = {
 
 /**
  * \brief           Telnet CLI to terminate the telnet connection
+ * \param[in]       cliprintf: Pointer to CLI printf function
+ * \param[in]       argc: Number fo arguments in argv
+ * \param[in]       argv: Pointer to the commands arguments
  */
-static void telnet_cli_exit(cli_printf cliprintf, int argc, char** argv) {
+static void
+telnet_cli_exit(cli_printf cliprintf, int argc, char** argv) {
     close_conn = true;
 }
 
@@ -217,8 +221,12 @@ telnet_server_thread(void const* arg) {
 
         printf("Telnet new client connected.\r\n");
 
-        telnet_client_config(client);
-        if (res == espCLOSED) {
+        /*
+         * Inform telnet client that it should disable LINEMODE
+         * and that we will echo for him.
+         */
+        res = telnet_client_config(client);
+        if (res != espOK) {
             break;
         }
 
