@@ -110,9 +110,9 @@
 #define configUSE_COUNTING_SEMAPHORES     1
 #define configGENERATE_RUN_TIME_STATS     0
 #define configUSE_STATS_FORMATTING_FUNCTIONS    1
-#define portSUPPRESS_TICKS_AND_SLEEP( xIdleTime ) do { extern void application_sleep(uint32_t idle); application_sleep(xIdleTime); } while (0)
+#define portSUPPRESS_TICKS_AND_SLEEP( xIdleTime )
 
-#define configUSE_TICKLESS_IDLE           1
+#define configUSE_TICKLESS_IDLE           0
 
 #define traceTASK_SWITCHED_IN()  extern void StartIdleMonitor(void); \
                                          StartIdleMonitor()

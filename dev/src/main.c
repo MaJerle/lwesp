@@ -25,6 +25,7 @@
 #include "netconn_client.h"
 #include "netconn_server.h"
 #include "http_server.h"
+#include "netconn_server_1thread.h"
 
 static void init_thread(void const* arg);
 
@@ -71,6 +72,7 @@ vApplicationStackOverflowHook( TaskHandle_t xTask, char *pcTaskName ) {
 
 static espr_t esp_evt(esp_evt_t* evt);
 
+
 /**
  * \brief           Initialization thread for entire process
  */
@@ -91,14 +93,14 @@ init_thread(void const* arg) {
     
     esp_init(esp_evt, 1);                       /* Init ESP stack */
     
-    if (is_device_present()) {
-        printf("Device connected...starting with reset!\r\n");
-        esp_delay(2000);
-        esp_reset(1);
-    } else {
-        printf("Device not connected!\r\n");
-        esp_device_set_present(0, 1);
-    }
+//    if (is_device_present()) {
+//        printf("Device connected...starting with reset!\r\n");
+//        esp_delay(2000);
+//        esp_reset(1);
+//    } else {
+//        printf("Device not connected!\r\n");
+//        esp_device_set_present(0, 1);
+//    }
     
     /*
      * Start MQTT thread
@@ -116,8 +118,8 @@ init_thread(void const* arg) {
     /*
      * Start server on port 80
      */
-    http_server_start();
-    printf("Server mode!\r\n");
+    //http_server_start();
+    //printf("Server mode!\r\n");
     
     /*
      * Check if device has set IP address
@@ -131,8 +133,8 @@ init_thread(void const* arg) {
         printf("Device IP: %d.%d.%d.%d\r\n", ip.ip[0], ip.ip[0], ip.ip[0], ip.ip[0]);
     }
     
-    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_cb, 0);
-    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_cb, 0);
+    esp_sys_thread_create(NULL, "netconn_server_single", (esp_sys_thread_fn)netconn_server_1thread_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
+    esp_sys_thread_create(NULL, "mqtt_client", (esp_sys_thread_fn)mqtt_client_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
     
     /*
      * Terminate thread
@@ -189,21 +191,6 @@ esp_evt(esp_evt_t* evt) {
             break;
     }
     return espOK;
-}
-
-void
-application_sleep(uint32_t idle) {
-    printf("S:%u\r\n", (unsigned)idle);
-    if (idle > 1000 && !esp_device_is_present()) {
-        printf("Low-power stop mode\r\n");
-        __disable_irq();
-        HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
-        TM_RCC_InitSystem();                    /* Init system */
-        __enable_irq();
-        printf("Wake up from IRQ!\r\n");
-    } else {
-        __WFI();                                /* Wait for next interrupt only */
-    }
 }
 
 /**

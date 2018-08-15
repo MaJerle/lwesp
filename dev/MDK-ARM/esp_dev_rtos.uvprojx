@@ -748,6 +748,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_wps.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_evt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_evt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -844,11 +849,6 @@
               <FilePath>..\..\snippets\http_server.c</FilePath>
             </File>
             <File>
-              <FileName>mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\snippets\mqtt.c</FilePath>
-            </File>
-            <File>
               <FileName>netconn_client.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\snippets\netconn_client.c</FilePath>
@@ -862,6 +862,16 @@
               <FileName>station_manager.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\snippets\station_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>mqtt_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\mqtt_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server_1thread.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_server_1thread.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1683,6 +1693,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_wps.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_evt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_evt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1779,11 +1794,6 @@
               <FilePath>..\..\snippets\http_server.c</FilePath>
             </File>
             <File>
-              <FileName>mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\snippets\mqtt.c</FilePath>
-            </File>
-            <File>
               <FileName>netconn_client.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\snippets\netconn_client.c</FilePath>
@@ -1797,6 +1807,16 @@
               <FileName>station_manager.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\snippets\station_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>mqtt_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\mqtt_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server_1thread.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_server_1thread.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2550,6 +2570,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\src\esp\esp_wps.c</FilePath>
             </File>
+            <File>
+              <FileName>esp_evt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\src\esp\esp_evt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -2646,11 +2671,6 @@
               <FilePath>..\..\snippets\http_server.c</FilePath>
             </File>
             <File>
-              <FileName>mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\snippets\mqtt.c</FilePath>
-            </File>
-            <File>
               <FileName>netconn_client.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\snippets\netconn_client.c</FilePath>
@@ -2664,6 +2684,16 @@
               <FileName>station_manager.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\snippets\station_manager.c</FilePath>
+            </File>
+            <File>
+              <FileName>mqtt_client.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\mqtt_client.c</FilePath>
+            </File>
+            <File>
+              <FileName>netconn_server_1thread.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\snippets\netconn_server_1thread.c</FilePath>
             </File>
           </Files>
         </Group>

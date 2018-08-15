@@ -149,5 +149,8 @@
     <ClCompile Include="..\..\..\src\api\esp_rest_client.c">
       <Filter>Source Files\ESP API</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\snippets\netconn_server_1thread.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

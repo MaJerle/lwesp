@@ -148,6 +148,7 @@
     <ClCompile Include="..\..\..\snippets\mqtt_client.c" />
     <ClCompile Include="..\..\..\snippets\netconn_client.c" />
     <ClCompile Include="..\..\..\snippets\netconn_server.c" />
+    <ClCompile Include="..\..\..\snippets\netconn_server_1thread.c" />
     <ClCompile Include="..\..\..\snippets\station_manager.c" />
     <ClCompile Include="..\..\..\src\api\esp_netconn.c" />
     <ClCompile Include="..\..\..\src\api\esp_rest_client.c" />
