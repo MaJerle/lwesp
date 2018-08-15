@@ -652,19 +652,24 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
  */
 espr_t
 esp_netconn_close(esp_netconn_p nc) {
+    esp_conn_p conn;
+
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    conn = nc->conn;
+    nc->conn = NULL;
+    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
 
     esp_netconn_flush(nc);                      /* Flush data and ignore result */
-    esp_conn_set_arg(nc->conn, NULL);           /* Reset argument */
-    esp_conn_close(nc->conn, 1);                /* Close the connection */
+    esp_conn_set_arg(conn, NULL);               /* Reset argument */
+    esp_conn_close(conn, 1);                    /* Close the connection */
     flush_mboxes(nc, 1);                        /* Flush message queues */
     return espOK;
 }
 
 /**
  * \brief           Get connection number used for netconn
- * \param[in]       nc: Pointer to handle for connection
- * \return          `-1` on failure, number otherwise
+ * \param[in]       nc: Netconn handle
+ * \return          `-1` on failure, connection number otherwise
  */
 int8_t
 esp_netconn_getconnnum(esp_netconn_p nc) {
