@@ -94,7 +94,7 @@ mqtt_timeout_cb(void* arg) {
             printf("Cannot publish...: %d, client->state: %d\r\n", (int)res, (int)client->conn_state);
         }
     }
-    esp_timeout_add(3000, mqtt_timeout_cb, client);
+    esp_timeout_add(10000, mqtt_timeout_cb, client);
 }
 
 /**
