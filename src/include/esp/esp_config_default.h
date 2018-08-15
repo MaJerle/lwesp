@@ -172,6 +172,16 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` device restore after \ref esp_init call
+ *
+ * \note            When this feature is enabled, it will automatically
+ *                  restore and clear any settings stored as `default` in ESP device
+ */
+#ifndef ESP_CFG_RESTORE_ON_INIT
+#define ESP_CFG_RESTORE_ON_INIT             1
+#endif
+
+/**
  * \brief           Default delay (milliseconds unit) before sending first AT command on reset sequence
  */
 #ifndef ESP_CFG_RESET_DELAY_DEFAULT
