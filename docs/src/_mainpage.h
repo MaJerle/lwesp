@@ -33,6 +33,11 @@
  *  - <a href="https://github.com/MaJerle/ESP_AT_Lib">Official development repository on Github</a>
  *  - <a href="http://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf">Official AT commands instruction set by Espressif systems</a>
  *
+ * \section         sect_contribute How to contribute
+ * 
+ *  - Official development repository is hosted on Github
+ *  - <a href="https://github.com/MaJerle/c_code_style">Respect C style and coding rules</a>
+ *
  * \section         sect_license License
  *
  * \verbatim        
