@@ -36,15 +36,16 @@
 extern "C" {
 #endif
 
-
 /**
- * \ingroup         ESP CLI
- * \defgroup        ESP CLI command
+ * \ingroup         ESP
+ * \defgroup        ESP_CLI CLI command
  * \brief           Commands for ESP functionalities
  * \{
  */
 
-void esp_cli_register_commands( void );
+#include "esp/esp.h"
+
+void esp_cli_register_commands(void);
 
 /**
  * \}

@@ -36,10 +36,9 @@
 extern "C" {
 #endif
 
-
 /**
  * \ingroup         CLI
- * \defgroup        CLI input
+ * \defgroup        CLI_INPUT Input
  * \brief           Command line interface helper funcions for paring input data
  * \{
  *
@@ -58,4 +57,3 @@ void cli_in_data(cli_printf cliprintf, char ch);
 #endif
 
 #endif /* __CLI_INPUT_H */
-

@@ -36,34 +36,41 @@
 extern "C" {
 #endif
 
+#include "stdbool.h"
+#include "stdint.h"
 
 /**
- * \ingroup         CLI
- * \defgroup        CLI
+ * \defgroup        CLI Command line interface
  * \brief           Command line interface
  * \{
  *
  * Functions to initialize everything needed for command line interface (CLI).
  */
 
-typedef void cli_printf(const char *format, ...);
-typedef void cli_function(cli_printf cliprintf, int argc, char **argv);
+typedef void cli_printf(const char* format, ...);
+typedef void cli_function(cli_printf cliprintf, int argc, char** argv);
 
-typedef struct {
-    const char *name;
-    const char *help;
-    cli_function *func;
+/**
+ * \brief           CLI command structure
+ */
+typedef struct {                                
+    const char* name;                           /*!< Command name */
+    const char* help;                           /*!< Command help */
+    cli_function* func;                         /*!< Command function */
 } cli_command_t;
 
+/**
+ * \brief           List of commands
+ */
 typedef struct {
-    const cli_command_t *commands;
-    int num_of_commands;
+    const cli_command_t* commands;              /*!< Pointer to commands */
+    size_t num_of_commands;                     /*!< Total number of commands */
 } cli_commands_t;
 
-const cli_command_t * cli_lookup_command(char* command);
-void cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos, bool print_options);
-bool cli_register_commands(const cli_command_t *commands, int num_of_commands);
-void cli_init(void);
+const cli_command_t*    cli_lookup_command(char* command);
+void                    cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos, bool print_options);
+bool                    cli_register_commands(const cli_command_t *commands, size_t num_of_commands);
+void                    cli_init(void);
 
 /**
  * \}

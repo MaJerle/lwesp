@@ -37,12 +37,16 @@
 #include "cli/cli_config.h"
 
 static cli_commands_t cli_command_table[CLI_MAX_MODULES];
-static int num_of_modules;
+static size_t num_of_modules;
 
 static void cli_list(cli_printf cliprintf, int argc, char** argv);
 static void cli_help(cli_printf cliprintf, int argc, char** argv);
 
-static const cli_command_t commands[] = {
+/**
+ * \brief           List of commands
+ */
+static const cli_command_t
+commands[] = {
     { "help",           "Displays helptext for given command",      cli_help },
     { "list",           "Lists available commands",                 cli_list },
 };
@@ -85,17 +89,20 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
             if (strncmp(cmd_buffer, cli_command_table[module_index].commands[command_index].name, *cmd_pos) == 0) {
                 /* Found a new command which matches the string */
                 if (num_of_matched_commands == 0) {
-                    /* Save the first match for later tab completion in case
+                    /*
+                     * Save the first match for later tab completion in case
                      * print_option is true (double tab)
                      */
                     matched_command = command->name;
                     common_command_len = strlen(matched_command);
                 } else {
-                    /* More then one match
+                    /*
+                     * More then one match
                      * in case of print_option we need to print all options
                      */
                     if (print_options) {
-                        /* Because we want to print help options only when we
+                        /*
+                         * Because we want to print help options only when we
                          * have multiple matches, print also the first one.
                          */
                         if (num_of_matched_commands == 1) {
@@ -104,7 +111,8 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
                         cliprintf("%s"CLI_NL, command->name);
                     }
 
-                    /* Find the common prefix of all the matched commands for
+                    /* 
+                     * Find the common prefix of all the matched commands for
                      * partial completion
                      */
                     int last_common_command_len = common_command_len;
@@ -137,13 +145,14 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
  * \return          true when new commands where succesfully added, else false
  */
 bool
-cli_register_commands(const cli_command_t *commands, int num_of_commands) {
+cli_register_commands(const cli_command_t* commands, size_t num_of_commands) {
     if (num_of_modules >= CLI_MAX_MODULES) {
         printf("Exceeded the maximum number of CLI modules\n\r");
         return false;
     }
 
-    /* Warning: Not threadsafe!
+    /*
+     * Warning: Not threadsafe!
      * TODO: add mutex that is initialized in init function
      */
     cli_command_table[num_of_modules].commands = commands;
@@ -158,7 +167,7 @@ cli_register_commands(const cli_command_t *commands, int num_of_commands) {
  */
 void
 cli_init(void) {
-    cli_register_commands(commands, sizeof(commands)/sizeof(commands[0]));
+    cli_register_commands(commands, sizeof(commands) / sizeof(commands[0]));
 }
 
 /**
@@ -169,15 +178,15 @@ cli_init(void) {
  */
 static void
 cli_help(cli_printf cliprintf, int argc, char** argv) {
-    const cli_command_t *command;
+    const cli_command_t* command;
 
     if (argc < 2) {
-        cliprintf("Error: No function specified (try `list')\n");
+        cliprintf("Error: No function specified (try `list`)\n");
         return;
     }
 
     if ((command = cli_lookup_command(argv[1])) == NULL) {
-        cliprintf("Error, command `%s' not found\n", argv[1]);
+        cliprintf("Error, command `%s` not found\n", argv[1]);
         return;
     }
 

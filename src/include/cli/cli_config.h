@@ -38,13 +38,12 @@ extern "C" {
 
 /**
  * \ingroup         CLI
- * \defgroup        CLI config
- * \brief           Command line interface helper funcions for paring input data
+ * \defgroup        CLI_CONFIG Configuration
+ * \brief           Default CLI configuration
  * \{
  *
  * Configuration for command line interface (CLI).
  */
-
 
 /**
  * \brief           CLI promet, printed on every NL
@@ -99,4 +98,3 @@ extern "C" {
 #endif
 
 #endif /* __CLI_CONFIG_H */
-

@@ -41,7 +41,6 @@
 #include "cli/cli.h"
 #include "cli/cli_config.h"
 
-
 #if ESP_CFG_MODE_STATION
 static void cli_station_info(cli_printf cliprintf, int argc, char** argv);
 #endif /* ESP_CFG_MODE_STATION */
@@ -50,7 +49,8 @@ static void cli_hostname_get(cli_printf cliprintf, int argc, char** argv);
 static void cli_hostname_set(cli_printf cliprintf, int argc, char** argv);
 #endif /* ESP_CFG_HOSTNAME */
 
-static const cli_command_t commands[] = {
+static const cli_command_t
+commands[] = {
 #if ESP_CFG_MODE_STATION
     { "station-info",       "Get current station info",                 cli_station_info },
 #endif /* ESP_CFG_MODE_STATION */
@@ -65,11 +65,12 @@ static const cli_command_t commands[] = {
  * \brief           CLI Init function for adding basic CLI commands
  */
 void
-esp_cli_register_commands( void ) {
+esp_cli_register_commands(void) {
     cli_register_commands(commands, sizeof(commands)/sizeof(commands[0]));
 }
 
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
+
 /**
  * \brief           CLI command for reading current AP info
  * \param[in]       cliprintf: Pointer to CLI printf function
@@ -92,9 +93,11 @@ cli_station_info(cli_printf cliprintf, int argc, char** argv) {
     cliprintf("  RSSI:    %d"CLI_NL, info.rssi);
     cliprintf("  Channel: %d"CLI_NL, info.ch);
 }
+
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 
 #if ESP_CFG_HOSTNAME || __DOXYGEN__
+
 /**
  * \brief           CLI command for reading ESPs hostname
  * \param[in]       cliprintf: Pointer to CLI printf function
@@ -141,9 +144,5 @@ cli_hostname_set(cli_printf cliprintf, int argc, char** argv) {
 
     cliprintf("  Set to: %s"CLI_NL, hostname);
 }
+
 #endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
-
-
-
-
-

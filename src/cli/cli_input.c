@@ -87,7 +87,7 @@ store_command_to_history( void ) {
  */
 static bool
 cli_special_key_check(cli_printf cliprintf, char ch) {
-    static uint32_t key_sequence = 0;
+    static uint32_t key_sequence;
     static char last_ch;
     bool special_key_found = false;
 
@@ -101,7 +101,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
         special_key_found = true;
         key_sequence = 0;
         switch (ch) {
-            case 'A': /* Up */
+            case 'A':                           /* Up */
                 if (cmd_history_pos < cmd_history_full) {
                     /* Clear the line */
                     memset(cmd_buffer, ' ', cmd_pos);
@@ -116,7 +116,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                     cliprintf("\a");
                 }
                 break;
-            case 'B': /* Down */
+            case 'B':                           /* Down */
                 if (cmd_history_pos) {
                     /* Clear the line */
                     memset(cmd_buffer, ' ', cmd_pos);
@@ -134,7 +134,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                 }
 
                 break;
-            case 'C': /* Right */
+            case 'C':                           /* Right */
                 /* TODO not finnished
                  * because "^[C" doesn't move the cursor,
                  * don't know why
@@ -146,7 +146,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                     cliprintf("\a");
                 }
                 break;
-            case 'D': /* Left */
+            case 'D':                           /* Left */
                 /* TODO not finnished
                  * because "^[D" doesn't move the cursor,
                  * don't know why
@@ -178,6 +178,8 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
 
     /* Store the last character */
     last_ch = ch;
+    
+    (void)last_ch;                              /* Prevent compiler warnings */
 
     return special_key_found;
 }
@@ -186,7 +188,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
  * \brief           parse and execute the given command
  * \param[in]       cliprintf: Pointer to CLI printf function
  * \param[in]       input: input string to parse
- * \return          true when command is found and parsed, else false
+ * \return          `true` when command is found and parsed, else `false`
  */
 static bool
 cli_parse_and_execute_command(cli_printf cliprintf, char *input) {
@@ -216,7 +218,7 @@ cli_parse_and_execute_command(cli_printf cliprintf, char *input) {
  */
 void
 cli_in_data(cli_printf cliprintf, char ch) {
-    static char last_ch = 0;
+    static char last_ch;
 
     if (!cli_special_key_check(cliprintf, ch)) {
         /* Parse the characters only if they are not part of the special key sequence */
