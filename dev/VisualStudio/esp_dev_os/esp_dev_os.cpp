@@ -18,6 +18,67 @@ DWORD main_thread_id;
 static espr_t esp_evt(esp_evt_t* evt);
 static espr_t esp_conn_evt(esp_evt_t* evt);
 
+esp_sta_info_ap_t connected_ap_info;
+
+static void
+netconn_single_thread(void* const arg) {
+    espr_t res;
+    esp_netconn_p server, client;
+    esp_pbuf_p p;
+
+    server = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
+    if (server == NULL) {
+        printf("Cannot create server netconn!\r\n");
+    }
+
+    res = esp_netconn_bind(server, 23);
+    if (res != espOK) {
+        printf("Cannot bind server\r\n");
+        goto out;
+    }
+
+    //esp_netconn_set_listen_conn_timeout(server, 10);
+    res = esp_netconn_listen_with_max_conn(server, 1);
+    if (res != espOK) {
+        goto out;
+    }
+
+    while (1) {
+        res = esp_netconn_accept(server, &client);
+        if (res != espOK) {
+            break;
+        }
+        printf("New client accepted!\r\n");
+        while (1) {
+            res = esp_netconn_receive(client, &p);
+            if (res == espOK) {
+                printf("Data received!\r\n");
+                esp_pbuf_free(p);
+            } else {
+                printf("Netconn receive returned: %d\r\n", (int)res);
+                if (res == espCLOSED) {
+                    printf("Connection closed by client\r\n");
+                    break;
+                }
+            }
+        }
+        if (client != NULL) {
+            esp_netconn_delete(client);
+            client = NULL;
+        }
+    }
+    if (client != NULL) {
+        esp_netconn_delete(client);
+        client = NULL;
+    }
+
+out:
+    printf("Terminating netconn thread!\r\n");
+    if (server != NULL) {
+        esp_netconn_delete(server);
+    }
+    esp_sys_thread_terminate(NULL);
+}
 
 /**
  * \brief           Program entry point
@@ -77,13 +138,13 @@ main_thread(void* arg) {
         printf("Device IP: %d.%d.%d.%d\r\n", ip.ip[0], ip.ip[1], ip.ip[2], ip.ip[3]);
     }
 
-    /*
-     * Start server on port 80
-     */
+    /* Start server on port 80 */
     //http_server_start();
-    //esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 0, ESP_SYS_THREAD_PRIO);    
+    //esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
+    esp_sys_thread_create(NULL, "netconn_server_single", (esp_sys_thread_fn)netconn_single_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
+    esp_sys_thread_create(NULL, "mqtt_client", (esp_sys_thread_fn)mqtt_client_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
 
-    while (1) {
+    while (0) {
         esp_netconn_p nc;
         espr_t res;
         esp_pbuf_p p;
@@ -94,7 +155,7 @@ main_thread(void* arg) {
             if (res == espOK) {
                 size_t total = 0, len;
                 const char tx_data[] = ""
-                    "GET /examples/file_10k.txt HTTP/1.1\r\n"
+                    "GET /examples/file_1M.txt HTTP/1.1\r\n"
                     "Host: majerle.eu\r\n"
                     "Connection: close\r\n"
                     "\r\n";
@@ -125,9 +186,7 @@ main_thread(void* arg) {
         esp_delay(5000);
     }
 
-    /*
-     * Terminate thread
-     */
+    /* Terminate thread */
     esp_sys_thread_terminate(NULL);
 }
 
@@ -147,6 +206,30 @@ esp_evt(esp_evt_t* evt) {
         }
         case ESP_EVT_RESET: {
             printf("Device reset!\r\n");
+            break;
+        }
+        case ESP_EVT_AT_VERSION_NOT_SUPPORTED: {
+            esp_sw_version_t v_min, v_curr;
+
+            esp_get_min_at_fw_version(&v_min);
+            esp_get_current_at_fw_version(&v_curr);
+
+            printf("Current ESP8266 AT version is not supported by library\r\n");
+            printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
+            printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
+            break;
+        }
+        case ESP_EVT_WIFI_GOT_IP: {
+            printf("WIFI GOT IP, get access point informatioN!\r\n");
+            esp_sta_get_ap_info(&connected_ap_info, 0);
+            break;
+        }
+        case ESP_EVT_STA_INFO_AP: {
+            printf("SSID: %s, ch: %d, rssi: %d\r\n",
+                esp_evt_sta_info_ap_get_ssid(evt),
+                (int)esp_evt_sta_info_ap_get_channel(evt),
+                (int)esp_evt_sta_info_ap_get_rssi(evt)
+            );
             break;
         }
 #if ESP_CFG_MODE_ACCESS_POINT
