@@ -415,17 +415,6 @@
 #endif
 
 /**
- * \brief           Accept and put a new connection to receive message queue immediately when connections starts
- *
- *                  If this parameter is set to 0, a new connection info will be written
- *                  to accept mbox only when first data packet arrives to device,
- *                  otherwise it will be immediately written to receive mbox.
- */
-#ifndef ESP_CFG_NETCONN_ACCEPT_ON_CONNECT
-#define ESP_CFG_NETCONN_ACCEPT_ON_CONNECT   1
-#endif
-
-/**
  * \brief           Enables `1` or disables `0` receive timeout feature
  *
  *                  When this option is enabled, user will get an option
