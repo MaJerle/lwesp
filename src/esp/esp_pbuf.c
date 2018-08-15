@@ -502,7 +502,8 @@ esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port) {
  *                  they are not adjusted in length and total length
  *
  * \param[in]       pbuf: Pbuf to advance
- * \param[in]       len: Number of bytes to advance. when negative is used, buffer size is increased by only if it was decreased before
+ * \param[in]       len: Number of bytes to advance.
+ *                      when negative is used, buffer size is increased only if it was decreased before
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
