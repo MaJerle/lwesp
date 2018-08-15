@@ -87,7 +87,7 @@ mqtt_timeout_cb(void* arg) {
     
     if (mqtt_client_is_connected(client)) {
         sprintf(tx_data, "R: %u, N: %u", (unsigned)retries, (unsigned)num);
-        if ((res = mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, strlen(tx_data), MQTT_QOS_EXACTLY_ONCE, 0, (void *)num)) == espOK) {
+        if ((res = mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, ESP_U16(strlen(tx_data)), MQTT_QOS_EXACTLY_ONCE, 0, (void *)num)) == espOK) {
             printf("Publishing %d...\r\n", (int)num);
             num++;
         } else {
