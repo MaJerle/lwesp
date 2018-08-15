@@ -1,13 +1,13 @@
 /*
  * MQTT client example with ESP device.
  *
- * Once the device is ocnnected to network,
+ * Once device is connected to network,
  * it will try to connect to mosquitto test server and start the MQTT.
  *
- * If successful, it will publish data to "esp8266_mqtt_topic" topic every second.
+ * If successfully connected, it will publish data to "esp8266_mqtt_topic" topic every x seconds.
  *
  * To check if data are sent, you can use mqtt-spy PC software to inspect
- * test.mosquitto.org server if you can receive the data
+ * test.mosquitto.org server and subscribe to publishing topic
  */
 
 #include "esp/apps/esp_mqtt_client.h"
@@ -15,14 +15,24 @@
 #include "esp/esp_timeout.h"
 #include "mqtt_client.h"
 
-mqtt_client_t* mqtt_client;
+/**
+ * \brief           MQTT client structure
+ */
+static mqtt_client_t*
+mqtt_client;
+
+/**
+ * \brief           Client ID is structured from ESP station MAC address
+ */
+static char
+mqtt_client_id[13];
 
 /**
  * \brief           Connection information for MQTT CONNECT packet
  */
 const mqtt_client_info_t
 mqtt_client_info = {
-    .id = "test_client_id",                     /* The only required field for connection! */
+    .id = mqtt_client_id,                       /* The only required field for connection! */
     
     .keep_alive = 10,
     // .user = "test_username",
@@ -56,8 +66,21 @@ mqtt_esp_cb(esp_evt_t* evt) {
  */
 void
 mqtt_client_thread(void const* arg) {
+    esp_mac_t mac;
+
     esp_evt_register(mqtt_esp_cb);              /* Register new callback for general events from ESP stack */
     
+    /* Get station MAC to format client ID */
+    if (esp_sta_getmac(&mac, 0, 1) == espOK) {
+        snprintf(mqtt_client_id, sizeof(mqtt_client_id), "%02X%02X%02X%02X%02X%02X",
+            (unsigned)mac.mac[0], (unsigned)mac.mac[1], (unsigned)mac.mac[2],
+            (unsigned)mac.mac[3], (unsigned)mac.mac[4], (unsigned)mac.mac[5]
+        );
+    } else {
+        strcpy(mqtt_client_id, "unknown");
+    }
+    printf("MQTT Client ID: %s\r\n", mqtt_client_id);
+
     /*
      * Create a new client with 256 bytes of RAW TX data
      * and 128 bytes of RAW incoming data
