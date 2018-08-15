@@ -54,6 +54,11 @@ typedef struct esp_netconn_t {
 
     esp_linbuff_t buff;                         /*!< Linear buffer structure */
 
+    uint16_t conn_timeout;                      /*!< Connection timeout in units of seconds when
+                                                    netconn is in server (listen) mode.
+                                                    Connection will be automatically closed if there is no
+                                                    data exchange in time. Set to `0` when timeout feature is disabled. */
+
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__
     uint32_t rcv_timeout;                       /*!< Receive timeout in unit of milliseconds */
 #endif
@@ -278,6 +283,7 @@ esp_netconn_new(esp_netconn_type_t type) {
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a != NULL) {
         a->type = type;                         /* Save netconn type */
+        a->conn_timeout = 0;                    /* Default connection timeout */
         if (!esp_sys_mbox_create(&a->mbox_accept, ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {  /* Allocate memory for accepting message box */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
                 "NETCONN: Cannot create accept MBOX\r\n");
@@ -392,10 +398,41 @@ espr_t
 esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
     espr_t res = espOK;
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+    
+    /*
+     * Protection is not needed as it is expected
+     * that this function is called only from single
+     * thread for single netconn connection,
+     * thus it is reentrant in this case
+     */
 
-    ESP_CORE_PROTECT();
     nc->listen_port = port;
-    ESP_CORE_UNPROTECT();
+
+    return res;
+}
+
+/**
+ * \brief           Set timeout value in units of seconds when connection is in listening mode
+ *                  If new connection is accepted, it will be automatically closed after `seconds` elapsed 
+ *                  without any data exchange.
+ * \note            Call this function before you put connection to listen mode with \ref esp_netconn_listen
+ * \param[in]       nc: Netconn handle used for listen mode
+ * \param[in]       timeout: Time in units of seconds. Set to `0` to disable timeout feature
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+esp_netconn_set_listen_conn_timeout(esp_netconn_p nc, uint16_t timeout) {
+    espr_t res = espOK;
+    ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
+
+    /*
+     * Protection is not needed as it is expected
+     * that this function is called only from single
+     * thread for single netconn connection,
+     * thus it is reentrant in this case
+     */
+
+    nc->conn_timeout = timeout;
 
     return res;
 }
@@ -425,7 +462,7 @@ esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections) {
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
 
     /* Enable server on port and set default netconn callback */
-    if ((res = esp_set_server(1, nc->listen_port, ESP_U16(ESP_MIN(max_connections, ESP_CFG_MAX_CONNS)), 100, netconn_evt, 1)) == espOK) {
+    if ((res = esp_set_server(1, nc->listen_port, ESP_U16(ESP_MIN(max_connections, ESP_CFG_MAX_CONNS)), nc->conn_timeout, netconn_evt, 1)) == espOK) {
         ESP_CORE_PROTECT();
         listen_api = nc;                        /* Set current main API in listening state */
         ESP_CORE_UNPROTECT();
@@ -436,20 +473,20 @@ esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections) {
 /**
  * \brief           Accept a new connection
  * \param[in]       nc: Netconn handle used as base connection to accept new clients
- * \param[out]      new_nc: Pointer to netconn handle to save new connection to
+ * \param[out]      client: Pointer to netconn handle to save new connection to
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
+esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* client) {
     esp_netconn_t* tmp;
     uint32_t time;
 
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    ESP_ASSERT("new_nc != NULL", new_nc != NULL);   /* Assert input parameters */
+    ESP_ASSERT("client != NULL", client != NULL);   /* Assert input parameters */
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
     ESP_ASSERT("nc == listen_api\r\n", nc == listen_api);   /* Assert input parameters */
 
-    *new_nc = NULL;
+    *client = NULL;
     time = esp_sys_mbox_get(&nc->mbox_accept, (void **)&tmp, 0);
     if (time == ESP_SYS_TIMEOUT) {
         return espERR;
@@ -465,7 +502,7 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* new_nc) {
         ESP_CORE_UNPROTECT();
         return espERRNODEVICE;                  /* Device not present */
     }
-    *new_nc = tmp;                              /* Set new pointer */
+    *client = tmp;                              /* Set new pointer */
     return espOK;                               /* We have a new connection */
 }
 
