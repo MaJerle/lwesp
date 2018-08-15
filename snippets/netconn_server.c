@@ -140,8 +140,8 @@ netconn_server_processing_thread(void* const arg) {
         if (res == espOK) {
             printf("Netconn data received, %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
             /*
-            * Check if all headers were received
-            */
+             * Check if all headers were received
+             */
             if (p == NULL) {
                 p = pbuf;                       /* Set as first buffer */
             } else {
