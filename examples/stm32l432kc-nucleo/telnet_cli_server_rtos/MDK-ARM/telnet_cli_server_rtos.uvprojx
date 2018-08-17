@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>Telnet CLI server RTOS</TargetName>
+      <TargetName>Telnet_CLI_Server_RTOS</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>

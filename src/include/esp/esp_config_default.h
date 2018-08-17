@@ -1,6 +1,6 @@
 /**
  * \file            esp_config_default.h
- * \brief           Default configuration for ESP
+ * \brief           Default configuration for ESP-AT library
  */
 
 /*
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -435,7 +435,7 @@
  *                  by default time will be set to 0 which means no timeout.
  */
 #ifndef ESP_CFG_NETCONN_RECEIVE_TIMEOUT
-#define ESP_CFG_NETCONN_RECEIVE_TIMEOUT     0
+#define ESP_CFG_NETCONN_RECEIVE_TIMEOUT     1
 #endif
 
 /**
@@ -590,9 +590,6 @@ void *  my_memcpy(void* dst, const void* src, size_t len);
 
 /**
  * \brief           Memory set function declaration
- *
- *                  User is able to change the memory function and in case
- *                  hardware supports copy operation, it may implement its own implementation
  *
  *                  Function prototype must be similar to:
  * \code{c}

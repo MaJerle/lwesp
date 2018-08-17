@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -261,7 +261,7 @@ esp_update_sw(uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_dns_getbyhostname(const char* host, esp_ip_t* const ip, const uint32_t blocking) {
+esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */

@@ -1,4 +1,4 @@
-/**	
+/**
  * \file            esp_buff.c
  * \brief           buff manager
  */
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -93,7 +93,7 @@ esp_buff_write(esp_buff_t* buff, const void* data, size_t count) {
         buff->in = 0;
     }
     free = esp_buff_get_free(buff);             /* Get free memory */
-    if (free < count) {                         /* Check available memory */	
+    if (free < count) {                         /* Check available memory */
         if (free == 0) {                        /* If no memory, stop execution */
             return 0;
         }
@@ -107,9 +107,9 @@ esp_buff_write(esp_buff_t* buff, const void* data, size_t count) {
     }
     ESP_MEMCPY(&buff->buff[buff->in], d, tocopy);   /* Copy content to buffer */
     i += tocopy;                                /* Increase number of bytes we copied already */
-    buff->in += tocopy;	
+    buff->in += tocopy;
     count -= tocopy;
-    if (count > 0) {                            /* Check if anything to write */	
+    if (count > 0) {                            /* Check if anything to write */
         ESP_MEMCPY(buff->buff, (void *)&d[i], count);   /* Copy content */
         buff->in = count;                       /* Set input pointer */
     }

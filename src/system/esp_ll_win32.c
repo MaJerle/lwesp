@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -53,41 +53,39 @@ uint8_t data_buffer[0x1000];                    /*!< Received data array */
  */
 static uint16_t
 send_data(const void* data, uint16_t len) {
-	if (comPort != NULL) {
-		WriteFile(comPort, data, len, NULL, NULL);
-		return len;
-	}
+    if (comPort != NULL) {
+        WriteFile(comPort, data, len, NULL, NULL);
+        return len;
+    }
     return 0;
 }
 
 /**
- * \brief			Configure UART (USB to UART)
+ * \brief           Configure UART (USB to UART)
  */
 static void
 configure_uart(uint32_t baudrate) {
-	DCB dcb = { 0 };
-	dcb.DCBlength = sizeof(dcb);
+    DCB dcb = { 0 };
+    dcb.DCBlength = sizeof(dcb);
 
     /*
      * On first call,
      * create virtual file on selected COM port and open it 
      * as generic read and write
      */
-	if (!initialized) {
-		comPort = CreateFile(L"\\\\.\\COM6",
-			GENERIC_READ | GENERIC_WRITE,
-			0,
-			0,
-			OPEN_EXISTING,
-			0,
-			NULL
-		);
-	}
+    if (!initialized) {
+        comPort = CreateFile(L"\\\\.\\COM6",
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            0,
+            OPEN_EXISTING,
+            0,
+            NULL
+        );
+    }
 
-    /*
-     * Configure COM port parameters
-     */
-	if (GetCommState(comPort, &dcb)) {
+    /* Configure COM port parameters */
+    if (GetCommState(comPort, &dcb)) {
         COMMTIMEOUTS timeouts;
 
         dcb.BaudRate = baudrate;
@@ -114,29 +112,27 @@ configure_uart(uint32_t baudrate) {
         printf("Cannot get COM PORT info\r\n");
     }
 
-    /*
-     * On first function call, create a thread to read data from COM port
-     */
-	if (!initialized) {
-		thread_handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)uart_thread, NULL, 0, 0);
-	}
+    /* On first function call, create a thread to read data from COM port */
+    if (!initialized) {
+        thread_handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)uart_thread, NULL, 0, 0);
+    }
 }
 
 /**
- * \brief			UART thread
+ * \brief           UART thread
  */
 static void
 uart_thread(void* param) {
-	DWORD bytes_read;
+    DWORD bytes_read;
     esp_sys_sem_t sem;
     FILE* file = NULL;
 
-	while (comPort == NULL);
+    while (comPort == NULL);
 
     esp_sys_sem_create(&sem, 0);                /* Create semaphore for delay functions */
 
     fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
-	while (1) {
+    while (1) {
         /*
          * Try to read data from COM port
          * and send it to upper layer for processing
@@ -165,7 +161,7 @@ uart_thread(void* param) {
 
         /* Implement delay to allow other tasks processing */
         esp_sys_sem_wait(&sem, 1);
-	}
+    }
 }
 
 /**

@@ -1,4 +1,4 @@
-/**	
+/**
  * \file            esp_sys_freertos_os.h
  * \brief           FreeRTOS native port
  */
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Adrian Carpenter (FreeRTOS port)
@@ -49,11 +49,11 @@ extern "C" {
 #include "queue.h"
 #include "semphr.h"
 
-typedef SemaphoreHandle_t			esp_sys_mutex_t;
-typedef SemaphoreHandle_t			esp_sys_sem_t;
-typedef QueueHandle_t				esp_sys_mbox_t;
-typedef TaskHandle_t				esp_sys_thread_t;
-typedef UBaseType_t					esp_sys_thread_prio_t;
+typedef SemaphoreHandle_t           esp_sys_mutex_t;
+typedef SemaphoreHandle_t           esp_sys_sem_t;
+typedef QueueHandle_t               esp_sys_mbox_t;
+typedef TaskHandle_t                esp_sys_thread_t;
+typedef UBaseType_t                 esp_sys_thread_prio_t;
 
 #define ESP_SYS_MBOX_NULL           (QueueHandle_t)0
 #define ESP_SYS_SEM_NULL            (SemaphoreHandle_t)0

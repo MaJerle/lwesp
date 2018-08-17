@@ -2,7 +2,7 @@
 <project>
     <fileVersion>3</fileVersion>
     <configuration>
-        <name>STM32F723E_Discovery_Netconn_server_RTOS</name>
+        <name>STM32F723E_Discovery_Netconn_Server_RTOS</name>
         <toolchain>
             <name>ARM</name>
         </toolchain>

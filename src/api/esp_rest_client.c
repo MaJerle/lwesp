@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -155,8 +155,7 @@ espr_t
 esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_resp_t* r) {
     esp_netconn_p nc;
     espr_t res;
-    esp_pbuf_p pbuf;
-    esp_rest_p rhh;
+    esp_pbuf_p pbuf, rhh;
 
     ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
     ESP_ASSERT("uri != NULL", uri != NULL);     /* Check input parameters */
@@ -165,9 +164,7 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
     rhh = *rh;                                  /* Get REST handle */
     r->p = NULL;                                /* Reset pbuf pointer */
 
-    /*
-     * Start netconn and connect to server
-     */
+    /*Start netconn and connect to server */
     nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
     if (nc != NULL) {
         res = esp_netconn_connect(nc, rhh->desc->domain, rhh->desc->port);
@@ -266,9 +263,7 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
                     check_http_code = 0;        /* No need to check for HTTP code anymore */
                 }
                     
-                /*
-                 * Calculate offset in pbuf where actual data start
-                 */
+                /* Calculate offset in pbuf where actual data start */
                 if (check_headers_end && r->p != NULL) {
                     r->p_offset = esp_pbuf_memfind(r->p, "\r\n\r\n", 4, 0);
                     if (r->p_offset != ESP_SIZET_MAX) { /* Did we receive all headers now? */

@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -40,8 +40,8 @@
 /**
  * \brief           Sequential API structure
  */
-typedef struct esp_netconn_t {
-    struct esp_netconn_t* next;                 /*!< Linked list entry */
+typedef struct esp_netconn {
+    struct esp_netconn* next;                   /*!< Linked list entry */
 
     esp_netconn_type_t type;                    /*!< Netconn type */
     esp_port_t listen_port;                     /*!< Port on which we are listening */
@@ -90,7 +90,9 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
     }
     if (esp_sys_mbox_isvalid(&nc->mbox_accept)) {
         while (esp_sys_mbox_getnow(&nc->mbox_accept, (void **)&new_nc)) {
-            if (new_nc != NULL && (uint8_t *)new_nc != (uint8_t *)&recv_closed) {
+            if (new_nc != NULL
+                && (uint8_t *)new_nc != (uint8_t *)&recv_closed
+                && (uint8_t *)new_nc != (uint8_t *)&recv_not_present) {
                 esp_netconn_close(new_nc);      /* Close netconn connection */
             }
         }
@@ -121,8 +123,8 @@ netconn_evt(esp_evt_t* evt) {
          */
         case ESP_EVT_CONN_ACTIVE: {             /* A new connection active is active */
             if (esp_conn_is_client(conn)) {     /* Was connection started by us? */
-                nc = esp_conn_get_arg(conn);    /* Argument should be ready already */
-                if (nc != NULL) {               /* Netconn should be set when connecting to server */
+                nc = esp_conn_get_arg(conn);    /* Argument should be already set */
+                if (nc != NULL) {
                     nc->conn = conn;            /* Save actual connection */
                 } else {
                     close = 1;                  /* Close this connection, invalid netconn */
@@ -218,23 +220,6 @@ netconn_evt(esp_evt_t* evt) {
         }
         default:
             return espERR;
-    }
-
-    /*
-     * We may only delete netconn if netconn is not already placed
-     * in listen mbox and accepted by user.
-     *
-     * This close check may only happen in 2 scenarious:
-     *
-     * - New connection which cannot be put into listen_connection mbox
-     * - New data received and connection not in accept mbox yet
-     *      when `ESP_CFG_NETCONN_ACCEPT_ON_CONNECT = 0`
-     */
-    if (close) {
-        esp_conn_close(conn, 0);                /* Close the connection */
-        if (nc != NULL) {
-            esp_netconn_delete(nc);             /* Free memory for API */
-        }
     }
     return espOK;
 }
@@ -677,6 +662,7 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 
     /* Check if connection closed */
     if ((uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
+        *pbuf = NULL;                           /* Reset pbuf */
         return espCLOSED;
     }
     return espOK;                               /* We have data available */
