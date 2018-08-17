@@ -40,8 +40,8 @@
 /**
  * \brief           Sequential API structure
  */
-typedef struct esp_netconn_t {
-    struct esp_netconn_t* next;                 /*!< Linked list entry */
+typedef struct esp_netconn {
+    struct esp_netconn* next;                   /*!< Linked list entry */
 
     esp_netconn_type_t type;                    /*!< Netconn type */
     esp_port_t listen_port;                     /*!< Port on which we are listening */

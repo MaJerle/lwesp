@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -46,12 +46,12 @@ extern "C" {
  * \{
  */
 
-struct esp_netconn_t;
+struct esp_netconn;
 
 /**
  * \brief           Netconn object structure
  */
-typedef struct esp_netconn_t* esp_netconn_p;
+typedef struct esp_netconn* esp_netconn_p;
  
 /**
  * \brief           Netconn connection type
