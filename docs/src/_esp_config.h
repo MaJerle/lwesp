@@ -1,8 +1,0 @@
-/**
- * \addtogroup      ESP_CONF
- * \{
- *
- *
- *
- * \}
- */

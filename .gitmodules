@@ -1,6 +1,0 @@
-[submodule "git_path"]
-	path = git_path
-	url = D:/_ELECTRONICS/_ARM/gui
-[submodule "libs"]
-	path = libs
-	url = https://github.com/MaJerle/Embedded_Libs
