@@ -1,4 +1,4 @@
-/**	
+/**
  * \file            esp_hostname.c
  * \brief           Hostname API
  */
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -47,7 +47,7 @@ esp_hostname_set(const char* hostname, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
-		
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_SET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname = (char *)hostname;
@@ -68,7 +68,7 @@ esp_hostname_get(char* hostname, size_t length, const uint32_t blocking) {
     
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
     ESP_ASSERT("length > 0", length > 0);       /* Assert input parameters */
-		
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_GET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname = (char *)hostname;

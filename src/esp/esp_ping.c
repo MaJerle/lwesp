@@ -1,4 +1,4 @@
-/**	
+/**
  * \file            esp_ping.c
  * \brief           Ping API
  */
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -49,7 +49,7 @@ esp_ping(const char* host, uint32_t* time, const uint32_t blocking) {
     
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("time != NULL", time != NULL);   /* Assert input parameters */
-		
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_PING;
     ESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;

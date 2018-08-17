@@ -1,4 +1,4 @@
-/**	
+/**
  * \file            esp_sys_win32.h
  * \brief           WIN32 based system file implementation
  */
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -43,7 +43,7 @@ extern "C" {
 #include "esp_config.h"
 
 #if ESP_CFG_OS && !__DOXYGEN__
-	
+
 #include "windows.h"
 
 typedef HANDLE                      esp_sys_mutex_t;

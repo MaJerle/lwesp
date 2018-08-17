@@ -1,4 +1,4 @@
-/**	
+/**
  * \file            esp_mdns.c
  * \brief           mDNS API
  */
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -54,7 +54,7 @@ esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t 
         ESP_ASSERT("server != NULL", server != NULL);   /* Assert input parameters */
         ESP_ASSERT("port", port);               /* Assert input parameters */
     }
-		
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_MDNS;
     ESP_MSG_VAR_REF(msg).msg.mdns.en = en;

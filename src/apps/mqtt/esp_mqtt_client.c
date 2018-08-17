@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -279,7 +279,7 @@ write_data(mqtt_client_t* client, const void* data, size_t len) {
  *                  remaining length itself + 1 byte for packet header
  * \param[in]       client: MQTT client
  * \param[in]       rem_len: Remaining length of packet
- * \return          Number of required RAW bytes or 0 if no memory available
+ * \return          Number of required RAW bytes or `0` if no memory available
  */
 static uint16_t
 output_check_enough_memory(mqtt_client_t* client, uint16_t rem_len) {
@@ -499,9 +499,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
                 write_ack_rec_rel_resp(client, resp_msg_type, pkt_id, qos);
             }
             
-            /*
-             * Notify application layer about received packet
-             */
+            /* Notify application layer about received packet */
             client->evt.type = MQTT_EVT_PUBLISH_RECV;
             client->evt.evt.publish_recv.topic = topic;
             client->evt.evt.publish_recv.topic_len = topic_len;

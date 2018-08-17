@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -332,7 +332,7 @@ typedef struct http_state {
     esp_conn_p conn;                            /*!< Connection handle */
     esp_pbuf_p p;                               /*!< Header received pbuf chain */
     
-    size_t conn_mem_available;               	/*!< Available memory in connection send queue */
+    size_t conn_mem_available;                  /*!< Available memory in connection send queue */
     uint32_t written_total;                     /*!< Total number of bytes written into send buffer */
     uint32_t sent_total;                        /*!< Number of bytes we already sent */
     

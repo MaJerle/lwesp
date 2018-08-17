@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -56,7 +56,7 @@ espr_t      esp_set_wifi_mode(esp_mode_t mode, const uint32_t blocking);
 
 espr_t      esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn cb, const uint32_t blocking);
 
-espr_t      esp_dns_getbyhostname(const char* host, esp_ip_t* const ip, const uint32_t blocking);
+espr_t      esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const uint32_t blocking);
 
 espr_t      esp_update_sw(uint32_t blocking);
 
@@ -73,18 +73,22 @@ uint8_t     esp_delay(const uint32_t ms);
 
 uint8_t     esp_get_current_at_fw_version(esp_sw_version_t* const version);
 
+/**
+ * \brief           Set and format major, minor and patch values to firmware version
+ * \param[in]       v: Version output, pointer to \ref esp_sw_version_t structure
+ * \param[in]       major_: Major version
+ * \param[in]       minor_: Minor version
+ * \param[in]       patch_: Patch version
+ * \hideinitializer
+ */
 #define     esp_set_fw_version(v, major_, minor_, patch_)          do { (v)->major = (major_); (v)->minor = (minor_); (v)->patch = (patch_); } while (0)
 
 /**
  * \brief           Get minimal AT version supported by library
- * \param[out]      v: Version output
+ * \param[out]      v: Version output, pointer to \ref esp_sw_version_t structure
  * \hideinitializer
  */
-#define     esp_get_min_at_fw_version(v)   do {    \
-    (v)->major = ESP_MIN_AT_VERSION_MAJOR;                              \
-    (v)->minor = ESP_MIN_AT_VERSION_MINOR;                              \
-    (v)->patch = ESP_MIN_AT_VERSION_PATCH;                              \
-} while (0)
+#define     esp_get_min_at_fw_version(v)   esp_set_fw_version(v, ESP_MIN_AT_VERSION_MAJOR, ESP_MIN_AT_VERSION_MINOR, ESP_MIN_AT_VERSION_PATCH)
 
 /**
  * \}

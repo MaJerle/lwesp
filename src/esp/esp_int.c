@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -1017,7 +1017,7 @@ espi_process(const void* data, size_t data_len) {
                     switch (ch) {
                         case '\n':
                             RECV_ADD(ch);       /* Add character to input buffer */
-                            espi_parse_received(&recv_buff);	/* Parse received string */
+                            espi_parse_received(&recv_buff);/* Parse received string */
                             RECV_RESET();       /* Reset received string */
                             break;
                         default:
@@ -1069,7 +1069,7 @@ espi_process(const void* data, size_t data_len) {
                      * indicating end of +IPD and start of actual data
                      */
                     if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+IPD", 4)) {
-                        espi_parse_received(&recv_buff);	/* Parse received string */
+                        espi_parse_received(&recv_buff);/* Parse received string */
                         if (esp.ipd.read) {     /* Shall we start read procedure? */
                             size_t len;
                             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,

@@ -205,9 +205,7 @@ mqtt_cb(mqtt_client_t* client, mqtt_evt_t* evt) {
             break;
         }
         
-        /*
-         * Client is fully disconnected from MQTT server
-         */
+        /* Client is fully disconnected from MQTT server */
         case MQTT_EVT_DISCONNECT: {
             printf("MQTT client disconnected!\r\n");
             example_do_connect(client);         /* Connect to server all over again */

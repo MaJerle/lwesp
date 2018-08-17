@@ -1,4 +1,4 @@
-/**	
+/**
  * \file            esp_sys_win32.c
  * \brief           System dependant functions for WIN32
  */
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
@@ -42,14 +42,14 @@
  */
 typedef struct {
     esp_sys_sem_t sem_not_empty;                /*!< Semaphore indicates not empty */
-	esp_sys_sem_t sem_not_full;                 /*!< Semaphore indicates not full */
-	esp_sys_sem_t sem;                          /*!< Semaphore to lock access */
+    esp_sys_sem_t sem_not_full;                 /*!< Semaphore indicates not full */
+    esp_sys_sem_t sem;                          /*!< Semaphore to lock access */
     size_t in, out, size;
     void* entries[1];
 } win32_mbox_t;
 
 static LARGE_INTEGER freq, sys_start_time;
-static esp_sys_mutex_t sys_mutex;				/* Mutex ID for main protection */
+static esp_sys_mutex_t sys_mutex;               /* Mutex ID for main protection */
 
 /**
  * \brief           Check if message box is full
@@ -82,19 +82,19 @@ mbox_is_empty(win32_mbox_t* m) {
  */
 static uint32_t
 osKernelSysTick(void) {
-	LONGLONG ret;
-	LARGE_INTEGER now;
-
+    LONGLONG ret;
+    LARGE_INTEGER now;
+    
     QueryPerformanceFrequency(&freq);           /* Get frequency */
-	QueryPerformanceCounter(&now);              /* Get current time */
-	ret = now.QuadPart - sys_start_time.QuadPart;
-	return (uint32_t)(((ret) * 1000) / freq.QuadPart);
+    QueryPerformanceCounter(&now);              /* Get current time */
+    ret = now.QuadPart - sys_start_time.QuadPart;
+    return (uint32_t)(((ret) * 1000) / freq.QuadPart);
 }
 
 uint8_t
 esp_sys_init(void) {
-	QueryPerformanceFrequency(&freq);
-	QueryPerformanceCounter(&sys_start_time);
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&sys_start_time);
 
     esp_sys_mutex_create(&sys_mutex);
     return 1;
@@ -120,28 +120,28 @@ esp_sys_unprotect(void) {
 
 uint8_t
 esp_sys_mutex_create(esp_sys_mutex_t* p) {
-	*p = CreateMutex(NULL, FALSE, NULL);
-	return *p != NULL;
+    *p = CreateMutex(NULL, FALSE, NULL);
+    return *p != NULL;
 }
 
 uint8_t
 esp_sys_mutex_delete(esp_sys_mutex_t* p) {
-	return CloseHandle(*p);
+    return CloseHandle(*p);
 }
 
 uint8_t
 esp_sys_mutex_lock(esp_sys_mutex_t* p) {
-	DWORD ret;
-	ret = WaitForSingleObject(*p, INFINITE);
-	if (ret != WAIT_OBJECT_0) {
+    DWORD ret;
+    ret = WaitForSingleObject(*p, INFINITE);
+    if (ret != WAIT_OBJECT_0) {
         return 0;
-	}
-	return 1;
+    }
+    return 1;
 }
 
 uint8_t
 esp_sys_mutex_unlock(esp_sys_mutex_t* p) {
-	return !!ReleaseMutex(*p);
+    return ReleaseMutex(*p);
 }
 
 uint8_t
@@ -157,38 +157,38 @@ esp_sys_mutex_invalid(esp_sys_mutex_t* p) {
 
 uint8_t
 esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
-	HANDLE h;
-	h = CreateSemaphore(NULL, !!cnt, 1, NULL);
-	*p = h;
-	return *p != NULL;
+    HANDLE h;
+    h = CreateSemaphore(NULL, !!cnt, 1, NULL);
+    *p = h;
+    return *p != NULL;
 }
 
 uint8_t
 esp_sys_sem_delete(esp_sys_sem_t* p) {
-	return CloseHandle(*p);
+    return CloseHandle(*p);
 }
 
 uint32_t
 esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
-	DWORD ret;
+    DWORD ret;
     uint32_t tick = osKernelSysTick();
-	
-	if (!timeout) {
-		ret = WaitForSingleObject(*p, INFINITE);
-		return 1;
-	} else {
-		ret = WaitForSingleObject(*p, timeout);
-		if (ret == WAIT_OBJECT_0) {
-			return 1;
-		} else {
-			return ESP_SYS_TIMEOUT;
-		}
-	}
+
+    if (!timeout) {
+        ret = WaitForSingleObject(*p, INFINITE);
+        return 1;
+    } else {
+        ret = WaitForSingleObject(*p, timeout);
+        if (ret == WAIT_OBJECT_0) {
+            return 1;
+        } else {
+            return ESP_SYS_TIMEOUT;
+        }
+    }
 }
 
 uint8_t
 esp_sys_sem_release(esp_sys_sem_t* p) {
-	return ReleaseSemaphore(*p, 1, NULL);
+    return ReleaseSemaphore(*p, 1, NULL);
 }
 
 uint8_t
@@ -376,13 +376,13 @@ esp_sys_thread_terminate(esp_sys_thread_t* t) {
         h = *t;
     }
     TerminateThread(h, 0);
-	return 1;
+    return 1;
 }
 
 uint8_t
 esp_sys_thread_yield(void) {
     /* Not implemented */
-	return 1;
+    return 1;
 }
 
 #endif /* ESP_CFG_OS */
