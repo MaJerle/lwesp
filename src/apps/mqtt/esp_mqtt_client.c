@@ -378,9 +378,9 @@ mqtt_close(mqtt_client_t* client) {
  */
 static uint8_t
 sub_unsub(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg, uint8_t sub) {
+    uint8_t ret = 0;
     uint16_t len_topic, pkt_id;
     uint32_t rem_len;
-    uint8_t ret = 0;
     mqtt_request_t* request = NULL;
     
     len_topic = ESP_U16(strlen(topic));         /* Get length of topic */
@@ -406,7 +406,7 @@ sub_unsub(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg, uint
         if (request != NULL) {                  /* Do we have a request */
             write_fixed_header(client, sub ? MQTT_MSG_TYPE_SUBSCRIBE : MQTT_MSG_TYPE_UNSUBSCRIBE, 0, 1, 0, rem_len);
             write_u16(client, pkt_id);          /* Write packet ID */
-            write_string(client, topic, len_topic);     /* Write topic string to packet */
+            write_string(client, topic, len_topic); /* Write topic string to packet */
             if (sub) {                          /* Send quality of service only on subscribe */
                 write_u8(client, ESP_MIN(qos, 2));  /* Write quality of service */
             }
@@ -430,11 +430,10 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
     mqtt_msg_type_t msg_type;
     uint16_t pkt_id;
     uint8_t qos;
+
     msg_type = MQTT_RCV_GET_PACKET_TYPE(client->msg_hdr_byte);  /* Get packet type from message header byte */
     
-    /*
-     * Check received packet type
-     */
+    /* Check received packet type */
     switch (msg_type) {
         case MQTT_MSG_TYPE_CONNACK: {
             mqtt_conn_status_t err = (mqtt_conn_status_t)client->rx_buff[1];
@@ -447,7 +446,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
                 /* Notify user layer */
                 client->evt.type = MQTT_EVT_CONNECT;
                 client->evt.evt.connect.status = err;
-                client->evt_fn(client, &client->evt);  /* Call user function */
+                client->evt_fn(client, &client->evt);
             } else {
                 /* Protocol violation here */
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
@@ -457,8 +456,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
         }
         case MQTT_MSG_TYPE_PUBLISH: {
             uint16_t topic_len, data_len;
-            uint8_t *topic, *data;
-            uint8_t dup;
+            uint8_t *topic, *data, dup;
             
             qos = MQTT_RCV_GET_PACKET_QOS(client->msg_hdr_byte);    /* Get QoS from received packet */
             dup = MQTT_RCV_GET_PACKET_DUP(client->msg_hdr_byte);    /* Get duplicate flag */
@@ -468,12 +466,9 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
             
             data = topic + topic_len;           /* Get data pointer */
             
-            /*
-             * Packet ID is only available 
-             * if quality of service is not 0
-             */
+            /* Packet ID is only available if quality of service is not 0 */
             if (qos > 0) {
-                pkt_id = client->rx_buff[2 + topic_len] << 8 | client->rx_buff[2 + topic_len + 1];  /* Get packet ID */
+                pkt_id = (client->rx_buff[2 + topic_len] << 8) | client->rx_buff[2 + topic_len + 1];/* Get packet ID */
                 data += 2;                      /* Increase pointer for 2 bytes */
             } else {
                 pkt_id = 0;                     /* No packet ID */
@@ -499,9 +494,7 @@ mqtt_process_incoming_message(mqtt_client_t* client) {
                 write_ack_rec_rel_resp(client, resp_msg_type, pkt_id, qos);
             }
             
-            /*
-             * Notify application layer about received packet
-             */
+            /* Notify application layer about received packet */
             client->evt.type = MQTT_EVT_PUBLISH_RECV;
             client->evt.evt.publish_recv.topic = topic;
             client->evt.evt.publish_recv.topic_len = topic_len;
@@ -657,8 +650,7 @@ mqtt_parse_incoming(mqtt_client_t* client, esp_pbuf_p pbuf) {
 static void
 mqtt_connected_cb(mqtt_client_t* client) {
     uint8_t flags = 0;
-    uint16_t rem_len = 0;
-    uint16_t len_id = 0, len_user = 0, len_pass = 0, len_will_topic = 0, len_will_message = 0;
+    uint16_t rem_len, len_id, len_pass, len_user, len_will_topic, len_will_message;
 
     flags |= MQTT_FLAG_CONNECT_CLEAN_SESSION;   /* Start as clean session */
     
@@ -675,7 +667,7 @@ mqtt_connected_cb(mqtt_client_t* client) {
     
     if (client->info->will_topic != NULL && client->info->will_message != NULL) {
         flags |= MQTT_FLAG_CONNECT_WILL;
-        flags |= (ESP_MIN(client->info->will_qos, 2)) << 0x03;  /* Set qos to flags */
+        flags |= ESP_MIN(client->info->will_qos, 2) << 0x03;/* Set qos to flags */
         
         len_will_topic = ESP_U16(strlen(client->info->will_topic));
         len_will_message = ESP_U16(strlen(client->info->will_message));
@@ -702,9 +694,7 @@ mqtt_connected_cb(mqtt_client_t* client) {
         return;
     }
     
-    /*
-     * Write everything to output buffer
-     */
+    /* Write everything to output buffer */
     write_fixed_header(client, MQTT_MSG_TYPE_CONNECT, 0, 0, 0, rem_len);
     write_string(client, "MQTT", 4);            /* Protocol name */
     write_u8(client, 4);                        /* Protocol version */
