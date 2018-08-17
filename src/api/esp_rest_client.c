@@ -155,7 +155,8 @@ espr_t
 esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_resp_t* r) {
     esp_netconn_p nc;
     espr_t res;
-    esp_pbuf_p pbuf, rhh;
+    esp_pbuf_p pbuf;
+    esp_rest_p rhh;
 
     ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
     ESP_ASSERT("uri != NULL", uri != NULL);     /* Check input parameters */
