@@ -59,7 +59,7 @@ main(void) {
     connect_to_preferred_access_point(1);
 
     /* Use DNS protocol to get IP address of domain name */
-    if (esp_dns_getbyhostname("example.com", &ip, 1) == espOK) {
+    if (esp_dns_gethostbyname("example.com", &ip, 1) == espOK) {
         printf("DNS record for example.com: %d.%d.%d.%d\r\n",
             (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3]);
     } else {
