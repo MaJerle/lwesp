@@ -73,6 +73,8 @@ extern "C" {
 
 struct mqtt_client;
 
+typedef struct mqtt_client* mqtt_client_p;
+
 /**
  * \brief           State of MQTT client
  */
@@ -176,51 +178,22 @@ typedef struct {
  * \param[in]       client: MQTT client
  * \param[in]       evt: MQTT event with type and related data
  */
-typedef void    (*mqtt_evt_fn)(struct mqtt_client* client, mqtt_evt_t* evt);
+typedef void    (*mqtt_evt_fn)(mqtt_client_p client, mqtt_evt_t* evt);
 
-/**
- * \brief           MQTT client connection
- */
-typedef struct mqtt_client {
-    esp_conn_p conn;                            /*!< Active used connection for MQTT */
-    const mqtt_client_info_t* info;             /*!< Connection info */
-    mqtt_state_t conn_state;                    /*!< MQTT connection state */
-    
-    uint32_t poll_time;                         /*!< Poll time, increased every 500ms */
-    
-    mqtt_evt_t evt;                             /*!< MQTT event callback */
-    mqtt_evt_fn evt_fn;                         /*!< Event callback function */
-    
-    esp_buff_t tx_buff;                         /*!< Buffer for raw output data to transmit */
-    
-    uint8_t is_sending;                         /*!< Flag if we are sending data currently */
-    uint32_t sent_total;                        /*!< Total number of bytes sent so far on connection */
-    uint32_t written_total;                     /*!< Total number of bytes written into send buffer and queued for send */
-    
-    uint16_t last_packet_id;                    /*!< Packet ID used on last connection */
-    
-    mqtt_request_t requests[MQTT_MAX_REQUESTS]; /*!< List of requests */
-    
-    uint8_t* rx_buff;                           /*!< RX buffer */
-    size_t rx_buff_len;                         /*!< Length of RX buffer */
-    
-    uint8_t parser_state;                       /*!< Incoming data parser state */
-    uint8_t msg_hdr_byte;                       /*!< Incoming message header byte */
-    uint32_t msg_rem_len;                       /*!< Remaining length value of current message */
-    uint32_t msg_curr_pos;                      /*!< Current buffer write pointer */
-} mqtt_client_t;
+mqtt_client_p   mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
+void            mqtt_client_delete(mqtt_client_p client);
 
-mqtt_client_t*  mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
-void            mqtt_client_delete(mqtt_client_t* client);
+espr_t          mqtt_client_connect(mqtt_client_p client, const char* host, esp_port_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info);
+espr_t          mqtt_client_disconnect(mqtt_client_p client);
+uint8_t         mqtt_client_is_connected(mqtt_client_p client);
 
-espr_t          mqtt_client_connect(mqtt_client_t* client, const char* host, esp_port_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info);
-espr_t          mqtt_client_disconnect(mqtt_client_t* client);
-uint8_t         mqtt_client_is_connected(mqtt_client_t* client);
+espr_t          mqtt_client_subscribe(mqtt_client_p client, const char* topic, uint8_t qos, void* arg);
+espr_t          mqtt_client_unsubscribe(mqtt_client_p client, const char* topic, void* arg);
 
-espr_t          mqtt_client_subscribe(mqtt_client_t* client, const char* topic, uint8_t qos, void* arg);
-espr_t          mqtt_client_unsubscribe(mqtt_client_t* client, const char* topic, void* arg);
+espr_t          mqtt_client_publish(mqtt_client_p client, const char* topic, const void* payload, uint16_t len, uint8_t qos, uint8_t retain, void* arg);
 
-espr_t          mqtt_client_publish(mqtt_client_t* client, const char* topic, const void* payload, uint16_t len, uint8_t qos, uint8_t retain, void* arg);
+void *          mqtt_client_get_arg(mqtt_client_p client);
+void            mqtt_client_set_arg(mqtt_client_p client, void* arg);
     
 /**
  * \}
