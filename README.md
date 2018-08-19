@@ -19,6 +19,10 @@ ESP-AT Library commands parser is a generic, platform independent, library for c
 - Embeds other AT features, such as `WPS`, `PING`, `Hostname` and others
 - User friendly license
 
+## Examples and resources
+
+For examples, please check second repository, available at https://github.com/MaJerle/ESP_AT_Lib
+
 ## Documentation
 
 Full API documentation with description and examples is available and is regulary updated with the source changes
