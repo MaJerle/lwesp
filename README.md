@@ -21,7 +21,7 @@ ESP-AT Library commands parser is a generic, platform independent, library for c
 
 ## Examples and resources
 
-For examples, please check second repository, available at https://github.com/MaJerle/ESP_AT_Lib
+For examples, please check second repository, available at https://github.com/MaJerle/ESP_AT_Lib_res
 
 ## Documentation
 
