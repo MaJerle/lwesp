@@ -46,16 +46,6 @@ struct mqtt_client_api {
     espr_t sub_pub_resp;                        /*!< Subscribe/Unsubscribe/Publish response */
 } mqtt_client_api_t;
 
-/**
- * \brief           MQTT API RX buffer
- */
-struct mqtt_client_api_buf {
-    const uint8_t* topic;                       /*!< Topic data */
-    size_t topic_len;                           /*!< Topic length */
-    const uint8_t* payload;                     /*!< Payload data */
-    size_t payload_len;                         /*!< Payload length */
-} mqtt_client_api_buf_t;
-
 static uint8_t mqtt_closed = 0xFF;
 
 /**

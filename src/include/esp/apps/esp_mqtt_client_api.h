@@ -54,6 +54,16 @@ struct mqtt_client_api_buf;
 typedef struct mqtt_client_api* mqtt_client_api_p;
 typedef struct mqtt_client_api_buf* mqtt_client_api_buf_p;
 
+/**
+ * \brief           MQTT API RX buffer
+ */
+struct mqtt_client_api_buf {
+    const uint8_t* topic;                       /*!< Topic data */
+    size_t topic_len;                           /*!< Topic length */
+    const uint8_t* payload;                     /*!< Payload data */
+    size_t payload_len;                         /*!< Payload length */
+} mqtt_client_api_buf_t;
+
 mqtt_client_api_p   mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len);
 mqtt_conn_status_t  mqtt_client_api_connect(mqtt_client_api_p client, const char* host, esp_port_t port, const mqtt_client_info_t* info);
 espr_t              mqtt_client_api_subscribe(mqtt_client_api_p client, const char* topic, uint8_t qos);
