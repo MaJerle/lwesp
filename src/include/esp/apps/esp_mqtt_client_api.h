@@ -49,10 +49,6 @@ extern "C" {
  */
 
 struct mqtt_client_api;
-struct mqtt_client_api_buf;
-
-typedef struct mqtt_client_api* mqtt_client_api_p;
-typedef struct mqtt_client_api_buf* mqtt_client_api_buf_p;
 
 /**
  * \brief           MQTT API RX buffer
@@ -64,11 +60,15 @@ struct mqtt_client_api_buf {
     size_t payload_len;                         /*!< Payload length */
 } mqtt_client_api_buf_t;
 
+typedef struct mqtt_client_api* mqtt_client_api_p;
+typedef struct mqtt_client_api_buf* mqtt_client_api_buf_p;
+
 mqtt_client_api_p   mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len);
 mqtt_conn_status_t  mqtt_client_api_connect(mqtt_client_api_p client, const char* host, esp_port_t port, const mqtt_client_info_t* info);
+espr_t              mqtt_client_api_close(mqtt_client_api_p client);
 espr_t              mqtt_client_api_subscribe(mqtt_client_api_p client, const char* topic, uint8_t qos);
 espr_t              mqtt_client_api_unsubscribe(mqtt_client_api_p client, const char* topic);
-espr_t              mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void* data, size_t btw);
+espr_t              mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void* data, size_t btw, uint8_t qos);
 espr_t              mqtt_client_api_receive(mqtt_client_api_p client, mqtt_client_api_buf_p* p, uint32_t timeout);
 void                mqtt_client_api_buf_free(mqtt_client_api_buf_p p);
     

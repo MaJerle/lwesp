@@ -142,6 +142,12 @@ mqtt_evt(mqtt_client_p client, mqtt_evt_t* evt) {
     }
 }
 
+/**
+ * \brief           Create new MQTT client API
+ * \param[in]       tx_buff_len: Maximal TX buffer for maximal packet length
+ * \param[in]       rx_buff_len: Maximal RX buffer
+ * \return          Client handle on success, `NULL` otherwise
+ */
 mqtt_client_api_p
 mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
     mqtt_client_api_p client;
@@ -198,6 +204,14 @@ out:
     return client;
 }
 
+/**
+ * \brief           Connect to MQTT broker
+ * \param[in]       client: MQTT API client handle
+ * \param[in]       host: TCP host
+ * \param[in]       port: TCP port
+ * \param[in]       info: MQTT client info
+ * \return          \ref MQTT_CONN_STATUS_ACCEPTED on success, member of \ref mqtt_conn_status_t otherwise
+ */
 mqtt_conn_status_t
 mqtt_client_api_connect(mqtt_client_api_p client, const char* host, esp_port_t port, const mqtt_client_info_t* info) {
     esp_sys_mutex_lock(&client->mutex);
@@ -213,6 +227,11 @@ mqtt_client_api_connect(mqtt_client_api_p client, const char* host, esp_port_t p
     return client->connect_resp;
 }
 
+/**
+ * \brief           Close MQTT connection
+ * \param[in]       client: MQTT API client handle
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
 mqtt_client_api_close(mqtt_client_api_p client) {
     espr_t res = espERR;
@@ -230,6 +249,13 @@ mqtt_client_api_close(mqtt_client_api_p client) {
     return res;
 }
 
+/**
+ * \brief           Subscribe to topic
+ * \param[in]       client: MQTT API client handle
+ * \param[in]       topic: Topic to subscribe on
+ * \param[in]       qos: Quality of service. This parameter can be a value of \ref ESP_APP_MQTT_CLIENT_QOS
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
 mqtt_client_api_subscribe(mqtt_client_api_p client, const char* topic, uint8_t qos) {
     espr_t res = espERR;
@@ -248,6 +274,12 @@ mqtt_client_api_subscribe(mqtt_client_api_p client, const char* topic, uint8_t q
     return res;
 }
 
+/**
+ * \brief           Unsubscribe from topic
+ * \param[in]       client: MQTT API client handle
+ * \param[in]       topic: Topic to unsubscribe from
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
 mqtt_client_api_unsubscribe(mqtt_client_api_p client, const char* topic) {
     espr_t res = espERR;
@@ -266,14 +298,23 @@ mqtt_client_api_unsubscribe(mqtt_client_api_p client, const char* topic) {
     return res;
 }
 
+/**
+ * \brief           Publish new packet to MQTT network
+ * \param[in]       client: MQTT API client handle
+ * \param[in]       topic: Topic to publish on
+ * \param[in]       data: Data to send
+ * \param[in]       btw: Number of bytes to send for data parameter
+ * \param[in]       qos: Quality of service. This parameter can be a value of \ref ESP_APP_MQTT_CLIENT_QOS
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
-mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void* data, size_t btw) {
+mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void* data, size_t btw, uint8_t qos) {
     espr_t res = espERR;
 
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
-    if (mqtt_client_publish(client->mc, topic, data, ESP_U16(btw), MQTT_QOS_AT_LEAST_ONCE, 0, NULL) == espOK) {
+    if (mqtt_client_publish(client->mc, topic, data, ESP_U16(btw), qos, 0, NULL) == espOK) {
         esp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     }
@@ -284,12 +325,26 @@ mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void*
     return res;
 }
 
+/**
+ * \brief           Receive next packet in specific timeout time
+ * \note            This function can be called from separate thread
+ *                      than the rest of API function, which allows you to 
+ *                      handle receive data separated with custom timeout
+ * \param[in]       client: MQTT API client handle
+ * \param[in]       p: Pointer to output buffer
+ * \param[in]       timeout: Maximal time to wait before function returns timeout
+ * \return          \ref espOK on success, \ref espCLOSED if MQTT is closed, \ref espTIMEOUT on timeout
+ */
 espr_t
 mqtt_client_api_receive(mqtt_client_api_p client, mqtt_client_api_buf_p* p, uint32_t timeout) {
     *p = NULL;
 
     /* Get new entry from mbox */
-    if (esp_sys_mbox_get(&client->rcv_mbox, p, timeout) == ESP_SYS_TIMEOUT) {
+    if (timeout == 0) {
+        if (!esp_sys_mbox_getnow(&client->rcv_mbox, (void **)p)) {
+            return espTIMEOUT;
+        }
+    } else if (esp_sys_mbox_get(&client->rcv_mbox, (void **)p, timeout) == ESP_SYS_TIMEOUT) {
         return espTIMEOUT;
     }
 
@@ -301,6 +356,10 @@ mqtt_client_api_receive(mqtt_client_api_p client, mqtt_client_api_buf_p* p, uint
     return espOK;
 }
 
+/**
+ * \brief           Free buffer memory after usage
+ * \param[in]       p: Buffer to free
+ */
 void
 mqtt_client_api_buf_free(mqtt_client_api_buf_p p) {
     esp_mem_free(p);
