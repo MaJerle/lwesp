@@ -361,7 +361,7 @@ espi_tcpip_process_data_sent(uint8_t sent) {
         esp.msg->msg.conn_send.sent_all += esp.msg->msg.conn_send.sent;
         esp.msg->msg.conn_send.btw -= esp.msg->msg.conn_send.sent;
         esp.msg->msg.conn_send.ptr += esp.msg->msg.conn_send.sent;
-        if (esp.msg->msg.conn_send.bw) {
+        if (esp.msg->msg.conn_send.bw != NULL) {
             *esp.msg->msg.conn_send.bw += esp.msg->msg.conn_send.sent;
         }
         esp.msg->msg.conn_send.tries = 0;
