@@ -124,7 +124,7 @@ typedef enum {
     MQTT_EVT_CONNECT,                           /*!< MQTT client connect event */
     MQTT_EVT_SUBSCRIBE,                         /*!< MQTT client subscribed to specific topic */
     MQTT_EVT_UNSUBSCRIBE,                       /*!< MQTT client unsubscribed from specific topic */
-    MQTT_EVT_PUBLISHED,                         /*!< MQTT client successfully published message to server.
+    MQTT_EVT_PUBLISH,                           /*!< MQTT client publish message to server event.
                                                     \note   When publishing packet with quality of service \ref MQTT_QOS_AT_MOST_ONCE,
                                                             you may not receive event, even if packet was successfully sent,
                                                             thus do not rely on this event for packet with `qos = MQTT_QOS_AT_MOST_ONCE` */
@@ -160,6 +160,10 @@ typedef struct {
             espr_t res;                         /*!< Response status */
         } sub_unsub_scribed;                    /*!< Event for (un)subscribe to/from topics */
         struct {
+            void* arg;                          /*!< User argument for callback function */
+            espr_t res;                         /*!< Response status */
+        } publish;                              /*!< Published event */
+        struct {
             const uint8_t* topic;               /*!< Pointer to topic identifier */
             size_t topic_len;                   /*!< Length of topic */
             const void* payload;                /*!< Topic payload */
@@ -167,9 +171,6 @@ typedef struct {
             uint8_t dup;                        /*!< Duplicate flag if message was sent again */
             uint8_t qos;                        /*!< Received packet quality of service */
         } publish_recv;                         /*!< Publish received event */
-        struct {
-            void* arg;                          /*!< User argument for callback function */
-        } published;                            /*!< Published event */
     } evt;                                      /*!< Event data parameters */
 } mqtt_evt_t;
 
@@ -192,7 +193,7 @@ espr_t          mqtt_client_unsubscribe(mqtt_client_p client, const char* topic,
 
 espr_t          mqtt_client_publish(mqtt_client_p client, const char* topic, const void* payload, uint16_t len, uint8_t qos, uint8_t retain, void* arg);
 
-void *          mqtt_client_get_arg(mqtt_client_p client);
+void*           mqtt_client_get_arg(mqtt_client_p client);
 void            mqtt_client_set_arg(mqtt_client_p client, void* arg);
     
 /**

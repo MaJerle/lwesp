@@ -120,6 +120,8 @@ typedef enum {
 /** Requests status */
 #define MQTT_REQUEST_FLAG_IN_USE        0x01    /*!< Request object is allocated and in use */
 #define MQTT_REQUEST_FLAG_PENDING       0x02    /*!< Request object is pending waiting for response from server */
+#define MQTT_REQUEST_FLAG_SUBSCRIBE     0x04    /*!< Request object has subscribe type */
+#define MQTT_REQUEST_FLAG_UNSUBSCRIBE   0x08    /*!< Request object has unsubscribe type */
 
 #if ESP_CFG_DBG
 
@@ -219,21 +221,50 @@ request_set_pending(mqtt_client_p client, mqtt_request_t* request) {
 /**
  * \brief           Get pending request by specific packet ID
  * \param[in]       client: MQTT client
- * \param[in]       pkt_id: Packet id to get request for
+ * \param[in]       pkt_id: Packet id to get request for. Use `-1` to get first pending request
  * \return          Request on success, `NULL` otherwise
  */
 static mqtt_request_t *
-request_get_pending(mqtt_client_p client, uint16_t pkt_id) {
+request_get_pending(mqtt_client_p client, int32_t pkt_id) {
     uint16_t i;
     
     /* Try to find a new request which does not have IN_USE flag set */
     for (i = 0; i < MQTT_MAX_REQUESTS; i++) {
-        if ((client->requests[i].status & MQTT_REQUEST_FLAG_PENDING) &&
-            client->requests[i].packet_id == pkt_id) {
+        if ((client->requests[i].status & MQTT_REQUEST_FLAG_PENDING)
+            && (
+                pkt_id == -1 
+                || client->requests[i].packet_id == (uint16_t)pkt_id
+                )) {
             return &client->requests[i];
         }
     }
     return NULL;
+}
+
+/**
+ * \brief           Send error callback to user
+ * \param[in]       client: MQTT client
+ * \param[in]       status: Request status
+ * \param[in]       arg: User argument
+ */
+static void
+request_send_err_callback(mqtt_client_p client, uint8_t status, void* arg) {
+    if (status & MQTT_REQUEST_FLAG_SUBSCRIBE) {
+        client->evt.type = MQTT_EVT_SUBSCRIBE;
+    } else if (status & MQTT_REQUEST_FLAG_UNSUBSCRIBE) {
+        client->evt.type = MQTT_EVT_UNSUBSCRIBE;
+    } else if (status & MQTT_REQUEST_FLAG_SUBSCRIBE) {
+        client->evt.type = MQTT_EVT_PUBLISH;
+    }
+
+    if (client->evt.type == MQTT_EVT_PUBLISH) {
+        client->evt.evt.publish.arg = arg;
+        client->evt.evt.publish.res = espERR;
+    } else {
+        client->evt.evt.sub_unsub_scribed.arg = arg;
+        client->evt.evt.sub_unsub_scribed.res = espERR;
+    }
+    client->evt_fn(client, &client->evt);
 }
 
 /******************************************************************************************************/
@@ -443,6 +474,7 @@ sub_unsub(mqtt_client_p client, const char* topic, uint8_t qos, void* arg, uint8
                 write_u8(client, ESP_MIN(qos, 2));  /* Write quality of service */
             }
             
+            request->status |= sub ? MQTT_REQUEST_FLAG_SUBSCRIBE : MQTT_REQUEST_FLAG_UNSUBSCRIBE;
             request_set_pending(client, request);   /* Set request as pending waiting for server reply */
             send_data(client);                  /* Try to send data */
             ret = 1;
@@ -583,8 +615,9 @@ mqtt_process_incoming_message(mqtt_client_p client) {
                      * Ack type depends on QoS level being sent to server on request
                      */
                     } else if (msg_type == MQTT_MSG_TYPE_PUBCOMP || msg_type == MQTT_MSG_TYPE_PUBACK) {
-                        client->evt.type = MQTT_EVT_PUBLISHED;
-                        client->evt.evt.published.arg = request->arg;
+                        client->evt.type = MQTT_EVT_PUBLISH;
+                        client->evt.evt.publish.arg = request->arg;
+                        client->evt.evt.publish.res = espOK;
                         client->evt_fn(client, &client->evt);
                     }
                     request_delete(client, request);    /* Delete request object */
@@ -780,6 +813,16 @@ mqtt_data_sent_cb(mqtt_client_p client, size_t sent_len, uint8_t successful) {
     client->sent_total += sent_len;
 
     client->poll_time = 0;                      /* Reset kep alive time */
+
+    /*
+     * In case transmit was not successful,
+     * start procedure to close MQTT connection
+     * and clear all pending requests in closed callback function
+     */
+    if (!successful) {
+        mqtt_close(client);
+        return 0;
+    }
     
     /*
      * Even if sent was in general not successful,
@@ -803,8 +846,9 @@ mqtt_data_sent_cb(mqtt_client_p client, size_t sent_len, uint8_t successful) {
             request_delete(client, request);    /* Delete request and make space for next command */
             
             /* Call published callback */
-            client->evt.type = MQTT_EVT_PUBLISHED;
-            client->evt.evt.published.arg = arg;
+            client->evt.type = MQTT_EVT_PUBLISH;
+            client->evt.evt.publish.arg = arg;
+            client->evt.evt.publish.res = espOK;
             client->evt_fn(client, &client->evt);
         } else {
             break;
@@ -825,15 +869,19 @@ static uint8_t
 mqtt_poll_cb(mqtt_client_p client) {
     client->poll_time++;
     
+    if (client->conn_state == MQTT_CONN_DISCONNECTING) {
+        return 0;
+    }
+
     /*
      * Check for keep-alive time if equal or greater than
      * keep alive time. In that case, send packet 
      * to make sure we are still alive
      */
-    if (client->info->keep_alive &&             /* Keep alive must be enabled */
+    if (client->info->keep_alive                /* Keep alive must be enabled */
         /* Poll time is in units of ESP_CFG_CONN_POLL_INTERVAL milliseconds,
            while keep_alive is in units of seconds */
-        (client->poll_time * ESP_CFG_CONN_POLL_INTERVAL) >= (uint32_t)(client->info->keep_alive * 1000)) {
+        && (client->poll_time * ESP_CFG_CONN_POLL_INTERVAL) >= (uint32_t)(client->info->keep_alive * 1000)) {
             
         if (output_check_enough_memory(client, 0)) {/* Check if memory available in output buffer */
             write_fixed_header(client, MQTT_MSG_TYPE_PINGREQ, 0, 0, 0, 0);  /* Write PINGREQ command to output buffer */
@@ -845,6 +893,11 @@ mqtt_poll_cb(mqtt_client_p client) {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING, "MQTT no memory to send PINGREQ packet\r\n");
         }
     }
+
+    /*
+     * Process all active packets and 
+     * check for timeout if there was no reply from MQTT server
+     */
     return 1;
 }
 
@@ -855,12 +908,23 @@ mqtt_poll_cb(mqtt_client_p client) {
  */
 static uint8_t
 mqtt_closed_cb(mqtt_client_p client) {
+    mqtt_request_t* request;
+
     client->conn_state = MQTT_CONN_DISCONNECTED;/* Connection is disconnected, ready to be established again */
     
     client->evt.type = MQTT_EVT_DISCONNECT;     /* Connection disconnected from server */
     client->evt_fn(client, &client->evt);       /* Notify upper layer about closed connection */
     
     client->conn = NULL;                        /* Reset connection handle */
+
+    /* Check all requests first */
+    while ((request = request_get_pending(client, -1)) != NULL) {
+        uint8_t status = request->status;
+        void* arg = request->arg;
+
+        request_delete(client, request);        /* Delete request */
+        request_send_err_callback(client, status, arg); /* Send error callback to user */
+    }
     memset(client->requests, 0x00, sizeof(client->requests));
     
     client->is_sending = client->sent_total = client->written_total = 0;
@@ -1140,6 +1204,7 @@ mqtt_client_publish(mqtt_client_p client, const char* topic, const void* payload
                 write_data(client, payload, payload_len);   /* Write RAW topic payload */
             }
             request_set_pending(client, request);   /* Set request as pending waiting for server reply */
+            
             send_data(client);                  /* Try to send data */
             
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos, (int)pkt_id);
