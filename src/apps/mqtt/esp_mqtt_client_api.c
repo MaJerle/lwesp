@@ -82,18 +82,25 @@ mqtt_evt(mqtt_client_p client, mqtt_evt_t* evt) {
             /* Check valid receive mbox */
             if (esp_sys_mbox_isvalid(&api_client->rcv_mbox)) {
                 mqtt_client_api_buf_p buf;
-                size_t size;
+                size_t size, buf_size, topic_size, payload_size;
+
+                /* Get event data */
                 const char* topic = mqtt_client_evt_publish_recv_get_topic(client, evt);
                 size_t topic_len = mqtt_client_evt_publish_recv_get_topic_len(client, evt);
                 const uint8_t* payload = mqtt_client_evt_publish_recv_get_payload(client, evt);
                 size_t payload_len = mqtt_client_evt_publish_recv_get_payload_len(client, evt);
 
-                size = sizeof(*buf) + sizeof(*topic) * (topic_len + 1) + sizeof(*payload) * (payload_len + 1);
+                /* Calculate sizes */
+                buf_size = sizeof(*buf);
+                topic_size = sizeof(*topic) * (topic_len + 1);
+                payload_size = sizeof(*payload) * (payload_len + 1);
+
+                size = sizeof(*buf) + topic_size + payload_size;
                 buf = esp_mem_alloc(size);
                 if (buf != NULL) {
                     memset(buf, 0x00, size);
-                    buf->topic = (const void *)(buf + sizeof(*buf));
-                    buf->payload = (const void *)(buf->topic + sizeof(*topic) * (topic_len + 1));
+                    buf->topic = (const void *)(buf + buf_size);
+                    buf->payload = (const void *)(buf->topic + topic_size);
                     buf->topic_len = topic_len;
                     buf->payload_len = payload_len;
 
