@@ -98,15 +98,15 @@ mqtt_evt(mqtt_client_p client, mqtt_evt_t* evt) {
                 size = sizeof(*buf) + topic_size + payload_size;
                 buf = esp_mem_alloc(size);
                 if (buf != NULL) {
-                    memset(buf, 0x00, size);
+                    ESP_MEMSET(buf, 0x00, size);
                     buf->topic = (const void *)(buf + buf_size);
                     buf->payload = (const void *)(buf->topic + topic_size);
                     buf->topic_len = topic_len;
                     buf->payload_len = payload_len;
 
                     /* Copy content to new memory */
-                    memcpy((void *)buf->topic, topic, topic_len);
-                    memcpy((void *)buf->payload, payload, payload_len);
+                    ESP_MEMCPY((void *)buf->topic, topic, sizeof(*topic) * topic_len);
+                    ESP_MEMCPY((void *)buf->payload, payload, sizeof(*payload) * payload_len);
 
                     /* Write to receive queue */
                     if (!esp_sys_mbox_putnow(&api_client->rcv_mbox, buf)) {
@@ -321,16 +321,18 @@ mqtt_client_api_unsubscribe(mqtt_client_api_p client, const char* topic) {
  * \param[in]       data: Data to send
  * \param[in]       btw: Number of bytes to send for data parameter
  * \param[in]       qos: Quality of service. This parameter can be a value of \ref ESP_APP_MQTT_CLIENT_QOS
+ * \param[in]       retain: Set to `1` for retain flag, `0` otherwise
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void* data, size_t btw, uint8_t qos) {
+mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void* data,
+                        size_t btw, uint8_t qos, uint8_t retain) {
     espr_t res = espERR;
 
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
-    if (mqtt_client_publish(client->mc, topic, data, ESP_U16(btw), qos, 0, NULL) == espOK) {
+    if (mqtt_client_publish(client->mc, topic, data, ESP_U16(btw), qos, 1, NULL) == espOK) {
         esp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     }

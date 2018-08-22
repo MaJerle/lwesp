@@ -69,7 +69,7 @@ mqtt_conn_status_t  mqtt_client_api_connect(mqtt_client_api_p client, const char
 espr_t              mqtt_client_api_close(mqtt_client_api_p client);
 espr_t              mqtt_client_api_subscribe(mqtt_client_api_p client, const char* topic, uint8_t qos);
 espr_t              mqtt_client_api_unsubscribe(mqtt_client_api_p client, const char* topic);
-espr_t              mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void* data, size_t btw, uint8_t qos);
+espr_t              mqtt_client_api_publish(mqtt_client_api_p client, const char* topic, const void* data, size_t btw, uint8_t qos, uint8_t retain);
 espr_t              mqtt_client_api_receive(mqtt_client_api_p client, mqtt_client_api_buf_p* p, uint32_t timeout);
 void                mqtt_client_api_buf_free(mqtt_client_api_buf_p p);
     

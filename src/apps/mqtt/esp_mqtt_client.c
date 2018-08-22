@@ -286,7 +286,7 @@ static void
 write_fixed_header(mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup, uint8_t qos, uint8_t retain, uint16_t rem_len) {
     uint8_t b;
     
-    b = ESP_U8((((uint8_t)type) << 0x04) | ((dup & 0x01) << 0x03) | ((qos & 0x03) << 0x01) | (retain & 0x01));
+    b = ESP_U8((((uint8_t)type) << 0x04) | ((dup & 0x01) << 0x03) | ((qos & 0x03) << 0x01) | (uint8_t)(retain > 0));
     esp_buff_write(&client->tx_buff, &b, 1);    /* Write start of packet parameters */
     
     ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "MQTT writing packet type %s to output buffer\r\n", mqtt_msg_type_to_str(type));
@@ -541,7 +541,7 @@ mqtt_process_incoming_message(mqtt_client_p client) {
             
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, \
                 "MQTT publish packet received on topic %.*s; QoS: %d; pkt_id: %d; data_len: %d\r\n", \
-                topic_len, (const char *)topic, (int)qos, (int)pkt_id, (int)data_len);
+                (int)topic_len, (const char *)topic, (int)qos, (int)pkt_id, (int)data_len);
             
             /*
              * We have to send respond to command if 
@@ -671,6 +671,7 @@ mqtt_parse_incoming(mqtt_client_p client, esp_pbuf_p pbuf) {
                 case MQTT_PARSER_STATE_CALC_REM_LEN: {  /* Calculate remaining length of packet */
                     client->msg_rem_len <<= 7;  /* Shift remaining length by 7 bits */
                     client->msg_rem_len |= (ch & 0x7F);
+                    /* TODO: Ignore too-big messages */
                     if ((ch & 0x80) == 0) {     /* Is this last entry? */
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE, "MQTT remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
                         if (client->msg_rem_len) {
@@ -689,7 +690,6 @@ mqtt_parse_incoming(mqtt_client_p client, esp_pbuf_p pbuf) {
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE, "MQTT packet parsed and ready for processing\r\n");
                         
                         mqtt_process_incoming_message(client);  /* Process incoming packet */
-                        
                         client->parser_state = MQTT_PARSER_STATE_INIT;  /* Go to initial state and listen for next received packet */
                     }
                     break;
@@ -774,7 +774,7 @@ mqtt_connected_cb(mqtt_client_p client) {
         write_string(client, client->info->user, len_user); /* Write username to packet */
     }
     if (flags & MQTT_FLAG_CONNECT_PASSWORD) {   /* Check for password */
-        write_string(client, client->info->user, len_user); /* Write password to packet */
+        write_string(client, client->info->pass, len_pass); /* Write password to packet */
     }
     
     client->parser_state = MQTT_PARSER_STATE_INIT;  /* Reset parser state */
@@ -1082,7 +1082,7 @@ mqtt_client_connect(mqtt_client_p client, const char* host, esp_port_t port,
                     mqtt_evt_fn evt_fn, const mqtt_client_info_t* info) {
     espr_t res = espERR;
     
-    ESP_ASSERT("client != NULL", client != NULL);   /* Assert input parameters */
+    ESP_ASSERT("client != NULL", client != NULL);   /* t input parameters */
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
     ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
@@ -1195,7 +1195,7 @@ mqtt_client_publish(mqtt_client_p client, const char* topic, const void* payload
              */
             request->expected_sent_len = client->written_total + raw_len;
             
-            write_fixed_header(client, MQTT_MSG_TYPE_PUBLISH, 0, ESP_MIN(qos, 2), 1, rem_len);
+            write_fixed_header(client, MQTT_MSG_TYPE_PUBLISH, 0, ESP_MIN(qos, 2), retain, rem_len);
             write_string(client, topic, len_topic); /* Write topic string to packet */
             if (qos > 0) {
                 write_u16(client, pkt_id);      /* Write packet ID */
