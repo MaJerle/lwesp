@@ -180,8 +180,19 @@ mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
     mqtt_client_set_arg(client->mc, client);    /* Set client to mqtt client argument */
     return client;
 out:
+    mqtt_client_api_delete(client);
+    client = NULL;
+    return NULL;
+}
+
+/**
+ * \brief           Delete client from memory
+ * \param[in]       client: MQTT API client handle
+ */
+void
+mqtt_client_api_delete(mqtt_client_api_p client) {
     if (client == NULL) {
-        return client;
+        return;
     }
     if (esp_sys_sem_isvalid(&client->sync_sem)) {
         esp_sys_sem_delete(&client->sync_sem);
@@ -200,8 +211,6 @@ out:
         client->mc = NULL;
     }
     esp_mem_free(client);
-    client = NULL;
-    return client;
 }
 
 /**
