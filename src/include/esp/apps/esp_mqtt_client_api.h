@@ -43,8 +43,8 @@ extern "C" {
     
 /**
  * \ingroup         ESP_APPS
- * \defgroup        ESP_APP_MQTT_CLIENT_API Sequential, single thread MQTT client API
- * \brief           MQTT client API
+ * \defgroup        ESP_APP_MQTT_CLIENT_API MQTT client API
+ * \brief           Sequential, single thread MQTT client API
  * \{
  */
 
