@@ -53,7 +53,7 @@ struct mqtt_client_api;
 /**
  * \brief           MQTT API RX buffer
  */
-struct mqtt_client_api_buf {
+typedef struct mqtt_client_api_buf {
     const char* topic;                          /*!< Topic data */
     size_t topic_len;                           /*!< Topic length */
     const uint8_t* payload;                     /*!< Payload data */
