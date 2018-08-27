@@ -17,7 +17,7 @@ ESP-AT Library commands parser is a generic, platform independent, library for c
   - HTTP server with dynamic files (file system) supported
   - MQTT client
 - Embeds other AT features, such as `WPS`, `PING`, `Hostname` and others
-- User friendly license
+- User friendly MIT license
 
 ## Examples and resources
 
@@ -31,4 +31,4 @@ http://majerle.eu/documentation/esp_at/html/index.html
 
 ## Contribution
 
-I invite you to give feature request or report a bug. Please use issues tracker
+I invite you to give feature request or report a bug. Please use issues tracker.
