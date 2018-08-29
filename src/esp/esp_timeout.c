@@ -149,7 +149,6 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
         first_timeout = to;                     /* Set as first element */
         last_timeout_time = esp_sys_now();      /* Reset last timeout time to current time */
     } else {                                    /* Find where to place a new timeout */
-        esp_timeout_t* t;
         /*
          * First check if we have to put new timeout
          * to beginning of linked list.
@@ -160,7 +159,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
             to->next = first_timeout;           /* Set first timeout as next of new one */
             first_timeout = to;                 /* Set new timeout as first */
         } else {                                /* Go somewhere in between current list */
-            for (t = first_timeout; t != NULL; t = t->next) {
+            for (esp_timeout_t* t = first_timeout; t != NULL; t = t->next) {
                 to->time -= t->time;            /* Decrease new timeout time by time in a linked list */
                 /*
                  * Enter between 2 entries on a list in case:
@@ -191,10 +190,8 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_timeout_remove(esp_timeout_fn_t fn) {
-    esp_timeout_t *t, *t_prev;
-    
-    for (t = first_timeout, t_prev = NULL; t != NULL;
+esp_timeout_remove(esp_timeout_fn_t fn) {    
+    for (esp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
             t_prev = t, t = t->next) {          /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
             

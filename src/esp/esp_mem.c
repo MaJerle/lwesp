@@ -68,25 +68,21 @@ mem_insertfreeblock(mem_block_t* nb) {
     mem_block_t* ptr;
     uint8_t* addr;
 
-    /*
-     * Find block position to insert new block between
-     */
+    /* Find block position to insert new block between */
     for (ptr = &start_block; ptr != NULL && ptr->next < nb; ptr = ptr->next);
 
     /*
      * If the new inserted block and block before create a one big block (contiguous)
      * then try to merge them together
      */
-    addr = (uint8_t *)ptr;
+    addr = (void *)ptr;
     if ((uint8_t *)(addr + ptr->size) == (uint8_t *)nb) {
         ptr->size += nb->size;                      /* Expand size of block before new inserted */
         nb = ptr;                                   /* Set new block pointer to block before (expanded block) */
     }
 
-    /*
-     * Check if new block and its size is the same address as next free block newBlock points to
-     */
-    addr = (uint8_t *)nb;
+    /* Check if new block and its size is the same address as next free block newBlock points to */
+    addr = (void *)nb;
     if ((uint8_t *)(addr + nb->size) == (uint8_t *)ptr->next) {
         if (ptr->next == end_block) {               /* Does it points to the end? */
             nb->next = end_block;                   /* Set end block pointer */
@@ -119,19 +115,15 @@ static uint8_t
 mem_assignmem(const esp_mem_region_t* regions, size_t len) {
     uint8_t* mem_start_addr;
     size_t mem_size;
-    mem_block_t* first_block;
-    mem_block_t* prev_end_block = NULL;
-    size_t i;
+    mem_block_t* first_block, *prev_end_block = NULL;
     
     if (end_block != NULL) {                        /* Regions already defined */
         return 0;
     }
     
-    /*
-     * Check if region address are linear and rising
-     */
+    /* Check if region address are linear and rising */
     mem_start_addr = (uint8_t *)0;
-    for (i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         if (mem_start_addr >= (uint8_t *)regions[i].start_addr) {   /* Check if previous greater than current */
             return 0;                               /* Return as invalid and failed */
         }
@@ -139,9 +131,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
     }
 
     while (len--) {
-        /*
-         * Check minimum region size
-         */
+        /* Check minimum region size */
         mem_size = regions->size;
         if (mem_size < (MEM_ALIGN_NUM + MEMBLOCK_METASIZE)) {
             regions++;
@@ -157,9 +147,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
             mem_size -= mem_start_addr - (uint8_t *)regions->start_addr;
         }
         
-        /*
-         * Check memory size alignment if match
-         */
+        /* Check memory size alignment if match */
         if (mem_size & MEM_ALIGN_BITS) {
             mem_size &= ~MEM_ALIGN_BITS;            /* Clear lower bits of memory size only */
         }
@@ -204,18 +192,14 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
             prev_end_block->next = first_block;
         }
         
-        /*
-         * Set number of free bytes available to allocate in region
-         */
+        /* Set number of free bytes available to allocate in region */
         mem_available_bytes += first_block->size;
         
         regions++;                                  /* Go to next region */
     }
     mem_min_available_bytes = mem_available_bytes;  /* Save minimum ever available bytes in region */
     
-    /*
-     * Set upper bit in memory allocation bit
-     */
+    /* Set upper bit in memory allocation bit */
     mem_alloc_bit = ESP_SZ(ESP_SZ(1) << (sizeof(size_t) * 8 - 1));
     
     return 1;                                       /* Regions set as expected */

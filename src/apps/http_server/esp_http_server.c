@@ -245,16 +245,16 @@ http_parse_uri(esp_pbuf_p p) {
  */
 static size_t
 http_get_params(char* params) {
-    size_t cnt = 0, i;
+    size_t cnt = 0;
     char *amp, *eq;
     
     if (params != NULL) {
-        for (i = 0; params && i < HTTP_MAX_PARAMS; i++, cnt++) {
+        for (size_t i = 0; params && i < HTTP_MAX_PARAMS; i++, cnt++) {
             http_params[i].name = params;
             
             eq = params;
             amp = strchr(params, '&');          /* Find next & in a sequence */
-            if (amp) {                          /* In case we have it */
+            if (amp != NULL) {                  /* In case we have it */
                 *amp = 0;                       /* Replace it with 0 to end current param */
                 params = ++amp;                 /* Go to next one */
             } else {
@@ -262,7 +262,7 @@ http_get_params(char* params) {
             }
             
             eq = strchr(eq, '=');               /* Find delimiter */
-            if (eq) {
+            if (eq != NULL) {
                 *eq = 0;
                 http_params[i].value = eq + 1;
             } else {
@@ -326,7 +326,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
          * 
          * 404 file should be in type of "/404.xxx" where "xxx" includes optional extension
          */
-        if (strstr(uri, "/404.")) {             /* Do we have a 404 in file name? */
+        if (strstr(uri, "/404.") != NULL) {     /* Do we have a 404 in file name? */
             hs->dyn_hdr_strs[0] = http_dynstrs[HTTP_HDR_404];   /* 404 Not found */
         } else {
             hs->dyn_hdr_strs[0] = http_dynstrs[HTTP_HDR_200];   /* 200 OK */
@@ -341,9 +341,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
          * Step 2: Compare file extension with table of known extensions and content types
          */
 
-        /*
-         * Step 1: Find extension of request path
-         */
+        /* Step 1: Find extension of request path */
         ext = NULL;                             /* No extension on beginning */
         u = strchr(uri, '.');                   /* Find first dot in string */
         while (u != NULL) {
@@ -351,9 +349,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
             u = strchr(u + 1, '.');             /* Find next dot */
         }
 
-        /*
-         * Step 2: Compare extension against known pairs
-         */
+        /* Step 2: Compare extension against known pairs */
         i = 0;
         if (ext != NULL) {                      /* Do we have an extension? */
             for (; i < ESP_ARRAYSIZE(dynamic_headers_pairs); i++) {
@@ -363,9 +359,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
             }
         }
 
-        /*
-         * Finally set the output content type header
-         */
+        /* Finally set the output content type header */
         if (ext != NULL && i < ESP_ARRAYSIZE(dynamic_headers_pairs)) {
             hs->dyn_hdr_strs[HTTP_MAX_HEADERS - 1] = http_dynstrs[dynamic_headers_pairs[i].index];  /* Set response from index directly */
         } else {
@@ -385,14 +379,10 @@ send_dynamic_headers(http_state_t* hs) {
         return;
     }
 
-    /*
-     * Get available memory in write buffer
-     */
+    /* Get available memory in write buffer */
     esp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);
 
-    /*
-     * Try to write as much data as possible
-     */
+    /* Try to write as much data as possible */
     while (hs->conn_mem_available && hs->dyn_hdr_idx < HTTP_MAX_HEADERS) {
         if (hs->dyn_hdr_strs[hs->dyn_hdr_idx] == NULL) {    /* Check if string is set */
             hs->dyn_hdr_pos = 0;                /* Reset header position */
@@ -402,9 +392,7 @@ send_dynamic_headers(http_state_t* hs) {
         rem_len = strlen(&hs->dyn_hdr_strs[hs->dyn_hdr_idx][hs->dyn_hdr_pos]);  /* Get remaining length of string to write */
         to_write = ESP_MIN(hs->conn_mem_available, rem_len);    /* Calculate remaining maximal number of bytes we can write */
         
-        /*
-         * Write data to connection output buffer
-         */
+        /* Write data to connection output buffer */
         esp_conn_write(hs->conn, &hs->dyn_hdr_strs[hs->dyn_hdr_idx][hs->dyn_hdr_pos], to_write, 0, &hs->conn_mem_available);
         hs->written_total += to_write;
 
@@ -442,7 +430,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
          * Scan index files and check if there is one from user
          * available to return as main file
          */
-        for (i = 0; i < sizeof(http_index_filenames) / sizeof(http_index_filenames[0]); i++) {
+        for (i = 0; i < ESP_ARRAYSIZE(http_index_filenames); i++) {
             hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, http_index_filenames[i]); /* Give me a file with desired path */
             if (hs->resp_file_opened) {         /* Do we have a file? */
                 uri = http_index_filenames[i];  /* Set new URI for next of this func */
@@ -466,8 +454,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
         
         params_len = http_get_params(req_params);   /* Get request params from request */
         if (hi != NULL && hi->cgi != NULL) {    /* Check if any user specific controls to process */
-            size_t i;
-            for (i = 0; i < hi->cgi_count; i++) {
+            for (size_t i = 0; i < hi->cgi_count; i++) {
                 if (!strcmp(hi->cgi[i].uri, uri)) {
                     uri = hi->cgi[i].fn(http_params, params_len);
                     break;
@@ -482,8 +469,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
      * Try with 404 error page if available by user
      */
     if (!hs->resp_file_opened) {
-        size_t i;
-        for (i = 0; i < ESP_ARRAYSIZE(http_404_uris); i++) {
+        for (size_t i = 0; i < ESP_ARRAYSIZE(http_404_uris); i++) {
             uri = http_404_uris[i];
             hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, uri); /* Get 404 error page */
             if (hs->resp_file_opened) {
@@ -497,11 +483,11 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
      */
     hs->is_ssi = 0;                             /* By default no SSI is supported */
     if (hs->resp_file_opened) {
-        size_t i, uri_len, suffix_len;
+        size_t uri_len, suffix_len;
         const char* suffix;
         
         uri_len = strlen(uri);                  /* Get length of URI */
-        for (i = 0; i < ESP_ARRAYSIZE(http_ssi_suffixes); i++) {
+        for (size_t i = 0; i < ESP_ARRAYSIZE(http_ssi_suffixes); i++) {
             suffix = http_ssi_suffixes[i];      /* Get suffix */
             suffix_len = strlen(suffix);        /* Get length of suffix */
             
@@ -563,9 +549,7 @@ read_resp_file(http_state_t* hs) {
     
     hs->buff_ptr = 0;                           /* Reset buffer pointer at this point */
     
-    /*
-     * Is our memory set for some reason?
-     */
+    /* Is our memory set for some reason? */
     if (hs->buff != NULL) {                     /* Do we have already something in our buffer? */
         if (!hs->resp_file.is_static) {         /* If file is not static... */
             esp_mem_free((void *)hs->buff);     /* ...free the memory... */
@@ -830,9 +814,7 @@ send_response(http_state_t* hs, uint8_t ft) {
         if (hs->dyn_hdr_idx >= HTTP_MAX_HEADERS)
 #endif /* HTTP_DYNAMIC_HEADERS */
         {
-            /*
-             * Process and send more data to output
-             */
+            /* Process and send more data to output */
             if (hs->is_ssi) {                   /* In case of SSI request, process data using SSI */
                 send_response_ssi(hs);          /* Send response using SSI parsing */
             } else {
@@ -901,9 +883,7 @@ http_evt(esp_evt_t* evt) {
         hs = esp_conn_get_arg(conn);            /* Get connection argument */
     }
     switch (esp_evt_get_type(evt)) {
-        /*
-         * A new connection just became active
-         */
+        /* A new connection just became active */
         case ESP_EVT_CONN_ACTIVE: {
             ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "SERVER: Conn %d active\r\n", (int)esp_conn_getnum(conn));
             hs = esp_mem_calloc(1, sizeof(*hs));
@@ -917,9 +897,7 @@ http_evt(esp_evt_t* evt) {
             break;
         }
         
-        /*
-         * Data received on connection
-         */
+        /* Data received on connection */
         case ESP_EVT_CONN_DATA_RECV: {
             esp_pbuf_p p;
             size_t pos;
@@ -947,15 +925,11 @@ http_evt(esp_evt_t* evt) {
                         ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: HTTP headers received!\r\n");
                         hs->headers_received = 1;   /* Flag received headers */
                         
-                        /*
-                         * Parse the URI, process request and open response file
-                         */
+                        /* Parse the URI, process request and open response file */
                         http_uri_parsed = http_parse_uri(hs->p) == espOK;
 
 #if HTTP_SUPPORT_POST
-                        /*
-                         * Check for request method used on this connection
-                         */
+                        /* Check for request method used on this connection */
                         if (!esp_pbuf_strcmp(hs->p, "POST ", 0)) {
                             size_t data_pos, pbuf_total_len;
                         
@@ -990,9 +964,7 @@ http_evt(esp_evt_t* evt) {
                                 }
                             }
                             
-                            /*
-                             * Check if we are expecting any data on POST request
-                             */
+                            /* Check if we are expecting any data on POST request */
                             if (hs->content_length) {
                                 /*
                                  * Call user POST start method here
@@ -1010,9 +982,7 @@ http_evt(esp_evt_t* evt) {
                                 if ((pbuf_total_len - data_pos) > 0) {
                                     hs->content_received = pbuf_total_len - data_pos;
                                     
-                                    /*
-                                     * Send data to user
-                                     */
+                                    /* Send data to user */
                                     http_post_send_to_user(hs, hs->p, data_pos);
                                     
                                     /*
@@ -1058,9 +1028,7 @@ http_evt(esp_evt_t* evt) {
                      * as headers are already received
                      */
                     if (hs->req_method == HTTP_METHOD_POST) {
-                        /*
-                         * Did we receive all the data on POST?
-                         */
+                        /* Did we receive all the data on POST? */
                         if (hs->content_received < hs->content_length) {
                             size_t tot_len;
                             
@@ -1069,15 +1037,11 @@ http_evt(esp_evt_t* evt) {
                             
                             http_post_send_to_user(hs, p, 0);   /* Send data directly to user */
                             
-                            /**
-                             * Check if everything received
-                             */
+                            /* Check if everything received */
                             if (hs->content_received >= hs->content_length) {
                                 hs->process_resp = 1;   /* Process with response to user */
                                 
-                                /*
-                                 * Stop the response part here!
-                                 */
+                                /* Stop the response part here! */
                                 if (hi != NULL && hi->post_end_fn) {
                                     hi->post_end_fn(hs);
                                 }
@@ -1101,9 +1065,7 @@ http_evt(esp_evt_t* evt) {
             break;
         }
         
-        /*
-         * Data were successfully sent on a connection
-         */
+        /* Data were successfully sent on a connection */
         case ESP_EVT_CONN_DATA_SENT: {
             size_t len;
             if (hs != NULL) {
@@ -1118,18 +1080,14 @@ http_evt(esp_evt_t* evt) {
             break;
         }
         
-        /*
-         * There was a problem with sending connection data
-         */
+        /* There was a problem with sending connection data */
         case ESP_EVT_CONN_DATA_SEND_ERR: {
             ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_DANGER, "SERVER: data send error. Closing connection..\r\n");
             close = 1;                          /* Close the connection */
             break;
         }
         
-        /*
-         * Connection was just closed, either forced by user or by remote side
-         */
+        /* Connection was just closed, either forced by user or by remote side */
         case ESP_EVT_CONN_CLOSED: {
             ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: connection closed\r\n");
             if (hs != NULL) {
@@ -1161,9 +1119,7 @@ http_evt(esp_evt_t* evt) {
             break;
         }
         
-        /*
-         * Poll the connection
-         */
+        /* Poll the connection */
         case ESP_EVT_CONN_POLL: {
             if (hs != NULL) {
                 send_response(hs, 0);           /* Send more data if possible */

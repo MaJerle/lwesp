@@ -140,18 +140,13 @@ uart_thread(void* param) {
         do {
             ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
             if (bytes_read > 0) {
-                DWORD i;
-                for (i = 0; i < bytes_read; i++) {
+                for (DWORD i = 0; i < bytes_read; i++) {
                     printf("%c", data_buffer[i]);
                 }
-                /*
-                 * Send received data to input processing module
-                 */
+                /* Send received data to input processing module */
                 esp_input_process(data_buffer, (size_t)bytes_read);
 
-                /*
-                 * Write received data to output debug file
-                 */
+                /* Write received data to output debug file */
                 if (file != NULL) {
                     fwrite(data_buffer, 1, bytes_read, file);
                     fflush(file);
@@ -178,9 +173,7 @@ uart_thread(void* param) {
  */
 espr_t
 esp_ll_init(esp_ll_t* ll) {
-    /*
-     * Step 1: Configure memory for dynamic allocations
-     */
+    /* Step 1: Configure memory for dynamic allocations */
     static uint8_t memory[0x10000];             /* Create memory for dynamic allocations with specific size */
 
     /*
@@ -195,16 +188,12 @@ esp_ll_init(esp_ll_t* ll) {
         esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations to ESP library */
     }
     
-    /*
-     * Step 2: Set AT port send function to use when we have data to transmit
-     */
+    /* Step 2: Set AT port send function to use when we have data to transmit */
     if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
     }
 
-    /*
-     * Step 3: Configure AT port to be able to send/receive data to/from ESP device
-     */
+    /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
     configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
     initialized = 1;
     return espOK;

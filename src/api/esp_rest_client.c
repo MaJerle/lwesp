@@ -188,9 +188,8 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
             esp_netconn_write(nc, " ", 1);
             esp_netconn_write(nc, uri, strlen(uri));
             if (rhh->params_len && rhh->params != NULL) {
-                size_t p_i;
                 esp_netconn_write(nc, "?", 1);
-                for (p_i = 0; p_i < rhh->params_len; p_i++) {
+                for (size_t p_i = 0; p_i < rhh->params_len; p_i++) {
                     if (rhh->params[p_i].name != NULL && rhh->params[p_i].value != NULL) {
                         esp_netconn_write(nc, rhh->params[p_i].name, strlen(rhh->params[p_i].name));
                         esp_netconn_write(nc, "=", 1);

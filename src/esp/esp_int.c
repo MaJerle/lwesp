@@ -92,7 +92,7 @@ signed_number_to_str(int32_t num, char* str) {
  */
 static void
 send_ip_mac(const void* d, uint8_t is_ip, uint8_t q, uint8_t c) {
-    uint8_t i, ch;
+    uint8_t ch;
     char str[4];
     const esp_mac_t* mac = d;
     const esp_ip_t* ip = d;
@@ -103,7 +103,7 @@ send_ip_mac(const void* d, uint8_t is_ip, uint8_t q, uint8_t c) {
     }
     ESP_AT_PORT_SEND_QUOTE_COND(q);             /* Send quote */
     ch = is_ip ? '.' : ':';                     /* Get delimiter character */
-    for (i = 0; i < (is_ip ? 4 : 6); i++) {     /* Process byte by byte */
+    for (uint8_t i = 0; i < (is_ip ? 4 : 6); i++) { /* Process byte by byte */
         if (is_ip) {                            /* In case of IP ... */
             number_to_str(ip->ip[i], str);      /* ... go to decimal format ... */
         } else {                                /* ... in case of MAC ... */
@@ -207,12 +207,10 @@ send_signed_number(int32_t num, uint8_t q, uint8_t c) {
  */
 static void
 reset_connections(uint8_t forced) {
-    size_t i;
-
     esp.evt.type = ESP_EVT_CONN_CLOSED;
     esp.evt.evt.conn_active_closed.forced = forced;
 
-    for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Check all connections */
+    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {    /* Check all connections */
         if (esp.conns[i].status.f.active) {
             esp.conns[i].status.f.active = 0;
 
@@ -272,12 +270,10 @@ is_received_current_setting(const char* str) {
  */
 espr_t
 espi_send_cb(esp_evt_type_t type) {
-    esp_evt_func_t* link;
-
     esp.evt.type = type;                        /* Set callback type to process */
 
     /* Call callback function for all registered functions */
-    for (link = esp.evt_func; link != NULL; link = link->next) {
+    for (esp_evt_func_t* link = esp.evt_func; link != NULL; link = link->next) {
         link->fn(&esp.evt);
     }
     return espOK;
@@ -638,8 +634,7 @@ espi_parse_received(esp_recv_t* rcv) {
             if (!strncmp(rcv->data, "+CIPSTATUS", 10)) {
                 espi_parse_cipstatus(rcv->data + 11);   /* Parse CIPSTATUS response */
             } else if (is_ok) {
-                uint8_t i;
-                for (i = 0; i < ESP_CFG_MAX_CONNS; i++) {   /* Set current connection statuses */
+                for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {    /* Set current connection statuses */
                     esp.conns[i].status.f.active = !!(esp.active_conns & (1 << i));
                 }
             }
@@ -1105,8 +1100,7 @@ espi_process(const void* data, size_t data_len) {
                      * so it is safe to just add them to receive array without checking
                      * what are the actual values
                      */
-                    uint8_t i;
-                    for (i = 0; i < unicode.t; i++) {
+                    for (uint8_t i = 0; i < unicode.t; i++) {
                         RECV_ADD(unicode.ch[i]);    /* Add character to receive array */
                     }
                 }
@@ -1695,7 +1689,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
 #if ESP_CFG_MODE_STATION
         case ESP_CMD_TCPIP_CIPSTART: {          /* Start a new connection */
-            int16_t i = 0;
             esp_conn_t* c = NULL;
 
             /* Do we have wifi connection? */
@@ -1705,7 +1698,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
 
             msg->msg.conn_start.num = 0;        /* Reset to make sure default value is set */
-            for (i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
+            for (int16_t i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
                 if (!esp.conns[i].status.f.active || !(esp.active_conns & (1 << i))) {
                     c = &esp.conns[i];
                     c->num = ESP_U8(i);
@@ -1724,7 +1717,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 
             ESP_AT_PORT_SEND_BEGIN();           /* Begin AT command string */
             ESP_AT_PORT_SEND_STR("+CIPSTART=");
-            send_number(ESP_U32(i), 0, 0);
+            send_number(ESP_U32(c->num), 0, 0);
             if (msg->msg.conn_start.type == ESP_CONN_TYPE_SSL) {
                 send_string("SSL", 0, 1, 1);
             } else if (msg->msg.conn_start.type == ESP_CONN_TYPE_TCP) {
@@ -1859,8 +1852,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
  */
 uint8_t
 espi_is_valid_conn_ptr(esp_conn_p conn) {
-    uint8_t i = 0;
-    for (i = 0; i < sizeof(esp.conns) / sizeof(esp.conns[0]); i++) {
+    for (size_t i = 0; i < ESP_ARRAYSIZE(esp.conns); i++) {
         if (conn == &esp.conns[i]) {
             return 1;
         }

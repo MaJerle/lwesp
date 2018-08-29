@@ -54,9 +54,7 @@ pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
         return NULL;
     }
     
-    /*
-     * Skip pbufs until we reach offset
-     */
+    /* Skip pbufs until we reach offset */
     for (; p != NULL && p->len <= off; p = p->next) {
         off -= p->len;                          /* Decrease offset by current pbuf length */
     }
@@ -344,13 +342,12 @@ esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el) {
  */
 size_t
 esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* needle, size_t len, size_t off) {
-    size_t i;
     if (pbuf != NULL && needle != NULL && pbuf->tot_len >= (len + off)) {   /* Check if valid entries */
         /*
          * Try entire buffer element by element
          * and in case we have a match, report it
          */
-        for (i = off; i <= pbuf->tot_len - len; i++) {
+        for (size_t i = off; i <= pbuf->tot_len - len; i++) {
             if (!esp_pbuf_memcmp(pbuf, needle, len, i)) {   /* Check if identical */
                 return i;                       /* We have a match! */
             }
@@ -385,7 +382,6 @@ esp_pbuf_strfind(const esp_pbuf_p pbuf, const char* str, size_t off) {
 size_t
 esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
     esp_pbuf_p p;
-    size_t i;
     uint8_t el;
     const uint8_t* d = data;
     
@@ -408,7 +404,7 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
      *
      * Use byte by byte read function to inspect bytes separatelly
      */
-    for (i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         if (!esp_pbuf_get_at(p, offset + i, &el) || el != d[i]) {   /* Get value from pbuf at specific offset */
             return offset + 1;                  /* Return value from offset where it failed */
         }
