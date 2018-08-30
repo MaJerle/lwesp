@@ -606,7 +606,7 @@ send_response_ssi(http_state_t* hs) {
     uint8_t reset = 0;
     uint8_t ch;
     
-    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: processing with SSI\r\n");
+    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] processing with SSI\r\n");
     
     /* First get available memory in output buffer */
     esp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);  /* Get available memory and/or create a new buffer if possible */
@@ -741,7 +741,7 @@ send_response_ssi(http_state_t* hs) {
  */
 static void
 send_response_no_ssi(http_state_t* hs) {
-    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: processing NO SSI\r\n");
+    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] processing NO SSI\r\n");
 
     /*
      * Are we ready to read more?
@@ -885,13 +885,15 @@ http_evt(esp_evt_t* evt) {
     switch (esp_evt_get_type(evt)) {
         /* A new connection just became active */
         case ESP_EVT_CONN_ACTIVE: {
-            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "SERVER: Conn %d active\r\n", (int)esp_conn_getnum(conn));
+            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "[HTTP SERVER] Conn %d active\r\n",
+                (int)esp_conn_getnum(conn));
             hs = esp_mem_calloc(1, sizeof(*hs));
             if (hs != NULL) {
                 hs->conn = conn;                /* Save connection handle */
                 esp_conn_set_arg(conn, hs);     /* Set argument for connection */
             } else {
-                ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "SERVER: Cannot allocate memory for http state\r\n");
+                ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING,
+                    "[HTTP SERVER] Cannot allocate memory for http state\r\n");
                 close = 1;                      /* No memory, close the connection */
             }
             break;
@@ -922,7 +924,7 @@ http_evt(esp_evt_t* evt) {
                      */
                     if ((pos = esp_pbuf_strfind(hs->p, CRLF CRLF, 0)) != ESP_SIZET_MAX) {
                         uint8_t http_uri_parsed;
-                        ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: HTTP headers received!\r\n");
+                        ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] HTTP headers received!\r\n");
                         hs->headers_received = 1;   /* Flag received headers */
                         
                         /* Parse the URI, process request and open response file */
@@ -1071,7 +1073,7 @@ http_evt(esp_evt_t* evt) {
             if (hs != NULL) {
                 len = esp_evt_conn_data_sent_get_length(evt);   /* Get length */
                 ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE,
-                    "SERVER: data sent with %d bytes\r\n", (int)len);
+                    "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
                 hs->sent_total += len;          /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
@@ -1082,14 +1084,14 @@ http_evt(esp_evt_t* evt) {
         
         /* There was a problem with sending connection data */
         case ESP_EVT_CONN_DATA_SEND_ERR: {
-            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_DANGER, "SERVER: data send error. Closing connection..\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_DANGER, "[HTTP SERVER] data send error. Closing connection..\r\n");
             close = 1;                          /* Close the connection */
             break;
         }
         
         /* Connection was just closed, either forced by user or by remote side */
         case ESP_EVT_CONN_CLOSED: {
-            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "SERVER: connection closed\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] connection closed\r\n");
             if (hs != NULL) {
 #if HTTP_SUPPORT_POST
                 if (hs->req_method == HTTP_METHOD_POST) {

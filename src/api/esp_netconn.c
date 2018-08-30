@@ -136,7 +136,7 @@ netconn_evt(esp_evt_t* evt) {
                  */
                 nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Create new API */
                 ESP_DEBUGW(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
-                    nc == NULL, "NETCONN: Cannot create new structure for incoming server connection!\r\n");
+                    nc == NULL, "[NETCONN] Cannot create new structure for incoming server connection!\r\n");
 
                 if (nc != NULL) {
                     nc->conn = conn;            /* Set connection handle */
@@ -155,7 +155,7 @@ netconn_evt(esp_evt_t* evt) {
                 }
             } else {
                 ESP_DEBUGW(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING, listen_api == NULL,
-                    "NETCONN: Closing connection as there is no listening API in netconn!\r\n");
+                    "[NETCONN] Closing connection as there is no listening API in netconn!\r\n");
                 close = 1;                      /* Close the connection at this point */
             }
             /* When closing netconn,
@@ -195,11 +195,11 @@ netconn_evt(esp_evt_t* evt) {
             esp_pbuf_ref(pbuf);             /* Increase reference counter */
             if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) ||
                 !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
-                ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "NETCONN: Ignoring more data for receive!\r\n");
+                ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "[NETCONN] Ignoring more data for receive!\r\n");
                 esp_pbuf_free(pbuf);        /* Free pbuf */
                 return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
             }
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "NETCONN: Written %d bytes to receive mbox\r\n",
+            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "[NETCONN] Written %d bytes to receive mbox\r\n",
                 (int)esp_pbuf_length(pbuf, 0));
             break;
         }
@@ -271,12 +271,12 @@ esp_netconn_new(esp_netconn_type_t type) {
         a->conn_timeout = 0;                    /* Default connection timeout */
         if (!esp_sys_mbox_create(&a->mbox_accept, ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {  /* Allocate memory for accepting message box */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
-                "NETCONN: Cannot create accept MBOX\r\n");
+                "[NETCONN] Cannot create accept MBOX\r\n");
             goto free_ret;
         }
         if (!esp_sys_mbox_create(&a->mbox_receive, ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {    /* Allocate memory for receiving message box */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
-                "NETCONN: Cannot create receive MBOX\r\n");
+                "[NETCONN] Cannot create receive MBOX\r\n");
             goto free_ret;
         }
         ESP_CORE_PROTECT();

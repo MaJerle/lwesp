@@ -75,8 +75,10 @@ esp_pbuf_new(size_t len) {
     esp_pbuf_p p;
     
     p = esp_mem_alloc(SIZEOF_PBUF_STRUCT + len);/* Allocate memory for packet buffer */
-    ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p == NULL, "PBUF: Failed to allocate %d bytes\r\n", (int)len);
-    ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p != NULL, "PBUF: Allocated %d bytes on %p\r\n", (int)len, p);
+    ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p == NULL,
+        "[PBUF] Failed to allocate %d bytes\r\n", (int)len);
+    ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p != NULL,
+        "[PBUF] Allocated %d bytes on %p\r\n", (int)len, p);
     if (p != NULL) {
         p->next = NULL;                         /* No next element in chain */
         p->tot_len = len;                       /* Set total length of pbuf chain */
@@ -110,7 +112,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
         ESP_CORE_UNPROTECT();                   /* Unprotect core */
         if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
-                "PBUF deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
+                "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
             pn = p->next;                       /* Save next entry */
             esp_mem_free(p);                    /* Free memory for pbuf */
             p = pn;                             /* Restore with next entry */
@@ -547,14 +549,15 @@ esp_pbuf_skip(esp_pbuf_p pbuf, size_t offset, size_t* new_offset) {
 void
 esp_pbuf_dump(esp_pbuf_p p, uint8_t seq) {
     if (p != NULL) {
-        ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, "PBUF dump start: %p\r\n", p);
+        ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
+            "[PBUF] Dump start: %p\r\n", p);
         for (; p != NULL; p = p->next) {
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
-                "PBUF: %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n", p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
+                "[PBUF] Dump %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n", p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
             if (!seq) {
                 break;
             }
         }
-        ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, "pbuf dump end\r\n");
+        ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, "[PBUF] Dump end\r\n");
     }
 }
