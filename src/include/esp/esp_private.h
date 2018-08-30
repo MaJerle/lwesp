@@ -52,9 +52,7 @@ extern "C" {
 typedef enum {
     ESP_CMD_IDLE = 0,                           /*!< IDLE mode */
 
-    /*
-     * Basic AT commands
-     */
+    /* Basic AT commands */
     ESP_CMD_RESET,                              /*!< Reset device */
     ESP_CMD_ATE0,                               /*!< Disable ECHO mode on AT commands */
     ESP_CMD_ATE1,                               /*!< Enable ECHO mode on AT commands */
@@ -77,9 +75,7 @@ typedef enum {
     ESP_CMD_SYSMSG,                             /*!< Configure system messages */
     ESP_CMD_SYSMSG_CUR,
 
-    /*
-     * WiFi based commands
-     */
+    /* WiFi based commands */
     ESP_CMD_WIFI_CWMODE,                        /*!< Set/Get wifi mode */
     ESP_CMD_WIFI_CWLAPOPT,                      /*!< Configure what is visible on CWLAP response */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
@@ -113,9 +109,7 @@ typedef enum {
     ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
 #endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
 
-    /*
-     * TCP/IP related commands
-     */
+    /* TCP/IP related commands */
     ESP_CMD_TCPIP_CIPSTATUS,                    /*!< Get status of connections */
 #if ESP_CFG_DNS || __DOXYGEN__
     ESP_CMD_TCPIP_CIPDOMAIN,                    /*!< Get IP address from domain name = DNS function */
