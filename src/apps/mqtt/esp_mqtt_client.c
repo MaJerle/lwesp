@@ -253,7 +253,7 @@ request_send_err_callback(mqtt_client_p client, uint8_t status, void* arg) {
         client->evt.type = MQTT_EVT_SUBSCRIBE;
     } else if (status & MQTT_REQUEST_FLAG_UNSUBSCRIBE) {
         client->evt.type = MQTT_EVT_UNSUBSCRIBE;
-    } else if (status & MQTT_REQUEST_FLAG_SUBSCRIBE) {
+    } else {
         client->evt.type = MQTT_EVT_PUBLISH;
     }
 
