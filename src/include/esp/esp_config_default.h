@@ -461,6 +461,35 @@
  */
 
 /**
+ * \defgroup        ESP_CONF_MODULES_MQTT MQTT client module
+ * \brief           Configuration of MQTT and MQTT API client modules
+ * \{
+ */
+
+
+/**
+ * \brief           Set debug level for MQTT client module
+ *
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ */
+#ifndef ESP_CFG_DBG_MQTT
+#define ESP_CFG_DBG_MQTT                        ESP_DBG_OFF
+#endif
+
+/**
+ * \brief           Set debug level for MQTT API client module
+ *
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ */
+#ifndef ESP_CFG_DBG_MQTT_API
+#define ESP_CFG_DBG_MQTT_API                    ESP_DBG_OFF
+#endif
+
+/**
+ * \}
+ */
+
+/**
  * \defgroup        ESP_CONF_MODULES_REST_CLIENT HTTP client module
  * \brief           Configuration of HTTP REST client API module
  * \{
