@@ -34,10 +34,6 @@
 #include "esp/esp_mem.h"
 #include "esp/esp_pbuf.h"
 
-#ifndef ESP_CFG_DBG_MQTT
-#define ESP_CFG_DBG_MQTT                        ESP_CFG_DBG_OFF
-#endif /* ESP_CFG_DBG_MQTT */
-
 /**
  * \brief           MQTT client connection
  */
@@ -75,7 +71,7 @@ typedef struct mqtt_client {
 /* Tracing debug message */
 #define ESP_CFG_DBG_MQTT_TRACE                  ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_TRACE
 #define ESP_CFG_DBG_MQTT_STATE                  ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_STATE
-#define ESP_CFG_DBG_MQTT_TRACE_WARNING          ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_STATE | ESP_DBG_LVL_WARNING
+#define ESP_CFG_DBG_MQTT_TRACE_WARNING          ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING
 
 static espr_t   mqtt_conn_cb(esp_evt_t* evt);
 static void     send_data(mqtt_client_p client);
