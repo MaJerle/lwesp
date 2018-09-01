@@ -78,6 +78,26 @@ extern "C" {
  */
 
 /**
+ * \name            ESP_APP_MQTT_CLIENT_EVT_DISCONNECT Connect event
+ * \anchor          ESP_APP_MQTT_CLIENT_EVT_DISCONNECT
+ * \{
+ *
+ * \note            Use these functions on \ref MQTT_EVT_DISCONNECT event
+ */
+ 
+/**
+ * \brief           Check if MQTT client was accepted by server when disconnect event occurred
+ * \param[in]       client: MQTT client
+ * \param[in]       evt: Event handle
+ * \return          `1` on success, `0` otherwise
+ */
+#define mqtt_client_evt_disconnect_is_accepted(client, evt)     ((mqtt_conn_status_t)(evt)->evt.disconnect.is_accepted)
+
+/**
+ * \}
+ */
+
+/**
  * \name            ESP_APP_MQTT_CLIENT_EVT_SUB_UNSUB Subscribe/unsubscribe event
  * \anchor          ESP_APP_MQTT_CLIENT_EVT_SUB_UNSUB
  * \{

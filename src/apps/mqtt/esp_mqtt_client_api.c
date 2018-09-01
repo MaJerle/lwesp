@@ -161,16 +161,16 @@ mqtt_evt(mqtt_client_p client, mqtt_evt_t* evt) {
             break;
         }
         case MQTT_EVT_DISCONNECT: {
+            uint8_t is_accepted = mqtt_client_evt_disconnect_is_accepted(client, evt);
             /* Disconnect event happened */
-            api_client->sub_pub_resp = mqtt_client_evt_unsubscribe_get_result(client, evt);
-            api_client->connect_resp = MQTT_CONN_STATUS_TCP_FAILED;
+            //api_client->connect_resp = MQTT_CONN_STATUS_TCP_FAILED;
 
             /* Print debug message */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
                 "[MQTT API] Disconnect event\r\n");
 
             /* Write to receive mbox to wakeup receive thread */
-            if (esp_sys_mbox_isvalid(&api_client->rcv_mbox)) {
+            if (is_accepted && esp_sys_mbox_isvalid(&api_client->rcv_mbox)) {
                 esp_sys_mbox_putnow(&api_client->rcv_mbox, &mqtt_closed);
             }
 
@@ -248,6 +248,12 @@ mqtt_client_api_delete(mqtt_client_api_p client) {
         esp_sys_mutex_invalid(&client->mutex);
     }
     if (esp_sys_mbox_isvalid(&client->rcv_mbox)) {
+        void* d;
+        while (esp_sys_mbox_getnow(&client->rcv_mbox, &d)) {
+            if ((uint8_t *)d != (uint8_t *)&mqtt_closed) {
+                mqtt_client_api_buf_free(d);
+            }
+        }
         esp_sys_mbox_delete(&client->rcv_mbox);
         esp_sys_mbox_invalid(&client->rcv_mbox);
     }

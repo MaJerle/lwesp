@@ -501,7 +501,8 @@ mqtt_process_incoming_message(mqtt_client_p client) {
                 if (err == MQTT_CONN_STATUS_ACCEPTED) {
                     client->conn_state = MQTT_CONNECTED;
                 }
-                ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] CONNACK received with result: %d!\r\n", (int)err);
+                ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
+                    "[MQTT] CONNACK received with result: %d\r\n", (int)err);
                 
                 /* Notify user layer */
                 client->evt.type = MQTT_EVT_CONNECT;
@@ -904,17 +905,22 @@ mqtt_poll_cb(mqtt_client_p client) {
 /**
  * \brief           Connection closed callback
  * \param[in]       client: MQTT client
+ * \param[in]       forced: Set to `1` when closed by user
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-mqtt_closed_cb(mqtt_client_p client) {
+mqtt_closed_cb(mqtt_client_p client, uint8_t forced) {
     mqtt_request_t* request;
+    mqtt_state_t state = client->conn_state;
 
+    /* 
+     * Call user function only if connection was closed
+     * when we are connected or in disconnecting mode
+     */
     client->conn_state = MQTT_CONN_DISCONNECTED;/* Connection is disconnected, ready to be established again */
-    
+    client->evt.evt.disconnect.is_accepted = state == MQTT_CONNECTED || state == MQTT_CONN_DISCONNECTING;   /* Set connection state */
     client->evt.type = MQTT_EVT_DISCONNECT;     /* Connection disconnected from server */
     client->evt_fn(client, &client->evt);       /* Notify upper layer about closed connection */
-    
     client->conn = NULL;                        /* Reset connection handle */
 
     /* Check all requests first */
@@ -1009,7 +1015,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
         
         /* Connection closed for some reason */
         case ESP_EVT_CONN_CLOSED: {
-            mqtt_closed_cb(client);             /* Closed connection callback */
+            mqtt_closed_cb(client, esp_evt_conn_closed_is_forced(evt)); /* Closed connection callback */
             break;
         }
         default:
