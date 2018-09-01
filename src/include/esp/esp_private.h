@@ -535,9 +535,9 @@ typedef struct {
 #define ESP_AT_PORT_SEND_BEGIN()            do { ESP_AT_PORT_SEND_STR("AT"); } while (0)
 #define ESP_AT_PORT_SEND_END()              do { ESP_AT_PORT_SEND_STR(CRLF); } while (0)
 
-#define ESP_AT_PORT_SEND_STR(str)           esp.ll.send_fn((const uint8_t *)(str), (uint16_t)strlen(str))
-#define ESP_AT_PORT_SEND_CHR(str)           esp.ll.send_fn((const uint8_t *)(str), (uint16_t)1)
-#define ESP_AT_PORT_SEND(d, l)              esp.ll.send_fn((const uint8_t *)(d), (uint16_t)l)
+#define ESP_AT_PORT_SEND_STR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)strlen(str))
+#define ESP_AT_PORT_SEND_CHR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)1)
+#define ESP_AT_PORT_SEND(d, l)              esp.ll.send_fn((const uint8_t *)(d), (size_t)l)
 
 #define ESP_AT_PORT_SEND_QUOTE_COND(q)      do { if ((q)) { ESP_AT_PORT_SEND_STR("\""); } } while (0)
 #define ESP_AT_PORT_SEND_COMMA_COND(c)      do { if ((c)) { ESP_AT_PORT_SEND_STR(","); } } while (0)
