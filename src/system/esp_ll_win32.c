@@ -57,7 +57,7 @@ send_data(const void* data, size_t len) {
         WriteFile(comPort, data, len, NULL, NULL);
         return len;
     }
-    return 0;
+    return len;
 }
 
 /**

@@ -323,12 +323,11 @@ configure_uart(uint32_t baudrate) {
  * \param[in]       len: Number of bytes to send
  * \return          Number of bytes sent
  */
-static uint16_t
-send_data(const void* data, uint16_t len) {
-    uint16_t i;
+static size_t
+send_data(const void* data, size_t len) {
     const uint8_t* d = data;
     
-    for (i = 0; i < len; i++, d++) {
+    for (size_t i = 0; i < len; i++, d++) {
         LL_USART_TransmitData8(ESP_USART, *d);
         while (!LL_USART_IsActiveFlag_TXE(ESP_USART)) {}
     }
