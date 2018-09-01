@@ -395,7 +395,7 @@ typedef struct esp_evt_t {
  * \param[in]       len: Number of bytes to send
  * \return          Number of bytes sent
  */
-typedef uint16_t (*esp_ll_send_fn)(const void* data, uint16_t len);
+typedef size_t (*esp_ll_send_fn)(const void* data, size_t len);
 
 /**
  * \ingroup         ESP_LL

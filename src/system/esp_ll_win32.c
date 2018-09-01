@@ -51,8 +51,8 @@ uint8_t data_buffer[0x1000];                    /*!< Received data array */
  * \param[in]       len: Number of bytes to send
  * \return          Number of bytes sent
  */
-static uint16_t
-send_data(const void* data, uint16_t len) {
+static size_t
+send_data(const void* data, size_t len) {
     if (comPort != NULL) {
         WriteFile(comPort, data, len, NULL, NULL);
         return len;
