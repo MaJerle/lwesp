@@ -143,8 +143,13 @@ uart_thread(void* param) {
                 for (DWORD i = 0; i < bytes_read; i++) {
                     printf("%c", data_buffer[i]);
                 }
+
                 /* Send received data to input processing module */
+#if ESP_CFG_INPUT_USE_PROCESS
                 esp_input_process(data_buffer, (size_t)bytes_read);
+#else
+                esp_input(data_buffer, (size_t)bytes_read);
+#endif
 
                 /* Write received data to output debug file */
                 if (file != NULL) {
