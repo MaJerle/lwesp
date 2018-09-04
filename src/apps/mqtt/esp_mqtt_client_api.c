@@ -81,7 +81,19 @@ mqtt_evt(mqtt_client_p client, mqtt_evt_t* evt) {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_STATE, "[MQTT API] Connect event with status: %d\r\n", (int)status);
 
             api_client->connect_resp = status;
-            release_sem(api_client);
+            
+            /*
+             * By MQTT 3.1.1 specification, broker must close connection
+             * if client CONNECT packet was not accepted.
+             *
+             * If client is accepted or connection did not even start,
+             * release semaphore, otherwise wait CLOSED event 
+             * and release semaphore from there,
+             * to make sure we are fully ready for next connect
+             */
+            if (status == MQTT_CONN_STATUS_TCP_FAILED || status == MQTT_CONN_STATUS_ACCEPTED) {
+                release_sem(api_client);
+            }
 
             break;
         }
