@@ -51,6 +51,7 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,   \
             "[CONN] Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
         esp_mem_free((void *)(m)->msg.conn_send.data);    \
+    (m)->msg.conn_send.data = NULL;                 \
     }                                               \
 } while (0)
 
@@ -236,9 +237,7 @@ espi_reset_everything(uint8_t forced) {
      *          - Start over init procedure
      */
 
-    /*
-     * Step 1: Close all connections in memory
-     */
+    /* Step 1: Close all connections in memory */
     reset_connections(forced);
 
     esp.status.f.r_got_ip = 0;
@@ -442,9 +441,7 @@ espi_parse_received(esp_recv_t* rcv) {
         espi_send_cb(ESP_EVT_RESET);            /* Call user callback function */
     }
 
-    /*
-     * Read and process statements starting with '+' character
-     */
+    /* Read and process statements starting with '+' character */
     if (rcv->data[0] == '+') {
         if (!strncmp("+IPD", rcv->data, 4)) {   /* Check received network data */
             espi_parse_ipd(rcv->data);          /* Parse IPD statement and start receiving network data */
@@ -461,15 +458,12 @@ espi_parse_received(esp_recv_t* rcv) {
             espi_parse_ap_ip_sta(&rcv->data[13]);   /* Parse string and send to user layer */
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
         } else if (esp.msg != NULL) {
-            if (
+            if (0
 #if ESP_CFG_MODE_STATION
-                (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET) && !strncmp(rcv->data, "+CIPSTAMAC", 10))
+                || (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET) && !strncmp(rcv->data, "+CIPSTAMAC", 10))
 #endif /* ESP_CFG_MODE_STATION */
-#if ESP_CFG_MODE_STATION_ACCESS_POINT
-                    ||
-#endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
 #if ESP_CFG_MODE_ACCESS_POINT
-                (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_GET) && !strncmp(rcv->data, "+CIPAPMAC", 9))
+                || (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_GET) && !strncmp(rcv->data, "+CIPAPMAC", 9))
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
             ) {
                 const char* tmp;
@@ -487,26 +481,26 @@ espi_parse_received(esp_recv_t* rcv) {
 
                 espi_parse_mac(&tmp, &mac);     /* Save as current MAC address */
                 if (is_received_current_setting(rcv->data)) {
-#if ESP_CFG_MODE_STATION_ACCESS_POINT
-                    ESP_MEMCPY(CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET) ? &esp.sta.mac : &esp.ap.mac, &mac, 6);   /* Copy to current setup */
-#elif ESP_CFG_MODE_STATION
-                    ESP_MEMCPY(&esp.sta.mac, &mac, 6);  /* Copy to current setup */
-#else
-                    ESP_MEMCPY(&esp.ap.mac, &mac, 6);   /* Copy to current setup */
-#endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
+#if ESP_CFG_MODE_STATION
+                    if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET)) {
+                        ESP_MEMCPY(&esp.sta.mac, &mac, 6);  /* Copy to current setup */
+                    }
+#endif /* ESP_CFG_MODE_STATION */
+#if ESP_CFG_MODE_ACCESS_POINT
+                    if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_GET)) {
+                        ESP_MEMCPY(&esp.ap.mac, &mac, 6);   /* Copy to current setup */
+                    }
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
                 }
                 if (esp.msg->msg.sta_ap_getmac.mac != NULL && CMD_IS_CUR(CMD_GET_DEF())) {
                     ESP_MEMCPY(esp.msg->msg.sta_ap_getmac.mac, &mac, sizeof(mac));  /* Copy to current setup */
                 }
-            } else if (
+            } else if (0
 #if ESP_CFG_MODE_STATION
-                (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET) && !strncmp(rcv->data, "+CIPSTA", 7))
+                || (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET) && !strncmp(rcv->data, "+CIPSTA", 7))
 #endif /* ESP_CFG_MODE_STATION */
-#if ESP_CFG_MODE_STATION_ACCESS_POINT
-                    ||
-#endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
 #if ESP_CFG_MODE_ACCESS_POINT
-                (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET) && !strncmp(rcv->data, "+CIPAP", 6))
+                || (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET) && !strncmp(rcv->data, "+CIPAP", 6))
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
             ) {
                 const char* tmp = NULL;
@@ -514,43 +508,48 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp_ip_mac_t* im;
                 uint8_t ch = 0;
 
-#if ESP_CFG_MODE_STATION_ACCESS_POINT
-                im = CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET) ? &esp.sta : &esp.ap;    /* Get IP and MAC structure first */
-#elif ESP_CFG_MODE_STATION
-                im = &esp.sta;                  /* Get IP and MAC structure first */
-#else
-                im = &esp.ap;                   /* Get IP and MAC structure first */
-#endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
+#if ESP_CFG_MODE_STATION
+                if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
+                    im = &esp.sta;              /* Get IP and MAC structure first */
+                }
+#endif /* ESP_CFG_MODE_STATION */
+#if ESP_CFG_MODE_ACCESS_POINT
+                if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
+                    im = &esp.ap;               /* Get IP and MAC structure first */
+                }
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
 
-                /* We expect "+CIPSTA_CUR:" or "+CIPSTA_DEF:" or "+CIPAP_CUR:" or "+CIPAP_DEF:" or "+CIPSTA:" or "+CIPAP:" ... */
-                if (rcv->data[6] == '_') {
-                    ch = rcv->data[11];
-                } else if (rcv->data[7] == '_') {
-                    ch = rcv->data[12];
-                } else if (rcv->data[6] == ':') {
-                    ch = rcv->data[7];
-                } else if (rcv->data[7] == ':') {
-                    ch = rcv->data[8];
-                }
-                switch (ch) {
-                    case 'i': tmp = &rcv->data[10]; a = &im->ip; b = esp.msg->msg.sta_ap_getip.ip; break;
-                    case 'g': tmp = &rcv->data[15]; a = &im->gw; b = esp.msg->msg.sta_ap_getip.gw; break;
-                    case 'n': tmp = &rcv->data[15]; a = &im->nm; b = esp.msg->msg.sta_ap_getip.nm; break;
-                    default: tmp = NULL; a = NULL; b = NULL; break;
-                }
-                if (tmp != NULL) {              /* Do we have temporary string? */
-                    if (rcv->data[6] == '_' || rcv->data[7] == '_') {   /* Do we have "_CUR" or "_DEF" included? */
-                        tmp += 4;               /* Skip it */
+                if (im != NULL) {
+                    /* We expect "+CIPSTA_CUR:" or "+CIPSTA_DEF:" or "+CIPAP_CUR:" or "+CIPAP_DEF:" or "+CIPSTA:" or "+CIPAP:" ... */
+                    if (rcv->data[6] == '_') {
+                        ch = rcv->data[11];
+                    } else if (rcv->data[7] == '_') {
+                        ch = rcv->data[12];
+                    } else if (rcv->data[6] == ':') {
+                        ch = rcv->data[7];
+                    } else if (rcv->data[7] == ':') {
+                        ch = rcv->data[8];
                     }
-                    if (*tmp == ':') {
-                        tmp++;
+                    switch (ch) {
+                        case 'i': tmp = &rcv->data[10]; a = &im->ip; b = esp.msg->msg.sta_ap_getip.ip; break;
+                        case 'g': tmp = &rcv->data[15]; a = &im->gw; b = esp.msg->msg.sta_ap_getip.gw; break;
+                        case 'n': tmp = &rcv->data[15]; a = &im->nm; b = esp.msg->msg.sta_ap_getip.nm; break;
+                        default: tmp = NULL; a = NULL; b = NULL; break;
                     }
-                    espi_parse_ip(&tmp, &ip);   /* Parse IP address */
-                    if (is_received_current_setting(rcv->data)) {
-                        ESP_MEMCPY(a, &ip, sizeof(ip)); /* Copy to current setup */
-                    }
-                    if (b != NULL && CMD_IS_CUR(CMD_GET_DEF())) {   /* Is current command the same as default one? */
-                        ESP_MEMCPY(b, &ip, sizeof(ip)); /* Copy to user variable */
+                    if (tmp != NULL) {          /* Do we have temporary string? */
+                        if (rcv->data[6] == '_' || rcv->data[7] == '_') {   /* Do we have "_CUR" or "_DEF" included? */
+                            tmp += 4;           /* Skip it */
+                        }
+                        if (*tmp == ':') {
+                            tmp++;
+                        }
+                        espi_parse_ip(&tmp, &ip);   /* Parse IP address */
+                        if (is_received_current_setting(rcv->data)) {
+                            ESP_MEMCPY(a, &ip, sizeof(ip)); /* Copy to current setup */
+                        }
+                        if (b != NULL && CMD_IS_CUR(CMD_GET_DEF())) {   /* Is current command the same as default one? */
+                            ESP_MEMCPY(b, &ip, sizeof(ip)); /* Copy to user variable */
+                        }
                     }
                 }
 #if ESP_CFG_MODE_STATION
