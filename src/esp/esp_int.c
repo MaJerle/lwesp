@@ -514,7 +514,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
-                if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
+                if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET)) {
                     im = &esp.ap;               /* Get IP and MAC structure first */
                 }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
