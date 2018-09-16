@@ -37,15 +37,15 @@
 /**
  * \brief           MQTT client connection
  */
-typedef struct mqtt_client {
+typedef struct esp_mqtt_client {
     esp_conn_p conn;                            /*!< Active used connection for MQTT */
-    const mqtt_client_info_t* info;             /*!< Connection info */
-    mqtt_state_t conn_state;                    /*!< MQTT connection state */
+    const esp_mqtt_client_info_t* info;         /*!< Connection info */
+    esp_mqtt_state_t conn_state;                /*!< MQTT connection state */
     
     uint32_t poll_time;                         /*!< Poll time, increased every 500ms */
     
-    mqtt_evt_t evt;                             /*!< MQTT event callback */
-    mqtt_evt_fn evt_fn;                         /*!< Event callback function */
+    esp_mqtt_evt_t evt;                         /*!< MQTT event callback */
+    esp_mqtt_evt_fn evt_fn;                     /*!< Event callback function */
     
     esp_buff_t tx_buff;                         /*!< Buffer for raw output data to transmit */
     
@@ -55,7 +55,7 @@ typedef struct mqtt_client {
     
     uint16_t last_packet_id;                    /*!< Packet ID used on last connection */
     
-    mqtt_request_t requests[MQTT_MAX_REQUESTS]; /*!< List of requests */
+    esp_mqtt_request_t requests[ESP_CFG_MQTT_MAX_REQUESTS]; /*!< List of requests */
     
     uint8_t* rx_buff;                           /*!< RX buffer */
     size_t rx_buff_len;                         /*!< Length of RX buffer */
@@ -66,7 +66,7 @@ typedef struct mqtt_client {
     uint32_t msg_curr_pos;                      /*!< Current buffer write pointer */
 
     void* arg;                                  /*!< User argument */
-} mqtt_client_t;
+} esp_mqtt_client_t;
 
 /* Tracing debug message */
 #define ESP_CFG_DBG_MQTT_TRACE                  ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_TRACE
@@ -74,7 +74,7 @@ typedef struct mqtt_client {
 #define ESP_CFG_DBG_MQTT_TRACE_WARNING          ESP_CFG_DBG_MQTT | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING
 
 static espr_t   mqtt_conn_cb(esp_evt_t* evt);
-static void     send_data(mqtt_client_p client);
+static void     send_data(esp_mqtt_client_p client);
 
 /**
  * \brief           List of MQTT message types
@@ -139,7 +139,7 @@ mqtt_msg_type_to_str(mqtt_msg_type_t msg_type) {
  * \param[in]       evt: MQTT event
  */
 static void
-mqtt_evt_fn_default(mqtt_client_p client, mqtt_evt_t* evt) {
+mqtt_evt_fn_default(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
     ESP_UNUSED(client);
     ESP_UNUSED(evt);
 }
@@ -150,7 +150,7 @@ mqtt_evt_fn_default(mqtt_client_p client, mqtt_evt_t* evt) {
  * \return          New packet ID
  */
 static uint16_t
-create_packet_id(mqtt_client_p client) {
+create_packet_id(esp_mqtt_client_p client) {
     client->last_packet_id++;
     if (client->last_packet_id == 0) {
         client->last_packet_id = 1;
@@ -171,15 +171,15 @@ create_packet_id(mqtt_client_p client) {
  * \param[in]       arg: User optional argument for identifying packets
  * \return          Pointer to new request ready to use or `NULL` if no available memory
  */
-static mqtt_request_t *
-request_create(mqtt_client_p client, uint16_t packet_id, void* arg) {
-    mqtt_request_t* request;
+static esp_mqtt_request_t *
+request_create(esp_mqtt_client_p client, uint16_t packet_id, void* arg) {
+    esp_mqtt_request_t* request;
     uint16_t i;
     
     /*
      * Try to find a new request which does not have IN_USE flag set
      */
-    for (request = NULL, i = 0; i < MQTT_MAX_REQUESTS; i++) {
+    for (request = NULL, i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; i++) {
         if ((client->requests[i].status & MQTT_REQUEST_FLAG_IN_USE) == 0) {
             request = &client->requests[i];     /* We have empty request */
             break;
@@ -199,7 +199,7 @@ request_create(mqtt_client_p client, uint16_t packet_id, void* arg) {
  * \param[in]       request: Request object to delete
  */
 static void
-request_delete(mqtt_client_p client, mqtt_request_t* request) {
+request_delete(esp_mqtt_client_p client, esp_mqtt_request_t* request) {
     request->status = 0;                        /* Reset status to make request unused */
 }
 
@@ -209,7 +209,7 @@ request_delete(mqtt_client_p client, mqtt_request_t* request) {
  * \param[in]       request: Request object to delete
  */
 static void
-request_set_pending(mqtt_client_p client, mqtt_request_t* request) {
+request_set_pending(esp_mqtt_client_p client, esp_mqtt_request_t* request) {
     request->timeout_start_time = esp_sys_now();/* Set timeout start time */
     request->status |= MQTT_REQUEST_FLAG_PENDING;   /* Set pending flag */
 }
@@ -220,10 +220,10 @@ request_set_pending(mqtt_client_p client, mqtt_request_t* request) {
  * \param[in]       pkt_id: Packet id to get request for. Use `-1` to get first pending request
  * \return          Request on success, `NULL` otherwise
  */
-static mqtt_request_t *
-request_get_pending(mqtt_client_p client, int32_t pkt_id) {    
+static esp_mqtt_request_t *
+request_get_pending(esp_mqtt_client_p client, int32_t pkt_id) {
     /* Try to find a new request which does not have IN_USE flag set */
-    for (size_t i = 0; i < MQTT_MAX_REQUESTS; i++) {
+    for (size_t i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; i++) {
         if ((client->requests[i].status & MQTT_REQUEST_FLAG_PENDING)
             && (
                 pkt_id == -1 
@@ -242,16 +242,16 @@ request_get_pending(mqtt_client_p client, int32_t pkt_id) {
  * \param[in]       arg: User argument
  */
 static void
-request_send_err_callback(mqtt_client_p client, uint8_t status, void* arg) {
+request_send_err_callback(esp_mqtt_client_p client, uint8_t status, void* arg) {
     if (status & MQTT_REQUEST_FLAG_SUBSCRIBE) {
-        client->evt.type = MQTT_EVT_SUBSCRIBE;
+        client->evt.type = ESP_MQTT_EVT_SUBSCRIBE;
     } else if (status & MQTT_REQUEST_FLAG_UNSUBSCRIBE) {
-        client->evt.type = MQTT_EVT_UNSUBSCRIBE;
+        client->evt.type = ESP_MQTT_EVT_UNSUBSCRIBE;
     } else {
-        client->evt.type = MQTT_EVT_PUBLISH;
+        client->evt.type = ESP_MQTT_EVT_PUBLISH;
     }
 
-    if (client->evt.type == MQTT_EVT_PUBLISH) {
+    if (client->evt.type == ESP_MQTT_EVT_PUBLISH) {
         client->evt.evt.publish.arg = arg;
         client->evt.evt.publish.res = espERR;
     } else {
@@ -277,7 +277,7 @@ request_send_err_callback(mqtt_client_p client, uint8_t status, void* arg) {
  * \param[in]       rem_len: Remaining packet length, excluding variable length part
  */
 static void
-write_fixed_header(mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup, uint8_t qos, uint8_t retain, uint16_t rem_len) {
+write_fixed_header(esp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup, uint8_t qos, uint8_t retain, uint16_t rem_len) {
     uint8_t b;
     
     b = ESP_U8((((uint8_t)type) << 0x04) | ((dup & 0x01) << 0x03) | ((qos & 0x03) << 0x01) | (uint8_t)(retain > 0));
@@ -303,7 +303,7 @@ write_fixed_header(mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup, uint
  * \param[in]       num: Number to write
  */
 static void
-write_u8(mqtt_client_p client, uint8_t num) {
+write_u8(esp_mqtt_client_p client, uint8_t num) {
     esp_buff_write(&client->tx_buff, &num, 1);  /* Write single byte */
 }
 
@@ -313,7 +313,7 @@ write_u8(mqtt_client_p client, uint8_t num) {
  * \param[in]       num: Number to write
  */
 static void
-write_u16(mqtt_client_p client, uint16_t num) {
+write_u16(esp_mqtt_client_p client, uint16_t num) {
     write_u8(client, ESP_U8(num >> 8));         /* Write MSB first... */
     write_u8(client, ESP_U8(num & 0xFF));       /* ...followed by LSB */
 }
@@ -325,7 +325,7 @@ write_u16(mqtt_client_p client, uint16_t num) {
  * \param[in]       len: Length of data to write
  */
 static void
-write_data(mqtt_client_p client, const void* data, size_t len) {
+write_data(esp_mqtt_client_p client, const void* data, size_t len) {
     esp_buff_write(&client->tx_buff, data, len);/* Write raw data to buffer */
 }
 
@@ -340,7 +340,7 @@ write_data(mqtt_client_p client, const void* data, size_t len) {
  * \return          Number of required RAW bytes or `0` if no memory available
  */
 static uint16_t
-output_check_enough_memory(mqtt_client_p client, uint16_t rem_len) {
+output_check_enough_memory(esp_mqtt_client_p client, uint16_t rem_len) {
     uint16_t total_len = rem_len + 1;           /* Remaining length + first (packet start) byte */
     
     do {                                        /* Calculate bytes for encoding remaining length itself */
@@ -360,7 +360,7 @@ output_check_enough_memory(mqtt_client_p client, uint16_t rem_len) {
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-write_ack_rec_rel_resp(mqtt_client_p client, mqtt_msg_type_t msg_type, uint16_t pkt_id, uint8_t qos) {
+write_ack_rec_rel_resp(esp_mqtt_client_p client, mqtt_msg_type_t msg_type, uint16_t pkt_id, uint8_t qos) {
     if (output_check_enough_memory(client, 2)) {/* Check memory for response packet */
         write_fixed_header(client, msg_type, 0, qos, 0, 2); /* Write fixed header with 2 more bytes for packet id */
         write_u16(client, pkt_id);              /* Write packet ID */
@@ -381,7 +381,7 @@ write_ack_rec_rel_resp(mqtt_client_p client, mqtt_msg_type_t msg_type, uint16_t 
  * \param[in]       str: String to write to buffer
  */
 static void
-write_string(mqtt_client_p client, const char* str, uint16_t len) {
+write_string(esp_mqtt_client_p client, const char* str, uint16_t len) {
     write_u16(client, len);                     /* Write string length */
     esp_buff_write(&client->tx_buff, str, len); /* Write string to buffer */
 }
@@ -391,7 +391,7 @@ write_string(mqtt_client_p client, const char* str, uint16_t len) {
  * \param[in]       client: MQTT client
  */
 static void
-send_data(mqtt_client_p client) {
+send_data(esp_mqtt_client_p client) {
     const void* addr;
     size_t len;
     
@@ -415,14 +415,14 @@ send_data(mqtt_client_p client) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 static espr_t
-mqtt_close(mqtt_client_p client) {
+mqtt_close(esp_mqtt_client_p client) {
     espr_t res = espERR;
-    if (client->conn_state != MQTT_CONN_DISCONNECTED &&
-        client->conn_state != MQTT_CONN_DISCONNECTING) {
+    if (client->conn_state != ESP_MQTT_CONN_DISCONNECTED &&
+        client->conn_state != ESP_MQTT_CONN_DISCONNECTING) {
 
         res = esp_conn_close(client->conn, 0);  /* Close the connection in non-blocking mode */
         if (res == espOK) {
-            client->conn_state = MQTT_CONN_DISCONNECTING;
+            client->conn_state = ESP_MQTT_CONN_DISCONNECTING;
         }
     }
     return res;
@@ -437,11 +437,11 @@ mqtt_close(mqtt_client_p client) {
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-sub_unsub(mqtt_client_p client, const char* topic, uint8_t qos, void* arg, uint8_t sub) {
+sub_unsub(esp_mqtt_client_p client, const char* topic, uint8_t qos, void* arg, uint8_t sub) {
     uint8_t ret = 0;
     uint16_t len_topic, pkt_id;
     uint32_t rem_len;
-    mqtt_request_t* request;
+    esp_mqtt_request_t* request;
     
     len_topic = ESP_U16(strlen(topic));         /* Get length of topic */
     if (len_topic == 0) {
@@ -459,7 +459,7 @@ sub_unsub(mqtt_client_p client, const char* topic, uint8_t qos, void* arg, uint8
     }
     
     esp_core_lock();                            /* Lock core */
-    if (client->conn_state == MQTT_CONNECTED && 
+    if (client->conn_state == ESP_MQTT_CONNECTED && 
         output_check_enough_memory(client, rem_len)) {  /* Check if enough memory to write packet data */
         pkt_id = create_packet_id(client);      /* Create new packet ID */
         request = request_create(client, pkt_id, arg);  /* Create request for packet */
@@ -487,7 +487,7 @@ sub_unsub(mqtt_client_p client, const char* topic, uint8_t qos, void* arg, uint8
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-mqtt_process_incoming_message(mqtt_client_p client) {
+mqtt_process_incoming_message(esp_mqtt_client_p client) {
     mqtt_msg_type_t msg_type;
     uint16_t pkt_id;
     uint8_t qos;
@@ -497,16 +497,16 @@ mqtt_process_incoming_message(mqtt_client_p client) {
     /* Check received packet type */
     switch (msg_type) {
         case MQTT_MSG_TYPE_CONNACK: {
-            mqtt_conn_status_t err = (mqtt_conn_status_t)client->rx_buff[1];
-            if (client->conn_state == MQTT_CONNECTING) {
-                if (err == MQTT_CONN_STATUS_ACCEPTED) {
-                    client->conn_state = MQTT_CONNECTED;
+            esp_mqtt_conn_status_t err = (esp_mqtt_conn_status_t)client->rx_buff[1];
+            if (client->conn_state == ESP_MQTT_CONNECTING) {
+                if (err == ESP_MQTT_CONN_STATUS_ACCEPTED) {
+                    client->conn_state = ESP_MQTT_CONNECTED;
                 }
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
                     "[MQTT] CONNACK received with result: %d\r\n", (int)err);
                 
                 /* Notify user layer */
-                client->evt.type = MQTT_EVT_CONNECT;
+                client->evt.type = ESP_MQTT_EVT_CONNECT;
                 client->evt.evt.connect.status = err;
                 client->evt_fn(client, &client->evt);
             } else {
@@ -557,7 +557,7 @@ mqtt_process_incoming_message(mqtt_client_p client) {
             }
             
             /* Notify application layer about received packet */
-            client->evt.type = MQTT_EVT_PUBLISH_RECV;
+            client->evt.type = ESP_MQTT_EVT_PUBLISH_RECV;
             client->evt.evt.publish_recv.topic = topic;
             client->evt.evt.publish_recv.topic_len = topic_len;
             client->evt.evt.publish_recv.payload = data;
@@ -571,7 +571,7 @@ mqtt_process_incoming_message(mqtt_client_p client) {
         case MQTT_MSG_TYPE_PINGRESP: {          /* Respond to PINGREQ received */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] Ping response received\r\n");
             
-            client->evt.type = MQTT_EVT_KEEP_ALIVE;
+            client->evt.type = ESP_MQTT_EVT_KEEP_ALIVE;
             client->evt_fn(client, &client->evt);
             break;
         }
@@ -591,7 +591,7 @@ mqtt_process_incoming_message(mqtt_client_p client) {
                         msg_type == MQTT_MSG_TYPE_UNSUBACK ||
                         msg_type == MQTT_MSG_TYPE_PUBACK ||
                         msg_type == MQTT_MSG_TYPE_PUBCOMP) {
-                mqtt_request_t* request;
+                esp_mqtt_request_t* request;
 
                 /*
                  * We can enter here only if we received final acknowledge
@@ -603,7 +603,7 @@ mqtt_process_incoming_message(mqtt_client_p client) {
                 request = request_get_pending(client, pkt_id);  /* Get pending request by packet ID */
                 if (request != NULL) {
                     if (msg_type == MQTT_MSG_TYPE_SUBACK || msg_type == MQTT_MSG_TYPE_UNSUBACK) {
-                        client->evt.type = msg_type == MQTT_MSG_TYPE_SUBACK ? MQTT_EVT_SUBSCRIBE : MQTT_EVT_UNSUBSCRIBE;
+                        client->evt.type = msg_type == MQTT_MSG_TYPE_SUBACK ? ESP_MQTT_EVT_SUBSCRIBE : ESP_MQTT_EVT_UNSUBSCRIBE;
                         client->evt.evt.sub_unsub_scribed.arg = request->arg;
                         client->evt.evt.sub_unsub_scribed.res = client->rx_buff[2] < 3 ? espOK : espERR;
                         client->evt_fn(client, &client->evt);
@@ -613,7 +613,7 @@ mqtt_process_incoming_message(mqtt_client_p client) {
                      * Ack type depends on QoS level being sent to server on request
                      */
                     } else if (msg_type == MQTT_MSG_TYPE_PUBCOMP || msg_type == MQTT_MSG_TYPE_PUBACK) {
-                        client->evt.type = MQTT_EVT_PUBLISH;
+                        client->evt.type = ESP_MQTT_EVT_PUBLISH;
                         client->evt.evt.publish.arg = request->arg;
                         client->evt.evt.publish.res = espOK;
                         client->evt_fn(client, &client->evt);
@@ -641,7 +641,7 @@ mqtt_process_incoming_message(mqtt_client_p client) {
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-mqtt_parse_incoming(mqtt_client_p client, esp_pbuf_p pbuf) {
+mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
     size_t idx, buff_len = 0, buff_offset = 0;
     const uint8_t* d;
     uint8_t ch;
@@ -714,7 +714,7 @@ mqtt_parse_incoming(mqtt_client_p client, esp_pbuf_p pbuf) {
  * \param[in]       client: MQTT client
  */
 static void
-mqtt_connected_cb(mqtt_client_p client) {
+mqtt_connected_cb(esp_mqtt_client_p client) {
     uint8_t flags = 0;
     uint16_t rem_len, len_id, len_pass, len_user, len_will_topic, len_will_message;
 
@@ -781,7 +781,7 @@ mqtt_connected_cb(mqtt_client_p client) {
     client->parser_state = MQTT_PARSER_STATE_INIT;  /* Reset parser state */
     
     client->poll_time = 0;                      /* Reset kep alive time */
-    client->conn_state = MQTT_CONNECTING;       /* MQTT is connecting to server */
+    client->conn_state = ESP_MQTT_CONNECTING;   /* MQTT is connecting to server */
 
     send_data(client);                          /* Flush and send the actual data */
 }
@@ -793,7 +793,7 @@ mqtt_connected_cb(mqtt_client_p client) {
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-mqtt_data_recv_cb(mqtt_client_p client, esp_pbuf_p pbuf) {
+mqtt_data_recv_cb(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
     client->poll_time = 0;                      /* Reset kep alive time */
     mqtt_parse_incoming(client, pbuf);
     esp_conn_recved(client->conn, pbuf);        /* Notify stack about received data */
@@ -807,8 +807,8 @@ mqtt_data_recv_cb(mqtt_client_p client, esp_pbuf_p pbuf) {
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-mqtt_data_sent_cb(mqtt_client_p client, size_t sent_len, uint8_t successful) {
-    mqtt_request_t* request;
+mqtt_data_sent_cb(esp_mqtt_client_p client, size_t sent_len, uint8_t successful) {
+    esp_mqtt_request_t* request;
     
     client->is_sending = 0;                     /* We are not sending anymore */
     client->sent_total += sent_len;
@@ -847,7 +847,7 @@ mqtt_data_sent_cb(mqtt_client_p client, size_t sent_len, uint8_t successful) {
             request_delete(client, request);    /* Delete request and make space for next command */
             
             /* Call published callback */
-            client->evt.type = MQTT_EVT_PUBLISH;
+            client->evt.type = ESP_MQTT_EVT_PUBLISH;
             client->evt.evt.publish.arg = arg;
             client->evt.evt.publish.res = espOK;
             client->evt_fn(client, &client->evt);
@@ -867,10 +867,10 @@ mqtt_data_sent_cb(mqtt_client_p client, size_t sent_len, uint8_t successful) {
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-mqtt_poll_cb(mqtt_client_p client) {
+mqtt_poll_cb(esp_mqtt_client_p client) {
     client->poll_time++;
     
-    if (client->conn_state == MQTT_CONN_DISCONNECTING) {
+    if (client->conn_state == ESP_MQTT_CONN_DISCONNECTING) {
         return 0;
     }
 
@@ -909,17 +909,17 @@ mqtt_poll_cb(mqtt_client_p client) {
  * \return          `1` on success, `0` otherwise
  */
 static uint8_t
-mqtt_closed_cb(mqtt_client_p client, uint8_t forced) {
-    mqtt_request_t* request;
-    mqtt_state_t state = client->conn_state;
+mqtt_closed_cb(esp_mqtt_client_p client, uint8_t forced) {
+    esp_mqtt_request_t* request;
+    esp_mqtt_state_t state = client->conn_state;
 
     /* 
      * Call user function only if connection was closed
      * when we are connected or in disconnecting mode
      */
-    client->conn_state = MQTT_CONN_DISCONNECTED;/* Connection is disconnected, ready to be established again */
-    client->evt.evt.disconnect.is_accepted = state == MQTT_CONNECTED || state == MQTT_CONN_DISCONNECTING;   /* Set connection state */
-    client->evt.type = MQTT_EVT_DISCONNECT;     /* Connection disconnected from server */
+    client->conn_state = ESP_MQTT_CONN_DISCONNECTED;/* Connection is disconnected, ready to be established again */
+    client->evt.evt.disconnect.is_accepted = state == ESP_MQTT_CONNECTED || state == ESP_MQTT_CONN_DISCONNECTING;   /* Set connection state */
+    client->evt.type = ESP_MQTT_EVT_DISCONNECT; /* Connection disconnected from server */
     client->evt_fn(client, &client->evt);       /* Notify upper layer about closed connection */
     client->conn = NULL;                        /* Reset connection handle */
 
@@ -948,7 +948,7 @@ mqtt_closed_cb(mqtt_client_p client, uint8_t forced) {
 static espr_t
 mqtt_conn_cb(esp_evt_t* evt) {
     esp_conn_p conn;
-    mqtt_client_p client = NULL;
+    esp_mqtt_client_p client = NULL;
     
     conn = esp_conn_get_from_evt(evt);          /* Get connection from event */
     if (conn != NULL) {
@@ -968,13 +968,13 @@ mqtt_conn_cb(esp_evt_t* evt) {
          * server was not successful
          */
         case ESP_EVT_CONN_ERROR: {
-            mqtt_client_p client;
+            esp_mqtt_client_p client;
             client = esp_evt_conn_error_get_arg(evt);   /* Get connection argument */
             if (client != NULL) {
-                client->conn_state = MQTT_CONN_DISCONNECTED;    /* Set back to disconnected state */
+                client->conn_state = ESP_MQTT_CONN_DISCONNECTED;    /* Set back to disconnected state */
                 /* Notify user upper layer */
-                client->evt.type = MQTT_EVT_CONNECT;
-                client->evt.evt.connect.status = MQTT_CONN_STATUS_TCP_FAILED;   /* TCP connection failed */
+                client->evt.type = ESP_MQTT_EVT_CONNECT;
+                client->evt.evt.connect.status = ESP_MQTT_CONN_STATUS_TCP_FAILED;   /* TCP connection failed */
                 client->evt_fn(client, &client->evt);   /* Notify upper layer about closed connection */
             }
             break;
@@ -1030,14 +1030,14 @@ mqtt_conn_cb(esp_evt_t* evt) {
  * \param[in]       rx_buff_len: Length of raw data input buffer
  * \return          Pointer to new allocated MQTT client structure or `NULL` on failure
  */
-mqtt_client_t *
-mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
-    mqtt_client_p client;
+esp_mqtt_client_t *
+esp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
+    esp_mqtt_client_p client;
     
     client = esp_mem_alloc(sizeof(*client));    /* Allocate memory for client structure */
     if (client != NULL) {
         memset(client, 0x00, sizeof(*client));  /* Reset memory */
-        client->conn_state = MQTT_CONN_DISCONNECTED;/* Set to disconnected mode */
+        client->conn_state = ESP_MQTT_CONN_DISCONNECTED;/* Set to disconnected mode */
         
         if (!esp_buff_init(&client->tx_buff, tx_buff_len)) {
             esp_mem_free(client);
@@ -1062,7 +1062,7 @@ mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
  * \param[in]       client: MQTT client
  */
 void
-mqtt_client_delete(mqtt_client_p client) {
+esp_mqtt_client_delete(esp_mqtt_client_p client) {
     if (client != NULL) {
         if (client->rx_buff != NULL) {
             esp_mem_free(client->rx_buff);      /* Free RX buffer memory */
@@ -1084,8 +1084,8 @@ mqtt_client_delete(mqtt_client_p client) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-mqtt_client_connect(mqtt_client_p client, const char* host, esp_port_t port,
-                    mqtt_evt_fn evt_fn, const mqtt_client_info_t* info) {
+esp_mqtt_client_connect(esp_mqtt_client_p client, const char* host, esp_port_t port,
+                        esp_mqtt_evt_fn evt_fn, const esp_mqtt_client_info_t* info) {
     espr_t res = espERR;
     
     ESP_ASSERT("client != NULL", client != NULL);   /* t input parameters */
@@ -1094,14 +1094,14 @@ mqtt_client_connect(mqtt_client_p client, const char* host, esp_port_t port,
     ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
     
     esp_core_lock();                            /* Lock ESP core */
-    if (esp_sta_is_joined() && client->conn_state == MQTT_CONN_DISCONNECTED) {        
+    if (esp_sta_is_joined() && client->conn_state == ESP_MQTT_CONN_DISCONNECTED) {        
         client->info = info;                    /* Save client info parameters */
         client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
         
         /* Start a new connection in non-blocking mode */
         res = esp_conn_start(&client->conn, ESP_CONN_TYPE_TCP, host, port, client, mqtt_conn_cb, 0);
         if (res == espOK) {
-            client->conn_state = MQTT_CONN_CONNECTING;
+            client->conn_state = ESP_MQTT_CONN_CONNECTING;
         }
     }
     esp_core_unlock();                          /* Unlock ESP core */
@@ -1115,12 +1115,12 @@ mqtt_client_connect(mqtt_client_p client, const char* host, esp_port_t port,
  * \return          espOK if request sent to queue or member of \ref espr_t otherwise
  */
 espr_t
-mqtt_client_disconnect(mqtt_client_p client) {
+esp_mqtt_client_disconnect(esp_mqtt_client_p client) {
     espr_t res = espERR;
     
     esp_core_lock();                            /* Lock ESP core */
-    if (client->conn_state != MQTT_CONN_DISCONNECTED &&
-        client->conn_state != MQTT_CONN_DISCONNECTING) {
+    if (client->conn_state != ESP_MQTT_CONN_DISCONNECTED &&
+        client->conn_state != ESP_MQTT_CONN_DISCONNECTING) {
         res = mqtt_close(client);               /* Close client connection */
     }
     esp_core_unlock();                          /* Unlock ESP core */
@@ -1136,7 +1136,7 @@ mqtt_client_disconnect(mqtt_client_p client) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-mqtt_client_subscribe(mqtt_client_p client, const char* topic, uint8_t qos, void* arg) {
+esp_mqtt_client_subscribe(esp_mqtt_client_p client, const char* topic, uint8_t qos, void* arg) {
     return sub_unsub(client, topic, qos, arg, 1) == 1 ? espOK : espERR;  /* Subscribe to topic */
 }
 
@@ -1148,7 +1148,7 @@ mqtt_client_subscribe(mqtt_client_p client, const char* topic, uint8_t qos, void
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-mqtt_client_unsubscribe(mqtt_client_p client, const char* topic, void* arg) {
+esp_mqtt_client_unsubscribe(esp_mqtt_client_p client, const char* topic, void* arg) {
     return sub_unsub(client, topic, 0, arg, 0) == 1 ? espOK : espERR;    /* Unsubscribe from topic */
 }
 
@@ -1164,11 +1164,11 @@ mqtt_client_unsubscribe(mqtt_client_p client, const char* topic, void* arg) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-mqtt_client_publish(mqtt_client_p client, const char* topic, const void* payload,
+esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void* payload,
                     uint16_t payload_len, uint8_t qos, uint8_t retain, void* arg) {
     uint16_t len_topic, pkt_id;
     uint32_t rem_len, raw_len;
-    mqtt_request_t* request = NULL;
+    esp_mqtt_request_t* request = NULL;
     espr_t res = espOK;
     
     if ((len_topic = ESP_U16(strlen(topic))) == 0) {    /* Get length of topic */
@@ -1186,7 +1186,7 @@ mqtt_client_publish(mqtt_client_p client, const char* topic, const void* payload
     }
     
     esp_core_lock();                            /* Lock ESP core */
-    if (client->conn_state != MQTT_CONNECTED) {
+    if (client->conn_state != ESP_MQTT_CONNECTED) {
         res = espERR;
     } else if ((raw_len = output_check_enough_memory(client, rem_len)) != 0) {
         pkt_id = qos > 0 ? create_packet_id(client) : 0;/* Create new packet ID */
@@ -1233,11 +1233,11 @@ mqtt_client_publish(mqtt_client_p client, const char* topic, const void* payload
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-mqtt_client_is_connected(mqtt_client_p client) {
+esp_mqtt_client_is_connected(esp_mqtt_client_p client) {
     uint8_t res;
     
     esp_core_lock();                            /* Lock ESP core */
-    res = ESP_U8(client->conn_state == MQTT_CONNECTED);
+    res = ESP_U8(client->conn_state == ESP_MQTT_CONNECTED);
     esp_core_unlock();                          /* Unlock ESP core */
     
     return res;
@@ -1249,7 +1249,7 @@ mqtt_client_is_connected(mqtt_client_p client) {
  * \param[in]       arg: User argument
  */
 void
-mqtt_client_set_arg(mqtt_client_p client, void* arg) {
+esp_mqtt_client_set_arg(esp_mqtt_client_p client, void* arg) {
     esp_core_lock();                            /* Lock ESP core */
     client->arg = arg;
     esp_core_unlock();                          /* Unlock ESP core */
@@ -1261,6 +1261,6 @@ mqtt_client_set_arg(mqtt_client_p client, void* arg) {
  * \return          User argument
  */
 void *
-mqtt_client_get_arg(mqtt_client_p client) {
+esp_mqtt_client_get_arg(esp_mqtt_client_p client) {
     return client->arg;
 }

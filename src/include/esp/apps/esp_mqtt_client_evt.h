@@ -54,7 +54,7 @@ extern "C" {
  * \return          MQTT Event type, value of \ref mqtt_evt_type_t enumeration
  * \hideinitializer
  */
-#define mqtt_client_evt_get_type(client, evt)                   ((mqtt_evt_type_t)(evt)->type)
+#define esp_mqtt_client_evt_get_type(client, evt)                   ((esp_mqtt_evt_type_t)(evt)->type)
 
 /**
  * \name            ESP_APP_MQTT_CLIENT_EVT_CONNECT Connect event
@@ -71,7 +71,7 @@ extern "C" {
  * \return          Connection status. Member of \ref mqtt_conn_status_t
  * \hideinitializer
  */
-#define mqtt_client_evt_connect_get_status(client, evt)         ((mqtt_conn_status_t)(evt)->evt.connect.status)
+#define esp_mqtt_client_evt_connect_get_status(client, evt)         ((esp_mqtt_conn_status_t)(evt)->evt.connect.status)
 
 /**
  * \}
@@ -91,7 +91,7 @@ extern "C" {
  * \param[in]       evt: Event handle
  * \return          `1` on success, `0` otherwise
  */
-#define mqtt_client_evt_disconnect_is_accepted(client, evt)     ((mqtt_conn_status_t)(evt)->evt.disconnect.is_accepted)
+#define esp_mqtt_client_evt_disconnect_is_accepted(client, evt)     ((esp_mqtt_conn_status_t)(evt)->evt.disconnect.is_accepted)
 
 /**
  * \}
@@ -112,7 +112,7 @@ extern "C" {
  * \return          User argument
  * \hideinitializer
  */
-#define mqtt_client_evt_subscribe_get_argument(client, evt)     ((void *)(evt)->evt.sub_unsub_scribed.arg)
+#define esp_mqtt_client_evt_subscribe_get_argument(client, evt)     ((void *)(evt)->evt.sub_unsub_scribed.arg)
  
 /**
  * \brief           Get result of subscribe event
@@ -121,7 +121,7 @@ extern "C" {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  * \hideinitializer
  */
-#define mqtt_client_evt_subscribe_get_result(client, evt)       ((espr_t)(evt)->evt.sub_unsub_scribed.res)
+#define esp_mqtt_client_evt_subscribe_get_result(client, evt)       ((espr_t)(evt)->evt.sub_unsub_scribed.res)
 
 /**
  * \brief           Get user argument used on \ref mqtt_client_unsubscribe
@@ -130,7 +130,7 @@ extern "C" {
  * \return          User argument
  * \hideinitializer
  */
-#define mqtt_client_evt_unsubscribe_get_argument(client, evt)   ((void *)(evt)->evt.sub_unsub_scribed.arg)
+#define esp_mqtt_client_evt_unsubscribe_get_argument(client, evt)   ((void *)(evt)->evt.sub_unsub_scribed.arg)
  
 /**
  * \brief           Get result of unsubscribe event
@@ -139,7 +139,7 @@ extern "C" {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  * \hideinitializer
  */
-#define mqtt_client_evt_unsubscribe_get_result(client, evt)     ((espr_t)(evt)->evt.sub_unsub_scribed.res)
+#define esp_mqtt_client_evt_unsubscribe_get_result(client, evt)     ((espr_t)(evt)->evt.sub_unsub_scribed.res)
 
 /**
  * \}
@@ -160,7 +160,7 @@ extern "C" {
  * \return          Topic name
  * \hideinitializer
  */
-#define mqtt_client_evt_publish_recv_get_topic(client, evt)         ((const void *)(evt)->evt.publish_recv.topic)
+#define esp_mqtt_client_evt_publish_recv_get_topic(client, evt)     ((const void *)(evt)->evt.publish_recv.topic)
 
 /**
  * \brief           Get topic length from received publish packet
@@ -169,7 +169,7 @@ extern "C" {
  * \return          Topic length
  * \hideinitializer
  */
-#define mqtt_client_evt_publish_recv_get_topic_len(client, evt)     (ESP_SZ((evt)->evt.publish_recv.topic_len))
+#define esp_mqtt_client_evt_publish_recv_get_topic_len(client, evt) (ESP_SZ((evt)->evt.publish_recv.topic_len))
 
 /**
  * \brief           Get payload from received publish packet
@@ -178,7 +178,7 @@ extern "C" {
  * \return          Packet payload
  * \hideinitializer
  */
-#define mqtt_client_evt_publish_recv_get_payload(client, evt)       ((const void *)(evt)->evt.publish_recv.payload)
+#define esp_mqtt_client_evt_publish_recv_get_payload(client, evt)   ((const void *)(evt)->evt.publish_recv.payload)
 
 /**
  * \brief           Get payload length from received publish packet
@@ -187,7 +187,7 @@ extern "C" {
  * \return          Payload length
  * \hideinitializer
  */
-#define mqtt_client_evt_publish_recv_get_payload_len(client, evt)   (ESP_SZ((evt)->evt.publish_recv.payload_len))
+#define esp_mqtt_client_evt_publish_recv_get_payload_len(client, evt)   (ESP_SZ((evt)->evt.publish_recv.payload_len))
 
 /**
  * \brief           Check if packet is duplicated
@@ -196,7 +196,7 @@ extern "C" {
  * \return          `1` if duplicated, `0` otherwise
  * \hideinitializer
  */
-#define mqtt_client_evt_publish_recv_is_duplicate(client, evt)      (ESP_U8((evt)->evt.publish_recv.dup))
+#define esp_mqtt_client_evt_publish_recv_is_duplicate(client, evt)  (ESP_U8((evt)->evt.publish_recv.dup))
 
 /**
  * \brief           Get received quality of service
@@ -205,7 +205,7 @@ extern "C" {
  * \return          Member of \ref ESP_APP_MQTT_CLIENT_QOS
  * \hideinitializer
  */
-#define mqtt_client_evt_publish_recv_get_qos(client, evt)           (ESP_U8((evt)->evt.publish_recv.qos))
+#define esp_mqtt_client_evt_publish_recv_get_qos(client, evt)       (ESP_U8((evt)->evt.publish_recv.qos))
 
 /**
  * \}
@@ -226,7 +226,7 @@ extern "C" {
  * \return          User argument
  * \hideinitializer
  */
-#define mqtt_client_evt_published_get_argument(client, evt)     ((void *)(evt)->evt.publish.arg)
+#define esp_mqtt_client_evt_published_get_argument(client, evt) ((void *)(evt)->evt.publish.arg)
 
  /**
  * \brief           Get result of publish event
@@ -235,7 +235,7 @@ extern "C" {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  * \hideinitializer
  */
-#define mqtt_client_evt_publish_get_result(client, evt)     ((espr_t)(evt)->evt.publish.res)
+#define esp_mqtt_client_evt_publish_get_result(client, evt)     ((espr_t)(evt)->evt.publish.res)
 
 /**
  * \}

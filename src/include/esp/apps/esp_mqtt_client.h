@@ -53,8 +53,8 @@ extern "C" {
  * 
  * \note            This is default value. To change it, override value in `esp_config.h` configuration file
  */
-#ifndef MQTT_MAX_REQUESTS
-#define MQTT_MAX_REQUESTS               8
+#ifndef ESP_CFG_MQTT_MAX_REQUESTS
+#define ESP_CFG_MQTT_MAX_REQUESTS       8
 #endif
 
 /**
@@ -63,28 +63,28 @@ extern "C" {
  * \{
  */
 
-#define MQTT_QOS_AT_MOST_ONCE           0x00    /*!< Delivery is not guaranteed to arrive, but can arrive `up to 1 time` = non-critical packets where losses are allowed */
-#define MQTT_QOS_AT_LEAST_ONCE          0x01    /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple times with the same content */
-#define MQTT_QOS_EXACTLY_ONCE           0x02    /*!< Delivery is quaranteed `exactly once` = very critical packets such as billing informations or similar */
+#define ESP_MQTT_QOS_AT_MOST_ONCE       0x00    /*!< Delivery is not guaranteed to arrive, but can arrive `up to 1 time` = non-critical packets where losses are allowed */
+#define ESP_MQTT_QOS_AT_LEAST_ONCE      0x01    /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple times with the same content */
+#define ESP_MQTT_QOS_EXACTLY_ONCE       0x02    /*!< Delivery is quaranteed `exactly once` = very critical packets such as billing informations or similar */
 
 /**
  * \}
  */
 
-struct mqtt_client;
+struct esp_mqtt_client;
 
-typedef struct mqtt_client* mqtt_client_p;
+typedef struct esp_mqtt_client* esp_mqtt_client_p;
 
 /**
  * \brief           State of MQTT client
  */
 typedef enum {
-    MQTT_CONN_DISCONNECTED = 0x00,              /*!< Connection with server is not established */
-    MQTT_CONN_CONNECTING,                       /*!< Client is connecting to server */
-    MQTT_CONN_DISCONNECTING,                    /*!< Client connection is disconnecting from server */
-    MQTT_CONNECTING,                            /*!< MQTT client is connecting... CONNECT command has been sent to server */
-    MQTT_CONNECTED,                             /*!< MQTT is fully connected and ready to send data on topics */
-} mqtt_state_t;
+    ESP_MQTT_CONN_DISCONNECTED = 0x00,          /*!< Connection with server is not established */
+    ESP_MQTT_CONN_CONNECTING,                   /*!< Client is connecting to server */
+    ESP_MQTT_CONN_DISCONNECTING,                /*!< Client connection is disconnecting from server */
+    ESP_MQTT_CONNECTING,                        /*!< MQTT client is connecting... CONNECT command has been sent to server */
+    ESP_MQTT_CONNECTED,                         /*!< MQTT is fully connected and ready to send data on topics */
+} esp_mqtt_state_t;
 
 /**
  * \brief           MQTT client information structure
@@ -101,7 +101,7 @@ typedef struct {
     const char* will_topic;                     /*!< Will topic */
     const char* will_message;                   /*!< Will message */
     uint8_t will_qos;                           /*!< Will topic quality of service */
-} mqtt_client_info_t;
+} esp_mqtt_client_info_t;
 
 /**
  * \brief           MQTT request object
@@ -115,45 +115,45 @@ typedef struct {
                                                     on connection before we can say "packet was sent". */
     
     uint32_t timeout_start_time;                /*!< Timeout start time in units of milliseconds */
-} mqtt_request_t;
+} esp_mqtt_request_t;
 
 /**
  * \brief           MQTT event types
  */
 typedef enum {
-    MQTT_EVT_CONNECT,                           /*!< MQTT client connect event */
-    MQTT_EVT_SUBSCRIBE,                         /*!< MQTT client subscribed to specific topic */
-    MQTT_EVT_UNSUBSCRIBE,                       /*!< MQTT client unsubscribed from specific topic */
-    MQTT_EVT_PUBLISH,                           /*!< MQTT client publish message to server event.
+    ESP_MQTT_EVT_CONNECT,                       /*!< MQTT client connect event */
+    ESP_MQTT_EVT_SUBSCRIBE,                     /*!< MQTT client subscribed to specific topic */
+    ESP_MQTT_EVT_UNSUBSCRIBE,                   /*!< MQTT client unsubscribed from specific topic */
+    ESP_MQTT_EVT_PUBLISH,                       /*!< MQTT client publish message to server event.
                                                     \note   When publishing packet with quality of service \ref MQTT_QOS_AT_MOST_ONCE,
                                                             you may not receive event, even if packet was successfully sent,
                                                             thus do not rely on this event for packet with `qos = MQTT_QOS_AT_MOST_ONCE` */
-    MQTT_EVT_PUBLISH_RECV,                      /*!< MQTT client received a publish message from server */
-    MQTT_EVT_DISCONNECT,                        /*!< MQTT client disconnected from MQTT server */
-    MQTT_EVT_KEEP_ALIVE,                        /*!< MQTT keep-alive sent to server and reply received */
-} mqtt_evt_type_t;
+    ESP_MQTT_EVT_PUBLISH_RECV,                  /*!< MQTT client received a publish message from server */
+    ESP_MQTT_EVT_DISCONNECT,                    /*!< MQTT client disconnected from MQTT server */
+    ESP_MQTT_EVT_KEEP_ALIVE,                    /*!< MQTT keep-alive sent to server and reply received */
+} esp_mqtt_evt_type_t;
 
 /**
  * \brief           List of possible results from MQTT server when executing connect command
  */
 typedef enum {
-    MQTT_CONN_STATUS_ACCEPTED =                 0x00,   /*!< Connection accepted and ready to use */
-    MQTT_CONN_STATUS_REFUSED_PROTOCOL_VERSION = 0x01,   /*!< Connection Refused, unacceptable protocol version */
-    MQTT_CONN_STATUS_REFUSED_ID =               0x02,   /*!< Connection refused, identifier rejected  */
-    MQTT_CONN_STATUS_REFUSED_SERVER =           0x03,   /*!< Connection refused, server unavailable */
-    MQTT_CONN_STATUS_REFUSED_USER_PASS =        0x04,   /*!< Connection refused, bad user name or password */
-    MQTT_CONN_STATUS_REFUSED_NOT_AUTHORIZED =   0x05,   /*!< Connection refused, not authorized */
-    MQTT_CONN_STATUS_TCP_FAILED =               0x100,  /*!< TCP connection to server was not successful */
-} mqtt_conn_status_t;
+    ESP_MQTT_CONN_STATUS_ACCEPTED =                 0x00,   /*!< Connection accepted and ready to use */
+    ESP_MQTT_CONN_STATUS_REFUSED_PROTOCOL_VERSION = 0x01,   /*!< Connection Refused, unacceptable protocol version */
+    ESP_MQTT_CONN_STATUS_REFUSED_ID =               0x02,   /*!< Connection refused, identifier rejected  */
+    ESP_MQTT_CONN_STATUS_REFUSED_SERVER =           0x03,   /*!< Connection refused, server unavailable */
+    ESP_MQTT_CONN_STATUS_REFUSED_USER_PASS =        0x04,   /*!< Connection refused, bad user name or password */
+    ESP_MQTT_CONN_STATUS_REFUSED_NOT_AUTHORIZED =   0x05,   /*!< Connection refused, not authorized */
+    ESP_MQTT_CONN_STATUS_TCP_FAILED =               0x100,  /*!< TCP connection to server was not successful */
+} esp_mqtt_conn_status_t;
 
 /**
  * \brief           MQTT event structure for callback function
  */
 typedef struct {
-    mqtt_evt_type_t type;                       /*!< Event type */
+    esp_mqtt_evt_type_t type;                   /*!< Event type */
     union {
         struct {
-            mqtt_conn_status_t status;          /*!< Connection status with MQTT */
+            esp_mqtt_conn_status_t status;      /*!< Connection status with MQTT */
         } connect;                              /*!< Event for connecting to server */
         struct {
             uint8_t is_accepted;                /*!< Status if client was accepted to MQTT prior disconnect event */
@@ -175,29 +175,29 @@ typedef struct {
             uint8_t qos;                        /*!< Received packet quality of service */
         } publish_recv;                         /*!< Publish received event */
     } evt;                                      /*!< Event data parameters */
-} mqtt_evt_t;
+} esp_mqtt_evt_t;
 
 /**
  * \brief           MQTT event callback function
  * \param[in]       client: MQTT client
  * \param[in]       evt: MQTT event with type and related data
  */
-typedef void    (*mqtt_evt_fn)(mqtt_client_p client, mqtt_evt_t* evt);
+typedef void    (*esp_mqtt_evt_fn)(esp_mqtt_client_p client, esp_mqtt_evt_t* evt);
 
-mqtt_client_p   mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
-void            mqtt_client_delete(mqtt_client_p client);
+esp_mqtt_client_p   esp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
+void                esp_mqtt_client_delete(esp_mqtt_client_p client);
 
-espr_t          mqtt_client_connect(mqtt_client_p client, const char* host, esp_port_t port, mqtt_evt_fn evt_fn, const mqtt_client_info_t* info);
-espr_t          mqtt_client_disconnect(mqtt_client_p client);
-uint8_t         mqtt_client_is_connected(mqtt_client_p client);
+espr_t              esp_mqtt_client_connect(esp_mqtt_client_p client, const char* host, esp_port_t port, esp_mqtt_evt_fn evt_fn, const esp_mqtt_client_info_t* info);
+espr_t              esp_mqtt_client_disconnect(esp_mqtt_client_p client);
+uint8_t             esp_mqtt_client_is_connected(esp_mqtt_client_p client);
 
-espr_t          mqtt_client_subscribe(mqtt_client_p client, const char* topic, uint8_t qos, void* arg);
-espr_t          mqtt_client_unsubscribe(mqtt_client_p client, const char* topic, void* arg);
+espr_t              esp_mqtt_client_subscribe(esp_mqtt_client_p client, const char* topic, uint8_t qos, void* arg);
+espr_t              esp_mqtt_client_unsubscribe(esp_mqtt_client_p client, const char* topic, void* arg);
 
-espr_t          mqtt_client_publish(mqtt_client_p client, const char* topic, const void* payload, uint16_t len, uint8_t qos, uint8_t retain, void* arg);
+espr_t              esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void* payload, uint16_t len, uint8_t qos, uint8_t retain, void* arg);
 
-void*           mqtt_client_get_arg(mqtt_client_p client);
-void            mqtt_client_set_arg(mqtt_client_p client, void* arg);
+void*               esp_mqtt_client_get_arg(esp_mqtt_client_p client);
+void                esp_mqtt_client_set_arg(esp_mqtt_client_p client, void* arg);
     
 /**
  * \}
