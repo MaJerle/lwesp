@@ -1730,7 +1730,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else if (msg->msg.conn_start.type == ESP_CONN_TYPE_TCP) {
                 send_string("TCP", 0, 1, 1);
             } else if (msg->msg.conn_start.type == ESP_CONN_TYPE_UDP) {
-                send_string("UPD", 0, 1, 1);
+                send_string("UDP", 0, 1, 1);
             }
             send_string(msg->msg.conn_start.host, 0, 1, 1);
             send_port(msg->msg.conn_start.port, 0, 1);
