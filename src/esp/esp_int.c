@@ -1419,9 +1419,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 
-        /*
-         * WiFi related commands
-         */
+        /* WiFi related commands */
 
 #if ESP_CFG_MODE_STATION
         case ESP_CMD_WIFI_CWJAP: {              /* Try to join to access point */
