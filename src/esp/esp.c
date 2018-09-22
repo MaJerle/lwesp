@@ -126,13 +126,7 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
  */
 espr_t
 esp_reset(uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
-    
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
-    ESP_MSG_VAR_REF(msg).msg.reset.delay = 0;
-    
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);    /* Send message to producer queue */
+    return esp_reset_with_delay(0, blocking);
 }
 
 /**
