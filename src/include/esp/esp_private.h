@@ -571,6 +571,7 @@ espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(
 uint32_t    espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout);
 
 void        espi_reset_everything(uint8_t forced);
+void        espi_process_events_for_timeout(esp_msg_t* msg);
 
 /**
  * \}

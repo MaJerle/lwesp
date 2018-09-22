@@ -216,11 +216,12 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
 
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
-    ESP_ASSERT("evt_func != NULL", evt_fn != NULL);   /* Assert input parameters */
+    ESP_ASSERT("evt_fn != NULL", evt_fn != NULL);   /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTART;
     ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSTATUS;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.num = ESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
     ESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
     ESP_MSG_VAR_REF(msg).msg.conn_start.type = type;
     ESP_MSG_VAR_REF(msg).msg.conn_start.host = host;

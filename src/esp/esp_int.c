@@ -45,14 +45,28 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
  * \brief           Free connection send data memory
  * \param[in]       m: Send data message type
  */
-#define CONN_SEND_DATA_FREE(m)    do {              \
+#define CONN_SEND_DATA_FREE(m)      do {            \
     if ((m) != NULL && (m)->msg.conn_send.fau) {    \
         (m)->msg.conn_send.fau = 0;                 \
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,   \
             "[CONN] Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
-        esp_mem_free((void *)(m)->msg.conn_send.data);    \
-    (m)->msg.conn_send.data = NULL;                 \
+        esp_mem_free((void *)(m)->msg.conn_send.data);  \
+        (m)->msg.conn_send.data = NULL;             \
     }                                               \
+} while (0)
+
+/**
+ * \brief           Send connection callback for "sent error" event
+ * \param[in]       m: Connection send message
+ * \param[in]       c: Connection handle
+ * \param[in]       sa: Number of bytes successfully sent, "sent all"
+ */
+#define CONN_SEND_DATA_SEND_ERR_EVT(m, c, sa)  do { \
+    CONN_SEND_DATA_FREE(m);                         \
+    esp.evt.type = ESP_EVT_CONN_DATA_SEND_ERR;      \
+    esp.evt.evt.conn_data_send_err.conn = c;        \
+    esp.evt.evt.conn_data_send_err.sent = sa;       \
+    espi_send_conn_cb(c, NULL);                     \
 } while (0)
 
 /**
@@ -383,14 +397,15 @@ espi_tcpip_process_data_sent(uint8_t sent) {
  */
 static void
 espi_send_conn_error_cb(esp_msg_t* msg, espr_t error) {
-    esp_conn_t* conn = &esp.conns[esp.msg->msg.conn_start.num];
     esp.evt.type = ESP_EVT_CONN_ERROR;          /* Connection error */
     esp.evt.evt.conn_error.host = esp.msg->msg.conn_start.host;
     esp.evt.evt.conn_error.port = esp.msg->msg.conn_start.port;
     esp.evt.evt.conn_error.type = esp.msg->msg.conn_start.type;
     esp.evt.evt.conn_error.arg = esp.msg->msg.conn_start.arg;
     esp.evt.evt.conn_error.err = error;
-    espi_send_conn_cb(conn, esp.msg->msg.conn_start.cb_func);   /* Send event */
+
+    /* Call callback specified by user on connection startup */
+    esp.msg->msg.conn_start.cb_func(&esp.evt);
 }
 
 /**
@@ -670,11 +685,8 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
                     if (is_error && esp.msg->msg.conn_send.conn->status.f.active) {
-                        CONN_SEND_DATA_FREE(esp.msg);   /* Free message data */
-                        esp.evt.type = ESP_EVT_CONN_DATA_SEND_ERR;  /* Error sending data */
-                        esp.evt.evt.conn_data_send_err.conn = esp.msg->msg.conn_send.conn;
-                        esp.evt.evt.conn_data_send_err.sent = esp.msg->msg.conn_send.sent_all;
-                        espi_send_conn_cb(esp.ipd.conn, NULL);  /* Send connection callback */
+                        CONN_SEND_DATA_SEND_ERR_EVT(esp.msg,
+                            esp.msg->msg.conn_send.conn, esp.msg->msg.conn_send.sent_all);
                     }
                 }
             } else if (is_error) {
@@ -1306,9 +1318,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
         }
     }
 
-    /*
-     * Are we enabling server mode for some reason?
-     */
+    /* Are we enabling server mode for some reason? */
     if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSERVER)) {
         if (msg->msg.tcpip_server.en) {
             if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSERVERMAXCONN)) {
@@ -1702,7 +1712,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 return espERRNOIP;
             }
 
-            msg->msg.conn_start.num = 0;        /* Reset to make sure default value is set */
+            msg->msg.conn_start.num = 0;        /* Start with max value = invalidated */
             for (int16_t i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
                 if (!esp.conns[i].status.f.active || !(esp.active_conns & (1 << i))) {
                     c = &esp.conns[i];
@@ -1924,4 +1934,34 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
         ESP_MSG_VAR_FREE(msg);                  /* Release message */
     }
     return res;
+}
+
+/**
+ * \brief           Process events in case of timeout on command
+ * \param[in]       msg: Current message
+ */
+void
+espi_process_events_for_timeout(esp_msg_t* msg) {
+    switch (msg->cmd_def) {
+        /*
+         * Timeout on "connection start" command.
+         * Report connection error event
+         */
+        case ESP_CMD_TCPIP_CIPSTART: {
+            espi_send_conn_error_cb(msg, espTIMEOUT);
+            break;
+        }
+
+        /*
+         * Timeout on "send data" command.
+         * Report data send error event
+         */
+        case ESP_CMD_TCPIP_CIPSEND: {
+            /* Send data sent error event */
+            CONN_SEND_DATA_SEND_ERR_EVT(msg,
+                msg->msg.conn_send.conn, 0);
+            break;
+        }
+        default: break;
+    }
 }

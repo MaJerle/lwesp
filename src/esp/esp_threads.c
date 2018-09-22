@@ -91,6 +91,14 @@ esp_thread_producer(void* const arg) {
         if (res != espOK) {
             msg->res = res;                     /* Save response */
         }
+
+        /*
+         * If there was timeout on command
+         * check commands and call relevant callback functions
+         */
+        if (res == espTIMEOUT) {
+            
+        }
         
         /*
          * In case message is blocking,
