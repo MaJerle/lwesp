@@ -561,9 +561,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
      * 4. Flush (send) current buffer if necessary
      */
     
-    /*
-     * Step 1
-     */
+    /* Step 1 */
     if (conn->buff.buff != NULL) {
         len = ESP_MIN(conn->buff.len - conn->buff.ptr, btw);
         ESP_MEMCPY(&conn->buff.buff[conn->buff.ptr], d, len);
@@ -572,9 +570,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         btw -= len;
         conn->buff.ptr += len;
         
-        /*
-         * Step 1.1
-         */
+        /* Step 1.1 */
         if (conn->buff.ptr == conn->buff.len || flush) {
             /* Try to send to processing queue in non-blocking way */
             if (conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != espOK) {
@@ -586,9 +582,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         }
     }
     
-    /*
-     * Step 2
-     */
+    /* Step 2 */
     while (btw >= ESP_CFG_CONN_MAX_DATA_LEN) {
         uint8_t* buff;
         buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN);    /* Allocate memory */
@@ -609,9 +603,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         d += ESP_CFG_CONN_MAX_DATA_LEN;         /* Advance data pointer */
     }
     
-    /*
-     * Step 3
-     */
+    /* Step 3 */
     if (conn->buff.buff == NULL) {
         conn->buff.buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN); /* Allocate memory for temp buffer */
         conn->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;
@@ -631,16 +623,12 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
         }
     }
     
-    /*
-     * Step 4
-     */
+    /* Step 4 */
     if (flush && conn->buff.buff != NULL) {
         flush_buff(conn);
     }
     
-    /*
-     * Calculate number of available memory after write operation
-     */
+    /* Calculate number of available memory after write operation */
     if (mem_available != NULL) {
         if (conn->buff.buff != NULL) {
             *mem_available = conn->buff.len - conn->buff.ptr;
