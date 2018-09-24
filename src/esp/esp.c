@@ -281,7 +281,7 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const uint32_t block
  */
 espr_t
 esp_core_lock(void) {
-    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    ESP_CORE_PROTECT();                         /* Protect core */
     return espOK;
 }
 
@@ -293,7 +293,7 @@ esp_core_lock(void) {
  */
 espr_t
 esp_core_unlock(void) {
-    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return espOK;
 }
 
@@ -309,7 +309,7 @@ esp_evt_register(esp_evt_fn fn) {
     
     ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
     
-    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    ESP_CORE_PROTECT();                         /* Protect core */
     
     /* Check if function already exists on list */
     for (func = esp.evt_func; func != NULL; func = func->next) {
@@ -334,7 +334,7 @@ esp_evt_register(esp_evt_fn fn) {
             res = espERRMEM;
         }
     }
-    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return res;
 }
 
@@ -350,7 +350,7 @@ esp_evt_unregister(esp_evt_fn fn) {
 
     ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
     
-    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    ESP_CORE_PROTECT();                         /* Protect core */
     for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {
         if (func->fn == fn) {
             prev->next = func->next;
@@ -359,7 +359,7 @@ esp_evt_unregister(esp_evt_fn fn) {
             break;
         }
     }
-    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return espOK;
 }
 
@@ -374,7 +374,7 @@ esp_evt_unregister(esp_evt_fn fn) {
 espr_t
 esp_device_set_present(uint8_t present, const uint32_t blocking) {
     espr_t res = espOK;
-    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    ESP_CORE_PROTECT();                         /* Protect core */
     esp.status.f.dev_present = ESP_U8(!!present);   /* Device is present */
     
     if (!esp.status.f.dev_present) {
@@ -382,9 +382,9 @@ esp_device_set_present(uint8_t present, const uint32_t blocking) {
     }
 #if ESP_CFG_RESET_ON_INIT
     else {                                      /* Is new device present? */
-        ESP_CORE_UNPROTECT();                   /* Unlock ESP core */
+        ESP_CORE_UNPROTECT();                   /* Unprotect core */
         res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking); /* Reset with delay */
-        ESP_CORE_PROTECT();                     /* Lock ESP core */
+        ESP_CORE_PROTECT();                     /* Protect core */
     }
 #else
     ESP_UNUSED(blocking);                       /* Unused variable */
@@ -392,7 +392,7 @@ esp_device_set_present(uint8_t present, const uint32_t blocking) {
     
     espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
     
-    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return res;
 }
 
@@ -403,9 +403,9 @@ esp_device_set_present(uint8_t present, const uint32_t blocking) {
 uint8_t
 esp_device_is_present(void) {
     uint8_t res;
-    ESP_CORE_PROTECT();                         /* Lock ESP core */
+    ESP_CORE_PROTECT();                         /* Protect core */
     res = esp.status.f.dev_present;
-    ESP_CORE_UNPROTECT();                       /* Unlock ESP core */
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     return res;
 }
 

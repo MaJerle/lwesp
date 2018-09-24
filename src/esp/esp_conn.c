@@ -311,7 +311,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw, c
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
     ESP_ASSERT("btw > 0", btw > 0);             /* Assert input parameters */
 
-    ESP_CORE_PROTECT();                         /* Protect ESP core */
+    ESP_CORE_PROTECT();                         /* Protect core */
     if (conn->buff.buff != NULL) {              /* Check if memory available */
         size_t to_copy;
         to_copy = ESP_MIN(btw, conn->buff.len - conn->buff.ptr);
@@ -322,7 +322,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw, c
             btw -= to_copy;
         }
     }
-    ESP_CORE_UNPROTECT();                       /* Unprotect ESP core */
+    ESP_CORE_UNPROTECT();                       /* Unprotect core */
     res = flush_buff(conn);                     /* Flush currently written memory if exists */
     if (btw) {                                  /* Check for remaining data */
         res = conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);

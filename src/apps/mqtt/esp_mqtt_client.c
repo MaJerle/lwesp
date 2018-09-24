@@ -1093,7 +1093,7 @@ esp_mqtt_client_connect(esp_mqtt_client_p client, const char* host, esp_port_t p
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
     ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
     
-    esp_core_lock();                            /* Lock ESP core */
+    esp_core_lock();                            /* Protect core */
     if (esp_sta_is_joined() && client->conn_state == ESP_MQTT_CONN_DISCONNECTED) {        
         client->info = info;                    /* Save client info parameters */
         client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
@@ -1104,7 +1104,7 @@ esp_mqtt_client_connect(esp_mqtt_client_p client, const char* host, esp_port_t p
             client->conn_state = ESP_MQTT_CONN_CONNECTING;
         }
     }
-    esp_core_unlock();                          /* Unlock ESP core */
+    esp_core_unlock();                          /* Unprotect core */
     
     return res;
 }
@@ -1118,12 +1118,12 @@ espr_t
 esp_mqtt_client_disconnect(esp_mqtt_client_p client) {
     espr_t res = espERR;
     
-    esp_core_lock();                            /* Lock ESP core */
+    esp_core_lock();                            /* Protect core */
     if (client->conn_state != ESP_MQTT_CONN_DISCONNECTED &&
         client->conn_state != ESP_MQTT_CONN_DISCONNECTING) {
         res = mqtt_close(client);               /* Close client connection */
     }
-    esp_core_unlock();                          /* Unlock ESP core */
+    esp_core_unlock();                          /* Unprotect core */
     return res;
 }
 
@@ -1185,7 +1185,7 @@ esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void*
         rem_len += 2;
     }
     
-    esp_core_lock();                            /* Lock ESP core */
+    esp_core_lock();                            /* Protect core */
     if (client->conn_state != ESP_MQTT_CONNECTED) {
         res = espERR;
     } else if ((raw_len = output_check_enough_memory(client, rem_len)) != 0) {
@@ -1222,7 +1222,7 @@ esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void*
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] No enough memory to publish message\r\n");
         res = espERRMEM;
     }
-    esp_core_unlock();                          /* Unlock ESP core */
+    esp_core_unlock();                          /* Unprotect core */
     return res;
 }
 
@@ -1236,9 +1236,9 @@ uint8_t
 esp_mqtt_client_is_connected(esp_mqtt_client_p client) {
     uint8_t res;
     
-    esp_core_lock();                            /* Lock ESP core */
+    esp_core_lock();                            /* Protect core */
     res = ESP_U8(client->conn_state == ESP_MQTT_CONNECTED);
-    esp_core_unlock();                          /* Unlock ESP core */
+    esp_core_unlock();                          /* Unprotect core */
     
     return res;
 }
@@ -1250,9 +1250,9 @@ esp_mqtt_client_is_connected(esp_mqtt_client_p client) {
  */
 void
 esp_mqtt_client_set_arg(esp_mqtt_client_p client, void* arg) {
-    esp_core_lock();                            /* Lock ESP core */
+    esp_core_lock();                            /* Protect core */
     client->arg = arg;
-    esp_core_unlock();                          /* Unlock ESP core */
+    esp_core_unlock();                          /* Unprotect core */
 }
 
 /**
