@@ -110,14 +110,14 @@ typedef enum {
 #endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
 
     /* TCP/IP related commands */
-    ESP_CMD_TCPIP_CIPSTATUS,                    /*!< Get status of connections */
 #if ESP_CFG_DNS || __DOXYGEN__
     ESP_CMD_TCPIP_CIPDOMAIN,                    /*!< Get IP address from domain name = DNS function */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
+    ESP_CMD_TCPIP_CIPSTATUS,                    /*!< Get status of connections */
     ESP_CMD_TCPIP_CIPSTART,                     /*!< Start client connection */
-    ESP_CMD_TCPIP_CIPSSLSIZE,                   /*!< Set SSL buffer size for SSL connection */
     ESP_CMD_TCPIP_CIPSEND,                      /*!< Send network data */
     ESP_CMD_TCPIP_CIPCLOSE,                     /*!< Close active connection */
+    ESP_CMD_TCPIP_CIPSSLSIZE,                   /*!< Set SSL buffer size for SSL connection */
     ESP_CMD_TCPIP_CIFSR,                        /*!< Get local IP */
     ESP_CMD_TCPIP_CIPMUX,                       /*!< Set single or multiple connections */
     ESP_CMD_TCPIP_CIPSERVER,                    /*!< Enables/Disables server mode */
@@ -290,9 +290,7 @@ typedef struct esp_msg {
             size_t length;                      /*!< Length of buffer when reading hostname */
         } wifi_hostname;                        /*!< Set or get hostname structure */
 
-        /*
-         * Connection based commands
-         */
+        /* Connection based commands */
         struct {
             esp_conn_t** conn;                  /*!< Pointer to pointer to save connection used */
             const char* host;                   /*!< Host to use for connection */
@@ -329,9 +327,7 @@ typedef struct esp_msg {
         } ciprecvdata;                          /*!< Structure to manually read TCP data */
 #endif
 
-        /*
-         * TCP/IP based commands
-         */
+        /* TCP/IP based commands */
         struct {
             uint8_t mux;                        /*!< Mux status, either enabled or disabled */
         } tcpip_mux;                            /*!< Used for setting up multiple connections */

@@ -305,7 +305,7 @@ typedef struct esp_evt_t {
     esp_evt_type_t type;                        /*!< Callback type */
     union {
         struct {
-            uint8_t forced;                     /*!< Set to 1 if reset forced by user */
+            uint8_t forced;                     /*!< Set to `1` if reset forced by user */
         } reset;                                /*!< Reset occurred. Use with \ref ESP_EVT_RESET event */
 
         struct {
@@ -325,12 +325,6 @@ typedef struct esp_evt_t {
             esp_port_t port;                    /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
             void* arg;                          /*!< Connection argument used on connection */
-            /*
-             * \todo: Implement error reason:
-             *  - No free connection to start
-             *  - Remote host is not responding
-             *  - ...
-             */
             espr_t err;                         /*!< Error value */
         } conn_error;                           /*!< Client connection start error. Use with \ref ESP_EVT_CONN_ERROR event */
         struct {

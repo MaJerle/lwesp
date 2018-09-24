@@ -336,8 +336,9 @@ espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn evt) {
  */
 static espr_t
 espi_tcpip_process_send_data(void) {
-    if (!esp_conn_is_active(esp.msg->msg.conn_send.conn) || /* Is the connection already closed? */
-        esp.msg->msg.conn_send.val_id != esp.msg->msg.conn_send.conn->val_id    /* Did validation ID change after we set parameter? */
+    esp_conn_t* c = esp.msg->msg.conn_send.conn;
+    if (!esp_conn_is_active(c) ||               /* Is the connection already closed? */
+        esp.msg->msg.conn_send.val_id != c->val_id  /* Did validation ID change after we set parameter? */
     ) {
         CONN_SEND_DATA_FREE(esp.msg);           /* Free message data */
         return espERR;
@@ -346,11 +347,11 @@ espi_tcpip_process_send_data(void) {
 
     ESP_AT_PORT_SEND_BEGIN();
     ESP_AT_PORT_SEND_STR("+CIPSEND=");
-    send_number(ESP_U32(esp.msg->msg.conn_send.conn->num), 0, 0);
-    send_number(ESP_U32(esp.msg->msg.conn_send.sent), 0, 1);    /* Send length number */
+    send_number(ESP_U32(c->num), 0, 0);         /* Send connection number */
+    send_number(ESP_U32(esp.msg->msg.conn_send.sent), 0, 1);/* Send length number */
 
     /* On UDP connections, IP address and port may be included */
-    if (esp.msg->msg.conn_send.conn->type == ESP_CONN_TYPE_UDP) {
+    if (c->type == ESP_CONN_TYPE_UDP) {
         if (esp.msg->msg.conn_send.remote_ip != NULL && esp.msg->msg.conn_send.remote_port) {
             send_ip_mac(esp.msg->msg.conn_send.remote_ip, 1, 1, 1); /* Send IP address including quotes */
             send_port(esp.msg->msg.conn_send.remote_port, 0, 1);    /* Send length number */
@@ -362,8 +363,9 @@ espi_tcpip_process_send_data(void) {
 
 /**
  * \brief           Process data sent and send remaining
- * \param[in]       sent: Status whether data were sent or not, info received from ESP with "SEND OK" or "SEND FAIL"
- * \return          1 in case we should stop sending or 0 if we still have data to process
+ * \param[in]       sent: Status whether data were sent or not,
+ *                      info received from ESP with `SEND OK` or `SEND FAIL`
+ * \return          `1` in case we should stop sending or `0` if we still have data to process
  */
 static uint8_t
 espi_tcpip_process_data_sent(uint8_t sent) {
@@ -1746,9 +1748,10 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #endif /* ESP_CFG_MODE_STATION */
 
         case ESP_CMD_TCPIP_CIPCLOSE: {          /* Close the connection */
-            if (msg->msg.conn_close.conn != NULL &&
+            esp_conn_p c = msg->msg.conn_close.conn;
+            if (c != NULL &&
                 /* Is connection already closed or command for this connection is not valid anymore? */
-                (!esp_conn_is_active(msg->msg.conn_close.conn) || msg->msg.conn_close.conn->val_id != msg->msg.conn_close.val_id)) {
+                (!esp_conn_is_active(c) || c->val_id != msg->msg.conn_close.val_id)) {
                 return espERR;
             }
             ESP_AT_PORT_SEND_BEGIN();
