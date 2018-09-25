@@ -1714,7 +1714,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
 
             msg->msg.conn_start.num = 0;        /* Start with max value = invalidated */
             for (int16_t i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
-                if (!esp.conns[i].status.f.active || !(esp.active_conns & (1 << i))) {
+                if (!esp.conns[i].status.f.active
+                    || !(esp.active_conns & (1 << i))) {
                     c = &esp.conns[i];
                     c->num = ESP_U8(i);
                     msg->msg.conn_start.num = ESP_U8(i);    /* Set connection number for message structure */
@@ -1750,7 +1751,10 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_CIPCLOSE: {          /* Close the connection */
             esp_conn_p c = msg->msg.conn_close.conn;
             if (c != NULL &&
-                /* Is connection already closed or command for this connection is not valid anymore? */
+                /* 
+                 * Is connection already closed or command 
+                 * for this connection is not valid anymore?
+                 */
                 (!esp_conn_is_active(c) || c->val_id != msg->msg.conn_close.val_id)) {
                 return espERR;
             }

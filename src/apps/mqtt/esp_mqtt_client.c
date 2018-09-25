@@ -176,9 +176,7 @@ request_create(esp_mqtt_client_p client, uint16_t packet_id, void* arg) {
     esp_mqtt_request_t* request;
     uint16_t i;
     
-    /*
-     * Try to find a new request which does not have IN_USE flag set
-     */
+    /* Try to find a new request which does not have IN_USE flag set */
     for (request = NULL, i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; i++) {
         if ((client->requests[i].status & MQTT_REQUEST_FLAG_IN_USE) == 0) {
             request = &client->requests[i];     /* We have empty request */
@@ -587,10 +585,10 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
                 write_ack_rec_rel_resp(client, MQTT_MSG_TYPE_PUBREL, pkt_id, 1);    /* Send back publish release message */
             } else if (msg_type == MQTT_MSG_TYPE_PUBREL) {  /* Publish release was received */
                 write_ack_rec_rel_resp(client, MQTT_MSG_TYPE_PUBCOMP, pkt_id, 0);   /* Send back publish complete */
-            } else if ( msg_type == MQTT_MSG_TYPE_SUBACK ||
-                        msg_type == MQTT_MSG_TYPE_UNSUBACK ||
-                        msg_type == MQTT_MSG_TYPE_PUBACK ||
-                        msg_type == MQTT_MSG_TYPE_PUBCOMP) {
+            } else if (msg_type == MQTT_MSG_TYPE_SUBACK
+                    || msg_type == MQTT_MSG_TYPE_UNSUBACK
+                    || msg_type == MQTT_MSG_TYPE_PUBACK
+                    || msg_type == MQTT_MSG_TYPE_PUBCOMP) {
                 esp_mqtt_request_t* request;
 
                 /*
@@ -602,7 +600,8 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
                  */          
                 request = request_get_pending(client, pkt_id);  /* Get pending request by packet ID */
                 if (request != NULL) {
-                    if (msg_type == MQTT_MSG_TYPE_SUBACK || msg_type == MQTT_MSG_TYPE_UNSUBACK) {
+                    if (msg_type == MQTT_MSG_TYPE_SUBACK
+                        || msg_type == MQTT_MSG_TYPE_UNSUBACK) {
                         client->evt.type = msg_type == MQTT_MSG_TYPE_SUBACK ? ESP_MQTT_EVT_SUBSCRIBE : ESP_MQTT_EVT_UNSUBSCRIBE;
                         client->evt.evt.sub_unsub_scribed.arg = request->arg;
                         client->evt.evt.sub_unsub_scribed.res = client->rx_buff[2] < 3 ? espOK : espERR;
@@ -612,7 +611,8 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
                      * Final acknowledge of packet received
                      * Ack type depends on QoS level being sent to server on request
                      */
-                    } else if (msg_type == MQTT_MSG_TYPE_PUBCOMP || msg_type == MQTT_MSG_TYPE_PUBACK) {
+                    } else if (msg_type == MQTT_MSG_TYPE_PUBCOMP
+                            || msg_type == MQTT_MSG_TYPE_PUBACK) {
                         client->evt.type = ESP_MQTT_EVT_PUBLISH;
                         client->evt.evt.publish.arg = request->arg;
                         client->evt.evt.publish.res = espOK;
@@ -1119,8 +1119,8 @@ esp_mqtt_client_disconnect(esp_mqtt_client_p client) {
     espr_t res = espERR;
     
     esp_core_lock();                            /* Protect core */
-    if (client->conn_state != ESP_MQTT_CONN_DISCONNECTED &&
-        client->conn_state != ESP_MQTT_CONN_DISCONNECTING) {
+    if (client->conn_state != ESP_MQTT_CONN_DISCONNECTED
+        && client->conn_state != ESP_MQTT_CONN_DISCONNECTING) {
         res = mqtt_close(client);               /* Close client connection */
     }
     esp_core_unlock();                          /* Unprotect core */
