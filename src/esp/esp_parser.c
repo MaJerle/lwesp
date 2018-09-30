@@ -119,9 +119,12 @@ espi_parse_hexnumber(const char** str) {
 /**
  * \brief           Parse input string as string part of AT command
  * \param[in,out]   src: Pointer to pointer to string to parse from
- * \param[in]       dst: Destination pointer. Use NULL in case you want only skip string in source
- * \param[in]       dst_len: Length of distance buffer, including memory for `NULL` termination
- * \param[in]       trim: Set to 1 to process entire string, even if no memory anymore
+ * \param[in]       dst: Destination pointer.
+ *                      Set to `NULL` in case you want to skip string in source
+ * \param[in]       dst_len: Length of destination buffer,
+ *                      including memory for `NULL` termination
+ * \param[in]       trim: Set to `1` to process entire string,
+ *                      even if no memory anymore
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
