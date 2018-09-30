@@ -289,10 +289,10 @@ esp_mqtt_client_api_delete(esp_mqtt_client_api_p client) {
  */
 esp_mqtt_conn_status_t
 esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host, esp_port_t port, const esp_mqtt_client_info_t* info) {
-    ESP_ASSERT("client != NULL", client != NULL);
-    ESP_ASSERT("host != NULL", host != NULL);
-    ESP_ASSERT("port > 0", port > 0);
-    ESP_ASSERT("info != NULL", info != NULL);
+    if (client == NULL || host != NULL
+        || port > 0 || info != NULL) {
+        return ESP_MQTT_CONN_STATUS_TCP_FAILED;
+    }
 
     esp_sys_mutex_lock(&client->mutex);
     client->connect_resp = ESP_MQTT_CONN_STATUS_TCP_FAILED;
