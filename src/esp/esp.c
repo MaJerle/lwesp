@@ -80,7 +80,7 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     esp.evt_server = NULL;                      /* Set default server callback function */
 
     esp_sys_init();                             /* Init low-level system */
-    esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;    /* Set default baudrate value */
+    esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
     esp_ll_init(&esp.ll);                       /* Init low-level communication */
 
     esp_sys_sem_create(&esp.sem_sync, 1);       /* Create new semaphore with unlocked state */
