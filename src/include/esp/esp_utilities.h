@@ -72,7 +72,7 @@ extern "C" {
  * \brief           Get minimal value between `x` and `y` inputs
  * \param[in]       x: First input to test
  * \param[in]       y: Second input to test
- * \return          Minimal value between x and y parameters
+ * \return          Minimal value between `x` and `y` parameters
  * \hideinitializer
  */
 #define ESP_MIN(x, y)                       ((x) < (y) ? (x) : (y))
