@@ -53,12 +53,12 @@ typedef struct esp_mqtt_client {
     uint32_t sent_total;                        /*!< Total number of bytes sent so far on connection */
     uint32_t written_total;                     /*!< Total number of bytes written into send buffer and queued for send */
     
-    uint16_t last_packet_id;                    /*!< Packet ID used on last connection */
+    uint16_t last_packet_id;                    /*!< Packet ID used on last packet */
     
     esp_mqtt_request_t requests[ESP_CFG_MQTT_MAX_REQUESTS]; /*!< List of requests */
     
-    uint8_t* rx_buff;                           /*!< RX buffer */
-    size_t rx_buff_len;                         /*!< Length of RX buffer */
+    uint8_t* rx_buff;                           /*!< Raw RX buffer */
+    size_t rx_buff_len;                         /*!< Length of raw RX buffer */
     
     uint8_t parser_state;                       /*!< Incoming data parser state */
     uint8_t msg_hdr_byte;                       /*!< Incoming message header byte */
@@ -96,24 +96,24 @@ typedef enum {
     MQTT_MSG_TYPE_DISCONNECT =  0x0E,           /*!< Disconnect notification */
 } mqtt_msg_type_t;
 
-/** List of flags for CONNECT message type */
+/* List of flags for CONNECT message type */
 #define MQTT_FLAG_CONNECT_USERNAME      0x80    /*!< Packet contains username */
 #define MQTT_FLAG_CONNECT_PASSWORD      0x40    /*!< Packet contains password */
 #define MQTT_FLAG_CONNECT_WILL_RETAIN   0x20    /*!< Will retain is enabled */
 #define MQTT_FLAG_CONNECT_WILL          0x04    /*!< Packet contains will topic and will message */
 #define MQTT_FLAG_CONNECT_CLEAN_SESSION 0x02    /*!< Start with clean session of this client */
 
-/** Parser states */
+/* Parser states */
 #define MQTT_PARSER_STATE_INIT          0x00    /*!< MQTT parser in initialized state */
 #define MQTT_PARSER_STATE_CALC_REM_LEN  0x01    /*!< MQTT parser in calculating remaining length state */
 #define MQTT_PARSER_STATE_READ_REM      0x02    /*!< MQTT parser in reading remaining bytes state */
 
-/** Get packet type from incoming byte */
+/* Get packet type from incoming byte */
 #define MQTT_RCV_GET_PACKET_TYPE(d)     ((mqtt_msg_type_t)(((d) >> 0x04) & 0x0F))
 #define MQTT_RCV_GET_PACKET_QOS(d)      ((esp_mqtt_qos_t)(((d) >> 0x01) & 0x03))
 #define MQTT_RCV_GET_PACKET_DUP(d)      (((d) >> 0x03) & 0x01)
 
-/** Requests status */
+/* Requests status */
 #define MQTT_REQUEST_FLAG_IN_USE        0x01    /*!< Request object is allocated and in use */
 #define MQTT_REQUEST_FLAG_PENDING       0x02    /*!< Request object is pending waiting for response from server */
 #define MQTT_REQUEST_FLAG_SUBSCRIBE     0x04    /*!< Request object has subscribe type */
