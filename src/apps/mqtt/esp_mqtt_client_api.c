@@ -34,9 +34,9 @@
 #include "esp/esp_mem.h"
 
 /* Tracing debug message */
-#define ESP_CFG_DBG_MQTT_API_TRACE              ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_TRACE
-#define ESP_CFG_DBG_MQTT_API_STATE              ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_STATE
-#define ESP_CFG_DBG_MQTT_API_TRACE_WARNING      ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING
+#define ESP_CFG_DBG_MQTT_API_TRACE              (ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_TRACE)
+#define ESP_CFG_DBG_MQTT_API_STATE              (ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_STATE)
+#define ESP_CFG_DBG_MQTT_API_TRACE_WARNING      (ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING)
 
 /**
  * \brief           MQTT API client structure
@@ -91,7 +91,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
              * and release semaphore from there,
              * to make sure we are fully ready for next connect
              */
-            if (status == ESP_MQTT_CONN_STATUS_TCP_FAILED || status == ESP_MQTT_CONN_STATUS_ACCEPTED) {
+            if (status == ESP_MQTT_CONN_STATUS_TCP_FAILED
+                || status == ESP_MQTT_CONN_STATUS_ACCEPTED) {
                 release_sem(api_client);
             }
 
@@ -108,6 +109,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                 size_t topic_len = esp_mqtt_client_evt_publish_recv_get_topic_len(client, evt);
                 const uint8_t* payload = esp_mqtt_client_evt_publish_recv_get_payload(client, evt);
                 size_t payload_len = esp_mqtt_client_evt_publish_recv_get_payload_len(client, evt);
+                esp_mqtt_qos_t qos = esp_mqtt_client_evt_publish_recv_get_qos(client, evt);
 
                 /* Print debug message */
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
@@ -126,6 +128,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                     buf->payload = (const void *)(buf->topic + topic_size);
                     buf->topic_len = topic_len;
                     buf->payload_len = payload_len;
+                    buf->qos = qos;
 
                     /* Copy content to new memory */
                     ESP_MEMCPY((void *)buf->topic, topic, sizeof(*topic) * topic_len);
@@ -282,7 +285,7 @@ esp_mqtt_client_api_delete(esp_mqtt_client_api_p client) {
  * \param[in]       host: TCP host
  * \param[in]       port: TCP port
  * \param[in]       info: MQTT client info
- * \return          \ref MQTT_CONN_STATUS_ACCEPTED on success, member of \ref mqtt_conn_status_t otherwise
+ * \return          \ref ESP_MQTT_CONN_STATUS_ACCEPTED on success, member of \ref esp_mqtt_conn_status_t otherwise
  */
 esp_mqtt_conn_status_t
 esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host, esp_port_t port, const esp_mqtt_client_info_t* info) {
@@ -335,7 +338,7 @@ esp_mqtt_client_api_close(esp_mqtt_client_api_p client) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic, uint8_t qos) {
+esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic, esp_mqtt_qos_t qos) {
     espr_t res = espERR;
 
     esp_sys_mutex_lock(&client->mutex);
@@ -388,7 +391,7 @@ esp_mqtt_client_api_unsubscribe(esp_mqtt_client_api_p client, const char* topic)
  * \param[in]       topic: Topic to publish on
  * \param[in]       data: Data to send
  * \param[in]       btw: Number of bytes to send for data parameter
- * \param[in]       qos: Quality of service. This parameter can be a value of \ref ESP_APP_MQTT_CLIENT_QOS
+ * \param[in]       qos: Quality of service. This parameter can be a value of \ref esp_mqtt_qos_t
  * \param[in]       retain: Set to `1` for retain flag, `0` otherwise
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
