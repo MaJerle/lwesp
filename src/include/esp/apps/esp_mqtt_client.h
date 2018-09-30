@@ -58,21 +58,19 @@ extern "C" {
 #endif
 
 /**
- * \name            ESP_APP_MQTT_CLIENT_QOS Qualities of service
- * \anchor          ESP_APP_MQTT_CLIENT_QOS
- * \{
+ * \brief           Quality of service enumeration
  */
-
-#define ESP_MQTT_QOS_AT_MOST_ONCE       0x00    /*!< Delivery is not guaranteed to arrive, but can arrive `up to 1 time` = non-critical packets where losses are allowed */
-#define ESP_MQTT_QOS_AT_LEAST_ONCE      0x01    /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple times with the same content */
-#define ESP_MQTT_QOS_EXACTLY_ONCE       0x02    /*!< Delivery is quaranteed `exactly once` = very critical packets such as billing informations or similar */
-
-/**
- * \}
- */
+typedef enum {
+    ESP_MQTT_QOS_AT_MOST_ONCE = 0x00,           /*!< Delivery is not guaranteed to arrive, but can arrive `up to 1 time` = non-critical packets where losses are allowed */
+    ESP_MQTT_QOS_AT_LEAST_ONCE = 0x01,          /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple times with the same content */
+    ESP_MQTT_QOS_EXACTLY_ONCE = 0x02,           /*!< Delivery is quaranteed `exactly once` = very critical packets such as billing informations or similar */
+} esp_mqtt_qos_t;
 
 struct esp_mqtt_client;
 
+/**
+ * \brief           Pointer to \ref esp_mqtt_client structure
+ */
 typedef struct esp_mqtt_client* esp_mqtt_client_p;
 
 /**
@@ -92,15 +90,15 @@ typedef enum {
 typedef struct {
     const char* id;                             /*!< Client unique identifier. It is required and must be set by user */
     
-    const char* user;                           /*!< Authentication username. Set to NULL if not required */
-    const char* pass;                           /*!< Authentication password, set to NULL if not required */
+    const char* user;                           /*!< Authentication username. Set to `NULL` if not required */
+    const char* pass;                           /*!< Authentication password, set to `NULL` if not required */
     
     uint16_t keep_alive;                        /*!< Keep-alive parameter in units of seconds.
-                                                        When set to 0, functionality is disabled (not recommended) */
+                                                    When set to `0`, functionality is disabled (not recommended) */
     
     const char* will_topic;                     /*!< Will topic */
     const char* will_message;                   /*!< Will message */
-    uint8_t will_qos;                           /*!< Will topic quality of service */
+    esp_mqtt_qos_t will_qos;                    /*!< Will topic quality of service */
 } esp_mqtt_client_info_t;
 
 /**
@@ -125,9 +123,9 @@ typedef enum {
     ESP_MQTT_EVT_SUBSCRIBE,                     /*!< MQTT client subscribed to specific topic */
     ESP_MQTT_EVT_UNSUBSCRIBE,                   /*!< MQTT client unsubscribed from specific topic */
     ESP_MQTT_EVT_PUBLISH,                       /*!< MQTT client publish message to server event.
-                                                    \note   When publishing packet with quality of service \ref MQTT_QOS_AT_MOST_ONCE,
+                                                    \note   When publishing packet with quality of service \ref ESP_MQTT_QOS_AT_MOST_ONCE,
                                                             you may not receive event, even if packet was successfully sent,
-                                                            thus do not rely on this event for packet with `qos = MQTT_QOS_AT_MOST_ONCE` */
+                                                            thus do not rely on this event for packet with `qos = ESP_MQTT_QOS_AT_MOST_ONCE` */
     ESP_MQTT_EVT_PUBLISH_RECV,                  /*!< MQTT client received a publish message from server */
     ESP_MQTT_EVT_DISCONNECT,                    /*!< MQTT client disconnected from MQTT server */
     ESP_MQTT_EVT_KEEP_ALIVE,                    /*!< MQTT keep-alive sent to server and reply received */
@@ -172,7 +170,7 @@ typedef struct {
             const void* payload;                /*!< Topic payload */
             size_t payload_len;                 /*!< Length of topic payload */
             uint8_t dup;                        /*!< Duplicate flag if message was sent again */
-            uint8_t qos;                        /*!< Received packet quality of service */
+            esp_mqtt_qos_t qos;                 /*!< Received packet quality of service */
         } publish_recv;                         /*!< Publish received event */
     } evt;                                      /*!< Event data parameters */
 } esp_mqtt_evt_t;
@@ -182,7 +180,7 @@ typedef struct {
  * \param[in]       client: MQTT client
  * \param[in]       evt: MQTT event with type and related data
  */
-typedef void    (*esp_mqtt_evt_fn)(esp_mqtt_client_p client, esp_mqtt_evt_t* evt);
+typedef void        (*esp_mqtt_evt_fn)(esp_mqtt_client_p client, esp_mqtt_evt_t* evt);
 
 esp_mqtt_client_p   esp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
 void                esp_mqtt_client_delete(esp_mqtt_client_p client);
@@ -191,10 +189,10 @@ espr_t              esp_mqtt_client_connect(esp_mqtt_client_p client, const char
 espr_t              esp_mqtt_client_disconnect(esp_mqtt_client_p client);
 uint8_t             esp_mqtt_client_is_connected(esp_mqtt_client_p client);
 
-espr_t              esp_mqtt_client_subscribe(esp_mqtt_client_p client, const char* topic, uint8_t qos, void* arg);
+espr_t              esp_mqtt_client_subscribe(esp_mqtt_client_p client, const char* topic, esp_mqtt_qos_t qos, void* arg);
 espr_t              esp_mqtt_client_unsubscribe(esp_mqtt_client_p client, const char* topic, void* arg);
 
-espr_t              esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void* payload, uint16_t len, uint8_t qos, uint8_t retain, void* arg);
+espr_t              esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void* payload, uint16_t len, esp_mqtt_qos_t qos, uint8_t retain, void* arg);
 
 void*               esp_mqtt_client_get_arg(esp_mqtt_client_p client);
 void                esp_mqtt_client_set_arg(esp_mqtt_client_p client, void* arg);

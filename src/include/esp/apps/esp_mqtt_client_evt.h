@@ -51,7 +51,7 @@ extern "C" {
  * \brief           Get MQTT event type
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          MQTT Event type, value of \ref mqtt_evt_type_t enumeration
+ * \return          MQTT Event type, value of \ref esp_mqtt_evt_type_t enumeration
  * \hideinitializer
  */
 #define esp_mqtt_client_evt_get_type(client, evt)                   ((esp_mqtt_evt_type_t)(evt)->type)
@@ -61,14 +61,14 @@ extern "C" {
  * \anchor          ESP_APP_MQTT_CLIENT_EVT_CONNECT
  * \{
  *
- * \note            Use these functions on \ref MQTT_EVT_CONNECT event
+ * \note            Use these functions on \ref ESP_MQTT_EVT_CONNECT event
  */
 
 /**
  * \brief           Get connection status
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          Connection status. Member of \ref mqtt_conn_status_t
+ * \return          Connection status. Member of \ref esp_mqtt_conn_status_t
  * \hideinitializer
  */
 #define esp_mqtt_client_evt_connect_get_status(client, evt)         ((esp_mqtt_conn_status_t)(evt)->evt.connect.status)
@@ -82,7 +82,7 @@ extern "C" {
  * \anchor          ESP_APP_MQTT_CLIENT_EVT_DISCONNECT
  * \{
  *
- * \note            Use these functions on \ref MQTT_EVT_DISCONNECT event
+ * \note            Use these functions on \ref ESP_MQTT_EVT_DISCONNECT event
  */
  
 /**
@@ -102,11 +102,11 @@ extern "C" {
  * \anchor          ESP_APP_MQTT_CLIENT_EVT_SUB_UNSUB
  * \{
  *
- * \note            Use these functions on \ref MQTT_EVT_SUBSCRIBE or \ref MQTT_EVT_UNSUBSCRIBE events
+ * \note            Use these functions on \ref ESP_MQTT_EVT_SUBSCRIBE or \ref ESP_MQTT_EVT_UNSUBSCRIBE events
  */
  
 /**
- * \brief           Get user argument used on \ref mqtt_client_subscribe
+ * \brief           Get user argument used on \ref esp_mqtt_client_subscribe
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
  * \return          User argument
@@ -124,7 +124,7 @@ extern "C" {
 #define esp_mqtt_client_evt_subscribe_get_result(client, evt)       ((espr_t)(evt)->evt.sub_unsub_scribed.res)
 
 /**
- * \brief           Get user argument used on \ref mqtt_client_unsubscribe
+ * \brief           Get user argument used on \ref esp_mqtt_client_unsubscribe
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
  * \return          User argument
@@ -150,7 +150,7 @@ extern "C" {
  * \anchor          ESP_APP_MQTT_CLIENT_EVT_PUBLISH_RECV
  * \{
  *
- * \note            Use these functions on \ref MQTT_EVT_PUBLISH_RECV event
+ * \note            Use these functions on \ref ESP_MQTT_EVT_PUBLISH_RECV event
  */
 
 /**
@@ -212,21 +212,21 @@ extern "C" {
  */
 
 /**
- * \name            ESP_APP_MQTT_CLIENT_EVT_PUBLISHED Published event
- * \anchor          ESP_APP_MQTT_CLIENT_EVT_PUBLISHED
+ * \name            ESP_APP_MQTT_CLIENT_EVT_PUBLISH Published event
+ * \anchor          ESP_APP_MQTT_CLIENT_EVT_PUBLISH
  * \{
  *
- * \note            Use these functions on \ref MQTT_EVT_PUBLISHED event
+ * \note            Use these functions on \ref ESP_MQTT_EVT_PUBLISH event
  */
 
 /**
- * \brief           Get user argument used on \ref mqtt_client_publish
+ * \brief           Get user argument used on \ref esp_mqtt_client_publish
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
  * \return          User argument
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_published_get_argument(client, evt) ((void *)(evt)->evt.publish.arg)
+#define esp_mqtt_client_evt_publish_get_argument(client, evt)   ((void *)(evt)->evt.publish.arg)
 
  /**
  * \brief           Get result of publish event
