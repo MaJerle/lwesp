@@ -205,7 +205,7 @@ extern "C" {
  * \return          Member of \ref ESP_APP_MQTT_CLIENT_QOS
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_publish_recv_get_qos(client, evt)       (ESP_U8((evt)->evt.publish_recv.qos))
+#define esp_mqtt_client_evt_publish_recv_get_qos(client, evt)       ((evt)->evt.publish_recv.qos)
 
 /**
  * \}

@@ -397,7 +397,7 @@ esp_mqtt_client_api_unsubscribe(esp_mqtt_client_api_p client, const char* topic)
  */
 espr_t
 esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, const void* data,
-                        size_t btw, uint8_t qos, uint8_t retain) {
+                        size_t btw, esp_mqtt_qos_t qos, uint8_t retain) {
     espr_t res = espERR;
 
     esp_sys_mutex_lock(&client->mutex);
