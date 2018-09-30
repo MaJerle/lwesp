@@ -212,34 +212,34 @@ esp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
 
     /* Create client APi structure */
     client = esp_mem_calloc(1, size);           /* Allocate client memory */
-    if (client == NULL) {
+    if (client != NULL) {
+        /* Create MQTT raw client structure */
+        client->mc = esp_mqtt_client_new(tx_buff_len, rx_buff_len);
+        if (client->mc != NULL) {
+            /* Create receive mbox queue */
+            if (esp_sys_mbox_create(&client->rcv_mbox, 5)) {
+                /* Create synchronization semaphore */
+                if (esp_sys_sem_create(&client->sync_sem, 5)) {
+                    /* Create mutex */
+                    if (esp_sys_mutex_create(&client->mutex)) {
+                        esp_mqtt_client_set_arg(client->mc, client);/* Set client to mqtt client argument */
+                        return client;
+                    } else {
+                        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate mutex\r\n");
+                    }
+                } else {
+                    ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate sync semaphore\r\n");
+                }
+            } else {
+                ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate receive queue\r\n");
+            }
+        } else {
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate MQTT client\r\n");
+        }
+    } else {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate memory for client\r\n");
-        goto out;
     }
-    /* Create MQTT raw client structure */
-    client->mc = esp_mqtt_client_new(tx_buff_len, rx_buff_len);
-    if (client->mc == NULL) {
-        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate MQTT client\r\n");
-        goto out;
-    }
-    /* Create receive mbox queue */
-    if (!esp_sys_mbox_create(&client->rcv_mbox, 5)) {
-        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate receive queue\r\n");
-        goto out;
-    }
-    /* Create synchronization semaphore */
-    if (!esp_sys_sem_create(&client->sync_sem, 5)) {
-        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate sync semaphore\r\n");
-        goto out;
-    }
-    /* Create mutex */
-    if (!esp_sys_mutex_create(&client->mutex)) {
-        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate mutex\r\n");
-        goto out;
-    }
-    esp_mqtt_client_set_arg(client->mc, client);/* Set client to mqtt client argument */
-    return client;
-out:
+
     esp_mqtt_client_api_delete(client);
     client = NULL;
     return NULL;
@@ -289,6 +289,11 @@ esp_mqtt_client_api_delete(esp_mqtt_client_api_p client) {
  */
 esp_mqtt_conn_status_t
 esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host, esp_port_t port, const esp_mqtt_client_info_t* info) {
+    ESP_ASSERT("client != NULL", client != NULL);
+    ESP_ASSERT("host != NULL", host != NULL);
+    ESP_ASSERT("port > 0", port > 0);
+    ESP_ASSERT("info != NULL", info != NULL);
+
     esp_sys_mutex_lock(&client->mutex);
     client->connect_resp = ESP_MQTT_CONN_STATUS_TCP_FAILED;
     esp_sys_sem_wait(&client->sync_sem, 0);
@@ -313,6 +318,8 @@ esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host, esp_
 espr_t
 esp_mqtt_client_api_close(esp_mqtt_client_api_p client) {
     espr_t res = espERR;
+
+    ESP_ASSERT("client != NULL", client != NULL);
 
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);
@@ -341,6 +348,9 @@ espr_t
 esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic, esp_mqtt_qos_t qos) {
     espr_t res = espERR;
 
+    ESP_ASSERT("client != NULL", client != NULL);
+    ESP_ASSERT("topic != NULL", topic != NULL);
+
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
@@ -367,6 +377,9 @@ esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic, e
 espr_t
 esp_mqtt_client_api_unsubscribe(esp_mqtt_client_api_p client, const char* topic) {
     espr_t res = espERR;
+
+    ESP_ASSERT("client != NULL", client != NULL);
+    ESP_ASSERT("topic != NULL", topic != NULL);
 
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);
@@ -400,6 +413,11 @@ esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, con
                         size_t btw, esp_mqtt_qos_t qos, uint8_t retain) {
     espr_t res = espERR;
 
+    ESP_ASSERT("client != NULL", client != NULL);
+    ESP_ASSERT("topic != NULL", topic != NULL);
+    ESP_ASSERT("data != NULL", data != NULL);
+    ESP_ASSERT("btw > 0", btw > 0);
+
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
@@ -429,6 +447,9 @@ esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, con
  */
 espr_t
 esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_buf_p* p, uint32_t timeout) {
+    ESP_ASSERT("client != NULL", client != NULL);
+    ESP_ASSERT("p != NULL", p != NULL);
+
     *p = NULL;
 
     /* Get new entry from mbox */
@@ -457,5 +478,7 @@ esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_bu
  */
 void
 esp_mqtt_client_api_buf_free(esp_mqtt_client_api_buf_p p) {
-    esp_mem_free(p);
+    if (p != NULL) {
+        esp_mem_free(p);
+    }
 }
