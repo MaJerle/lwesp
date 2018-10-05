@@ -226,7 +226,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
     ESP_MSG_VAR_REF(msg).msg.conn_start.type = type;
     ESP_MSG_VAR_REF(msg).msg.conn_start.host = host;
     ESP_MSG_VAR_REF(msg).msg.conn_start.port = port;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.cb_func = evt_fn;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = evt_fn;
     ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
     
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);   /* Send message to producer queue */

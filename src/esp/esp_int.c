@@ -407,7 +407,7 @@ espi_send_conn_error_cb(esp_msg_t* msg, espr_t error) {
     esp.evt.evt.conn_error.err = error;
 
     /* Call callback specified by user on connection startup */
-    esp.msg->msg.conn_start.cb_func(&esp.evt);
+    esp.msg->msg.conn_start.evt_func(&esp.evt);
 }
 
 /**
@@ -752,7 +752,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     && esp.link_conn.num == esp.msg->msg.conn_start.num
                     && conn->status.f.client) { /* Did we start connection on our own and connection is client? */
                     conn->status.f.client = 1;  /* Go to client mode */
-                    conn->evt_func = esp.msg->msg.conn_start.cb_func;   /* Set callback function */
+                    conn->evt_func = esp.msg->msg.conn_start.evt_func;  /* Set callback function */
                     conn->arg = esp.msg->msg.conn_start.arg;    /* Set argument for function */
                 } else {                        /* Server connection start */
                     conn->evt_func = esp.evt_server;/* Set server default callback */
@@ -775,7 +775,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL" CRLF)) != NULL)) {
         const char* tmp = s;
         uint32_t num = 0;
-        while (tmp >= rcv->data && ESP_CHARISNUM(tmp[-1])) {
+        while (tmp >= rcv->data && tmp > rcv->data && ESP_CHARISNUM(tmp[-1])) {
             tmp--;
         }
         num = espi_parse_number(&tmp);          /* Parse connection number */
@@ -821,7 +821,7 @@ espi_parse_received(esp_recv_t* rcv) {
          * in case connection is already active for some reason
          * but new callback is not set by user
          */
-        if (esp.msg->msg.conn_start.cb_func != NULL) {  /* Connection must be closed */
+        if (esp.msg->msg.conn_start.evt_func != NULL) { /* Connection must be closed */
             espi_send_conn_error_cb(esp.msg, espERRCONNFAIL);
         }
     }

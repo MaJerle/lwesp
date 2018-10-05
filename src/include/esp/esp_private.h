@@ -297,7 +297,7 @@ typedef struct esp_msg {
             esp_port_t port;                    /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
             void* arg;                          /*!< Connection custom argument */
-            esp_evt_fn cb_func;                 /*!< Callback function to use on connection */
+            esp_evt_fn evt_func;                /*!< Callback function to use on connection */
             uint8_t num;                        /*!< Connection number used for start */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
