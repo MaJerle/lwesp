@@ -289,8 +289,8 @@ esp_mqtt_client_api_delete(esp_mqtt_client_api_p client) {
  */
 esp_mqtt_conn_status_t
 esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host, esp_port_t port, const esp_mqtt_client_info_t* info) {
-    if (client == NULL || host != NULL
-        || port > 0 || info != NULL) {
+    if (client == NULL || host == NULL
+        || port == 0 || info == NULL) {
         return ESP_MQTT_CONN_STATUS_TCP_FAILED;
     }
 
