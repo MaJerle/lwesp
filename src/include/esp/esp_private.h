@@ -286,7 +286,8 @@ typedef struct esp_msg {
             uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
         struct {
-            char* hostname;                     /*!< Hostname set/get value */
+            const char* hostname_set;           /*!< Hostname set value */
+            char* hostname_get;                 /*!< Hostname get value */
             size_t length;                      /*!< Length of buffer when reading hostname */
         } wifi_hostname;                        /*!< Set or get hostname structure */
 

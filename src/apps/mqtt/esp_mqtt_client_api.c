@@ -78,7 +78,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
         case ESP_MQTT_EVT_CONNECT: {
             esp_mqtt_conn_status_t status = esp_mqtt_client_evt_connect_get_status(client, evt);
 
-            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_STATE, "[MQTT API] Connect event with status: %d\r\n", (int)status);
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Connect event with status: %d\r\n", (int)status);
 
             api_client->connect_resp = status;
             
@@ -89,11 +89,11 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
              * If client is accepted or connection did not even start,
              * release semaphore, otherwise wait CLOSED event 
              * and release semaphore from there,
-             * to make sure we are fully ready for next connect
+             * to make sure we are fully ready for next connection
              */
             if (status == ESP_MQTT_CONN_STATUS_TCP_FAILED
                 || status == ESP_MQTT_CONN_STATUS_ACCEPTED) {
-                release_sem(api_client);
+                release_sem(api_client);        /* Release semaphore */
             }
 
             break;
@@ -152,7 +152,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
                 "[MQTT API] Publish event with response: %d\r\n", (int)api_client->sub_pub_resp);
 
-            release_sem(api_client);            /* Release semaphore if forced */
+            release_sem(api_client);            /* Release semaphore */
             break;
         }
         case ESP_MQTT_EVT_SUBSCRIBE: {
@@ -162,7 +162,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
                 "[MQTT API] Subscribe event with response: %d\r\n", (int)api_client->sub_pub_resp);
 
-            release_sem(api_client);            /* Release semaphore if forced */
+            release_sem(api_client);            /* Release semaphore */
             break;
         }
         case ESP_MQTT_EVT_UNSUBSCRIBE: {
@@ -172,7 +172,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
                 "[MQTT API] Unsubscribe event with response: %d\r\n", (int)api_client->sub_pub_resp);
 
-            release_sem(api_client);            /* Release semaphore if forced */
+            release_sem(api_client);            /* Release semaphore */
             break;
         }
         case ESP_MQTT_EVT_DISCONNECT: {
@@ -189,8 +189,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                 esp_sys_mbox_putnow(&api_client->rcv_mbox, &mqtt_closed);
             }
 
-            /* Release semaphore if forced */
-            release_sem(api_client);
+            release_sem(api_client);            /* Release semaphore */
             break;
         }
         default: break;

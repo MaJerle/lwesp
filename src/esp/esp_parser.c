@@ -663,15 +663,15 @@ espi_parse_hostname(const char* str, esp_msg_t* msg) {
     if (*str == '+') {                              /* Check input string */
         str += 12;
     }
-    msg->msg.wifi_hostname.hostname[0] = 0;
+    msg->msg.wifi_hostname.hostname_get[0] = 0;
     if (*str != '\r') {
         i = 0;
         while (i < (msg->msg.wifi_hostname.length - 1) && *str && *str != '\r') {
-            msg->msg.wifi_hostname.hostname[i] = *str;
+            msg->msg.wifi_hostname.hostname_get[i] = *str;
             i++;
             str++;
         }
-        msg->msg.wifi_hostname.hostname[i] = 0;
+        msg->msg.wifi_hostname.hostname_get[i] = 0;
     }
     return 1;
 }

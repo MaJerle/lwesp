@@ -1625,7 +1625,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_WIFI_CWHOSTNAME_SET: {     /* List stations connected on access point */
             ESP_AT_PORT_SEND_BEGIN();
             ESP_AT_PORT_SEND_STR("+CWHOSTNAME=");
-            send_string(msg->msg.wifi_hostname.hostname, 1, 1, 0);
+            send_string(msg->msg.wifi_hostname.hostname_set, 1, 1, 0);
             ESP_AT_PORT_SEND_END();
             break;
         }
