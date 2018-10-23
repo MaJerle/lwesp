@@ -136,24 +136,22 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                 break;
             case 'C':                           /* Right */
                 /* TODO not finnished
-                 * because "^[C" doesn't move the cursor,
-                 * don't know why
+                 * need to implement a courser
                  */
                 if (cmd_pos < strlen(cmd_buffer)) {
                     cmd_pos++;
-                    cliprintf("^[C");
+                    cliprintf("\033[\1C");
                 } else {
                     cliprintf("\a");
                 }
                 break;
             case 'D':                           /* Left */
                 /* TODO not finnished
-                 * because "^[D" doesn't move the cursor,
-                 * don't know why
+                 * need to implement a courser
                  */
                 if (cmd_pos > 0) {
                     cmd_pos--;
-                    cliprintf("^[D");
+                    cliprintf("\033[\1D");
                 } else {
                     cliprintf("\a");
                 }
@@ -178,7 +176,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
 
     /* Store the last character */
     last_ch = ch;
-    
+
     (void)last_ch;                              /* Prevent compiler warnings */
 
     return special_key_found;
@@ -227,12 +225,15 @@ cli_in_data(cli_printf cliprintf, char ch) {
             case '\b':
             case 127:
                 if (cmd_pos != 0) {
+                    /* TODO not finnished
+                     * in case courser is not at the end this doesn't work properly
+                     */
                     cmd_buffer[--cmd_pos] = '\0';
-                    cliprintf("%c", ch);
+                    cliprintf("\033[\1D");
+                    cliprintf("\033[K");
                 } else {
                     cliprintf("\a");
                 }
-                // TODO
                 break;
             /* Tab for autocomplete */
             case '\t':
