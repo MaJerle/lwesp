@@ -46,7 +46,7 @@ struct esp_mqtt_client_api {
     esp_sys_mbox_t rcv_mbox;                    /*!< Received data mbox */
     esp_sys_sem_t sync_sem;                     /*!< Synchronization semaphore */
     esp_sys_mutex_t mutex;                      /*!< Mutex handle */
-    uint8_t release_sem;                        /*!< Set to 1 to release semaphore */
+    uint8_t release_sem;                        /*!< Set to `1` to release semaphore */
     esp_mqtt_conn_status_t connect_resp;        /*!< Response when connecting to server */
     espr_t sub_pub_resp;                        /*!< Subscribe/Unsubscribe/Publish response */
 } esp_mqtt_client_api_t;
@@ -340,7 +340,7 @@ esp_mqtt_client_api_close(esp_mqtt_client_api_p client) {
  * \brief           Subscribe to topic
  * \param[in]       client: MQTT API client handle
  * \param[in]       topic: Topic to subscribe on
- * \param[in]       qos: Quality of service. This parameter can be a value of \ref ESP_APP_MQTT_CLIENT_QOS
+ * \param[in]       qos: Quality of service. This parameter can be a value of \ref esp_mqtt_qos_t
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t

@@ -69,7 +69,7 @@ typedef enum {
 struct esp_mqtt_client;
 
 /**
- * \brief           Pointer to \ref esp_mqtt_client structure
+ * \brief           Pointer to \ref esp_mqtt_client_t structure
  */
 typedef struct esp_mqtt_client* esp_mqtt_client_p;
 

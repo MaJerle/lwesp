@@ -202,7 +202,7 @@ extern "C" {
  * \brief           Get received quality of service
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          Member of \ref ESP_APP_MQTT_CLIENT_QOS
+ * \return          Member of \ref esp_mqtt_qos_t enumeration
  * \hideinitializer
  */
 #define esp_mqtt_client_evt_publish_recv_get_qos(client, evt)       ((evt)->evt.publish_recv.qos)
@@ -212,7 +212,7 @@ extern "C" {
  */
 
 /**
- * \name            ESP_APP_MQTT_CLIENT_EVT_PUBLISH Published event
+ * \name            ESP_APP_MQTT_CLIENT_EVT_PUBLISH Publish event
  * \anchor          ESP_APP_MQTT_CLIENT_EVT_PUBLISH
  * \{
  *
