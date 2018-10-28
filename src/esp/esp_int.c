@@ -775,7 +775,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 (rcv->len > 15 && (s = strstr(rcv->data, ",CONNECT FAIL" CRLF)) != NULL)) {
         const char* tmp = s;
         uint32_t num = 0;
-        while (tmp >= rcv->data && tmp > rcv->data && ESP_CHARISNUM(tmp[-1])) {
+        while (tmp > rcv->data && ESP_CHARISNUM(tmp[-1])) {
             tmp--;
         }
         num = espi_parse_number(&tmp);          /* Parse connection number */
@@ -948,15 +948,11 @@ espi_process(const void* data, size_t data_len) {
                 esp.ipd.rem_len -= len;         /* Decrease remaining length */
             }
 
-            /*
-             * Did we reach end of buffer or no more data?
-             */
+            /* Did we reach end of buffer or no more data? */
             if (!esp.ipd.rem_len || (esp.ipd.buff != NULL && esp.ipd.buff_ptr == esp.ipd.buff->len)) {
                 espr_t res = espOK;
 
-                /*
-                 * Call user callback function with received data
-                 */
+                /* Call user callback function with received data */
                 if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */
                     esp.ipd.conn->total_recved += esp.ipd.buff->tot_len;    /* Increase number of bytes received */
 
@@ -1040,16 +1036,12 @@ espi_process(const void* data, size_t data_len) {
                             break;
                     }
 
-                    /*
-                     * If we are waiting for "\n> " sequence when CIPSEND command is active
-                     */
+                    /* If we are waiting for "\n> " sequence when CIPSEND command is active */
                     if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSEND)) {
                         if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
                             RECV_RESET();       /* Reset received object */
 
-                            /*
-                             * Now actually send the data prepared before
-                             */
+                            /* Now actually send the data prepared before */
                             ESP_AT_PORT_SEND(&esp.msg->msg.conn_send.data[esp.msg->msg.conn_send.ptr], esp.msg->msg.conn_send.sent);
                             esp.msg->msg.conn_send.wait_send_ok_err = 1;    /* Now we are waiting for "SEND OK" or "SEND ERROR" */
                         }
