@@ -64,6 +64,10 @@ esp_conn_p  esp_conn_get_from_evt(esp_evt_t* evt);
 espr_t      esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, size_t* const mem_available);
 espr_t      esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf);
 size_t      esp_conn_get_total_recved_count(esp_conn_p conn);
+
+uint8_t     esp_conn_get_remote_ip(esp_conn_p conn, esp_ip_t* ip);
+esp_port_t  esp_conn_get_remote_port(esp_conn_p conn);
+esp_port_t  esp_conn_get_local_port(esp_conn_p conn);
  
 /**
  * \}

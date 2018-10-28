@@ -642,16 +642,65 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, siz
 /**
  * \brief           Get total number of bytes ever received on connection and sent to user
  * \param[in]       conn: Connection handle
+ * \return          Total number of received bytes on connection
  */
 size_t
 esp_conn_get_total_recved_count(esp_conn_p conn) {
-    size_t tot;
+    size_t tot = 0;
 
-    ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-
-    ESP_CORE_PROTECT();                         /* Protect core */
-    tot = conn->total_recved;                   /* Get total received bytes */
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
-
+    if (conn != NULL) {
+        ESP_CORE_PROTECT();                     /* Protect core */
+        tot = conn->total_recved;               /* Get total received bytes */
+        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+    }
     return tot;
+}
+
+/**
+ * \brief           Get connection remote IP address
+ * \param[in]       conn: Connection handle
+ * \param[out]      ip: Pointer to IP output handle
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_conn_get_remote_ip(esp_conn_p conn, esp_ip_t* ip) {
+    if (conn != NULL && ip != NULL) {
+        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_MEMCPY(ip, &conn->remote_ip, sizeof(*ip));  /* Copy data */
+        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        return 1;
+    }
+    return 0;
+}
+
+/**
+ * \brief           Get connection remote port number
+ * \param[in]       conn: Connection handle
+ * \return          Port number on success, `0` otherwise
+ */
+esp_port_t
+esp_conn_get_remote_port(esp_conn_p conn) {
+    esp_port_t port = 0;
+    if (conn != NULL) {
+        ESP_CORE_PROTECT();                     /* Protect core */
+        port = conn->remote_port;
+        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+    }
+    return port;
+}
+
+/**
+ * \brief           Get connection local port number
+ * \param[in]       conn: Connection handle
+ * \return          Port number on success, `0` otherwise
+ */
+esp_port_t
+esp_conn_get_local_port(esp_conn_p conn) {
+    esp_port_t port = 0;
+    if (conn != NULL) {
+        ESP_CORE_PROTECT();                     /* Protect core */
+        port = conn->local_port;
+        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+    }
+    return port;
 }
