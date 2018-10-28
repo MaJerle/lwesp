@@ -93,7 +93,7 @@
  *
  * \note            This is limitation of ESP AT commands and on systems where RAM
  *                  is not an issue, it should be set to maximal value (`2048`)
- *                  to optimize speed performance of sending data
+ *                  to optimize data transfer performance
  */
 #ifndef ESP_CFG_CONN_MAX_DATA_LEN
 #define ESP_CFG_CONN_MAX_DATA_LEN           2048
