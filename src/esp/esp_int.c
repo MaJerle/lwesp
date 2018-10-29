@@ -48,10 +48,12 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
 #define CONN_SEND_DATA_FREE(m)      do {            \
     if ((m) != NULL && (m)->msg.conn_send.fau) {    \
         (m)->msg.conn_send.fau = 0;                 \
-        ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,   \
-            "[CONN] Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
-        esp_mem_free((void *)(m)->msg.conn_send.data);  \
-        (m)->msg.conn_send.data = NULL;             \
+        if ((m)->msg.conn_send.data != NULL) {      \
+            ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,   \
+                "[CONN] Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
+            esp_mem_free((void *)(m)->msg.conn_send.data);  \
+            (m)->msg.conn_send.data = NULL;         \
+        }                                           \
     }                                               \
 } while (0)
 
@@ -692,7 +694,8 @@ espi_parse_received(esp_recv_t* rcv) {
                     }
                 }
             } else if (is_error) {
-                CONN_SEND_DATA_FREE(esp.msg);   /* Free message data */
+                CONN_SEND_DATA_SEND_ERR_EVT(esp.msg,
+                    esp.msg->msg.conn_send.conn, esp.msg->msg.conn_send.sent_all);
             }
         } else if (CMD_IS_CUR(ESP_CMD_UART)) {  /* In case of UART command */
             if (is_ok) {                        /* We have valid OK result */
@@ -927,9 +930,7 @@ espi_process(const void* data, size_t data_len) {
             esp.ipd.buff_ptr++;
             esp.ipd.rem_len--;
 
-            /*
-             * Try to read more data directly from buffer
-             */
+            /* Try to read more data directly from buffer */
             len = ESP_MIN(d_len, ESP_MIN(esp.ipd.rem_len, esp.ipd.buff != NULL ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len));
             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                 "[IPD] New length to read: %d bytes\r\n", (int)len);
@@ -1080,7 +1081,8 @@ espi_process(const void* data, size_t data_len) {
                         if (esp.ipd.read) {     /* Shall we start read procedure? */
                             size_t len;
                             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
-                                "[IPD] Data on connection %d with total size %d byte(s)\r\n", (int)esp.ipd.conn->num, esp.ipd.tot_len);
+                                "[IPD] Data on connection %d with total size %d byte(s)\r\n",
+                                (int)esp.ipd.conn->num, esp.ipd.tot_len);
 
                             len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
 
@@ -1100,7 +1102,8 @@ espi_process(const void* data, size_t data_len) {
                             } else {
                                 esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
                                 ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
-                                    "[IPD] Connection %d closed or in closing, skipping %d byte(s)\r\n", esp.ipd.conn->num, (int)len);
+                                    "[IPD] Connection %d closed or in closing, skipping %d byte(s)\r\n",
+                                    (int)esp.ipd.conn->num, (int)len);
                             }
                             esp.ipd.conn->status.f.data_received = 1;   /* We have first received data */
                         }

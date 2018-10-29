@@ -436,7 +436,7 @@ typedef struct {
     esp_conn_t          conns[ESP_CFG_MAX_CONNS];   /*!< Array of all connection structures */
 
     esp_link_conn_t     link_conn;              /*!< Link connection handle */
-    esp_ipd_t           ipd;                    /*!< Incoming data structure */
+    esp_ipd_t           ipd;                    /*!< Connection incoming data structure */
     esp_evt_t           evt;                    /*!< Callback processing structure */
 
     esp_evt_func_t*     evt_func;               /*!< Callback function linked list */
