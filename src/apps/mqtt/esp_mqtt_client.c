@@ -1000,7 +1000,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
             /* Data sent callback */
             mqtt_data_sent_cb(client,
                 esp_evt_conn_data_send_get_length(evt),
-                esp_evt_conn_data_send_get_length(evt) == espOK);
+                esp_evt_conn_data_send_get_result(evt) == espOK);
             break;
         }
         
