@@ -1067,7 +1067,7 @@ http_evt(esp_evt_t* evt) {
             break;
         }
         
-        /* Data were successfully sent on a connection */
+        /* Data send event */
         case ESP_EVT_CONN_DATA_SEND: {
             size_t len;
             espr_t res;
