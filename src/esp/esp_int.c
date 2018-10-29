@@ -1050,7 +1050,7 @@ espi_process(const void* data, size_t data_len) {
 
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
                     /*
-                     * Check if "+CIPRECVDATA" statement is in array and now we received color,
+                     * Check if "+CIPRECVDATA" statement is in array and now we received colon,
                      * indicating end of +CIPRECVDATA statement and start of actual data
                      */
                     if (ch == ':' && RECV_LEN() > 12 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)) {
