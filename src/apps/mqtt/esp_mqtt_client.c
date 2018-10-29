@@ -995,15 +995,12 @@ mqtt_conn_cb(esp_evt_t* evt) {
             break;
         }
         
-        /* Data were sent on MQTT client connection */
-        case ESP_EVT_CONN_DATA_SENT: {
-            mqtt_data_sent_cb(client, esp_evt_conn_data_sent_get_length(evt), 1);   /* Data sent callback */
-            break;
-        }
-        
-        /* There was an error sending data to remote */
-        case ESP_EVT_CONN_DATA_SEND_ERR: {
-            mqtt_data_sent_cb(client, esp_evt_conn_data_send_err_get_length(evt), 0);   /* Data sent error */
+        /* Data send event */
+        case ESP_EVT_CONN_DATA_SEND: {
+            /* Data sent callback */
+            mqtt_data_sent_cb(client,
+                esp_evt_conn_data_send_get_length(evt),
+                esp_evt_conn_data_send_get_length(evt) == espOK);
             break;
         }
         

@@ -124,8 +124,8 @@ esp_evt_conn_data_recv_get_conn(esp_evt_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_data_sent_get_conn(esp_evt_t* cc) {
-    return cc->evt.conn_data_sent.conn;
+esp_evt_conn_data_send_get_conn(esp_evt_t* cc) {
+    return cc->evt.conn_data_send.conn;
 }
 
 /**
@@ -134,28 +134,18 @@ esp_evt_conn_data_sent_get_conn(esp_evt_t* cc) {
  * \return          Number of bytes sent
  */
 size_t
-esp_evt_conn_data_sent_get_length(esp_evt_t* cc) {
-    return cc->evt.conn_data_sent.sent;
+esp_evt_conn_data_send_get_length(esp_evt_t* cc) {
+    return cc->evt.conn_data_send.sent;
 }
 
 /**
- * \brief           Get connection handle
+ * \brief           Check if connection send was successful
  * \param[in]       cc: Event handle
- * \return          Connection handle
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
-esp_conn_p
-esp_evt_conn_data_send_err_get_conn(esp_evt_t* cc) {
-    return cc->evt.conn_data_send_err.conn;
-}
-
-/**
- * \brief           Get number of bytes successfully sent on failed send command
- * \param[in]       cc: Event handle
- * \return          Connection handle
- */
-size_t
-esp_evt_conn_data_send_err_get_length(esp_evt_t* cc) {
-    return cc->evt.conn_data_send_err.sent;
+espr_t
+esp_evt_conn_data_send_get_result(esp_evt_t* cc) {
+    return cc->evt.conn_data_send.res;
 }
 
 /**

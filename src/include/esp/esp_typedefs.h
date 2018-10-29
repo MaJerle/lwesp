@@ -265,8 +265,7 @@ typedef enum esp_evt_type_t {
     ESP_EVT_DEVICE_PRESENT,                     /*!< Notification when device present status changes */
 
     ESP_EVT_CONN_DATA_RECV,                     /*!< Connection data received */
-    ESP_EVT_CONN_DATA_SENT,                     /*!< Data were successfully sent */
-    ESP_EVT_CONN_DATA_SEND_ERR,                 /*!< Error trying to send data */
+    ESP_EVT_CONN_DATA_SEND,                     /*!< Connection data send */
     ESP_EVT_CONN_ACTIVE,                        /*!< Connection just became active */
     ESP_EVT_CONN_ERROR,                         /*!< Client connection start was not successful */
     ESP_EVT_CONN_CLOSED,                        /*!< Connection was just closed */
@@ -315,11 +314,8 @@ typedef struct esp_evt_t {
         struct {
             esp_conn_p conn;                    /*!< Connection where data were sent */
             size_t sent;                        /*!< Number of bytes sent on connection */
-        } conn_data_sent;                       /*!< Data successfully sent. Use with \ref ESP_EVT_CONN_DATA_SENT event */
-        struct {
-            esp_conn_p conn;                    /*!< Connection where data were sent */
-            size_t sent;                        /*!< Number of bytes sent on connection before error occurred */
-        } conn_data_send_err;                   /*!< Data were not sent. Use with \ref ESP_EVT_CONN_DATA_SEND_ERR event */
+            espr_t res;                         /*!< Send data result */
+        } conn_data_send;                       /*!< Data successfully sent. Use with \ref ESP_EVT_CONN_DATA_SEND event */
         struct {
             const char* host;                   /*!< Host to use for connection */
             esp_port_t port;                    /*!< Remote port used for connection */

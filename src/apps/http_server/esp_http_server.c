@@ -1068,24 +1068,21 @@ http_evt(esp_evt_t* evt) {
         }
         
         /* Data were successfully sent on a connection */
-        case ESP_EVT_CONN_DATA_SENT: {
+        case ESP_EVT_CONN_DATA_SEND: {
             size_t len;
-            if (hs != NULL) {
-                len = esp_evt_conn_data_sent_get_length(evt);   /* Get length */
+            espr_t res;
+            res = esp_evt_conn_data_send_get_result(evt);
+            if (res == espOK && hs != NULL) {
+                len = esp_evt_conn_data_send_get_length(evt);   /* Get length */
                 ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE,
                     "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
                 hs->sent_total += len;          /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
+                ESP_DEBUGW(ESP_CFG_DBG_SERVER_TRACE_DANGER, res != espOK,
+                    "[HTTP SERVER] data send error. Closing connection..\r\n");
                 close = 1;
             }
-            break;
-        }
-        
-        /* There was a problem with sending connection data */
-        case ESP_EVT_CONN_DATA_SEND_ERR: {
-            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_DANGER, "[HTTP SERVER] data send error. Closing connection..\r\n");
-            close = 1;                          /* Close the connection */
             break;
         }
         

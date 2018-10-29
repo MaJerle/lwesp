@@ -58,16 +58,18 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
 } while (0)
 
 /**
- * \brief           Send connection callback for "sent error" event
+ * \brief           Send connection callback for "data send"
  * \param[in]       m: Connection send message
  * \param[in]       c: Connection handle
  * \param[in]       sa: Number of bytes successfully sent, "sent all"
+ * \param[in]       err: Error of type \ref espr_t
  */
-#define CONN_SEND_DATA_SEND_ERR_EVT(m, c, sa)  do { \
+#define CONN_SEND_DATA_SEND_EVT(m, c, sa, err)  do { \
     CONN_SEND_DATA_FREE(m);                         \
-    esp.evt.type = ESP_EVT_CONN_DATA_SEND_ERR;      \
-    esp.evt.evt.conn_data_send_err.conn = c;        \
-    esp.evt.evt.conn_data_send_err.sent = sa;       \
+    esp.evt.type = ESP_EVT_CONN_DATA_SEND;          \
+    esp.evt.evt.conn_data_send.res = err;           \
+    esp.evt.evt.conn_data_send.conn = c;            \
+    esp.evt.evt.conn_data_send.sent = sa;           \
     espi_send_conn_cb(c, NULL);                     \
 } while (0)
 
@@ -679,23 +681,26 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_ok = espi_tcpip_process_data_sent(1);    /* Process as data were sent */
                     if (is_ok && esp.msg->msg.conn_send.conn->status.f.active) {
-                        CONN_SEND_DATA_FREE(esp.msg);   /* Free message data */
-                        esp.evt.type = ESP_EVT_CONN_DATA_SENT;  /* Data were fully sent */
-                        esp.evt.evt.conn_data_sent.conn = esp.msg->msg.conn_send.conn;
-                        esp.evt.evt.conn_data_sent.sent = esp.msg->msg.conn_send.sent_all;
-                        espi_send_conn_cb(esp.msg->msg.conn_send.conn, NULL);   /* Send connection callback */
+                        CONN_SEND_DATA_SEND_EVT(esp.msg,
+                            esp.msg->msg.conn_send.conn,
+                            esp.msg->msg.conn_send.sent_all,
+                            espOK);
                     }
                 } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
                     if (is_error && esp.msg->msg.conn_send.conn->status.f.active) {
-                        CONN_SEND_DATA_SEND_ERR_EVT(esp.msg,
-                            esp.msg->msg.conn_send.conn, esp.msg->msg.conn_send.sent_all);
+                        CONN_SEND_DATA_SEND_EVT(esp.msg,
+                            esp.msg->msg.conn_send.conn,
+                            esp.msg->msg.conn_send.sent_all,
+                            espERR);
                     }
                 }
             } else if (is_error) {
-                CONN_SEND_DATA_SEND_ERR_EVT(esp.msg,
-                    esp.msg->msg.conn_send.conn, esp.msg->msg.conn_send.sent_all);
+                CONN_SEND_DATA_SEND_EVT(esp.msg,
+                    esp.msg->msg.conn_send.conn,
+                    esp.msg->msg.conn_send.sent_all,
+                    espERR);
             }
         } else if (CMD_IS_CUR(ESP_CMD_UART)) {  /* In case of UART command */
             if (is_ok) {                        /* We have valid OK result */
@@ -1958,8 +1963,8 @@ espi_process_events_for_timeout(esp_msg_t* msg) {
          */
         case ESP_CMD_TCPIP_CIPSEND: {
             /* Send data sent error event */
-            CONN_SEND_DATA_SEND_ERR_EVT(msg,
-                msg->msg.conn_send.conn, 0);
+            CONN_SEND_DATA_SEND_EVT(msg,
+                msg->msg.conn_send.conn, 0, espTIMEOUT);
             break;
         }
         default: break;

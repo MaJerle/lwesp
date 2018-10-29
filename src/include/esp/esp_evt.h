@@ -112,26 +112,14 @@ esp_conn_p  esp_evt_conn_data_recv_get_conn(esp_evt_t* cc);
  */
 
 /**
- * \name            ESP_EVT_CONN_DATA_SENT
- * \anchor          ESP_EVT_CONN_DATA_SENT
- * \brief           Event helper functions for \ref ESP_EVT_CONN_DATA_SENT event
+ * \name            ESP_EVT_CONN_DATA_SEND
+ * \anchor          ESP_EVT_CONN_DATA_SEND
+ * \brief           Event helper functions for \ref ESP_EVT_CONN_DATA_SEND event
  */
 
-esp_conn_p  esp_evt_conn_data_sent_get_conn(esp_evt_t* cc);
-size_t      esp_evt_conn_data_sent_get_length(esp_evt_t* cc);
-
-/**
- * \}
- */
-
-/**
- * \name            ESP_EVT_CONN_DATA_SEND_ERR
- * \anchor          ESP_EVT_CONN_DATA_SEND_ERR
- * \brief           Event helper functions for \ref ESP_EVT_CONN_DATA_SEND_ERR event
- */
-
-esp_conn_p  esp_evt_conn_data_send_err_get_conn(esp_evt_t* cc);
-size_t      esp_evt_conn_data_send_err_get_length(esp_evt_t* cc);
+esp_conn_p  esp_evt_conn_data_send_get_conn(esp_evt_t* cc);
+size_t      esp_evt_conn_data_send_get_length(esp_evt_t* cc);
+espr_t      esp_evt_conn_data_send_get_result(esp_evt_t* cc);
 
 /**
  * \}

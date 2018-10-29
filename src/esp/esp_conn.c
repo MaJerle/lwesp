@@ -517,10 +517,8 @@ esp_conn_get_from_evt(esp_evt_t* evt) {
         return esp_evt_conn_closed_get_conn(evt);
     } else if (evt->type == ESP_EVT_CONN_DATA_RECV) {
         return esp_evt_conn_data_recv_get_conn(evt);
-    } else if (evt->type == ESP_EVT_CONN_DATA_SEND_ERR) {
-        return esp_evt_conn_data_send_err_get_conn(evt);
-    } else if (evt->type == ESP_EVT_CONN_DATA_SENT) {
-        return esp_evt_conn_data_sent_get_conn(evt);
+    } else if (evt->type == ESP_EVT_CONN_DATA_SEND) {
+        return esp_evt_conn_data_send_get_conn(evt);
     } else if (evt->type == ESP_EVT_CONN_POLL) {
         return esp_evt_conn_poll_get_conn(evt);
     }
