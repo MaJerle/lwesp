@@ -143,7 +143,7 @@ typedef enum {
 /**
  * \brief           Connection structure
  */
-typedef struct esp_conn_t {
+typedef struct esp_conn {
     esp_conn_type_t type;                       /*!< Connection type */
     uint8_t         num;                        /*!< Connection number */
     esp_ip_t        remote_ip;                  /*!< Remote IP address */
@@ -179,8 +179,8 @@ typedef struct esp_conn_t {
  * \ingroup         ESP_PBUF
  * \brief           Packet buffer structure
  */
-typedef struct esp_pbuf_t {
-    struct esp_pbuf_t* next;                    /*!< Next pbuf in chain list */
+typedef struct esp_pbuf {
+    struct esp_pbuf* next;                      /*!< Next pbuf in chain list */
     size_t tot_len;                             /*!< Total length of pbuf chain */
     size_t len;                                 /*!< Length of payload */
     size_t ref;                                 /*!< Number of references to this structure */

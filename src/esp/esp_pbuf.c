@@ -553,7 +553,8 @@ esp_pbuf_dump(esp_pbuf_p p, uint8_t seq) {
             "[PBUF] Dump start: %p\r\n", p);
         for (; p != NULL; p = p->next) {
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
-                "[PBUF] Dump %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n", p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
+                "[PBUF] Dump %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n",
+                p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
             if (!seq) {
                 break;
             }

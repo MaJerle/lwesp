@@ -225,21 +225,21 @@ typedef enum {
 } esp_conn_type_t;
 
 /* Forward declarations */
-struct esp_evt_t;
-struct esp_conn_t;
-struct esp_pbuf_t;
+struct esp_evt;
+struct esp_conn;
+struct esp_pbuf;
 
 /**
  * \ingroup         ESP_CONN
  * \brief           Pointer to \ref esp_conn_t structure
  */
-typedef struct esp_conn_t* esp_conn_p;
+typedef struct esp_conn* esp_conn_p;
 
 /**
  * \ingroup         ESP_PBUF
  * \brief           Pointer to \ref esp_pbuf_t structure
  */
-typedef struct esp_pbuf_t* esp_pbuf_p;
+typedef struct esp_pbuf* esp_pbuf_p;
 
 /**
  * \ingroup         ESP_EVT
@@ -247,7 +247,7 @@ typedef struct esp_pbuf_t* esp_pbuf_p;
  * \param[in]       evt: Callback event data
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
-typedef espr_t  (*esp_evt_fn)(struct esp_evt_t* evt);
+typedef espr_t  (*esp_evt_fn)(struct esp_evt* evt);
 
 /**
  * \ingroup         ESP_EVT
@@ -300,7 +300,7 @@ typedef enum esp_evt_type_t {
  * \ingroup         ESP_EVT
  * \brief           Global callback structure to pass as parameter to callback function
  */
-typedef struct esp_evt_t {
+typedef struct esp_evt {
     esp_evt_type_t type;                        /*!< Callback type */
     union {
         struct {

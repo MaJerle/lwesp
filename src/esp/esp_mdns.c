@@ -38,7 +38,7 @@
 
 /**
  * \brief           Configure mDNS parameters with hostname and server
- * \param[in]       en: Status to enable (`1`) or disable (`0`) mDNS function
+ * \param[in]       en: Status to enable `1` or disable `0` mDNS function
  * \param[in]       host: mDNS host name
  * \param[in]       server: mDNS server name
  * \param[in]       port: mDNS server port number
