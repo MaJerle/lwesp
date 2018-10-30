@@ -402,17 +402,17 @@ typedef struct {
  * \ingroup         ESP_TIMEOUT
  * \brief           Timeout callback function prototype
  */
-typedef void (*esp_timeout_fn_t)(void *);
+typedef void (*esp_timeout_fn)(void *);
 
 /**
  * \ingroup         ESP_TIMEOUT
  * \brief           Timeout structure
  */
-typedef struct esp_timeout_t {
-    struct esp_timeout_t* next;                 /*!< Pointer to next timeout entry */
+typedef struct esp_timeout {
+    struct esp_timeout* next;                   /*!< Pointer to next timeout entry */
     uint32_t time;                              /*!< Time difference from previous entry */
     void* arg;                                  /*!< Argument to pass to callback function */
-    esp_timeout_fn_t fn;                        /*!< Callback function for timeout */
+    esp_timeout_fn fn;                          /*!< Callback function for timeout */
 } esp_timeout_t;
 
 /**

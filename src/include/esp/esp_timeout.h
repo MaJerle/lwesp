@@ -48,7 +48,7 @@ extern "C" {
  */
 
 espr_t          esp_timeout_add(uint32_t time, void (*cb)(void *), void* arg);
-espr_t          esp_timeout_remove(esp_timeout_fn_t fn);
+espr_t          esp_timeout_remove(esp_timeout_fn fn);
     
 /**
  * \}

@@ -119,7 +119,7 @@ espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t tim
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
+esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
     esp_timeout_t* to;
     uint32_t now, diff = 0;
     
@@ -190,7 +190,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn_t fn, void* arg) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_timeout_remove(esp_timeout_fn_t fn) {    
+esp_timeout_remove(esp_timeout_fn fn) {    
     for (esp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
             t_prev = t, t = t->next) {          /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
