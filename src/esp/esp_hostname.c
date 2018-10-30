@@ -58,7 +58,7 @@ esp_hostname_set(const char* hostname, const uint32_t blocking) {
 /**
  * \brief           Get hostname of WiFi station
  * \param[in]       hostname: Pointer to output variable holding memory to save hostname
- * \param[in]       length: Length of buffer for hostname. Length includes NULL termination
+ * \param[in]       length: Length of buffer for hostname. Length includes memory for `NULL` termination
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */

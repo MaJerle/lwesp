@@ -153,7 +153,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
         }
 
         /*
-         * StartBlock is fixed variable for start list of free blocks
+         * start_block is fixed variable for start list of free blocks
          *
          * Set free blocks linked list on initialized
          *
@@ -208,7 +208,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
 /**
  * \brief           Allocate memory of specific size
  * \param[in]       size: Number of bytes to allocate
- * \return          NULL on failure or memory address on success
+ * \return          Memory address on success, `NULL` otherwise
  */
 static void *
 mem_alloc(size_t size) {
@@ -281,7 +281,8 @@ mem_alloc(size_t size) {
 
 /**
  * \brief           Free memory
- * \param[in]       ptr: Pointer to memory previously returned using \ref esp_mem_alloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
+ * \param[in]       ptr: Pointer to memory previously returned using \ref esp_mem_alloc,
+ *                      \ref esp_mem_calloc or \ref esp_mem_realloc functions
  */
 static void
 mem_free(void* ptr) {
@@ -312,7 +313,7 @@ mem_free(void* ptr) {
 /**
  * \brief           Get block size in units of bytes
  * \param[in]       ptr: Memory address
- * \return          0 on failure or number of bytes on success
+ * \return          Size of memory on success, `0` otherwise
  */
 static size_t
 mem_getusersize(void* ptr) {    
@@ -325,7 +326,7 @@ mem_getusersize(void* ptr) {
 /**
  * \brief           Allocate memory of specific size
  * \param[in]       size: Number of bytes to allocate
- * \return          NULL on failure or memory address on success
+ * \return          Memory address on success, `NULL` otherwise
  */
 static void *
 mem_calloc(size_t num, size_t size) {
@@ -341,9 +342,10 @@ mem_calloc(size_t num, size_t size) {
 /**
  * \brief           Reallocate memory to specific size
  * \note            After new memory is allocated, content of old one is copied to new memory
- * \param[in]       ptr: Pointer to current allocated memory to resize, returned using \ref esp_mem_alloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
+ * \param[in]       ptr: Pointer to current allocated memory to resize,
+ *                  returned using \ref esp_mem_alloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
  * \param[in]       size: Number of bytes to allocate on new memory
- * \return          NULL on failure or memory address on success
+ * \return          Memory address on success, `NULL` otherwise
  */
 static void *
 mem_realloc(void* ptr, size_t size) {
@@ -394,7 +396,7 @@ mem_getminfree(void) {
 /**
  * \brief           Allocate memory of specific size
  * \param[in]       size: Number of bytes to allocate
- * \return          NULL on failure or memory address on success
+ * \return          Memory address on success, `NULL` otherwise
  */
 void *
 esp_mem_alloc(uint32_t size) {
@@ -414,7 +416,7 @@ esp_mem_alloc(uint32_t size) {
  * \note            After new memory is allocated, content of old one is copied to new memory
  * \param[in]       ptr: Pointer to current allocated memory to resize, returned using \ref esp_mem_alloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
  * \param[in]       size: Number of bytes to allocate on new memory
- * \return          NULL on failure or memory address on success
+ * \return          Memory address on success, `NULL` otherwise
  */
 void *
 esp_mem_realloc(void* ptr, size_t size) {
@@ -432,7 +434,7 @@ esp_mem_realloc(void* ptr, size_t size) {
  * \brief           Allocate memory of specific size and set memory to zero
  * \param[in]       num: Number of elements to allocate
  * \param[in]       size: Size of each element
- * \return          NULL on failure or memory address on success
+ * \return          Memory address on success, `NULL` otherwise
  */
 void *
 esp_mem_calloc(size_t num, size_t size) {
@@ -449,7 +451,8 @@ esp_mem_calloc(size_t num, size_t size) {
 
 /**
  * \brief           Free memory
- * \param[in]       ptr: Pointer to memory previously returned using \ref esp_mem_alloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
+ * \param[in]       ptr: Pointer to memory previously returned using \ref esp_mem_alloc,
+ *                      \ref esp_mem_calloc or \ref esp_mem_realloc functions
  */
 void
 esp_mem_free(void* ptr) {

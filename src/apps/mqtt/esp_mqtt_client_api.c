@@ -78,7 +78,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
         case ESP_MQTT_EVT_CONNECT: {
             esp_mqtt_conn_status_t status = esp_mqtt_client_evt_connect_get_status(client, evt);
 
-            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Connect event with status: %d\r\n", (int)status);
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
+                "[MQTT API] Connect event with status: %d\r\n", (int)status);
 
             api_client->connect_resp = status;
             
@@ -140,7 +141,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                     }
                 } else {
                     ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                        "[MQTT API] Cannot allocate memory for packet buffer of size %d bytes\r\n", (int)size);
+                        "[MQTT API] Cannot allocate memory for packet buffer of size %d bytes\r\n",
+                        (int)size);
                 }
             }
             break;
@@ -150,7 +152,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
             /* Print debug message */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                "[MQTT API] Publish event with response: %d\r\n", (int)api_client->sub_pub_resp);
+                "[MQTT API] Publish event with response: %d\r\n",
+                (int)api_client->sub_pub_resp);
 
             release_sem(api_client);            /* Release semaphore */
             break;
@@ -160,7 +163,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
             /* Print debug message */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                "[MQTT API] Subscribe event with response: %d\r\n", (int)api_client->sub_pub_resp);
+                "[MQTT API] Subscribe event with response: %d\r\n",
+                (int)api_client->sub_pub_resp);
 
             release_sem(api_client);            /* Release semaphore */
             break;
@@ -170,7 +174,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
             /* Print debug message */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                "[MQTT API] Unsubscribe event with response: %d\r\n", (int)api_client->sub_pub_resp);
+                "[MQTT API] Unsubscribe event with response: %d\r\n",
+                (int)api_client->sub_pub_resp);
 
             release_sem(api_client);            /* Release semaphore */
             break;
@@ -224,19 +229,24 @@ esp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
                         esp_mqtt_client_set_arg(client->mc, client);/* Set client to mqtt client argument */
                         return client;
                     } else {
-                        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate mutex\r\n");
+                        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+                            "[MQTT API] Cannot allocate mutex\r\n");
                     }
                 } else {
-                    ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate sync semaphore\r\n");
+                    ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+                        "[MQTT API] Cannot allocate sync semaphore\r\n");
                 }
             } else {
-                ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate receive queue\r\n");
+                ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+                    "[MQTT API] Cannot allocate receive queue\r\n");
             }
         } else {
-            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate MQTT client\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+                "[MQTT API] Cannot allocate MQTT client\r\n");
         }
     } else {
-        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API, "[MQTT API] Cannot allocate memory for client\r\n");
+        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+            "[MQTT API] Cannot allocate memory for client\r\n");
     }
 
     esp_mqtt_client_api_delete(client);
@@ -287,9 +297,12 @@ esp_mqtt_client_api_delete(esp_mqtt_client_api_p client) {
  * \return          \ref ESP_MQTT_CONN_STATUS_ACCEPTED on success, member of \ref esp_mqtt_conn_status_t otherwise
  */
 esp_mqtt_conn_status_t
-esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host, esp_port_t port, const esp_mqtt_client_info_t* info) {
+esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host,
+                            esp_port_t port, const esp_mqtt_client_info_t* info) {
     if (client == NULL || host == NULL
         || port == 0 || info == NULL) {
+        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
+            "[MQTT API] Invalid parameters in function\r\n");
         return ESP_MQTT_CONN_STATUS_TCP_FAILED;
     }
 
@@ -344,7 +357,8 @@ esp_mqtt_client_api_close(esp_mqtt_client_api_p client) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic, esp_mqtt_qos_t qos) {
+esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic,
+                                esp_mqtt_qos_t qos) {
     espr_t res = espERR;
 
     ESP_ASSERT("client != NULL", client != NULL);
@@ -409,7 +423,7 @@ esp_mqtt_client_api_unsubscribe(esp_mqtt_client_api_p client, const char* topic)
  */
 espr_t
 esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, const void* data,
-                        size_t btw, esp_mqtt_qos_t qos, uint8_t retain) {
+                            size_t btw, esp_mqtt_qos_t qos, uint8_t retain) {
     espr_t res = espERR;
 
     ESP_ASSERT("client != NULL", client != NULL);
@@ -445,7 +459,8 @@ esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, con
  * \return          \ref espOK on success, \ref espCLOSED if MQTT is closed, \ref espTIMEOUT on timeout
  */
 espr_t
-esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_buf_p* p, uint32_t timeout) {
+esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_buf_p* p,
+                            uint32_t timeout) {
     ESP_ASSERT("client != NULL", client != NULL);
     ESP_ASSERT("p != NULL", p != NULL);
 

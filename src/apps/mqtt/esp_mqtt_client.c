@@ -986,10 +986,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
             break;
         }
         
-        /*
-         * A new packet of data received
-         * on MQTT client connection
-         */
+        /* A new packet of data received on MQTT client connection */
         case ESP_EVT_CONN_DATA_RECV: {
             mqtt_data_recv_cb(client, esp_evt_conn_data_recv_get_buff(evt));/* Call user to process received data */
             break;
@@ -1010,7 +1007,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
             break;
         }
         
-        /* Connection closed for some reason */
+        /* Connection closed */
         case ESP_EVT_CONN_CLOSED: {
             mqtt_closed_cb(client, esp_evt_conn_closed_is_forced(evt)); /* Closed connection callback */
             break;
@@ -1162,7 +1159,7 @@ esp_mqtt_client_unsubscribe(esp_mqtt_client_p client, const char* topic, void* a
  */
 espr_t
 esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void* payload,
-                    uint16_t payload_len, esp_mqtt_qos_t qos, uint8_t retain, void* arg) {
+                        uint16_t payload_len, esp_mqtt_qos_t qos, uint8_t retain, void* arg) {
     uint8_t qos_u8 = ESP_U8(qos);
     uint16_t len_topic, pkt_id;
     uint32_t rem_len, raw_len;
@@ -1211,7 +1208,8 @@ esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void*
             
             send_data(client);                  /* Try to send data */
             
-            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] Pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos_u8, (int)pkt_id);
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
+                "[MQTT] Pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos_u8, (int)pkt_id);
         } else {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] No free request available\r\n");
             res = espERRMEM;

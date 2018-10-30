@@ -135,7 +135,8 @@ conn_get_val_id(esp_conn_p conn) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 static espr_t
-conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data, size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
+conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data,
+            size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
@@ -211,7 +212,8 @@ espi_conn_init(void) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, esp_port_t port, void* const arg, esp_evt_fn evt_fn, const uint32_t blocking) {
+esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, esp_port_t port,
+                void* const arg, esp_evt_fn evt_fn, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
 
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
@@ -285,7 +287,8 @@ esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_sendto(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data, size_t btw, size_t* bw, const uint32_t blocking) {
+esp_conn_sendto(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data,
+                size_t btw, size_t* bw, const uint32_t blocking) {
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
 
     flush_buff(conn);                           /* Flush currently written memory if exists */
@@ -303,7 +306,8 @@ esp_conn_sendto(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, cons
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw, const uint32_t blocking) {
+esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
+                const uint32_t blocking) {
     espr_t res;
     const uint8_t* d = data;
 
@@ -539,7 +543,8 @@ esp_conn_get_from_evt(esp_evt_t* evt) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush, size_t* const mem_available) {
+esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
+                size_t* const mem_available) {
     size_t len;
     
     const uint8_t* d = data;
