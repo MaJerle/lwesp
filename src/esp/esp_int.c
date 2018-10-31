@@ -81,7 +81,7 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
 #define PING_SEND_EVT(m, err)   do {                \
     esp.evt.evt.ping.res = err;  \
     esp.evt.evt.ping.host = (m)->msg.tcpip_ping.host;   \
-    esp.evt.evt.ping.time = *((m)->msg.tcpip_ping.time);\
+    esp.evt.evt.ping.time = (m)->msg.tcpip_ping.time;   \
     espi_send_cb(ESP_EVT_PING);                     \
 } while (0)
 

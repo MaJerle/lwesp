@@ -349,7 +349,8 @@ typedef struct esp_msg {
 #if ESP_CFG_PING || __DOXYGEN__
         struct {
             const char* host;                   /*!< Hostname to ping */
-            uint32_t* time;                     /*!< Pointer to time variable */
+            uint32_t time;                      /*!< Time used for ping */
+            uint32_t* time_out;                 /*!< Pointer to time output variable */
         } tcpip_ping;                           /*!< Pinging structure */
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
 #if ESP_CFG_SNTP || __DOXYGEN__
