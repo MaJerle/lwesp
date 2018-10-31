@@ -74,6 +74,18 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_err
 } while (0)
 
 /**
+ * \brief           Send ping event to user
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref espr_t
+ */
+#define PING_SEND_EVT(m, err)   do {                \
+    esp.evt.evt.ping.res = err;  \
+    esp.evt.evt.ping.host = (m)->msg.tcpip_ping.host;   \
+    esp.evt.evt.ping.time = *((m)->msg.tcpip_ping.time);\
+    espi_send_cb(ESP_EVT_PING);                     \
+} while (0)
+
+/**
  * \brief           Create 2-characters long hex from byte
  * \param[in]       num: Number to convert to string
  * \param[out]      str: Pointer to string to save result to
@@ -1250,11 +1262,11 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                  * of error should be returned for user
                  */
                 switch (msg->msg.sta_join.error_num) {
-                    case 1: esp.evt.evt.sta_join_ap.status = espERRCONNTIMEOUT; break;
-                    case 2: esp.evt.evt.sta_join_ap.status = espERRPASS;        break;
-                    case 3: esp.evt.evt.sta_join_ap.status = espERRNOAP;        break;
-                    case 4: esp.evt.evt.sta_join_ap.status = espERRCONNFAIL;    break;
-                    default: esp.evt.evt.sta_join_ap.status = espERR;
+                    case 1: esp.evt.evt.sta_join_ap.res = espERRCONNTIMEOUT; break;
+                    case 2: esp.evt.evt.sta_join_ap.res = espERRPASS;        break;
+                    case 3: esp.evt.evt.sta_join_ap.res = espERRNOAP;        break;
+                    case 4: esp.evt.evt.sta_join_ap.res = espERRCONNFAIL;    break;
+                    default: esp.evt.evt.sta_join_ap.res = espERR;
                 }
                 espi_send_cb(ESP_EVT_STA_JOIN_AP);  /* Notify upper layer */
             }
@@ -1262,7 +1274,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
             n_cmd = ESP_CMD_WIFI_CIPSTAMAC_GET; /* Go to next command to get MAC address */
         } else {
-            esp.evt.evt.sta_join_ap.status = espOK; /* Connected ok */
+            esp.evt.evt.sta_join_ap.res = espOK;/* Connected ok */
             espi_send_cb(ESP_EVT_STA_JOIN_AP);  /* Notify upper layer */
         }
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_SET)) {
@@ -1272,7 +1284,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWLAP)) {
         esp.evt.evt.sta_list_ap.aps = msg->msg.ap_list.aps;
         esp.evt.evt.sta_list_ap.len = msg->msg.ap_list.apsi;
-        esp.evt.evt.sta_list_ap.status = is_ok ? espOK : espERR;
+        esp.evt.evt.sta_list_ap.res = is_ok ? espOK : espERR;
         espi_send_cb(ESP_EVT_STA_LIST_AP);
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_GET) || CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
         espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
@@ -1296,17 +1308,14 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
 #if ESP_CFG_DNS
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {
-        esp.evt.evt.dns_hostbyname.status = is_ok ? espOK : espERR;
+        esp.evt.evt.dns_hostbyname.res = is_ok ? espOK : espERR;
         esp.evt.evt.dns_hostbyname.host = msg->msg.dns_getbyhostname.host;
         esp.evt.evt.dns_hostbyname.ip = msg->msg.dns_getbyhostname.ip;
         espi_send_cb(ESP_EVT_DNS_HOSTBYNAME);   /* Send to user layer */
 #endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
-        esp.evt.evt.ping.status = is_ok ? espOK : espERR;
-        esp.evt.evt.ping.host = esp.msg->msg.tcpip_ping.host;
-        esp.evt.evt.ping.time = *esp.msg->msg.tcpip_ping.time;
-        espi_send_cb(ESP_EVT_PING);             /* Send to upper layer */
+        PING_SEND_EVT(esp.msg, is_ok ? espOK : espERR);
 #endif
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSTART)) {/* Is our intention to join to access point? */
         if (msg->i == 0 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
@@ -1338,7 +1347,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             }
         }
         if (n_cmd == ESP_CMD_IDLE) {            /* Do we still have execution? */
-            esp.evt.evt.server.status = is_ok ? espOK : espERR;
+            esp.evt.evt.server.res = is_ok ? espOK : espERR;
             esp.evt.evt.server.en = msg->msg.tcpip_server.en;
             esp.evt.evt.server.port = msg->msg.tcpip_server.port;
             espi_send_cb(ESP_EVT_SERVER);       /* Send to upper layer */
@@ -1967,6 +1976,15 @@ espi_process_events_for_timeout(esp_msg_t* msg) {
                 msg->msg.conn_send.conn, 0, espTIMEOUT);
             break;
         }
+
+#if ESP_CFG_PING
+        /* Timeout on ping command */
+        case ESP_CMD_TCPIP_PING: {
+            /* Send error event with timeout */
+            PING_SEND_EVT(esp.msg, espTIMEOUT);
+            break;
+        }
+#endif /* ESP_CFG_PING */
         default: break;
     }
 }

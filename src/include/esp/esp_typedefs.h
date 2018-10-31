@@ -333,18 +333,18 @@ typedef struct esp_evt {
         } conn_poll;                            /*!< Polling active connection to check for timeouts. Use with \ref ESP_EVT_CONN_POLL event */
 
         struct {
-            espr_t status;                      /*!< Status of command */
+            espr_t res;                         /*!< Status of command */
             uint8_t en;                         /*!< Status to enable/disable server */
             esp_port_t port;                    /*!< Server port number */
         } server;                               /*!< Server change event. Use with \ref ESP_EVT_SERVER event */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
-            espr_t status;                      /*!< Status of command */
+            espr_t res;                         /*!< Result of command */
             esp_ap_t* aps;                      /*!< Pointer to access points */
             size_t len;                         /*!< Number of access points found */
         } sta_list_ap;                          /*!< Station list access points. Use with \ref ESP_EVT_STA_LIST_AP event */
         struct {
-            espr_t status;                      /*!< Connection status */
+            espr_t res;                         /*!< Result of command */
         } sta_join_ap;                          /*!< Join to access point. Use with \ref ESP_EVT_STA_JOIN_AP event */
         struct {
             esp_sta_info_ap_t* info;            /*!< AP info of current station */
@@ -361,14 +361,14 @@ typedef struct esp_evt {
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 #if ESP_CFG_DNS || __DOXYGEN__
         struct {
-            espr_t status;                      /*!< Operation status */
+            espr_t res;                         /*!< Result of command */
             const char* host;                   /*!< Host name for DNS lookup */
             esp_ip_t* ip;                       /*!< Pointer to IP result */
         } dns_hostbyname;                       /*!< DNS domain service finished. Use with \ref ESP_EVT_DNS_HOSTBYNAME event */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 #if ESP_CFG_PING || __DOXYGEN__
         struct {
-            espr_t status;                      /*!< Operation status */
+            espr_t res;                         /*!< Result of command */
             const char* host;                   /*!< Host name for ping */
             uint32_t time;                      /*!< Time required for ping. Valid only if operation succedded */
         } ping;                                 /*!< Ping finished. Use with \ref ESP_EVT_PING event */

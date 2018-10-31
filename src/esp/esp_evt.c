@@ -261,17 +261,17 @@ esp_evt_conn_error_get_arg(esp_evt_t* cc) {
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
 
 /**
- * \brief           Get command success status
+ * \brief           Get command success result
  * \param[in]       cc: Event handle
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_sta_list_ap_get_status(esp_evt_t* cc) {
-    return cc->evt.sta_list_ap.status;
+esp_evt_sta_list_ap_get_result(esp_evt_t* cc) {
+    return cc->evt.sta_list_ap.res;
 }
 
 /**
- * \brief           Get command success status
+ * \brief           Get access points
  * \param[in]       cc: Event handle
  * \return          Pointer to \ref esp_ap_t with first access point description
  */
@@ -291,13 +291,13 @@ esp_evt_sta_list_ap_get_length(esp_evt_t* cc) {
 }
 
 /**
- * \brief           Get command success status
+ * \brief           Get command success result
  * \param[in]       cc: Event handle
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_sta_join_ap_get_status(esp_evt_t* cc) {
-    return cc->evt.sta_join_ap.status;
+esp_evt_sta_join_ap_get_result(esp_evt_t* cc) {
+    return cc->evt.sta_join_ap.res;
 }
 
 /**
@@ -346,13 +346,13 @@ esp_evt_sta_info_ap_get_rssi(esp_evt_t* cc) {
 #if ESP_CFG_DNS || __DOXYGEN__
 
 /**
- * \brief           Get resolve status
+ * \brief           Get resolve result
  * \param[in]       cc: Event handle
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_dns_hostbyname_get_status(esp_evt_t* cc) {
-    return cc->evt.dns_hostbyname.status;
+esp_evt_dns_hostbyname_get_result(esp_evt_t* cc) {
+    return cc->evt.dns_hostbyname.res;
 }
 
 /**
@@ -385,8 +385,8 @@ esp_evt_dns_hostbyname_get_ip(esp_evt_t* cc) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_ping_get_status(esp_evt_t* cc) {
-    return cc->evt.ping.status;
+esp_evt_ping_get_result(esp_evt_t* cc) {
+    return cc->evt.ping.res;
 }
 
 /**
@@ -412,13 +412,13 @@ esp_evt_ping_get_time(esp_evt_t* cc) {
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
 
 /**
- * \brief           Get server command result status
+ * \brief           Get server command result
  * \param[in]       cc: Event handle
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_server_get_status(esp_evt_t* cc) {
-    return cc->evt.server.status;
+esp_evt_server_get_result(esp_evt_t* cc) {
+    return cc->evt.server.res;
 }
 
 /**

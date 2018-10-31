@@ -186,7 +186,7 @@ void*               esp_evt_conn_error_get_arg(esp_evt_t* cc);
  * \brief           Event helper functions for \ref ESP_EVT_STA_LIST_AP event
  */
 
-espr_t      esp_evt_sta_list_ap_get_status(esp_evt_t* cc);
+espr_t      esp_evt_sta_list_ap_get_result(esp_evt_t* cc);
 esp_ap_t*   esp_evt_sta_list_ap_get_aps(esp_evt_t* cc);
 size_t      esp_evt_sta_list_ap_get_length(esp_evt_t* cc);
 
@@ -200,7 +200,7 @@ size_t      esp_evt_sta_list_ap_get_length(esp_evt_t* cc);
  * \brief           Event helper functions for \ref ESP_EVT_STA_JOIN_AP event
  */
 
-espr_t      esp_evt_sta_join_ap_get_status(esp_evt_t* cc);
+espr_t      esp_evt_sta_join_ap_get_result(esp_evt_t* cc);
 
 /**
  * \}
@@ -227,7 +227,7 @@ int16_t     esp_evt_sta_info_ap_get_rssi(esp_evt_t* cc);
  * \brief           Event helper functions for \ref ESP_EVT_DNS_HOSTBYNAME event
  */
 
-espr_t      esp_evt_dns_hostbyname_get_status(esp_evt_t* cc);
+espr_t      esp_evt_dns_hostbyname_get_result(esp_evt_t* cc);
 const char* esp_evt_dns_hostbyname_get_host(esp_evt_t* cc);
 esp_ip_t*   esp_evt_dns_hostbyname_get_ip(esp_evt_t* cc);
 
@@ -241,7 +241,7 @@ esp_ip_t*   esp_evt_dns_hostbyname_get_ip(esp_evt_t* cc);
  * \brief           Event helper functions for \ref ESP_EVT_SERVER event
  */
 
-espr_t      esp_evt_server_get_status(esp_evt_t* cc);
+espr_t      esp_evt_server_get_result(esp_evt_t* cc);
 esp_port_t  esp_evt_server_get_port(esp_evt_t* cc);
 uint8_t     esp_evt_server_is_enable(esp_evt_t* cc);
 
@@ -255,7 +255,7 @@ uint8_t     esp_evt_server_is_enable(esp_evt_t* cc);
  * \brief           Event helper functions for \ref ESP_EVT_PING event
  */
 
-espr_t      esp_evt_ping_get_status(esp_evt_t* cc);
+espr_t      esp_evt_ping_get_result(esp_evt_t* cc);
 const char* esp_evt_ping_get_host(esp_evt_t* cc);
 uint32_t    esp_evt_ping_get_time(esp_evt_t* cc);
 
