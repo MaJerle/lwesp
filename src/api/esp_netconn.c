@@ -158,8 +158,8 @@ netconn_evt(esp_evt_t* evt) {
                     "[NETCONN] Closing connection as there is no listening API in netconn!\r\n");
                 close = 1;                      /* Close the connection at this point */
             }
-            /* When closing netconn,
-               we may only close netconn if connection was not successfully written to accept mbox */
+
+            /* Decide if some events want to close the connection */
             if (close) {
                 if (nc != NULL) {
                     esp_conn_set_arg(conn, NULL);   /* Reset argument */
@@ -185,21 +185,23 @@ netconn_evt(esp_evt_t* evt) {
             nc->rcv_packets++;                  /* Increase number of received packets */
 
             /*
-                * First increase reference number to prevent
-                * other thread to process the incoming packet
-                * and free it while we still need it here
-                *
-                * In case of problems writing packet to queue,
-                * simply force free to decrease reference counter back to previous value
-                */
-            esp_pbuf_ref(pbuf);             /* Increase reference counter */
-            if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive) ||
-                !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
-                ESP_DEBUGF(ESP_CFG_DBG_NETCONN, "[NETCONN] Ignoring more data for receive!\r\n");
-                esp_pbuf_free(pbuf);        /* Free pbuf */
-                return espOKIGNOREMORE;     /* Return OK to free the memory and ignore further data */
+             * First increase reference number to prevent
+             * other thread to process the incoming packet
+             * and free it while we still need it here
+             *
+             * In case of problems writing packet to queue,
+             * simply force free to decrease reference counter back to previous value
+             */
+            esp_pbuf_ref(pbuf);                 /* Increase reference counter */
+            if (!nc || !esp_sys_mbox_isvalid(&nc->mbox_receive)
+                || !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
+                ESP_DEBUGF(ESP_CFG_DBG_NETCONN,
+                    "[NETCONN] Ignoring more data for receive!\r\n");
+                esp_pbuf_free(pbuf);            /* Free pbuf */
+                return espOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
             }
-            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE, "[NETCONN] Written %d bytes to receive mbox\r\n",
+            ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE,
+                "[NETCONN] Written %d bytes to receive mbox\r\n",
                 (int)esp_pbuf_length(pbuf, 0));
             break;
         }
@@ -437,7 +439,7 @@ esp_netconn_listen(esp_netconn_p nc) {
  * \param[in]       nc: Netconn handle used to listen for new connections
  * \param[in]       max_connections: Maximal number of connections server can accept at a time
  *                      This parameter may not be larger than \ref ESP_CFG_MAX_CONNS
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections) {
@@ -447,7 +449,9 @@ esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections) {
     ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
 
     /* Enable server on port and set default netconn callback */
-    if ((res = esp_set_server(1, nc->listen_port, ESP_U16(ESP_MIN(max_connections, ESP_CFG_MAX_CONNS)), nc->conn_timeout, netconn_evt, 1)) == espOK) {
+    if ((res = esp_set_server(1, nc->listen_port,
+        ESP_U16(ESP_MIN(max_connections, ESP_CFG_MAX_CONNS)),
+        nc->conn_timeout, netconn_evt, 1)) == espOK) {
         ESP_CORE_PROTECT();
         listen_api = nc;                        /* Set current main API in listening state */
         ESP_CORE_UNPROTECT();
@@ -560,7 +564,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 
     /* Step 3 */
     if (nc->buff.buff == NULL) {                /* Check if we should allocate a new buffer */
-        nc->buff.buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN * sizeof(*nc->buff.buff));
+        nc->buff.buff = esp_mem_alloc(sizeof(*nc->buff.buff) * ESP_CFG_CONN_MAX_DATA_LEN);
         nc->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;   /* Save buffer length */
         nc->buff.ptr = 0;                       /* Save buffer pointer */
     }

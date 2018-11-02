@@ -52,7 +52,7 @@ esp_buff_init(esp_buff_t* buff, size_t size) {
     ESP_MEMSET(buff, 0, sizeof(*buff));         /* Set buffer values to all zeros */
 
     buff->size = size;                          /* Set default values */
-    buff->buff = esp_mem_alloc(size);           /* Allocate memory for buffer */
+    buff->buff = esp_mem_alloc(sizeof(*buff->buff) * size); /* Allocate memory for buffer */
     if (buff->buff == NULL) {                   /* Check allocation */
         return 0;
     }

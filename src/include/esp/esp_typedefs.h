@@ -315,12 +315,12 @@ typedef struct esp_evt {
             esp_conn_p conn;                    /*!< Connection where data were sent */
             size_t sent;                        /*!< Number of bytes sent on connection */
             espr_t res;                         /*!< Send data result */
-        } conn_data_send;                       /*!< Data successfully sent. Use with \ref ESP_EVT_CONN_DATA_SEND event */
+        } conn_data_send;                       /*!< Data send. Use with \ref ESP_EVT_CONN_DATA_SEND event */
         struct {
             const char* host;                   /*!< Host to use for connection */
             esp_port_t port;                    /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
-            void* arg;                          /*!< Connection argument used on connection */
+            void* arg;                          /*!< Connection user argument */
             espr_t err;                         /*!< Error value */
         } conn_error;                           /*!< Client connection start error. Use with \ref ESP_EVT_CONN_ERROR event */
         struct {

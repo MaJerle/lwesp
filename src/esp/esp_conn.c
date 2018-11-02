@@ -588,7 +588,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
     /* Step 2 */
     while (btw >= ESP_CFG_CONN_MAX_DATA_LEN) {
         uint8_t* buff;
-        buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN);    /* Allocate memory */
+        buff = esp_mem_alloc(sizeof(*buff) * ESP_CFG_CONN_MAX_DATA_LEN);    /* Allocate memory */
         if (buff != NULL) {
             ESP_MEMCPY(buff, d, ESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
             if (conn_send(conn, NULL, 0, buff, ESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
@@ -608,7 +608,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
     
     /* Step 3 */
     if (conn->buff.buff == NULL) {
-        conn->buff.buff = esp_mem_alloc(ESP_CFG_CONN_MAX_DATA_LEN); /* Allocate memory for temp buffer */
+        conn->buff.buff = esp_mem_alloc(sizeof(*conn->buff.buff) * ESP_CFG_CONN_MAX_DATA_LEN);  /* Allocate memory for temp buffer */
         conn->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;
         conn->buff.ptr = 0;
         

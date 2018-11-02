@@ -48,9 +48,7 @@
 static esp_pbuf_p
 pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
     if (p == NULL || p->tot_len < off) {        /* Check valid parameters */
-        if (new_off != NULL) {                  /* Check new offset */
-            *new_off = 0;                       /* Set offset to output variable */
-        }
+        SET_NEW_LEN(new_off, 0);                /* Set output value */
         return NULL;
     }
     
@@ -59,9 +57,7 @@ pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
         off -= p->len;                          /* Decrease offset by current pbuf length */
     }
     
-    if (new_off != NULL) {                      /* Check new offset in current pbuf */
-        *new_off = off;                         /* Set offset to output variable */
-    }
+    SET_NEW_LEN(new_off, off);                  /* Set output value */
     return p;
 }
 
@@ -74,7 +70,7 @@ esp_pbuf_p
 esp_pbuf_new(size_t len) {
     esp_pbuf_p p;
     
-    p = esp_mem_alloc(SIZEOF_PBUF_STRUCT + len);/* Allocate memory for packet buffer */
+    p = esp_mem_alloc(SIZEOF_PBUF_STRUCT + sizeof(*p->payload) * len);  /* Allocate memory for packet buffer */
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p == NULL,
         "[PBUF] Failed to allocate %d bytes\r\n", (int)len);
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p != NULL,
@@ -231,9 +227,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
     ESP_ASSERT("len > 0", len > 0);             /* Assert input parameters */
     ESP_ASSERT("pbuf->tot_len >= len", pbuf->tot_len >= len);   /* Assert input parameters */
     
-    /*
-     * Skip if necessary and check if we are in valid range
-     */
+    /* Skip if necessary and check if we are in valid range */
     if (offset) {
         pbuf = pbuf_skip(pbuf, offset, &offset);    /* Offset and check for new length */
         if (pbuf == NULL) {
@@ -245,9 +239,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
         return espPARERR;
     }
     
-    /*
-     * First only copy in case we have some offset from first pbuf
-     */
+    /* First only copy in case we have some offset from first pbuf */
     if (offset) {
         copy_len = ESP_MIN(pbuf->len - offset, len);    /* Get length to copy to current pbuf */
         ESP_MEMCPY(pbuf->payload + offset, d, copy_len);/* Copy to memory with offset */
@@ -256,9 +248,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
         pbuf = pbuf->next;                      /* Go to next pbuf */
     }
     
-    /*
-     * Copy user memory to sequence of pbufs
-     */
+    /* Copy user memory to sequence of pbufs */
     for (; len; pbuf = pbuf->next) {
         copy_len = ESP_MIN(len, pbuf->len);     /* Get copy length */
         ESP_MEMCPY(pbuf->payload, d, copy_len); /* Copy memory to pbuf payload */
@@ -559,6 +549,7 @@ esp_pbuf_dump(esp_pbuf_p p, uint8_t seq) {
                 break;
             }
         }
-        ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, "[PBUF] Dump end\r\n");
+        ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
+            "[PBUF] Dump end\r\n");
     }
 }
