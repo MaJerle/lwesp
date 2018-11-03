@@ -419,7 +419,7 @@ typedef struct esp_timeout {
  * \ingroup         ESP_BUFF
  * \brief           Buffer structure
  */
-typedef struct esp_buff {
+typedef struct {
     size_t size;                                /*!< Size of buffer in units of bytes */
     size_t in;                                  /*!< Input pointer to save next value */
     size_t out;                                 /*!< Output pointer to read next value */

@@ -50,7 +50,7 @@ extern "C" {
 /**
  * \brief           Single memory region descriptor
  */
-typedef struct esp_mem_region {
+typedef struct {
     void* start_addr;                           /*!< Start address of region */
     size_t size;                                /*!< Size in units of bytes of region */
 } esp_mem_region_t;

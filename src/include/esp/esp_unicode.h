@@ -42,8 +42,8 @@ extern "C" {
     
 /**
  * \ingroup         ESP
- * \defgroup        ESP_UNICODE Unicode support
- * \brief           Unicode manager
+ * \defgroup        ESP_UNICODE Unicode manager
+ * \brief           Unicode support manager
  * \{
  */
     

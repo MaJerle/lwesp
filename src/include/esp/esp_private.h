@@ -464,9 +464,10 @@ typedef struct {
 } esp_t;
 
 /**
+ * \ingroup         ESP_UNICODE
  * \brief           Unicode support structure
  */
-typedef struct esp_unicode_t {
+typedef struct {
     uint8_t ch[4];                              /*!< UTF-8 max characters */
     uint8_t t;                                  /*!< Total expected length in UTF-8 sequence */
     uint8_t r;                                  /*!< Remaining bytes in UTF-8 sequence */
