@@ -416,7 +416,7 @@ esp_device_is_present(void) {
  */
 uint8_t
 esp_get_current_at_fw_version(esp_sw_version_t* const version) {
-    memcpy(version, &esp.version_at, sizeof(*version));
+    ESP_MEMCPY(version, &esp.version_at, sizeof(*version));
     return 1;
 }
 
