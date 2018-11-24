@@ -36,6 +36,22 @@
 #include "esp/esp_timeout.h"
 
 /**
+ * \brief           Check if connection is closed or in closing state
+ * \param[in]       conn: Connection handle
+ */
+#define CONN_CHECK_CLOSED_IN_CLOSING(conn) do { \
+    espr_t r = espOK;                           \
+    ESP_CORE_PROTECT();                         \
+    if (conn->status.f.in_closing || !conn->status.f.active) {  \
+        r = espCLOSED;                          \
+    }                                           \
+    ESP_CORE_UNPROTECT();                       \
+    if (r != espOK) {                           \
+        return r;                               \
+    }                                           \
+} while (0)
+
+/**
  * \brief           Timeout callback for connection
  * \param[in]       arg: Timeout callback custom argument
  */
@@ -137,6 +153,7 @@ conn_get_val_id(esp_conn_p conn) {
 static espr_t
 conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data,
             size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
+    espr_t res = espOK;
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
@@ -147,6 +164,8 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
         *bw = 0;
     }
     
+    CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
+
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
     
@@ -246,15 +265,8 @@ esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    
-    ESP_CORE_PROTECT();                         /* Protect core */
-    if (conn->status.f.in_closing || !conn->status.f.active) {  /* Check if already in closing mode or already closed */
-        res = espERR;
-    }
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
-    if (res != espOK) {
-        return res;
-    }
+
+    CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
     
     /* Proceed with close event at this point! */
     ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */

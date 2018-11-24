@@ -319,7 +319,7 @@ espi_send_cb(esp_evt_type_t type) {
 espr_t
 espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn evt) {
     if (conn->status.f.in_closing && esp.evt.type != ESP_EVT_CONN_CLOSED) { /* Do not continue if in closing mode */
-        return espOK;
+        /* return espOK; */
     }
 
     if (evt != NULL) {                          /* Try with user connection */
@@ -356,7 +356,11 @@ espi_tcpip_process_send_data(void) {
     if (!esp_conn_is_active(c) ||               /* Is the connection already closed? */
         esp.msg->msg.conn_send.val_id != c->val_id  /* Did validation ID change after we set parameter? */
     ) {
-        CONN_SEND_DATA_FREE(esp.msg);           /* Free message data */
+        /* Send event to user about failed send event */
+        CONN_SEND_DATA_SEND_EVT(esp.msg,
+            esp.msg->msg.conn_send.conn,
+            esp.msg->msg.conn_send.sent_all,
+            espCLOSED);
         return espERR;
     }
     esp.msg->msg.conn_send.sent = ESP_MIN(esp.msg->msg.conn_send.btw, ESP_CFG_CONN_MAX_DATA_LEN);
