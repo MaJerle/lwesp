@@ -157,9 +157,7 @@ usart_ll_thread(void const * arg) {
              */
 
             if (pos > old_pos) {                /* Are we in linear section? */
-                /*
-                 * In linear section, simply process difference between pointers
-                 */
+                /* In linear section, simply process difference between pointers */
                 esp_input_process(&((uint8_t *)usart_mem)[old_pos], pos - old_pos);  /* Process input data in linear buffer phase */
             } else {                            /* We are in overflow section */
                 /*
@@ -292,9 +290,7 @@ configure_uart(uint32_t baudrate) {
         LL_USART_Enable(ESP_USART);
     }
     
-    /*
-     * Configure USART RX DMA for data reception on AT port
-     */
+    /* Configure USART RX DMA for data reception on AT port */
     LL_USART_EnableIT_IDLE(ESP_USART);
     LL_USART_EnableIT_PE(ESP_USART);
     LL_USART_EnableIT_ERROR(ESP_USART);
