@@ -340,7 +340,6 @@ esp_evt_sta_info_ap_get_rssi(esp_evt_t* cc) {
     return cc->evt.sta_info_ap.info->rssi;
 }
 
-
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 
 #if ESP_CFG_DNS || __DOXYGEN__

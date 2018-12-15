@@ -39,7 +39,7 @@
 #include "system/esp_ll.h"
 
 static esp_recv_t recv_buff;
-static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready);
+static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t* is_ready);
 
 /**
  * \brief           Free connection send data memory
@@ -857,7 +857,7 @@ espi_parse_received(esp_recv_t* rcv) {
     if (is_ok || is_error || is_ready) {
         espr_t res = espOK;
         if (esp.msg != NULL) {                  /* Do we have active message? */
-            res = espi_process_sub_cmd(esp.msg, is_ok, is_error, is_ready);
+            res = espi_process_sub_cmd(esp.msg, &is_ok, &is_error, &is_ready);
             if (res != espCONT) {               /* Shall we continue with next subcommand under this one? */
                 if (is_ok || is_ready) {        /* Check ready or ok status */
                     res = esp.msg->res = espOK;
@@ -1161,7 +1161,7 @@ espi_process(const void* data, size_t data_len) {
  * \return          Next command to execute
  */
 static esp_cmd_t
-espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready) {
+espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t* is_ready) {
     esp_cmd_t n_cmd = ESP_CMD_IDLE;
     switch (CMD_GET_CUR()) {
         case ESP_CMD_RESET:
@@ -1183,7 +1183,7 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t 
             break;
         }
         case ESP_CMD_SYSMSG_CUR: {
-            if (!is_ok) {
+            if (!*is_ok) {
                 n_cmd = ESP_CMD_SYSMSG;     /* Set system messages without "_CUR" data */
             } else {
                 n_cmd = ESP_CMD_TCPIP_CIPMUX;   /* Set multiple connections mode */
@@ -1238,7 +1238,7 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t 
  * \return          espCONT if you sent more data and we need to process more data, or espOK on success, or espERR on error
  */
 static espr_t
-espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is_ready) {
+espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t* is_ready) {
     esp_cmd_t n_cmd = ESP_CMD_IDLE;
     if (CMD_IS_DEF(ESP_CMD_RESET)) {            /* Device is in reset mode */
         n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
@@ -1246,7 +1246,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             espi_send_cb(ESP_EVT_RESET_FINISH); /* Notify upper layer */
         }
     } else if (CMD_IS_DEF(ESP_CMD_RESTORE)) {
-        if ((CMD_IS_CUR(ESP_CMD_RESTORE) && is_ready) ||
+        if ((CMD_IS_CUR(ESP_CMD_RESTORE) && *is_ready) ||
             !CMD_IS_CUR(ESP_CMD_RESTORE)) {
             n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
         }
@@ -1256,7 +1256,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
 #if ESP_CFG_MODE_STATION
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWJAP)) {/* Is our intention to join to access point? */
         if (CMD_IS_CUR(ESP_CMD_WIFI_CWJAP)) {   /* Is the current command join? */
-            if (is_ok) {                        /* Did we join successfully? */
+            if (*is_ok) {                       /* Did we join successfully? */
                 n_cmd = ESP_CMD_WIFI_CIPSTA_GET;/* Go to next command to get IP address */
             } else {
                 esp.status.f.r_w_conn = 0;      /* Force disconnected status */
@@ -1288,7 +1288,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWLAP)) {
         esp.evt.evt.sta_list_ap.aps = msg->msg.ap_list.aps;
         esp.evt.evt.sta_list_ap.len = msg->msg.ap_list.apsi;
-        esp.evt.evt.sta_list_ap.res = is_ok ? espOK : espERR;
+        esp.evt.evt.sta_list_ap.res = *is_ok ? espOK : espERR;
         espi_send_cb(ESP_EVT_STA_LIST_AP);
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_GET) || CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
         espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
@@ -1301,29 +1301,29 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
 #endif /* ESP_CFG_MODE_STATION */
         )) {
         if (CMD_IS_CUR(ESP_CMD_WIFI_CWMODE)) {
-            if (is_ok) {
+            if (*is_ok) {
                 n_cmd = ESP_CMD_WIFI_CIPAP_GET;  /* Go to next command to get IP address */
             }
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET)) {
-            if (is_ok) {
+            if (*is_ok) {
                 n_cmd = ESP_CMD_WIFI_CIPAPMAC_GET;  /* Go to next command to get IP address */
             }
         }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
 #if ESP_CFG_DNS
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {
-        esp.evt.evt.dns_hostbyname.res = is_ok ? espOK : espERR;
+        esp.evt.evt.dns_hostbyname.res = *is_ok ? espOK : espERR;
         esp.evt.evt.dns_hostbyname.host = msg->msg.dns_getbyhostname.host;
         esp.evt.evt.dns_hostbyname.ip = msg->msg.dns_getbyhostname.ip;
         espi_send_cb(ESP_EVT_DNS_HOSTBYNAME);   /* Send to user layer */
 #endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
-        PING_SEND_EVT(esp.msg, is_ok ? espOK : espERR);
+        PING_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
 #endif
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSTART)) {/* Is our intention to join to access point? */
         if (msg->i == 0 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
-            if (is_ok) {
+            if (*is_ok) {
                 n_cmd = ESP_CMD_TCPIP_CIPSTART; /* Now actually start connection */
             }
         } else if (msg->i == 1 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {
@@ -1340,18 +1340,18 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
                 /* Since not all AT versions support CIPSERVERMAXCONN command, ignore result */
                 n_cmd = ESP_CMD_TCPIP_CIPSERVER;
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSERVER)) {
-                if (is_ok) {
+                if (*is_ok) {
                     esp.evt_server = msg->msg.tcpip_server.cb;  /* Set server callback function */
                     n_cmd = ESP_CMD_TCPIP_CIPSTO;
                 }
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTO)) {
-                if (!is_ok) {
-                    is_ok = 1;
+                if (!*is_ok) {
+                    *is_ok = 1;
                 }
             }
         }
         if (n_cmd == ESP_CMD_IDLE) {            /* Do we still have execution? */
-            esp.evt.evt.server.res = is_ok ? espOK : espERR;
+            esp.evt.evt.server.res = *is_ok ? espOK : espERR;
             esp.evt.evt.server.en = msg->msg.tcpip_server.en;
             esp.evt.evt.server.port = msg->msg.tcpip_server.port;
             espi_send_cb(ESP_EVT_SERVER);       /* Send to upper layer */
@@ -1365,7 +1365,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t is_ok, uint8_t is_error, uint8_t is
             return espCONT;
         }
     }
-    return is_ok || is_ready ? espOK : espERR;
+    return *is_ok || *is_ready ? espOK : espERR;
 }
 
 /**
@@ -1673,9 +1673,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
 #endif /* ESP_CFG_MDNS */
 
-        /*
-         * TCP/IP related commands
-         */
+        /* TCP/IP related commands */
 
         case ESP_CMD_TCPIP_CIPSERVER: {         /* Enable or disable server */
             ESP_AT_PORT_SEND_BEGIN();
