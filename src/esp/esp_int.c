@@ -1178,7 +1178,7 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
     esp_cmd_t n_cmd = ESP_CMD_IDLE;
     switch (CMD_GET_CUR()) {
         case ESP_CMD_RESET:
-        case ESP_CMD_RESTORE: SET_NEW_CMD(ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0); break;    /* Set ECHO mode */
+        case ESP_CMD_RESTORE: SET_NEW_CMD(ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0); break;
         case ESP_CMD_ATE0:
         case ESP_CMD_ATE1: SET_NEW_CMD(ESP_CMD_GMR); break;
         case ESP_CMD_GMR: SET_NEW_CMD(ESP_CMD_WIFI_CWMODE); break;
