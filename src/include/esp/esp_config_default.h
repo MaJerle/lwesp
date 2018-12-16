@@ -473,7 +473,7 @@
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_MQTT
-#define ESP_CFG_DBG_MQTT                        ESP_DBG_OFF
+#define ESP_CFG_DBG_MQTT                    ESP_DBG_OFF
 #endif
 
 /**
@@ -482,7 +482,7 @@
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_MQTT_API
-#define ESP_CFG_DBG_MQTT_API                    ESP_DBG_OFF
+#define ESP_CFG_DBG_MQTT_API                ESP_DBG_OFF
 #endif
 
 /**
