@@ -898,11 +898,11 @@ http_evt(esp_evt_t* evt) {
         }
         
         /* Data received on connection */
-        case ESP_EVT_CONN_DATA_RECV: {
+        case ESP_EVT_CONN_RECV: {
             esp_pbuf_p p;
             size_t pos;
             
-            p = esp_evt_conn_data_recv_get_buff(evt);   /* Get received buffer */
+            p = esp_evt_conn_recv_get_buff(evt);   /* Get received buffer */
             if (hs != NULL) {                   /* Do we have a valid http state? */
                 /*
                  * Check if we have to receive headers data first
@@ -1066,12 +1066,12 @@ http_evt(esp_evt_t* evt) {
         }
         
         /* Data send event */
-        case ESP_EVT_CONN_DATA_SEND: {
+        case ESP_EVT_CONN_SEND: {
             size_t len;
             espr_t res;
-            res = esp_evt_conn_data_send_get_result(evt);
+            res = esp_evt_conn_send_get_result(evt);
             if (res == espOK && hs != NULL) {
-                len = esp_evt_conn_data_send_get_length(evt);   /* Get length */
+                len = esp_evt_conn_send_get_length(evt);   /* Get length */
                 ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE,
                     "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
                 hs->sent_total += len;          /* Increase number of bytes sent */

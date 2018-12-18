@@ -64,9 +64,9 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
  * \param[in]       sa: Number of bytes successfully sent, "sent all"
  * \param[in]       err: Error of type \ref espr_t
  */
-#define CONN_SEND_DATA_SEND_EVT(m, c, sa, err)  do { \
+#define CONN_SEND_DATA_SEND_EVT(m, c, sa, err)  do {\
     CONN_SEND_DATA_FREE(m);                         \
-    esp.evt.type = ESP_EVT_CONN_DATA_SEND;          \
+    esp.evt.type = ESP_EVT_CONN_SEND;               \
     esp.evt.evt.conn_data_send.res = err;           \
     esp.evt.evt.conn_data_send.conn = c;            \
     esp.evt.evt.conn_data_send.sent = sa;           \
@@ -984,10 +984,10 @@ espi_process(const void* data, size_t data_len) {
                      * From this moment, user is responsible for packet
                      * buffer and must free it manually
                      */
-                    esp.evt.type = ESP_EVT_CONN_DATA_RECV;  /* We have received data */
+                    esp.evt.type = ESP_EVT_CONN_RECV;
                     esp.evt.evt.conn_data_recv.buff = esp.ipd.buff;
                     esp.evt.evt.conn_data_recv.conn = esp.ipd.conn;
-                    res = espi_send_conn_cb(esp.ipd.conn, NULL);    /* Send connection callback */
+                    res = espi_send_conn_cb(esp.ipd.conn, NULL);
 
                     esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer at this point */
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,

@@ -987,17 +987,17 @@ mqtt_conn_cb(esp_evt_t* evt) {
         }
         
         /* A new packet of data received on MQTT client connection */
-        case ESP_EVT_CONN_DATA_RECV: {
-            mqtt_data_recv_cb(client, esp_evt_conn_data_recv_get_buff(evt));/* Call user to process received data */
+        case ESP_EVT_CONN_RECV: {
+            mqtt_data_recv_cb(client, esp_evt_conn_recv_get_buff(evt));/* Call user to process received data */
             break;
         }
         
         /* Data send event */
-        case ESP_EVT_CONN_DATA_SEND: {
+        case ESP_EVT_CONN_SEND: {
             /* Data sent callback */
             mqtt_data_sent_cb(client,
-                esp_evt_conn_data_send_get_length(evt),
-                esp_evt_conn_data_send_get_result(evt) == espOK);
+                esp_evt_conn_send_get_length(evt),
+                esp_evt_conn_send_get_result(evt) == espOK);
             break;
         }
         

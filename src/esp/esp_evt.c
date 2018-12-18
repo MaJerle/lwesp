@@ -104,7 +104,7 @@ esp_evt_ap_disconnected_sta_get_mac(esp_evt_t* cc) {
  * \return          Buffer handle
  */
 esp_pbuf_p
-esp_evt_conn_data_recv_get_buff(esp_evt_t* cc) {
+esp_evt_conn_recv_get_buff(esp_evt_t* cc) {
     return cc->evt.conn_data_recv.buff;
 }
 
@@ -114,7 +114,7 @@ esp_evt_conn_data_recv_get_buff(esp_evt_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_data_recv_get_conn(esp_evt_t* cc) {
+esp_evt_conn_recv_get_conn(esp_evt_t* cc) {
     return cc->evt.conn_data_recv.conn;
 }
 
@@ -124,7 +124,7 @@ esp_evt_conn_data_recv_get_conn(esp_evt_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_data_send_get_conn(esp_evt_t* cc) {
+esp_evt_conn_send_get_conn(esp_evt_t* cc) {
     return cc->evt.conn_data_send.conn;
 }
 
@@ -134,7 +134,7 @@ esp_evt_conn_data_send_get_conn(esp_evt_t* cc) {
  * \return          Number of bytes sent
  */
 size_t
-esp_evt_conn_data_send_get_length(esp_evt_t* cc) {
+esp_evt_conn_send_get_length(esp_evt_t* cc) {
     return cc->evt.conn_data_send.sent;
 }
 
@@ -144,7 +144,7 @@ esp_evt_conn_data_send_get_length(esp_evt_t* cc) {
  * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
-esp_evt_conn_data_send_get_result(esp_evt_t* cc) {
+esp_evt_conn_send_get_result(esp_evt_t* cc) {
     return cc->evt.conn_data_send.res;
 }
 

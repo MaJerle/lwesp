@@ -175,11 +175,11 @@ netconn_evt(esp_evt_t* evt) {
          * We have a new data received which
          * should have netconn structure as argument
          */
-        case ESP_EVT_CONN_DATA_RECV: {
+        case ESP_EVT_CONN_RECV: {
             esp_pbuf_p pbuf;
 
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
-            pbuf = esp_evt_conn_data_recv_get_buff(evt);/* Get received buff */
+            pbuf = esp_evt_conn_recv_get_buff(evt); /* Get received buff */
 
             esp_conn_recved(conn, pbuf);        /* Notify stack about received data */
             nc->rcv_packets++;                  /* Increase number of received packets */

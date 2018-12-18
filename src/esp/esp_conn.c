@@ -153,7 +153,6 @@ conn_get_val_id(esp_conn_p conn) {
 static espr_t
 conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data,
             size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
-    espr_t res = espOK;
     ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
@@ -531,10 +530,10 @@ esp_conn_get_from_evt(esp_evt_t* evt) {
         return esp_evt_conn_active_get_conn(evt);
     } else if (evt->type == ESP_EVT_CONN_CLOSED) {
         return esp_evt_conn_closed_get_conn(evt);
-    } else if (evt->type == ESP_EVT_CONN_DATA_RECV) {
-        return esp_evt_conn_data_recv_get_conn(evt);
-    } else if (evt->type == ESP_EVT_CONN_DATA_SEND) {
-        return esp_evt_conn_data_send_get_conn(evt);
+    } else if (evt->type == ESP_EVT_CONN_RECV) {
+        return esp_evt_conn_recv_get_conn(evt);
+    } else if (evt->type == ESP_EVT_CONN_SEND) {
+        return esp_evt_conn_send_get_conn(evt);
     } else if (evt->type == ESP_EVT_CONN_POLL) {
         return esp_evt_conn_poll_get_conn(evt);
     }
