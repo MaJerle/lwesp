@@ -65,9 +65,7 @@ send_data(const void* data, size_t len) {
  */
 espr_t
 esp_ll_init(esp_ll_t* ll) {
-    /*
-     * Step 1: Configure memory for dynamic allocations
-     */
+    /* Step 1: Configure memory for dynamic allocations */
     static uint8_t memory[0x10000];             /* Create memory for dynamic allocations with specific size */
 
     /*
@@ -82,16 +80,12 @@ esp_ll_init(esp_ll_t* ll) {
         esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations to ESP library */
     }
     
-    /*
-     * Step 2: Set AT port send function to use when we have data to transmit
-     */
+    /* Step 2: Set AT port send function to use when we have data to transmit */
     if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
     }
 
-    /*
-     * Step 3: Configure AT port to be able to send/receive data to/from ESP device
-     */
+    /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
     configure_uart(->uart.baudrate);            /* Initialize UART for communication */
     initialized = 1;
     return espOK;
