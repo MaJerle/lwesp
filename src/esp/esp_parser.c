@@ -278,6 +278,14 @@ espi_parse_ipd(const char* str) {
         str += 5;
     }
 
+    conn = espi_parse_number(&str);             /* Parse number for connection number */
+    len = espi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
+
+    c = conn < ESP_CFG_MAX_CONNS ? &esp.conns[conn] : NULL; /* Get connection handle */
+    if (c == NULL) {                            /* Invalid connection number */
+        return espERR;
+    }
+    
     /*
      * First check if this string is "notification only" or actual "data packet".
      *
@@ -290,14 +298,6 @@ espi_parse_ipd(const char* str) {
      *                                                              as response on automatic read of all connection types
      */
     is_data_ipd = strchr(str, ':') != NULL;     /* Check if we have ':' in string */
-
-    conn = espi_parse_number(&str);             /* Parse number for connection number */
-    len = espi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
-
-    c = conn < ESP_CFG_MAX_CONNS ? &esp.conns[conn] : NULL; /* Get connection handle */
-    if (c == NULL) {                            /* Invalid connection number */
-        return espERR;
-    }
 
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
     /*

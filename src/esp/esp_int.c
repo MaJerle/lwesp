@@ -1103,7 +1103,7 @@ espi_process(const void* data, size_t data_len) {
                             size_t len;
                             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                                 "[IPD] Data on connection %d with total size %d byte(s)\r\n",
-                                (int)esp.ipd.conn->num, esp.ipd.tot_len);
+                                (int)esp.ipd.conn->num, (int)esp.ipd.tot_len);
 
                             len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
 

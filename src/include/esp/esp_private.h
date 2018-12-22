@@ -200,7 +200,8 @@ typedef struct {
     esp_ip_t            ip;                     /*!< Remote IP address on from IPD data */
     esp_port_t          port;                   /*!< Remote port on IPD data */
 
-    size_t              buff_ptr;               /*!< Buffer pointer to save data to */
+    size_t              buff_ptr;               /*!< Buffer pointer to save data to.
+                                                     When set to `NULL` while `read = 1`, reading should ignore incoming data */
     esp_pbuf_p          buff;                   /*!< Pointer to data buffer used for receiving data */
 } esp_ipd_t;
 

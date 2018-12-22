@@ -606,7 +606,7 @@ esp_netconn_flush(esp_netconn_p nc) {
 }
 
 /**
- * \brief           Send packet to specific IP and port
+ * \brief           Send data on \e UDP connection to default IP and port
  * \param[in]       nc: Netconn handle used to send
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
@@ -622,7 +622,7 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
 }
 
 /**
- * \brief           Send packet to specific IP and port
+ * \brief           Send data on \e UDP connection to specific IP and port
  * \note            Use this function in case of UDP type netconn
  * \param[in]       nc: Netconn handle used to send
  * \param[in]       ip: Pointer to IP address
@@ -717,7 +717,7 @@ esp_netconn_getconnnum(esp_netconn_p nc) {
  * \brief           Set timeout value for receiving data.
  *
  *                  When enabled, \ref esp_netconn_receive will only block for up to
- *                  \arg timeout value and will return if no new data within this time
+ *                  \e timeout value and will return if no new data within this time
  * \param[in]       nc: Netconn handle
  * \param[in]       timeout: Timeout in units of milliseconds.
  *                  Set to `0` to disable timeout for \ref esp_netconn_receive function
@@ -730,7 +730,8 @@ esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout) {
 /**
  * \brief           Get netconn receive timeout value
  * \param[in]       nc: Netconn handle
- * \return          Timeout in units of milliseconds. If value is `0`, timeout is disabled (wait forever)
+ * \return          Timeout in units of milliseconds.
+ *                  If value is `0`, timeout is disabled (wait forever)
  */
 uint32_t
 esp_netconn_get_receive_timeout(esp_netconn_p nc) {

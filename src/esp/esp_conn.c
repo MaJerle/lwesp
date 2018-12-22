@@ -38,6 +38,7 @@
 /**
  * \brief           Check if connection is closed or in closing state
  * \param[in]       conn: Connection handle
+ * \hideinitializer
  */
 #define CONN_CHECK_CLOSED_IN_CLOSING(conn) do { \
     espr_t r = espOK;                           \
@@ -64,7 +65,7 @@ conn_timeout_cb(void* arg) {
         esp.evt.evt.conn_poll.conn = conn;      /* Set connection pointer */
         espi_send_conn_cb(conn, NULL);          /* Send connection callback */
         
-        esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Schedule timeout again */
+        espi_conn_start_timeout(conn);          /* Schedule new timeout */
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
             "[CONN] Poll event: %p\r\n", conn);
     }
@@ -220,7 +221,7 @@ espi_conn_init(void) {
 
 /**
  * \brief           Start a new connection of specific type
- * \param[out]      conn: Pointer to connection handle to set new connection reference in case of successful connection
+ * \param[out]      conn: Pointer to connection handle to set new connection reference in case of successfully connected
  * \param[in]       type: Connection type. This parameter can be a value of \ref esp_conn_type_t enumeration
  * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
  * \param[in]       port: Connection port
@@ -526,18 +527,14 @@ esp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
  */
 esp_conn_p
 esp_conn_get_from_evt(esp_evt_t* evt) {
-    if (evt->type == ESP_EVT_CONN_ACTIVE) {
-        return esp_evt_conn_active_get_conn(evt);
-    } else if (evt->type == ESP_EVT_CONN_CLOSED) {
-        return esp_evt_conn_closed_get_conn(evt);
-    } else if (evt->type == ESP_EVT_CONN_RECV) {
-        return esp_evt_conn_recv_get_conn(evt);
-    } else if (evt->type == ESP_EVT_CONN_SEND) {
-        return esp_evt_conn_send_get_conn(evt);
-    } else if (evt->type == ESP_EVT_CONN_POLL) {
-        return esp_evt_conn_poll_get_conn(evt);
+    switch (evt->type) {
+        case ESP_EVT_CONN_ACTIVE: return esp_evt_conn_active_get_conn(evt);
+        case ESP_EVT_CONN_CLOSED: return esp_evt_conn_closed_get_conn(evt);
+        case ESP_EVT_CONN_RECV: return esp_evt_conn_recv_get_conn(evt);
+        case ESP_EVT_CONN_SEND: return esp_evt_conn_send_get_conn(evt);
+        case ESP_EVT_CONN_POLL: return esp_evt_conn_poll_get_conn(evt);
+        default: return NULL;
     }
-    return NULL;
 }
 
 /**
