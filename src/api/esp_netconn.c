@@ -580,8 +580,8 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 }
 
 /**
- * \brief           Flush buffered data on netconn `TCP/SSL` connection
- * \note            This function may only be used on `TCP/SSL` connection
+ * \brief           Flush buffered data on netconn \e TCP/SSL connection
+ * \note            This function may only be used on \e TCP/SSL connection
  * \param[in]       nc: Netconn handle to flush data
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -645,8 +645,10 @@ esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const 
  * \param[in]       nc: Netconn handle used to receive from
  * \param[in]       pbuf: Pointer to pointer to save new receive buffer to.
  *                     When function returns, user must check for valid pbuf value `pbuf != NULL`
- * \return          \ref espOK when new data ready, \ref espCLOSED when connection closed by remote side,
- *                  \ref espTIMEOUT when receive timeout occurs or any other member of \ref espr_t otherwise
+ * \return          \arg \ref espOK when new data ready
+ *                  \arg \ref espCLOSED when connection closed by remote side
+ *                  \arg \ref espTIMEOUT when receive timeout occurs
+ *                  \arg or any other member of \ref espr_t otherwise
  */
 espr_t
 esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
