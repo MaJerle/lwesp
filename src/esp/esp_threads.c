@@ -44,11 +44,17 @@
  */
 void
 esp_thread_producer(void* const arg) {
-    esp_t* e = arg;                             /* Thread argument is main structure */
+    esp_sys_sem_t* sem = arg;
+    esp_t* e = &esp;                            /* Thread argument is main structure */
     esp_msg_t* msg;                             /* Message structure */
     espr_t res;
     uint32_t time;
-    
+
+    /* Thread is running, unlock semaphore */
+    if (esp_sys_sem_isvalid(sem)) {
+        esp_sys_sem_release(sem);               /* Release semaphore */
+    }
+
     ESP_CORE_PROTECT();                         /* Protect system */
     while (1) {
         ESP_CORE_UNPROTECT();                   /* Unprotect system */
@@ -124,9 +130,15 @@ esp_thread_producer(void* const arg) {
  */
 void
 esp_thread_process(void* const arg) {
-    esp_t* e = arg;                             /* Thread argument is main structure */
+    esp_sys_sem_t* sem = arg;
+    esp_t* e = &esp;                            /* Thread argument is main structure */
     esp_msg_t* msg;
     uint32_t time;
+
+    /* Thread is running, unlock semaphore */
+    if (esp_sys_sem_isvalid(sem)) {
+        esp_sys_sem_release(sem);               /* Release semaphore */
+    }
     
 #if !ESP_CFG_INPUT_USE_PROCESS
     ESP_CORE_PROTECT();                         /* Protect system */

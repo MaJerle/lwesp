@@ -79,20 +79,43 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
 
     esp.evt_server = NULL;                      /* Set default server callback function */
 
-    esp_sys_init();                             /* Init low-level system */
-    esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
-    esp_ll_init(&esp.ll);                       /* Init low-level communication */
+    if (!esp_sys_init()) {                      /* Init low-level system */
+        goto cleanup;
+    }
 
-    esp_sys_sem_create(&esp.sem_sync, 1);       /* Create new semaphore with unlocked state */
-    esp_sys_mbox_create(&esp.mbox_producer, ESP_CFG_THREAD_PRODUCER_MBOX_SIZE); /* Producer message queue */
-    esp_sys_thread_create(&esp.thread_producer, "esp_producer", esp_thread_producer, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
+    if (!esp_sys_sem_create(&esp.sem_sync, 1)) {/* Create sync semaphore between threads */
+        goto cleanup;
+    }
 
-    esp_sys_mbox_create(&esp.mbox_process, ESP_CFG_THREAD_PROCESS_MBOX_SIZE);   /* Consumer message queue */
-    esp_sys_thread_create(&esp.thread_process, "esp_process", esp_thread_process, &esp, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
+    /* Create message queues */
+    if (!esp_sys_mbox_create(&esp.mbox_producer, ESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) {  /* Producer */
+        goto cleanup;
+    }
+    if (!esp_sys_mbox_create(&esp.mbox_process, ESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {  /* Process */
+        goto cleanup;
+    }
+
+    /* Create threads */
+    esp_sys_sem_wait(&esp.sem_sync, 0);         /* Lock semaphore */
+    if (!esp_sys_thread_create(&esp.thread_producer, "esp_producer", esp_thread_producer, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
+        esp_sys_sem_release(&esp.sem_sync);         /* Release semaphore */
+        goto cleanup;
+    }
+    esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in producer thread */
+    if (!esp_sys_thread_create(&esp.thread_process, "esp_producer", esp_thread_process, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
+        esp_sys_sem_release(&esp.sem_sync);         /* Release semaphore */
+        goto cleanup;
+    }
+    esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in producer thread */
+    esp_sys_sem_release(&esp.sem_sync);         /* Release semaphore */
 
 #if !ESP_CFG_INPUT_USE_PROCESS
     esp_buff_init(&esp.buff, ESP_CFG_RCV_BUFF_SIZE);    /* Init buffer for input data */
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */
+    
+    esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
+    esp_ll_init(&esp.ll);                       /* Init low-level communication */
+    
     esp.status.f.initialized = 1;               /* We are initialized now */
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
 
@@ -117,6 +140,21 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     ESP_UNUSED(blocking);                       /* Prevent compiler warnings */
     
     return res;
+
+cleanup:
+    if (esp_sys_mbox_isvalid(&esp.mbox_producer)) {
+        esp_sys_mbox_delete(&esp.mbox_producer);
+        esp_sys_mbox_invalid(&esp.mbox_producer);
+    }
+    if (esp_sys_mbox_isvalid(&esp.mbox_process)) {
+        esp_sys_mbox_delete(&esp.mbox_process);
+        esp_sys_mbox_invalid(&esp.mbox_process);
+    }
+    if (esp_sys_sem_isvalid(&esp.sem_sync)) {
+        esp_sys_sem_delete(&esp.sem_sync);
+        esp_sys_sem_invalid(&esp.sem_sync);
+    }
+    return espERRMEM;
 }
 
 /**
