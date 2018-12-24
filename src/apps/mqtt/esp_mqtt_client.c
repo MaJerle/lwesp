@@ -716,7 +716,7 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
 static void
 mqtt_connected_cb(esp_mqtt_client_p client) {
     uint8_t flags = 0;
-    uint16_t rem_len, len_id, len_pass, len_user, len_will_topic, len_will_message;
+    uint16_t rem_len, len_id, len_pass = 0, len_user = 0, len_will_topic = 0, len_will_message = 0;
 
     flags |= MQTT_FLAG_CONNECT_CLEAN_SESSION;   /* Start as clean session */
     
