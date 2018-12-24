@@ -116,7 +116,6 @@ configure_uart(uint32_t baudrate) {
     if (!initialized) {
         thread_handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)uart_thread, NULL, 0, 0);
     }
-    esp_delay(3000);
 }
 
 /**
