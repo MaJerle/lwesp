@@ -127,37 +127,18 @@ usart_ll_thread(void const * arg) {
     size_t pos;
 
     while (1) {
-        /*
-         * Wait for the event message from:
-         *  - DMA (half)transfer complete
-         *  - IDLE line detection on UART line
-         */
+        /* Wait for the event message from DMA or USART */
         evt = osMessageGet(usart_ll_mbox_id, osWaitForever);
         if (evt.status != osEventMessage) {
             continue;
         }
 
-        /* Read data from buffer and process them */
-        pos = LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM); /* Get current DMA position */
-        pos = sizeof(usart_mem) - pos;          /* Get position in correct order */
+        /* Check https://github.com/MaJerle/STM32_USART_DMA_RX for more information */
+        pos = sizeof(usart_mem) - LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
         if (pos != old_pos && is_running) {
-            /*
-             * At this point, user may implement
-             * RTS pin functionality to block ESP to
-             * send more data until processing is finished
-             */
-
-            if (pos > old_pos) {                /* Are we in linear section? */
-                /*
-                 * In linear section, simply process difference between pointers
-                 */
-                esp_input_process(&((uint8_t *)usart_mem)[old_pos], pos - old_pos);  /* Process input data in linear buffer phase */
-            } else {                            /* We are in overflow section */
-                /*
-                 * In overflow mode we have to process twice:
-                 *  - Process data until end of buffer
-                 *  - Process data until current position on top of buffer
-                 */
+            if (pos > old_pos) {
+                esp_input_process(&((uint8_t *)usart_mem)[old_pos], pos - old_pos);
+            } else {
                 esp_input_process(&((uint8_t *)usart_mem)[old_pos], sizeof(usart_mem) - old_pos);
                 esp_input_process(&((uint8_t *)usart_mem)[0], pos);
             }
@@ -165,12 +146,6 @@ usart_ll_thread(void const * arg) {
             if (old_pos == sizeof(usart_mem)) {
                 old_pos = 0;
             }
-
-            /*
-             * At this point, user may implement
-             * RTS pin functionality to again allow ESP to
-             * send more data until processing is finished
-             */
         }
     }
 }
