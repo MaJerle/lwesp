@@ -49,7 +49,7 @@ static uint32_t esp_recv_calls;
  */
 espr_t
 esp_input(const void* data, size_t len) {
-    if (esp.buff.buff == NULL) {
+    if (!esp.status.f.initialized || esp.buff.buff == NULL) {
         return espERR;
     }
     esp_buff_write(&esp.buff, data, len);       /* Write data to buffer */
@@ -76,12 +76,14 @@ esp_input(const void* data, size_t len) {
 espr_t
 esp_input_process(const void* data, size_t len) {
     espr_t res = espOK;
-    esp_recv_total_len += len;                  /* Update total number of received bytes */
-    esp_recv_calls++;                           /* Update number of calls */
     
     if (!esp.status.f.initialized) {
         return espERR;
     }
+
+    esp_recv_total_len += len;                  /* Update total number of received bytes */
+    esp_recv_calls++;                           /* Update number of calls */
+
     if (len) {
         ESP_CORE_PROTECT();                     /* Protect core */
         res = espi_process(data, len);          /* Process input data */
