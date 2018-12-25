@@ -60,7 +60,6 @@
 /* USART */
 #define ESP_USART                           USART1
 #define ESP_USART_CLK                       LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1)
-#define ESP_USART_CLK_SOURCE                LL_RCC_USART1_CLKSOURCE
 #define ESP_USART_IRQ                       USART1_IRQn
 #define ESP_USART_IRQHANDLER                USART1_IRQHandler
 

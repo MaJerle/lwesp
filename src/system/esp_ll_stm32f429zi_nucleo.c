@@ -32,13 +32,11 @@
  */
 
 /*
- * STM32F769I-Discovery has connector CN2, dedicated for ESP-01 module.
+ * Default UART configuration is:
  *
- * UART configuration is:
- *
- * UART: USART2
- * STM32 TX:            GPIOD, GPIO_PIN_5
- * STM32 RX:            GPIOD, GPIO_PIN_6
+ * UART:                USART2
+ * STM32 TX (ESP RX):   GPIOD, GPIO_PIN_5
+ * STM32 RX (ESP TX):   GPIOD, GPIO_PIN_6
  * RESET:               GPIOD, GPIO_PIN_1
  * GPIO0:				GPIOD, GPIO_PIN_4
  * GPIO2:				GPIOD, GPIO_PIN_7
@@ -47,13 +45,6 @@
  * USART2_DMA:          DMA1
  * USART2_DMA_STREAM:   DMA_STREAM_5
  * USART2_DMA_CHANNEL:  DMA_CHANNEL_4
- *
- * When LL init function is called for first time,
- * driver will create a new thread. Thread will periodically (together with DMA + USART interrupts)
- * check for new incoming data and in case we have something to process,
- * it will use direct processing method without copying data to ESP internal receive buffers.
- *
- * \ref ESP_CFG_INPUT_USE_PROCESS must be enabled in order to use this driver.
  */
 #include "esp/esp.h"
 #include "esp/esp_mem.h"

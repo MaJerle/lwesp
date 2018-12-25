@@ -55,7 +55,6 @@
 /* USART */
 #define ESP_USART                           UART5
 #define ESP_USART_CLK                       LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART5)
-#define ESP_USART_CLK_SOURCE                LL_RCC_UART5_CLKSOURCE
 #define ESP_USART_IRQ                       UART5_IRQn
 #define ESP_USART_IRQHANDLER                UART5_IRQHandler
 
