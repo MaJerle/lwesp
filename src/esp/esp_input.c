@@ -45,7 +45,7 @@ static uint32_t esp_recv_calls;
  * \note            \ref ESP_CFG_INPUT_USE_PROCESS must be disabled to use this function
  * \param[in]       data: Pointer to data to write
  * \param[in]       len: Number of data elements in units of bytes
- * \return          Member of \ref espr_t enumeration
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_input(const void* data, size_t len) {
@@ -72,6 +72,7 @@ esp_input(const void* data, size_t len) {
  *
  * \param[in]       data: Pointer to received data to be processed
  * \param[in]       len: Length of data to process in units of bytes
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_input_process(const void* data, size_t len) {
