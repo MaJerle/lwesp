@@ -112,6 +112,7 @@ typedef enum {
     /* TCP/IP related commands */
 #if ESP_CFG_DNS || __DOXYGEN__
     ESP_CMD_TCPIP_CIPDOMAIN,                    /*!< Get IP address from domain name = DNS function */
+    ESP_CMD_TCPIP_CIPDNS,                       /*!< Configure user specific DNS servers */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIPSTATUS,                    /*!< Get status of connections */
     ESP_CMD_TCPIP_CIPSTART,                     /*!< Start client connection */
@@ -136,7 +137,6 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSNTPCFG,                   /*!< Configure SNTP servers */
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
 #endif /* ESP_SNT || __DOXYGEN__ */
-    ESP_CMD_TCPIP_CIPDNS,                       /*!< Configure user specific DNS servers */
     ESP_CMD_TCPIP_CIPDINFO,                     /*!< Configure what data are received on +IPD statement */
 } esp_cmd_t;
 

@@ -86,6 +86,18 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
 } while (0)
 
 /**
+ * \brief           Send cipdomain (DNS function) event to user
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref espr_t
+ */
+#define CIPDOMAIN_SEND_EVT(m, err)   do {           \
+    esp.evt.evt.dns_hostbyname.res = err;           \
+    esp.evt.evt.dns_hostbyname.host = msg->msg.dns_getbyhostname.host;  \
+    esp.evt.evt.dns_hostbyname.ip = msg->msg.dns_getbyhostname.ip;  \
+    espi_send_cb(ESP_EVT_DNS_HOSTBYNAME);           \
+} while (0)
+
+/**
  * \brief           Create 2-characters long hex from byte
  * \param[in]       num: Number to convert to string
  * \param[out]      str: Pointer to string to save result to
@@ -1289,10 +1301,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
 #if ESP_CFG_DNS
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {
-        esp.evt.evt.dns_hostbyname.res = *is_ok ? espOK : espERR;
-        esp.evt.evt.dns_hostbyname.host = msg->msg.dns_getbyhostname.host;
-        esp.evt.evt.dns_hostbyname.ip = msg->msg.dns_getbyhostname.ip;
-        espi_send_cb(ESP_EVT_DNS_HOSTBYNAME);   /* Send to user layer */
+        CIPDOMAIN_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
 #endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
@@ -1964,6 +1973,15 @@ espi_process_events_for_timeout(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_PING */
+
+#if ESP_CFG_DNS
+        /* Timeout on ping command */
+        case ESP_CMD_TCPIP_CIPDOMAIN: {
+            /* Send error event with timeout */
+            CIPDOMAIN_SEND_EVT(esp.msg, espTIMEOUT);
+            break;
+        }
+#endif /* ESP_CFG_DNS */
         default: break;
     }
 }
