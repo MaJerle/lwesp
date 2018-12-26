@@ -1331,9 +1331,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                     SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTO);
                 }
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTO)) {
-                if (!*is_ok) {
-                    *is_ok = 1;
-                }
+                *is_ok = 1;                     /* Force to 1 */
             }
         }
         if (n_cmd == ESP_CMD_IDLE) {            /* Do we still have execution? */
