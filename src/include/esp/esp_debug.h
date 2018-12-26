@@ -52,8 +52,8 @@ extern "C" {
 #define ESP_DBG_OFF                 0       /*!< Indicates debug is disabled */
     
 /**
- * \name            ESP_DBG_LEVEL Debug levels
- * \anchor          ESP_DBG_LEVEL
+ * \anchor          ESP_DBG_LVL
+ * \name            Debug levels
  * \brief           List of debug levels
  * \{
  */
@@ -69,8 +69,8 @@ extern "C" {
  */
 
 /**
- * \name            ESP_DBG_TYPE Debug types
  * \anchor          ESP_DBG_TYPE
+ * \name            Debug types
  * \brief           List of possible debugging types
  * \{
  */

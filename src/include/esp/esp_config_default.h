@@ -225,6 +225,7 @@
 /**
  * \brief           Minimal debug level
  *
+ *                  Check \ref GSM_DBG_LVL for possible values
  */
 #ifndef ESP_CFG_DBG_LVL_MIN
 #define ESP_CFG_DBG_LVL_MIN                 ESP_DBG_LVL_ALL
@@ -235,6 +236,8 @@
  *
  *                  When debug is globally enabled with \ref ESP_CFG_DBG parameter,
  *                  user must enable debug types such as TRACE or STATE messages.
+ *
+ *                  Check \ref ESP_DBG_TYPE for possible options. Separate values with `bitwise OR` operator
  */
 #ifndef ESP_CFG_DBG_TYPES_ON
 #define ESP_CFG_DBG_TYPES_ON                0

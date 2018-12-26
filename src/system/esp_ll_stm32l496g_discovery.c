@@ -46,10 +46,6 @@
  * USART_DMA_CHANNEL:   DMA_CHANNEL_5
  * USART_DMA_REQ_NUM:   2
  */
-#include "esp/esp.h"
-#include "esp/esp_mem.h"
-#include "esp/esp_input.h"
-#include "system/esp_ll.h"
 
 #if !__DOXYGEN__
 

@@ -126,8 +126,6 @@ configure_uart(uint32_t baudrate) {
     LL_GPIO_InitTypeDef gpio_init;
     
     if (!initialized) {
-        //LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK2);
-
         /* Enable peripheral clocks */
         ESP_USART_CLK;
         ESP_USART_DMA_CLK;

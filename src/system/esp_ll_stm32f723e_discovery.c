@@ -41,9 +41,9 @@
  * GPIO2:               GPIOD, GPIO_PIN_6
  * CH_PD:               GPIOD, GPIO_PIN_3
  *
- * UART5_DMA:           DMA1
- * UART5_DMA_STREAM:    DMA_STREAM_0
- * UART5_DMA_CHANNEL:   DMA_CHANNEL_4
+ * UART_DMA:            DMA1
+ * UART_DMA_STREAM:     DMA_STREAM_0
+ * UART_DMA_CHANNEL:    DMA_CHANNEL_4
  */
 
 #if !__DOXYGEN__

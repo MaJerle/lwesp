@@ -42,16 +42,13 @@
  * GPIO2:				GPIOD, GPIO_PIN_7
  * CH_PD:				GPIOD, GPIO_PIN_3
  *
- * USART2_DMA:          DMA1
- * USART2_DMA_STREAM:   DMA_STREAM_5
- * USART2_DMA_CHANNEL:  DMA_CHANNEL_4
+ * USART_DMA:           DMA1
+ * USART_DMA_STREAM:    DMA_STREAM_5
+ * USART_DMA_CHANNEL:   DMA_CHANNEL_4
  */
-#include "esp/esp.h"
-#include "esp/esp_mem.h"
-#include "esp/esp_input.h"
-#include "system/esp_ll.h"
 
 #if !__DOXYGEN__
+
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_usart.h"
 #include "stm32f4xx_ll_gpio.h"
