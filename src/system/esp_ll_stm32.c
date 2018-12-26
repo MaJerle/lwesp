@@ -119,7 +119,7 @@ usart_ll_thread(void const * arg) {
 /**
  * \brief           Configure UART using DMA for receive in double buffer mode and IDLE line detection
  */
-void
+static void
 configure_uart(uint32_t baudrate) {
     static LL_USART_InitTypeDef usart_init;
     static LL_DMA_InitTypeDef dma_init;
