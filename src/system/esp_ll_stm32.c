@@ -72,11 +72,11 @@ static size_t       old_pos;
 
 /* USART thread */
 static void usart_ll_thread(void const * arg);
-osThreadDef(usart_ll_thread, usart_ll_thread, osPriorityNormal, 0, 1024);
+static osThreadDef(usart_ll_thread, usart_ll_thread, osPriorityNormal, 0, 1024);
 static osThreadId usart_ll_thread_id;
 
 /* Message queue */
-osMessageQDef(usart_ll_mbox, 10, uint8_t);
+static osMessageQDef(usart_ll_mbox, 10, uint8_t);
 static osMessageQId usart_ll_mbox_id;
 
 /**
