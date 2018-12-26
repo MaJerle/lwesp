@@ -86,6 +86,7 @@ esp_thread_producer(void* const arg) {
                 ESP_CORE_PROTECT();              /* Protect system again */
                 esp_sys_sem_release(&e->sem_sync);  /* Release protection and start over later */
                 if (time == ESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
+                    espi_process_events_for_timeout(msg);   /* Manually call callbacks on commands */
                     res = espTIMEOUT;           /* Timeout on command */
                 }
             } else {
