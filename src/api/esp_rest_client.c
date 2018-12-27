@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -140,10 +140,10 @@ esp_rest_set_tx_data(esp_rest_p* rh, const void* d, size_t len) {
 
 /**
  * \brief           Execute REST call and pass everything in single shot.
- *                  
- *                  Function will block until all data received. 
+ *
+ *                  Function will block until all data received.
  *                  User must ensure there is enough memory to handle entire response.
- *                  Take a look at \ref esp_rest_execute_with_cb to use callback for every received 
+ *                  Take a look at \ref esp_rest_execute_with_cb to use callback for every received
  *                  packet and to ensure there is always available memory for future packets
  * \param[in]       rh: Pointer to \ref esp_rest_p structure
  * \param[in]       m: HTTP method used in request header
@@ -171,7 +171,7 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
         res = esp_netconn_connect(nc, rhh->desc->domain, rhh->desc->port);
         if (res == espOK) {
             uint8_t check_http_code = 1, check_headers_end = 1;
-            
+
             /* Request method + uri + HTTP version */
             switch (m) {
                 case ESP_HTTP_METHOD_POST:      esp_netconn_write(nc, "POST", 4);       break;
@@ -182,7 +182,7 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
                 case ESP_HTTP_METHOD_OPTIONS:   esp_netconn_write(nc, "OPTIONS", 7);    break;
                 case ESP_HTTP_METHOD_PATCH:     esp_netconn_write(nc, "PATCH", 5);      break;
                 case ESP_HTTP_METHOD_TRACE:     esp_netconn_write(nc, "TRACE", 5);      break;
-                case ESP_HTTP_METHOD_GET:       
+                case ESP_HTTP_METHOD_GET:
                 default:                        esp_netconn_write(nc, "GET", 3);        break;
             }
             esp_netconn_write(nc, " ", 1);
@@ -209,7 +209,7 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
             esp_netconn_write(nc, "\r\n", 2);
 
             esp_netconn_write(nc, "Connection: close\r\n", 19); /* Connection close */
-            
+
             if (rhh->tx_data_len && rhh->tx_data != NULL) { /* Content length */
                 char tx_len_str[11];
                 sprintf(tx_len_str, "%d", (int)rhh->tx_data_len);
@@ -217,9 +217,9 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
                 esp_netconn_write(nc, tx_len_str, strlen(tx_len_str));
                 esp_netconn_write(nc, "\r\n", 2);
             }
-            
+
             esp_netconn_write(nc, "\r\n", 2);   /* End of headers */
-    
+
             /* Send user data if exists */
             if (rhh->tx_data_len && rhh->tx_data != NULL) {
                 esp_netconn_write(nc, rhh->tx_data, rhh->tx_data_len);
@@ -244,7 +244,7 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
                     }
                     break;
                 }
-                
+
                 /*
                  * Check if we can detect HTTP response code
                  *
@@ -262,14 +262,14 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
                     }
                     check_http_code = 0;        /* No need to check for HTTP code anymore */
                 }
-                    
+
                 /* Calculate offset in pbuf where actual data start */
                 if (check_headers_end && r->p != NULL) {
                     r->p_offset = esp_pbuf_memfind(r->p, "\r\n\r\n", 4, 0);
                     if (r->p_offset != ESP_SIZET_MAX) { /* Did we receive all headers now? */
                         size_t p;
                         r->p_offset += 4;
-                        
+
                         /* Parse Content-Length header if exists */
                         r->content_length = 0;
                         if ((p = esp_pbuf_memfind(r->p, "Content-Length:", 15, 0)) != ESP_SIZET_MAX ||
@@ -287,7 +287,7 @@ esp_rest_execute(esp_rest_p* rh, esp_http_method_t m, const char* uri, esp_rest_
 
                         check_headers_end = 0;  /* No need to check for headers anymore */
                     } else {
-                        r->p_offset = 0;        
+                        r->p_offset = 0;
                     }
                 }
             }

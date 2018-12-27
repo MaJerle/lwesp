@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -39,7 +39,7 @@ extern "C" {
 #endif
 
 #include "esp/apps/esp_mqtt_client.h"
-    
+
 /**
  * \ingroup         ESP_APP_MQTT_CLIENT
  * \defgroup        ESP_APP_MQTT_CLIENT_EVT Event helper functions
@@ -84,7 +84,7 @@ extern "C" {
  *
  * \note            Use these functions on \ref ESP_MQTT_EVT_DISCONNECT event
  */
- 
+
 /**
  * \brief           Check if MQTT client was accepted by server when disconnect event occurred
  * \param[in]       client: MQTT client
@@ -104,7 +104,7 @@ extern "C" {
  *
  * \note            Use these functions on \ref ESP_MQTT_EVT_SUBSCRIBE or \ref ESP_MQTT_EVT_UNSUBSCRIBE events
  */
- 
+
 /**
  * \brief           Get user argument used on \ref esp_mqtt_client_subscribe
  * \param[in]       client: MQTT client
@@ -113,7 +113,7 @@ extern "C" {
  * \hideinitializer
  */
 #define esp_mqtt_client_evt_subscribe_get_argument(client, evt)     ((void *)(evt)->evt.sub_unsub_scribed.arg)
- 
+
 /**
  * \brief           Get result of subscribe event
  * \param[in]       client: MQTT client
@@ -131,7 +131,7 @@ extern "C" {
  * \hideinitializer
  */
 #define esp_mqtt_client_evt_unsubscribe_get_argument(client, evt)   ((void *)(evt)->evt.sub_unsub_scribed.arg)
- 
+
 /**
  * \brief           Get result of unsubscribe event
  * \param[in]       client: MQTT client

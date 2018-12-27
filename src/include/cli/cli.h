@@ -53,7 +53,7 @@ typedef void cli_function(cli_printf cliprintf, int argc, char** argv);
 /**
  * \brief           CLI command structure
  */
-typedef struct {                                
+typedef struct {
     const char* name;                           /*!< Command name */
     const char* help;                           /*!< Command help */
     cli_function* func;                         /*!< Command function */

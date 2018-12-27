@@ -1,28 +1,28 @@
-/** 
+/**
  * \file            esp_http_server.h
  * \brief           HTTP server with callback API
  */
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -110,7 +110,7 @@ extern "C" {
 #endif
 
 /**
- * \brief           Enables `1` or disables `1` default static files 
+ * \brief           Enables `1` or disables `1` default static files
  *
  *                  To allow fast startup of server development,
  *                  several static files are included by default:
@@ -266,14 +266,14 @@ typedef struct {
     http_post_data_fn post_data_fn;             /*!< Callback functon for post data */
     http_post_end_fn post_end_fn;               /*!< Callback functon for post end */
 #endif /* HTTP_SUPPORT_POST || __DOXYGEN__ */
-    
+
     /* CGI related */
     const http_cgi_t* cgi;                      /*!< Pointer to array of CGI entries. Set to NULL if not used */
     size_t cgi_count;                           /*!< Length of CGI array. Set to 0 if not used */
-    
+
     /* SSI related */
     http_ssi_fn ssi_fn;                         /*!< SSI callback function */
-    
+
     /* File system related */
     http_fs_open_fn fs_open;                    /*!< Open file function callback */
     http_fs_read_fn fs_read;                    /*!< Read file function callback */
@@ -316,10 +316,10 @@ typedef struct {
 typedef struct http_fs_file {
     const uint8_t* data;                        /*!< Pointer to data array in case file is static */
     uint8_t is_static;                          /*!< Flag indicating file is static and no dynamic read is required */
-    
+
     uint32_t size;                              /*!< Total length of file */
     uint32_t fptr;                              /*!< File pointer to indicate next read position */
-    
+
     const uint16_t* rem_open_files;             /*!< Pointer to number of remaining open files.
                                                         User can use value on this pointer to get number of other opened files */
     void* arg;                                  /*!< User custom argument, may be used for user specific file system object */
@@ -331,11 +331,11 @@ typedef struct http_fs_file {
 typedef struct http_state {
     esp_conn_p conn;                            /*!< Connection handle */
     esp_pbuf_p p;                               /*!< Header received pbuf chain */
-    
+
     size_t conn_mem_available;                  /*!< Available memory in connection send queue */
     uint32_t written_total;                     /*!< Total number of bytes written into send buffer */
     uint32_t sent_total;                        /*!< Number of bytes we already sent */
-    
+
     http_req_method_t req_method;               /*!< Used request method */
     uint8_t headers_received;                   /*!< Did we fully received a headers? */
     uint8_t process_resp;                       /*!< Process with response flag */
@@ -344,13 +344,13 @@ typedef struct http_state {
     uint32_t content_length;                    /*!< Total expected content length for request (on POST) (without headers) */
     uint32_t content_received;                  /*!< Content length received so far (POST request, without headers) */
 #endif /* HTTP_SUPPORT_POST || __DOXYGEN__ */
-    
+
     http_fs_file_t resp_file;                   /*!< Response file structure */
     uint8_t resp_file_opened;                   /*!< Status if response file is opened and ready */
     const uint8_t* buff;                        /*!< Buffer pointer with data */
     uint32_t buff_len;                          /*!< Total length of buffer */
     uint32_t buff_ptr;                          /*!< Current buffer pointer */
-    
+
     void* arg;                                  /*!< User optional argument */
 
 #if HTTP_DYNAMIC_HEADERS || __DOXYGEN__
@@ -361,7 +361,7 @@ typedef struct http_state {
     char dyn_hdr_cnt_len[30];                   /*!< Content length header response: "Content-Length: 0123456789\r\n" */
 #endif /* HTTP_DYNAMIC_HEADERS_CONTENT_LEN || __DOXYGEN__ */
 #endif /* HTTP_DYNAMIC_HEADERS || __DOXYGEN__ */
-    
+
     /* SSI tag parsing */
     uint8_t is_ssi;                             /*!< Flag if current request is SSI enabled */
     http_ssi_state_t ssi_state;                 /*!< Current SSI state when parsing SSI tags */
@@ -384,7 +384,7 @@ typedef struct http_state {
 
 espr_t      esp_http_server_init(const http_init_t* init, esp_port_t port);
 size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
- 
+
 /**
  * \}
  */

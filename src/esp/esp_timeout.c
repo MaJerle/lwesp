@@ -2,27 +2,27 @@
  * \file            esp_timeout.c
  * \brief           Timeout manager
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -60,19 +60,19 @@ get_next_timeout_diff(void) {
 static void
 process_next_timeout(void) {
     uint32_t time;
-    
+
     time = esp_sys_now();
-    
+
     /*
      * Before calling timeout callback, update variable
-     * to make sure we have correct timing in case 
+     * to make sure we have correct timing in case
      * callback creates timeout value again
      */
     last_timeout_time = time;                   /* Reset variable when we were last processed */
-    
+
     if (first_timeout != NULL) {
         esp_timeout_t* to = first_timeout;
-        
+
         /*
          * Before calling callback remove current timeout from list
          * to make sure we are safe in case callback function
@@ -122,17 +122,17 @@ espr_t
 esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
     esp_timeout_t* to;
     uint32_t now, diff = 0;
-    
+
     to = esp_mem_calloc(1, sizeof(*to));        /* Allocate memory for timeout structure */
     if (to == NULL) {
         return espERR;
     }
-    
+
     now = esp_sys_now();                        /* Get current time */
     if (first_timeout) {
         diff = now - last_timeout_time;         /* Get difference between current and last processed time */
     }
-    
+
     /*
      * Since we want timeout value to start from NOW,
      * we have to add time when we last processed our timeouts
@@ -140,7 +140,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
     to->time = time + diff;
     to->arg = arg;
     to->fn = fn;
-    
+
     /*
      * Add new timeout to proper place on linked list
      * and align times to have correct values between timeouts
@@ -163,7 +163,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
                 to->time -= t->time;            /* Decrease new timeout time by time in a linked list */
                 /*
                  * Enter between 2 entries on a list in case:
-                 * 
+                 *
                  * - We reached end of linked list
                  * - Our time is less than diff between 2 entries in list
                  */
@@ -190,11 +190,11 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_timeout_remove(esp_timeout_fn fn) {    
+esp_timeout_remove(esp_timeout_fn fn) {
     for (esp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
             t_prev = t, t = t->next) {          /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
-            
+
             /*
              * We have to first increase
              * difference time between current and next one
@@ -203,11 +203,11 @@ esp_timeout_remove(esp_timeout_fn fn) {
             if (t->next != NULL) {              /* Do we have next element? */
                 t->next->time += t->time;       /* Increase timeout time for next element */
             }
-            
+
             /*
              * In case we have previous element on a list,
              * set next element of previous to next of current one
-             * otherwise we were first element so simply set 
+             * otherwise we were first element so simply set
              * next of current as first one
              */
             if (t_prev != NULL) {

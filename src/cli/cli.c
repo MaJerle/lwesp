@@ -111,7 +111,7 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
                         cliprintf("%s"CLI_NL, command->name);
                     }
 
-                    /* 
+                    /*
                      * Find the common prefix of all the matched commands for
                      * partial completion
                      */

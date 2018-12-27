@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -124,7 +124,7 @@ configure_uart(uint32_t baudrate) {
     static LL_USART_InitTypeDef usart_init;
     static LL_DMA_InitTypeDef dma_init;
     LL_GPIO_InitTypeDef gpio_init;
-    
+
     if (!initialized) {
         /* Enable peripheral clocks */
         ESP_USART_CLK;
@@ -147,7 +147,7 @@ configure_uart(uint32_t baudrate) {
 #if defined(ESP_CH_PD_PIN)
         ESP_CH_PD_PORT_CLK;
 #endif /* defined(ESP_CH_PD_PIN) */
-        
+
         /* Global pin configuration */
         gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
         gpio_init.Pull = LL_GPIO_PULL_UP;
@@ -180,10 +180,10 @@ configure_uart(uint32_t baudrate) {
         LL_GPIO_Init(ESP_CH_PD_PORT, &gpio_init);
         LL_GPIO_SetOutputPin(ESP_CH_PD_PORT, ESP_CH_PD_PIN);
 #endif /* defined(ESP_CH_PD_PIN) */
-        
+
         /* Configure USART pins */
         gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
-        
+
         /* TX PIN */
         gpio_init.Alternate = ESP_USART_TX_PIN_AF;
         gpio_init.Pin = ESP_USART_TX_PIN;
@@ -193,7 +193,7 @@ configure_uart(uint32_t baudrate) {
         gpio_init.Alternate = ESP_USART_RX_PIN_AF;
         gpio_init.Pin = ESP_USART_RX_PIN;
         LL_GPIO_Init(ESP_USART_RX_PORT, &gpio_init);
-        
+
         /* Configure UART */
         LL_USART_DeInit(ESP_USART);
         LL_USART_StructInit(&usart_init);
@@ -211,11 +211,11 @@ configure_uart(uint32_t baudrate) {
         LL_USART_EnableIT_PE(ESP_USART);
         LL_USART_EnableIT_ERROR(ESP_USART);
         LL_USART_EnableDMAReq_RX(ESP_USART);
-    
+
         /* Enable USART interrupts */
         NVIC_SetPriority(ESP_USART_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x07, 0x00));
         NVIC_EnableIRQ(ESP_USART_IRQ);
-        
+
         /* Configure DMA */
         is_running = 0;
 #if defined(ESP_USART_DMA_RX_STREAM)
@@ -257,7 +257,7 @@ configure_uart(uint32_t baudrate) {
         /* Enable DMA interrupts */
         NVIC_SetPriority(ESP_USART_DMA_RX_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x07, 0x00));
         NVIC_EnableIRQ(ESP_USART_DMA_RX_IRQ);
-        
+
         old_pos = 0;
         is_running = 1;
 
@@ -283,7 +283,7 @@ configure_uart(uint32_t baudrate) {
     if (usart_ll_thread_id == NULL) {
         usart_ll_thread_id = osThreadCreate(osThread(usart_ll_thread), usart_ll_mbox_id);
     }
-    
+
 #if defined(ESP_RESET_PIN)
     /* Reset device on first init */
     if (!initialized) {
@@ -304,7 +304,7 @@ configure_uart(uint32_t baudrate) {
 static size_t
 send_data(const void* data, size_t len) {
     const uint8_t* d = data;
-    
+
     for (size_t i = 0; i < len; i++, d++) {
         LL_USART_TransmitData8(ESP_USART, *d);
         while (!LL_USART_IsActiveFlag_TXE(ESP_USART)) {}
@@ -325,10 +325,10 @@ esp_ll_init(esp_ll_t* ll) {
     esp_mem_region_t mem_regions[] = {
         { memory, sizeof(memory) }
     };
-    
+
     if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
-    
+
         esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
     }
 

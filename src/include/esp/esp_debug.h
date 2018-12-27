@@ -2,27 +2,27 @@
  * \file            esp_debug.h
  * \brief           Debugging inside ESP stack
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -40,24 +40,24 @@ extern "C" {
 
 #include "stdint.h"
 #include "string.h"
- 
+
 /**
  * \ingroup         ESP
  * \defgroup        ESP_DEBUG Debug support
  * \brief           Debug support module to track library flow
  * \{
  */
- 
+
 #define ESP_DBG_ON                  0x80    /*!< Indicates debug is enabled */
 #define ESP_DBG_OFF                 0       /*!< Indicates debug is disabled */
-    
+
 /**
  * \anchor          ESP_DBG_LVL
  * \name            Debug levels
  * \brief           List of debug levels
  * \{
  */
- 
+
 #define ESP_DBG_LVL_ALL             0x00    /*!< Print all messages of all types */
 #define ESP_DBG_LVL_WARNING         0x01    /*!< Print warning and upper messages */
 #define ESP_DBG_LVL_DANGER          0x02    /*!< Print danger errors */
@@ -82,10 +82,10 @@ extern "C" {
  * \}
  */
 
-#if ESP_CFG_DBG && !defined(ESP_CFG_DBG_OUT) 
+#if ESP_CFG_DBG && !defined(ESP_CFG_DBG_OUT)
 #warning "ESP_CFG_DBG_OUT is not enabled but debugging is enabled"
 #endif
-    
+
 #if (ESP_CFG_DBG && defined(ESP_CFG_DBG_OUT)) || __DOXYGEN__
 /**
  * \brief           Print message to the debug "window" if enabled

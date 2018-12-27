@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -67,7 +67,7 @@ esp_input(const void* data, size_t len) {
  * \brief           Process input data directly without writing it to input buffer
  * \note            This function may only be used when in OS mode,
  *                  where single thread is dedicated for input read of AT receive
- * 
+ *
  * \note            \ref ESP_CFG_INPUT_USE_PROCESS must be enabled to use this function
  *
  * \param[in]       data: Pointer to received data to be processed
@@ -77,7 +77,7 @@ esp_input(const void* data, size_t len) {
 espr_t
 esp_input_process(const void* data, size_t len) {
     espr_t res = espOK;
-    
+
     if (!esp.status.f.initialized) {
         return espERR;
     }
@@ -86,7 +86,7 @@ esp_input_process(const void* data, size_t len) {
     esp_recv_calls++;                           /* Update number of calls */
 
     if (len) {
-        ESP_CORE_PROTECT();                     
+        ESP_CORE_PROTECT();
         res = espi_process(data, len);          /* Process input data */
         ESP_CORE_UNPROTECT();
     }

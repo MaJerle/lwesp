@@ -241,7 +241,7 @@ espr_t
 esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
     espr_t res = espERR;
     if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip()) { /* Do we have a valid IP address? */
-        ESP_CORE_PROTECT();                     
+        ESP_CORE_PROTECT();
         if (ip != NULL) {
             ESP_MEMCPY(ip, &esp.sta.ip, sizeof(esp.sta.ip));/* Copy IP address */
         }
@@ -252,7 +252,7 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
             ESP_MEMCPY(nm, &esp.sta.nm, sizeof(esp.sta.nm));/* Copy netmask address */
         }
         res = espOK;
-        ESP_CORE_UNPROTECT();                   
+        ESP_CORE_UNPROTECT();
     }
     return res;
 }

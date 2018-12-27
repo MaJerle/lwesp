@@ -2,27 +2,27 @@
  * \file            esp_http_server_fs_fat.c
  * \brief           FATFS library implementation for HTTP server file system
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -50,7 +50,7 @@ static char fs_path[128];
 uint8_t
 http_fs_open(http_fs_file_t* file, const char* path) {
     FIL* fil;
-    
+
     /*
      * Do we have to mount our file system?
      */
@@ -59,12 +59,12 @@ http_fs_open(http_fs_file_t* file, const char* path) {
             return 0;
         }
     }
-    
+
     /*
      * Format file path in "www" directory of root directory
      */
     sprintf(fs_path, "SD:www%s", path);
-    
+
     /*
      * Allocate memory for FATFS file structure
      */
@@ -72,7 +72,7 @@ http_fs_open(http_fs_file_t* file, const char* path) {
     if (fil == NULL) {
         return 0;
     }
-    
+
     /*
      * Try to open file in read mode and
      * set required parameters for file length
@@ -82,7 +82,7 @@ http_fs_open(http_fs_file_t* file, const char* path) {
         file->size = f_size(fil);               /* Set file length, most important part */
         return 1;
     }
-    
+
     esp_mem_free(fil);                          /* We failed, free memory */
     return 0;
 }
@@ -98,20 +98,20 @@ uint32_t
 http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
     FIL* fil;
     UINT br;
-    
+
     fil = file->arg;                            /* Get file argument */
     if (fil == NULL) {                          /* Check if argument is valid */
         return 0;
     }
-    
+
     /*
-     * When buffer is NULL, return available 
+     * When buffer is NULL, return available
      * length we can read in the next step
      */
     if (buff == NULL) {
         return f_size(fil) - f_tell(fil);
     }
-    
+
     /*
      * Read the file and return read length
      */
@@ -130,22 +130,22 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
 uint8_t
 http_fs_close(http_fs_file_t* file) {
     FIL* fil;
-    
+
     fil = file->arg;                            /* Get file argument */
     if (fil == NULL) {                          /* Check if argument is valid */
         return 0;
     }
-    
+
     f_close(fil);                               /* Close file */
-    
+
     /*
      * At this step, check if we are last opened file
      * and unmount system if necessary
      */
-    if (*file->rem_open_files == 1) { 
+    if (*file->rem_open_files == 1) {
         f_mount(NULL, "SD:", 1);
     }
     esp_mem_free(fil);                          /* Free user argument */
-    
+
     return 1;                                   /* Close was successful */
 }

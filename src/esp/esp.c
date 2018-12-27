@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -112,10 +112,10 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
 #if !ESP_CFG_INPUT_USE_PROCESS
     esp_buff_init(&esp.buff, ESP_CFG_RCV_BUFF_SIZE);    /* Init buffer for input data */
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */
-    
+
     esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
     esp_ll_init(&esp.ll);                       /* Init low-level communication */
-    
+
     esp.status.f.initialized = 1;               /* We are initialized now */
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
 
@@ -138,7 +138,7 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
         espi_send_cb(ESP_EVT_INIT_FINISH);      /* Call user callback function */
     }
     ESP_UNUSED(blocking);                       /* Prevent compiler warnings */
-    
+
     return res;
 
 cleanup:
@@ -176,11 +176,11 @@ esp_reset(uint32_t blocking) {
 espr_t
 esp_reset_with_delay(uint32_t delay, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
-    
+
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
     ESP_MSG_VAR_REF(msg).msg.reset.delay = delay;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);
 }
 
@@ -208,11 +208,11 @@ esp_restore(uint32_t blocking) {
 espr_t
 esp_set_wifi_mode(esp_mode_t mode, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
-    
+
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode; /* Set desired mode */
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
 }
 
@@ -225,11 +225,11 @@ esp_set_wifi_mode(esp_mode_t mode, const uint32_t blocking) {
 espr_t
 esp_set_at_baudrate(uint32_t baud, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
-    
+
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_UART;
     ESP_MSG_VAR_REF(msg).msg.uart.baudrate = baud;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 2000);
 }
 
@@ -247,7 +247,7 @@ esp_set_at_baudrate(uint32_t baud, const uint32_t blocking) {
 espr_t
 esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn evt_fn, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
-    
+
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -260,7 +260,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.max_conn = max_conn;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.timeout = timeout;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = evt_fn;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
 }
 
@@ -277,7 +277,7 @@ esp_update_sw(uint32_t blocking) {
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIUPDATE;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 180000);
 }
 
@@ -295,15 +295,15 @@ esp_update_sw(uint32_t blocking) {
 espr_t
 esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
-    
+
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
-    
+
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDOMAIN;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
-    
+
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 20000);
 }
 
@@ -313,13 +313,13 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const uint32_t block
  * \brief           Increase protection counter
  *
  *                  If lock was `0` before func call, lock is enabled and increased
- * \note            Function may be called multiple times to increase locks. 
+ * \note            Function may be called multiple times to increase locks.
  *                  User must take care of calling \ref esp_core_unlock function the same times to decrease lock
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_core_lock(void) {
-    ESP_CORE_PROTECT();                         
+    ESP_CORE_PROTECT();
     return espOK;
 }
 
@@ -331,7 +331,7 @@ esp_core_lock(void) {
  */
 espr_t
 esp_core_unlock(void) {
-    ESP_CORE_UNPROTECT();                       
+    ESP_CORE_UNPROTECT();
     return espOK;
 }
 
@@ -344,11 +344,11 @@ espr_t
 esp_evt_register(esp_evt_fn fn) {
     espr_t res = espOK;
     esp_evt_func_t* func, *newFunc;
-    
+
     ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
-    
-    ESP_CORE_PROTECT();                         
-    
+
+    ESP_CORE_PROTECT();
+
     /* Check if function already exists on list */
     for (func = esp.evt_func; func != NULL; func = func->next) {
         if (func->fn == fn) {
@@ -356,7 +356,7 @@ esp_evt_register(esp_evt_fn fn) {
             break;
         }
     }
-    
+
     if (res == espOK) {
         newFunc = esp_mem_alloc(sizeof(*newFunc));  /* Get memory for new function */
         if (newFunc != NULL) {
@@ -372,7 +372,7 @@ esp_evt_register(esp_evt_fn fn) {
             res = espERRMEM;
         }
     }
-    ESP_CORE_UNPROTECT();                       
+    ESP_CORE_UNPROTECT();
     return res;
 }
 
@@ -387,8 +387,8 @@ esp_evt_unregister(esp_evt_fn fn) {
     esp_evt_func_t* func, *prev;
 
     ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
-    
-    ESP_CORE_PROTECT();                         
+
+    ESP_CORE_PROTECT();
     for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {
         if (func->fn == fn) {
             prev->next = func->next;
@@ -397,13 +397,13 @@ esp_evt_unregister(esp_evt_fn fn) {
             break;
         }
     }
-    ESP_CORE_UNPROTECT();                       
+    ESP_CORE_UNPROTECT();
     return espOK;
 }
 
 /**
  * \brief           Notify stack if device is present or not
- * 
+ *
  *                  Use this function to notify stack that device is not connected and not ready to communicate with host device
  * \param[in]       present: Flag indicating device is present
  * \param[in]       blocking: Status whether command should be blocking or not
@@ -412,25 +412,25 @@ esp_evt_unregister(esp_evt_fn fn) {
 espr_t
 esp_device_set_present(uint8_t present, const uint32_t blocking) {
     espr_t res = espOK;
-    ESP_CORE_PROTECT();                         
+    ESP_CORE_PROTECT();
     esp.status.f.dev_present = ESP_U8(!!present);   /* Device is present */
-    
+
     if (!esp.status.f.dev_present) {
         espi_reset_everything(1);               /* Reset everything */
     }
 #if ESP_CFG_RESET_ON_INIT
     else {                                      /* Is new device present? */
-        ESP_CORE_UNPROTECT();                   
+        ESP_CORE_UNPROTECT();
         res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking); /* Reset with delay */
-        ESP_CORE_PROTECT();                     
+        ESP_CORE_PROTECT();
     }
 #else
     ESP_UNUSED(blocking);                       /* Unused variable */
 #endif /* ESP_CFG_RESET_ON_INIT */
-    
+
     espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
-    
-    ESP_CORE_UNPROTECT();                       
+
+    ESP_CORE_UNPROTECT();
     return res;
 }
 
@@ -441,9 +441,9 @@ esp_device_set_present(uint8_t present, const uint32_t blocking) {
 uint8_t
 esp_device_is_present(void) {
     uint8_t res;
-    ESP_CORE_PROTECT();                         
+    ESP_CORE_PROTECT();
     res = esp.status.f.dev_present;
-    ESP_CORE_UNPROTECT();                       
+    ESP_CORE_UNPROTECT();
     return res;
 }
 

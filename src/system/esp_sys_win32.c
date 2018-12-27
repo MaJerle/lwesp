@@ -2,27 +2,27 @@
  * \file            esp_sys_win32.c
  * \brief           System dependant functions for WIN32
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -84,7 +84,7 @@ static uint32_t
 osKernelSysTick(void) {
     LONGLONG ret;
     LARGE_INTEGER now;
-    
+
     QueryPerformanceFrequency(&freq);           /* Get frequency */
     QueryPerformanceCounter(&now);              /* Get current time */
     ret = now.QuadPart - sys_start_time.QuadPart;
@@ -105,7 +105,7 @@ esp_sys_now(void) {
     return osKernelSysTick();
 }
 
-#if ESP_CFG_OS 
+#if ESP_CFG_OS
 uint8_t
 esp_sys_protect(void) {
     esp_sys_mutex_lock(&sys_mutex);
@@ -205,9 +205,9 @@ esp_sys_sem_invalid(esp_sys_sem_t* p) {
 uint8_t
 esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
     win32_mbox_t* mbox;
-    
+
     *b = 0;
-    
+
     mbox = malloc(sizeof(*mbox) + size * sizeof(void *));
     if (mbox != NULL) {
         memset(mbox, 0x00, sizeof(*mbox));
@@ -234,9 +234,9 @@ uint32_t
 esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
     win32_mbox_t* mbox = *b;
     uint32_t time = osKernelSysTick();          /* Get start time */
-  
+
     esp_sys_sem_wait(&mbox->sem, 0);            /* Wait for access */
-    
+
     /*
      * Since function is blocking until ready to write something to queue,
      * wait and release the semaphores to allow other threads
@@ -263,12 +263,12 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     win32_mbox_t* mbox = *b;
     uint32_t time = osKernelSysTick();          /* Get current time */
     uint32_t spent_time;
-    
+
     /* Get exclusive access to message queue */
     if ((spent_time = esp_sys_sem_wait(&mbox->sem, timeout)) == ESP_SYS_TIMEOUT) {
         return spent_time;
     }
-    
+
     /* Make sure we have something to read from queue. */
     while (mbox_is_empty(mbox)) {
         esp_sys_sem_release(&mbox->sem);        /* Release semaphore and allow other threads to write something */
@@ -286,7 +286,7 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
         }
         spent_time = esp_sys_sem_wait(&mbox->sem, timeout); /* Wait again for exclusive access */
     }
-    
+
     /*
      * At this point, semaphore is not empty and
      * we have exclusive access to content
@@ -295,11 +295,11 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     if (++mbox->out >= mbox->size) {
         mbox->out = 0;
     }
-    
+
     /* Release it only if waiting for it */
     esp_sys_sem_release(&mbox->sem_not_full);   /* Release semaphore as it is not full */
     esp_sys_sem_release(&mbox->sem);            /* Release exclusive access to mbox */
-    
+
     return osKernelSysTick() - time;
 }
 
@@ -327,13 +327,13 @@ esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
 uint8_t
 esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     win32_mbox_t* mbox = *b;
-    
+
     esp_sys_sem_wait(&mbox->sem, 0);            /* Wait exclusive access */
     if (mbox->in == mbox->out) {
         esp_sys_sem_release(&mbox->sem);        /* Release access */
         return 0;
     }
-    
+
     *m = mbox->entries[mbox->out];
     mbox->out++;
     if (mbox->out >= mbox->size) {

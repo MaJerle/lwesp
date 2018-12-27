@@ -1763,8 +1763,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_CIPCLOSE: {          /* Close the connection */
             esp_conn_p c = msg->msg.conn_close.conn;
             if (c != NULL &&
-                /* 
-                 * Is connection already closed or command 
+                /*
+                 * Is connection already closed or command
                  * for this connection is not valid anymore?
                  */
                 (!esp_conn_is_active(c) || c->val_id != msg->msg.conn_close.val_id)) {

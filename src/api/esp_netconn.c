@@ -77,7 +77,7 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
     esp_pbuf_p pbuf;
     esp_netconn_t* new_nc;
     if (protect) {
-        esp_core_lock();                        
+        esp_core_lock();
     }
     if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
         while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
@@ -100,7 +100,7 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
         esp_sys_mbox_invalid(&nc->mbox_accept); /* Invalid handle */
     }
     if (protect) {
-        esp_core_unlock();                     
+        esp_core_unlock();
     }
 }
 
@@ -384,7 +384,7 @@ espr_t
 esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
     espr_t res = espOK;
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    
+
     /*
      * Protection is not needed as it is expected
      * that this function is called only from single
@@ -399,7 +399,7 @@ esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
 
 /**
  * \brief           Set timeout value in units of seconds when connection is in listening mode
- *                  If new connection is accepted, it will be automatically closed after `seconds` elapsed 
+ *                  If new connection is accepted, it will be automatically closed after `seconds` elapsed
  *                  without any data exchange.
  * \note            Call this function before you put connection to listen mode with \ref esp_netconn_listen
  * \param[in]       nc: Netconn handle used for listen mode

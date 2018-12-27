@@ -2,27 +2,27 @@
  * \file            esp_pbuf.c
  * \brief           Packet buffer manager
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -51,12 +51,12 @@ pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
         SET_NEW_LEN(new_off, 0);                /* Set output value */
         return NULL;
     }
-    
+
     /* Skip pbufs until we reach offset */
     for (; p != NULL && p->len <= off; p = p->next) {
         off -= p->len;                          /* Decrease offset by current pbuf length */
     }
-    
+
     SET_NEW_LEN(new_off, off);                  /* Set output value */
     return p;
 }
@@ -69,7 +69,7 @@ pbuf_skip(esp_pbuf_p p, size_t off, size_t* new_off) {
 esp_pbuf_p
 esp_pbuf_new(size_t len) {
     esp_pbuf_p p;
-    
+
     p = esp_mem_alloc(SIZEOF_PBUF_STRUCT + sizeof(*p->payload) * len);  /* Allocate memory for packet buffer */
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p == NULL,
         "[PBUF] Failed to allocate %d bytes\r\n", (int)len);
@@ -94,18 +94,18 @@ size_t
 esp_pbuf_free(esp_pbuf_p pbuf) {
     esp_pbuf_p p, pn;
     size_t ref, cnt;
-    
+
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
-    
+
     /*
      * Free all pbufs until first ->ref > 1 is reached
      * which means somebody has reference to part of pbuf and we have to keep it as is
      */
     cnt = 0;
     for (p = pbuf; p != NULL;) {
-        ESP_CORE_PROTECT();                     
+        ESP_CORE_PROTECT();
         ref = --p->ref;                         /* Decrease current value and save it */
-        ESP_CORE_UNPROTECT();                   
+        ESP_CORE_UNPROTECT();
         if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
                 "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
@@ -135,7 +135,7 @@ espr_t
 esp_pbuf_cat(esp_pbuf_p head, const esp_pbuf_p tail) {
     ESP_ASSERT("head != NULL", head != NULL);   /* Assert input parameters */
     ESP_ASSERT("tail != NULL", tail != NULL);   /* Assert input parameters */
-    
+
     /*
      * For all pbuf packets in head,
      * increase total length parameter of all next entries
@@ -145,7 +145,7 @@ esp_pbuf_cat(esp_pbuf_p head, const esp_pbuf_p tail) {
     }
     head->tot_len += tail->tot_len;             /* Increase total length of last packet in chain */
     head->next = tail;                          /* Set next packet buffer as next one */
-    
+
     return espOK;
 }
 
@@ -162,7 +162,7 @@ esp_pbuf_cat(esp_pbuf_p head, const esp_pbuf_p tail) {
 espr_t
 esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
     espr_t res;
-    
+
     /*
      * To prevent issues with multi-thread access,
      * first reference pbuf and increase counter
@@ -174,9 +174,9 @@ esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
     return res;
 }
 
-/** 
+/**
  * \brief           Unchain first pbuf from list and return second one
- *                  
+ *
  *                  `tot_len` and `len` fields are adjusted to reflect new values and reference counter is as is
  * \note            After unchain, user must take care of both pbufs (`head` and `new returned one`)
  * \param[in]       head: First pbuf in chain to remove from chain
@@ -187,7 +187,7 @@ esp_pbuf_unchain(esp_pbuf_p head) {
     esp_pbuf_p r = NULL;
     if (head != NULL && head->next != NULL) {   /* Check for valid pbuf */
         r = head->next;                         /* Set return value as next pbuf */
-        
+
         head->next = NULL;                      /* Clear next pbuf */
         head->tot_len = head->len;              /* Set new length of head pbuf */
     }
@@ -202,10 +202,10 @@ esp_pbuf_unchain(esp_pbuf_p head) {
 espr_t
 esp_pbuf_ref(esp_pbuf_p pbuf) {
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
-    
-    ESP_CORE_PROTECT();                         
+
+    ESP_CORE_PROTECT();
     pbuf->ref++;                                /* Increase reference count for pbuf */
-    ESP_CORE_UNPROTECT();                       
+    ESP_CORE_UNPROTECT();
     return espOK;
 }
 
@@ -221,12 +221,12 @@ espr_t
 esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
     const uint8_t* d = data;
     size_t copy_len;
-    
+
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
     ESP_ASSERT("len > 0", len > 0);             /* Assert input parameters */
     ESP_ASSERT("pbuf->tot_len >= len", pbuf->tot_len >= len);   /* Assert input parameters */
-    
+
     /* Skip if necessary and check if we are in valid range */
     if (offset) {
         pbuf = pbuf_skip(pbuf, offset, &offset);    /* Offset and check for new length */
@@ -234,11 +234,11 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
             return espERR;
         }
     }
-    
+
     if (pbuf->tot_len < (len + offset)) {
         return espPARERR;
     }
-    
+
     /* First only copy in case we have some offset from first pbuf */
     if (offset) {
         copy_len = ESP_MIN(pbuf->len - offset, len);    /* Get length to copy to current pbuf */
@@ -247,7 +247,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
         d += copy_len;                          /* Increase data pointer */
         pbuf = pbuf->next;                      /* Go to next pbuf */
     }
-    
+
     /* Copy user memory to sequence of pbufs */
     for (; len; pbuf = pbuf->next) {
         copy_len = ESP_MIN(len, pbuf->len);     /* Get copy length */
@@ -270,13 +270,13 @@ size_t
 esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
     size_t tot, tc;
     uint8_t* d = data;
-    
+
     if (pbuf == NULL || data == NULL || !len || pbuf->tot_len < offset) {   /* Assert input parameters */
         return 0;
     }
-    
+
     /*
-     * In case user wants offset, 
+     * In case user wants offset,
      * skip to necessary pbuf
      */
     if (offset) {
@@ -285,7 +285,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
             return 0;
         }
     }
-    
+
     /*
      * Copy data from pbufs to memory
      * with checking for initial offset (only one can have offset)
@@ -376,12 +376,12 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
     esp_pbuf_p p;
     uint8_t el;
     const uint8_t* d = data;
-    
+
     if (pbuf == NULL || data == NULL || !len || /* Input parameters check */
         pbuf->tot_len < (offset + len)) {       /* Check of valid ranges */
         return ESP_SIZET_MAX;                   /* Invalid check here */
     }
-    
+
     /*
      * Find start pbuf to have more optimized search at the end
      * Since we had a check on beginning, we must pass this for loop without any problems
@@ -389,7 +389,7 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
     for (p = pbuf; p != NULL && p->len <= offset; p = p->next) {
         offset -= p->len;                       /* Decrease offset by length of pbuf */
     }
-    
+
     /*
      * We have known starting pbuf.
      * Now it is time to check byte by byte from pbuf and memory
@@ -486,7 +486,7 @@ esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port) {
  * \brief           Advance pbuf payload pointer by number of len bytes.
  *                  It can only advance single pbuf in a chain
  *
- * \note            When other pbufs are referencing current one, 
+ * \note            When other pbufs are referencing current one,
  *                  they are not adjusted in length and total length
  *
  * \param[in]       pbuf: Pbuf to advance

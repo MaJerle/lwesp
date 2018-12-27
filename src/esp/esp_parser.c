@@ -285,7 +285,7 @@ espi_parse_ipd(const char* str) {
     if (c == NULL) {                            /* Invalid connection number */
         return espERR;
     }
-    
+
     /*
      * First check if this string is "notification only" or actual "data packet".
      *
