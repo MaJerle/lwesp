@@ -113,12 +113,11 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
  * \param[in]       err: Error of type \ref espr_t
  */
 #define STA_LIST_AP_SEND_EVT(m, err) do {           \
+    esp.evt.evt.sta_list_ap.res = err;              \
     esp.evt.evt.sta_list_ap.aps = msg->msg.ap_list.aps; \
     esp.evt.evt.sta_list_ap.len = msg->msg.ap_list.apsi;\
-    esp.evt.evt.sta_list_ap.res = err;              \
     espi_send_cb(ESP_EVT_STA_LIST_AP);              \
 } while (0)
-
 
 /**
  * \brief           Send info AP event to user
@@ -126,8 +125,8 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
  * \param[in]       err: Error of type \ref espr_t
  */
 #define STA_INFO_AP_SEND_EVT(m, err) do {           \
-    esp.evt.evt.sta_info_ap.info = esp.msg->msg.sta_info_ap.info;   \
     esp.evt.evt.sta_info_ap.res = err;              \
+    esp.evt.evt.sta_info_ap.info = esp.msg->msg.sta_info_ap.info;   \
     espi_send_cb(ESP_EVT_STA_INFO_AP);              \
 } while (0)
 
