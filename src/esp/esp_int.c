@@ -1973,6 +1973,7 @@ espi_process_events_for_timeout(esp_msg_t* msg) {
         case ESP_CMD_RESET: {
             /* Timeout on reset */
             RESET_FINISH_SEND_EVT(msg, espTIMEOUT);
+            break;
         }
 
         /*
