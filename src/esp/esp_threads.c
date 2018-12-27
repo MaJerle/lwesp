@@ -55,12 +55,12 @@ esp_thread_producer(void* const arg) {
         esp_sys_sem_release(sem);               /* Release semaphore */
     }
 
-    ESP_CORE_PROTECT();                         /* Protect system */
+    ESP_CORE_PROTECT();                         
     while (1) {
-        ESP_CORE_UNPROTECT();                   /* Unprotect system */
+        ESP_CORE_UNPROTECT();
         time = esp_sys_mbox_get(&e->mbox_producer, (void **)&msg, 0);  /* Get message from queue */
         ESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
-        ESP_CORE_PROTECT();                     /* Protect system */
+        ESP_CORE_PROTECT();                     
         if (time == ESP_SYS_TIMEOUT || msg == NULL) {   /* Check valid message */
             continue;
         }
@@ -76,14 +76,14 @@ esp_thread_producer(void* const arg) {
          */
         e->msg = msg;
         if (msg->fn != NULL) {                  /* Check for callback processing function */
-            ESP_CORE_UNPROTECT();               /* Release protection, think if this is necessary, probably shouldn't be here */
+            ESP_CORE_UNPROTECT();
             esp_sys_sem_wait(&e->sem_sync, 120000); /* Lock semaphore, should be unlocked before! */
-            ESP_CORE_PROTECT();                 /* Protect system again, think if this is necessary, probably shouldn't be here */
+            ESP_CORE_PROTECT();
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
-                ESP_CORE_UNPROTECT();           /* Release protection */
+                ESP_CORE_UNPROTECT();
                 time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Wait for synchronization semaphore */
-                ESP_CORE_PROTECT();              /* Protect system again */
+                ESP_CORE_PROTECT();
                 esp_sys_sem_release(&e->sem_sync);  /* Release protection and start over later */
                 if (time == ESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
                     espi_process_events_for_timeout(msg);   /* Manually call callbacks on commands */
@@ -142,12 +142,12 @@ esp_thread_process(void* const arg) {
     }
     
 #if !ESP_CFG_INPUT_USE_PROCESS
-    ESP_CORE_PROTECT();                         /* Protect system */
+    ESP_CORE_PROTECT();                         
     while (1) {
-        ESP_CORE_UNPROTECT();                   /* Unprotect system */
+        ESP_CORE_UNPROTECT();
         time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void **)&msg, 10);    /* Get message from queue */
         ESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
-        ESP_CORE_PROTECT();                     /* Protect system */
+        ESP_CORE_PROTECT();                     
         
         if (time == ESP_SYS_TIMEOUT || msg == NULL) {
             ESP_UNUSED(time);                   /* Unused variable */

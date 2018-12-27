@@ -44,13 +44,13 @@
  */
 espr_t
 esp_wps_configure(uint8_t en, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_WPS;
     ESP_MSG_VAR_REF(msg).msg.wps_cfg.en = en;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 10000);   /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 10000);
 }
 
 #endif /* ESP_CFG_PING || __DOXYGEN__ */

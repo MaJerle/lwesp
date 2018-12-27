@@ -44,15 +44,15 @@
  */
 espr_t
 esp_hostname_set(const char* hostname, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_SET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_set = hostname;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
 }
 
 /**
@@ -64,17 +64,17 @@ esp_hostname_set(const char* hostname, const uint32_t blocking) {
  */
 espr_t
 esp_hostname_get(char* hostname, size_t length, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
     ESP_ASSERT("length > 0", length > 0);       /* Assert input parameters */
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_GET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_get = hostname;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = length;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
 }
 
 #endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */

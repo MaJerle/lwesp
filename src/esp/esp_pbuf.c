@@ -103,9 +103,9 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
      */
     cnt = 0;
     for (p = pbuf; p != NULL;) {
-        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_CORE_PROTECT();                     
         ref = --p->ref;                         /* Decrease current value and save it */
-        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        ESP_CORE_UNPROTECT();                   
         if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
                 "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
@@ -203,9 +203,9 @@ espr_t
 esp_pbuf_ref(esp_pbuf_p pbuf) {
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
     
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     pbuf->ref++;                                /* Increase reference count for pbuf */
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return espOK;
 }
 

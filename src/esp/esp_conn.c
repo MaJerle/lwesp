@@ -92,7 +92,7 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
     esp_pbuf_p p;
     espr_t res;
 
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     ESP_ASSERT("len > 0", len > 0);             /* Assert input parameters */
@@ -110,7 +110,7 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
         return espERRMEM;
     }
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     msg->msg.ciprecvdata.len = len;
     msg->msg.ciprecvdata.buff = p;
     msg->msg.ciprecvdata.conn = conn;
@@ -131,9 +131,9 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
 uint8_t
 conn_get_val_id(esp_conn_p conn) {
     uint8_t val_id;
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     val_id = conn->val_id;
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     
     return val_id;
 }
@@ -154,7 +154,7 @@ conn_get_val_id(esp_conn_p conn) {
 static espr_t
 conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data,
             size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
@@ -166,7 +166,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
     
     CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
     
     ESP_MSG_VAR_REF(msg).msg.conn_send.conn = conn;
@@ -178,7 +178,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
     ESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
     ESP_MSG_VAR_REF(msg).msg.conn_send.val_id = conn_get_val_id(conn);
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);   /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);
 }
 
 /**
@@ -189,7 +189,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
 static espr_t
 flush_buff(esp_conn_p conn) {
     espr_t res = espOK;
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     if (conn != NULL && conn->buff.buff != NULL) {  /* Do we have something ready? */
         /*
          * If there is nothing to write or if write was not successful,
@@ -207,7 +207,7 @@ flush_buff(esp_conn_p conn) {
         }
         conn->buff.buff = NULL;
     }
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return res;
 }
 
@@ -233,13 +233,13 @@ espi_conn_init(void) {
 espr_t
 esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, esp_port_t port,
                 void* const arg, esp_evt_fn evt_fn, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
     ESP_ASSERT("evt_fn != NULL", evt_fn != NULL);   /* Assert input parameters */
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTART;
     ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSTATUS;
     ESP_MSG_VAR_REF(msg).msg.conn_start.num = ESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
@@ -250,7 +250,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
     ESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = evt_fn;
     ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);   /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);
 }
 
 /**
@@ -262,26 +262,26 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
 espr_t
 esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
     espr_t res = espOK;
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
 
     CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
     
     /* Proceed with close event at this point! */
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPCLOSE;
     ESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
     ESP_MSG_VAR_REF(msg).msg.conn_close.val_id = conn_get_val_id(conn);
     
     flush_buff(conn);                           /* First flush buffer */
-    res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000); /* Send message to producer queue */
+    res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
     if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
-        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_CORE_PROTECT();                     
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
             "[CONN] Connection %d set to closing state\r\n", (int)conn->num);
         conn->status.f.in_closing = 1;          /* Connection is in closing mode but not yet closed */
-        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        ESP_CORE_UNPROTECT();                   
     }
     return res;
 }
@@ -327,7 +327,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
     ESP_ASSERT("btw > 0", btw > 0);             /* Assert input parameters */
 
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     if (conn->buff.buff != NULL) {              /* Check if memory available */
         size_t to_copy;
         to_copy = ESP_MIN(btw, conn->buff.len - conn->buff.ptr);
@@ -338,7 +338,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
             btw -= to_copy;
         }
     }
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     res = flush_buff(conn);                     /* Flush currently written memory if exists */
     if (btw) {                                  /* Check for remaining data */
         res = conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
@@ -387,9 +387,9 @@ esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
  */
 espr_t
 esp_conn_set_arg(esp_conn_p conn, void* const arg) {
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     conn->arg = arg;                            /* Set argument for connection */
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return espOK;
 }
 
@@ -402,9 +402,9 @@ esp_conn_set_arg(esp_conn_p conn, void* const arg) {
 void *
 esp_conn_get_arg(esp_conn_p conn) {
     void* arg;
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     arg = conn->arg;                            /* Set argument for connection */
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return arg;
 }
 
@@ -415,12 +415,12 @@ esp_conn_get_arg(esp_conn_p conn) {
  */
 espr_t
 esp_get_conns_status(uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTATUS;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
 }
 
 /**
@@ -432,9 +432,9 @@ uint8_t
 esp_conn_is_client(esp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_CORE_PROTECT();                     
         res = conn->status.f.active && conn->status.f.client;
-        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        ESP_CORE_UNPROTECT();                   
     }
     return res;
 }
@@ -511,13 +511,13 @@ esp_conn_getnum(esp_conn_p conn) {
  */
 espr_t
 esp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLSIZE;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
 }
 
 /**
@@ -660,9 +660,9 @@ esp_conn_get_total_recved_count(esp_conn_p conn) {
     size_t tot = 0;
 
     if (conn != NULL) {
-        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_CORE_PROTECT();                     
         tot = conn->total_recved;               /* Get total received bytes */
-        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        ESP_CORE_UNPROTECT();                   
     }
     return tot;
 }
@@ -676,9 +676,9 @@ esp_conn_get_total_recved_count(esp_conn_p conn) {
 uint8_t
 esp_conn_get_remote_ip(esp_conn_p conn, esp_ip_t* ip) {
     if (conn != NULL && ip != NULL) {
-        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_CORE_PROTECT();                     
         ESP_MEMCPY(ip, &conn->remote_ip, sizeof(*ip));  /* Copy data */
-        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        ESP_CORE_UNPROTECT();                   
         return 1;
     }
     return 0;
@@ -693,9 +693,9 @@ esp_port_t
 esp_conn_get_remote_port(esp_conn_p conn) {
     esp_port_t port = 0;
     if (conn != NULL) {
-        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_CORE_PROTECT();                     
         port = conn->remote_port;
-        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        ESP_CORE_UNPROTECT();                   
     }
     return port;
 }
@@ -709,9 +709,9 @@ esp_port_t
 esp_conn_get_local_port(esp_conn_p conn) {
     esp_port_t port = 0;
     if (conn != NULL) {
-        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_CORE_PROTECT();                     
         port = conn->local_port;
-        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        ESP_CORE_UNPROTECT();                   
     }
     return port;
 }

@@ -175,13 +175,13 @@ esp_reset(uint32_t blocking) {
  */
 espr_t
 esp_reset_with_delay(uint32_t delay, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
     ESP_MSG_VAR_REF(msg).msg.reset.delay = delay;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);
 }
 
 /**
@@ -191,12 +191,12 @@ esp_reset_with_delay(uint32_t delay, const uint32_t blocking) {
  */
 espr_t
 esp_restore(uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESTORE;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 5000);
 }
 
 /**
@@ -207,13 +207,13 @@ esp_restore(uint32_t blocking) {
  */
 espr_t
 esp_set_wifi_mode(esp_mode_t mode, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode; /* Set desired mode */
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
 }
 
 /**
@@ -224,13 +224,13 @@ esp_set_wifi_mode(esp_mode_t mode, const uint32_t blocking) {
  */
 espr_t
 esp_set_at_baudrate(uint32_t baud, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_UART;
     ESP_MSG_VAR_REF(msg).msg.uart.baudrate = baud;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 2000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 2000);
 }
 
 /**
@@ -246,11 +246,11 @@ esp_set_at_baudrate(uint32_t baud, const uint32_t blocking) {
  */
 espr_t
 esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn evt_fn, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSERVER;
     if (en > 0) {
         ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSERVERMAXCONN;  /* First command is to set maximal number of connections for server */
@@ -261,7 +261,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.timeout = timeout;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = evt_fn;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);    /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
 }
 
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
@@ -273,12 +273,12 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
  */
 espr_t
 esp_update_sw(uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIUPDATE;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 180000);  /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 180000);
 }
 
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
@@ -294,17 +294,17 @@ esp_update_sw(uint32_t blocking) {
  */
 espr_t
 esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);                    /* Define variable for message */
+    ESP_MSG_VAR_DEFINE(msg);
     
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
     
-    ESP_MSG_VAR_ALLOC(msg);                     /* Allocate memory for variable */
+    ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDOMAIN;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
     
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 20000);   /* Send message to producer queue */
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 20000);
 }
 
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
@@ -319,7 +319,7 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const uint32_t block
  */
 espr_t
 esp_core_lock(void) {
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     return espOK;
 }
 
@@ -331,7 +331,7 @@ esp_core_lock(void) {
  */
 espr_t
 esp_core_unlock(void) {
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return espOK;
 }
 
@@ -347,7 +347,7 @@ esp_evt_register(esp_evt_fn fn) {
     
     ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
     
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     
     /* Check if function already exists on list */
     for (func = esp.evt_func; func != NULL; func = func->next) {
@@ -372,7 +372,7 @@ esp_evt_register(esp_evt_fn fn) {
             res = espERRMEM;
         }
     }
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return res;
 }
 
@@ -388,7 +388,7 @@ esp_evt_unregister(esp_evt_fn fn) {
 
     ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
     
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {
         if (func->fn == fn) {
             prev->next = func->next;
@@ -397,7 +397,7 @@ esp_evt_unregister(esp_evt_fn fn) {
             break;
         }
     }
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return espOK;
 }
 
@@ -412,7 +412,7 @@ esp_evt_unregister(esp_evt_fn fn) {
 espr_t
 esp_device_set_present(uint8_t present, const uint32_t blocking) {
     espr_t res = espOK;
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     esp.status.f.dev_present = ESP_U8(!!present);   /* Device is present */
     
     if (!esp.status.f.dev_present) {
@@ -420,9 +420,9 @@ esp_device_set_present(uint8_t present, const uint32_t blocking) {
     }
 #if ESP_CFG_RESET_ON_INIT
     else {                                      /* Is new device present? */
-        ESP_CORE_UNPROTECT();                   /* Unprotect core */
+        ESP_CORE_UNPROTECT();                   
         res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking); /* Reset with delay */
-        ESP_CORE_PROTECT();                     /* Protect core */
+        ESP_CORE_PROTECT();                     
     }
 #else
     ESP_UNUSED(blocking);                       /* Unused variable */
@@ -430,7 +430,7 @@ esp_device_set_present(uint8_t present, const uint32_t blocking) {
     
     espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
     
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return res;
 }
 
@@ -441,9 +441,9 @@ esp_device_set_present(uint8_t present, const uint32_t blocking) {
 uint8_t
 esp_device_is_present(void) {
     uint8_t res;
-    ESP_CORE_PROTECT();                         /* Protect core */
+    ESP_CORE_PROTECT();                         
     res = esp.status.f.dev_present;
-    ESP_CORE_UNPROTECT();                       /* Unprotect core */
+    ESP_CORE_UNPROTECT();                       
     return res;
 }
 

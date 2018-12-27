@@ -77,7 +77,7 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
     esp_pbuf_p pbuf;
     esp_netconn_t* new_nc;
     if (protect) {
-        esp_core_lock();                        /* Protect core */
+        esp_core_lock();                        
     }
     if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
         while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
@@ -100,7 +100,7 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
         esp_sys_mbox_invalid(&nc->mbox_accept); /* Invalid handle */
     }
     if (protect) {
-        esp_core_unlock();                      /* Release protection */
+        esp_core_unlock();                     
     }
 }
 
