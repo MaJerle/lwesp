@@ -50,24 +50,24 @@ extern "C" {
 esp_evt_type_t  esp_evt_get_type(esp_evt_t* cc);
 
 /**
- * \name            ESP_EVT_RESET
- * \anchor          ESP_EVT_RESET
- * \brief           Event helper functions for \ref ESP_EVT_RESET event
+ * \name            ESP_EVT_RESET_DETECTED
+ * \anchor          ESP_EVT_RESET_DETECTED
+ * \brief           Event helper functions for \ref ESP_EVT_RESET_DETECTED event
  */
 
-uint8_t     esp_evt_reset_is_forced(esp_evt_t* cc);
+uint8_t     esp_evt_reset_detected_is_forced(esp_evt_t* cc);
 
 /**
  * \}
  */
 
 /**
- * \name            ESP_EVT_RESET_FINISH
- * \anchor          ESP_EVT_RESET_FINISH
- * \brief           Event helper functions for \ref ESP_EVT_RESET_FINISH event
+ * \name            ESP_EVT_RESET
+ * \anchor          ESP_EVT_RESET
+ * \brief           Event helper functions for \ref ESP_EVT_RESET event
  */
 
-espr_t      esp_evt_reset_finish_get_result(esp_evt_t* cc);
+espr_t      esp_evt_reset_get_result(esp_evt_t* cc);
 
 /**
  * \}

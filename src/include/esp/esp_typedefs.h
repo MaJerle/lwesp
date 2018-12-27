@@ -254,11 +254,11 @@ typedef espr_t  (*esp_evt_fn)(struct esp_evt* evt);
  * \brief           List of possible callback types received to user
  */
 typedef enum esp_evt_type_t {
-    ESP_EVT_RESET,                              /*!< Device reset detected */
-    ESP_EVT_RESET_FINISH,                       /*!< Reset operation finished */
+    ESP_EVT_RESET_DETECTED,                     /*!< Device reset detected */
+    ESP_EVT_RESET,                              /*!< Reset operation finished */
 
     ESP_EVT_INIT_FINISH,                        /*!< Initialization has been finished at this point */
-    ESP_EVT_RESTORE_FINISH,                     /*!< Device restore operation finished */
+    ESP_EVT_RESTORE,                            /*!< Device restore operation finished */
 
     ESP_EVT_AT_VERSION_NOT_SUPPORTED,           /*!< Library does not support firmware version on ESP device. */
 
@@ -305,11 +305,11 @@ typedef struct esp_evt {
     union {
         struct {
             uint8_t forced;                     /*!< Set to `1` if reset forced by user */
-        } reset;                                /*!< Reset occurred. Use with \ref ESP_EVT_RESET event */
+        } reset_detected;                       /*!< Reset occurred. Use with \ref ESP_EVT_RESET_DETECTED event */
 
         struct {
             espr_t res;                         /*!< Reset operation result */
-        } reset_finish;                         /*!< Reset occurred. Use with \ref ESP_EVT_RESET_FINISH event */
+        } reset;                                /*!< Reset occurred. Use with \ref ESP_EVT_RESET event */
 
         struct {
             esp_conn_p conn;                    /*!< Connection where data were received */

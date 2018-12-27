@@ -72,13 +72,13 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
 } while (0)
 
 /**
- * \brief           Send reset finish event
+ * \brief           Send reset sequence event
  * \param[in]       m: Connection send message
  * \param[in]       err: Error of type \ref gsmr_t
  */
-#define RESET_FINISH_SEND_EVT(m, err)  do { \
-    esp.evt.evt.reset_finish.res = err;             \
-    espi_send_cb(ESP_EVT_RESET_FINISH);             \
+#define RESET_SEND_EVT(m, err)  do { \
+    esp.evt.evt.reset.res = err;                    \
+    espi_send_cb(ESP_EVT_RESET);                    \
 } while (0)
 
 /**
@@ -520,12 +520,12 @@ espi_parse_received(esp_recv_t* rcv) {
      */
     if (is_ready) {
         if (CMD_IS_CUR(ESP_CMD_RESET) || CMD_IS_CUR(ESP_CMD_RESTORE)) {   /* Did we force reset? */
-            esp.evt.evt.reset.forced = 1;
+            esp.evt.evt.reset_detected.forced = 1;
         } else {                                /* Reset due unknown error */
-            esp.evt.evt.reset.forced = 0;
+            esp.evt.evt.reset_detected.forced = 0;
         }
-        espi_reset_everything(esp.evt.evt.reset.forced);/* Put everything to default state */
-        espi_send_cb(ESP_EVT_RESET);            /* Call user callback function */
+        espi_reset_everything(esp.evt.evt.reset_detected.forced);   /* Put everything to default state */
+        espi_send_cb(ESP_EVT_RESET_DETECTED);   /* Call user callback function */
     }
 
     /* Read and process statements starting with '+' character */
@@ -1259,7 +1259,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
     if (CMD_IS_DEF(ESP_CMD_RESET)) {            /* Device is in reset mode */
         n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
         if (n_cmd == ESP_CMD_IDLE) {            /* Last command? */
-            RESET_FINISH_SEND_EVT(msg, espOK);
+            RESET_SEND_EVT(msg, espOK);
         }
     } else if (CMD_IS_DEF(ESP_CMD_RESTORE)) {
         if ((CMD_IS_CUR(ESP_CMD_RESTORE) && *is_ready) ||
@@ -1267,7 +1267,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
             SET_NEW_CMD(espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready));
         }
         if (n_cmd == ESP_CMD_IDLE) {
-            espi_send_cb(ESP_EVT_RESTORE_FINISH);
+            espi_send_cb(ESP_EVT_RESTORE);
         }
 #if ESP_CFG_MODE_STATION
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWJAP)) {/* Is our intention to join to access point? */
@@ -1970,9 +1970,10 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
 void
 espi_process_events_for_timeout(esp_msg_t* msg) {
     switch (msg->cmd_def) {
+        /* Timeout on reset sequence */
         case ESP_CMD_RESET: {
             /* Timeout on reset */
-            RESET_FINISH_SEND_EVT(msg, espTIMEOUT);
+            RESET_SEND_EVT(msg, espTIMEOUT);
             break;
         }
 

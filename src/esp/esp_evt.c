@@ -45,13 +45,13 @@ esp_evt_get_type(esp_evt_t* cc) {
 }
 
 /**
- * \brief           Check if reset was forced by user
+ * \brief           Check if detected reset was forced by user
  * \param[in]       cc: Event handle
  * \return          `1` if forced by user, `0` otherwise
  */
 uint8_t
-esp_evt_reset_is_forced(esp_evt_t* cc) {
-    return ESP_U8(!!cc->evt.reset.forced);
+esp_evt_reset_detected_is_forced(esp_evt_t* cc) {
+    return ESP_U8(!!cc->evt.reset_detected.forced);
 }
 
 /**
@@ -60,8 +60,8 @@ esp_evt_reset_is_forced(esp_evt_t* cc) {
  * \return          Member of \ref gsmr_t enumeration
  */
 espr_t
-esp_evt_reset_finish_get_result(esp_evt_t* cc) {
-    return cc->evt.reset_finish.res;
+esp_evt_reset_get_result(esp_evt_t* cc) {
+    return cc->evt.reset.res;
 }
 
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
