@@ -72,6 +72,16 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
 } while (0)
 
 /**
+ * \brief           Send reset finish event
+ * \param[in]       m: Connection send message
+ * \param[in]       err: Error of type \ref gsmr_t
+ */
+#define RESET_FINISH_SEND_EVT(m, err)  do { \
+    esp.evt.evt.reset_finish.res = err;             \
+    espi_send_cb(ESP_EVT_RESET_FINISH);             \
+} while (0)
+
+/**
  * \brief           Send ping event to user
  * \param[in]       m: Command message
  * \param[in]       err: Error of type \ref espr_t
@@ -1249,7 +1259,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
     if (CMD_IS_DEF(ESP_CMD_RESET)) {            /* Device is in reset mode */
         n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
         if (n_cmd == ESP_CMD_IDLE) {            /* Last command? */
-            espi_send_cb(ESP_EVT_RESET_FINISH); /* Notify upper layer */
+            RESET_FINISH_SEND_EVT(msg, espOK);
         }
     } else if (CMD_IS_DEF(ESP_CMD_RESTORE)) {
         if ((CMD_IS_CUR(ESP_CMD_RESTORE) && *is_ready) ||
@@ -1960,6 +1970,11 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
 void
 espi_process_events_for_timeout(esp_msg_t* msg) {
     switch (msg->cmd_def) {
+        case ESP_CMD_RESET: {
+            /* Timeout on reset */
+            RESET_FINISH_SEND_EVT(msg, espTIMEOUT);
+        }
+
         /*
          * Timeout on "connection start" command.
          * Report connection error event

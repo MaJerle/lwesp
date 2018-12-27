@@ -54,6 +54,16 @@ esp_evt_reset_is_forced(esp_evt_t* cc) {
     return ESP_U8(!!cc->evt.reset.forced);
 }
 
+/**
+ * \brief           Get reset sequence operation status
+ * \param[in]       cc: Event data
+ * \return          Member of \ref gsmr_t enumeration
+ */
+espr_t
+esp_evt_reset_finish_get_result(esp_evt_t* cc) {
+    return cc->evt.reset_finish.res;
+}
+
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
 
 /**
@@ -141,7 +151,7 @@ esp_evt_conn_send_get_length(esp_evt_t* cc) {
 /**
  * \brief           Check if connection send was successful
  * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          Member of \ref gsmr_t enumeration
  */
 espr_t
 esp_evt_conn_send_get_result(esp_evt_t* cc) {
@@ -263,7 +273,7 @@ esp_evt_conn_error_get_arg(esp_evt_t* cc) {
 /**
  * \brief           Get command success result
  * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          Member of \ref gsmr_t enumeration
  */
 espr_t
 esp_evt_sta_list_ap_get_result(esp_evt_t* cc) {
@@ -293,7 +303,7 @@ esp_evt_sta_list_ap_get_length(esp_evt_t* cc) {
 /**
  * \brief           Get command success result
  * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          Member of \ref gsmr_t enumeration
  */
 espr_t
 esp_evt_sta_join_ap_get_result(esp_evt_t* cc) {
@@ -357,7 +367,7 @@ esp_evt_sta_info_ap_get_result(esp_evt_t* cc) {
 /**
  * \brief           Get resolve result
  * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          Member of \ref gsmr_t enumeration
  */
 espr_t
 esp_evt_dns_hostbyname_get_result(esp_evt_t* cc) {
@@ -391,7 +401,7 @@ esp_evt_dns_hostbyname_get_ip(esp_evt_t* cc) {
 /**
  * \brief           Get ping status
  * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          Member of \ref gsmr_t enumeration
  */
 espr_t
 esp_evt_ping_get_result(esp_evt_t* cc) {
@@ -423,7 +433,7 @@ esp_evt_ping_get_time(esp_evt_t* cc) {
 /**
  * \brief           Get server command result
  * \param[in]       cc: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          Member of \ref gsmr_t enumeration
  */
 espr_t
 esp_evt_server_get_result(esp_evt_t* cc) {

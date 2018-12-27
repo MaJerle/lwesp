@@ -62,6 +62,18 @@ uint8_t     esp_evt_reset_is_forced(esp_evt_t* cc);
  */
 
 /**
+ * \name            ESP_EVT_RESET_FINISH
+ * \anchor          ESP_EVT_RESET_FINISH
+ * \brief           Event helper functions for \ref ESP_EVT_RESET_FINISH event
+ */
+
+espr_t      esp_evt_reset_finish_get_result(esp_evt_t* cc);
+
+/**
+ * \}
+ */
+
+/**
  * \name            ESP_EVT_AP_IP_STA
  * \anchor          ESP_EVT_AP_IP_STA
  * \brief           Event helper functions for \ref ESP_EVT_AP_IP_STA event

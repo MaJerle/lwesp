@@ -308,6 +308,10 @@ typedef struct esp_evt {
         } reset;                                /*!< Reset occurred. Use with \ref ESP_EVT_RESET event */
 
         struct {
+            espr_t res;                         /*!< Reset operation result */
+        } reset_finish;                         /*!< Reset occurred. Use with \ref ESP_EVT_RESET_FINISH event */
+
+        struct {
             esp_conn_p conn;                    /*!< Connection where data were received */
             esp_pbuf_p buff;                    /*!< Pointer to received data */
         } conn_data_recv;                       /*!< Network data received. Use with \ref ESP_EVT_CONN_RECV event */
