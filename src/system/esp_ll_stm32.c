@@ -149,6 +149,7 @@ configure_uart(uint32_t baudrate) {
 #endif /* defined(ESP_CH_PD_PIN) */
 
         /* Global pin configuration */
+        LL_GPIO_StructInit(&gpio_init);
         gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
         gpio_init.Pull = LL_GPIO_PULL_UP;
         gpio_init.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
