@@ -98,6 +98,40 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
 } while (0)
 
 /**
+ * \brief           Send join AP event to user
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref espr_t
+ */
+#define STA_JOIN_AP_SEND_EVT(m, err) do {           \
+    esp.evt.evt.sta_join_ap.res = err;              \
+    espi_send_cb(ESP_EVT_STA_JOIN_AP);              \
+} while (0)
+
+/**
+ * \brief           Send list AP event to user
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref espr_t
+ */
+#define STA_LIST_AP_SEND_EVT(m, err) do {           \
+    esp.evt.evt.sta_list_ap.aps = msg->msg.ap_list.aps; \
+    esp.evt.evt.sta_list_ap.len = msg->msg.ap_list.apsi;\
+    esp.evt.evt.sta_list_ap.res = err;              \
+    espi_send_cb(ESP_EVT_STA_LIST_AP);              \
+} while (0)
+
+
+/**
+ * \brief           Send info AP event to user
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref espr_t
+ */
+#define STA_INFO_AP_SEND_EVT(m, err) do {           \
+    esp.evt.evt.sta_info_ap.info = esp.msg->msg.sta_info_ap.info;   \
+    esp.evt.evt.sta_info_ap.res = err;              \
+    espi_send_cb(ESP_EVT_STA_INFO_AP);              \
+} while (0)
+
+/**
  * \brief           Create 2-characters long hex from byte
  * \param[in]       num: Number to convert to string
  * \param[out]      str: Pointer to string to save result to
@@ -609,8 +643,6 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.msg->msg.sta_join.error_num = (uint8_t)espi_parse_number(&tmp);
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWJAP_GET) && !strncmp(rcv->data, "+CWJAP", 6)) {
                 espi_parse_cwjap(rcv->data, esp.msg);/* Parse CWJAP */
-                esp.evt.evt.sta_info_ap.info = esp.msg->msg.sta_info_ap.info;
-                espi_send_cb(ESP_EVT_STA_INFO_AP);  /* Call user callback function */
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_DNS
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
@@ -1261,24 +1293,26 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                     case 4: esp.evt.evt.sta_join_ap.res = espERRCONNFAIL;    break;
                     default: esp.evt.evt.sta_join_ap.res = espERR;
                 }
-                espi_send_cb(ESP_EVT_STA_JOIN_AP);  /* Notify upper layer */
             }
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
             espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
             SET_NEW_CMD(ESP_CMD_WIFI_CIPSTAMAC_GET);/* Go to next command to get MAC address */
         } else {
             esp.evt.evt.sta_join_ap.res = espOK;/* Connected ok */
-            espi_send_cb(ESP_EVT_STA_JOIN_AP);  /* Notify upper layer */
+        }
+
+        /* Check command finish */
+        if (n_cmd == ESP_CMD_IDLE) {
+            STA_JOIN_AP_SEND_EVT(msg, esp.evt.evt.sta_join_ap.res);
         }
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_SET)) {
         if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_SET)) {
             SET_NEW_CMD(ESP_CMD_WIFI_CIPSTA_GET);
         }
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWLAP)) {
-        esp.evt.evt.sta_list_ap.aps = msg->msg.ap_list.aps;
-        esp.evt.evt.sta_list_ap.len = msg->msg.ap_list.apsi;
-        esp.evt.evt.sta_list_ap.res = *is_ok ? espOK : espERR;
-        espi_send_cb(ESP_EVT_STA_LIST_AP);
+        STA_LIST_AP_SEND_EVT(msg, *is_ok ? espOK : espERR);
+    } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWJAP_GET)) {
+        STA_INFO_AP_SEND_EVT(msg, *is_ok ? espOK : espERR);
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_GET) || CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
         espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
 #endif /* ESP_CFG_MODE_STATION */
@@ -1960,6 +1994,29 @@ espi_process_events_for_timeout(esp_msg_t* msg) {
                 msg->msg.conn_send.conn, 0, espTIMEOUT);
             break;
         }
+
+#if ESP_CFG_MODE_STATION
+        /* Timeout on join command */
+        case ESP_CMD_WIFI_CWJAP: {
+            /* Join failed event */
+            STA_JOIN_AP_SEND_EVT(msg, espTIMEOUT);
+            break;
+        }
+
+        /* Timeout on list AP command */
+        case ESP_CMD_WIFI_CWLAP: {
+            /* List failed event */
+            STA_LIST_AP_SEND_EVT(msg, espTIMEOUT);
+            break;
+        }
+
+        /* Timeout on info AP command */
+        case ESP_CMD_WIFI_CWJAP_GET: {
+            /* Info failed event */
+            STA_INFO_AP_SEND_EVT(msg, espTIMEOUT);
+            break;
+        }
+#endif /* ESP_CFG_MODE_STATION */
 
 #if ESP_CFG_PING
         /* Timeout on ping command */

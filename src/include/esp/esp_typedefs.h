@@ -348,6 +348,7 @@ typedef struct esp_evt {
         } sta_join_ap;                          /*!< Join to access point. Use with \ref ESP_EVT_STA_JOIN_AP event */
         struct {
             esp_sta_info_ap_t* info;            /*!< AP info of current station */
+            espr_t res;                         /*!< Result of command */
         } sta_info_ap;                          /*!< Current AP informations. Use with \ref ESP_EVT_STA_INFO_AP event */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__

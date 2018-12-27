@@ -340,6 +340,16 @@ esp_evt_sta_info_ap_get_rssi(esp_evt_t* cc) {
     return cc->evt.sta_info_ap.info->rssi;
 }
 
+/**
+ * \brief           Get command result
+ * \param[in]       cc: Event handle
+ * \return          Member of \ref espr_t enumeration
+ */
+espr_t
+esp_evt_sta_info_ap_get_result(esp_evt_t* cc) {
+    return cc->evt.sta_info_ap.res;
+}
+
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 
 #if ESP_CFG_DNS || __DOXYGEN__

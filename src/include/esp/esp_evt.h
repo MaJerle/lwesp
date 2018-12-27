@@ -212,6 +212,7 @@ espr_t      esp_evt_sta_join_ap_get_result(esp_evt_t* cc);
  * \brief           Event helper functions for \ref ESP_EVT_STA_INFO_AP event
  */
 
+espr_t      esp_evt_sta_info_ap_get_result(esp_evt_t* cc);
 const char* esp_evt_sta_info_ap_get_ssid(esp_evt_t* cc);
 esp_mac_t   esp_evt_sta_info_ap_get_mac(esp_evt_t* cc);
 uint8_t     esp_evt_sta_info_ap_get_channel(esp_evt_t* cc);
