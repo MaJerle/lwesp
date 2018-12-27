@@ -2,27 +2,27 @@
  * \file            esp_http_server_fs.c
  * \brief           HTTP server file system wrapper
  */
- 
+
 /*
  * Copyright (c) 2018 Tilen Majerle
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -134,26 +134,26 @@ http_fs_static_files[] = {
 uint8_t
 http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* path) {
     uint8_t i, res;
-                                           
-    file->fptr = 0;     
+
+    file->fptr = 0;
     if (hi != NULL && hi->fs_open != NULL) {    /* Is user defined file system ready? */
         file->rem_open_files = &http_fs_opened_files_cnt;   /* Set pointer to opened files */
         res = hi->fs_open(file, path);          /* Try to read file from user file system */
         if (res) {
             http_fs_opened_files_cnt++;         /* Increase number of opened files */
-            
+
             file->is_static = 0;                /* File is not static */
             return 1;                           /* File is opened! */
         }
     }
-    
+
     /*
      * Try to open static file if available
      */
     for (i = 0; i < ESP_ARRAYSIZE(http_fs_static_files); i++) {
         if (path != NULL && !strcmp(http_fs_static_files[i].path, path)) {
             memset(file, 0x00, sizeof(*file));
-            
+
             file->size = http_fs_static_files[i].size;
             file->data = (uint8_t *)http_fs_static_files[i].data;
             file->is_static = 1;    /* Set to 0 for testing purposes */
@@ -175,7 +175,7 @@ http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* 
 uint32_t
 http_fs_data_read_file(const http_init_t* hi, http_fs_file_t* file, void** buff, size_t btr, size_t* br) {
     uint32_t len;
-    
+
     len = file->size - file->fptr;              /* Calculate remaining length */
     if (buff == NULL) {                         /* If there is no buffer */
         if (file->is_static) {                  /* Check static file */
@@ -185,7 +185,7 @@ http_fs_data_read_file(const http_init_t* hi, http_fs_file_t* file, void** buff,
         }
         return 0;                               /* No bytes to read */
     }
-    
+
     len = ESP_MIN(btr, len);                    /* Get number of bytes we can read */
     if (file->is_static) {                      /* Is file static? */
         *buff = (void *)&file->data[file->fptr];/* Set a new address pointer only */
