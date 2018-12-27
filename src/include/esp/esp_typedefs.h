@@ -309,7 +309,10 @@ typedef struct esp_evt {
 
         struct {
             espr_t res;                         /*!< Reset operation result */
-        } reset;                                /*!< Reset occurred. Use with \ref ESP_EVT_RESET event */
+        } reset;                                /*!< Reset sequence finish. Use with \ref ESP_EVT_RESET event */
+        struct {
+            espr_t res;                         /*!< Restore operation result */
+        } restore;                              /*!< Restore sequence finish. Use with \ref ESP_EVT_RESTORE event */
 
         struct {
             esp_conn_p conn;                    /*!< Connection where data were received */

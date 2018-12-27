@@ -73,12 +73,22 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
 
 /**
  * \brief           Send reset sequence event
- * \param[in]       m: Connection send message
- * \param[in]       err: Error of type \ref gsmr_t
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref espr_t
  */
-#define RESET_SEND_EVT(m, err)  do { \
+#define RESET_SEND_EVT(m, err)  do {                \
     esp.evt.evt.reset.res = err;                    \
     espi_send_cb(ESP_EVT_RESET);                    \
+} while (0)
+
+/**
+ * \brief           Send restore sequence event
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref espr_t
+ */
+#define RESTORE_SEND_EVT(m, err)  do {              \
+    esp.evt.evt.restore.res = err;                  \
+    espi_send_cb(ESP_EVT_RESTORE);                  \
 } while (0)
 
 /**
@@ -1259,7 +1269,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
     if (CMD_IS_DEF(ESP_CMD_RESET)) {            /* Device is in reset mode */
         n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
         if (n_cmd == ESP_CMD_IDLE) {            /* Last command? */
-            RESET_SEND_EVT(msg, espOK);
+            RESET_SEND_EVT(msg, *is_ok ? espOK : espERR);
         }
     } else if (CMD_IS_DEF(ESP_CMD_RESTORE)) {
         if ((CMD_IS_CUR(ESP_CMD_RESTORE) && *is_ready) ||
@@ -1267,7 +1277,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
             SET_NEW_CMD(espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready));
         }
         if (n_cmd == ESP_CMD_IDLE) {
-            espi_send_cb(ESP_EVT_RESTORE);
+            RESTORE_SEND_EVT(msg, *is_ok ? espOK : espERR);
         }
 #if ESP_CFG_MODE_STATION
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWJAP)) {/* Is our intention to join to access point? */
@@ -1974,6 +1984,13 @@ espi_process_events_for_timeout(esp_msg_t* msg) {
         case ESP_CMD_RESET: {
             /* Timeout on reset */
             RESET_SEND_EVT(msg, espTIMEOUT);
+            break;
+        }
+
+        /* Timeout on restore sequence */
+        case ESP_CMD_RESTORE: {
+            /* Timeout on reset */
+            RESTORE_SEND_EVT(msg, espTIMEOUT);
             break;
         }
 

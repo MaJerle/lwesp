@@ -74,6 +74,18 @@ espr_t      esp_evt_reset_get_result(esp_evt_t* cc);
  */
 
 /**
+ * \name            ESP_EVT_RESTORE
+ * \anchor          ESP_EVT_RESTORE
+ * \brief           Event helper functions for \ref ESP_EVT_RESTORE event
+ */
+
+espr_t      esp_evt_restore_get_result(esp_evt_t* cc);
+
+/**
+ * \}
+ */
+
+/**
  * \name            ESP_EVT_AP_IP_STA
  * \anchor          ESP_EVT_AP_IP_STA
  * \brief           Event helper functions for \ref ESP_EVT_AP_IP_STA event

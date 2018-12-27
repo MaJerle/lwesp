@@ -57,11 +57,21 @@ esp_evt_reset_detected_is_forced(esp_evt_t* cc) {
 /**
  * \brief           Get reset sequence operation status
  * \param[in]       cc: Event data
- * \return          Member of \ref gsmr_t enumeration
+ * \return          Member of \ref espr_t enumeration
  */
 espr_t
 esp_evt_reset_get_result(esp_evt_t* cc) {
     return cc->evt.reset.res;
+}
+
+/**
+ * \brief           Get restore sequence operation status
+ * \param[in]       cc: Event data
+ * \return          Member of \ref gsmr_t enumeration
+ */
+espr_t
+esp_evt_restore_get_result(esp_evt_t* cc) {
+    return cc->evt.restore.res;
 }
 
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
