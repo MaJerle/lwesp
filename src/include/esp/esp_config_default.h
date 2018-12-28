@@ -225,7 +225,7 @@
 /**
  * \brief           Minimal debug level
  *
- *                  Check \ref GSM_DBG_LVL for possible values
+ *                  Check \ref ESP_DBG_LVL for possible values
  */
 #ifndef ESP_CFG_DBG_LVL_MIN
 #define ESP_CFG_DBG_LVL_MIN                 ESP_DBG_LVL_ALL

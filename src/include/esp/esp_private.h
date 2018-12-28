@@ -435,7 +435,7 @@ typedef struct {
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     esp_ip_mac_t        ap;                     /*!< Access point IP and MAC addressed */
-#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */s
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 } esp_modules_t;
 
 /**

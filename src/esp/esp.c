@@ -126,12 +126,12 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     espi_conn_init();                           /* Init connection module */
 #if ESP_CFG_RESTORE_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
-        res = esp_restore(blocking);            /* Restore device */
+        res = esp_restore(NULL, NULL, blocking);/* Restore device */
     }
 #endif /* ESP_CFG_RESTORE_ON_INIT */
 #if ESP_CFG_RESET_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
-        res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking);  /* Send reset sequence with delay */
+        res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, NULL, NULL, blocking);  /* Send reset sequence with delay */
     }
 #endif /* ESP_CFG_RESET_ON_INIT */
     if (res == espOK) {
@@ -159,25 +159,31 @@ cleanup:
 
 /**
  * \brief           Execute reset and send default commands
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_reset(uint32_t blocking) {
-    return esp_reset_with_delay(0, blocking);
+esp_reset(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+    return esp_reset_with_delay(0, evt_fn, evt_arg, blocking);
 }
 
 /**
  * \brief           Execute reset and send default commands with delay before first command
  * \param[in]       delay: Number of milliseconds to wait before initiating first command to device
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_reset_with_delay(uint32_t delay, const uint32_t blocking) {
+esp_reset_with_delay(uint32_t delay,
+                        esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
     ESP_MSG_VAR_REF(msg).msg.reset.delay = delay;
 
@@ -186,14 +192,17 @@ esp_reset_with_delay(uint32_t delay, const uint32_t blocking) {
 
 /**
  * \brief           Execute restore command and set module to default values
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_restore(uint32_t blocking) {
+esp_restore(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESTORE;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 5000);
@@ -202,14 +211,18 @@ esp_restore(uint32_t blocking) {
 /**
  * \brief           Sets WiFi mode to either station only, access point only or both
  * \param[in]       mode: Mode of operation. This parameter can be a value of \ref esp_mode_t enumeration
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_wifi_mode(esp_mode_t mode, const uint32_t blocking) {
+esp_set_wifi_mode(esp_mode_t mode,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode; /* Set desired mode */
 
@@ -219,14 +232,18 @@ esp_set_wifi_mode(esp_mode_t mode, const uint32_t blocking) {
 /**
  * \brief           Sets baudrate of AT port (usually UART)
  * \param[in]       baud: Baudrate in units of bits per second
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_at_baudrate(uint32_t baud, const uint32_t blocking) {
+esp_set_at_baudrate(uint32_t baud,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_UART;
     ESP_MSG_VAR_REF(msg).msg.uart.baudrate = baud;
 
@@ -240,17 +257,21 @@ esp_set_at_baudrate(uint32_t baud, const uint32_t blocking) {
  * \param[in]       max_conn: Number of maximal connections populated by server
  * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
  *                      Set to `0` to disable timeout feature (not recommended)
- * \param[in]       evt_fn: Connection callback function
+ * \param[in]       server_evt_fn: Connection callback function
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn evt_fn, const uint32_t blocking) {
+esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn server_evt_fn,
+                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSERVER;
     if (en > 0) {
         ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSERVERMAXCONN;  /* First command is to set maximal number of connections for server */
@@ -259,7 +280,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.port = port;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.max_conn = max_conn;
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.timeout = timeout;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = evt_fn;
+    ESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = server_evt_fn;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -269,13 +290,17 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
 /**
  * \brief           Updated ESP software remotely
  * \note            ESP must be connected to access point to use this feature
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_update_sw(uint32_t blocking) {
+esp_update_sw(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIUPDATE;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 180000);
@@ -289,17 +314,21 @@ esp_update_sw(uint32_t blocking) {
  * \brief           Get IP address from host name
  * \param[in]       host: Pointer to host name to get IP for
  * \param[out]      ip: Pointer to \ref esp_ip_t variable to save IP
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const uint32_t blocking) {
+esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
+                        esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDOMAIN;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
@@ -406,11 +435,14 @@ esp_evt_unregister(esp_evt_fn fn) {
  *
  *                  Use this function to notify stack that device is not connected and not ready to communicate with host device
  * \param[in]       present: Flag indicating device is present
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_device_set_present(uint8_t present, const uint32_t blocking) {
+esp_device_set_present(uint8_t present,
+                        esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     espr_t res = espOK;
     ESP_CORE_PROTECT();
     esp.status.f.dev_present = ESP_U8(!!present);   /* Device is present */
@@ -421,7 +453,7 @@ esp_device_set_present(uint8_t present, const uint32_t blocking) {
 #if ESP_CFG_RESET_ON_INIT
     else {                                      /* Is new device present? */
         ESP_CORE_UNPROTECT();
-        res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, blocking); /* Reset with delay */
+        res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, evt_fn, evt_arg, blocking);
         ESP_CORE_PROTECT();
     }
 #else

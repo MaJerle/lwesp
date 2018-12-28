@@ -42,11 +42,14 @@
  * \param[in]       host: mDNS host name
  * \param[in]       server: mDNS server name
  * \param[in]       port: mDNS server port number
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port, const uint32_t blocking) {
+esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     if (en) {
@@ -56,6 +59,7 @@ esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t 
     }
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_MDNS;
     ESP_MSG_VAR_REF(msg).msg.mdns.en = en;
     ESP_MSG_VAR_REF(msg).msg.mdns.host = host;

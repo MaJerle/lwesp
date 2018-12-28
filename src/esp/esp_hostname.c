@@ -39,16 +39,20 @@
 /**
  * \brief           Set hostname of WiFi station
  * \param[in]       hostname: Name of ESP host
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_hostname_set(const char* hostname, const uint32_t blocking) {
+esp_hostname_set(const char* hostname,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_SET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_set = hostname;
 
@@ -59,17 +63,21 @@ esp_hostname_set(const char* hostname, const uint32_t blocking) {
  * \brief           Get hostname of WiFi station
  * \param[in]       hostname: Pointer to output variable holding memory to save hostname
  * \param[in]       length: Length of buffer for hostname. Length includes memory for `NULL` termination
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_hostname_get(char* hostname, size_t length, const uint32_t blocking) {
+esp_hostname_get(char* hostname, size_t length,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
     ESP_ASSERT("length > 0", length > 0);       /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_GET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_get = hostname;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = length;

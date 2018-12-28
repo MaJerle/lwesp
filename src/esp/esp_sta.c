@@ -38,14 +38,17 @@
 
 /**
  * \brief           Quit (disconnect) from access point
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_quit(uint32_t blocking) {
+esp_sta_quit(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWQAP;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
@@ -58,16 +61,20 @@ esp_sta_quit(uint32_t blocking) {
  * \param[in]       mac: Pointer to MAC address of AP. If you have APs with same name, you can use MAC to select proper one.
  *                      Use `NULL` if not needed
  * \param[in]       def: Status whether this is default SSID or only current one
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
+esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, 
+                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("name != NULL", name != NULL);   /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWJAP;
     ESP_MSG_VAR_REF(msg).msg.sta_join.def = def;
     ESP_MSG_VAR_REF(msg).msg.sta_join.name = name;
@@ -82,14 +89,18 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
  * \note            For auto join feature, you need to do a join to access point with default mode.
  *                  Check \ref esp_sta_join for more information
  * \param[in]       en: Set to `1` to enable or `0` to disable
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_autojoin(uint8_t en, const uint32_t blocking) {
+esp_sta_autojoin(uint8_t en,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWAUTOCONN;
     ESP_MSG_VAR_REF(msg).msg.sta_autojoin.en = en;
 
@@ -100,11 +111,14 @@ esp_sta_autojoin(uint8_t en, const uint32_t blocking) {
  * \brief           Get current access point information (name, mac, channel, rssi)
  * \note            Access point station is currently connected to
  * \param[in]       info: Pointer to connected access point information
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_get_ap_info(esp_sta_info_ap_t* info, const uint32_t blocking) {
+esp_sta_get_ap_info(esp_sta_info_ap_t* info,
+                        esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     if (!esp_sta_is_joined()) {
@@ -113,6 +127,7 @@ esp_sta_get_ap_info(esp_sta_info_ap_t* info, const uint32_t blocking) {
     ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWJAP_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_info_ap.info = info;
 
@@ -125,14 +140,18 @@ esp_sta_get_ap_info(esp_sta_info_ap_t* info, const uint32_t blocking) {
  * \param[out]      gw: Pointer to output variable to save gateway address
  * \param[out]      nm: Pointer to output variable to save netmask address
  * \param[in]       def: Status whether default (`1`) or current (`0`) IP to read
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, const uint32_t blocking) {
+esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
+                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTA_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.gw = gw;
@@ -148,16 +167,20 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, const uint3
  * \param[in]       gw: Pointer to gateway address. Set to `NULL` to use default gateway
  * \param[in]       nm: Pointer to netmask address. Set to `NULL` to use default netmask
  * \param[in]       def: Status whether default (`1`) or current (`0`) IP to set
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, const uint32_t blocking) {
+esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def,
+                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTA_SET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw = gw;
@@ -171,14 +194,18 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
  * \brief           Get station MAC address
  * \param[out]      mac: Pointer to output variable to save MAC address
  * \param[in]       def: Status whether default (`1`) or current (`0`) IP to read
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getmac(esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
+esp_sta_getmac(esp_mac_t* mac, uint8_t def, 
+                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTAMAC_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.def = def;
@@ -190,16 +217,20 @@ esp_sta_getmac(esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
  * \brief           Set station MAC address
  * \param[in]       mac: Pointer to variable with MAC address
  * \param[in]       def: Status whether default (`1`) or current (`0`) MAC to write
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_setmac(const esp_mac_t* mac, uint8_t def, const uint32_t blocking) {
+esp_sta_setmac(const esp_mac_t* mac, uint8_t def,
+                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("mac != NULL", mac != NULL);     /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTAMAC_SET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.def = def;
@@ -263,11 +294,14 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
  * \param[in]       aps: Pointer to array of available access point parameters
  * \param[in]       apsl: Length of aps array
  * \param[out]      apf: Pointer to output variable to save number of access points found
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, const uint32_t blocking) {
+esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     if (apf != NULL) {
@@ -275,6 +309,7 @@ esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, const
     }
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWLAP;
     ESP_MSG_VAR_REF(msg).msg.ap_list.ssid = ssid;
     ESP_MSG_VAR_REF(msg).msg.ap_list.aps = aps;

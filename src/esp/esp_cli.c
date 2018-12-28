@@ -82,7 +82,7 @@ cli_station_info(cli_printf cliprintf, int argc, char** argv) {
     espr_t res;
     esp_sta_info_ap_t info;
 
-    res = esp_sta_get_ap_info(&info, 1);
+    res = esp_sta_get_ap_info(&info, NULL, NULL, 1);
     if (res != espOK) {
         cliprintf("Error: Failed to read station info (%d)"CLI_NL, res);
         return;
@@ -109,7 +109,7 @@ cli_hostname_get(cli_printf cliprintf, int argc, char** argv) {
     espr_t res;
     char hostname[32];
 
-    res = esp_hostname_get(hostname, sizeof(hostname), 1);
+    res = esp_hostname_get(hostname, sizeof(hostname), NULL, NULL, 1);
     if (res != espOK) {
         cliprintf("Error: Failed to get the hostname (%d)"CLI_NL, res);
         return;
@@ -136,7 +136,7 @@ cli_hostname_set(cli_printf cliprintf, int argc, char** argv) {
 
     hostname = argv[1];
 
-    res = esp_hostname_set(hostname, 1);
+    res = esp_hostname_set(hostname, NULL, NULL, 1);
     if (res != espOK) {
         cliprintf("Error: Failed to set the hostname (%d)"CLI_NL, res);
         return;

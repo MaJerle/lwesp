@@ -43,14 +43,18 @@
  * \param[in]       h1: Optional first SNTP server for time. Set to `NULL` if not used
  * \param[in]       h2: Optional second SNTP server for time. Set to `NULL` if not used
  * \param[in]       h3: Optional third SNTP server for time. Set to `NULL` if not used
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3, const uint32_t blocking) {
+esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSNTPCFG;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg.en = en;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg.tz = tz;
@@ -64,14 +68,18 @@ esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const 
 /**
  * \brief           Get time from SNTP servers
  * \param[out]      dt: Pointer to \ref esp_datetime_t structure to fill with date and time values
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sntp_gettime(esp_datetime_t* dt, const uint32_t blocking) {
+esp_sntp_gettime(esp_datetime_t* dt,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSNTPTIME;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sntp_time.dt = dt;
 

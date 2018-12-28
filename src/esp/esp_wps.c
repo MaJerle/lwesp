@@ -39,18 +39,22 @@
 /**
  * \brief           Configure WPS function on ESP device
  * \param[in]       en: Set to `1` to enable WPS or `0` to disable WPS
+ * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_wps_configure(uint8_t en, const uint32_t blocking) {
+esp_wps_configure(uint8_t en,
+                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_WPS;
     ESP_MSG_VAR_REF(msg).msg.wps_cfg.en = en;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
 }
 
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
+#endif /* ESP_CFG_WPS || __DOXYGEN__ */

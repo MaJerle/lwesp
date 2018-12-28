@@ -346,7 +346,7 @@ espi_reset_everything(uint8_t forced) {
 
     /* If reset was not forced by user, repeat with manual reset */
     if (!forced) {
-        esp_reset(0);
+        esp_reset(NULL, NULL, 0);
     }
 }
 
@@ -686,7 +686,7 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.m.sta.is_connected = 1;         /* Wifi is connected */
             espi_send_cb(ESP_EVT_WIFI_CONNECTED);   /* Call user callback function */
             if (!CMD_IS_CUR(ESP_CMD_WIFI_CWJAP)) {  /* In case of auto connection */
-                esp_sta_getip(NULL, NULL, NULL, 0, 0);  /* Get new IP address */
+                esp_sta_getip(NULL, NULL, NULL, 0, NULL, NULL, 0);  /* Get new IP address */
             }
         } else if (!strncmp(&rcv->data[5], "DISCONNECT", 10)) {
             esp.m.sta.is_connected = 0;         /* Wifi is disconnected */
@@ -696,7 +696,7 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.m.sta.has_ip = 1;               /* Wifi got IP address */
             espi_send_cb(ESP_EVT_WIFI_GOT_IP);  /* Call user callback function */
             if (!CMD_IS_CUR(ESP_CMD_WIFI_CWJAP)) { /* In case of auto connection */
-                esp_sta_getip(NULL, NULL, NULL, 0, 0);  /* Get new IP address */
+                esp_sta_getip(NULL, NULL, NULL, 0, NULL, NULL, 0);  /* Get new IP address */
             }
         }
     } else if (CMD_IS_CUR(ESP_CMD_GMR)) {
