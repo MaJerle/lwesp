@@ -228,14 +228,14 @@ espi_parse_cipstatus(const char* str) {
     uint8_t cn_num = 0;
 
     cn_num = espi_parse_number(&str);           /* Parse connection number */
-    esp.active_conns |= 1 << cn_num;            /* Set flag as active */
+    esp.m.active_conns |= 1 << cn_num;          /* Set flag as active */
 
     espi_parse_string(&str, NULL, 0, 1);        /* Parse string and ignore result */
 
-    espi_parse_ip(&str, &esp.conns[cn_num].remote_ip);
-    esp.conns[cn_num].remote_port = espi_parse_number(&str);
-    esp.conns[cn_num].local_port = espi_parse_number(&str);
-    esp.conns[cn_num].status.f.client = !espi_parse_number(&str);
+    espi_parse_ip(&str, &esp.m.conns[cn_num].remote_ip);
+    esp.m.conns[cn_num].remote_port = espi_parse_number(&str);
+    esp.m.conns[cn_num].local_port = espi_parse_number(&str);
+    esp.m.conns[cn_num].status.f.client = !espi_parse_number(&str);
 
     return espOK;
 }
@@ -281,7 +281,7 @@ espi_parse_ipd(const char* str) {
     conn = espi_parse_number(&str);             /* Parse number for connection number */
     len = espi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
 
-    c = conn < ESP_CFG_MAX_CONNS ? &esp.conns[conn] : NULL; /* Get connection handle */
+    c = conn < ESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL;   /* Get connection handle */
     if (c == NULL) {                            /* Invalid connection number */
         return espERR;
     }
@@ -317,11 +317,11 @@ espi_parse_ipd(const char* str) {
      * Check for ':' character if it is end of string and determine how to proceed
      */
     if (*str != ':') {
-        espi_parse_ip(&str, &esp.ipd.ip);       /* Parse incoming packet IP */
-        esp.ipd.port = espi_parse_port(&str);   /* Get port on IPD data */
+        espi_parse_ip(&str, &esp.m.ipd.ip);     /* Parse incoming packet IP */
+        esp.m.ipd.port = espi_parse_port(&str); /* Get port on IPD data */
 
-        ESP_MEMCPY(&esp.conns[conn].remote_ip, &esp.ipd.ip, sizeof(esp.ipd.ip));
-        ESP_MEMCPY(&esp.conns[conn].remote_port, &esp.ipd.port, sizeof(esp.ipd.port));
+        ESP_MEMCPY(&esp.m.conns[conn].remote_ip, &esp.m.ipd.ip, sizeof(esp.m.ipd.ip));
+        ESP_MEMCPY(&esp.m.conns[conn].remote_port, &esp.m.ipd.port, sizeof(esp.m.ipd.port));
     }
 
     /*
@@ -331,10 +331,10 @@ espi_parse_ipd(const char* str) {
      * This check should be always positive when ESP_CFG_CONN_MANUAL_TCP_RECEIVE is disabled
      */
     if (is_data_ipd) {                          /* Shall we start IPD read procedure? */
-        esp.ipd.read = 1;                       /* Start reading network data */
-        esp.ipd.tot_len = len;                  /* Total number of bytes in this received packet */
-        esp.ipd.rem_len = len;                  /* Number of remaining bytes to read */
-        esp.ipd.conn = c;                       /* Pointer to connection we have data for */
+        esp.m.ipd.read = 1;                     /* Start reading network data */
+        esp.m.ipd.tot_len = len;                /* Total number of bytes in this received packet */
+        esp.m.ipd.rem_len = len;                /* Number of remaining bytes to read */
+        esp.m.ipd.conn = c;                     /* Pointer to connection we have data for */
     }
 
     return espOK;
@@ -366,22 +366,22 @@ espi_parse_link_conn(const char* str) {
     if (*str == '+') {
         str += 11;
     }
-    esp.link_conn.failed = espi_parse_number(&str);
-    esp.link_conn.num = espi_parse_number(&str);
+    esp.m.link_conn.failed = espi_parse_number(&str);
+    esp.m.link_conn.num = espi_parse_number(&str);
     if (!strncmp(str, "\"TCP\"", 5)) {
-        esp.link_conn.type = ESP_CONN_TYPE_TCP;
+        esp.m.link_conn.type = ESP_CONN_TYPE_TCP;
     } else if (!strncmp(str, "\"UDP\"", 5)) {
-        esp.link_conn.type = ESP_CONN_TYPE_UDP;
+        esp.m.link_conn.type = ESP_CONN_TYPE_UDP;
     } else if (!strncmp(str, "\"SSL\"", 5)) {
-        esp.link_conn.type = ESP_CONN_TYPE_SSL;
+        esp.m.link_conn.type = ESP_CONN_TYPE_SSL;
     } else {
         return 0;
     }
     str += 6;
-    esp.link_conn.is_server = espi_parse_number(&str);
-    espi_parse_ip(&str, &esp.link_conn.remote_ip);
-    esp.link_conn.remote_port = espi_parse_number(&str);
-    esp.link_conn.local_port = espi_parse_number(&str);
+    esp.m.link_conn.is_server = espi_parse_number(&str);
+    espi_parse_ip(&str, &esp.m.link_conn.remote_ip);
+    esp.m.link_conn.remote_port = espi_parse_number(&str);
+    esp.m.link_conn.local_port = espi_parse_number(&str);
     return 1;
 }
 

@@ -414,11 +414,30 @@ typedef struct esp_evt_func {
 } esp_evt_func_t;
 
 /**
+ * \brief           ESP modules structure
+ */
+typedef struct {
+    uint32_t            active_conns;           /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
+    uint32_t            active_conns_last;      /*!< The same as previous but status before last check */
+
+    esp_link_conn_t     link_conn;              /*!< Link connection handle */
+    esp_ipd_t           ipd;                    /*!< Connection incoming data structure */
+    esp_conn_t          conns[ESP_CFG_MAX_CONNS];   /*!< Array of all connection structures */
+
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
+    esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
+    esp_ip_mac_t        ap;                     /*!< Access point IP and MAC addressed */
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */s
+} esp_modules_t;
+
+/**
  * \brief           ESP global structure
  */
 typedef struct {
-    esp_sw_version_t   version_at;              /*!< Version of AT command software on ESP device */
-    esp_sw_version_t   version_sdk;             /*!< Version of SDK used to build AT software */
+    esp_sw_version_t    version_at;             /*!< Version of AT command software on ESP device */
+    esp_sw_version_t    version_sdk;            /*!< Version of SDK used to build AT software */
 
     esp_sys_sem_t       sem_sync;               /*!< Synchronization semaphore between threads */
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
@@ -432,24 +451,11 @@ typedef struct {
 
     esp_msg_t*          msg;                    /*!< Pointer to current user message being executed */
 
-    uint32_t            active_conns;           /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
-    uint32_t            active_conns_last;      /*!< The same as previous but status before last check */
-
-    esp_conn_t          conns[ESP_CFG_MAX_CONNS];   /*!< Array of all connection structures */
-
-    esp_link_conn_t     link_conn;              /*!< Link connection handle */
-    esp_ipd_t           ipd;                    /*!< Connection incoming data structure */
     esp_evt_t           evt;                    /*!< Callback processing structure */
-
     esp_evt_func_t*     evt_func;               /*!< Callback function linked list */
     esp_evt_fn          evt_server;             /*!< Default callback function for server connections */
 
-#if ESP_CFG_MODE_STATION || __DOXYGEN__
-    esp_ip_mac_t        sta;                    /*!< Station IP and MAC addressed */
-#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
-#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-    esp_ip_mac_t        ap;                     /*!< Access point IP and MAC addressed */
-#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+    esp_modules_t       m;                      /*!< All modules. When resetting, reset structure */
 
     union {
         struct {

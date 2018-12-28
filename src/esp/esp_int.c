@@ -305,13 +305,13 @@ reset_connections(uint8_t forced) {
     esp.evt.type = ESP_EVT_CONN_CLOSED;
     esp.evt.evt.conn_active_closed.forced = forced;
 
-    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {    /* Check all connections */
-        if (esp.conns[i].status.f.active) {
-            esp.conns[i].status.f.active = 0;
+    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {/* Check all connections */
+        if (esp.m.conns[i].status.f.active) {
+            esp.m.conns[i].status.f.active = 0;
 
-            esp.evt.evt.conn_active_closed.conn = &esp.conns[i];
-            esp.evt.evt.conn_active_closed.client = esp.conns[i].status.f.client;
-            espi_send_conn_cb(&esp.conns[i], NULL); /* Send callback function */
+            esp.evt.evt.conn_active_closed.conn = &esp.m.conns[i];
+            esp.evt.evt.conn_active_closed.client = esp.m.conns[i].status.f.client;
+            espi_send_conn_cb(&esp.m.conns[i], NULL);   /* Send callback function */
         }
     }
 }
@@ -580,12 +580,12 @@ espi_parse_received(esp_recv_t* rcv) {
                 if (is_received_current_setting(rcv->data)) {
 #if ESP_CFG_MODE_STATION
                     if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET)) {
-                        ESP_MEMCPY(&esp.sta.mac, &mac, 6);  /* Copy to current setup */
+                        ESP_MEMCPY(&esp.m.sta.mac, &mac, 6);/* Copy to current setup */
                     }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
                     if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_GET)) {
-                        ESP_MEMCPY(&esp.ap.mac, &mac, 6);   /* Copy to current setup */
+                        ESP_MEMCPY(&esp.m.ap.mac, &mac, 6); /* Copy to current setup */
                     }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
                 }
@@ -607,12 +607,12 @@ espi_parse_received(esp_recv_t* rcv) {
 
 #if ESP_CFG_MODE_STATION
                 if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
-                    im = &esp.sta;              /* Get IP and MAC structure first */
+                    im = &esp.m.sta;            /* Get IP and MAC structure first */
                 }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
                 if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET)) {
-                    im = &esp.ap;               /* Get IP and MAC structure first */
+                    im = &esp.m.ap;             /* Get IP and MAC structure first */
                 }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
 
@@ -730,7 +730,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 espi_parse_cipstatus(rcv->data + 11);   /* Parse CIPSTATUS response */
             } else if (is_ok) {
                 for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {    /* Set current connection statuses */
-                    esp.conns[i].status.f.active = !!(esp.active_conns & (1 << i));
+                    esp.m.conns[i].status.f.active = !!(esp.m.active_conns & (1 << i));
                 }
             }
         } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {
@@ -788,10 +788,10 @@ espi_parse_received(esp_recv_t* rcv) {
      * Check LINK_CONN messages
      */
     if (rcv->len > 20 && (s = strstr(rcv->data, "+LINK_CONN:")) != NULL) {
-        if (espi_parse_link_conn(s) && esp.link_conn.num < ESP_CFG_MAX_CONNS) {
+        if (espi_parse_link_conn(s) && esp.m.link_conn.num < ESP_CFG_MAX_CONNS) {
             uint8_t id;
-            esp_conn_t* conn = &esp.conns[esp.link_conn.num];   /* Get connection pointer */
-            if (esp.link_conn.failed && conn->status.f.active) {/* Connection failed and now closed? */
+            esp_conn_t* conn = &esp.m.conns[esp.m.link_conn.num];   /* Get connection pointer */
+            if (esp.m.link_conn.failed && conn->status.f.active) {  /* Connection failed and now closed? */
                 conn->status.f.active = 0;      /* Connection was just closed */
 
                 esp.evt.type = ESP_EVT_CONN_CLOSED; /* Connection just active */
@@ -808,21 +808,21 @@ espi_parse_received(esp_recv_t* rcv) {
                     esp_mem_free(conn->buff.buff);  /* Free memory */
                     conn->buff.buff = NULL;
                 }
-            } else if (!esp.link_conn.failed && !conn->status.f.active) {
+            } else if (!esp.m.link_conn.failed && !conn->status.f.active) {
                 id = conn->val_id;
                 ESP_MEMSET(conn, 0x00, sizeof(*conn));  /* Reset connection parameters */
-                conn->num = esp.link_conn.num;  /* Set connection number */
-                conn->status.f.active = !esp.link_conn.failed;  /* Check if connection active */
+                conn->num = esp.m.link_conn.num;/* Set connection number */
+                conn->status.f.active = !esp.m.link_conn.failed;    /* Check if connection active */
                 conn->val_id = ++id;            /* Set new validation ID */
 
-                conn->type = esp.link_conn.type;/* Set connection type */
-                ESP_MEMCPY(&conn->remote_ip, &esp.link_conn.remote_ip, sizeof(conn->remote_ip));
-                conn->remote_port = esp.link_conn.remote_port;
-                conn->local_port = esp.link_conn.local_port;
-                conn->status.f.client = !esp.link_conn.is_server;
+                conn->type = esp.m.link_conn.type;/* Set connection type */
+                ESP_MEMCPY(&conn->remote_ip, &esp.m.link_conn.remote_ip, sizeof(conn->remote_ip));
+                conn->remote_port = esp.m.link_conn.remote_port;
+                conn->local_port = esp.m.link_conn.local_port;
+                conn->status.f.client = !esp.m.link_conn.is_server;
 
                 if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)
-                    && esp.link_conn.num == esp.msg->msg.conn_start.num
+                    && esp.m.link_conn.num == esp.msg->msg.conn_start.num
                     && conn->status.f.client) { /* Did we start connection on our own and connection is client? */
                     conn->status.f.client = 1;  /* Go to client mode */
                     conn->evt_func = esp.msg->msg.conn_start.evt_func;  /* Set callback function */
@@ -853,7 +853,7 @@ espi_parse_received(esp_recv_t* rcv) {
         }
         num = espi_parse_number(&tmp);          /* Parse connection number */
         if (num < ESP_CFG_MAX_CONNS) {
-            esp_conn_t* conn = &esp.conns[num]; /* Parse received data */
+            esp_conn_t* conn = &esp.m.conns[num];   /* Parse received data */
             conn->num = num;                    /* Set connection number */
             if (conn->status.f.active) {        /* Is connection actually active? */
                 conn->status.f.active = 0;      /* Connection was just closed */
@@ -991,22 +991,22 @@ espi_process(const void* data, size_t data_len) {
          * First check if we are in IPD mode and process plain data
          * without checking for valid ASCII or unicode format
          */
-        if (esp.ipd.read) {                     /* Do we have to read incoming IPD data? */
+        if (esp.m.ipd.read) {                   /* Do we have to read incoming IPD data? */
             size_t len;
 
-            if (esp.ipd.buff != NULL) {         /* Do we have active buffer? */
-                esp.ipd.buff->payload[esp.ipd.buff_ptr] = ch;   /* Save data character */
+            if (esp.m.ipd.buff != NULL) {       /* Do we have active buffer? */
+                esp.m.ipd.buff->payload[esp.m.ipd.buff_ptr] = ch;   /* Save data character */
             }
-            esp.ipd.buff_ptr++;
-            esp.ipd.rem_len--;
+            esp.m.ipd.buff_ptr++;
+            esp.m.ipd.rem_len--;
 
             /* Try to read more data directly from buffer */
-            len = ESP_MIN(d_len, ESP_MIN(esp.ipd.rem_len, esp.ipd.buff != NULL ? (esp.ipd.buff->len - esp.ipd.buff_ptr) : esp.ipd.rem_len));
+            len = ESP_MIN(d_len, ESP_MIN(esp.m.ipd.rem_len, esp.m.ipd.buff != NULL ? (esp.m.ipd.buff->len - esp.m.ipd.buff_ptr) : esp.m.ipd.rem_len));
             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                 "[IPD] New length to read: %d bytes\r\n", (int)len);
             if (len) {
-                if (esp.ipd.buff != NULL) {     /* Is buffer valid? */
-                    ESP_MEMCPY(&esp.ipd.buff->payload[esp.ipd.buff_ptr], d, len);
+                if (esp.m.ipd.buff != NULL) {   /* Is buffer valid? */
+                    ESP_MEMCPY(&esp.m.ipd.buff->payload[esp.m.ipd.buff_ptr], d, len);
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                         "[IPD] Bytes read: %d\r\n", (int)len);
                 } else {                        /* Simply skip the data in buffer */
@@ -1015,17 +1015,17 @@ espi_process(const void* data, size_t data_len) {
                 }
                 d_len -= len;                   /* Decrease effective length */
                 d += len;                       /* Skip remaining length */
-                esp.ipd.buff_ptr += len;        /* Forward buffer pointer */
-                esp.ipd.rem_len -= len;         /* Decrease remaining length */
+                esp.m.ipd.buff_ptr += len;      /* Forward buffer pointer */
+                esp.m.ipd.rem_len -= len;       /* Decrease remaining length */
             }
 
             /* Did we reach end of buffer or no more data? */
-            if (!esp.ipd.rem_len || (esp.ipd.buff != NULL && esp.ipd.buff_ptr == esp.ipd.buff->len)) {
+            if (!esp.m.ipd.rem_len || (esp.m.ipd.buff != NULL && esp.m.ipd.buff_ptr == esp.m.ipd.buff->len)) {
                 espr_t res = espOK;
 
                 /* Call user callback function with received data */
-                if (esp.ipd.buff != NULL) {     /* Do we have valid buffer? */
-                    esp.ipd.conn->total_recved += esp.ipd.buff->tot_len;    /* Increase number of bytes received */
+                if (esp.m.ipd.buff != NULL) {     /* Do we have valid buffer? */
+                    esp.m.ipd.conn->total_recved += esp.m.ipd.buff->tot_len;  /* Increase number of bytes received */
 
                     /*
                      * Send data buffer to upper layer
@@ -1034,17 +1034,17 @@ espi_process(const void* data, size_t data_len) {
                      * buffer and must free it manually
                      */
                     esp.evt.type = ESP_EVT_CONN_RECV;
-                    esp.evt.evt.conn_data_recv.buff = esp.ipd.buff;
-                    esp.evt.evt.conn_data_recv.conn = esp.ipd.conn;
-                    res = espi_send_conn_cb(esp.ipd.conn, NULL);
+                    esp.evt.evt.conn_data_recv.buff = esp.m.ipd.buff;
+                    esp.evt.evt.conn_data_recv.conn = esp.m.ipd.conn;
+                    res = espi_send_conn_cb(esp.m.ipd.conn, NULL);
 
-                    esp_pbuf_free(esp.ipd.buff);    /* Free packet buffer at this point */
+                    esp_pbuf_free(esp.m.ipd.buff);  /* Free packet buffer at this point */
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                         "[IPD] Free packet buffer\r\n");
                     if (res == espOKIGNOREMORE) {   /* We should ignore more data */
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                             "[IPD] Ignoring more data from this IPD if available\r\n");
-                        esp.ipd.buff = NULL;    /* Set to NULL to ignore more data if possibly available */
+                        esp.m.ipd.buff = NULL;  /* Set to NULL to ignore more data if possibly available */
                     }
 
                     /*
@@ -1053,28 +1053,28 @@ espi_process(const void* data, size_t data_len) {
                      *  - Previous one was successful and more data to read and
                      *  - Connection is not in closing state
                      */
-                    if (esp.ipd.buff != NULL && esp.ipd.rem_len && !esp.ipd.conn->status.f.in_closing) {
-                        size_t new_len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);   /* Calculate new buffer length */
+                    if (esp.m.ipd.buff != NULL && esp.m.ipd.rem_len && !esp.m.ipd.conn->status.f.in_closing) {
+                        size_t new_len = ESP_MIN(esp.m.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE); /* Calculate new buffer length */
 
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                             "[IPD] Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
-                        esp.ipd.buff = esp_pbuf_new(new_len);   /* Allocate new packet buffer */
+                        esp.m.ipd.buff = esp_pbuf_new(new_len); /* Allocate new packet buffer */
 
                         ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
-                            esp.ipd.buff == NULL, "[IPD] Buffer allocation failed for %d bytes\r\n", (int)new_len);
+                            esp.m.ipd.buff == NULL, "[IPD] Buffer allocation failed for %d bytes\r\n", (int)new_len);
 
-                        if (esp.ipd.buff != NULL) {
-                            esp_pbuf_set_ip(esp.ipd.buff, &esp.ipd.ip, esp.ipd.port);   /* Set IP and port for received data */
+                        if (esp.m.ipd.buff != NULL) {
+                            esp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip, esp.m.ipd.port); /* Set IP and port for received data */
                         }
                     } else {
-                        esp.ipd.buff = NULL;    /* Reset it */
+                        esp.m.ipd.buff = NULL;  /* Reset it */
                     }
                 }
-                if (!esp.ipd.rem_len) {         /* Check if we read everything */
-                    esp.ipd.buff = NULL;        /* Reset buffer pointer */
-                    esp.ipd.read = 0;           /* Stop reading data */
+                if (!esp.m.ipd.rem_len) {       /* Check if we read everything */
+                    esp.m.ipd.buff = NULL;      /* Reset buffer pointer */
+                    esp.m.ipd.read = 0;         /* Stop reading data */
                 }
-                esp.ipd.buff_ptr = 0;           /* Reset input buffer pointer */
+                esp.m.ipd.buff_ptr = 0;         /* Reset input buffer pointer */
             }
 
         /*
@@ -1125,16 +1125,16 @@ espi_process(const void* data, size_t data_len) {
                      */
                     if (ch == ':' && RECV_LEN() > 12 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)) {
                         espi_parse_received(&recv_buff);    /* Parse received string */
-                        if (esp.ipd.read) {     /* Shall we start read procedure? */
+                        if (esp.m.ipd.read) {   /* Shall we start read procedure? */
                             /*
                              * We should have already allocated pbuf memory at this stage
                              * in current message from actual command handle
                              *
                              * Pbuf length should not be bigger than number of received bytes
                              */
-                            esp.ipd.buff = esp.msg->msg.ciprecvdata.buff;
-                            esp.ipd.conn = esp.msg->msg.ciprecvdata.conn;
-                            if (esp.ipd.buff != NULL) {
+                            esp.m.ipd.buff = esp.msg->msg.ciprecvdata.buff;
+                            esp.m.ipd.conn = esp.msg->msg.ciprecvdata.conn;
+                            if (esp.m.ipd.buff != NULL) {
 
                             }
                             esp.msg->msg.ciprecvdata.buff = NULL;   /* Clear reference for this pbuf */
@@ -1148,13 +1148,13 @@ espi_process(const void* data, size_t data_len) {
                      */
                     if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+IPD", 4)) {
                         espi_parse_received(&recv_buff);/* Parse received string */
-                        if (esp.ipd.read) {     /* Shall we start read procedure? */
+                        if (esp.m.ipd.read) {   /* Shall we start read procedure? */
                             size_t len;
                             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                                 "[IPD] Data on connection %d with total size %d byte(s)\r\n",
-                                (int)esp.ipd.conn->num, (int)esp.ipd.tot_len);
+                                (int)esp.m.ipd.conn->num, (int)esp.m.ipd.tot_len);
 
-                            len = ESP_MIN(esp.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
+                            len = ESP_MIN(esp.m.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
 
                             /*
                              * Read received data in case of:
@@ -1162,22 +1162,22 @@ espi_process(const void* data, size_t data_len) {
                              *  - Connection is active and
                              *  - Connection is not in closing mode
                              */
-                            if (esp.ipd.conn->status.f.active && !esp.ipd.conn->status.f.in_closing) {
-                                esp.ipd.buff = esp_pbuf_new(len);   /* Allocate new packet buffer */
-                                if (esp.ipd.buff != NULL) {
-                                    esp_pbuf_set_ip(esp.ipd.buff, &esp.ipd.ip, esp.ipd.port);   /* Set IP and port for received data */
+                            if (esp.m.ipd.conn->status.f.active && !esp.m.ipd.conn->status.f.in_closing) {
+                                esp.m.ipd.buff = esp_pbuf_new(len); /* Allocate new packet buffer */
+                                if (esp.m.ipd.buff != NULL) {
+                                    esp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip, esp.m.ipd.port); /* Set IP and port for received data */
                                 }
-                                ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING, esp.ipd.buff == NULL,
+                                ESP_DEBUGW(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING, esp.m.ipd.buff == NULL,
                                     "[IPD] Buffer allocation failed for %d byte(s)\r\n", (int)len);
                             } else {
-                                esp.ipd.buff = NULL;    /* Ignore reading on closed connection */
+                                esp.m.ipd.buff = NULL;  /* Ignore reading on closed connection */
                                 ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                                     "[IPD] Connection %d closed or in closing, skipping %d byte(s)\r\n",
-                                    (int)esp.ipd.conn->num, (int)len);
+                                    (int)esp.m.ipd.conn->num, (int)len);
                             }
-                            esp.ipd.conn->status.f.data_received = 1;   /* We have first received data */
+                            esp.m.ipd.conn->status.f.data_received = 1; /* We have first received data */
                         }
-                        esp.ipd.buff_ptr = 0;   /* Reset buffer write pointer */
+                        esp.m.ipd.buff_ptr = 0; /* Reset buffer write pointer */
                         RECV_RESET();           /* Reset received buffer */
                     }
                 } else {                        /* We have sequence of unicode characters */
@@ -1746,9 +1746,9 @@ espi_initiate_cmd(esp_msg_t* msg) {
 
             msg->msg.conn_start.num = 0;        /* Start with max value = invalidated */
             for (int16_t i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
-                if (!esp.conns[i].status.f.active
-                    || !(esp.active_conns & (1 << i))) {
-                    c = &esp.conns[i];
+                if (!esp.m.conns[i].status.f.active
+                    || !(esp.m.active_conns & (1 << i))) {
+                    c = &esp.m.conns[i];
                     c->num = ESP_U8(i);
                     msg->msg.conn_start.num = ESP_U8(i);    /* Set connection number for message structure */
                     break;
@@ -1800,8 +1800,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
             return espi_tcpip_process_send_data();  /* Process send data */
         }
         case ESP_CMD_TCPIP_CIPSTATUS: {         /* Get status of device and all connections */
-            esp.active_conns_last = esp.active_conns;   /* Save as last status */
-            esp.active_conns = 0;               /* Reset new status before parsing starts */
+            esp.m.active_conns_last = esp.m.active_conns;   /* Save as last status */
+            esp.m.active_conns = 0;             /* Reset new status before parsing starts */
             ESP_AT_PORT_SEND_BEGIN();
             ESP_AT_PORT_SEND_STR("+CIPSTATUS");
             ESP_AT_PORT_SEND_END();
@@ -1904,8 +1904,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
  */
 uint8_t
 espi_is_valid_conn_ptr(esp_conn_p conn) {
-    for (size_t i = 0; i < ESP_ARRAYSIZE(esp.conns); i++) {
-        if (conn == &esp.conns[i]) {
+    for (size_t i = 0; i < ESP_ARRAYSIZE(esp.m.conns); i++) {
+        if (conn == &esp.m.conns[i]) {
             return 1;
         }
     }
