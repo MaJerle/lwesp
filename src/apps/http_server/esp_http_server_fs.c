@@ -152,7 +152,7 @@ http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* 
      */
     for (i = 0; i < ESP_ARRAYSIZE(http_fs_static_files); i++) {
         if (path != NULL && !strcmp(http_fs_static_files[i].path, path)) {
-            memset(file, 0x00, sizeof(*file));
+            ESP_MEMSET(file, 0x00, sizeof(*file));
 
             file->size = http_fs_static_files[i].size;
             file->data = (uint8_t *)http_fs_static_files[i].data;

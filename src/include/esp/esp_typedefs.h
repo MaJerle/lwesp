@@ -445,6 +445,14 @@ typedef struct {
     size_t ptr;                                 /*!< Current buffer pointer */
 } esp_linbuff_t;
 
+/**
+ * \ingroup         ESP_TYPEDEFS
+ * \brief           Function declaration for API function command event callback function
+ * \param[in]       res: Operation result, member of \ref espr_t enumeration
+ * \param[in]       arg: Custom user argument
+ */
+typedef void (*esp_api_cmd_evt_fn) (espr_t res, void* arg);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

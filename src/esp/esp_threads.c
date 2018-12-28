@@ -99,12 +99,9 @@ esp_thread_producer(void* const arg) {
             msg->res = res;                     /* Save response */
         }
 
-        /*
-         * If there was timeout on command
-         * check commands and call relevant callback functions
-         */
-        if (res == espTIMEOUT) {
-
+        /* Send event function to user */
+        if (msg->evt_fn != NULL) {
+            msg->evt_fn(msg->res, msg->evt_arg);/* Send event with user argument */
         }
 
         /*

@@ -421,7 +421,7 @@ uint8_t
 http_get_file_from_uri(http_state_t* hs, const char* uri) {
     size_t uri_len;
 
-    memset(&hs->resp_file, 0x00, sizeof(hs->resp_file));
+    ESP_MEMSET(&hs->resp_file, 0x00, sizeof(hs->resp_file));
     uri_len = strlen(uri);                      /* Get URI total length */
     if ((uri_len == 1 && uri[0] == '/') ||      /* Index file only requested */
         (uri_len > 1 && uri[0] == '/' && uri[1] == '?')) {  /* Index file + parameters */

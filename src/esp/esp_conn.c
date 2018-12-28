@@ -89,6 +89,7 @@ espi_conn_start_timeout(esp_conn_p conn) {
  */
 espr_t
 espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
+	uint32_t blocking = 0;
     esp_pbuf_p p;
     espr_t res;
 
@@ -116,7 +117,7 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
     msg->msg.ciprecvdata.conn = conn;
 
     /* Send command to queue */
-    if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 0, 60000)) != espOK) {
+    if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) != espOK) {
         esp_pbuf_free(p);
     }
     return res;
@@ -178,7 +179,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
     ESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
     ESP_MSG_VAR_REF(msg).msg.conn_send.val_id = conn_get_val_id(conn);
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
 }
 
 /**
@@ -250,7 +251,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
     ESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = evt_fn;
     ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 60000);
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
 }
 
 /**
@@ -275,7 +276,7 @@ esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).msg.conn_close.val_id = conn_get_val_id(conn);
 
     flush_buff(conn);                           /* First flush buffer */
-    res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
+    res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
     if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
         ESP_CORE_PROTECT();
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
@@ -420,7 +421,7 @@ esp_get_conns_status(uint32_t blocking) {
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTATUS;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
@@ -517,7 +518,7 @@ esp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLSIZE;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, blocking, 1000);
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**

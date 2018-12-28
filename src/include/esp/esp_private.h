@@ -217,6 +217,10 @@ typedef struct esp_msg {
     uint32_t        block_time;                 /*!< Maximal blocking time in units of milliseconds. Use 0 to for non-blocking call */
     espr_t          res;                        /*!< Result of message operation */
     espr_t          (*fn)(struct esp_msg *);    /*!< Processing callback function to process packet */
+
+    esp_api_cmd_evt_fn evt_fn;                  /*!< Command callback API function */
+    void*           evt_arg;                    /*!< Command callback API callback parameter */
+
     union {
         struct {
             uint32_t delay;                     /*!< Delay in units of milliseconds before executing first RESET command */
@@ -505,6 +509,11 @@ extern esp_t esp;
         return espERRMEM;                           \
     }                                               \
     ESP_MEMSET(name, 0x00, sizeof(*(name)));        \
+    (name)->is_blocking = (blocking);               \
+} while (0)
+#define ESP_MSG_VAR_SET_EVT(name)               do {\
+    (name)->evt_fn = (evt_fn);                      \
+    (name)->evt_arg = (evt_arg);                    \
 } while (0)
 #define ESP_MSG_VAR_REF(name)                   (*(name))
 #define ESP_MSG_VAR_FREE(name)                  do {\
@@ -573,7 +582,7 @@ espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn cb);
 void        espi_conn_init(void);
 void        espi_conn_start_timeout(esp_conn_p conn);
 espr_t      espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len);
-espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block, uint32_t max_block_time);
+espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t max_block_time);
 uint32_t    espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout);
 
 void        espi_reset_everything(uint8_t forced);

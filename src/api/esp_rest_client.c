@@ -84,7 +84,7 @@ esp_rest_reset(esp_rest_p* rh) {
     ESP_ASSERT("rh != NULL && *rh != NULL", rh != NULL && *rh != NULL); /* Check input parameters */
 
     desc = (*rh)->desc;
-    memset(*rh, 0x00, sizeof(**rh));            /* Reset memory */
+    ESP_MEMSET(*rh, 0x00, sizeof(**rh));
     (*rh)->desc = desc;
     return espOK;
 }

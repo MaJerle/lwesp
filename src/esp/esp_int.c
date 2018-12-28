@@ -342,7 +342,7 @@ espi_reset_everything(uint8_t forced) {
     esp.m.sta.is_connected = 0;
 
     /* Invalid ESP modules */
-    memset(&esp.m, 0x00, sizeof(esp.m));
+    ESP_MEMSET(&esp.m, 0x00, sizeof(esp.m));
 
     /* If reset was not forced by user, repeat with manual reset */
     if (!forced) {
@@ -1920,11 +1920,11 @@ espi_is_valid_conn_ptr(esp_conn_p conn) {
  * \brief           Send message from API function to producer queue for further processing
  * \param[in]       msg: New message to process
  * \param[in]       process_fn: callback function used to process message
- * \param[in]       block_time: Time used to block function. Use 0 for non-blocking call
+ * \param[in]       max_block_time: Maximal time command can block in units of milliseconds
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t block, uint32_t max_block_time) {
+espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t max_block_time) {
     espr_t res = msg->res = espOK;
 
     /* Check here if stack is even enabled or shall we disable new command entry? */
@@ -1940,7 +1940,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
         return res;
     }
 
-    if (block) {                                /* In case message is blocking */
+    if (msg->is_blocking) {                     /* In case message is blocking */
         if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */
             ESP_MSG_VAR_FREE(msg);              /* Release memory and return */
             return espERRMEM;
@@ -1949,10 +1949,9 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     if (!msg->cmd) {                            /* Set start command if not set by user */
         msg->cmd = msg->cmd_def;                /* Set it as default */
     }
-    msg->is_blocking = block;                   /* Set status if message is blocking */
     msg->block_time = max_block_time;           /* Set blocking status if necessary */
     msg->fn = process_fn;                       /* Save processing function to be called as callback */
-    if (block) {
+    if (msg->is_blocking) {
         esp_sys_mbox_put(&esp.mbox_producer, msg);  /* Write message to producer queue and wait forever */
     } else {
         if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
@@ -1960,7 +1959,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
             res = espERRMEM;
         }
     }
-    if (block && res == espOK) {                /* In case we have blocking request */
+    if (msg->is_blocking && res == espOK) {     /* In case we have blocking request */
         uint32_t time;
         time = esp_sys_sem_wait(&msg->sem, max_block_time * 100);   /* Wait forever for semaphore access for max block time */
         if (ESP_SYS_TIMEOUT == time) {          /* If semaphore was not accessed in given time */
