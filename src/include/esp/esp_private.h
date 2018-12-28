@@ -390,6 +390,8 @@ typedef struct {
     esp_ip_t gw;                                /*!< Gateway address */
     esp_ip_t nm;                                /*!< Netmask address */
     esp_mac_t mac;                              /*!< MAC address */
+    uint8_t has_ip;                             /*!< Flag indicating ESP has IP */
+    uint8_t is_connected;                       /*!< Flag indicating ESP is connected to wifi */
 } esp_ip_mac_t;
 
 /**
@@ -461,8 +463,6 @@ typedef struct {
         struct {
             uint8_t     initialized:1;          /*!< Flag indicating ESP library is initialized */
             uint8_t     dev_present:1;          /*!< Flag indicating if physical device is connected to host device */
-            uint8_t     r_got_ip:1;             /*!< Flag indicating ESP has IP */
-            uint8_t     r_w_conn:1;             /*!< Flag indicating ESP is connected to wifi */
         } f;                                    /*!< Flags structure */
     } status;                                   /*!< Status structure */
 

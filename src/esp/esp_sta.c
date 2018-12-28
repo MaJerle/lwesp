@@ -215,7 +215,7 @@ uint8_t
 esp_sta_has_ip(void) {
     uint8_t res;
     ESP_CORE_PROTECT();
-    res = ESP_U8(esp.status.f.r_got_ip);
+    res = ESP_U8(esp.m.sta.has_ip);
     ESP_CORE_UNPROTECT();
     return res;
 }

@@ -683,17 +683,17 @@ espi_parse_received(esp_recv_t* rcv) {
 #if ESP_CFG_MODE_STATION
     } else if (strlen(rcv->data) > 4 && !strncmp(rcv->data, "WIFI", 4)) {
         if (!strncmp(&rcv->data[5], "CONNECTED", 9)) {
-            esp.status.f.r_w_conn = 1;          /* Wifi is connected */
+            esp.m.sta.is_connected = 1;         /* Wifi is connected */
             espi_send_cb(ESP_EVT_WIFI_CONNECTED);   /* Call user callback function */
             if (!CMD_IS_CUR(ESP_CMD_WIFI_CWJAP)) {  /* In case of auto connection */
                 esp_sta_getip(NULL, NULL, NULL, 0, 0);  /* Get new IP address */
             }
         } else if (!strncmp(&rcv->data[5], "DISCONNECT", 10)) {
-            esp.status.f.r_w_conn = 0;          /* Wifi is disconnected */
-            esp.status.f.r_got_ip = 0;          /* There is no valid IP */
+            esp.m.sta.is_connected = 0;         /* Wifi is disconnected */
+            esp.m.sta.has_ip = 0;               /* There is no valid IP */
             espi_send_cb(ESP_EVT_WIFI_DISCONNECTED);/* Call user callback function */
         } else if (!strncmp(&rcv->data[5], "GOT IP", 6)) {
-            esp.status.f.r_got_ip = 1;          /* Wifi got IP address */
+            esp.m.sta.has_ip = 1;               /* Wifi got IP address */
             espi_send_cb(ESP_EVT_WIFI_GOT_IP);  /* Call user callback function */
             if (!CMD_IS_CUR(ESP_CMD_WIFI_CWJAP)) { /* In case of auto connection */
                 esp_sta_getip(NULL, NULL, NULL, 0, 0);  /* Get new IP address */
@@ -1289,7 +1289,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
             if (*is_ok) {                       /* Did we join successfully? */
                 SET_NEW_CMD(ESP_CMD_WIFI_CIPSTA_GET);   /* Go to next command to get IP address */
             } else {
-                esp.status.f.r_w_conn = 0;      /* Force disconnected status */
+                esp.m.sta.is_connected = 0;     /* Force disconnected status */
                 /*
                  * Parse received error message,
                  * if final result was error, decide what type
