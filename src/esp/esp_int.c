@@ -333,14 +333,18 @@ espi_reset_everything(uint8_t forced) {
     /* Step 1: Close all connections in memory */
     reset_connections(forced);
 
-    esp.status.f.r_got_ip = 0;
+    esp.m.sta.has_ip = 0;
 #if ESP_CFG_MODE_STATION
-    if (esp.status.f.r_w_conn) {
+    if (esp.m.sta.is_connected) {
         espi_send_cb(ESP_EVT_WIFI_DISCONNECTED);
     }
 #endif /* ESP_CFG_MODE_STATION */
-    esp.status.f.r_w_conn = 0;
+    esp.m.sta.is_connected = 0;
 
+    /* Invalid ESP modules */
+    memset(&esp.m, 0x00, sizeof(esp.m));
+
+    /* If reset was not forced by user, repeat with manual reset */
     if (!forced) {
         esp_reset(0);
     }
