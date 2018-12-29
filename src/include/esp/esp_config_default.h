@@ -89,11 +89,11 @@
 
 /**
  * \brief           Maximal number of bytes we can send at single command to ESP
- * \note            Value can not exceed `2048` bytes or no data won't be send at all (ESP8266 AT SW limitation)
+ * \note            Value can not exceed `2048` bytes or no data will be send at all (ESP8266 AT SW limitation)
  *
  * \note            This is limitation of ESP AT commands and on systems where RAM
  *                  is not an issue, it should be set to maximal value (`2048`)
- *                  to optimize data transfer performance
+ *                  to optimize data transfer speed performance
  */
 #ifndef ESP_CFG_CONN_MAX_DATA_LEN
 #define ESP_CFG_CONN_MAX_DATA_LEN           2048
@@ -110,10 +110,9 @@
 #endif
 
 /**
- * \brief           Maximal buffer size for entries in +IPD statement from ESP
+ * \brief           Maximum single buffer size for network receive data (TCP/UDP connections)
  *
- * \note            If `+IPD` length is larger that this value,
- *                  multiple pbuf entries will be created to hold entire `+IPD`
+ * \note            When ESP sends buffer buffer than maximal, multiple buffers are created
  */
 #ifndef ESP_CFG_IPD_MAX_BUFF_SIZE
 #define ESP_CFG_IPD_MAX_BUFF_SIZE           1460
@@ -183,6 +182,7 @@
 
 /**
  * \brief           Default delay (milliseconds unit) before sending first AT command on reset sequence
+ *
  */
 #ifndef ESP_CFG_RESET_DELAY_DEFAULT
 #define ESP_CFG_RESET_DELAY_DEFAULT         1000

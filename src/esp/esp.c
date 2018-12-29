@@ -457,7 +457,9 @@ esp_device_set_present(uint8_t present,
         ESP_CORE_PROTECT();
     }
 #else
-    ESP_UNUSED(blocking);                       /* Unused variable */
+    ESP_UNUSED(evt_fn);
+    ESP_UNUSED(evt_arg);
+    ESP_UNUSED(blocking);
 #endif /* ESP_CFG_RESET_ON_INIT */
 
     espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */

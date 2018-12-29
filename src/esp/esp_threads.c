@@ -45,8 +45,8 @@
 void
 esp_thread_producer(void* const arg) {
     esp_sys_sem_t* sem = arg;
-    esp_t* e = &esp;                            /* Thread argument is main structure */
-    esp_msg_t* msg;                             /* Message structure */
+    esp_t* e = &esp;
+    esp_msg_t* msg;
     espr_t res;
     uint32_t time;
 
@@ -58,15 +58,27 @@ esp_thread_producer(void* const arg) {
     ESP_CORE_PROTECT();
     while (1) {
         ESP_CORE_UNPROTECT();
-        time = esp_sys_mbox_get(&e->mbox_producer, (void **)&msg, 0);  /* Get message from queue */
+        time = esp_sys_mbox_get(&e->mbox_producer, (void **)&msg, 0);   /* Get message from queue */
         ESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
         ESP_CORE_PROTECT();
         if (time == ESP_SYS_TIMEOUT || msg == NULL) {   /* Check valid message */
             continue;
         }
 
+        res = espOK;                            /* Start with OK */
+        /*
+         * This check is performed when adding command to queue
+         * Do it again here to prevent long timeouts,
+         * if device present flag changes
+         */
+        if (!e->status.f.dev_present) {
+            if (!CMD_IS_DEF(ESP_CMD_RESET)) {
+                res = espERRNODEVICE;
+            }
+        }
+
         /* For reset message, we can have delay! */
-        if (CMD_IS_DEF(ESP_CMD_RESET) && msg->msg.reset.delay) {
+        if (res == espOK && CMD_IS_DEF(ESP_CMD_RESET) && msg->msg.reset.delay) {
             esp_delay(msg->msg.reset.delay);
         }
 
@@ -75,25 +87,28 @@ esp_thread_producer(void* const arg) {
          * Usually it should be function to transmit data to AT port
          */
         e->msg = msg;
-        if (msg->fn != NULL) {                  /* Check for callback processing function */
+        if (res == espOK && msg->fn != NULL) {  /* Check for callback processing function */
             ESP_CORE_UNPROTECT();
-            esp_sys_sem_wait(&e->sem_sync, 120000); /* Lock semaphore, should be unlocked before! */
+            esp_sys_sem_wait(&e->sem_sync, 0);
             ESP_CORE_PROTECT();
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
                 ESP_CORE_UNPROTECT();
-                time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Wait for synchronization semaphore */
+                time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Wait for synchronization semaphore from processing thread or timeout */
                 ESP_CORE_PROTECT();
-                esp_sys_sem_release(&e->sem_sync);  /* Release protection and start over later */
                 if (time == ESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
                     espi_process_events_for_timeout(msg);   /* Manually call callbacks on commands */
                     res = espTIMEOUT;           /* Timeout on command */
+                } else {
+                    esp_sys_sem_release(&e->sem_sync);
                 }
             } else {
                 esp_sys_sem_release(&e->sem_sync);  /* We failed, release semaphore automatically */
             }
         } else {
-            res = espERR;                       /* Simply set error message */
+            if (res == espOK) {
+                res = espERR;                   /* Simply set error message */
+            }
         }
         if (res != espOK) {
             msg->res = res;                     /* Save response */
@@ -106,13 +121,13 @@ esp_thread_producer(void* const arg) {
 
         /*
          * In case message is blocking,
-         * release semaphore and notify processing finished,
+         * release semaphore and notify finished with processing
          * otherwise directly free memory of message structure
          */
         if (msg->is_blocking) {
-            esp_sys_sem_release(&msg->sem);     /* Release semaphore only */
+            esp_sys_sem_release(&msg->sem);
         } else {
-            ESP_MSG_VAR_FREE(msg);              /* Release message structure */
+            ESP_MSG_VAR_FREE(msg);
         }
         e->msg = NULL;
     }
@@ -129,7 +144,7 @@ esp_thread_producer(void* const arg) {
 void
 esp_thread_process(void* const arg) {
     esp_sys_sem_t* sem = arg;
-    esp_t* e = &esp;                            /* Thread argument is main structure */
+    esp_t* e = &esp;
     esp_msg_t* msg;
     uint32_t time;
 
@@ -142,7 +157,7 @@ esp_thread_process(void* const arg) {
     ESP_CORE_PROTECT();
     while (1) {
         ESP_CORE_UNPROTECT();
-        time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void **)&msg, 10);    /* Get message from queue */
+        time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void **)&msg, 10);
         ESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
         ESP_CORE_PROTECT();
 
