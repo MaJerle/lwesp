@@ -49,7 +49,7 @@ static uint32_t cmd_history_full;
  */
 static void
 clear_cmd_buffer( void ) {
-    ESP_MEMSET(cmd_buffer, 0x0, sizeof(cmd_buffer));
+    memset(cmd_buffer, 0x0, sizeof(cmd_buffer));
     cmd_pos = 0;
 }
 
@@ -61,13 +61,13 @@ store_command_to_history( void ) {
     uint32_t hist_count;
     if (strcmp(cmd_history_buffer[0], cmd_buffer)) {
         for (hist_count = CLI_CMD_HISTORY-1; hist_count > 0; hist_count--) {
-            ESP_MEMCPY(cmd_history_buffer[hist_count], cmd_history_buffer[hist_count-1], CLI_MAX_CMD_LENGTH);
+            memcpy(cmd_history_buffer[hist_count], cmd_history_buffer[hist_count-1], CLI_MAX_CMD_LENGTH);
         }
         cmd_history_full++;
         if (cmd_history_full > CLI_CMD_HISTORY) {
             cmd_history_full = CLI_CMD_HISTORY;
         }
-        ESP_MEMCPY(cmd_history_buffer[0], cmd_buffer, CLI_MAX_CMD_LENGTH);
+        memcpy(cmd_history_buffer[0], cmd_buffer, CLI_MAX_CMD_LENGTH);
         cmd_history_buffer[0][CLI_MAX_CMD_LENGTH-1] = '\0';
     }
 }
@@ -104,7 +104,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
             case 'A':                           /* Up */
                 if (cmd_history_pos < cmd_history_full) {
                     /* Clear the line */
-                    ESP_MEMSET(cmd_buffer, ' ', cmd_pos);
+                    memset(cmd_buffer, ' ', cmd_pos);
                     cliprintf("\r%s       \r" CLI_PROMPT, cmd_buffer);
 
                     strcpy(cmd_buffer, cmd_history_buffer[cmd_history_pos]);
@@ -119,7 +119,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
             case 'B':                           /* Down */
                 if (cmd_history_pos) {
                     /* Clear the line */
-                    ESP_MEMSET(cmd_buffer, ' ', cmd_pos);
+                    memset(cmd_buffer, ' ', cmd_pos);
                     cliprintf("\r%s       \r" CLI_PROMPT, cmd_buffer);
 
                     if (--cmd_history_pos != 0) {
