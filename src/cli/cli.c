@@ -115,7 +115,7 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
                      * Find the common prefix of all the matched commands for
                      * partial completion
                      */
-                    int last_common_command_len = common_command_len;
+                    uint32_t last_common_command_len = common_command_len;
                     common_command_len = 0;
                     while (matched_command[common_command_len] == command->name[common_command_len] &&
                             matched_command[common_command_len] != '\0' &&
