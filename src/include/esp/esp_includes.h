@@ -48,27 +48,27 @@ extern "C" {
 #include "esp/esp_pbuf.h"
 #include "esp/esp_conn.h"
 
-#if ESP_CFG_MODE_STATION
+#if ESP_CFG_MODE_STATION || __DOXYGEN__
 #include "esp/esp_sta.h"
-#endif /* ESP_CFG_MODE_STATION */
-#if ESP_CFG_MODE_ACCESS_POINT
+#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
 #include "esp/esp_ap.h"
-#endif /* ESP_CFG_MODE_ACCESS_POINT */
-#if ESP_CFG_OS
+#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+#if ESP_CFG_NETCONN || __DOXYGEN__
 #include "esp/esp_netconn.h"
-#endif /* ESP_CFG_OS */
-#if ESP_CFG_PING
+#endif /* ESP_CFG_NETCONN || __DOXYGEN__ */
+#if ESP_CFG_PING || __DOXYGEN__
 #include "esp/esp_ping.h"
-#endif /* ESP_CFG_PING */
-#if ESP_CFG_WPS
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
+#if ESP_CFG_WPS || __DOXYGEN__
 #include "esp/esp_wps.h"
-#endif /* ESP_CFG_WPS */
-#if ESP_CFG_SNTP
+#endif /* ESP_CFG_WPS || __DOXYGEN__ */
+#if ESP_CFG_SNTP || __DOXYGEN__
 #include "esp/esp_sntp.h"
-#endif /* ESP_CFG_SNTP */
-#if ESP_CFG_HOSTNAME
+#endif /* ESP_CFG_SNTP || __DOXYGEN__ */
+#if ESP_CFG_HOSTNAME || __DOXYGEN__
 #include "esp/esp_hostname.h"
-#endif /* ESP_CFG_HOSTNAME */
+#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
 
 #ifdef __cplusplus
 }

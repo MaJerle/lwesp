@@ -42,7 +42,6 @@ extern "C" {
 #include "string.h"
 #include "stdio.h"
 
-
 /**
  * \ingroup         ESP
  * \defgroup        ESP_TYPEDEFS Structures and enumerations
