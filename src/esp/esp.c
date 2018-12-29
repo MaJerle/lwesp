@@ -64,7 +64,7 @@ def_callback(esp_evt_t* evt) {
  * \brief           Init and prepare ESP stack
  * \note            When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device.
  *                  In this case, `blocking` parameter indicates if we shall wait or not for response
- * \param[in]       evt_func: Event callback function
+ * \param[in]       evt_func: Global event callback function for all major events
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -257,7 +257,7 @@ esp_set_at_baudrate(uint32_t baud,
  * \param[in]       max_conn: Number of maximal connections populated by server
  * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
  *                      Set to `0` to disable timeout feature (not recommended)
- * \param[in]       server_evt_fn: Connection callback function
+ * \param[in]       server_evt_fn: Connection callback function for new connections started as server
  * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
