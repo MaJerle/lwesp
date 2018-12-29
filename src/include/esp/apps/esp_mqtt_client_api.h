@@ -65,7 +65,7 @@ typedef struct esp_mqtt_client_api_buf {
 } esp_mqtt_client_api_buf_t;
 
 /**
- * \brief           Pointer to \ref esp_mqtt_client_api_t structure
+ * \brief           Pointer to \ref esp_mqtt_client_api structure
  */
 typedef struct esp_mqtt_client_api* esp_mqtt_client_api_p;
 
