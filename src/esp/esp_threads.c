@@ -72,9 +72,7 @@ esp_thread_producer(void* const arg) {
          * if device present flag changes
          */
         if (!e->status.f.dev_present) {
-            if (!CMD_IS_DEF(ESP_CMD_RESET)) {
-                res = espERRNODEVICE;
-            }
+            res = espERRNODEVICE;
         }
 
         /* For reset message, we can have delay! */
@@ -97,7 +95,6 @@ esp_thread_producer(void* const arg) {
                 time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Wait for synchronization semaphore from processing thread or timeout */
                 ESP_CORE_PROTECT();
                 if (time == ESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
-                    espi_process_events_for_timeout(msg);   /* Manually call callbacks on commands */
                     res = espTIMEOUT;           /* Timeout on command */
                 } else {
                     esp_sys_sem_release(&e->sem_sync);
@@ -111,6 +108,9 @@ esp_thread_producer(void* const arg) {
             }
         }
         if (res != espOK) {
+            /* Process global callbacks */
+            espi_process_events_for_timeout_or_error(msg, res);
+
             msg->res = res;                     /* Save response */
         }
 

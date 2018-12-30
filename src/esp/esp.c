@@ -98,12 +98,12 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     /* Create threads */
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Lock semaphore */
     if (!esp_sys_thread_create(&esp.thread_producer, "esp_producer", esp_thread_producer, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
-        esp_sys_sem_release(&esp.sem_sync);         /* Release semaphore */
+        esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore */
         goto cleanup;
     }
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in producer thread */
     if (!esp_sys_thread_create(&esp.thread_process, "esp_producer", esp_thread_process, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
-        esp_sys_sem_release(&esp.sem_sync);         /* Release semaphore */
+        esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore */
         goto cleanup;
     }
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in producer thread */
@@ -116,14 +116,19 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
     esp_ll_init(&esp.ll);                       /* Init low-level communication */
 
+    ESP_CORE_PROTECT();
     esp.status.f.initialized = 1;               /* We are initialized now */
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
+
+    espi_send_cb(ESP_EVT_INIT_FINISH);          /* Call user callback function */
 
     /*
      * Call reset command and call default
      * AT commands to prepare basic setup for device
      */
     espi_conn_init();                           /* Init connection module */
+    ESP_CORE_UNPROTECT();
+
 #if ESP_CFG_RESTORE_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
         res = esp_restore(NULL, NULL, blocking);/* Restore device */
@@ -134,9 +139,6 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
         res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, NULL, NULL, blocking);  /* Send reset sequence with delay */
     }
 #endif /* ESP_CFG_RESET_ON_INIT */
-    if (res == espOK) {
-        espi_send_cb(ESP_EVT_INIT_FINISH);      /* Call user callback function */
-    }
     ESP_UNUSED(blocking);                       /* Prevent compiler warnings */
 
     return res;
@@ -445,25 +447,28 @@ esp_device_set_present(uint8_t present,
                         esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     espr_t res = espOK;
     ESP_CORE_PROTECT();
-    esp.status.f.dev_present = ESP_U8(!!present);   /* Device is present */
+    present = present ? 1 : 0;
+    if (present != esp.status.f.dev_present) {
+        esp.status.f.dev_present = present;
 
-    if (!esp.status.f.dev_present) {
-        espi_reset_everything(1);               /* Reset everything */
-    }
+        if (!esp.status.f.dev_present) {
+            /* Manually reset stack to default device state */
+            espi_reset_everything(1);
+        }
 #if ESP_CFG_RESET_ON_INIT
-    else {                                      /* Is new device present? */
-        ESP_CORE_UNPROTECT();
-        res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, evt_fn, evt_arg, blocking);
-        ESP_CORE_PROTECT();
-    }
+        else {
+            ESP_CORE_UNPROTECT();
+            res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, evt_fn, evt_arg, blocking);
+            ESP_CORE_PROTECT();
+        }
 #else
-    ESP_UNUSED(evt_fn);
-    ESP_UNUSED(evt_arg);
-    ESP_UNUSED(blocking);
+        ESP_UNUSED(evt_fn);
+        ESP_UNUSED(evt_arg);
+        ESP_UNUSED(blocking);
 #endif /* ESP_CFG_RESET_ON_INIT */
 
-    espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
-
+        espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
+    }
     ESP_CORE_UNPROTECT();
     return res;
 }

@@ -1930,9 +1930,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     /* Check here if stack is even enabled or shall we disable new command entry? */
     ESP_CORE_PROTECT();
     if (!esp.status.f.dev_present) {
-        if (!CMD_IS_DEF(ESP_CMD_RESET)) {       /* Only reset is allowed */
-            res = espERRNODEVICE;               /* No device connected */
-        }
+        res = espERRNODEVICE;                   /* No device connected */
     }
     ESP_CORE_UNPROTECT();
     if (res != espOK) {
@@ -1977,85 +1975,79 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
 }
 
 /**
- * \brief           Process events in case of timeout on command
+ * \brief           Process events in case of timeout on command or invalid message (if device is not present)
+ *
+ *                  Function is called from processing thread:
+ *
+ *                      - On command timeout error
+ *                      - If command was sent to queue and before processed, device present status changed
+ *
  * \param[in]       msg: Current message
+ * \param[in]       err: Error message to send
  */
 void
-espi_process_events_for_timeout(esp_msg_t* msg) {
+espi_process_events_for_timeout_or_error(esp_msg_t* msg, espr_t err) {
     switch (msg->cmd_def) {
-        /* Timeout on reset sequence */
         case ESP_CMD_RESET: {
-            /* Timeout on reset */
-            RESET_SEND_EVT(msg, espTIMEOUT);
+            /* Error on reset */
+            RESET_SEND_EVT(msg, err);
             break;
         }
 
-        /* Timeout on restore sequence */
         case ESP_CMD_RESTORE: {
-            /* Timeout on reset */
-            RESTORE_SEND_EVT(msg, espTIMEOUT);
+            /* Error on restore */
+            RESTORE_SEND_EVT(msg, err);
             break;
         }
 
-        /*
-         * Timeout on "connection start" command.
-         * Report connection error event
-         */
         case ESP_CMD_TCPIP_CIPSTART: {
-            espi_send_conn_error_cb(msg, espTIMEOUT);
+            /* Start connection error */
+            espi_send_conn_error_cb(msg, err);
             break;
         }
 
-        /*
-         * Timeout on "send data" command.
-         * Report data send error event
-         */
         case ESP_CMD_TCPIP_CIPSEND: {
-            /* Send data sent error event */
-            CONN_SEND_DATA_SEND_EVT(msg, espTIMEOUT);
+            /* Send data error */
+            CONN_SEND_DATA_SEND_EVT(msg, err);
             break;
         }
 
 #if ESP_CFG_MODE_STATION
-        /* Timeout on join command */
         case ESP_CMD_WIFI_CWJAP: {
-            /* Join failed event */
-            STA_JOIN_AP_SEND_EVT(msg, espTIMEOUT);
+            /* Join access point error */
+            STA_JOIN_AP_SEND_EVT(msg, err);
             break;
         }
 
-        /* Timeout on list AP command */
         case ESP_CMD_WIFI_CWLAP: {
             /* List failed event */
-            STA_LIST_AP_SEND_EVT(msg, espTIMEOUT);
+            STA_LIST_AP_SEND_EVT(msg, err);
             break;
         }
 
-        /* Timeout on info AP command */
         case ESP_CMD_WIFI_CWJAP_GET: {
             /* Info failed event */
-            STA_INFO_AP_SEND_EVT(msg, espTIMEOUT);
+            STA_INFO_AP_SEND_EVT(msg, err);
             break;
         }
 #endif /* ESP_CFG_MODE_STATION */
 
 #if ESP_CFG_PING
-        /* Timeout on ping command */
         case ESP_CMD_TCPIP_PING: {
-            /* Send error event with timeout */
-            PING_SEND_EVT(esp.msg, espTIMEOUT);
+            /* Ping error */
+            PING_SEND_EVT(esp.msg, err);
             break;
         }
 #endif /* ESP_CFG_PING */
 
 #if ESP_CFG_DNS
-        /* Timeout on ping command */
         case ESP_CMD_TCPIP_CIPDOMAIN: {
-            /* Send error event with timeout */
-            CIPDOMAIN_SEND_EVT(esp.msg, espTIMEOUT);
+            /* DNS error */
+            CIPDOMAIN_SEND_EVT(esp.msg, err);
             break;
         }
 #endif /* ESP_CFG_DNS */
+
         default: break;
     }
 }
