@@ -34,7 +34,7 @@
 #define __ESP_DEFAULT_CONFIG_H
 
 /**
- * \defgroup        ESP_CONF Configuration
+ * \defgroup        ESP_CONFIG Configuration
  * \brief           Configuration parameters
  * \{
  *
@@ -45,7 +45,7 @@
  *
  * \note            Value must be set to `1` in the current revision
  *
- * \note            Check \ref ESP_CONF_OS group for more configuration related to operating system
+ * \note            Check \ref ESP_CONFIG_OS group for more configuration related to operating system
  *
  */
 #ifndef ESP_CFG_OS
@@ -208,7 +208,7 @@
 #endif
 
 /**
- * \defgroup        ESP_CONF_DBG Debugging
+ * \defgroup        ESP_CONFIG_DBG Debugging
  * \brief           Debugging configurations
  * \{
  */
@@ -349,7 +349,7 @@
  */
 
 /**
- * \defgroup        ESP_CONF_OS OS configuration
+ * \defgroup        ESP_CONFIG_OS OS configuration
  * \brief           Operating system dependant configuration
  * \{
  */
@@ -416,13 +416,13 @@
  */
 
 /**
- * \defgroup        ESP_CONF_MODULES Modules
+ * \defgroup        ESP_CONFIG_MODULES Modules
  * \brief           Configuration of specific modules
  * \{
  */
 
 /**
- * \defgroup        ESP_CONF_MODULES_NETCONN Netconn module
+ * \defgroup        ESP_CONFIG_MODULES_NETCONN Netconn module
  * \brief           Configuration of netconn API module
  * \{
  */
@@ -474,7 +474,7 @@
  */
 
 /**
- * \defgroup        ESP_CONF_MODULES_MQTT MQTT client module
+ * \defgroup        ESP_CONFIG_MODULES_MQTT MQTT client module
  * \brief           Configuration of MQTT and MQTT API client modules
  * \{
  */
@@ -582,7 +582,7 @@
 #endif
 
 /**
- * \defgroup        ESP_CONF_STD_LIB Standard library
+ * \defgroup        ESP_CONFIG_STD_LIB Standard library
  * \brief           Standard C library configuration
  * \{
  *
