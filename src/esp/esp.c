@@ -61,11 +61,14 @@ def_callback(esp_evt_t* evt) {
 }
 
 /**
- * \brief           Init and prepare ESP stack
- * \note            When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device.
- *                  In this case, `blocking` parameter indicates if we shall wait or not for response
+ * \brief           Init and prepare ESP stack for device operation
+ * \note            Function must be called from operating system thread context!
+ *
+ * \note            - When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device.
+ *                  - When \ref ESP_CFG_RESTORE_ON_INIT is enabled, restore sequence will be sent to device.
  * \param[in]       evt_func: Global event callback function for all major events
- * \param[in]       blocking: Status whether command should be blocking or not
+ * \param[in]       blocking: Status whether command should be blocking or not.
+ *                      Used when \ref ESP_CFG_RESET_ON_INIT or \ref ESP_CFG_RESTORE_ON_INIT are enabled.
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
@@ -454,22 +457,21 @@ esp_device_set_present(uint8_t present,
         if (!esp.status.f.dev_present) {
             /* Manually reset stack to default device state */
             espi_reset_everything(1);
-        }
-#if ESP_CFG_RESET_ON_INIT
-        else {
+        } else {
+#if ESP_CFG_RESET_ON_DEVICE_PRESENT
             ESP_CORE_UNPROTECT();
             res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, evt_fn, evt_arg, blocking);
             ESP_CORE_PROTECT();
+#endif /* ESP_CFG_RESET_ON_DEVICE_PRESENT */
         }
-#else
-        ESP_UNUSED(evt_fn);
-        ESP_UNUSED(evt_arg);
-        ESP_UNUSED(blocking);
-#endif /* ESP_CFG_RESET_ON_INIT */
-
         espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
     }
     ESP_CORE_UNPROTECT();
+
+    ESP_UNUSED(evt_fn);
+    ESP_UNUSED(evt_arg);
+    ESP_UNUSED(blocking);
+
     return res;
 }
 

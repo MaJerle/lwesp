@@ -181,6 +181,16 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` reset sequence after \ref esp_device_set_present call
+ *
+ * \note            When this functionality is disabled, user must manually call \ref esp_reset to send
+ *                  reset sequence to ESP device.
+ */
+#ifndef ESP_CFG_RESET_ON_DEVICE_PRESENT
+#define ESP_CFG_RESET_ON_DEVICE_PRESENT     1
+#endif
+
+/**
  * \brief           Default delay (milliseconds unit) before sending first AT command on reset sequence
  *
  */
