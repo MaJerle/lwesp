@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_PRIV_H
-#define __ESP_PRIV_H
+#ifndef ESP_HDR_PRIV_H
+#define ESP_HDR_PRIV_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -598,4 +598,4 @@ void        espi_process_events_for_timeout_or_error(esp_msg_t* msg, espr_t err)
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_PRIV_H */
+#endif /* ESP_HDR_PRIV_H */

@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_EVT_H
-#define __ESP_EVT_H
+#ifndef ESP_HDR_EVT_H
+#define ESP_HDR_EVT_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -297,4 +297,4 @@ uint32_t    esp_evt_ping_get_time(esp_evt_t* cc);
 }
 #endif
 
-#endif /* __ESP_EVT_H */
+#endif /* ESP_HDR_EVT_H */

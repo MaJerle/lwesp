@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_APP_MQTT_CLIENT_EVT_H
-#define __ESP_APP_MQTT_CLIENT_EVT_H
+#ifndef ESP_HDR_APP_MQTT_CLIENT_EVT_H
+#define ESP_HDR_APP_MQTT_CLIENT_EVT_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -250,4 +250,4 @@ extern "C" {
 }
 #endif
 
-#endif /* __ESP_APP_MQTT_CLIENT_EVT_H */
+#endif /* ESP_HDR_APP_MQTT_CLIENT_EVT_H */

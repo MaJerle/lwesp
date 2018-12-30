@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_UNICODE_H
-#define __ESP_UNICODE_H
+#ifndef ESP_HDR_UNICODE_H
+#define ESP_HDR_UNICODE_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -58,4 +58,4 @@ espr_t          espi_unicode_decode(esp_unicode_t* uni, uint8_t ch);
 }
 #endif
 
-#endif /* __ESP_UNICODE_H */
+#endif /* ESP_HDR_UNICODE_H */

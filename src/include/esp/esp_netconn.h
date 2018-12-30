@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_NETCONN_H
-#define __ESP_NETCONN_H
+#ifndef ESP_HDR_NETCONN_H
+#define ESP_HDR_NETCONN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,4 +92,4 @@ espr_t          esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_por
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_NETCONN_H */
+#endif /* ESP_HDR_NETCONN_H */

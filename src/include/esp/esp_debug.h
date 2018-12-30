@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_DEBUG_H
-#define __ESP_DEBUG_H
+#ifndef ESP_HDR_DEBUG_H
+#define ESP_HDR_DEBUG_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -127,4 +127,4 @@ extern "C" {
 }
 #endif
 
-#endif /* __ESP_DEBUG_H */
+#endif /* ESP_HDR_DEBUG_H */

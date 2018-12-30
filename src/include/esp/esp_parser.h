@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_PARSER_H
-#define __ESP_PARSER_H
+#ifndef ESP_HDR_PARSER_H
+#define ESP_HDR_PARSER_H
 
 #if defined(__cplusplus)
 extern "C" {
@@ -66,4 +66,4 @@ uint8_t     espi_parse_ap_ip_sta(const char* str);
 }
 #endif /* defined(__cplusplus) */
 
-#endif /* __ESP_PARSER_H */
+#endif /* ESP_HDR_PARSER_H */

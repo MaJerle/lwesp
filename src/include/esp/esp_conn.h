@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_CONN_H
-#define __ESP_CONN_H
+#ifndef ESP_HDR_CONN_H
+#define ESP_HDR_CONN_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -78,4 +78,4 @@ esp_port_t  esp_conn_get_local_port(esp_conn_p conn);
 }
 #endif
 
-#endif /* __ESP_CONN_H */
+#endif /* ESP_HDR_CONN_H */

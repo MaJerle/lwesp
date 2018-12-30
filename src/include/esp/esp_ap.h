@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_AP_H
-#define __ESP_AP_H
+#ifndef ESP_HDR_AP_H
+#define ESP_HDR_AP_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -69,4 +69,4 @@ espr_t      esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, esp_api_c
 }
 #endif
 
-#endif /* __ESP_AP_H */
+#endif /* ESP_HDR_AP_H */

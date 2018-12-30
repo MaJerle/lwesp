@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_MAIN_SYS_H
-#define __ESP_MAIN_SYS_H
+#ifndef ESP_HDR_MAIN_SYS_H
+#define ESP_HDR_MAIN_SYS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -121,4 +121,4 @@ uint8_t     esp_sys_thread_yield(void);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_MAIN_SYS_H */
+#endif /* ESP_HDR_MAIN_SYS_H */

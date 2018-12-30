@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_MDNS_H
-#define __ESP_MDNS_H
+#ifndef ESP_HDR_MDNS_H
+#define ESP_HDR_MDNS_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -58,4 +58,4 @@ espr_t      esp_mdns_configure(uint8_t en, const char* host, const char* server,
 }
 #endif
 
-#endif /* __ESP_MDNS_H */
+#endif /* ESP_HDR_MDNS_H */

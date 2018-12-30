@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_THREADS_H
-#define __ESP_THREADS_H
+#ifndef ESP_HDR_THREADS_H
+#define ESP_HDR_THREADS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,4 +46,4 @@ void    esp_thread_process(void* const arg);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_THREADS_H */
+#endif /* ESP_HDR_THREADS_H */

@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_PING_H
-#define __ESP_PING_H
+#ifndef ESP_HDR_PING_H
+#define ESP_HDR_PING_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -58,4 +58,4 @@ espr_t      esp_ping(const char* host, uint32_t* time, esp_api_cmd_evt_fn evt_fn
 }
 #endif
 
-#endif /* __ESP_PING_H */
+#endif /* ESP_HDR_PING_H */

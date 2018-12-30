@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_APPS_H
-#define __ESP_APPS_H
+#ifndef ESP_HDR_APPS_H
+#define ESP_HDR_APPS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,4 +53,4 @@ extern "C" {
 };
 #endif /* __cplusplus */
 
-#endif /* __ESP_HTTP_SERVER_H */
+#endif /* ESP_HDR_HTTP_SERVER_H */

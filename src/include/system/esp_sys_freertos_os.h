@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Adrian Carpenter (FreeRTOS port)
  */
-#ifndef __ESP_SYSTEM_FREERTOS_OS_H
-#define __ESP_SYSTEM_FREERTOS_OS_H
+#ifndef ESP_HDR_SYSTEM_FREERTOS_OS_H
+#define ESP_HDR_SYSTEM_FREERTOS_OS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,4 +67,4 @@ typedef UBaseType_t                 esp_sys_thread_prio_t;
 };
 #endif /* __cplusplus */
 
-#endif /* __ESP_SYSTEM_FREERTOS_OS_H */
+#endif /* ESP_HDR_SYSTEM_FREERTOS_OS_H */

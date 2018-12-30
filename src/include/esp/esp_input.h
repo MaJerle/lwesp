@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_INPUT_H
-#define __ESP_INPUT_H
+#ifndef ESP_HDR_INPUT_H
+#define ESP_HDR_INPUT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,4 +58,4 @@ espr_t      esp_input_process(const void* data, size_t len);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_INPUT_H */
+#endif /* ESP_HDR_INPUT_H */

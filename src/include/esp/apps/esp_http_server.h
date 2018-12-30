@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_HTTP_SERVER_H
-#define __ESP_HTTP_SERVER_H
+#ifndef ESP_HDR_HTTP_SERVER_H
+#define ESP_HDR_HTTP_SERVER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -393,4 +393,4 @@ size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len
 };
 #endif /* __cplusplus */
 
-#endif /* __ESP_HTTP_SERVER_H */
+#endif /* ESP_HDR_HTTP_SERVER_H */

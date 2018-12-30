@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_APP_MQTT_CLIENT_H
-#define __ESP_APP_MQTT_CLIENT_H
+#ifndef ESP_HDR_APP_MQTT_CLIENT_H
+#define ESP_HDR_APP_MQTT_CLIENT_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -206,4 +206,4 @@ void                esp_mqtt_client_set_arg(esp_mqtt_client_p client, void* arg)
 }
 #endif
 
-#endif /* __ESP_APP_MQTT_CLIENT_H */
+#endif /* ESP_HDR_APP_MQTT_CLIENT_H */

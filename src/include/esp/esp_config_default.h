@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_DEFAULT_CONFIG_H
-#define __ESP_DEFAULT_CONFIG_H
+#ifndef ESP_HDR_DEFAULT_CONFIG_H
+#define ESP_HDR_DEFAULT_CONFIG_H
 
 /**
  * \defgroup        ESP_CONFIG Configuration
@@ -662,4 +662,4 @@ void *  my_memset(void* dst, int b, size_t len);
 
 #endif /* !__DOXYGEN__ */
 
-#endif /* __ESP_DEFAULT_CONFIG_H */
+#endif /* ESP_HDR_DEFAULT_CONFIG_H */

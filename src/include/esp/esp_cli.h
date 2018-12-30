@@ -28,8 +28,8 @@
  *
  * Author:          Miha ČESNIK
  */
-#ifndef __ESP_CLI_H
-#define __ESP_CLI_H
+#ifndef ESP_HDR_CLI_H
+#define ESP_HDR_CLI_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -56,5 +56,5 @@ void esp_cli_register_commands(void);
 }
 #endif
 
-#endif /* __ESP_CLI_H */
+#endif /* ESP_HDR_CLI_H */
 

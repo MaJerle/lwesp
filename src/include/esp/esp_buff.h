@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_BUFF_H
-#define __ESP_BUFF_H
+#ifndef ESP_HDR_BUFF_H
+#define ESP_HDR_BUFF_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -68,4 +68,4 @@ size_t      esp_buff_skip(esp_buff_t* buff, size_t len);
 }
 #endif
 
-#endif /* __ESP_BUFF_H */
+#endif /* ESP_HDR_BUFF_H */

@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_DEFS_H
-#define __ESP_DEFS_H
+#ifndef ESP_HDR_DEFS_H
+#define ESP_HDR_DEFS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -456,4 +456,4 @@ typedef void (*esp_api_cmd_evt_fn) (espr_t res, void* arg);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_DEFS_H */
+#endif /* ESP_HDR_DEFS_H */

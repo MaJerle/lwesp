@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_SNTP_H
-#define __ESP_SNTP_H
+#ifndef ESP_HDR_SNTP_H
+#define ESP_HDR_SNTP_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -59,4 +59,4 @@ espr_t      esp_sntp_gettime(esp_datetime_t* dt, esp_api_cmd_evt_fn evt_fn, void
 }
 #endif
 
-#endif /* __ESP_SNTP_H */
+#endif /* ESP_HDR_SNTP_H */

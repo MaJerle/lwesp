@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_HOSTNAME_H
-#define __ESP_HOSTNAME_H
+#ifndef ESP_HDR_HOSTNAME_H
+#define ESP_HDR_HOSTNAME_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -59,4 +59,4 @@ espr_t      esp_hostname_get(char* hostname, size_t length, esp_api_cmd_evt_fn e
 }
 #endif
 
-#endif /* __ESP_HOSTNAME_H */
+#endif /* ESP_HDR_HOSTNAME_H */

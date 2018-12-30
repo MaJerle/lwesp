@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_MEM_H
-#define __ESP_MEM_H
+#ifndef ESP_HDR_MEM_H
+#define ESP_HDR_MEM_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -74,4 +74,4 @@ uint8_t esp_mem_assignmemory(const esp_mem_region_t* regions, size_t size);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_MEM_H */
+#endif /* ESP_HDR_MEM_H */

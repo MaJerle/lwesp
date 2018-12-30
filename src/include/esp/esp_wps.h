@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_WPS_H
-#define __ESP_WPS_H
+#ifndef ESP_HDR_WPS_H
+#define ESP_HDR_WPS_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -58,4 +58,4 @@ espr_t      esp_wps_configure(uint8_t en, esp_api_cmd_evt_fn evt_fn, void* evt_a
 }
 #endif
 
-#endif /* __ESP_PING_H */
+#endif /* ESP_HDR_WPS_H */

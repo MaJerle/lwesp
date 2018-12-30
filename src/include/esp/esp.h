@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_H
-#define __ESP_H
+#ifndef ESP_HDR_H
+#define ESP_HDR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,4 +98,4 @@ uint8_t     esp_get_current_at_fw_version(esp_sw_version_t* const version);
 }
 #endif /* __cplusplus */
 
-#endif /* __ESP_H */
+#endif /* ESP_HDR_H */

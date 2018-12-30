@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_TIMEOUT_H
-#define __ESP_TIMEOUT_H
+#ifndef ESP_HDR_TIMEOUT_H
+#define ESP_HDR_TIMEOUT_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -59,4 +59,4 @@ espr_t          esp_timeout_remove(esp_timeout_fn fn);
 }
 #endif
 
-#endif /* __ESP_TIMEOUT_H */
+#endif /* ESP_HDR_TIMEOUT_H */

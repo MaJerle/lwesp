@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_HTTP_SERVER_FS_H
-#define __ESP_HTTP_SERVER_FS_H
+#ifndef ESP_HDR_HTTP_SERVER_FS_H
+#define ESP_HDR_HTTP_SERVER_FS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,4 +58,4 @@ uint8_t     http_fs_close(http_fs_file_t* file);
 };
 #endif /* __cplusplus */
 
-#endif /* __ESP_HTTP_SERVER_H */
+#endif /* ESP_HDR_HTTP_SERVER_H */

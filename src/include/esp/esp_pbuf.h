@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_PBUF_H
-#define __ESP_PBUF_H
+#ifndef ESP_HDR_PBUF_H
+#define ESP_HDR_PBUF_H
 
 /* C++ detection */
 #ifdef __cplusplus
@@ -83,4 +83,4 @@ void            esp_pbuf_dump(esp_pbuf_p p, uint8_t seq);
 }
 #endif
 
-#endif /* __ESP_PBUF_H */
+#endif /* ESP_HDR_PBUF_H */

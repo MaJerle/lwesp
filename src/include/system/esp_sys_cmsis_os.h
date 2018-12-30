@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef __ESP_SYSTEM_CMSIS_OS_H
-#define __ESP_SYSTEM_CMSIS_OS_H
+#ifndef ESP_HDR_SYSTEM_CMSIS_OS_H
+#define ESP_HDR_SYSTEM_CMSIS_OS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,4 +64,4 @@ typedef osPriority                  esp_sys_thread_prio_t;
 };
 #endif /* __cplusplus */
 
-#endif /* __ESP_SYSTEM_CMSIS_OS_H */
+#endif /* ESP_HDR_SYSTEM_CMSIS_OS_H */
