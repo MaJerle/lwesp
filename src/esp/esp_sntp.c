@@ -50,7 +50,7 @@
  */
 espr_t
 esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -75,7 +75,7 @@ esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const 
  */
 espr_t
 esp_sntp_gettime(esp_datetime_t* dt,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);

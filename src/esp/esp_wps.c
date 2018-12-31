@@ -46,7 +46,7 @@
  */
 espr_t
 esp_wps_configure(uint8_t en,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);

@@ -170,7 +170,7 @@ cleanup:
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_reset(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+esp_reset(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     return esp_reset_with_delay(0, evt_fn, evt_arg, blocking);
 }
 
@@ -184,7 +184,7 @@ esp_reset(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
  */
 espr_t
 esp_reset_with_delay(uint32_t delay,
-                        esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                        const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -203,7 +203,7 @@ esp_reset_with_delay(uint32_t delay,
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_restore(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -223,7 +223,7 @@ esp_restore(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
  */
 espr_t
 esp_set_wifi_mode(esp_mode_t mode,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -244,7 +244,7 @@ esp_set_wifi_mode(esp_mode_t mode,
  */
 espr_t
 esp_set_at_baudrate(uint32_t baud,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -270,7 +270,7 @@ esp_set_at_baudrate(uint32_t baud,
  */
 espr_t
 esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn server_evt_fn,
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
@@ -301,7 +301,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_update_sw(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+esp_update_sw(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -326,7 +326,7 @@ esp_update_sw(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking)
  */
 espr_t
 esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
-                        esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                        const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
@@ -451,7 +451,7 @@ esp_evt_unregister(esp_evt_fn fn) {
  */
 espr_t
 esp_device_set_present(uint8_t present,
-                        esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                        const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     espr_t res = espOK;
     esp_core_lock();
     present = present ? 1 : 0;

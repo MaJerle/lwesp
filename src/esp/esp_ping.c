@@ -47,7 +47,7 @@
  */
 espr_t
 esp_ping(const char* host, uint32_t* time,
-            esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+            const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */

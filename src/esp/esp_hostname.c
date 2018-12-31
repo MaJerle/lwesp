@@ -46,7 +46,7 @@
  */
 espr_t
 esp_hostname_set(const char* hostname,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
@@ -70,7 +70,7 @@ esp_hostname_set(const char* hostname,
  */
 espr_t
 esp_hostname_get(char* hostname, size_t length,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */

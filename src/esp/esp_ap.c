@@ -49,7 +49,7 @@
  */
 espr_t
 esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -76,7 +76,7 @@ esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
  */
 espr_t
 esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def,
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
@@ -103,7 +103,7 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t
  */
 espr_t
 esp_ap_getmac(esp_mac_t* mac, uint8_t def,
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -126,7 +126,7 @@ esp_ap_getmac(esp_mac_t* mac, uint8_t def,
  */
 espr_t
 esp_ap_setmac(const esp_mac_t* mac, uint8_t def,
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("mac != NULL", mac != NULL);     /* Assert input parameters */
@@ -158,7 +158,7 @@ esp_ap_setmac(const esp_mac_t* mac, uint8_t def,
  */
 espr_t
 esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, uint8_t max_sta, uint8_t hid, uint8_t def,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("ssid != NULL", ssid != NULL);   /* Assert input parameters */
@@ -194,7 +194,7 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
  */
 espr_t
 esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("sta != NULL", sta != NULL);     /* Assert input parameters */

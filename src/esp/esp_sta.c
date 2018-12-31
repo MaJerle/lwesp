@@ -44,7 +44,7 @@
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_quit(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+esp_sta_quit(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -68,7 +68,7 @@ esp_sta_quit(esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) 
  */
 espr_t
 esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, 
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("name != NULL", name != NULL);   /* Assert input parameters */
@@ -96,7 +96,7 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
  */
 espr_t
 esp_sta_autojoin(uint8_t en,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -118,7 +118,7 @@ esp_sta_autojoin(uint8_t en,
  */
 espr_t
 esp_sta_get_ap_info(esp_sta_info_ap_t* info,
-                        esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                        const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     if (!esp_sta_is_joined()) {
@@ -147,7 +147,7 @@ esp_sta_get_ap_info(esp_sta_info_ap_t* info,
  */
 espr_t
 esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -174,7 +174,7 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
  */
 espr_t
 esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def,
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
@@ -201,7 +201,7 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
  */
 espr_t
 esp_sta_getmac(esp_mac_t* mac, uint8_t def, 
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -224,7 +224,7 @@ esp_sta_getmac(esp_mac_t* mac, uint8_t def,
  */
 espr_t
 esp_sta_setmac(const esp_mac_t* mac, uint8_t def,
-                esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("mac != NULL", mac != NULL);     /* Assert input parameters */
@@ -301,7 +301,7 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
  */
 espr_t
 esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf,
-                    esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     if (apf != NULL) {
