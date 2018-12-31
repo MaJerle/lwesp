@@ -42,11 +42,11 @@
  */
 #define CONN_CHECK_CLOSED_IN_CLOSING(conn) do { \
     espr_t r = espOK;                           \
-    ESP_CORE_PROTECT();                         \
+    esp_core_lock();                         \
     if (conn->status.f.in_closing || !conn->status.f.active) {  \
         r = espCLOSED;                          \
     }                                           \
-    ESP_CORE_UNPROTECT();                       \
+    esp_core_unlock();                       \
     if (r != espOK) {                           \
         return r;                               \
     }                                           \
@@ -132,9 +132,9 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
 uint8_t
 conn_get_val_id(esp_conn_p conn) {
     uint8_t val_id;
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     val_id = conn->val_id;
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
 
     return val_id;
 }
@@ -190,7 +190,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
 static espr_t
 flush_buff(esp_conn_p conn) {
     espr_t res = espOK;
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     if (conn != NULL && conn->buff.buff != NULL) {  /* Do we have something ready? */
         /*
          * If there is nothing to write or if write was not successful,
@@ -208,7 +208,7 @@ flush_buff(esp_conn_p conn) {
         }
         conn->buff.buff = NULL;
     }
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     return res;
 }
 
@@ -278,11 +278,11 @@ esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
     flush_buff(conn);                           /* First flush buffer */
     res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
     if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
             "[CONN] Connection %d set to closing state\r\n", (int)conn->num);
         conn->status.f.in_closing = 1;          /* Connection is in closing mode but not yet closed */
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return res;
 }
@@ -328,7 +328,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
     ESP_ASSERT("btw > 0", btw > 0);             /* Assert input parameters */
 
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     if (conn->buff.buff != NULL) {              /* Check if memory available */
         size_t to_copy;
         to_copy = ESP_MIN(btw, conn->buff.len - conn->buff.ptr);
@@ -339,7 +339,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
             btw -= to_copy;
         }
     }
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     res = flush_buff(conn);                     /* Flush currently written memory if exists */
     if (btw) {                                  /* Check for remaining data */
         res = conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
@@ -388,9 +388,9 @@ esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
  */
 espr_t
 esp_conn_set_arg(esp_conn_p conn, void* const arg) {
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     conn->arg = arg;                            /* Set argument for connection */
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     return espOK;
 }
 
@@ -403,9 +403,9 @@ esp_conn_set_arg(esp_conn_p conn, void* const arg) {
 void *
 esp_conn_get_arg(esp_conn_p conn) {
     void* arg;
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     arg = conn->arg;                            /* Set argument for connection */
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     return arg;
 }
 
@@ -433,9 +433,9 @@ uint8_t
 esp_conn_is_client(esp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         res = conn->status.f.active && conn->status.f.client;
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return res;
 }
@@ -449,9 +449,9 @@ uint8_t
 esp_conn_is_server(esp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         res = conn->status.f.active && !conn->status.f.client;
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return res;
 }
@@ -465,9 +465,9 @@ uint8_t
 esp_conn_is_active(esp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         res = conn->status.f.active;
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return res;
 }
@@ -481,9 +481,9 @@ uint8_t
 esp_conn_is_closed(esp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         res = !conn->status.f.active;
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return res;
 }
@@ -661,9 +661,9 @@ esp_conn_get_total_recved_count(esp_conn_p conn) {
     size_t tot = 0;
 
     if (conn != NULL) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         tot = conn->total_recved;               /* Get total received bytes */
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return tot;
 }
@@ -677,9 +677,9 @@ esp_conn_get_total_recved_count(esp_conn_p conn) {
 uint8_t
 esp_conn_get_remote_ip(esp_conn_p conn, esp_ip_t* ip) {
     if (conn != NULL && ip != NULL) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         ESP_MEMCPY(ip, &conn->remote_ip, sizeof(*ip));  /* Copy data */
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
         return 1;
     }
     return 0;
@@ -694,9 +694,9 @@ esp_port_t
 esp_conn_get_remote_port(esp_conn_p conn) {
     esp_port_t port = 0;
     if (conn != NULL) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         port = conn->remote_port;
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return port;
 }
@@ -710,9 +710,9 @@ esp_port_t
 esp_conn_get_local_port(esp_conn_p conn) {
     esp_port_t port = 0;
     if (conn != NULL) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         port = conn->local_port;
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return port;
 }

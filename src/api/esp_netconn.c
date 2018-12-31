@@ -261,12 +261,12 @@ esp_netconn_new(esp_netconn_type_t type) {
     static uint8_t first = 1;
 
     /* Register only once! */
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     if (first) {
         first = 0;
         esp_evt_register(esp_evt);              /* Register global event function */
     }
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     a = esp_mem_calloc(1, sizeof(*a));          /* Allocate memory for core object */
     if (a != NULL) {
         a->type = type;                         /* Save netconn type */
@@ -281,14 +281,14 @@ esp_netconn_new(esp_netconn_type_t type) {
                 "[NETCONN] Cannot create receive MBOX\r\n");
             goto free_ret;
         }
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         if (netconn_list == NULL) {             /* Add new netconn to the existing list */
             netconn_list = a;
         } else {
             a->next = netconn_list;             /* Add it to beginning of the list */
             netconn_list = a;
         }
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return a;
 free_ret:
@@ -316,15 +316,15 @@ espr_t
 esp_netconn_delete(esp_netconn_p nc) {
     ESP_ASSERT("netconn != NULL", nc != NULL);  /* Assert input parameters */
 
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     flush_mboxes(nc, 0);                        /* Clear mboxes */
 
     /* Stop listening on netconn */
     if (nc == listen_api) {
         listen_api = NULL;
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
         esp_set_server(0, nc->listen_port, 0, 0, NULL, NULL, NULL, 1);
-        ESP_CORE_PROTECT();
+        esp_core_lock();
     }
 
     /* Remove netconn from linkedlist */
@@ -341,7 +341,7 @@ esp_netconn_delete(esp_netconn_p nc) {
             }
         }
     }
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
 
     esp_mem_free(nc);                           /* Free the memory */
     nc = NULL;
@@ -451,9 +451,9 @@ esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections) {
     if ((res = esp_set_server(1, nc->listen_port,
         ESP_U16(ESP_MIN(max_connections, ESP_CFG_MAX_CONNS)),
         nc->conn_timeout, netconn_evt, NULL, NULL, 1)) == espOK) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         listen_api = nc;                        /* Set current main API in listening state */
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return res;
 }
@@ -480,14 +480,14 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* client) {
         return espERR;
     }
     if ((uint8_t *)tmp == (uint8_t *)&recv_closed) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         listen_api = NULL;                      /* Disable listening at this point */
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
         return espERRWIFINOTCONNECTED;          /* Wifi disconnected */
     } else if ((uint8_t *)tmp == (uint8_t *)&recv_not_present) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         listen_api = NULL;                      /* Disable listening at this point */
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
         return espERRNODEVICE;                  /* Device not present */
     }
     *client = tmp;                              /* Set new pointer */

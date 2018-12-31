@@ -445,6 +445,8 @@ typedef struct {
     esp_sw_version_t    version_at;             /*!< Version of AT command software on ESP device */
     esp_sw_version_t    version_sdk;            /*!< Version of SDK used to build AT software */
 
+    size_t              locked_cnt;             /*!< Counter how many times (recursive) stack is currently locked */
+
     esp_sys_sem_t       sem_sync;               /*!< Synchronization semaphore between threads */
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
     esp_sys_mbox_t      mbox_process;           /*!< Consumer message queue handle */
@@ -561,16 +563,6 @@ typedef struct {
 #define ESP_AT_PORT_SEND_CUR_DEF(is_d, e)   do { ESP_AT_PORT_SEND_STR((is_d) ? "_DEF" : "_CUR"); ESP_AT_PORT_SEND_EQUAL_COND(e); } while (0)
 
 #define ESP_PORT2NUM(port)                  ((uint32_t)(port))
-
-/**
- * \brief           Protect (count up) OS protection (mutex)
- */
-#define ESP_CORE_PROTECT()                  esp_sys_protect()
-
-/**
- * \brief           Unprotect (count down) OS protection (mutex)
- */
-#define ESP_CORE_UNPROTECT()                esp_sys_unprotect()
 
 const char * espi_dbg_msg_to_string(esp_cmd_t cmd);
 espr_t      espi_process(const void* data, size_t len);

@@ -86,9 +86,9 @@ esp_input_process(const void* data, size_t len) {
     esp_recv_calls++;                           /* Update number of calls */
 
     if (len) {
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         res = espi_process(data, len);          /* Process input data */
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return res;
 }

@@ -1928,11 +1928,16 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     espr_t res = msg->res = espOK;
 
     /* Check here if stack is even enabled or shall we disable new command entry? */
-    ESP_CORE_PROTECT();
+    esp_core_lock();
+    /* If locked more than 1 time, means we were called from callback or internally */
+    if (esp.locked_cnt > 1 && msg->is_blocking) {
+        res = espERRBLOCKING;                   /* Blocking mode not allowed */
+    }
+    /* Check if device present */
     if (!esp.status.f.dev_present) {
         res = espERRNODEVICE;                   /* No device connected */
     }
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     if (res != espOK) {
         ESP_MSG_VAR_FREE(msg);                  /* Free memory and return */
         return res;

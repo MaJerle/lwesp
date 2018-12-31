@@ -119,7 +119,7 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
     esp_ll_init(&esp.ll);                       /* Init low-level communication */
 
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     esp.status.f.initialized = 1;               /* We are initialized now */
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
 
@@ -130,7 +130,7 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
      * AT commands to prepare basic setup for device
      */
     espi_conn_init();                           /* Init connection module */
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
 
 #if ESP_CFG_RESTORE_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
@@ -344,7 +344,7 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
 /**
- * \brief           Increase protection counter
+ * \brief           Lock stack from multi-thread access
  *
  *                  If lock was `0` before func call, lock is enabled and increased
  * \note            Function may be called multiple times to increase locks.
@@ -353,19 +353,23 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
  */
 espr_t
 esp_core_lock(void) {
-    ESP_CORE_PROTECT();
+    esp_sys_protect();
+    esp.locked_cnt++;
     return espOK;
 }
 
 /**
- * \brief           Decrease protection counter
+ * \brief           Unlock stack for multi-thread access
+ *
+ *                  Used conjunction with \ref esp_core_lock function
  *
  *                  If lock was non-zero before func call, it is decreased. In case of `lock = 0`, protection is disabled
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_core_unlock(void) {
-    ESP_CORE_UNPROTECT();
+    esp.locked_cnt--;
+    esp_sys_unprotect();
     return espOK;
 }
 
@@ -381,7 +385,7 @@ esp_evt_register(esp_evt_fn fn) {
 
     ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
 
-    ESP_CORE_PROTECT();
+    esp_core_lock();
 
     /* Check if function already exists on list */
     for (func = esp.evt_func; func != NULL; func = func->next) {
@@ -406,7 +410,7 @@ esp_evt_register(esp_evt_fn fn) {
             res = espERRMEM;
         }
     }
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     return res;
 }
 
@@ -422,7 +426,7 @@ esp_evt_unregister(esp_evt_fn fn) {
 
     ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
 
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {
         if (func->fn == fn) {
             prev->next = func->next;
@@ -431,7 +435,7 @@ esp_evt_unregister(esp_evt_fn fn) {
             break;
         }
     }
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     return espOK;
 }
 
@@ -449,7 +453,7 @@ espr_t
 esp_device_set_present(uint8_t present,
                         esp_api_cmd_evt_fn evt_fn, void* evt_arg, const uint32_t blocking) {
     espr_t res = espOK;
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     present = present ? 1 : 0;
     if (present != esp.status.f.dev_present) {
         esp.status.f.dev_present = present;
@@ -459,14 +463,14 @@ esp_device_set_present(uint8_t present,
             espi_reset_everything(1);
         } else {
 #if ESP_CFG_RESET_ON_DEVICE_PRESENT
-            ESP_CORE_UNPROTECT();
+            esp_core_unlock();
             res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, evt_fn, evt_arg, blocking);
-            ESP_CORE_PROTECT();
+            esp_core_lock();
 #endif /* ESP_CFG_RESET_ON_DEVICE_PRESENT */
         }
         espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
     }
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
 
     ESP_UNUSED(evt_fn);
     ESP_UNUSED(evt_arg);
@@ -482,9 +486,9 @@ esp_device_set_present(uint8_t present,
 uint8_t
 esp_device_is_present(void) {
     uint8_t res;
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     res = esp.status.f.dev_present;
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     return res;
 }
 

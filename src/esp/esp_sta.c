@@ -245,9 +245,9 @@ esp_sta_setmac(const esp_mac_t* mac, uint8_t def,
 uint8_t
 esp_sta_has_ip(void) {
     uint8_t res;
-    ESP_CORE_PROTECT();
+    esp_core_lock();
     res = ESP_U8(esp.m.sta.has_ip);
-    ESP_CORE_UNPROTECT();
+    esp_core_unlock();
     return res;
 }
 
@@ -272,7 +272,7 @@ espr_t
 esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
     espr_t res = espERR;
     if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip()) { /* Do we have a valid IP address? */
-        ESP_CORE_PROTECT();
+        esp_core_lock();
         if (ip != NULL) {
             ESP_MEMCPY(ip, &esp.m.sta.ip, sizeof(esp.m.sta.ip));/* Copy IP address */
         }
@@ -283,7 +283,7 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
             ESP_MEMCPY(nm, &esp.m.sta.nm, sizeof(esp.m.sta.nm));/* Copy netmask address */
         }
         res = espOK;
-        ESP_CORE_UNPROTECT();
+        esp_core_unlock();
     }
     return res;
 }
