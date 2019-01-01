@@ -203,9 +203,7 @@ espr_t
 esp_pbuf_ref(esp_pbuf_p pbuf) {
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
 
-    esp_core_lock();
     pbuf->ref++;                                /* Increase reference count for pbuf */
-    esp_core_unlock();
     return espOK;
 }
 
