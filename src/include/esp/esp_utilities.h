@@ -55,7 +55,7 @@ extern "C" {
  */
 #define ESP_ASSERT(msg, c)   do {   \
     if (!(c)) {                     \
-        ESP_DEBUGF(ESP_CFG_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, __LINE__, msg); \
+        ESP_DEBUGF(ESP_CFG_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, (int)__LINE__, msg);\
         return espPARERR;           \
     }                               \
 } while (0)
