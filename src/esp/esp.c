@@ -116,10 +116,10 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     esp_buff_init(&esp.buff, ESP_CFG_RCV_BUFF_SIZE);    /* Init buffer for input data */
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */
 
+    esp_core_lock();
     esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
     esp_ll_init(&esp.ll);                       /* Init low-level communication */
 
-    esp_core_lock();
     esp.status.f.initialized = 1;               /* We are initialized now */
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
 
@@ -130,19 +130,23 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
      * AT commands to prepare basic setup for device
      */
     espi_conn_init();                           /* Init connection module */
-    esp_core_unlock();
 
 #if ESP_CFG_RESTORE_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
+        esp_core_unlock();
         res = esp_restore(NULL, NULL, blocking);/* Restore device */
+        esp_core_lock();
     }
 #endif /* ESP_CFG_RESTORE_ON_INIT */
 #if ESP_CFG_RESET_ON_INIT
-    if (esp.status.f.dev_present) {             /* In case device exists */
+    if (esp.status.f.dev_present) {
+        esp_core_unlock();
         res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, NULL, NULL, blocking);  /* Send reset sequence with delay */
+        esp_core_lock();
     }
 #endif /* ESP_CFG_RESET_ON_INIT */
     ESP_UNUSED(blocking);                       /* Prevent compiler warnings */
+    esp_core_unlock();
 
     return res;
 
