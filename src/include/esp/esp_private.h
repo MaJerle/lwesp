@@ -450,7 +450,7 @@ typedef struct {
     esp_sys_sem_t       sem_sync;               /*!< Synchronization semaphore between threads */
     esp_sys_mbox_t      mbox_producer;          /*!< Producer message queue handle */
     esp_sys_mbox_t      mbox_process;           /*!< Consumer message queue handle */
-    esp_sys_thread_t    thread_producer;        /*!< Producer thread handle */
+    esp_sys_thread_t    thread_produce;         /*!< Producer thread handle */
     esp_sys_thread_t    thread_process;         /*!< Processing thread handle */
 #if !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
     esp_buff_t          buff;                   /*!< Input processing buffer */

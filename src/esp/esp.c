@@ -100,12 +100,12 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
 
     /* Create threads */
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Lock semaphore */
-    if (!esp_sys_thread_create(&esp.thread_producer, "esp_producer", esp_thread_producer, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
+    if (!esp_sys_thread_create(&esp.thread_produce, "esp_produce", esp_thread_producer, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
         esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore */
         goto cleanup;
     }
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in producer thread */
-    if (!esp_sys_thread_create(&esp.thread_process, "esp_producer", esp_thread_process, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
+    if (!esp_sys_thread_create(&esp.thread_process, "esp_process", esp_thread_process, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
         esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore */
         goto cleanup;
     }
