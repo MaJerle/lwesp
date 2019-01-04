@@ -952,17 +952,15 @@ espi_process_buffer(void) {
         if (len) {
             /*
              * Get memory address of first element
-             * in linear block to process
+             * in linear block of data to process
              */
             data = esp_buff_get_linear_block_address(&esp.buff);
 
-            /*
-             * Process actual received data
-             */
+            /* Process actual received data */
             espi_process(data, len);
 
             /*
-             * Once they are processed, simply skip
+             * Once data is processed, simply skip
              * the buffer memory and start over
              */
             esp_buff_skip(&esp.buff, len);
@@ -1192,7 +1190,7 @@ espi_process(const void* data, size_t data_len) {
                      * what are the actual values
                      */
                     for (uint8_t i = 0; i < unicode.t; i++) {
-                        RECV_ADD(unicode.ch[i]);    /* Add character to receive array */
+                        RECV_ADD(unicode.ch[i]);/* Add character to receive array */
                     }
                 }
             } else if (res != espINPROG) {      /* Not in progress? */
@@ -1200,8 +1198,8 @@ espi_process(const void* data, size_t data_len) {
             }
         }
 
-        ch_prev2 = ch_prev1;                    /* Save previous character to previous previous */
-        ch_prev1 = ch;                          /* Char current to previous */
+        ch_prev2 = ch_prev1;                    /* Save previous character as previous previous */
+        ch_prev1 = ch;                          /* Set current as previous */
     }
     return espOK;
 }
