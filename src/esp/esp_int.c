@@ -2041,7 +2041,7 @@ espi_process_events_for_timeout_or_error(esp_msg_t* msg, espr_t err) {
 #if ESP_CFG_PING
         case ESP_CMD_TCPIP_PING: {
             /* Ping error */
-            PING_SEND_EVT(esp.msg, err);
+            PING_SEND_EVT(msg, err);
             break;
         }
 #endif /* ESP_CFG_PING */
@@ -2049,7 +2049,7 @@ espi_process_events_for_timeout_or_error(esp_msg_t* msg, espr_t err) {
 #if ESP_CFG_DNS
         case ESP_CMD_TCPIP_CIPDOMAIN: {
             /* DNS error */
-            CIPDOMAIN_SEND_EVT(esp.msg, err);
+            CIPDOMAIN_SEND_EVT(msg, err);
             break;
         }
 #endif /* ESP_CFG_DNS */
