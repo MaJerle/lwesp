@@ -920,14 +920,15 @@ espi_parse_received(esp_recv_t* rcv) {
             } else {
                 esp.msg->i++;                   /* Number of continue calls */
             }
-        }
-        /*
-         * When the command is finished,
-         * release synchronization semaphore
-         * from user thread and start with next command
-         */
-        if (res != espCONT) {                   /* Do we have to continue to wait for command? */
-            esp_sys_sem_release(&esp.sem_sync); /* Release semaphore */
+
+            /*
+             * When the command is finished,
+             * release synchronization semaphore
+             * from user thread and start with next command
+             */
+            if (res != espCONT) {               /* Do we have to continue to wait for command? */
+                esp_sys_sem_release(&esp.sem_sync); /* Release semaphore */
+            }
         }
     }
 }
