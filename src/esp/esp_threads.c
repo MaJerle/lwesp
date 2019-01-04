@@ -41,9 +41,10 @@
 
 /**
  * \brief           User thread to process input packets from API functions
+ * \param[in]       arg: User argument. Semaphore to release when thread starts
  */
 void
-esp_thread_producer(void* const arg) {
+esp_thread_produce(void* const arg) {
     esp_sys_sem_t* sem = arg;
     esp_t* e = &esp;
     esp_msg_t* msg;
@@ -84,11 +85,17 @@ esp_thread_producer(void* const arg) {
          * Try to call function to process this message
          * Usually it should be function to transmit data to AT port
          */
-        e->msg = msg;
         if (res == espOK && msg->fn != NULL) {  /* Check for callback processing function */
+            /* 
+             * Obtain semaphore 
+             * This code should not block at any point.
+             * If it blocks, severe problems occurred and program should 
+             * immediate terminate
+             */
             esp_core_unlock();
             esp_sys_sem_wait(&e->sem_sync, 0);
             esp_core_lock();
+            e->msg = msg;
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
                 esp_core_unlock();
@@ -139,6 +146,7 @@ esp_thread_producer(void* const arg) {
  *                  This thread is also used to handle timeout events
  *                  in correct time order as it is never blocked by user command
  *
+ * \param[in]       arg: User argument. Semaphore to release when thread starts
  * \sa              ESP_CFG_INPUT_USE_PROCESS
  */
 void

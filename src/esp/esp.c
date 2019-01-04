@@ -100,25 +100,25 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
 
     /* Create threads */
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Lock semaphore */
-    if (!esp_sys_thread_create(&esp.thread_produce, "esp_produce", esp_thread_producer, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
-        esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore */
+    if (!esp_sys_thread_create(&esp.thread_produce, "esp_produce", esp_thread_produce, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
+        esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
         goto cleanup;
     }
-    esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in producer thread */
+    esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in process thread */
     if (!esp_sys_thread_create(&esp.thread_process, "esp_process", esp_thread_process, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
-        esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore */
+        esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
         goto cleanup;
     }
-    esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in producer thread */
-    esp_sys_sem_release(&esp.sem_sync);         /* Release semaphore */
-
-#if !ESP_CFG_INPUT_USE_PROCESS
-    esp_buff_init(&esp.buff, ESP_CFG_RCV_BUFF_SIZE);    /* Init buffer for input data */
-#endif /* !ESP_CFG_INPUT_USE_PROCESS */
+    esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in produce thread */
+    esp_sys_sem_release(&esp.sem_sync);         /* Release semaphore manually */
 
     esp_core_lock();
     esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
     esp_ll_init(&esp.ll);                       /* Init low-level communication */
+
+#if !ESP_CFG_INPUT_USE_PROCESS
+    esp_buff_init(&esp.buff, ESP_CFG_RCV_BUFF_SIZE);    /* Init buffer for input data */
+#endif /* !ESP_CFG_INPUT_USE_PROCESS */
 
     esp.status.f.initialized = 1;               /* We are initialized now */
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
