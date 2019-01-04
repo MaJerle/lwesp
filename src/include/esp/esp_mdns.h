@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_MDNS_H
 #define ESP_HDR_MDNS_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,7 +52,6 @@ espr_t      esp_mdns_configure(uint8_t en, const char* host, const char* server,
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

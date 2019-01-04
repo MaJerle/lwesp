@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_DEBUG_H
 #define ESP_HDR_DEBUG_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -122,7 +121,6 @@ extern "C" {
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

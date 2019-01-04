@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_BUFF_H
 #define ESP_HDR_BUFF_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -63,7 +62,6 @@ size_t      esp_buff_skip(esp_buff_t* buff, size_t len);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

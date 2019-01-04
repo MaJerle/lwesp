@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_PING_H
 #define ESP_HDR_PING_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,7 +52,6 @@ espr_t      esp_ping(const char* host, uint32_t* time, const esp_api_cmd_evt_fn 
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

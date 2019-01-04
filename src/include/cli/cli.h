@@ -31,7 +31,6 @@
 #ifndef __CLI_H
 #define __CLI_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -76,7 +75,6 @@ void                    cli_init(void);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

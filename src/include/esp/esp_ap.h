@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_AP_H
 #define ESP_HDR_AP_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -64,7 +63,6 @@ espr_t      esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, const esp
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

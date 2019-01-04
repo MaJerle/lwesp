@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_APP_MQTT_CLIENT_API_H
 #define ESP_HDR_APP_MQTT_CLIENT_API_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -88,7 +87,6 @@ void                    esp_mqtt_client_api_buf_free(esp_mqtt_client_api_buf_p p
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

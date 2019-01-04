@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_EVT_H
 #define ESP_HDR_EVT_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -292,7 +291,6 @@ uint32_t    esp_evt_ping_get_time(esp_evt_t* cc);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

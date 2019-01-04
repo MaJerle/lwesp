@@ -31,7 +31,6 @@
 #ifndef __CLI_INPUT_H
 #define __CLI_INPUT_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,7 +50,6 @@ void cli_in_data(cli_printf cliprintf, char ch);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

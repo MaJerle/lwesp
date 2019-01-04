@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_UNICODE_H
 #define ESP_HDR_UNICODE_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,7 +52,6 @@ espr_t          espi_unicode_decode(esp_unicode_t* uni, uint8_t ch);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

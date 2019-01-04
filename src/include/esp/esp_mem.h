@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_MEM_H
 #define ESP_HDR_MEM_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -69,7 +68,6 @@ uint8_t esp_mem_assignmemory(const esp_mem_region_t* regions, size_t size);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

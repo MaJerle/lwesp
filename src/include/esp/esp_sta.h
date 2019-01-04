@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_STA_H
 #define ESP_HDR_STA_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,7 +66,6 @@ uint8_t     esp_sta_is_ap_802_11n(esp_ap_t* ap);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

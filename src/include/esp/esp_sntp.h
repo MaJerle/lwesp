@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_SNTP_H
 #define ESP_HDR_SNTP_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,7 +53,6 @@ espr_t      esp_sntp_gettime(esp_datetime_t* dt, const esp_api_cmd_evt_fn evt_fn
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

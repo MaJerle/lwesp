@@ -31,7 +31,6 @@
 #ifndef ESP_HDR_CLI_H
 #define ESP_HDR_CLI_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,7 +50,6 @@ void esp_cli_register_commands(void);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

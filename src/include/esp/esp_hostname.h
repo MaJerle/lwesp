@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_HOSTNAME_H
 #define ESP_HDR_HOSTNAME_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,7 +53,6 @@ espr_t      esp_hostname_get(char* hostname, size_t length, const esp_api_cmd_ev
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

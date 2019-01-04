@@ -31,7 +31,6 @@
 #ifndef __CLI_CONFIG_H
 #define __CLI_CONFIG_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -92,7 +91,6 @@ extern "C" {
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

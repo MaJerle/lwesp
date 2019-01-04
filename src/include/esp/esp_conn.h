@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_CONN_H
 #define ESP_HDR_CONN_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,7 +72,6 @@ esp_port_t  esp_conn_get_local_port(esp_conn_p conn);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

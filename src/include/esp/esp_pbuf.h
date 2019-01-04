@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_PBUF_H
 #define ESP_HDR_PBUF_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -78,7 +77,6 @@ void            esp_pbuf_dump(esp_pbuf_p p, uint8_t seq);
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif

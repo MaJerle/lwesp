@@ -33,7 +33,6 @@
 #ifndef ESP_HDR_WPS_H
 #define ESP_HDR_WPS_H
 
-/* C++ detection */
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,7 +52,6 @@ espr_t      esp_wps_configure(uint8_t en, const esp_api_cmd_evt_fn evt_fn, void*
  * \}
  */
 
-/* C++ detection */
 #ifdef __cplusplus
 }
 #endif
