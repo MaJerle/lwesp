@@ -116,6 +116,7 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     if (!esp_sys_thread_create(&esp.thread_process, "esp_process", esp_thread_process, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
         ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
             "[CORE] Cannot allocate processing thread!\r\n");
+        esp_sys_thread_terminate(&esp.thread_produce);  /* Delete produce thread */
         esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
         goto cleanup;
     }
