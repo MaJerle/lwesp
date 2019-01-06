@@ -37,6 +37,7 @@
 #define ESP_CFG_DBG_MQTT_API_TRACE              (ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_TRACE)
 #define ESP_CFG_DBG_MQTT_API_STATE              (ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_STATE)
 #define ESP_CFG_DBG_MQTT_API_TRACE_WARNING      (ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING)
+#define ESP_CFG_DBG_MQTT_API_TRACE_SEVERE       (ESP_CFG_DBG_MQTT_API | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE)
 
 /**
  * \brief           MQTT API client structure
@@ -51,7 +52,11 @@ struct esp_mqtt_client_api {
     espr_t sub_pub_resp;                        /*!< Subscribe/Unsubscribe/Publish response */
 } esp_mqtt_client_api_t;
 
-static uint8_t mqtt_closed = 0xFF;
+/**
+ * \brief           Variable used as pointer for message queue when MQTT connection is closed
+ */
+static uint8_t
+mqtt_closed = 0xFF;
 
 /**
  * \brief           Release user semaphore
@@ -223,29 +228,29 @@ esp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
             /* Create receive mbox queue */
             if (esp_sys_mbox_create(&client->rcv_mbox, 5)) {
                 /* Create synchronization semaphore */
-                if (esp_sys_sem_create(&client->sync_sem, 5)) {
+                if (esp_sys_sem_create(&client->sync_sem, 1)) {
                     /* Create mutex */
                     if (esp_sys_mutex_create(&client->mutex)) {
                         esp_mqtt_client_set_arg(client->mc, client);/* Set client to mqtt client argument */
                         return client;
                     } else {
-                        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+                        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
                             "[MQTT API] Cannot allocate mutex\r\n");
                     }
                 } else {
-                    ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+                    ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
                         "[MQTT API] Cannot allocate sync semaphore\r\n");
                 }
             } else {
-                ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+                ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
                     "[MQTT API] Cannot allocate receive queue\r\n");
             }
         } else {
-            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
                 "[MQTT API] Cannot allocate MQTT client\r\n");
         }
     } else {
-        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API,
+        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
             "[MQTT API] Cannot allocate memory for client\r\n");
     }
 
