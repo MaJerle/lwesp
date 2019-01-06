@@ -121,27 +121,29 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
                     "[MQTT API] New publish received on topic %.*s\r\n", (int)topic_len, topic);
 
-                /* Calculate sizes */
-                buf_size = sizeof(*buf);
-                topic_size = sizeof(*topic) * (topic_len + 1);
-                payload_size = sizeof(*payload) * (payload_len + 1);
-
-                size = sizeof(*buf) + topic_size + payload_size;
+                /* Calculate memory sizes */
+                buf_size = ESP_MEM_ALIGN(sizeof(*buf));
+                topic_size = ESP_MEM_ALIGN(sizeof(*topic) * (topic_len + 1));
+                payload_size = ESP_MEM_ALIGN(sizeof(*payload) * (payload_len + 1));
+                
+                size = buf_size + topic_size + payload_size;
                 buf = esp_mem_alloc(size);
                 if (buf != NULL) {
                     ESP_MEMSET(buf, 0x00, size);
-                    buf->topic = (const void *)(buf + buf_size);
-                    buf->payload = (const void *)(buf->topic + topic_size);
+                    buf->topic = (void *)((uint8_t *)buf + buf_size);
+                    buf->payload = (void *)((uint8_t *)buf + buf_size + topic_size);
                     buf->topic_len = topic_len;
                     buf->payload_len = payload_len;
                     buf->qos = qos;
 
                     /* Copy content to new memory */
-                    ESP_MEMCPY((void *)buf->topic, topic, sizeof(*topic) * topic_len);
-                    ESP_MEMCPY((void *)buf->payload, payload, sizeof(*payload) * payload_len);
+                    ESP_MEMCPY(buf->topic, topic, sizeof(*topic) * topic_len);
+                    ESP_MEMCPY(buf->payload, payload, sizeof(*payload) * payload_len);
 
                     /* Write to receive queue */
                     if (!esp_sys_mbox_putnow(&api_client->rcv_mbox, buf)) {
+                        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
+                            "[MQTT API] Cannot put new received MQTT publish to queue\r\n");
                         esp_mem_free(buf);
                     }
                 } else {

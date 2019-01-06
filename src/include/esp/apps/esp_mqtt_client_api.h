@@ -56,9 +56,9 @@ struct esp_mqtt_client_api;
  * \brief           MQTT API RX buffer
  */
 typedef struct esp_mqtt_client_api_buf {
-    const char* topic;                          /*!< Topic data */
+    char* topic;                                /*!< Topic data */
     size_t topic_len;                           /*!< Topic length */
-    const uint8_t* payload;                     /*!< Payload data */
+    uint8_t* payload;                           /*!< Payload data */
     size_t payload_len;                         /*!< Payload length */
     esp_mqtt_qos_t qos;                         /*!< Quality of service */
 } esp_mqtt_client_api_buf_t;
