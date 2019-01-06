@@ -87,25 +87,35 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     }
 
     if (!esp_sys_sem_create(&esp.sem_sync, 1)) {/* Create sync semaphore between threads */
+        ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
+            "[CORE] Cannot allocate sync semaphore!\r\n");
         goto cleanup;
     }
 
     /* Create message queues */
     if (!esp_sys_mbox_create(&esp.mbox_producer, ESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) {  /* Producer */
+        ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
+            "[CORE] Cannot allocate producer mbox queue!\r\n");
         goto cleanup;
     }
     if (!esp_sys_mbox_create(&esp.mbox_process, ESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {  /* Process */
+        ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
+            "[CORE] Cannot allocate process mbox queue!\r\n");
         goto cleanup;
     }
 
     /* Create threads */
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Lock semaphore */
     if (!esp_sys_thread_create(&esp.thread_produce, "esp_produce", esp_thread_produce, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
+        ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
+            "[CORE] Cannot create producing thread!\r\n");
         esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
         goto cleanup;
     }
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in process thread */
     if (!esp_sys_thread_create(&esp.thread_process, "esp_process", esp_thread_process, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
+        ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
+            "[CORE] Cannot allocate processing thread!\r\n");
         esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
         goto cleanup;
     }

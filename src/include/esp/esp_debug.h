@@ -70,19 +70,20 @@ extern "C" {
 /**
  * \anchor          ESP_DBG_TYPE
  * \name            Debug types
- * \brief           List of possible debugging types
+ * \brief           List of debug types
  * \{
  */
 
 #define ESP_DBG_TYPE_TRACE          0x40    /*!< Debug trace messages for program flow */
 #define ESP_DBG_TYPE_STATE          0x20    /*!< Debug state messages (such as state machines) */
+#define ESP_DBG_TYPE_ALL            (GSM_DBG_TYPE_TRACE | GSM_DBG_TYPE_STATE)   /*!< All debug types */
 
 /**
  * \}
  */
 
 #if ESP_CFG_DBG && !defined(ESP_CFG_DBG_OUT)
-#warning "ESP_CFG_DBG_OUT is not enabled but debugging is enabled"
+#warning "ESP_CFG_DBG_OUT is not defined but debugging is enabled!"
 #endif
 
 #if (ESP_CFG_DBG && defined(ESP_CFG_DBG_OUT)) || __DOXYGEN__

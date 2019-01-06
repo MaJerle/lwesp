@@ -254,6 +254,15 @@
 #endif
 
 /**
+ * \brief           Set debug level for init function
+ *
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ */
+#ifndef ESP_CFG_DBG_INIT
+#define ESP_CFG_DBG_INIT                    ESP_DBG_OFF
+#endif
+
+/**
  * \brief           Set debug level for memory manager
  *
  *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
