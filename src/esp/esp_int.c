@@ -341,6 +341,12 @@ espi_reset_everything(uint8_t forced) {
 #endif /* ESP_CFG_MODE_STATION */
     esp.m.sta.is_connected = 0;
 
+    /* Check if IPD active */
+    if (esp.m.ipd.buff != NULL) {
+        esp_pbuf_free(esp.m.ipd.buff);
+        esp.m.ipd.buff = NULL;
+    }
+
     /* Invalid ESP modules */
     ESP_MEMSET(&esp.m, 0x00, sizeof(esp.m));
 
@@ -983,6 +989,11 @@ espi_process(const void* data, size_t data_len) {
     const uint8_t* d;
     static uint8_t ch_prev1, ch_prev2;
     static esp_unicode_t unicode;
+
+    /* Check status if device is available */
+    if (!esp.status.f.dev_present) {
+        return espERRNODEVICE;
+    }
 
     d = data;                                   /* Go to byte format */
     d_len = data_len;
