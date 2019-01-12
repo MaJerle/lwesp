@@ -985,8 +985,8 @@ espi_process_buffer(void) {
 espr_t
 espi_process(const void* data, size_t data_len) {
     uint8_t ch;
+    const uint8_t* d = data;
     size_t d_len = data_len;
-    const uint8_t* d;
     static uint8_t ch_prev1, ch_prev2;
     static esp_unicode_t unicode;
 
@@ -995,8 +995,6 @@ espi_process(const void* data, size_t data_len) {
         return espERRNODEVICE;
     }
 
-    d = data;                                   /* Go to byte format */
-    d_len = data_len;
     while (d_len) {                             /* Read entire set of characters from buffer */
         ch = *d++;                              /* Get next character */
         d_len--;                                /* Decrease remaining length */
