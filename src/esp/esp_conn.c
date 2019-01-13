@@ -130,7 +130,7 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
  * \return          Connection current validation ID
  */
 uint8_t
-conn_get_val_id(esp_conn_p conn) {
+espi_conn_get_val_id(esp_conn_p conn) {
     uint8_t val_id;
     esp_core_lock();
     val_id = conn->val_id;
@@ -177,7 +177,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
     ESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
     ESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
     ESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.val_id = conn_get_val_id(conn);
+    ESP_MSG_VAR_REF(msg).msg.conn_send.val_id = espi_conn_get_val_id(conn);
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
 }
@@ -273,7 +273,7 @@ esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPCLOSE;
     ESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
-    ESP_MSG_VAR_REF(msg).msg.conn_close.val_id = conn_get_val_id(conn);
+    ESP_MSG_VAR_REF(msg).msg.conn_close.val_id = espi_conn_get_val_id(conn);
 
     flush_buff(conn);                           /* First flush buffer */
     res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
