@@ -57,6 +57,7 @@ esp_t esp;
  */
 static espr_t
 def_callback(esp_evt_t* evt) {
+    ESP_UNUSED(evt);
     return espOK;
 }
 

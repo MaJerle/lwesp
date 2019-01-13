@@ -92,6 +92,9 @@ cli_station_info(cli_printf cliprintf, int argc, char** argv) {
     cliprintf("  MAC:     %02X:%02X:%02X:%02X:%02X"CLI_NL, info.mac.mac[0], info.mac.mac[1], info.mac.mac[2], info.mac.mac[3], info.mac.mac[4], info.mac.mac[5]);
     cliprintf("  RSSI:    %d"CLI_NL, info.rssi);
     cliprintf("  Channel: %d"CLI_NL, info.ch);
+
+    ESP_UNUSED(argc);
+    ESP_UNUSED(argv);
 }
 
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */

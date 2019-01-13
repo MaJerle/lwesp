@@ -449,6 +449,8 @@ espi_parse_cwjap(const char* str, esp_msg_t* msg) {
     esp.msg->msg.sta_info_ap.info->ch = espi_parse_number(&str);
     esp.msg->msg.sta_info_ap.info->rssi = espi_parse_number(&str);
 
+    ESP_UNUSED(msg);
+
     return 1;
 }
 

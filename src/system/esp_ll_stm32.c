@@ -114,6 +114,7 @@ usart_ll_thread(void const * arg) {
             }
         }
     }
+    ESP_UNUSED(arg);
 }
 
 /**
@@ -356,6 +357,7 @@ esp_ll_deinit(esp_ll_t* ll) {
         osThreadTerminate(tmp);
     }
     initialized = 0;
+    ESP_UNUSED(ll);
     return espOK;
 }
 

@@ -498,6 +498,7 @@ espi_send_conn_error_cb(esp_msg_t* msg, espr_t error) {
 
     /* Call callback specified by user on connection startup */
     esp.msg->msg.conn_start.evt_func(&esp.evt);
+    ESP_UNUSED(msg);
 }
 
 /**
@@ -1264,6 +1265,10 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPDINFO); break; /* Set visible data on +IPD */
         default: break;
     }
+    ESP_UNUSED(msg);
+    ESP_UNUSED(is_error);
+    ESP_UNUSED(is_ok);
+    ESP_UNUSED(is_ready);
     return n_cmd;
 }
 

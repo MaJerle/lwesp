@@ -441,7 +441,7 @@ esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, con
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
-    if (esp_mqtt_client_publish(client->mc, topic, data, ESP_U16(btw), qos, 1, NULL) == espOK) {
+    if (esp_mqtt_client_publish(client->mc, topic, data, ESP_U16(btw), qos, retain, NULL) == espOK) {
         esp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     } else {
