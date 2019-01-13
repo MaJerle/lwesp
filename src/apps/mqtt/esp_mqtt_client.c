@@ -401,10 +401,14 @@ send_data(esp_mqtt_client_p client) {
 
     len = esp_buff_get_linear_block_length(&client->tx_buff);   /* Get length of linear memory */
     if (len) {                                  /* Anything to send? */
+        espr_t res;
         addr = esp_buff_get_linear_block_address(&client->tx_buff); /* Get address of linear memory */
-        if (esp_conn_send(client->conn, addr, len, NULL, 0) == espOK) {
+        if ((res = esp_conn_send(client->conn, addr, len, NULL, 0)) == espOK) {
             client->written_total += len;       /* Increase number of bytes written to queue */
             client->is_sending = 1;             /* Remember active sending flag */
+        } else {
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING,
+                "[MQTT] Cannot send data with error: %d\r\n", (int)res);
         }
     }
 }
@@ -975,7 +979,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
             esp_mqtt_client_p client;
             client = esp_evt_conn_error_get_arg(evt);   /* Get connection argument */
             if (client != NULL) {
-                client->conn_state = ESP_MQTT_CONN_DISCONNECTED;    /* Set back to disconnected state */
+                client->conn_state = ESP_MQTT_CONN_DISCONNECTED;/* Set back to disconnected state */
                 /* Notify user upper layer */
                 client->evt.type = ESP_MQTT_EVT_CONNECT;
                 client->evt.evt.connect.status = ESP_MQTT_CONN_STATUS_TCP_FAILED;   /* TCP connection failed */
@@ -1186,7 +1190,7 @@ esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void*
 
     esp_core_lock();
     if (client->conn_state != ESP_MQTT_CONNECTED) {
-        res = espERR;
+        res = espCLOSED;
     } else if ((raw_len = output_check_enough_memory(client, rem_len)) != 0) {
         pkt_id = qos_u8 > 0 ? create_packet_id(client) : 0; /* Create new packet ID */
         request = request_create(client, pkt_id, arg);  /* Create request for packet */
@@ -1215,11 +1219,11 @@ esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void*
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
                 "[MQTT] Pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos_u8, (int)pkt_id);
         } else {
-            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] No free request available\r\n");
+            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] No free request available to publish message\r\n");
             res = espERRMEM;
         }
     } else {
-        ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] No enough memory to publish message\r\n");
+        ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] Not enough memory to publish message\r\n");
         res = espERRMEM;
     }
     esp_core_unlock();

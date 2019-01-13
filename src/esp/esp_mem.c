@@ -115,7 +115,7 @@ static uint8_t
 mem_assignmem(const esp_mem_region_t* regions, size_t len) {
     uint8_t* mem_start_addr;
     size_t mem_size;
-    mem_block_t* first_block, *prev_end_block = NULL;
+    mem_block_t *first_block, *prev_end_block = NULL;
 
     if (end_block != NULL) {                        /* Regions already defined */
         return 0;
@@ -342,8 +342,8 @@ mem_calloc(size_t num, size_t size) {
 /**
  * \brief           Reallocate memory to specific size
  * \note            After new memory is allocated, content of old one is copied to new memory
- * \param[in]       ptr: Pointer to current allocated memory to resize,
- *                  returned using \ref esp_mem_alloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
+ * \param[in]       ptr: Pointer to current allocated memory to resize, returned using 
+ *                      \ref esp_mem_alloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
  * \param[in]       size: Number of bytes to allocate on new memory
  * \return          Memory address on success, `NULL` otherwise
  */
@@ -399,7 +399,7 @@ mem_getminfree(void) {
  * \return          Memory address on success, `NULL` otherwise
  */
 void *
-esp_mem_alloc(uint32_t size) {
+esp_mem_alloc(size_t size) {
     void* ptr;
     esp_core_lock();
     ptr = mem_calloc(1, size);                      /* Allocate memory and return pointer */
@@ -414,7 +414,8 @@ esp_mem_alloc(uint32_t size) {
 /**
  * \brief           Reallocate memory to specific size
  * \note            After new memory is allocated, content of old one is copied to new memory
- * \param[in]       ptr: Pointer to current allocated memory to resize, returned using \ref esp_mem_alloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
+ * \param[in]       ptr: Pointer to current allocated memory to resize, returned using \ref esp_mem_alloc,
+ *                      \ref esp_mem_calloc or \ref esp_mem_realloc functions
  * \param[in]       size: Number of bytes to allocate on new memory
  * \return          Memory address on success, `NULL` otherwise
  */
@@ -443,9 +444,9 @@ esp_mem_calloc(size_t num, size_t size) {
     ptr = mem_calloc(num, size);                   /* Allocate memory and clear it to 0. Then return pointer */
     esp_core_unlock();
     ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL,
-        "[MEM]: Callocation failed: %d bytes\r\n", (int)size * (int)num);
+        "[MEM] Callocation failed: %d bytes\r\n", (int)size * (int)num);
     ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr != NULL,
-        "[MEM]: Callocation OK: %d bytes, addr: %p\r\n", (int)size * (int)num, ptr);
+        "[MEM] Callocation OK: %d bytes, addr: %p\r\n", (int)size * (int)num, ptr);
     return ptr;
 }
 
@@ -456,8 +457,11 @@ esp_mem_calloc(size_t num, size_t size) {
  */
 void
 esp_mem_free(void* ptr) {
+    if (ptr == NULL) {
+        return;
+    }
     ESP_DEBUGF(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE,
-        "[MEM]: Free size: %d, address: %p\r\n",
+        "[MEM] Free size: %d, address: %p\r\n",
         (int)MEM_BLOCK_USER_SIZE(ptr), ptr);
     esp_core_lock();
     mem_free(ptr);                                  /* Free already allocated memory */

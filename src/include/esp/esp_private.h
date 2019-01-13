@@ -505,8 +505,8 @@ extern esp_t esp;
 #define ESP_MSG_VAR_DEFINE(name)                esp_msg_t* name
 #define ESP_MSG_VAR_ALLOC(name)                 do {\
     (name) = esp_mem_alloc(sizeof(*(name)));        \
-    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) != NULL, "MSG VAR: Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
-    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) == NULL, "MSG VAR: Error allocating %d bytes\r\n", sizeof(*(name))); \
+    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) != NULL, "[MSG VAR] Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
+    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) == NULL, "[MSG VAR] Error allocating %d bytes\r\n", sizeof(*(name))); \
     if ((name) == NULL) {                           \
         return espERRMEM;                           \
     }                                               \
@@ -519,7 +519,7 @@ extern esp_t esp;
 } while (0)
 #define ESP_MSG_VAR_REF(name)                   (*(name))
 #define ESP_MSG_VAR_FREE(name)                  do {\
-    ESP_DEBUGF(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, "MSG VAR: Free memory: %p\r\n", (name)); \
+    ESP_DEBUGF(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, "[MSG VAR] Free memory: %p\r\n", (name)); \
     esp_mem_free(name);                             \
     (name) = NULL;                                  \
 } while (0)
@@ -549,12 +549,12 @@ typedef struct {
 #define RECV_LEN()                          recv_buff.len
 #define RECV_IDX(index)                     recv_buff.data[index]
 
-#define ESP_AT_PORT_SEND_BEGIN()            do { ESP_AT_PORT_SEND_STR("AT"); } while (0)
-#define ESP_AT_PORT_SEND_END()              do { ESP_AT_PORT_SEND_STR(CRLF); } while (0)
+#define ESP_AT_PORT_SEND_BEGIN()            ESP_AT_PORT_SEND_STR("AT")
+#define ESP_AT_PORT_SEND_END()              ESP_AT_PORT_SEND_STR(CRLF)
 
 #define ESP_AT_PORT_SEND_STR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)strlen(str))
 #define ESP_AT_PORT_SEND_CHR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)1)
-#define ESP_AT_PORT_SEND(d, l)              esp.ll.send_fn((const uint8_t *)(d), (size_t)l)
+#define ESP_AT_PORT_SEND(d, l)              esp.ll.send_fn((const uint8_t *)(d), (size_t)(l))
 
 #define ESP_AT_PORT_SEND_QUOTE_COND(q)      do { if ((q)) { ESP_AT_PORT_SEND_STR("\""); } } while (0)
 #define ESP_AT_PORT_SEND_COMMA_COND(c)      do { if ((c)) { ESP_AT_PORT_SEND_STR(","); } } while (0)
