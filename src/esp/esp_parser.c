@@ -419,7 +419,7 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = espi_parse_number(&str);
 
     msg->msg.ap_list.apsi++;                    /* Increase number of found elements */
-    if (msg->msg.ap_list.apf) {                 /* Set pointer if necessary */
+    if (msg->msg.ap_list.apf != NULL) {         /* Set pointer if necessary */
         *msg->msg.ap_list.apf = msg->msg.ap_list.apsi;
     }
     return 1;
@@ -475,7 +475,7 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
     espi_parse_mac(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].mac);
 
     msg->msg.sta_list.stai++;                   /* Increase number of found elements */
-    if (msg->msg.sta_list.staf) {               /* Set pointer if necessary */
+    if (msg->msg.sta_list.staf != NULL) {       /* Set pointer if necessary */
         *msg->msg.sta_list.staf = msg->msg.sta_list.stai;
     }
     return 1;
