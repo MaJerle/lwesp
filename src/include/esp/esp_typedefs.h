@@ -428,10 +428,11 @@ typedef struct esp_timeout {
  * \brief           Buffer structure
  */
 typedef struct {
-    size_t size;                                /*!< Size of buffer in units of bytes */
-    size_t in;                                  /*!< Input pointer to save next value */
-    size_t out;                                 /*!< Output pointer to read next value */
-    uint8_t* buff;                              /*!< Pointer to buffer data array */
+    uint8_t* buff;                              /*!< Pointer to buffer data.
+                                                    Buffer is considered initialized when `buff != NULL` */
+    size_t size;                                /*!< Size of buffer data. Size of actual buffer is `1` byte less than written here */
+    size_t r;                                   /*!< Next read pointer. Buffer is considered empty when `r == w` and full when `w == r - 1` */
+    size_t w;                                   /*!< Next write pointer. Buffer is considered empty when `r == w` and full when `w == r - 1` */
     uint8_t flags;                              /*!< Flags for buffer */
 } esp_buff_t;
 

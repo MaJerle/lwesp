@@ -1,6 +1,6 @@
 /**
  * \file            esp_buff.c
- * \brief           buff manager
+ * \brief           Buff manager
  */
 
 /*
@@ -34,29 +34,27 @@
 #include "esp/esp_buff.h"
 #include "esp/esp_mem.h"
 
-#ifndef ESP_CFG_DBG_BUFF
-#define ESP_CFG_DBG_BUFF        ESP_CFG_DBG_OFF
-#endif
+#define BUF_MEMSET                      ESP_MEMSET
+#define BUF_MEMCPY                      ESP_MEMCPY
 
 /**
  * \brief           Initialize buffer
  * \param[in]       buff: Pointer to buffer structure
- * \param[in]       size: Size of buffer. This parameter must match length of memory used on memory param
+ * \param[in]       size: Size of buffer in units of bytes
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_buff_init(esp_buff_t* buff, size_t size) {
-    if (buff == NULL) {                         /* Check buffer structure */
+    if (buff == NULL || size == 0) {
         return 0;
     }
-    ESP_MEMSET(buff, 0, sizeof(*buff));         /* Set buffer values to all zeros */
+    BUF_MEMSET(buff, 0, sizeof(*buff));         /* Set buffer values to all zeros */
 
     buff->size = size;                          /* Set default values */
     buff->buff = esp_mem_alloc(sizeof(*buff->buff) * size); /* Allocate memory for buffer */
-    if (buff->buff == NULL) {                   /* Check allocation */
+    if (buff->buff == NULL) {
         return 0;
     }
-
     return 1;                                   /* Initialized OK */
 }
 
@@ -66,8 +64,8 @@ esp_buff_init(esp_buff_t* buff, size_t size) {
  */
 void
 esp_buff_free(esp_buff_t* buff) {
-    if (buff != NULL) {
-        esp_mem_free(buff->buff);               /* Free memory */
+    if (buff != NULL && buff->buff != NULL) {
+        esp_mem_free(buff->buff);
         buff->buff = NULL;
     }
 }
@@ -81,42 +79,44 @@ esp_buff_free(esp_buff_t* buff) {
  */
 size_t
 esp_buff_write(esp_buff_t* buff, const void* data, size_t count) {
-    size_t i = 0;
-    size_t free;
+    size_t tocopy, free;
     const uint8_t* d = data;
-    size_t tocopy;
 
-    if (buff == NULL || count == 0) {           /* Check buffer structure */
+    if (buff == NULL || buff->buff == NULL || count == 0) {
         return 0;
     }
-    if (buff->in >= buff->size) {               /* Check input pointer */
-        buff->in = 0;
-    }
-    free = esp_buff_get_free(buff);             /* Get free memory */
-    if (free < count) {                         /* Check available memory */
-        if (free == 0) {                        /* If no memory, stop execution */
-            return 0;
-        }
-        count = free;                           /* Set values for write */
+
+    if (buff->w >= buff->size) {                /* Check input pointer */
+        buff->w = 0;                            /* On normal use, this should never happen */
     }
 
-    /* We have calculated memory for write */
-    tocopy = buff->size - buff->in;             /* Calculate number of elements we can put at the end of buffer */
-    if (tocopy > count) {                       /* Check for copy count */
+    /* Calculate maximum number of bytes we can write */
+    free = esp_buff_get_free(buff);
+    if (free < count) {
+        if (free == 0) {
+            return 0;
+        }
+        count = free;
+    }
+
+    /* Write data to linear part of buffer */
+    tocopy = buff->size - buff->w;              /* Calculate number of elements we can put at the end of buffer */
+    if (tocopy > count) {
         tocopy = count;
     }
-    ESP_MEMCPY(&buff->buff[buff->in], d, tocopy);   /* Copy content to buffer */
-    i += tocopy;                                /* Increase number of bytes we copied already */
-    buff->in += tocopy;
+    BUF_MEMCPY(&buff->buff[buff->w], d, tocopy);
+    buff->w += tocopy;
     count -= tocopy;
-    if (count > 0) {                            /* Check if anything to write */
-        ESP_MEMCPY(buff->buff, (void *)&d[i], count);   /* Copy content */
-        buff->in = count;                       /* Set input pointer */
+
+    /* Write data to overflow part of buffer */
+    if (count > 0) {
+        BUF_MEMCPY(buff->buff, (void *)&d[tocopy], count);
+        buff->w = count;
     }
-    if (buff->in >= buff->size) {               /* Check input overflow */
-        buff->in = 0;
+    if (buff->w >= buff->size) {                /* Check input overflow */
+        buff->w = 0;
     }
-    return (i + count);                         /* Return number of elements stored in memory */
+    return tocopy + count;                      /* Return number of elements stored in memory */
 }
 
 /**
@@ -128,137 +128,156 @@ esp_buff_write(esp_buff_t* buff, const void* data, size_t count) {
  */
 size_t
 esp_buff_read(esp_buff_t* buff, void* data, size_t count) {
+    size_t tocopy, full;
     uint8_t *d = data;
-    size_t i = 0, full;
-    size_t tocopy;
 
-    if (buff == NULL || count == 0) {           /* Check buffer structure */
+    if (buff == NULL || buff->buff == NULL || count == 0) {
         return 0;
     }
-    if (buff->out >= buff->size) {              /* Check output pointer */
-        buff->out = 0;
-    }
-    full = esp_buff_get_full(buff);             /* Get free memory */
-    if (full < count) {                         /* Check available memory */
-        if (full == 0) {                        /* If no memory, stop execution */
-            return 0;
-        }
-        count = full;                           /* Set values for write */
+
+    if (buff->r >= buff->size) {                /* Check output pointer */
+        buff->r = 0;                            /* On normal use, this should never happen */
     }
 
-    tocopy = buff->size - buff->out;            /* Calculate number of elements we can read from end of buffer */
-    if (tocopy > count) {                       /* Check for copy count */
+    /* Calculate maximum number of bytes we can read */
+    full = esp_buff_get_full(buff);
+    if (full < count) {
+        if (full == 0) {
+            return 0;
+        }
+        count = full;
+    }
+
+    /* Read data from linear part of buffer */
+    tocopy = buff->size - buff->r;
+    if (tocopy > count) {
         tocopy = count;
     }
-    ESP_MEMCPY(d, &buff->buff[buff->out], tocopy);  /* Copy content from buffer */
-    i += tocopy;                                /* Increase number of bytes we copied already */
-    buff->out += tocopy;
+    BUF_MEMCPY(d, &buff->buff[buff->r], tocopy);
+    buff->r += tocopy;
     count -= tocopy;
-    if (count > 0) {                            /* Check if anything to read */
-        ESP_MEMCPY(&d[i], buff->buff, count);   /* Copy content */
-        buff->out = count;                      /* Set input pointer */
+
+    /* Read data from overflow part of buffer */
+    if (count > 0) {
+        BUF_MEMCPY(&d[tocopy], buff->buff, count);
+        buff->r = count;
     }
-    if (buff->out >= buff->size) {              /* Check output overflow */
-        buff->out = 0;
+    if (buff->r >= buff->size) {                /* Check output overflow */
+        buff->r = 0;
     }
-    return i + count;                           /* Return number of elements stored in memory */
+    return tocopy + count;                      /* Return number of elements stored in memory */
 }
 
 /**
- * \brief           Read from buffer but do not change read and write pointers
+ * \brief           Read from buffer but do not change read pointer
  * \param[in]       buff: Pointer to buffer structure
- * \param[in]       skip_count: Number of bytes to skip before reading peek data
+ * \param[in]       skip_count: Number of bytes to skip before reading data
  * \param[out]      data: Pointer to data to save read memory
  * \param[in]       count: Number of bytes to peek
  * \return          Number of bytes written to data array
  */
 size_t
 esp_buff_peek(esp_buff_t* buff, size_t skip_count, void* data, size_t count) {
+    size_t full, tocopy, r;
     uint8_t *d = data;
-    size_t i = 0, full, tocopy, out;
 
-    if (buff == NULL || count == 0) {           /* Check buffer structure */
+    if (buff == NULL || buff->buff == NULL || count == 0) {
         return 0;
     }
-    out = buff->out;
-    if (buff->out >= buff->size) {              /* Check output pointer */
-        buff->out = 0;
+
+    if (buff->r >= buff->size) {                /* Check output pointer */
+        buff->r = 0;                            /* On normal use, this should never happen */
     }
-    full = esp_buff_get_full(buff);             /* Get free memory */
-    if (skip_count >= full) {                   /* We cannot skip for more than we have in buffer */
+    r = buff->r;
+
+    /* Calculate maximum number of bytes we can read */
+    full = esp_buff_get_full(buff);
+
+    /* Skip beginning of buffer */
+    if (skip_count >= full) {
         return 0;
     }
-    out += skip_count;                          /* Skip buffer data */
-    full -= skip_count;                         /* Effective full is less than before */
-    if (out >= buff->size) {                    /* Check overflow */
-        out -= buff->size;                      /* Go to beginning */
+    r += skip_count;
+    full -= skip_count;
+    if (r >= buff->size) {
+        r -= buff->size;
     }
-    if (full < count) {                         /* Check available memory */
-        if (full == 0) {                        /* If no memory, stop execution */
+
+    /* Check if we can read something after skip */
+    if (full < count) {
+        if (full == 0) {
             return 0;
         }
-        count = full;                           /* Set values for write */
+        count = full;
     }
 
-    tocopy = buff->size - out;                  /* Calculate number of elements we can read from end of buffer */
-    if (tocopy > count) {                       /* Check for copy count */
+    /* Read data from linear part of buffer */
+    tocopy = buff->size - r;
+    if (tocopy > count) {
         tocopy = count;
     }
-    ESP_MEMCPY(d, &buff->buff[out], tocopy);    /* Copy content from buffer */
-    i += tocopy;                                /* Increase number of bytes we copied already */
+    BUF_MEMCPY(d, &buff->buff[r], tocopy);
     count -= tocopy;
-    if (count > 0) {                            /* Check if anything to read */
-        ESP_MEMCPY(&d[i], buff->buff, count);   /* Copy content */
+
+    /* Read data from overflow part of buffer */
+    if (count > 0) {
+        BUF_MEMCPY(&d[tocopy], buff->buff, count);
     }
-    return i + count;                           /* Return number of elements stored in memory */
+    return tocopy + count;                      /* Return number of elements stored in memory */
 }
 
 /**
- * \brief           Get length of free space
+ * \brief           Get number of bytes in buffer available to write
  * \param[in]       buff: Pointer to buffer structure
  * \return          Number of free bytes in memory
  */
 size_t
 esp_buff_get_free(esp_buff_t* buff) {
-    size_t size, in, out;
+    size_t size, w, r;
 
-    if (buff == NULL) {                         /* Check buffer structure */
+    if (buff == NULL || buff->buff == NULL) {
         return 0;
     }
-    in = buff->in;                              /* Save values */
-    out = buff->out;
-    if (in == out) {                            /* Check if the same */
+
+    /* Operate on temporary values in case they change in between */
+    w = buff->w;
+    r = buff->r;
+    if (w == r) {
         size = buff->size;
-    } else if (out > in) {                      /* Check normal mode */
-        size = out - in;
-    } else {                                    /* Check if overflow mode */
-        size = buff->size - (in - out);
+    } else if (r > w) {
+        size = r - w;
+    } else {
+        size = buff->size - (w - r);
     }
-    return size - 1;                            /* Return free memory */
+
+    /* Buffer free size is always 1 less than actual size */
+    return size - 1;
 }
 
 /**
- * \brief           Get length of buffer currently being used
+ * \brief           Get number of bytes in buffer available to read
  * \param[in]       buff: Pointer to buffer structure
  * \return          Number of bytes ready to be read
  */
 size_t
 esp_buff_get_full(esp_buff_t* buff) {
-    size_t in, out, size;
+    size_t w, r, size;
 
-    if (buff == NULL) {                         /* Check buffer structure */
+    if (buff == NULL || buff->buff == NULL) {
         return 0;
     }
-    in = buff->in;                              /* Save values */
-    out = buff->out;
-    if (in == out) {                            /* Pointer are same? */
+
+    /* Operate on temporary values in case they change in between */
+    w = buff->w;
+    r = buff->r;
+    if (w == r) {
         size = 0;
-    } else if (in > out) {                      /* buff is not in overflow mode */
-        size = in - out;
-    } else {                                    /* buff is in overflow mode */
-        size = buff->size - (out - in);
+    } else if (w > r) {
+        size = w - r;
+    } else {
+        size = buff->size - (r - w);
     }
-    return size;                                /* Return number of elements in buffer */
+    return size;
 }
 
 /**
@@ -267,35 +286,43 @@ esp_buff_get_full(esp_buff_t* buff) {
  */
 void
 esp_buff_reset(esp_buff_t* buff) {
-    if (buff == NULL) {                         /* Check buffer structure */
+    if (buff == NULL) {
         return;
     }
-    buff->in = 0;                               /* Reset values */
-    buff->out = 0;
+    buff->w = 0;
+    buff->r = 0;
 }
 
 /**
  * \brief           Get linear address for buffer for fast read
  * \param[in]       buff: Pointer to buffer
- * \return          Pointer to start of linear address
+ * \return          Linear buffer start address
  */
 void *
 esp_buff_get_linear_block_address(esp_buff_t* buff) {
-    return &buff->buff[buff->out];              /* Return read address */
+    if (buff == NULL || buff->buff == NULL) {
+        return NULL;
+    }
+    return &buff->buff[buff->r];
 }
 
 /**
  * \brief           Get length of linear block address before it overflows
  * \param[in]       buff: Pointer to buffer
- * \return          Length of linear address
+ * \return          Linear buffer size in units of bytes
  */
 size_t
 esp_buff_get_linear_block_length(esp_buff_t* buff) {
     size_t len;
-    if (buff->in > buff->out) {
-        len = buff->in - buff->out;
-    } else if (buff->out > buff->in) {
-        len = buff->size - buff->out;
+
+    if (buff == NULL) {
+        return 0;
+    }
+
+    if (buff->w > buff->r) {
+        len = buff->w - buff->r;
+    } else if (buff->r > buff->w) {
+        len = buff->size - buff->r;
     } else {
         len = 0;
     }
@@ -306,19 +333,24 @@ esp_buff_get_linear_block_length(esp_buff_t* buff) {
  * \brief           Skip (ignore) buffer data.
  * \note            Useful at the end of streaming transfer such as DMA
  * \param[in]       buff: Pointer to buffer structure
- * \param[in]       len: Length of bytes we want to skip
+ * \param[in]       len: Number of bytes to skip
  * \return          Number of bytes skipped
  */
 size_t
 esp_buff_skip(esp_buff_t* buff, size_t len) {
     size_t full;
+
+    if (buff == NULL || len == 0) {
+        return 0;
+    }
+
     full = esp_buff_get_full(buff);             /* Get buffer used length */
     if (len > full) {
         len = full;
     }
-    buff->out += len;                           /* Advance buffer */
-    if (buff->out >= buff->size) {              /* Subtract possible overflow */
-        buff->out -= buff->size;                /* Do subtract */
+    buff->r += len;                             /* Advance buffer */
+    if (buff->r >= buff->size) {                /* Subtract possible overflow */
+        buff->r -= buff->size;                  /* Do subtract */
     }
     return len;
 }
