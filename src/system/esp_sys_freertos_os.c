@@ -104,9 +104,10 @@ uint8_t
 esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
     *p = xSemaphoreCreateBinary();
 
-    if (*p != NULL && !cnt) {
-        xSemaphoreTake(*p, 0);
+    if (*p != NULL && cnt) {
+        xSemaphoreGive(*p);
     }
+
     return *p != NULL;
 }
 
