@@ -35,8 +35,8 @@
 
 #if !__DOXYGEN__
 typedef struct mem_block {
-    struct mem_block* next;                         /*!< Pointer to next free block */
-    size_t size;                                    /*!< Size of block */
+    struct mem_block* next;                     /*!< Pointer to next free block */
+    size_t size;                                /*!< Size of block */
 } mem_block_t;
 #endif /* !__DOXYGEN__ */
 
@@ -52,12 +52,12 @@ typedef struct mem_block {
 #define MEM_BLOCK_FROM_PTR(ptr)     ((mem_block_t *)(((uint8_t *)(ptr)) - MEMBLOCK_METASIZE))
 #define MEM_BLOCK_USER_SIZE(ptr)    ((MEM_BLOCK_FROM_PTR(ptr)->size & ~mem_alloc_bit) - MEMBLOCK_METASIZE)
 
-static mem_block_t start_block;                     /*!< First block data for allocations */
-static mem_block_t* end_block = NULL;               /*!< Pointer to last block in linked list */
-static size_t mem_total_size = 0;                   /*!< Total size of heap memory for allocation */
-static size_t mem_available_bytes = 0;              /*!< Number of available bytes for allocations */
-static size_t mem_min_available_bytes = 0;          /*!< Minimum number of bytes ever */
-static size_t mem_alloc_bit = 0;                    /*!< Bit indicating block is allocated */
+static mem_block_t start_block;                 /*!< First block data for allocations */
+static mem_block_t* end_block = NULL;           /*!< Pointer to last block in linked list */
+static size_t mem_total_size = 0;               /*!< Total size of heap memory for allocation */
+static size_t mem_available_bytes = 0;          /*!< Number of available bytes for allocations */
+static size_t mem_min_available_bytes = 0;      /*!< Minimum number of bytes ever */
+static size_t mem_alloc_bit = 0;                /*!< Bit indicating block is allocated */
 
 /**
  * \brief           Insert a new block to linked list of free blocks
@@ -77,21 +77,21 @@ mem_insertfreeblock(mem_block_t* nb) {
      */
     addr = (void *)ptr;
     if ((uint8_t *)(addr + ptr->size) == (uint8_t *)nb) {
-        ptr->size += nb->size;                      /* Expand size of block before new inserted */
-        nb = ptr;                                   /* Set new block pointer to block before (expanded block) */
+        ptr->size += nb->size;                  /* Expand size of block before new inserted */
+        nb = ptr;                               /* Set new block pointer to block before (expanded block) */
     }
 
     /* Check if new block and its size is the same address as next free block newBlock points to */
     addr = (void *)nb;
     if ((uint8_t *)(addr + nb->size) == (uint8_t *)ptr->next) {
-        if (ptr->next == end_block) {               /* Does it points to the end? */
-            nb->next = end_block;                   /* Set end block pointer */
+        if (ptr->next == end_block) {           /* Does it points to the end? */
+            nb->next = end_block;               /* Set end block pointer */
         } else {
-            nb->size += ptr->next->size;            /* Expand of current block for size of next free block which is right behind new block */
-            nb->next = ptr->next->next;             /* Next free is pointed to the next one of previous next */
+            nb->size += ptr->next->size;        /* Expand of current block for size of next free block which is right behind new block */
+            nb->next = ptr->next->next;         /* Next free is pointed to the next one of previous next */
         }
     } else {
-        nb->next = ptr->next;                       /* Our next element is now from pointer next element */
+        nb->next = ptr->next;                   /* Our next element is now from pointer next element */
     }
 
     /*
@@ -117,7 +117,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
     size_t mem_size;
     mem_block_t *first_block, *prev_end_block = NULL;
 
-    if (end_block != NULL) {                        /* Regions already defined */
+    if (end_block != NULL) {                    /* Regions already defined */
         return 0;
     }
 
@@ -125,7 +125,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
     mem_start_addr = (uint8_t *)0;
     for (size_t i = 0; i < len; i++) {
         if (mem_start_addr >= (uint8_t *)regions[i].start_addr) {   /* Check if previous greater than current */
-            return 0;                               /* Return as invalid and failed */
+            return 0;                           /* Return as invalid and failed */
         }
         mem_start_addr = (uint8_t *)regions[i].start_addr;  /* Save as previous address */
     }
@@ -141,7 +141,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
          * Get start address and check memory alignment
          * if necessary, decrease memory region size
          */
-        mem_start_addr = (uint8_t *)regions->start_addr;    /* Actual heap memory address */
+        mem_start_addr = (uint8_t *)regions->start_addr;/* Actual heap memory address */
         if (ESP_SZ(mem_start_addr) & MEM_ALIGN_BITS) {  /* Check alignment boundary */
             mem_start_addr += MEM_ALIGN_NUM - (ESP_SZ(mem_start_addr) & MEM_ALIGN_BITS);
             mem_size -= mem_start_addr - (uint8_t *)regions->start_addr;
@@ -149,7 +149,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
 
         /* Check memory size alignment if match */
         if (mem_size & MEM_ALIGN_BITS) {
-            mem_size &= ~MEM_ALIGN_BITS;            /* Clear lower bits of memory size only */
+            mem_size &= ~MEM_ALIGN_BITS;        /* Clear lower bits of memory size only */
         }
 
         /*
@@ -164,15 +164,15 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
             start_block.size = 0;
         }
 
-        prev_end_block = end_block;                 /* Save previous end block to set next block later */
+        prev_end_block = end_block;             /* Save previous end block to set next block later */
 
         /*
          * Set pointer to end of free memory - block region memory
          * Calculate new end block in region
          */
         end_block = (mem_block_t *)((uint8_t *)mem_start_addr + mem_size - MEMBLOCK_METASIZE);
-        end_block->next = NULL;                     /* No more free blocks after end is reached */
-        end_block->size = 0;                        /* Empty block */
+        end_block->next = NULL;                 /* No more free blocks after end is reached */
+        end_block->size = 0;                    /* Empty block */
 
         /*
          * Initialize start of region memory
@@ -180,7 +180,7 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
          */
         first_block = (mem_block_t *)mem_start_addr;
         first_block->size = mem_size - MEMBLOCK_METASIZE; /* Exclude end block in chain */
-        first_block->next = end_block;              /* Last block is next free in chain */
+        first_block->next = end_block;          /* Last block is next free in chain */
 
         /*
          * If we have previous end block
@@ -195,14 +195,14 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
         /* Set number of free bytes available to allocate in region */
         mem_available_bytes += first_block->size;
 
-        regions++;                                  /* Go to next region */
+        regions++;                              /* Go to next region */
     }
     mem_min_available_bytes = mem_available_bytes;  /* Save minimum ever available bytes in region */
 
     /* Set upper bit in memory allocation bit */
     mem_alloc_bit = ESP_SZ(ESP_SZ(1) << (sizeof(size_t) * 8 - 1));
 
-    return 1;                                       /* Regions set as expected */
+    return 1;                                   /* Regions set as expected */
 }
 
 /**
@@ -215,16 +215,16 @@ mem_alloc(size_t size) {
     mem_block_t *prev, *curr, *next;
     void* retval = 0;
 
-    if (end_block == NULL) {                        /* If end block is not yet defined */
-        return NULL;                                /* Invalid, not initialized */
+    if (end_block == NULL) {                    /* If end block is not yet defined */
+        return NULL;                            /* Invalid, not initialized */
     }
 
-    if (!size || size >= mem_alloc_bit) {           /* Check input parameters */
+    if (!size || size >= mem_alloc_bit) {       /* Check input parameters */
         return 0;
     }
 
-    size = MEM_ALIGN(size) + MEMBLOCK_METASIZE;     /* Increase size for metadata */
-    if (size > mem_available_bytes) {               /* Check if we have enough memory available */
+    size = MEM_ALIGN(size) + MEMBLOCK_METASIZE; /* Increase size for metadata */
+    if (size > mem_available_bytes) {           /* Check if we have enough memory available */
         return 0;
     }
 
@@ -233,8 +233,8 @@ mem_alloc(size_t size) {
      * Go through free blocks until enough memory is found
      * or end block is reached (no next free block)
      */
-    prev = &start_block;                            /* Set first first block as previous */
-    curr = prev->next;                              /* Set next block as current */
+    prev = &start_block;                        /* Set first first block as previous */
+    curr = prev->next;                          /* Set next block as current */
     while ((curr->size < size) && (curr->next != NULL)) {
         prev = curr;
         curr = curr->next;
@@ -246,7 +246,7 @@ mem_alloc(size_t size) {
      *
      * Feature may be very risky later because of fragmentation
      */
-    if (curr != end_block) {                        /* We found empty block of enough memory available */
+    if (curr != end_block) {                    /* We found empty block of enough memory available */
         retval = (void *)((uint8_t *)prev->next + MEMBLOCK_METASIZE);    /* Set return value */
         prev->next = curr->next;  /* Since block is now allocated, remove it from free chain */
 
@@ -257,20 +257,20 @@ mem_alloc(size_t size) {
          */
         if ((curr->size - size) > (2 * MEMBLOCK_METASIZE)) {    /* There is more available memory then required = split memory to one free block */
             next = (mem_block_t *)(((uint8_t *)curr) + size);   /* Create next memory block which is still free */
-            next->size = curr->size - size;         /* Set new block size for remaining of before and used */
-            curr->size = size;                      /* Set block size for used block */
+            next->size = curr->size - size;     /* Set new block size for remaining of before and used */
+            curr->size = size;                  /* Set block size for used block */
 
             /*
              * Add virtual block to list of free blocks.
              * It is placed directly after currently allocated memory
              */
-            mem_insertfreeblock(next);              /* Insert free memory block to list of free memory blocks (linked list chain) */
+            mem_insertfreeblock(next);          /* Insert free memory block to list of free memory blocks (linked list chain) */
         }
-        curr->size |= mem_alloc_bit;                /* Set allocated bit = memory is allocated */
-        curr->next = NULL;                          /* Clear next free block pointer as there is no one */
+        curr->size |= mem_alloc_bit;            /* Set allocated bit = memory is allocated */
+        curr->next = NULL;                      /* Clear next free block pointer as there is no one */
 
-        mem_available_bytes -= size;                /* Decrease available memory */
-        if (mem_available_bytes < mem_min_available_bytes) {    /* Check if current available memory is less than ever before */
+        mem_available_bytes -= size;            /* Decrease available memory */
+        if (mem_available_bytes < mem_min_available_bytes) {/* Check if current available memory is less than ever before */
             mem_min_available_bytes = mem_available_bytes;  /* Update minimal available memory */
         }
     } else {
@@ -288,11 +288,11 @@ static void
 mem_free(void* ptr) {
     mem_block_t* block;
 
-    if (ptr == NULL) {                              /* To be in compliance with C free function */
+    if (ptr == NULL) {                          /* To be in compliance with C free function */
         return;
     }
 
-    block = MEM_BLOCK_FROM_PTR(ptr);                /* Get block data pointer from input pointer */
+    block = MEM_BLOCK_FROM_PTR(ptr);            /* Get block data pointer from input pointer */
 
     /*
      * Check if block is even allocated by upper bit on size
@@ -301,12 +301,11 @@ mem_free(void* ptr) {
     if ((block->size & mem_alloc_bit) && block->next == NULL) {
         /*
          * Clear allocated bit before entering back to free list
-         * List will automatically take care for fragmentation and mix segments back
+         * List will automatically take care for fragmentation
          */
-        block->size &= ~mem_alloc_bit;              /* Clear allocated bit */
-        mem_available_bytes += block->size;         /* Increase available bytes back */
-        /* ESP_MEMSET(ptr, 0x00, block->size - MEMBLOCK_METASIZE); */
-        mem_insertfreeblock(block);                 /* Insert block to list of free blocks */
+        block->size &= ~mem_alloc_bit;          /* Clear allocated bit */
+        mem_available_bytes += block->size;     /* Increase available bytes back */
+        mem_insertfreeblock(block);             /* Insert block to list of free blocks */
     }
 }
 
@@ -333,8 +332,8 @@ mem_calloc(size_t num, size_t size) {
     void* ptr;
     size_t tot_len = num * size;
 
-    if ((ptr = mem_alloc(tot_len)) != NULL) {       /* Try to allocate memory */
-        ESP_MEMSET(ptr, 0x00, tot_len);             /* Reset entire memory */
+    if ((ptr = mem_alloc(tot_len)) != NULL) {   /* Try to allocate memory */
+        ESP_MEMSET(ptr, 0x00, tot_len);         /* Reset entire memory */
     }
     return ptr;
 }
@@ -352,16 +351,16 @@ mem_realloc(void* ptr, size_t size) {
     void* newPtr;
     size_t oldSize;
 
-    if (ptr == NULL) {                              /* If pointer is not valid */
-        newPtr = mem_alloc(size);                   /* Only allocate memory */
+    if (ptr == NULL) {                          /* If pointer is not valid */
+        newPtr = mem_alloc(size);               /* Only allocate memory */
         return newPtr;
     }
 
-    oldSize = mem_getusersize(ptr);                 /* Get size of old pointer */
-    newPtr = mem_alloc(size);                       /* Try to allocate new memory block */
-    if (newPtr != NULL) {                           /* Check success */
+    oldSize = mem_getusersize(ptr);             /* Get size of old pointer */
+    newPtr = mem_alloc(size);                   /* Try to allocate new memory block */
+    if (newPtr != NULL) {                       /* Check success */
         ESP_MEMCPY(newPtr, ptr, ESP_MIN(size, oldSize));/* Copy old data to new array */
-        mem_free(ptr);                              /* Free old pointer */
+        mem_free(ptr);                          /* Free old pointer */
     }
     return newPtr;
 }
@@ -372,7 +371,7 @@ mem_realloc(void* ptr, size_t size) {
  */
 static size_t
 mem_getfree(void) {
-    return mem_available_bytes;                     /* Return free bytes available for allocation */
+    return mem_available_bytes;                 /* Return free bytes available for allocation */
 }
 
 /**
@@ -381,7 +380,7 @@ mem_getfree(void) {
  */
 static size_t
 mem_getfull(void) {
-    return mem_total_size - mem_available_bytes;    /* Return remaining bytes */
+    return mem_total_size - mem_available_bytes;/* Return remaining bytes */
 }
 
 /**
@@ -390,7 +389,7 @@ mem_getfull(void) {
  */
 static size_t
 mem_getminfree(void) {
-    return mem_min_available_bytes;                 /* Return minimal bytes ever available */
+    return mem_min_available_bytes;             /* Return minimal bytes ever available */
 }
 
 /**
@@ -402,7 +401,7 @@ void *
 esp_mem_alloc(size_t size) {
     void* ptr;
     esp_core_lock();
-    ptr = mem_calloc(1, size);                      /* Allocate memory and return pointer */
+    ptr = mem_calloc(1, size);                  /* Allocate memory and return pointer */
     esp_core_unlock();
     ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL,
         "[MEM] Allocation failed: %d bytes\r\n", (int)size);
@@ -422,7 +421,7 @@ esp_mem_alloc(size_t size) {
 void *
 esp_mem_realloc(void* ptr, size_t size) {
     esp_core_lock();
-    ptr = mem_realloc(ptr, size);                   /* Reallocate and return pointer */
+    ptr = mem_realloc(ptr, size);               /* Reallocate and return pointer */
     esp_core_unlock();
     ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL,
         "[MEM] Reallocation failed: %d bytes\r\n", (int)size);
@@ -441,7 +440,7 @@ void *
 esp_mem_calloc(size_t num, size_t size) {
     void* ptr;
     esp_core_lock();
-    ptr = mem_calloc(num, size);                   /* Allocate memory and clear it to 0. Then return pointer */
+    ptr = mem_calloc(num, size);               /* Allocate memory and clear it to 0. Then return pointer */
     esp_core_unlock();
     ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL,
         "[MEM] Callocation failed: %d bytes\r\n", (int)size * (int)num);
@@ -464,7 +463,7 @@ esp_mem_free(void* ptr) {
         "[MEM] Free size: %d, address: %p\r\n",
         (int)MEM_BLOCK_USER_SIZE(ptr), ptr);
     esp_core_lock();
-    mem_free(ptr);                                  /* Free already allocated memory */
+    mem_free(ptr);
     esp_core_unlock();
 }
 
@@ -474,7 +473,7 @@ esp_mem_free(void* ptr) {
  */
 size_t
 esp_mem_getfree(void) {
-    return mem_getfree();                           /* Get free bytes available to allocate */
+    return mem_getfree();                       /* Get free bytes available to allocate */
 }
 
 /**
@@ -483,7 +482,7 @@ esp_mem_getfree(void) {
  */
 size_t
 esp_mem_getfull(void) {
-    return mem_getfull();                           /* Get number of bytes allocated already */
+    return mem_getfull();                       /* Get number of bytes allocated already */
 }
 
 /**
@@ -492,7 +491,7 @@ esp_mem_getfull(void) {
  */
 size_t
 esp_mem_getminfree(void) {
-    return mem_getminfree();                        /* Get minimal number of bytes ever available for allocation */
+    return mem_getminfree();                    /* Get minimal number of bytes ever available for allocation */
 }
 
 /**
@@ -505,6 +504,6 @@ esp_mem_getminfree(void) {
 uint8_t
 esp_mem_assignmemory(const esp_mem_region_t* regions, size_t len) {
     uint8_t ret;
-    ret = mem_assignmem(regions, len);              /* Assign memory */
+    ret = mem_assignmem(regions, len);          /* Assign memory */
     return ret;
 }
