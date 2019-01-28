@@ -44,7 +44,7 @@ extern "C" {
 #include "esp_config.h"
 
 #if ESP_CFG_OS && !__DOXYGEN__
-#include "freertos.h"
+#include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
