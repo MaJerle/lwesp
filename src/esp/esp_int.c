@@ -333,13 +333,13 @@ espi_reset_everything(uint8_t forced) {
     /* Step 1: Close all connections in memory */
     reset_connections(forced);
 
-    esp.m.sta.has_ip = 0;
 #if ESP_CFG_MODE_STATION
+    esp.m.sta.has_ip = 0;
     if (esp.m.sta.is_connected) {
         espi_send_cb(ESP_EVT_WIFI_DISCONNECTED);
     }
-#endif /* ESP_CFG_MODE_STATION */
     esp.m.sta.is_connected = 0;
+#endif /* ESP_CFG_MODE_STATION */
 
     /* Check if IPD active */
     if (esp.m.ipd.buff != NULL) {
