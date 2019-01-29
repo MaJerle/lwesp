@@ -33,7 +33,6 @@
 #include "system/esp_sys.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
 #include "semphr.h"
 
 #if !__DOXYGEN__

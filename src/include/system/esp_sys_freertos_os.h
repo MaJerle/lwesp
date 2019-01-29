@@ -46,7 +46,6 @@ extern "C" {
 #if ESP_CFG_OS && !__DOXYGEN__
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
 #include "semphr.h"
 
 typedef SemaphoreHandle_t           esp_sys_mutex_t;
