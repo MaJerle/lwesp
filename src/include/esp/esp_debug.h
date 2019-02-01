@@ -76,7 +76,7 @@ extern "C" {
 
 #define ESP_DBG_TYPE_TRACE          0x40    /*!< Debug trace messages for program flow */
 #define ESP_DBG_TYPE_STATE          0x20    /*!< Debug state messages (such as state machines) */
-#define ESP_DBG_TYPE_ALL            (GSM_DBG_TYPE_TRACE | GSM_DBG_TYPE_STATE)   /*!< All debug types */
+#define ESP_DBG_TYPE_ALL            (ESP_DBG_TYPE_TRACE | ESP_DBG_TYPE_STATE)   /*!< All debug types */
 
 /**
  * \}
