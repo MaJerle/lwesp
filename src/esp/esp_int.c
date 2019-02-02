@@ -1399,11 +1399,18 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
     }
 
     /* Check and start a new command */
-    if (n_cmd != ESP_CMD_IDLE) {                /* Is there a change of command? */
+    if (n_cmd != ESP_CMD_IDLE) {
+        espr_t res;
         msg->cmd = n_cmd;
-        if (msg->fn(msg) == espOK) {            /* Try to start with new connection */
+        if ((res = msg->fn(msg)) == espOK) {
             return espCONT;
+        } else {
+            *is_ok = 0;
+            *is_error = 1;
+            return res;
         }
+    } else {
+        msg->cmd = ESP_CMD_IDLE;
     }
     return *is_ok || *is_ready ? espOK : espERR;
 }
