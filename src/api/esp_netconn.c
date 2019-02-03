@@ -437,7 +437,7 @@ esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections) {
     espr_t res;
 
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
 
     /* Enable server on port and set default netconn callback */
     if ((res = esp_set_server(1, nc->listen_port,
@@ -463,8 +463,8 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* client) {
 
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("client != NULL", client != NULL);   /* Assert input parameters */
-    ESP_ASSERT("nc->type must be TCP\r\n", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
-    ESP_ASSERT("nc == listen_api\r\n", nc == listen_api);   /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP", nc->type == ESP_NETCONN_TYPE_TCP);   /* Assert input parameters */
+    ESP_ASSERT("nc == listen_api", nc == listen_api);   /* Assert input parameters */
 
     *client = NULL;
     time = esp_sys_mbox_get(&nc->mbox_accept, (void **)&tmp, 0);
@@ -501,7 +501,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     espr_t res;
 
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    ESP_ASSERT("nc->type must be TCP or SSL\r\n", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP or SSL", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
     ESP_ASSERT("nc->conn must be active", esp_conn_is_active(nc->conn));    /* Assert input parameters */
 
     /*
@@ -580,7 +580,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 espr_t
 esp_netconn_flush(esp_netconn_p nc) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    ESP_ASSERT("nc->type must be TCP or SSL\r\n", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
+    ESP_ASSERT("nc->type must be TCP or SSL", nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL);    /* Assert input parameters */
     ESP_ASSERT("nc->conn must be active", esp_conn_is_active(nc->conn));    /* Assert input parameters */
 
     /*
@@ -607,7 +607,7 @@ esp_netconn_flush(esp_netconn_p nc) {
 espr_t
 esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    ESP_ASSERT("nc->type must be UDP\r\n", nc->type == ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
+    ESP_ASSERT("nc->type must be UDP", nc->type == ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
     ESP_ASSERT("nc->conn must be active", esp_conn_is_active(nc->conn));    /* Assert input parameters */
 
     return esp_conn_send(nc->conn, data, btw, NULL, 1);
@@ -626,8 +626,8 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
 espr_t
 esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const void* data, size_t btw) {
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
-    ESP_ASSERT("nc->type must be UDP\r\n", nc->type == ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
-    ESP_ASSERT("nc->conn must be active", esp_conn_is_active(nc->conn));    /* Assert input parameters */
+    ESP_ASSERT("nc->type must be UDP", nc->type == ESP_NETCONN_TYPE_UDP);   /* Assert input parameters */
+    ESP_ASSERT("nc->conn must be active", esp_conn_is_active(nc->conn));/* Assert input parameters */
 
     return esp_conn_sendto(nc->conn, ip, port, data, btw, NULL, 1);
 }
