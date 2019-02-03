@@ -305,6 +305,7 @@ typedef struct esp_msg {
             void* arg;                          /*!< Connection custom argument */
             esp_evt_fn evt_func;                /*!< Callback function to use on connection */
             uint8_t num;                        /*!< Connection number used for start */
+            uint8_t success;                    /*!< Status if connection AT+CIPSTART succedded */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection to close */

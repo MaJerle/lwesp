@@ -838,6 +838,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     conn->status.f.client = 1;  /* Go to client mode */
                     conn->evt_func = esp.msg->msg.conn_start.evt_func;  /* Set callback function */
                     conn->arg = esp.msg->msg.conn_start.arg;    /* Set argument for function */
+                    esp.msg->msg.conn_start.success = 1;
                 } else {                        /* Server connection start */
                     conn->evt_func = esp.evt_server;/* Set server default callback */
                     conn->arg = NULL;
@@ -1371,7 +1372,11 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
         } else if (msg->i == 1 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTATUS);   /* Go to status mode */
         } else if (msg->i == 2 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {
-
+            /* Check if connect actually succedded */
+            if (!msg->msg.conn_start.success) {
+                *is_ok = 0;
+                *is_error = 1;
+            }
         }
     }
 
