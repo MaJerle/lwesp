@@ -436,7 +436,7 @@ espi_tcpip_process_send_data(void) {
     esp.msg->msg.conn_send.sent = ESP_MIN(esp.msg->msg.conn_send.btw, ESP_CFG_CONN_MAX_DATA_LEN);
 
     ESP_AT_PORT_SEND_BEGIN();
-    ESP_AT_PORT_SEND_STR("+CIPSEND=");
+    ESP_AT_PORT_SEND_CONST_STR("+CIPSEND=");
     espi_send_number(ESP_U32(c->num), 0, 0);    /* Send connection number */
     espi_send_number(ESP_U32(esp.msg->msg.conn_send.sent), 0, 1);   /* Send length number */
 
@@ -1431,57 +1431,57 @@ espi_initiate_cmd(esp_msg_t* msg) {
     switch (CMD_GET_CUR()) {                    /* Check current message we want to send over AT */
         case ESP_CMD_RESET: {                   /* Reset MCU with AT commands */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+RST");
+            ESP_AT_PORT_SEND_CONST_STR("+RST");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_RESTORE: {                 /* Reset MCU with AT commands */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+RESTORE");
+            ESP_AT_PORT_SEND_CONST_STR("+RESTORE");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_ATE0: {                    /* Disable AT echo mode */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("E0");
+            ESP_AT_PORT_SEND_CONST_STR("E0");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_ATE1: {                    /* Enable AT echo mode */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("E1");
+            ESP_AT_PORT_SEND_CONST_STR("E1");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_GMR: {                     /* Get AT version */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+GMR");
+            ESP_AT_PORT_SEND_CONST_STR("+GMR");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_SYSMSG: {                  /* Set system messages */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+SYSMSG=3");
+            ESP_AT_PORT_SEND_CONST_STR("+SYSMSG=3");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_SYSMSG_CUR: {              /* Set system messages */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+SYSMSG_CUR=3");
+            ESP_AT_PORT_SEND_CONST_STR("+SYSMSG_CUR=3");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_UART: {                    /* Change UART parameters for AT port */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+UART_CUR=");
+            ESP_AT_PORT_SEND_CONST_STR("+UART_CUR=");
             espi_send_number(ESP_U32(msg->msg.uart.baudrate), 0, 0);
-            ESP_AT_PORT_SEND_STR(",8,1,0,0");
+            ESP_AT_PORT_SEND_CONST_STR(",8,1,0,0");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_WIFI_CWLAPOPT: {           /* Set visible data on CWLAP command */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWLAPOPT=1,2047");
+            ESP_AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,2047");
             ESP_AT_PORT_SEND_END();
             break;
         }
@@ -1491,7 +1491,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_MODE_STATION
         case ESP_CMD_WIFI_CWJAP: {              /* Try to join to access point */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWJAP");
+            ESP_AT_PORT_SEND_CONST_STR("+CWJAP");
             ESP_AT_PORT_SEND_CUR_DEF(msg->msg.sta_join.def, 1);
             espi_send_string(msg->msg.sta_join.name, 1, 1, 0);
             espi_send_string(msg->msg.sta_join.pass, 1, 1, 1);
@@ -1503,21 +1503,21 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_WIFI_CWJAP_GET: {          /* Get the info of the connected access point */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWJAP?");
+            ESP_AT_PORT_SEND_CONST_STR("+CWJAP?");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_WIFI_CWQAP: {              /* Quit from access point */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWQAP");
+            ESP_AT_PORT_SEND_CONST_STR("+CWQAP");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_WIFI_CWLAP: {              /* List access points */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWLAP");
+            ESP_AT_PORT_SEND_CONST_STR("+CWLAP");
             if (msg->msg.ap_list.ssid != NULL) {/* Do we want to filter by SSID? */
-                ESP_AT_PORT_SEND_STR("=");
+                ESP_AT_PORT_SEND_CONST_STR("=");
                 espi_send_string(msg->msg.ap_list.ssid, 1, 1, 0);
             }
             ESP_AT_PORT_SEND_END();
@@ -1525,14 +1525,14 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_WIFI_CWAUTOCONN: {         /* Set autoconnect feature */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWAUTOCONN=");
+            ESP_AT_PORT_SEND_CONST_STR("+CWAUTOCONN=");
             espi_send_number(ESP_U32(!!msg->msg.sta_autojoin.en), 0, 0);
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_TCPIP_CIUPDATE: {          /* Update ESP software remotely */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIUPDATE");
+            ESP_AT_PORT_SEND_CONST_STR("+CIUPDATE");
             ESP_AT_PORT_SEND_END();
             break;
         }
@@ -1553,7 +1553,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
 
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWMODE=");
+            ESP_AT_PORT_SEND_CONST_STR("+CWMODE=");
             espi_send_number(ESP_U32(m), 0, 0);
             ESP_AT_PORT_SEND_END();
             break;
@@ -1566,19 +1566,19 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
         {
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIP");
+            ESP_AT_PORT_SEND_CONST_STR("+CIP");
 #if ESP_CFG_MODE_STATION
             if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
-                ESP_AT_PORT_SEND_STR("STA");
+                ESP_AT_PORT_SEND_CONST_STR("STA");
             }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
             if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET)) {
-                ESP_AT_PORT_SEND_STR("AP");
+                ESP_AT_PORT_SEND_CONST_STR("AP");
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
             ESP_AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_getip.def, 0);
-            ESP_AT_PORT_SEND_STR("?");
+            ESP_AT_PORT_SEND_CONST_STR("?");
             ESP_AT_PORT_SEND_END();
             break;
         }
@@ -1590,20 +1590,20 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
         {
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIP");
+            ESP_AT_PORT_SEND_CONST_STR("+CIP");
 #if ESP_CFG_MODE_STATION
             if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET)) {
-                ESP_AT_PORT_SEND_STR("STA");
+                ESP_AT_PORT_SEND_CONST_STR("STA");
             }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
             if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_GET)) {
-                ESP_AT_PORT_SEND_STR("AP");
+                ESP_AT_PORT_SEND_CONST_STR("AP");
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
-            ESP_AT_PORT_SEND_STR("MAC");
+            ESP_AT_PORT_SEND_CONST_STR("MAC");
             ESP_AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_getmac.def, 0);
-            ESP_AT_PORT_SEND_STR("?");
+            ESP_AT_PORT_SEND_CONST_STR("?");
             ESP_AT_PORT_SEND_END();
             break;
         }
@@ -1615,15 +1615,15 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
         {
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIP");
+            ESP_AT_PORT_SEND_CONST_STR("+CIP");
 #if ESP_CFG_MODE_STATION
             if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_SET)) {
-                ESP_AT_PORT_SEND_STR("STA");
+                ESP_AT_PORT_SEND_CONST_STR("STA");
             }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
             if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_SET)) {
-                ESP_AT_PORT_SEND_STR("AP");
+                ESP_AT_PORT_SEND_CONST_STR("AP");
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
             ESP_AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_setip.def, 1);
@@ -1645,18 +1645,18 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
         {
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIP");
+            ESP_AT_PORT_SEND_CONST_STR("+CIP");
 #if ESP_CFG_MODE_STATION
             if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_SET)) {
-                ESP_AT_PORT_SEND_STR("STA");
+                ESP_AT_PORT_SEND_CONST_STR("STA");
             }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
             if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_SET)) {
-                ESP_AT_PORT_SEND_STR("AP");
+                ESP_AT_PORT_SEND_CONST_STR("AP");
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
-            ESP_AT_PORT_SEND_STR("MAC");
+            ESP_AT_PORT_SEND_CONST_STR("MAC");
             ESP_AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_setmac.def, 1);
             espi_send_ip_mac(msg->msg.sta_ap_setmac.mac, 0, 1, 0);
             ESP_AT_PORT_SEND_END();
@@ -1666,7 +1666,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_MODE_ACCESS_POINT
         case ESP_CMD_WIFI_CWSAP_SET: {          /* Set access point parameters */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWSAP");
+            ESP_AT_PORT_SEND_CONST_STR("+CWSAP");
             ESP_AT_PORT_SEND_CUR_DEF(msg->msg.ap_conf.def, 1);
             espi_send_string(msg->msg.ap_conf.ssid, 1, 1, 0);
             espi_send_string(msg->msg.ap_conf.pwd, 1, 1, 1);
@@ -1679,7 +1679,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_WIFI_CWLIF: {              /* List stations connected on access point */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWLIF");
+            ESP_AT_PORT_SEND_CONST_STR("+CWLIF");
             ESP_AT_PORT_SEND_END();
             break;
         }
@@ -1687,14 +1687,14 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_HOSTNAME
         case ESP_CMD_WIFI_CWHOSTNAME_SET: {     /* List stations connected on access point */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWHOSTNAME=");
+            ESP_AT_PORT_SEND_CONST_STR("+CWHOSTNAME=");
             espi_send_string(msg->msg.wifi_hostname.hostname_set, 1, 1, 0);
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_WIFI_CWHOSTNAME_GET: {     /* List stations connected on access point */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CWHOSTNAME?");
+            ESP_AT_PORT_SEND_CONST_STR("+CWHOSTNAME?");
             ESP_AT_PORT_SEND_END();
             break;
         }
@@ -1702,7 +1702,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_WPS
         case ESP_CMD_WIFI_WPS: {                /* Enable WPS function */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+WPS=");
+            ESP_AT_PORT_SEND_CONST_STR("+WPS=");
             espi_send_number(ESP_U32(!!msg->msg.wps_cfg.en), 0, 0);
             ESP_AT_PORT_SEND_END();
             break;
@@ -1711,7 +1711,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_MDNS
         case ESP_CMD_WIFI_MDNS: {               /* Set mDNS parameters */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+MDNS=");
+            ESP_AT_PORT_SEND_CONST_STR("+MDNS=");
             espi_send_number(ESP_U32(!!msg->msg.mdns.en), 0, 0);
             if (msg->msg.mdns.en) {             /* Send the rest only in case mDNS should be enabled */
                 espi_send_string(msg->msg.mdns.host, 0, 1, 1);
@@ -1727,12 +1727,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
 
         case ESP_CMD_TCPIP_CIPSERVER: {         /* Enable or disable server */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPSERVER=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPSERVER=");
             if (msg->msg.tcpip_server.en) {     /* Do we want to enable server? */
-                ESP_AT_PORT_SEND_STR("1");
+                ESP_AT_PORT_SEND_CONST_STR("1");
                 espi_send_port(msg->msg.tcpip_server.port, 0, 1);
             } else {                            /* Disable server */
-                ESP_AT_PORT_SEND_STR("0");
+                ESP_AT_PORT_SEND_CONST_STR("0");
             }
             ESP_AT_PORT_SEND_END();
             break;
@@ -1745,7 +1745,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 max_conn = ESP_CFG_MAX_CONNS;
             }
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPSERVERMAXCONN=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPSERVERMAXCONN=");
             espi_send_number(ESP_U32(max_conn), 0, 0);
             ESP_AT_PORT_SEND_END();
             break;
@@ -1758,7 +1758,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 timeout = 100;
             }
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPSTO=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPSTO=");
             espi_send_number(ESP_U32(timeout), 0, 0);
             ESP_AT_PORT_SEND_END();
             break;
@@ -1793,7 +1793,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
 
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPSTART=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPSTART=");
             espi_send_number(ESP_U32(c->num), 0, 0);
             if (msg->msg.conn_start.type == ESP_CONN_TYPE_SSL) {
                 espi_send_string("SSL", 0, 1, 1);
@@ -1820,7 +1820,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 return espERR;
             }
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPCLOSE=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPCLOSE=");
             espi_send_number(ESP_U32(msg->msg.conn_close.conn ? msg->msg.conn_close.conn->num : ESP_CFG_MAX_CONNS), 0, 0);
             ESP_AT_PORT_SEND_END();
             break;
@@ -1832,30 +1832,30 @@ espi_initiate_cmd(esp_msg_t* msg) {
             esp.m.active_conns_last = esp.m.active_conns;   /* Save as last status */
             esp.m.active_conns = 0;             /* Reset new status before parsing starts */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPSTATUS");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPSTATUS");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_TCPIP_CIPDINFO: {          /* Set info data on +IPD command */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPDINFO=1");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPDINFO=1");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_TCPIP_CIPMUX: {            /* Set multiple connections */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPMUX=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPMUX=");
             if (!CMD_IS_DEF(ESP_CMD_TCPIP_CIPMUX) || msg->msg.tcpip_mux.mux) {  /* If reset command is active, enable CIPMUX */
-                ESP_AT_PORT_SEND_STR("1");
+                ESP_AT_PORT_SEND_CONST_STR("1");
             } else {
-                ESP_AT_PORT_SEND_STR("0");
+                ESP_AT_PORT_SEND_CONST_STR("0");
             }
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_TCPIP_CIPSSLSIZE: {        /* Set SSL size */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPSSLSIZE=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPSSLSIZE=");
             espi_send_number(ESP_U32(msg->msg.tcpip_sslsize.size), 0, 0);
             ESP_AT_PORT_SEND_END();
             break;
@@ -1863,13 +1863,13 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
         case ESP_CMD_TCPIP_CIPRECVMODE: {       /* Set TCP data receive mode */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPRECVMODE=1");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPRECVMODE=1");
             ESP_AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_TCPIP_CIPRECVDATA: {       /* Set TCP data receive mode */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPRECVDATA=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPRECVDATA=");
             /* send_number(ESP_U32(connection_number_here), 0, 0); */
             /* send_number(ESP_U32(number_of_bytes_to_read), 0, 1); */
             ESP_AT_PORT_SEND_END();
@@ -1879,7 +1879,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_DNS
         case ESP_CMD_TCPIP_CIPDOMAIN: {         /* DNS function */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPDOMAIN=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPDOMAIN=");
             espi_send_string(msg->msg.dns_getbyhostname.host, 1, 1, 0);
             ESP_AT_PORT_SEND_END();
             break;
@@ -1888,7 +1888,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_PING
         case ESP_CMD_TCPIP_PING: {              /* Pinging hostname or IP address */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+PING=");
+            ESP_AT_PORT_SEND_CONST_STR("+PING=");
             espi_send_string(msg->msg.tcpip_ping.host, 1, 1, 0);
             ESP_AT_PORT_SEND_END();
             break;
@@ -1897,7 +1897,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_SNTP
         case ESP_CMD_TCPIP_CIPSNTPCFG: {        /* Configure SNTP */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPSNTPCFG=");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPSNTPCFG=");
             espi_send_number(ESP_U32(!!msg->msg.tcpip_sntp_cfg.en), 0, 0);
             espi_send_signed_number(ESP_U32(msg->msg.tcpip_sntp_cfg.tz), 0, 1);
             if (msg->msg.tcpip_sntp_cfg.h1 != NULL && strlen(msg->msg.tcpip_sntp_cfg.h1)) {
@@ -1914,7 +1914,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_TCPIP_CIPSNTPTIME: {       /* Get time over SNTP */
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_STR("+CIPSNTPTIME?");
+            ESP_AT_PORT_SEND_CONST_STR("+CIPSNTPTIME?");
             ESP_AT_PORT_SEND_END();
             break;
         }
