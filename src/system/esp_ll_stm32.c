@@ -87,6 +87,8 @@ usart_ll_thread(void const * arg) {
     osEvent evt;
     size_t pos;
     static size_t old_pos;
+    
+    ESP_UNUSED(arg);
 
     while (1) {
         /* Wait for the event message from DMA or USART */
@@ -116,7 +118,6 @@ usart_ll_thread(void const * arg) {
             }
         }
     }
-    ESP_UNUSED(arg);
 }
 
 /**
