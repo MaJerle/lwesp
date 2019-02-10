@@ -297,7 +297,7 @@ configure_uart(uint32_t baudrate) {
         LL_GPIO_SetOutputPin(ESP_RESET_PORT, ESP_RESET_PIN);
         osDelay(200);
     }
-#endif /* ESP_RESET_PIN */
+#endif /* defined(ESP_RESET_PIN) */
 }
 
 /**
