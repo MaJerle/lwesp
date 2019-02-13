@@ -850,7 +850,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.evt.evt.conn_active_closed.client = conn->status.f.client;  /* Set if it is client or not */
                 esp.evt.evt.conn_active_closed.forced = conn->status.f.client;  /* Set if action was forced = if client mode */
                 espi_send_conn_cb(conn, NULL);  /* Send event */
-                if(conn->type != ESP_CONN_TYPE_UDP) {
+                if (conn->type != ESP_CONN_TYPE_UDP) {
                     espi_conn_start_timeout(conn);  /* Start connection timeout timer */
                 }
             }
