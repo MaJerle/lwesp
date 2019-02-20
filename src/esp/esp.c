@@ -364,7 +364,8 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
  *
  *                  If lock was `0` before func call, lock is enabled and increased
  * \note            Function may be called multiple times to increase locks.
- *                  User must take care of calling \ref esp_core_unlock function the same times to decrease lock
+ *                  User must take care of calling \ref esp_core_unlock
+ *                  the same amount of time to make sure lock gets back to `0`
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
@@ -377,9 +378,10 @@ esp_core_lock(void) {
 /**
  * \brief           Unlock stack for multi-thread access
  *
- *                  Used conjunction with \ref esp_core_lock function
+ *                  Used in conjunction with \ref esp_core_lock function
  *
- *                  If lock was non-zero before func call, it is decreased. In case of `lock = 0`, protection is disabled
+ *                  If lock was non-zero before function call, lock is decreased.
+ *                  In case of `lock == 0`, protection is disabled
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
