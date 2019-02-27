@@ -124,11 +124,119 @@ extern "C" {
 #define ESP_U8(x)                           ((uint8_t)(x))
 
 /**
+ * \brief           Get input value casted to `signed 32-bit` value
+ * \param[in]       x: Input value
+ * \hideinitializer
+ */
+#define ESP_I32(x)                          ((int32_t)(x))
+
+/**
+ * \brief           Get input value casted to `signed 16-bit` value
+ * \param[in]       x: Input value
+ * \hideinitializer
+ */
+#define ESP_I16(x)                          ((int16_t)(x))
+
+/**
+ * \brief           Get input value casted to `signed 8-bit` value
+ * \param[in]       x: Input value
+ * \hideinitializer
+ */
+#define ESP_I8(x)                           ((int8_t)(x))
+
+/**
  * \brief           Get input value casted to `size_t` value
  * \param[in]       x: Input value
  * \hideinitializer
  */
 #define ESP_SZ(x)                           ((size_t)(x))
+
+/**
+ * \brief           Convert `unsigned 32-bit` number to string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_u32_to_str(num, out)            esp_u32_to_gen_str(ESP_U32(num), (out), 0, 0)
+
+/**
+ * \brief           Convert `unsigned 32-bit` number to HEX string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \param[in]       p: Padding with zeros before number
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_u32_to_hex_str(num, out, p)     esp_u32_to_gen_str(ESP_U32(num), (out), 1, (p))
+
+/**
+ * \brief           Convert `signed 32-bit` number to string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_i32_to_str(num, out)            esp_i32_to_gen_str(ESP_I32(num), (out))
+
+/**
+ * \brief           Convert `unsigned 16-bit` number to string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_u16_to_str(num, out)            esp_u32_to_gen_str(ESP_U32(ESP_U16(num)), (out), 0, 0)
+
+/**
+ * \brief           Convert `unsigned 16-bit` number to HEX string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \param[in]       p: Padding with zeros before number
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_u16_to_hex_str(num, out, p)     esp_u32_to_gen_str(ESP_U32(ESP_U16(num)), (out), 1, (p))
+
+/**
+ * \brief           Convert `signed 16-bit` number to string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_i16_to_str(num, out)            esp_i32_to_gen_str(ESP_I32(ESP_I16(num)), (out))
+
+/**
+ * \brief           Convert `unsigned 8-bit` number to string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_u8_to_str(num, out)             esp_u32_to_gen_str(ESP_U32(ESP_U8(num)), (out), 0, 0)
+
+/**
+ * \brief           Convert `unsigned 16-bit` number to HEX string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \param[in]       p: Padding with zeros before number
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_u8_to_hex_str(num, out, p)      esp_u32_to_gen_str(ESP_U32(ESP_U8(num)), (out), 1, (p))
+
+/**
+ * \brief           Convert `signed 8-bit` number to string
+ * \param[in]       num: Number to convert
+ * \param[out]      out: Output variable to save string
+ * \return          Pointer to output variable
+ * \hideinitializer
+ */
+#define esp_i8_to_str(num, out)             esp_i32_to_gen_str(ESP_I32(ESP_I8(num)), (out))
+
+char *      esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t padding);
+char *      esp_i32_to_gen_str(int32_t num, char* out);
 
 /**
  * \}
