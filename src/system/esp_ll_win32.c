@@ -42,7 +42,7 @@ static uint8_t initialized = 0;
 DWORD thread_id;
 HANDLE thread_handle;
 static void uart_thread(void* param);
-HANDLE comPort;                                 /*!< COM port handle */
+HANDLE com_port;                                /*!< COM port handle */
 uint8_t data_buffer[0x1000];                    /*!< Received data array */
 
 /**
@@ -53,9 +53,11 @@ uint8_t data_buffer[0x1000];                    /*!< Received data array */
  */
 static size_t
 send_data(const void* data, size_t len) {
-    if (comPort != NULL) {
-        WriteFile(comPort, data, len, NULL, NULL);
-        return len;
+    DWORD written;
+    if (com_port != NULL) {
+        WriteFile(com_port, data, len, &written, NULL);
+        FlushFileBuffers(com_port);
+        return written;
     }
     return 0;
 }
@@ -74,7 +76,7 @@ configure_uart(uint32_t baudrate) {
      * as generic read and write
      */
     if (!initialized) {
-        comPort = CreateFile(L"\\\\.\\COM6",
+        com_port = CreateFile(L"\\\\.\\COM6",
             GENERIC_READ | GENERIC_WRITE,
             0,
             0,
@@ -85,7 +87,7 @@ configure_uart(uint32_t baudrate) {
     }
 
     /* Configure COM port parameters */
-    if (GetCommState(comPort, &dcb)) {
+    if (GetCommState(com_port, &dcb)) {
         COMMTIMEOUTS timeouts;
 
         dcb.BaudRate = baudrate;
@@ -93,18 +95,18 @@ configure_uart(uint32_t baudrate) {
         dcb.Parity = NOPARITY;
         dcb.StopBits = ONESTOPBIT;
 
-        if (!SetCommState(comPort, &dcb)) {
+        if (!SetCommState(com_port, &dcb)) {
             printf("Cannot set COM PORT info\r\n");
         }
-        if (GetCommTimeouts(comPort, &timeouts)) {
+        if (GetCommTimeouts(com_port, &timeouts)) {
             /* Set timeout to return immediatelly from ReadFile function */
             timeouts.ReadIntervalTimeout = MAXDWORD;
             timeouts.ReadTotalTimeoutConstant = 0;
             timeouts.ReadTotalTimeoutMultiplier = 0;
-            if (!SetCommTimeouts(comPort, &timeouts)) {
+            if (!SetCommTimeouts(com_port, &timeouts)) {
                 printf("Cannot set COM PORT timeouts\r\n");
             }
-            GetCommTimeouts(comPort, &timeouts);
+            GetCommTimeouts(com_port, &timeouts);
         } else {
             printf("Cannot get COM PORT timeouts\r\n");
         }
@@ -127,7 +129,7 @@ uart_thread(void* param) {
     esp_sys_sem_t sem;
     FILE* file = NULL;
 
-    while (comPort == NULL);
+    while (com_port == NULL);
 
     esp_sys_sem_create(&sem, 0);                /* Create semaphore for delay functions */
 
@@ -138,7 +140,7 @@ uart_thread(void* param) {
          * and send it to upper layer for processing
          */
         do {
-            ReadFile(comPort, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
+            ReadFile(com_port, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
             if (bytes_read > 0) {
                 for (DWORD i = 0; i < bytes_read; i++) {
                     printf("%c", data_buffer[i]);
