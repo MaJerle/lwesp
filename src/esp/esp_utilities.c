@@ -39,11 +39,13 @@
  * \param[in]       num: Number to convert
  * \param[out]      out: Output variable to save string
  * \param[in]       is_hex: Set to `1` to output hex, 0 otherwise
- * \param[in]       padding: Padding of the number using zeros
+ * \param[in]       width: Width of output string.
+ *                      When number is shorter than width, leading `0` characters will apply.
+ *                      This parameter is valid only when formatting hex numbers
  * \return          Pointer to output variable
  */
 char *
-esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t padding) {
+esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
     char* tmp = out;
     uint8_t i, y;
 
@@ -74,7 +76,7 @@ esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t padding) {
         }
     }
     if (is_hex) {
-        while (i < padding) {
+        while (i < width) {
             tmp[i] = '0';
             i++;
         }

@@ -164,11 +164,12 @@ extern "C" {
  * \brief           Convert `unsigned 32-bit` number to HEX string
  * \param[in]       num: Number to convert
  * \param[out]      out: Output variable to save string
- * \param[in]       p: Padding with zeros before number
+ * \param[in]       w: Width of output string.
+ *                      When number is shorter than width, leading `0` characters will apply
  * \return          Pointer to output variable
  * \hideinitializer
  */
-#define esp_u32_to_hex_str(num, out, p)     esp_u32_to_gen_str(ESP_U32(num), (out), 1, (p))
+#define esp_u32_to_hex_str(num, out, w)     esp_u32_to_gen_str(ESP_U32(num), (out), 1, (w))
 
 /**
  * \brief           Convert `signed 32-bit` number to string
@@ -192,11 +193,12 @@ extern "C" {
  * \brief           Convert `unsigned 16-bit` number to HEX string
  * \param[in]       num: Number to convert
  * \param[out]      out: Output variable to save string
- * \param[in]       p: Padding with zeros before number
+ * \param[in]       w: Width of output string.
+ *                      When number is shorter than width, leading `0` characters will apply.
  * \return          Pointer to output variable
  * \hideinitializer
  */
-#define esp_u16_to_hex_str(num, out, p)     esp_u32_to_gen_str(ESP_U32(ESP_U16(num)), (out), 1, (p))
+#define esp_u16_to_hex_str(num, out, w)     esp_u32_to_gen_str(ESP_U32(ESP_U16(num)), (out), 1, (w))
 
 /**
  * \brief           Convert `signed 16-bit` number to string
@@ -220,11 +222,12 @@ extern "C" {
  * \brief           Convert `unsigned 16-bit` number to HEX string
  * \param[in]       num: Number to convert
  * \param[out]      out: Output variable to save string
- * \param[in]       p: Padding with zeros before number
+ * \param[in]       w: Width of output string.
+ *                      When number is shorter than width, leading `0` characters will apply.
  * \return          Pointer to output variable
  * \hideinitializer
  */
-#define esp_u8_to_hex_str(num, out, p)      esp_u32_to_gen_str(ESP_U32(ESP_U8(num)), (out), 1, (p))
+#define esp_u8_to_hex_str(num, out, w)      esp_u32_to_gen_str(ESP_U32(ESP_U8(num)), (out), 1, (w))
 
 /**
  * \brief           Convert `signed 8-bit` number to string
