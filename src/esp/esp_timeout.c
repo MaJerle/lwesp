@@ -123,13 +123,16 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
     esp_timeout_t* to;
     uint32_t now, diff = 0;
 
+    ESP_ASSERT("fn != NULL", fn != NULL);
+
     to = esp_mem_calloc(1, sizeof(*to));        /* Allocate memory for timeout structure */
     if (to == NULL) {
         return espERR;
     }
 
+    esp_core_lock();
     now = esp_sys_now();                        /* Get current time */
-    if (first_timeout) {
+    if (first_timeout != NULL) {
         diff = now - last_timeout_time;         /* Get difference between current and last processed time */
     }
 
@@ -147,7 +150,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
      */
     if (first_timeout == NULL) {
         first_timeout = to;                     /* Set as first element */
-        last_timeout_time = esp_sys_now();      /* Reset last timeout time to current time */
+        last_timeout_time = now;                /* Reset last timeout time to current time */
     } else {                                    /* Find where to place a new timeout */
         /*
          * First check if we have to put new timeout
@@ -170,7 +173,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
                 if (t->next == NULL || t->next->time > to->time) {
                     if (t->next != NULL) {      /* Check if there is next element */
                         t->next->time -= to->time;  /* Decrease difference time to next one */
-                    } else if (to->time > time) {
+                    } else if (to->time > time) {   /* Overflow of time check */
                         to->time = time + first_timeout->time;
                     }
                     to->next = t->next;         /* Change order of elements */
@@ -180,6 +183,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
             }
         }
     }
+    esp_core_unlock();
     esp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write message to process queue to wakeup process thread and to start */
     return espOK;
 }
@@ -191,6 +195,9 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
  */
 espr_t
 esp_timeout_remove(esp_timeout_fn fn) {
+    uint8_t success = 0;
+
+    esp_core_lock();
     for (esp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
             t_prev = t, t = t->next) {          /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
@@ -217,8 +224,10 @@ esp_timeout_remove(esp_timeout_fn fn) {
             }
             esp_mem_free(t);
             t = NULL;
-            return espOK;
+            success = 1;
+            break;
         }
     }
-    return espERR;
+    esp_core_unlock();
+    return success ? espOK : espERR;
 }
