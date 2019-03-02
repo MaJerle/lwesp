@@ -1515,9 +1515,9 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 m = ESP_MODE_STA_AP;            /* Set station and access point mode */
 #elif ESP_CFG_MODE_STATION
                 m = ESP_MODE_STA;               /* Set station mode */
-#else
+#else /* ESP_CFG_MODE_STATION */
                 m = ESP_MODE_AP;                /* Set access point mode */
-#endif /* ESP_CFG_MODE_STATION_ACCESS_POINT */
+#endif /* !ESP_CFG_MODE_STATION_ACCESS_POINT */
             } else {
                 m = msg->msg.wifi_mode.mode;    /* Set user defined mode */
             }

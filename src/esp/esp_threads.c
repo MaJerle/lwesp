@@ -173,7 +173,7 @@ esp_thread_process(void* const arg) {
             ESP_UNUSED(time);                   /* Unused variable */
         }
         espi_process_buffer();                  /* Process input data */
-#else
+#else /* ESP_CFG_INPUT_USE_PROCESS */
     while (1) {
         /*
          * Check for next timeout event only here

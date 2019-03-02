@@ -1000,9 +1000,9 @@ http_evt(esp_evt_t* evt) {
                                 hs->process_resp = 1;
                             }
                         } else
-#else
+#else /* HTTP_SUPPORT_POST */
                         ESP_UNUSED(pos);
-#endif /* HTTP_SUPPORT_POST */
+#endif /* !HTTP_SUPPORT_POST */
                         {
                             if (!esp_pbuf_strcmp(hs->p, "GET ", 0)) {
                                 hs->req_method = HTTP_METHOD_GET;
