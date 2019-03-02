@@ -129,9 +129,11 @@ uart_thread(void* param) {
     esp_sys_sem_t sem;
     FILE* file = NULL;
 
-    while (com_port == NULL);
-
     esp_sys_sem_create(&sem, 0);                /* Create semaphore for delay functions */
+
+    while (com_port == NULL) {
+        esp_sys_sem_wait(&sem, 1);              /* Add some delay with yield */
+    }
 
     fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
     while (1) {
@@ -149,9 +151,9 @@ uart_thread(void* param) {
                 /* Send received data to input processing module */
 #if ESP_CFG_INPUT_USE_PROCESS
                 esp_input_process(data_buffer, (size_t)bytes_read);
-#else
+#else /* ESP_CFG_INPUT_USE_PROCESS */
                 esp_input(data_buffer, (size_t)bytes_read);
-#endif
+#endif /* !ESP_CFG_INPUT_USE_PROCESS */
 
                 /* Write received data to output debug file */
                 if (file != NULL) {
