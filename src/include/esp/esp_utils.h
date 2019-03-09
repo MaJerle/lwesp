@@ -1,5 +1,5 @@
 /**
- * \file            esp_utilities.h
+ * \file            esp_utils.h
  * \brief           Utilities
  */
 

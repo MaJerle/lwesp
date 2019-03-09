@@ -1,5 +1,5 @@
 /**
- * \file            esp_utilities.c
+ * \file            esp_utils.c
  * \brief           Utilities
  */
 
@@ -31,7 +31,7 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #include "esp/esp_private.h"
-#include "esp/esp_utilities.h"
+#include "esp/esp_utils.h"
 #include "stdint.h"
 
 /**
