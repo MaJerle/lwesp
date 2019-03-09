@@ -30,8 +30,8 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef ESP_HDR_UTILITIES_H
-#define ESP_HDR_UTILITIES_H
+#ifndef ESP_HDR_UTILS_H
+#define ESP_HDR_UTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +41,7 @@ extern "C" {
 
 /**
  * \ingroup         ESP
- * \defgroup        ESP_UTILITIES Utilities
+ * \defgroup        ESP_UTILS Utilities
  * \brief           Utilities
  * \{
  */
