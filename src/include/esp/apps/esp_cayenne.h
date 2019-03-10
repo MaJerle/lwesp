@@ -42,8 +42,8 @@ extern "C" {
 
 /**
  * \ingroup         ESP_APPS
- * \defgroup        ESP_APP_CAYENNE MQTT client Cayenne
- * \brief           MQTT client for Cayenne
+ * \defgroup        ESP_APP_CAYENNE_API MQTT client Cayenne API
+ * \brief           MQTT client API for Cayenne
  * \{
  */
 
@@ -101,6 +101,15 @@ typedef enum {
 } esp_cayenne_resp_t;
 
 /**
+ * \brief           Cayenne events
+ */
+typedef enum {
+    ESP_CAYENNE_EVT_CONNECT,                    /*!< Connect to Cayenne event */
+    ESP_CAYENNE_EVT_DISCONNECT,                 /*!< Disconnect from Cayenne event */
+    ESP_CAYENNE_EVT_DATA,                       /*!< Data event */
+} esp_cayenne_evt_type_t;
+
+/**
  * \brief           Key/Value pair structure
  */
 typedef struct {
@@ -120,22 +129,54 @@ typedef struct {
 } esp_cayenne_msg_t;
 
 /**
- * \brief           Cayenne handle
+ * \brief           Cayenne event
  */
 typedef struct {
+    esp_cayenne_evt_type_t type;                /*!< Event type */
+    union {
+        struct {
+            esp_cayenne_msg_t* msg;             /*!< Pointer to data message */
+        } data;                                 /*!< Data event, used with \ref ESP_CAYENNE_EVT_DATA event */
+    } evt;
+} esp_cayenne_evt_t;
+
+/**
+ * \brief           Cayenne handle forward declaration
+ */
+struct esp_cayenne;
+
+/**
+ * \brief           Cayenne event callback function
+ * \param[in]       c: Cayenne handle
+ * \param[in]       evt: Event handle
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+typedef espr_t (*esp_cayenne_evt_fn)(struct esp_cayenne* c, esp_cayenne_evt_t* evt);
+
+/**
+ * \brief           Cayenne handle
+ */
+typedef struct esp_cayenne {
     esp_mqtt_client_api_p api_c;                /*!< MQTT API client */
     const esp_mqtt_client_info_t* info_c;       /*!< MQTT Client info structure */
 
     esp_cayenne_msg_t msg;
 
+    esp_cayenne_evt_t evt;                      /*!< Event handle */
+    esp_cayenne_evt_fn evt_fn;                  /*!< Event callback function */
+
     esp_sys_thread_t thread;
     esp_sys_sem_t sem;
 } esp_cayenne_t;
 
-espr_t      esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info);
+espr_t      esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, esp_cayenne_evt_fn evt_fn);
 espr_t      esp_cayenne_subscribe(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel);
 espr_t      esp_cayenne_publish_data(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, const char* data);
 espr_t      esp_cayenne_publish_float(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, float f);
+
+espr_t      esp_cayenne_publish_response(esp_cayenne_t* c, esp_cayenne_msg_t* msg, esp_cayenne_resp_t resp, const char* message);
+
+#include "esp/apps/esp_cayenne_evt.h"
 
 /**
  * \}
