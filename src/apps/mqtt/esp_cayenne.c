@@ -177,12 +177,50 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
 
 espr_t
 parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
-    esp_cayenne_msg_t* msg = &c->msg;
+    esp_cayenne_msg_t* msg;
+    char* payload;
 
     printf("Parsing payload...\r\n");
 
     ESP_ASSERT("c != NULL", c != NULL);
     ESP_ASSERT("buf != NULL", buf != NULL);
+
+    msg = &c->msg;
+    payload = (void *)buf->payload;
+
+    msg->seq = NULL;
+
+    /* Parse topic format here */
+    switch (msg->topic) {
+        case ESP_CAYENNE_TOPIC_DATA: {
+            printf("TOPIC DATA: %*s\r\n", (int)buf->payload_len, (const char *)buf->payload);
+            /* Parse data with '=' separator */
+            break;
+        }
+        case ESP_CAYENNE_TOPIC_COMMAND:
+        case ESP_CAYENNE_TOPIC_ANALOG_COMMAND:
+        case ESP_CAYENNE_TOPIC_DIGITAL_COMMAND: {
+            /* Parsing "sequence,value" */
+            char* comm = strchr(payload, ',');
+            if (comm != NULL) {
+                *comm = 0;
+                msg->seq = payload;
+                msg->values[0].key = NULL;
+                msg->values[0].value = comm + 1;
+                msg->values_count = 1;
+            } else {
+                return espERR;
+            }
+            /* Here parse sequence,value */
+            break;
+        }
+        case ESP_CAYENNE_TOPIC_ANALOG: {
+            printf("TOPIC ANALOG: %*s\r\n", (int)buf->payload_len, (const char *)buf->payload);
+            /* Here parse type,value */
+        }
+        default:
+            break;
+    }
 
     return espOK;
 }
@@ -295,6 +333,9 @@ mqtt_thread(void * const arg) {
                         /* Parse received topic and payload */
                         if (parse_topic(c, buf) == espOK && parse_payload(c, buf) == espOK) {
                             printf("Topic and payload parsed!\r\n");
+                            printf("Channel: %d, Sequence: %s, Key: %s, Value: %s",
+                                (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value
+                            );
                         }
 
                         esp_mqtt_client_api_buf_free(buf);

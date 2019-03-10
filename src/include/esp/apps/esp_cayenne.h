@@ -101,13 +101,22 @@ typedef enum {
 } esp_cayenne_resp_t;
 
 /**
+ * \brief           Key/Value pair structure
+ */
+typedef struct {
+    const char* key;                            /*!< Key string */
+    const char* value;                          /*!< Value string */
+} esp_cayenne_key_value_t;
+
+/**
  * \brief           Cayenne message
  */
 typedef struct {
     esp_cayenne_topic_t topic;                  /*!< Message topic */
     uint16_t channel;                           /*!< Message channel, optional, based on topic type */
     const char* seq;                            /*!< Sequence string on command */
-    const char* value;                          /*!< Payload value */
+    esp_cayenne_key_value_t values[2];          /*!< Key/Value pair of values */
+    size_t values_count;                        /*!< Count of valid pairs in values member */
 } esp_cayenne_msg_t;
 
 /**
