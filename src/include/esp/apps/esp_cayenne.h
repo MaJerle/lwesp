@@ -51,37 +51,32 @@ extern "C" {
  * \brief           Cayenne API version in string
  */
 #ifndef ESP_CAYENNE_API_VERSION
-#define ESP_CAYENNE_API_VERSION                     "v1"
+#define ESP_CAYENNE_API_VERSION                 "v1"
 #endif
-
+                                                
  /**
  * \brief           Cayenne host server
  */
 #ifndef ESP_CAYENNE_HOST
-#define ESP_CAYENNE_HOST                            "mqtt.mydevices.com"
+#define ESP_CAYENNE_HOST                        "mqtt.mydevices.com"
 #endif
 
 /**
  * \brief           Cayenne port number
  */
 #ifndef ESP_CAYENNE_PORT
-#define ESP_CAYENNE_PORT                            1883
+#define ESP_CAYENNE_PORT                        1883
 #endif
 
-#define ESP_CAYENNE_NO_CHANNEL                      0xFFFE
-#define ESP_CAYENNE_ALL_CHANNELS                    0xFFFF
+#define ESP_CAYENNE_NO_CHANNEL                  0xFFFE
+#define ESP_CAYENNE_ALL_CHANNELS                0xFFFF
 
-typedef struct {
-    esp_mqtt_client_api_p api_c;                    /*!< MQTT API client */
-    const esp_mqtt_client_info_t* info_c;           /*!< MQTT Client info structure */
-
-    esp_sys_thread_t thread;
-    esp_sys_sem_t sem;
-} esp_cayenne_t;
-
+/**
+ * \brief           List of possible cayenne topics
+ */
 typedef enum {
-    ESP_CAYENNE_TOPIC_DATA,                         /*!< Data topic */
-    ESP_CAYENNE_TOPIC_COMMAND,                      /*!< Command topic */
+    ESP_CAYENNE_TOPIC_DATA,                     /*!< Data topic */
+    ESP_CAYENNE_TOPIC_COMMAND,                  /*!< Command topic */
     ESP_CAYENNE_TOPIC_CONFIG,
     ESP_CAYENNE_TOPIC_RESPONSE,
     ESP_CAYENNE_TOPIC_SYS_MODEL,
@@ -94,11 +89,41 @@ typedef enum {
     ESP_CAYENNE_TOPIC_ANALOG,
     ESP_CAYENNE_TOPIC_ANALOG_COMMAND,
     ESP_CAYENNE_TOPIC_ANALOG_CONFIG,
-    ESP_CAYENNE_TOPIC_END,                          /*!< Last entry*/
-    ESP_CAYENNE_TOPIC_UNDEFINED,                    /*!< Undefined topic, not allowed entry */
+    ESP_CAYENNE_TOPIC_END,                      /*!< Last entry */
 } esp_cayenne_topic_t;
 
-espr_t      esp_cayenne_create(esp_cayenne_t* c, esp_mqtt_client_api_p client_api, const esp_mqtt_client_info_t* client_info);
+/**
+ * \brief           Cayenne response types
+ */
+typedef enum {
+    ESP_CAYENNE_RESP_OK,
+    ESP_CAYENNE_RESP_ERROR,
+} esp_cayenne_resp_t;
+
+/**
+ * \brief           Cayenne message
+ */
+typedef struct {
+    esp_cayenne_topic_t topic;                  /*!< Message topic */
+    uint16_t channel;                           /*!< Message channel, optional, based on topic type */
+    const char* seq;                            /*!< Sequence string on command */
+    const char* value;                          /*!< Payload value */
+} esp_cayenne_msg_t;
+
+/**
+ * \brief           Cayenne handle
+ */
+typedef struct {
+    esp_mqtt_client_api_p api_c;                /*!< MQTT API client */
+    const esp_mqtt_client_info_t* info_c;       /*!< MQTT Client info structure */
+
+    esp_cayenne_msg_t msg;
+
+    esp_sys_thread_t thread;
+    esp_sys_sem_t sem;
+} esp_cayenne_t;
+
+espr_t      esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info);
 espr_t      esp_cayenne_subscribe(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel);
 espr_t      esp_cayenne_publish_data(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, const char* data);
 espr_t      esp_cayenne_publish_float(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, float f);

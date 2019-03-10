@@ -488,6 +488,13 @@
  * \{
  */
 
+/**
+ * \brief           Maximal number of open MQTT requests at a time
+ *
+ */
+#ifndef ESP_CFG_MQTT_MAX_REQUESTS
+#define ESP_CFG_MQTT_MAX_REQUESTS           8
+#endif
 
 /**
  * \brief           Set debug level for MQTT client module
@@ -505,6 +512,25 @@
  */
 #ifndef ESP_CFG_DBG_MQTT_API
 #define ESP_CFG_DBG_MQTT_API                ESP_DBG_OFF
+#endif
+
+/**
+ * \}
+ */
+
+/**
+ * \defgroup        ESP_CONFIG_MODULES_CAYENNE Cayenne MQTT client
+ * \brief           Configuration of Cayenne MQTT client
+ * \{
+ */
+
+/**
+ * \brief           Set debug level for Cayenne MQTT client module
+ *
+ *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ */
+#ifndef ESP_CFG_DBG_CAYENNE
+#define ESP_CFG_DBG_CAYENNE                 ESP_DBG_OFF
 #endif
 
 /**

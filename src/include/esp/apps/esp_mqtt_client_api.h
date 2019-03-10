@@ -80,6 +80,7 @@ espr_t                  esp_mqtt_client_api_close(esp_mqtt_client_api_p client);
 espr_t                  esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic, esp_mqtt_qos_t qos);
 espr_t                  esp_mqtt_client_api_unsubscribe(esp_mqtt_client_api_p client, const char* topic);
 espr_t                  esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, const void* data, size_t btw, esp_mqtt_qos_t qos, uint8_t retain);
+uint8_t                 esp_mqtt_client_api_is_connected(esp_mqtt_client_api_p client);
 espr_t                  esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_buf_p* p, uint32_t timeout);
 void                    esp_mqtt_client_api_buf_free(esp_mqtt_client_api_buf_p p);
 
