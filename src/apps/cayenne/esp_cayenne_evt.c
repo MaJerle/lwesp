@@ -45,7 +45,7 @@ esp_cayenne_evt_get_type(esp_cayenne_evt_t* evt) {
 /**
  * \brief           Get event data message
  * \param[in]       evt: Cayenne event handle
- * \return          Event type
+ * \return          Message pointer
  */
 esp_cayenne_msg_t *
 esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt) {
