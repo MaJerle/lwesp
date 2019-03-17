@@ -41,8 +41,8 @@ extern "C" {
 #include "esp/apps/esp_cayenne.h"
 
 /**
- * \ingroup         ESP_APP_CAYENNE
- * \defgroup        ESP_APP_CAYENNE_EVT Event helper functions
+ * \ingroup         ESP_APP_CAYENNE_API
+ * \defgroup        ESP_APP_CAYENNE_API_EVT Event helper functions
  * \brief           Cayenne event helper functions
  * \{
  */
@@ -57,6 +57,7 @@ esp_cayenne_evt_type_t      esp_cayenne_evt_get_type(esp_cayenne_evt_t* evt);
  *
  * \note            Use these functions on \ref ESP_CAYENNE_EVT_DATA event
  */
+
 esp_cayenne_msg_t *         esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt);
 
 /**

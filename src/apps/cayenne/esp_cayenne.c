@@ -363,6 +363,12 @@ mqtt_thread(void * const arg) {
         }
     }
 
+    /* Clean resources */
+    if (esp_sys_sem_isvalid(&c->sem)) {
+        esp_sys_sem_delete(&c->sem);
+        esp_sys_sem_invalid(&c->sem);
+    }
+
     esp_sys_thread_terminate(NULL);             /* Terminate thread */
 }
 
@@ -373,7 +379,7 @@ mqtt_thread(void * const arg) {
  * \param[in]       c: Cayenne empty handle
  * \param[in]       client_info: MQTT client info with username, password and id
  * \param[in]       evt_fn: Event function
- * \return          \espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 espr_t
 esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, esp_cayenne_evt_fn evt_fn) {
@@ -401,6 +407,7 @@ esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, 
         esp_sys_sem_invalid(&c->sem);
         esp_mem_free(c->api_c);
         c->api_c = NULL;
+        c->info_c = NULL;
         return espERRMEM;
     }
     esp_sys_sem_wait(&c->sem, 0);
@@ -497,6 +504,14 @@ exit:
     return res;
 }
 
+/**
+ * \brief           Publish response message to command
+ * \param[in]       c: Cayenne handle
+ * \param[in]       msg: Received message with command topic
+ * \param[in]       resp: Response type, either `OK` or `ERROR`
+ * \param[in]       message: Message text in case of error to be displayed to Cayenne dashboard
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
 espr_t
 esp_cayenne_publish_response(esp_cayenne_t* c, esp_cayenne_msg_t* msg, esp_cayenne_resp_t resp, const char* message) {
     espr_t res = espOK;
@@ -520,6 +535,7 @@ esp_cayenne_publish_response(esp_cayenne_t* c, esp_cayenne_msg_t* msg, esp_cayen
             msg_len = sizeof(payload_data) - 1 - len;
         }
         strncpy(&payload_data[len], message, msg_len);
+        payload_data[len + msg_len] = 0;
     }
     res = esp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), ESP_MQTT_QOS_AT_LEAST_ONCE, 1);
 exit:

@@ -345,7 +345,7 @@ esp_netconn_delete(esp_netconn_p nc) {
  * \param[in]       nc: Netconn handle
  * \param[in]       host: Pointer to host, such as domain name or IP address in string format
  * \param[in]       port: Target port to use
- * \return          espOK if successfully connected, member of \ref espr_t otherwise
+ * \return          \ref espOK if successfully connected, member of \ref espr_t otherwise
  */
 espr_t
 esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
@@ -637,10 +637,10 @@ esp_netconn_sendto(esp_netconn_p nc, const esp_ip_t* ip, esp_port_t port, const 
  * \param[in]       nc: Netconn handle used to receive from
  * \param[in]       pbuf: Pointer to pointer to save new receive buffer to.
  *                     When function returns, user must check for valid pbuf value `pbuf != NULL`
- * \return          \arg \ref espOK when new data ready
- *                  \arg \ref espCLOSED when connection closed by remote side
- *                  \arg \ref espTIMEOUT when receive timeout occurs
- *                  \arg or any other member of \ref espr_t otherwise
+ * \return          \ref espOK when new data ready
+ * \return          \ref espCLOSED when connection closed by remote side
+ * \return          \ref espTIMEOUT when receive timeout occurs
+ * \return          Any other member of \ref espr_t otherwise
  */
 espr_t
 esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
@@ -710,8 +710,9 @@ esp_netconn_getconnnum(esp_netconn_p nc) {
 /**
  * \brief           Set timeout value for receiving data.
  *
- *                  When enabled, \ref esp_netconn_receive will only block for up to
- *                  \e timeout value and will return if no new data within this time
+ * When enabled, \ref esp_netconn_receive will only block for up to
+ * \e timeout value and will return if no new data within this time
+ *
  * \param[in]       nc: Netconn handle
  * \param[in]       timeout: Timeout in units of milliseconds.
  *                  Set to `0` to disable timeout for \ref esp_netconn_receive function

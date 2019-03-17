@@ -34,6 +34,8 @@
 #include "esp/apps/esp_http_server_fs.h"
 #include "esp/esp_mem.h"
 
+#if !__DOXYGEN__
+
 static char fs_path[256];
 
 /**
@@ -126,3 +128,5 @@ http_fs_close(http_fs_file_t* file) {
     }
     return 1;                                   /* Close was successful */
 }
+
+#endif /* !__DOXYGEN__ */

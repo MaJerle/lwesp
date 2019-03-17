@@ -33,6 +33,9 @@
 #include "esp/apps/esp_http_server.h"
 #include "esp/apps/esp_http_server_fs.h"
 #include "esp/esp_mem.h"
+
+#if !__DOXYGEN__
+
 #include "ff.h"                 /* Include FATFS file system file */
 
 /* File system object handle */
@@ -51,23 +54,17 @@ uint8_t
 http_fs_open(http_fs_file_t* file, const char* path) {
     FIL* fil;
 
-    /*
-     * Do we have to mount our file system?
-     */
+    /* Do we have to mount our file system? */
     if (*file->rem_open_files == 0) {
         if (f_mount(&fs, "SD:", 1) != FR_OK) {
             return 0;
         }
     }
 
-    /*
-     * Format file path in "www" directory of root directory
-     */
+    /* Format file path in "www" directory of root directory */
     sprintf(fs_path, "SD:www%s", path);
 
-    /*
-     * Allocate memory for FATFS file structure
-     */
+    /* Allocate memory for FATFS file structure */
     fil = esp_mem_alloc(sizeof(*fil));
     if (fil == NULL) {
         return 0;
@@ -149,3 +146,5 @@ http_fs_close(http_fs_file_t* file) {
 
     return 1;                                   /* Close was successful */
 }
+
+#endif /* !__DOXYGEN__ */
