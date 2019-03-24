@@ -55,9 +55,9 @@
 /**
  * \brief           Default system port implementation
  *
- *                  According to selected port, stack will automatically include apropriate file
+ * According to selected port, stack will automatically include appropriate file
  *
- *                  Parameter can be a value of \ref ESP_SYS_PORTS choices
+ * Parameter can be a value of \ref ESP_SYS_PORTS choices
  */
 #ifndef ESP_CFG_SYS_PORT
 #define ESP_CFG_SYS_PORT                    ESP_SYS_PORT_CMSIS_OS
@@ -71,7 +71,6 @@
  *                  will try to allocate memory on aligned boundaries.
  *
  * \note            Some CPUs such ARM Cortex-M0 dont't support unaligned memory access.
- *                  This CPUs must have set correct memory alignment value.
  *
  * \note            This value must be power of `2`
  */
@@ -102,8 +101,8 @@
 /**
  * \brief           Set number of retries for send data command.
  *
- *                  Sometimes it can happen that `AT+SEND` command fails due to different problems.
- *                  Trying to send the same data multiple times can raise chances for success.
+ * Sometimes it may happen that `AT+SEND` command fails due to different problems.
+ * Trying to send the same data multiple times can raise chances for success.
  */
 #ifndef ESP_CFG_MAX_SEND_RETRIES
 #define ESP_CFG_MAX_SEND_RETRIES            3
@@ -214,8 +213,9 @@
  */
 
 /**
- * \brief           Set global debug support.
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * \brief           Set global debug support
+ *
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  *
  * \note            Set to \ref ESP_DBG_OFF to globally disable all debugs
  */
@@ -226,7 +226,7 @@
 /**
  * \brief           Debugging output function
  *
- *                  Called with format and optional parameters for printf style debug
+ * Called with format and optional parameters for printf-like debug
  */
 #ifndef ESP_CFG_DBG_OUT
 #define ESP_CFG_DBG_OUT(fmt, ...)           do { extern int printf( const char * format, ... ); printf(fmt, ## __VA_ARGS__); } while (0)
@@ -235,7 +235,7 @@
 /**
  * \brief           Minimal debug level
  *
- *                  Check \ref ESP_DBG_LVL for possible values
+ * Check \ref ESP_DBG_LVL for possible values
  */
 #ifndef ESP_CFG_DBG_LVL_MIN
 #define ESP_CFG_DBG_LVL_MIN                 ESP_DBG_LVL_ALL
@@ -244,10 +244,10 @@
 /**
  * \brief           Enabled debug types
  *
- *                  When debug is globally enabled with \ref ESP_CFG_DBG parameter,
- *                  user must enable debug types such as TRACE or STATE messages.
+ * When debug is globally enabled with \ref ESP_CFG_DBG parameter,
+ * user must enable debug types such as TRACE or STATE messages.
  *
- *                  Check \ref ESP_DBG_TYPE for possible options. Separate values with `bitwise OR` operator
+ * Check \ref ESP_DBG_TYPE for possible options. Separate values with `bitwise OR` operator
  */
 #ifndef ESP_CFG_DBG_TYPES_ON
 #define ESP_CFG_DBG_TYPES_ON                0
@@ -256,7 +256,7 @@
 /**
  * \brief           Set debug level for init function
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_INIT
 #define ESP_CFG_DBG_INIT                    ESP_DBG_OFF
@@ -265,7 +265,7 @@
 /**
  * \brief           Set debug level for memory manager
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_MEM
 #define ESP_CFG_DBG_MEM                     ESP_DBG_OFF
@@ -274,7 +274,7 @@
 /**
  * \brief           Set debug level for input module
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_INPUT
 #define ESP_CFG_DBG_INPUT                   ESP_DBG_OFF
@@ -283,7 +283,7 @@
 /**
  * \brief           Set debug level for ESP threads
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_THREAD
 #define ESP_CFG_DBG_THREAD                  ESP_DBG_OFF
@@ -292,7 +292,7 @@
 /**
  * \brief           Set debug level for asserting of input variables
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_ASSERT
 #define ESP_CFG_DBG_ASSERT                  ESP_DBG_OFF
@@ -301,7 +301,7 @@
 /**
  * \brief           Set debug level for incoming data received from device
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_IPD
 #define ESP_CFG_DBG_IPD                     ESP_DBG_OFF
@@ -310,7 +310,7 @@
 /**
  * \brief           Set debug level for netconn sequential API
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_NETCONN
 #define ESP_CFG_DBG_NETCONN                 ESP_DBG_OFF
@@ -319,7 +319,7 @@
 /**
  * \brief           Set debug level for packet buffer manager
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_PBUF
 #define ESP_CFG_DBG_PBUF                    ESP_DBG_OFF
@@ -328,7 +328,7 @@
 /**
  * \brief           Set debug level for connections
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_CONN
 #define ESP_CFG_DBG_CONN                    ESP_DBG_OFF
@@ -366,7 +366,7 @@
 /**
  * \brief           Set number of message queue entries for procuder thread
  *
- *                  Message queue is used for storing memory address to command data
+ * Message queue is used for storing memory address to command data
  */
 #ifndef ESP_CFG_THREAD_PRODUCER_MBOX_SIZE
 #define ESP_CFG_THREAD_PRODUCER_MBOX_SIZE   16
@@ -375,7 +375,7 @@
 /**
  * \brief           Set number of message queue entries for processing thread
  *
- *                  Message queue is used to notify processing thread about new received data on AT port
+ * Message queue is used to notify processing thread about new received data on AT port
  */
 #ifndef ESP_CFG_THREAD_PROCESS_MBOX_SIZE
 #define ESP_CFG_THREAD_PROCESS_MBOX_SIZE    16
@@ -384,12 +384,12 @@
 /**
  * \brief           Enables `1` or disables `0` direct support for processing input data
  *
- *                  When this mode is enabled, no overhead is included for copying data
- *                  to receive buffer because bytes are processed directly by \ref esp_input_process function
+ * When this mode is enabled, no overhead is included for copying data
+ * to receive buffer because bytes are processed directly by \ref esp_input_process function
  *
- *                  If this mode is not enabled, then user have to send every received byte via \ref esp_input
- *                  function to the internal buffer for future processing. This may introduce additional overhead
- *                  with data copy and may decrease library performance
+ * If this mode is not enabled, then user have to send every received byte via \ref esp_input
+ * function to the internal buffer for future processing. This may introduce additional overhead
+ * with data copy and may decrease library performance
  *
  * \note            This mode can only be used when \ref ESP_CFG_OS is enabled
  *
@@ -405,7 +405,7 @@
 /**
  * \brief           Producer thread hook, called each time thread wakes-up and does the processing.
  *
- *                  It can be used to check if thread is alive.
+ * It can be used to check if thread is alive.
  */
 #ifndef ESP_THREAD_PRODUCER_HOOK
 #define ESP_THREAD_PRODUCER_HOOK()
@@ -414,7 +414,7 @@
 /**
  * \brief           Process thread hook, called each time thread wakes-up and does the processing.
  *
- *                  It can be used to check if thread is alive.
+ * It can be used to check if thread is alive.
  */
 #ifndef ESP_THREAD_PROCESS_HOOK
 #define ESP_THREAD_PROCESS_HOOK()
@@ -449,9 +449,9 @@
 /**
  * \brief           Enables `1` or disables `0` receive timeout feature
  *
- *                  When this option is enabled, user will get an option
- *                  to set timeout value for receive data on netconn,
- *                  before function returns timeout error.
+ * When this option is enabled, user will get an option
+ * to set timeout value for receive data on netconn,
+ * before function returns timeout error.
  *
  * \note            Even if this option is enabled, user must still manually set timeout,
  *                  by default time will be set to 0 which means no timeout.
@@ -463,7 +463,7 @@
 /**
  * \brief           Accept queue length for new client when netconn server is used
  *
- *                  Defines number of maximal clients waiting in accept queue of server connection
+ * Defines number of maximal clients waiting in accept queue of server connection
  */
 #ifndef ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN
 #define ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN    5
@@ -472,7 +472,7 @@
 /**
  * \brief           Receive queue length for pbuf entries
  *
- *                  Defines maximal number of pbuf data packet references for receive
+ * Defines maximal number of pbuf data packet references for receive
  */
 #ifndef ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN
 #define ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN   8
@@ -499,7 +499,7 @@
 /**
  * \brief           Set debug level for MQTT client module
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_MQTT
 #define ESP_CFG_DBG_MQTT                    ESP_DBG_OFF
@@ -508,7 +508,7 @@
 /**
  * \brief           Set debug level for MQTT API client module
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_MQTT_API
 #define ESP_CFG_DBG_MQTT_API                ESP_DBG_OFF
@@ -527,7 +527,7 @@
 /**
  * \brief           Set debug level for Cayenne MQTT client module
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_CAYENNE
 #define ESP_CFG_DBG_CAYENNE                 ESP_DBG_OFF
@@ -592,7 +592,7 @@
 /**
  * \brief           Poll interval for connections in units of milliseconds
  *
- *                  Value indicates interval time to call poll event on active connections.
+ * Value indicates interval time to call poll event on active connections.
  *
  * \note            Single poll interval applies for all connections
  */
@@ -603,12 +603,12 @@
 /**
  * \brief           Enables `1` or disables `0` manual `TCP` data receive from ESP device
  *
- *                  Normally ESP automatically sends received TCP data to host device
- *                  in async way. When host device is slow or if there is memory constrain,
- *                  it may happen that processing cannot handle all received data.
+ * Normally ESP automatically sends received TCP data to host device
+ * in async mode. When host device is slow or if there is memory constrain,
+ * it may happen that processing cannot handle all received data.
  *
- *                  When feature is enabled, ESP will notify host device about new data
- *                  available for read and then user may start read process
+ * When feature is enabled, ESP will notify host device about new data
+ * available for read and then user may start read process
  *
  * \note            This feature is only available for `TCP` connections.
  */
@@ -628,10 +628,11 @@
 /**
  * \brief           Memory copy function declaration
  *
- *                  User is able to change the memory function, in case
- *                  hardware supports copy operation, it may implement its own
+ * User is able to change the memory function, in case
+ * hardware supports copy operation, it may implement its own
  *
- *                  Function prototype must be similar to:
+ * Function prototype must be similar to:
+ *
  * \code{c}
 void *  my_memcpy(void* dst, const void* src, size_t len);
 \endcode
@@ -648,7 +649,8 @@ void *  my_memcpy(void* dst, const void* src, size_t len);
 /**
  * \brief           Memory set function declaration
  *
- *                  Function prototype must be similar to:
+ * Function prototype must be similar to:
+ *
  * \code{c}
 void *  my_memset(void* dst, int b, size_t len);
 \endcode
