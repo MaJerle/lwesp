@@ -145,7 +145,7 @@ typedef struct {
         } connect;                              /*!< Event for connecting to server */
         struct {
             uint8_t is_accepted;                /*!< Status if client was accepted to MQTT prior disconnect event */
-        } disconnect;
+        } disconnect;                           /*!< Event for disconnecting from server */
         struct {
             void* arg;                          /*!< User argument for callback function */
             espr_t res;                         /*!< Response status */

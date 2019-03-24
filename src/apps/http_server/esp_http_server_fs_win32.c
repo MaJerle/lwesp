@@ -34,8 +34,6 @@
 #include "esp/apps/esp_http_server_fs.h"
 #include "esp/esp_mem.h"
 
-#if !__DOXYGEN__
-
 static char fs_path[256];
 
 /**
@@ -48,14 +46,10 @@ uint8_t
 http_fs_open(http_fs_file_t* file, const char* path) {
     FILE* fil;
 
-    /*
-     * Format file path in "www" directory of root directory
-     */
+    /* Format file path in "www" directory of root directory */
     sprintf(fs_path, "../../../www%s", path);
 
-    /*
-     * Try to open file on disk as read and binary mode
-     */
+    /* Try to open file on disk as read and binary mode */
     if (!fopen_s(&fil, fs_path, "rb")) {
         file->arg = fil;
         fseek(fil, 0, SEEK_END);
@@ -96,9 +90,7 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
         return e - s;                           /* Return difference in positions */
     }
 
-    /*
-     * Read the file and return read length
-     */
+    /* Read the file and return read length */
     br = (uint32_t)fread_s(buff, btr, 1, btr, fil);
     return br;
 }
@@ -128,5 +120,3 @@ http_fs_close(http_fs_file_t* file) {
     }
     return 1;                                   /* Close was successful */
 }
-
-#endif /* !__DOXYGEN__ */

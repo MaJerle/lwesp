@@ -39,6 +39,7 @@
 /* Tracing debug message */
 #define ESP_CFG_DBG_CAYENNE_TRACE               (ESP_CFG_DBG_CAYENNE | ESP_DBG_TYPE_TRACE)
 #define ESP_CFG_DBG_CAYENNE_TRACE_WARNING       (ESP_CFG_DBG_CAYENNE | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING)
+#define ESP_CFG_DBG_CAYENNE_TRACE_SEVERE        (ESP_CFG_DBG_CAYENNE | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE)
 
 #define ESP_CAYENNE_API_VERSION_LEN             (sizeof(ESP_CAYENNE_API_VERSION) - 1)
 
@@ -95,19 +96,25 @@ topic_name[256];
 static char
 payload_data[128];
 
-espr_t
+/** 
+ * \brief           Parse received topic string
+ * \param[in]       c: Cayenne handle
+ * \param[in]       buf: MQTT buffer with received data
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+static espr_t
 parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     esp_cayenne_msg_t* msg;
     const char* topic;
     size_t len, i;
 
-    printf("Parsing topic...\r\n");
-
     ESP_ASSERT("c != NULL", c != NULL);
     ESP_ASSERT("buf != NULL && buf->topic != NULL", buf != NULL && buf->topic != NULL);
 
-    msg = &c->msg;
-    topic = buf->topic;
+    msg = &c->msg;                              /* Get message handle */
+    topic = (void *)buf->topic;                 /* Get topic data */
+
+    ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received topic: %s\r\n", topic);
 
     /* Topic starts with API version */
     if (strncmp(topic, ESP_CAYENNE_API_VERSION, ESP_CAYENNE_API_VERSION_LEN)) {
@@ -175,20 +182,26 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     return espOK;
 }
 
-espr_t
+/**
+ * \brief           Parse received data from MQTT channel
+ * \param[in]       c: Cayenne handle
+ * \param[in]       buf: MQTT buffer with received data
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+static espr_t
 parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     esp_cayenne_msg_t* msg;
     char* payload;
 
-    printf("Parsing payload...\r\n");
-
     ESP_ASSERT("c != NULL", c != NULL);
     ESP_ASSERT("buf != NULL", buf != NULL);
 
-    msg = &c->msg;
-    payload = (void *)buf->payload;
+    msg = &c->msg;                              /* Get message handle */
+    payload = (void *)buf->payload;             /* Get payload data */
 
-    msg->seq = NULL;
+    ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received payload\r\n");
+
+    msg->seq = NULL;                            /* Reset sequence string */
 
     /* Parse topic format here */
     switch (msg->topic) {
@@ -233,6 +246,7 @@ parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
  * \param[in]       client_id: MQTT client id
  * \param[in]       topic: Cayenne topic
  * \param[in]       channel: Cayenne channel
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
  */
 static espr_t
 build_topic(char* topic_str, size_t topic_str_len, const char* username,
@@ -302,6 +316,9 @@ mqtt_thread(void * const arg) {
     esp_core_lock();
     if (!esp_sys_mutex_isvalid(&prot_mutex)) {
         esp_sys_mutex_create(&prot_mutex);
+
+        ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] New mutex created\r\n", esp_sys_mutex_isvalid(&prot_mutex));
+        ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create mutex\r\n", !esp_sys_mutex_isvalid(&prot_mutex));
     }
     esp_core_unlock();
 
@@ -396,12 +413,14 @@ esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, 
 
     /* Create semaphore */
     if (!esp_sys_sem_create(&c->sem, 1)) {
+        ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create semaphore\r\n");
         return espERRMEM;
     }
 
     /* Create and wait for thread to start */
     esp_sys_sem_wait(&c->sem, 0);
     if (!esp_sys_thread_create(&c->thread, "mqtt_cayenne", mqtt_thread, c, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
+        ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create new thread\r\n");
         esp_sys_sem_release(&c->sem);
         esp_sys_sem_delete(&c->sem);
         esp_sys_sem_invalid(&c->sem);

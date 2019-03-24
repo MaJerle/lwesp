@@ -171,7 +171,7 @@ typedef struct esp_conn {
             uint8_t data_received:1;            /*!< Status whether first data were received on connection */
             uint8_t in_closing:1;               /*!< Status if connection is in closing mode.
                                                     When in closing mode, ignore any possible received data from function */
-        } f;
+        } f;                                    /*!< Connection flags */
     } status;                                   /*!< Connection status union with flag bits */
 } esp_conn_t;
 
@@ -224,10 +224,10 @@ typedef struct esp_msg {
     union {
         struct {
             uint32_t delay;                     /*!< Delay in units of milliseconds before executing first RESET command */
-        } reset;                                /*!< Reset message */
+        } reset;                                /*!< Reset device */
         struct {
             uint32_t baudrate;                  /*!< Baudrate for AT port */
-        } uart;
+        } uart;                                 /*!< UART configuration */
         struct {
             esp_mode_t mode;                    /*!< Mode of operation */
         } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
@@ -310,7 +310,7 @@ typedef struct esp_msg {
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection to close */
             uint8_t val_id;                     /*!< Connection current validation ID when command was sent to queue */
-        } conn_close;
+        } conn_close;                           /*!< Close connection */
         struct {
             esp_conn_t* conn;                   /*!< Pointer to connection to send data */
             size_t btw;                         /*!< Number of remaining bytes to write */
@@ -344,7 +344,7 @@ typedef struct esp_msg {
             uint16_t max_conn;                  /*!< Maximal number of connections available for server */
             uint16_t timeout;                   /*!< Connection timeout */
             esp_evt_fn cb;                      /*!< Server default callback function */
-        } tcpip_server;
+        } tcpip_server;                         /*!< Server configuration */
         struct {
             size_t size;                        /*!< Size for SSL in uints of bytes */
         } tcpip_sslsize;                        /*!< TCP SSL size for SSL connections */

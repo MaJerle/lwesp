@@ -46,7 +46,18 @@ extern "C" {
  * Functions to initialize everything needed for command line interface (CLI).
  */
 
+/**
+ * \brief           Printf handle for CLI
+ * \param[in]       format: string format
+ */
 typedef void cli_printf(const char* format, ...);
+
+/**
+ * \brief           CLI entriy function
+ * \param[in]       cliprintf: Printf handle callback
+ * \param[in]       argc: Number of arguments
+ * \param[in]       argv: Pointer to pointer to arguments
+ */
 typedef void cli_function(cli_printf cliprintf, int argc, char** argv);
 
 /**

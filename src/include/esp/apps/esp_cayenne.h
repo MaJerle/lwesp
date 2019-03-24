@@ -68,8 +68,8 @@ extern "C" {
 #define ESP_CAYENNE_PORT                        1883
 #endif
 
-#define ESP_CAYENNE_NO_CHANNEL                  0xFFFE
-#define ESP_CAYENNE_ALL_CHANNELS                0xFFFF
+#define ESP_CAYENNE_NO_CHANNEL                  0xFFFE  /*!< No channel macro */
+#define ESP_CAYENNE_ALL_CHANNELS                0xFFFF  /*!< All channels macro */
 
 /**
  * \brief           List of possible cayenne topics
@@ -96,8 +96,8 @@ typedef enum {
  * \brief           Cayenne response types
  */
 typedef enum {
-    ESP_CAYENNE_RESP_OK,
-    ESP_CAYENNE_RESP_ERROR,
+    ESP_CAYENNE_RESP_OK,                        /*!< Response OK */
+    ESP_CAYENNE_RESP_ERROR,                     /*!< Response error */
 } esp_cayenne_resp_t;
 
 /**
@@ -106,7 +106,7 @@ typedef enum {
 typedef enum {
     ESP_CAYENNE_EVT_CONNECT,                    /*!< Connect to Cayenne event */
     ESP_CAYENNE_EVT_DISCONNECT,                 /*!< Disconnect from Cayenne event */
-    ESP_CAYENNE_EVT_DATA,                       /*!< Data event */
+    ESP_CAYENNE_EVT_DATA,                       /*!< Data received event */
 } esp_cayenne_evt_type_t;
 
 /**
@@ -137,7 +137,7 @@ typedef struct {
         struct {
             esp_cayenne_msg_t* msg;             /*!< Pointer to data message */
         } data;                                 /*!< Data event, used with \ref ESP_CAYENNE_EVT_DATA event */
-    } evt;
+    } evt;                                      /*!< Event union */
 } esp_cayenne_evt_t;
 
 /**
@@ -160,13 +160,13 @@ typedef struct esp_cayenne {
     esp_mqtt_client_api_p api_c;                /*!< MQTT API client */
     const esp_mqtt_client_info_t* info_c;       /*!< MQTT Client info structure */
 
-    esp_cayenne_msg_t msg;
+    esp_cayenne_msg_t msg;                      /*!< Received data message */
 
     esp_cayenne_evt_t evt;                      /*!< Event handle */
     esp_cayenne_evt_fn evt_fn;                  /*!< Event callback function */
 
-    esp_sys_thread_t thread;
-    esp_sys_sem_t sem;
+    esp_sys_thread_t thread;                    /*!< Cayenne thread handle */
+    esp_sys_sem_t sem;                          /*!< Sync semaphore handle */
 } esp_cayenne_t;
 
 espr_t      esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, esp_cayenne_evt_fn evt_fn);
