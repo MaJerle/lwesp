@@ -350,12 +350,12 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
 /**
  * \brief           Notify connection about received data which means connection is ready to accept more data
  *
- *                  Once data reception is confirmed, stack will try to send more data to user.
+ * Once data reception is confirmed, stack will try to send more data to user.
  *
  * \note            Since this feature is not supported yet by AT commands, function is only prototype
  *                  and should be used in connection callback when data are received
  *
- * \note            Function is not thread safe and may only be called from callback function
+ * \note            Function is not thread safe and may only be called from connection event function
  *
  * \param[in]       conn: Connection handle
  * \param[in]       pbuf: Packet buffer received on connection
@@ -547,7 +547,7 @@ esp_conn_get_from_evt(esp_evt_t* evt) {
  * \param[in]       flush: Flush flag. Set to `1` if you want to send data immediatelly after copying
  * \param[out]      mem_available: Available memory size available in current write buffer.
  *                  When the buffer length is reached, current one is sent and a new one is automatically created.
- *                  If function returns espOK and *mem_available = 0, there was a problem
+ *                  If function returns \ref espOK and `*mem_available = 0`, there was a problem
  *                  allocating a new buffer for next operation
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -561,7 +561,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
 
     /*
-     * Steps, performed in write process:
+     * Steps during write process:
      *
      * 1. Check if we have buffer already allocated and
      *      write data to the tail of buffer

@@ -63,10 +63,12 @@ def_callback(esp_evt_t* evt) {
 
 /**
  * \brief           Init and prepare ESP stack for device operation
- * \note            Function must be called from operating system thread context!
- *
- * \note            - When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device.
+ * \note            Function must be called from operating system thread context. 
+ *                  It creates necessary threads and waits them to start, thus running operating system is important.
+ *                  - When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device
+ *                      otherwise manual call to \ref esp_reset is required to setup device
  *                  - When \ref ESP_CFG_RESTORE_ON_INIT is enabled, restore sequence will be sent to device.
+ *
  * \param[in]       evt_func: Global event callback function for all major events
  * \param[in]       blocking: Status whether command should be blocking or not.
  *                      Used when \ref ESP_CFG_RESET_ON_INIT or \ref ESP_CFG_RESTORE_ON_INIT are enabled.
@@ -309,7 +311,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
 
 /**
- * \brief           Updated ESP software remotely
+ * \brief           Update ESP software remotely
  * \note            ESP must be connected to access point to use this feature
  * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
@@ -360,9 +362,10 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
 /**
- * \brief           Lock stack from multi-thread access
+ * \brief           Lock stack from multi-thread access, enable atomic access to core
  *
- *                  If lock was `0` before func call, lock is enabled and increased
+ * If lock was `0` prior funcion call, lock is enabled and increased
+ *
  * \note            Function may be called multiple times to increase locks.
  *                  User must take care of calling \ref esp_core_unlock
  *                  the same amount of time to make sure lock gets back to `0`
@@ -378,10 +381,11 @@ esp_core_lock(void) {
 /**
  * \brief           Unlock stack for multi-thread access
  *
- *                  Used in conjunction with \ref esp_core_lock function
+ * Used in conjunction with \ref esp_core_lock function
  *
- *                  If lock was non-zero before function call, lock is decreased.
- *                  In case of `lock == 0`, protection is disabled
+ * If lock was non-zero before function call, lock is decreased.
+ * In case of `lock == 0`, protection is disabled and other threads may access to core
+ *
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
@@ -435,7 +439,7 @@ esp_evt_register(esp_evt_fn fn) {
 /**
  * \brief           Unregister callback function for global (non-connection based) events
  * \note            Function must be first registered using \ref esp_evt_register
- * \param[in]       fn: Callback function to call on specific event
+ * \param[in]       fn: Callback function to remove from event list
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
@@ -460,7 +464,9 @@ esp_evt_unregister(esp_evt_fn fn) {
 /**
  * \brief           Notify stack if device is present or not
  *
- *                  Use this function to notify stack that device is not connected and not ready to communicate with host device
+ * Use this function to notify stack that device is not physically connected
+ * and not ready to communicate with host device
+ *
  * \param[in]       present: Flag indicating device is present
  * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
@@ -523,6 +529,11 @@ esp_get_current_at_fw_version(esp_sw_version_t* const version) {
 
 /**
  * \brief           Delay for amount of milliseconds
+ *
+ * Delay is based on operating system semaphores. 
+ * It locks semaphore and waits for timeout in `ms` time.
+ * Based on operating system, thread may be put to \e blocked list during delay and may improve execution speed
+ *
  * \param[in]       ms: Milliseconds to delay
  * \return          `1` on success, `0` otherwise
  */

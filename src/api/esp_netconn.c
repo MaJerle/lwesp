@@ -695,7 +695,7 @@ esp_netconn_close(esp_netconn_p nc) {
 /**
  * \brief           Get connection number used for netconn
  * \param[in]       nc: Netconn handle
- * \return          `-1` on failure, connection number otherwise
+ * \return          `-1` on failure, connection number between `0` and \ref ESP_CFG_MAX_CONNS otherwise
  */
 int8_t
 esp_netconn_getconnnum(esp_netconn_p nc) {
