@@ -1854,6 +1854,22 @@ espi_initiate_cmd(esp_msg_t* msg) {
             ESP_AT_PORT_SEND_END();
             break;
         }
+        case ESP_CMD_TCPIP_CIPDNS_SET: {        /* DNS set config */
+            ESP_AT_PORT_SEND_BEGIN();
+            ESP_AT_PORT_SEND_CONST_STR("+CIPDNS");
+            ESP_AT_PORT_SEND_CUR_DEF(msg->msg.dns_setconfig.def, 1);
+            espi_send_number(ESP_U32(!!msg->msg.dns_setconfig.en), 0, 0);
+            if (msg->msg.dns_setconfig.en) {
+                if (msg->msg.dns_setconfig.s1 != NULL) {
+                    espi_send_string(msg->msg.dns_setconfig.s1, 0, 1, 1);
+                }
+                if (msg->msg.dns_setconfig.s2 != NULL) {
+                    espi_send_string(msg->msg.dns_setconfig.s2, 0, 1, 1);
+                }
+            }
+            ESP_AT_PORT_SEND_END();
+            break;
+        }
 #endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING
         case ESP_CMD_TCPIP_PING: {              /* Pinging hostname or IP address */

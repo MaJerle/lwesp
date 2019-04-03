@@ -112,7 +112,8 @@ typedef enum {
     /* TCP/IP related commands */
 #if ESP_CFG_DNS || __DOXYGEN__
     ESP_CMD_TCPIP_CIPDOMAIN,                    /*!< Get IP address from domain name = DNS function */
-    ESP_CMD_TCPIP_CIPDNS,                       /*!< Configure user specific DNS servers */
+    ESP_CMD_TCPIP_CIPDNS_SET,                   /*!< Configure user specific DNS servers */
+    ESP_CMD_TCPIP_CIPDNS_GET,                   /*!< Get DNS configuration */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIPSTATUS,                    /*!< Get status of connections */
     ESP_CMD_TCPIP_CIPSTART,                     /*!< Start client connection */
@@ -332,7 +333,7 @@ typedef struct esp_msg {
             size_t len;                         /*!< Number of bytes to read */
             esp_pbuf_p buff;                    /*!< Buffer handle */
         } ciprecvdata;                          /*!< Structure to manually read TCP data */
-#endif
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
         /* TCP/IP based commands */
         struct {
@@ -348,10 +349,18 @@ typedef struct esp_msg {
         struct {
             size_t size;                        /*!< Size for SSL in uints of bytes */
         } tcpip_sslsize;                        /*!< TCP SSL size for SSL connections */
+#if ESP_CFG_DNS
         struct {
             const char* host;                   /*!< Hostname to resolve IP address for */
             esp_ip_t* ip;                       /*!< Pointer to IP address to save result */
         } dns_getbyhostname;                    /*!< DNS function */
+        struct {
+            uint8_t en;                         /*!< Enable/Disable status */
+            const char* s1;                     /*!< DNS server 1 */
+            const char* s2;                     /*!< DNS server 2 */
+            uint8_t def;                        /*!< Default/current config */
+        } dns_setconfig;                        /*!< Set DNS config */
+#endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING || __DOXYGEN__
         struct {
             const char* host;                   /*!< Hostname to ping */
