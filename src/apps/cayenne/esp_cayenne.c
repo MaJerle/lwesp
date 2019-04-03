@@ -317,8 +317,8 @@ mqtt_thread(void * const arg) {
     if (!esp_sys_mutex_isvalid(&prot_mutex)) {
         esp_sys_mutex_create(&prot_mutex);
 
-        ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] New mutex created\r\n", esp_sys_mutex_isvalid(&prot_mutex));
-        ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create mutex\r\n", !esp_sys_mutex_isvalid(&prot_mutex));
+        ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, esp_sys_mutex_isvalid(&prot_mutex), "[CAYENNE] New mutex created\r\n");
+        ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE_SEVERE, !esp_sys_mutex_isvalid(&prot_mutex), "[CAYENNE] Cannot create mutex\r\n");
     }
     esp_core_unlock();
 
