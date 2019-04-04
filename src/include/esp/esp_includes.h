@@ -69,6 +69,9 @@ extern "C" {
 #if ESP_CFG_HOSTNAME || __DOXYGEN__
 #include "esp/esp_hostname.h"
 #endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
+#if ESP_CFG_DNS || __DOXYGEN__
+#include "esp/esp_dns.h"
+#endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
 #ifdef __cplusplus
 }
