@@ -276,7 +276,7 @@ esp_set_at_baudrate(uint32_t baud,
 /**
  * \brief           Enables or disables server mode
  * \param[in]       en: Set to `1` to enable server, `0` otherwise
- * \param[in]       port: Set port number used to listen on. Must also be used when disabling server mode
+ * \param[in]       port: Port number used to listen on. Must also be used when disabling server mode
  * \param[in]       max_conn: Number of maximal connections populated by server
  * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
  *                      Set to `0` to disable timeout feature (not recommended)
@@ -337,7 +337,7 @@ esp_update_sw(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32
  * If lock was `0` prior funcion call, lock is enabled and increased
  *
  * \note            Function may be called multiple times to increase locks.
- *                  User must take care of calling \ref esp_core_unlock
+ *                  Application must take care to call \ref esp_core_unlock
  *                  the same amount of time to make sure lock gets back to `0`
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -354,7 +354,7 @@ esp_core_lock(void) {
  * Used in conjunction with \ref esp_core_lock function
  *
  * If lock was non-zero before function call, lock is decreased.
- * In case of `lock == 0`, protection is disabled and other threads may access to core
+ * When `lock == 0`, protection is disabled and other threads may access to core
  *
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
