@@ -1543,6 +1543,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #endif /* ESP_CFG_MODE_STATION */
         case ESP_CMD_WIFI_CWMODE: {             /* Set WIFI mode */
             esp_mode_t m;
+            uint8_t def = 0;                    /* Set value as current */
 
             if (!CMD_IS_DEF(ESP_CMD_WIFI_CWMODE)) { /* Is this command part of reset sequence? */
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
@@ -1553,11 +1554,14 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 m = ESP_MODE_AP;                /* Set access point mode */
 #endif /* !ESP_CFG_MODE_STATION_ACCESS_POINT */
             } else {
-                m = msg->msg.wifi_mode.mode;    /* Set user defined mode */
+                /* Use user setup */
+                m = msg->msg.wifi_mode.mode;
+                def = msg->msg.wifi_mode.def;
             }
 
             ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_CONST_STR("+CWMODE=");
+            ESP_AT_PORT_SEND_CONST_STR("+CWMODE");
+            ESP_AT_PORT_SEND_CUR_DEF(def, 1);
             espi_send_number(ESP_U32(m), 0, 0);
             ESP_AT_PORT_SEND_END();
             break;

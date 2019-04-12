@@ -231,6 +231,7 @@ typedef struct esp_msg {
         } uart;                                 /*!< UART configuration */
         struct {
             esp_mode_t mode;                    /*!< Mode of operation */
+            uint8_t def;                        /*!< Value indicates to set mode as default or not */
         } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
