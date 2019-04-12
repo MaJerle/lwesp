@@ -67,9 +67,15 @@ typedef struct {
 #define ESP_AT_PORT_SEND_QUOTE_COND(q)      do { if ((q)) { ESP_AT_PORT_SEND_CONST_STR("\""); } } while (0)
 #define ESP_AT_PORT_SEND_COMMA_COND(c)      do { if ((c)) { ESP_AT_PORT_SEND_CONST_STR(","); } } while (0)
 #define ESP_AT_PORT_SEND_EQUAL_COND(e)      do { if ((e)) { ESP_AT_PORT_SEND_CONST_STR("="); } } while (0)
-
-/* Send current/default commands */
-#define ESP_AT_PORT_SEND_CUR_DEF(is_d, e)   do { ESP_AT_PORT_SEND_STR((is_d) ? "_DEF" : "_CUR"); ESP_AT_PORT_SEND_EQUAL_COND(e); } while (0)
+static void ESP_AT_PORT_SEND_CUR_DEF(uint8_t is_d, uint8_t e) {
+#if ESP_CFG_ESP8266
+    /* _CUR or _DEF are only available in ESP8266 */
+    if (esp.m.device == ESP_DEVICE_ESP8266) {
+        ESP_AT_PORT_SEND_STR(is_d ? "_DEF" : "_CUR");
+    }
+#endif /* ESP_CFG_ESP8266 */
+    ESP_AT_PORT_SEND_EQUAL_COND(e);
+}
 #endif /* !__DOXYGEN__ */
 
 static esp_recv_t recv_buff;
@@ -353,6 +359,15 @@ espi_reset_everything(uint8_t forced) {
 
     /* Invalid ESP modules */
     ESP_MEMSET(&esp.m, 0x00, sizeof(esp.m));
+
+    /* Set default device */
+#if ESP_CFG_ESP8266 && !ESP_CFG_ESP32
+    esp.m.device = ESP_DEVICE_ESP8266;
+#elif !ESP_CFG_ESP8266 && ESP_CFG_ESP32
+    esp.m.device = ESP_DEVICE_ESP32;
+#else
+    esp.m.device = ESP_DEVICE_UNKNOWN;
+#endif  /* ESP_CFG_ESP8266 && !ESP_CFG_ESP32 */
 
     /* If reset was not forced by user, repeat with manual reset */
     if (!forced) {
@@ -712,17 +727,33 @@ espi_parse_received(esp_recv_t* rcv) {
         }
     } else if (CMD_IS_CUR(ESP_CMD_GMR)) {
         if (!strncmp(rcv->data, "AT version", 10)) {
-            uint8_t ok = 0;
-            espi_parse_at_sdk_version(&rcv->data[11], &esp.version_at);
+            uint8_t ok = 0, major = 0, minor = 0, patch = 0;
+            espi_parse_at_sdk_version(&rcv->data[11], &esp.m.version_at);
 
+#if ESP_CFG_ESP8266
+            if (esp.m.device == ESP_DEVICE_ESP8266) {
+                major = ESP_MIN_AT_VERSION_MAJOR_ESP8266;
+                minor = ESP_MIN_AT_VERSION_MINOR_ESP8266;
+                patch = ESP_MIN_AT_VERSION_PATCH_ESP8266;
+            }
+#endif /* ESP_CFG_ESP8266 */
+#if ESP_CFG_ESP32
+            if (esp.m.device == ESP_DEVICE_ESP32) {
+                major = ESP_MIN_AT_VERSION_MAJOR_ESP32;
+                minor = ESP_MIN_AT_VERSION_MINOR_ESP32;
+                patch = ESP_MIN_AT_VERSION_PATCH_ESP32;
+            }
+#endif /* ESP_CFG_ESP32 */
+
+            /* TODO: Compare ESP8266 vs ESP32 separatelly */
             /* Compare versions */
-            if (esp.version_at.major > ESP_MIN_AT_VERSION_MAJOR) {
+            if (esp.m.version_at.major > major) {
                 ok = 1;
-            } else if (esp.version_at.major == ESP_MIN_AT_VERSION_MAJOR) {
-                if (esp.version_at.minor > ESP_MIN_AT_VERSION_MINOR) {
+            } else if (esp.m.version_at.major == major) {
+                if (esp.m.version_at.minor > minor) {
                     ok = 1;
-                } else if (esp.version_at.minor == ESP_MIN_AT_VERSION_MINOR) {
-                    if ((int8_t)esp.version_at.patch >= (int8_t)ESP_MIN_AT_VERSION_PATCH) {
+                } else if (esp.m.version_at.minor == minor) {
+                    if ((int8_t)esp.m.version_at.patch >= (int8_t)patch) {
                         ok = 1;
                     }
                 }
@@ -731,7 +762,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 espi_send_cb(ESP_EVT_AT_VERSION_NOT_SUPPORTED);
             }
         } else if (!strncmp(rcv->data, "SDK version", 11)) {
-            espi_parse_at_sdk_version(&rcv->data[12], &esp.version_sdk);
+            espi_parse_at_sdk_version(&rcv->data[12], &esp.m.version_sdk);
         }
 #endif /* ESP_CFG_MODE_STATION */
     }

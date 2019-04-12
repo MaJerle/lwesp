@@ -434,6 +434,11 @@ typedef struct esp_evt_func {
  * \brief           ESP modules structure
  */
 typedef struct {
+    esp_device_t        device;                 /*!< ESP device type */
+
+    esp_sw_version_t    version_at;             /*!< Version of AT command software on ESP device */
+    esp_sw_version_t    version_sdk;            /*!< Version of SDK used to build AT software */
+
     uint32_t            active_conns;           /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
     uint32_t            active_conns_last;      /*!< The same as previous but status before last check */
 
@@ -453,9 +458,6 @@ typedef struct {
  * \brief           ESP global structure
  */
 typedef struct {
-    esp_sw_version_t    version_at;             /*!< Version of AT command software on ESP device */
-    esp_sw_version_t    version_sdk;            /*!< Version of SDK used to build AT software */
-
     size_t              locked_cnt;             /*!< Counter how many times (recursive) stack is currently locked */
 
     esp_sys_sem_t       sem_sync;               /*!< Synchronization semaphore between threads */

@@ -86,7 +86,7 @@ uint8_t     esp_get_current_at_fw_version(esp_sw_version_t* const version);
  * \param[out]      v: Version output, pointer to \ref esp_sw_version_t structure
  * \hideinitializer
  */
-#define     esp_get_min_at_fw_version(v)   esp_set_fw_version(v, ESP_MIN_AT_VERSION_MAJOR, ESP_MIN_AT_VERSION_MINOR, ESP_MIN_AT_VERSION_PATCH)
+#define     esp_get_min_at_fw_version(v)   esp_set_fw_version(v, ESP_MIN_AT_VERSION_MAJOR_ESP8266, ESP_MIN_AT_VERSION_MINOR_ESP8266, ESP_MIN_AT_VERSION_PATCH_ESP8266)
 
 /**
  * \}

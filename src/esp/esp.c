@@ -489,13 +489,13 @@ esp_device_is_present(void) {
 }
 
 /**
- * \brief           Get current AT firmware version
+ * \brief           Get current AT firmware version of connected device
  * \param[out]      version: Output version variable
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
 esp_get_current_at_fw_version(esp_sw_version_t* const version) {
-    ESP_MEMCPY(version, &esp.version_at, sizeof(*version));
+    ESP_MEMCPY(version, &esp.m.version_at, sizeof(*version));
     return 1;
 }
 
