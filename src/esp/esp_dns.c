@@ -67,8 +67,8 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
  * \param[in]       en: Set to `1` to enable, `0` to disable custom DNS configuration.
  *                  When disabled, default DNS servers are used as proposed by ESP AT commands firmware
  * \param[in]       s1: First server IP address in string format, set to `NULL` if not used
- * \param[in]       s2: Second server IP address in string format, set to `NULL` if not used
- *                  Address `s1` cannot be the same as `s2`.
+ * \param[in]       s2: Second server IP address in string format, set to `NULL` if not used.
+ *                  Address `s1` cannot be the same as `s2`
  * \param[in]       def: Status whether configuration will be default (`1`) or current (`0`)
  * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
