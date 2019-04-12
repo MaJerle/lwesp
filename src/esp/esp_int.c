@@ -53,15 +53,15 @@ typedef struct {
 #define RECV_LEN()                          recv_buff.len
 #define RECV_IDX(index)                     recv_buff.data[index]
 
-/* Beginning and end of every AT command */
-#define ESP_AT_PORT_SEND_BEGIN()            ESP_AT_PORT_SEND_CONST_STR("AT")
-#define ESP_AT_PORT_SEND_END()              ESP_AT_PORT_SEND(CRLF, CRLF_LEN)
-
 /* Send data over AT port */
 #define ESP_AT_PORT_SEND_STR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)strlen(str))
 #define ESP_AT_PORT_SEND_CONST_STR(str)     esp.ll.send_fn((const uint8_t *)(str), (size_t)(sizeof(str) - 1))
 #define ESP_AT_PORT_SEND_CHR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)1)
 #define ESP_AT_PORT_SEND(d, l)              esp.ll.send_fn((const uint8_t *)(d), (size_t)(l))
+
+/* Beginning and end of every AT command */
+#define ESP_AT_PORT_SEND_BEGIN()            ESP_AT_PORT_SEND_CONST_STR("AT")
+#define ESP_AT_PORT_SEND_END()              ESP_AT_PORT_SEND(CRLF, CRLF_LEN)
 
 /* Send special characters over AT port with condition */
 #define ESP_AT_PORT_SEND_QUOTE_COND(q)      do { if ((q)) { ESP_AT_PORT_SEND_CONST_STR("\""); } } while (0)
