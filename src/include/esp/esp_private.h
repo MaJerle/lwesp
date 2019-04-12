@@ -545,34 +545,8 @@ extern esp_t esp;
 #define CMD_GET_CUR()                       ((esp_cmd_t)(((esp.msg != NULL) ? esp.msg->cmd : ESP_CMD_IDLE)))
 #define CMD_GET_DEF()                       ((esp_cmd_t)(((esp.msg != NULL) ? esp.msg->cmd_def : ESP_CMD_IDLE)))
 
-#if !__DOXYGEN__
-typedef struct {
-    char data[128];
-    uint8_t len;
-} esp_recv_t;
-#endif /* !__DOXYGEN__ */
-
 #define CRLF                                "\r\n"
 #define CRLF_LEN                            2
-
-#define RECV_ADD(ch)                        do { recv_buff.data[recv_buff.len++] = ch; recv_buff.data[recv_buff.len] = 0; } while (0)
-#define RECV_RESET()                        do { recv_buff.len = 0; recv_buff.data[0] = 0; } while (0)
-#define RECV_LEN()                          recv_buff.len
-#define RECV_IDX(index)                     recv_buff.data[index]
-
-#define ESP_AT_PORT_SEND_BEGIN()            ESP_AT_PORT_SEND_CONST_STR("AT")
-#define ESP_AT_PORT_SEND_END()              ESP_AT_PORT_SEND(CRLF, CRLF_LEN)
-
-#define ESP_AT_PORT_SEND_STR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)strlen(str))
-#define ESP_AT_PORT_SEND_CONST_STR(str)     esp.ll.send_fn((const uint8_t *)(str), (size_t)(sizeof(str) - 1))
-#define ESP_AT_PORT_SEND_CHR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)1)
-#define ESP_AT_PORT_SEND(d, l)              esp.ll.send_fn((const uint8_t *)(d), (size_t)(l))
-
-#define ESP_AT_PORT_SEND_QUOTE_COND(q)      do { if ((q)) { ESP_AT_PORT_SEND_CONST_STR("\""); } } while (0)
-#define ESP_AT_PORT_SEND_COMMA_COND(c)      do { if ((c)) { ESP_AT_PORT_SEND_CONST_STR(","); } } while (0)
-#define ESP_AT_PORT_SEND_EQUAL_COND(e)      do { if ((e)) { ESP_AT_PORT_SEND_CONST_STR("="); } } while (0)
-
-#define ESP_AT_PORT_SEND_CUR_DEF(is_d, e)   do { ESP_AT_PORT_SEND_STR((is_d) ? "_DEF" : "_CUR"); ESP_AT_PORT_SEND_EQUAL_COND(e); } while (0)
 
 #define ESP_PORT2NUM(port)                  ((uint32_t)(port))
 

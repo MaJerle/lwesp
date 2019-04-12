@@ -38,6 +38,40 @@
 #include "esp/esp_unicode.h"
 #include "system/esp_ll.h"
 
+#if !__DOXYGEN__
+/**
+ * \brief           Receive character structure to handle full line terminated with `\n` character
+ */
+typedef struct {
+    char data[128];                             /*!< Received characters */
+    uint8_t len;                                /*!< Length of valid characters */
+} esp_recv_t;
+
+/* Receive character macros */
+#define RECV_ADD(ch)                        do { recv_buff.data[recv_buff.len++] = ch; recv_buff.data[recv_buff.len] = 0; } while (0)
+#define RECV_RESET()                        do { recv_buff.len = 0; recv_buff.data[0] = 0; } while (0)
+#define RECV_LEN()                          recv_buff.len
+#define RECV_IDX(index)                     recv_buff.data[index]
+
+/* Beginning and end of every AT command */
+#define ESP_AT_PORT_SEND_BEGIN()            ESP_AT_PORT_SEND_CONST_STR("AT")
+#define ESP_AT_PORT_SEND_END()              ESP_AT_PORT_SEND(CRLF, CRLF_LEN)
+
+/* Send data over AT port */
+#define ESP_AT_PORT_SEND_STR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)strlen(str))
+#define ESP_AT_PORT_SEND_CONST_STR(str)     esp.ll.send_fn((const uint8_t *)(str), (size_t)(sizeof(str) - 1))
+#define ESP_AT_PORT_SEND_CHR(str)           esp.ll.send_fn((const uint8_t *)(str), (size_t)1)
+#define ESP_AT_PORT_SEND(d, l)              esp.ll.send_fn((const uint8_t *)(d), (size_t)(l))
+
+/* Send special characters over AT port with condition */
+#define ESP_AT_PORT_SEND_QUOTE_COND(q)      do { if ((q)) { ESP_AT_PORT_SEND_CONST_STR("\""); } } while (0)
+#define ESP_AT_PORT_SEND_COMMA_COND(c)      do { if ((c)) { ESP_AT_PORT_SEND_CONST_STR(","); } } while (0)
+#define ESP_AT_PORT_SEND_EQUAL_COND(e)      do { if ((e)) { ESP_AT_PORT_SEND_CONST_STR("="); } } while (0)
+
+/* Send current/default commands */
+#define ESP_AT_PORT_SEND_CUR_DEF(is_d, e)   do { ESP_AT_PORT_SEND_STR((is_d) ? "_DEF" : "_CUR"); ESP_AT_PORT_SEND_EQUAL_COND(e); } while (0)
+#endif /* !__DOXYGEN__ */
+
 static esp_recv_t recv_buff;
 static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t* is_ready);
 
