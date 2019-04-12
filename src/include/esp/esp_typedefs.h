@@ -81,6 +81,20 @@ typedef enum {
 
 /**
  * \ingroup         ESP_TYPEDEFS
+ * \brief           List of support ESP devices by firmware
+ */
+typedef enum {
+#if ESP_CFG_ESP8266 || __DOXYGEN__
+    ESP_DEVICE_ESP8266,                         /*!< Device is ESP8266 */
+#endif /* ESP_CFG_ESP8266 || __DOXYGEN__ */
+#if ESP_CFG_ESP32 || __DOXYGEN__
+    ESP_DEVICE_ESP32,                           /*!< Device is ESP32 */
+#endif /* ESP_CFG_ESP32 || __DOXYGEN__ */
+    ESP_DEVICE_UNKNOWN,                         /*!< Unknown device */
+} esp_device_t;
+
+/**
+ * \ingroup         ESP_TYPEDEFS
  * \brief           List of encryptions of access point
  */
 typedef enum {

@@ -41,6 +41,24 @@
  */
 
 /**
+ * \brief           Enables `1` or disables `0` support for ESP8266 AT commands
+ *
+ * \note            Value must be set to `1` in the current revision
+ */
+#ifndef ESP_CFG_ESP8266
+#define ESP_CFG_ESP8266                     1
+#endif
+
+/**
+ * \brief           Enables `1` or disables `0` support for ESP32 AT commands
+ *
+ * \note            Value must be set to `0` in the current revision
+ */
+#ifndef ESP_CFG_ESP32
+#define ESP_CFG_ESP32                       0
+#endif
+
+/**
  * \brief           Enables `1` or disables `0` operating system support for ESP library
  *
  * \note            Value must be set to `1` in the current revision
@@ -686,13 +704,22 @@ void *  my_memset(void* dst, int b, size_t len);
 #error "Invalid ESP configuration. ESP_CFG_MODE_STATION and ESP_CFG_MODE_STATION cannot be disabled at the same time!"
 #endif
 
+/* Operating system config */
 #if !ESP_CFG_OS
     #if ESP_CFG_INPUT_USE_PROCESS
     #error "ESP_CFG_INPUT_USE_PROCESS may only be enabled when OS is used!"
     #endif /* ESP_CFG_INPUT_USE_PROCESS */
 #endif /* !ESP_CFG_OS */
 
-/* Check for WPS functionality */
+/* Device config */
+#if !ESP_CFG_ESP8266 || ESP_CFG_ESP32
+#error "ESP_CFG_ESP8266 must be set to 1 and ESP_CFG_ESP32 must be set to 0!"
+#endif /* !ESP_CFG_ESP8266 || ESP_CFG_ESP32 */
+#if !ESP_CFG_ESP8266 && !ESP_CFG_ESP32
+#error "At least one of ESP_CFG_ESP8266 or ESP_CFG_ESP32 must be set to 1!"
+#endif /* !ESP_CFG_ESP8266 && !ESP_CFG_ESP32 */
+
+/* WPS config */
 #if ESP_CFG_WPS && !ESP_CFG_MODE_STATION
 #error "WPS function may only be used when station mode is enabled!"
 #endif /* ESP_CFG_WPS && !ESP_CFG_MODE_STATION */
