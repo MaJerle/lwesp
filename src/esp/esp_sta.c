@@ -38,7 +38,7 @@
 
 /**
  * \brief           Quit (disconnect) from access point
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -58,10 +58,12 @@ esp_sta_quit(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_
  * \brief           Join as station to access point
  * \param[in]       name: SSID of access point to connect to
  * \param[in]       pass: Password of access point. Use `NULL` if AP does not have password
- * \param[in]       mac: Pointer to MAC address of AP. If you have APs with same name, you can use MAC to select proper one.
- *                      Use `NULL` if not needed
- * \param[in]       def: Status whether this is default SSID or only current one
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       mac: Pointer to MAC address of AP.
+ *                      If multiple APs with same name exist, MAC may help to select proper one.
+ *                      Set to `NULL` if not needed
+ * \param[in]       def: Set to `1` make configuration default (write to device flash)
+ *                      or set to `0` to make configuration valid until device reset
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -89,7 +91,7 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
  * \note            For auto join feature, you need to do a join to access point with default mode.
  *                  Check \ref esp_sta_join for more information
  * \param[in]       en: Set to `1` to enable or `0` to disable
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -111,7 +113,7 @@ esp_sta_autojoin(uint8_t en,
  * \brief           Get current access point information (name, mac, channel, rssi)
  * \note            Access point station is currently connected to
  * \param[in]       info: Pointer to connected access point information
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -139,8 +141,9 @@ esp_sta_get_ap_info(esp_sta_info_ap_t* info,
  * \param[out]      ip: Pointer to variable to save IP address
  * \param[out]      gw: Pointer to output variable to save gateway address
  * \param[out]      nm: Pointer to output variable to save netmask address
- * \param[in]       def: Status whether default (`1`) or current (`0`) IP to read
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       def: Set to `1` make configuration default (write to device flash)
+ *                      or set to `0` to make configuration valid until device reset
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -166,8 +169,9 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
  * \param[in]       ip: Pointer to IP address
  * \param[in]       gw: Pointer to gateway address. Set to `NULL` to use default gateway
  * \param[in]       nm: Pointer to netmask address. Set to `NULL` to use default netmask
- * \param[in]       def: Status whether default (`1`) or current (`0`) IP to set
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       def: Set to `1` make configuration default (write to device flash)
+ *                      or set to `0` to make configuration valid until device reset
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -193,8 +197,9 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
 /**
  * \brief           Get station MAC address
  * \param[out]      mac: Pointer to output variable to save MAC address
- * \param[in]       def: Status whether default (`1`) or current (`0`) IP to read
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       def: Set to `1` make configuration default (write to device flash)
+ *                      or set to `0` to make configuration valid until device reset
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -216,8 +221,9 @@ esp_sta_getmac(esp_mac_t* mac, uint8_t def,
 /**
  * \brief           Set station MAC address
  * \param[in]       mac: Pointer to variable with MAC address
- * \param[in]       def: Status whether default (`1`) or current (`0`) MAC to write
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       def: Set to `1` make configuration default (write to device flash)
+ *                      or set to `0` to make configuration valid until device reset
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -294,7 +300,7 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
  * \param[in]       aps: Pointer to array of available access point parameters
  * \param[in]       apsl: Length of aps array
  * \param[out]      apf: Pointer to output variable to save number of access points found
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise

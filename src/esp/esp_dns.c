@@ -40,7 +40,7 @@
  * \brief           Get IP address from host name
  * \param[in]       host: Pointer to host name to get IP for
  * \param[out]      ip: Pointer to \ref esp_ip_t variable to save IP
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -69,8 +69,9 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
  * \param[in]       s1: First server IP address in string format, set to `NULL` if not used
  * \param[in]       s2: Second server IP address in string format, set to `NULL` if not used.
  *                  Address `s1` cannot be the same as `s2`
- * \param[in]       def: Status whether configuration will be default (`1`) or current (`0`)
- * \param[in]       evt_fn: Callback function called when command is finished. Set to `NULL` when not used
+ * \param[in]       def: Set to `1` make configuration default (write to device flash)
+ *                      or set to `0` to make configuration valid until device reset
+ * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
