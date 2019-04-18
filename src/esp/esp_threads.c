@@ -93,22 +93,36 @@ esp_thread_produce(void* const arg) {
              * immediate terminate
              */
             esp_core_unlock();
-            esp_sys_sem_wait(&e->sem_sync, 0);
+            esp_sys_sem_wait(&e->sem_sync, 0);  /* First call */
             esp_core_lock();
             e->msg = msg;
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             if (res == espOK) {                 /* We have valid data and data were sent */
                 esp_core_unlock();
-                time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Wait for synchronization semaphore from processing thread or timeout */
+                time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Second call; Wait for synchronization semaphore from processing thread or timeout */
                 esp_core_lock();
                 if (time == ESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
                     res = espTIMEOUT;           /* Timeout on command */
-                } else {
-                    esp_sys_sem_release(&e->sem_sync);
                 }
-            } else {
-                esp_sys_sem_release(&e->sem_sync);  /* We failed, release semaphore automatically */
             }
+
+            /*
+             * Manually release semaphore in all cases:
+             *
+             * Case 1: msg->fn function fails, command did not start,
+             *           application needs to release previously acquired semaphore
+             * Case 2: If time == TIMEOUT, acquiring on second call was not successful,
+             *           application has to manually release semaphore, taken on first call
+             * Case 3: If time != TIMEOUT, acquiring on second call was successful,
+             *           which effectively means that another thread successfuly released semaphore,
+             *           application has to release semaphore, now taken on second call
+             *
+             * If application would not manually release semaphore,
+             * and if command would return with timeout (or fail),
+             * it would not be possible to start a new command after,
+             * because semaphore would be still locked
+             */
+            esp_sys_sem_release(&e->sem_sync);
         } else {
             if (res == espOK) {
                 res = espERR;                   /* Simply set error message */
