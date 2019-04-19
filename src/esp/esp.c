@@ -182,7 +182,7 @@ cleanup:
 
 /**
  * \brief           Execute reset and send default commands
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -195,7 +195,7 @@ esp_reset(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t b
 /**
  * \brief           Execute reset and send default commands with delay before first command
  * \param[in]       delay: Number of milliseconds to wait before initiating first command to device
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -215,7 +215,7 @@ esp_reset_with_delay(uint32_t delay,
 
 /**
  * \brief           Execute restore command and set module to default values
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -236,7 +236,7 @@ esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t
  * \param[in]       mode: Mode of operation. This parameter can be a value of \ref esp_mode_t enumeration
  * \param[in]       def: Set to `1` make configuration default (write to device flash)
  *                      or set to `0` to make configuration valid until device reset
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -258,7 +258,7 @@ esp_set_wifi_mode(esp_mode_t mode, uint8_t def,
 /**
  * \brief           Sets baudrate of AT port (usually UART)
  * \param[in]       baud: Baudrate in units of bits per second
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -284,7 +284,7 @@ esp_set_at_baudrate(uint32_t baud,
  * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
  *                      Set to `0` to disable timeout feature (not recommended)
  * \param[in]       server_evt_fn: Connection callback function for new connections started as server
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -316,7 +316,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
 /**
  * \brief           Update ESP software remotely
  * \note            ESP must be connected to access point to use this feature
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -441,7 +441,7 @@ esp_evt_unregister(esp_evt_fn fn) {
  * and not ready to communicate with host device
  *
  * \param[in]       present: Flag indicating device is present
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise

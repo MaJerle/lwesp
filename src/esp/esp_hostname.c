@@ -39,7 +39,7 @@
 /**
  * \brief           Set hostname of WiFi station
  * \param[in]       hostname: Name of ESP host
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
@@ -63,7 +63,7 @@ esp_hostname_set(const char* hostname,
  * \brief           Get hostname of WiFi station
  * \param[in]       hostname: Pointer to output variable holding memory to save hostname
  * \param[in]       length: Length of buffer for hostname. Length includes memory for `NULL` termination
- * \param[in]       Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
