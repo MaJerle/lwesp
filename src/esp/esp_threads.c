@@ -97,6 +97,7 @@ esp_thread_produce(void* const arg) {
             esp_core_lock();
             e->msg = msg;
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
+            time = ~ESP_SYS_TIMEOUT;            /* Reset time */
             if (res == espOK) {                 /* We have valid data and data were sent */
                 esp_core_unlock();
                 time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Second call; Wait for synchronization semaphore from processing thread or timeout */
@@ -105,6 +106,13 @@ esp_thread_produce(void* const arg) {
                     res = espTIMEOUT;           /* Timeout on command */
                 }
             }
+
+            ESP_DEBUGW(ESP_CFG_DBG_THREAD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE,
+                res == espTIMEOUT,
+                "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
+            ESP_DEBUGW(ESP_CFG_DBG_THREAD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE,
+                res != espOK && res != espTIMEOUT,
+                "[THREAD] Could not start command execution of command %d\r\n", (int)msg->cmd);
 
             /*
              * Manually release semaphore in all cases:
