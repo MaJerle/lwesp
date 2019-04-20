@@ -89,6 +89,7 @@ extern "C" {
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
  * \return          `1` on success, `0` otherwise
+ * \hideinitializer
  */
 #define esp_mqtt_client_evt_disconnect_is_accepted(client, evt)     ((esp_mqtt_conn_status_t)(evt)->evt.disconnect.is_accepted)
 
