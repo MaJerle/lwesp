@@ -447,7 +447,6 @@ typedef struct {
     size_t size;                                /*!< Size of buffer data. Size of actual buffer is `1` byte less than written here */
     size_t r;                                   /*!< Next read pointer. Buffer is considered empty when `r == w` and full when `w == r - 1` */
     size_t w;                                   /*!< Next write pointer. Buffer is considered empty when `r == w` and full when `w == r - 1` */
-    uint8_t flags;                              /*!< Flags for buffer */
 } esp_buff_t;
 
 /**
