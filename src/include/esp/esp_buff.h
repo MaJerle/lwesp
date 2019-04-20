@@ -1,6 +1,6 @@
 /**
  * \file            esp_buff.h
- * \brief           Buffer manager
+ * \brief           Ring buffer manager
  */
 
 /*
@@ -46,20 +46,38 @@ extern "C" {
  * \{
  */
 
-uint8_t     esp_buff_init(esp_buff_t* buff, size_t size);
-void        esp_buff_reset(esp_buff_t* buff);
-void        esp_buff_free(esp_buff_t* buff);
+/* --- Buffer unique part starts --- */
+/* Prefix for all buffer functions and typedefs */
+/**
+ * \brief           Buffer function/typedef prefix string
+ */
+#define BUF_PREF(x)                     esp_ ## x
+/* --- Buffer unique part ends --- */
 
-size_t      esp_buff_write(esp_buff_t* buff, const void* data, size_t count);
-size_t      esp_buff_read(esp_buff_t* buff, void* data, size_t count);
-size_t      esp_buff_peek(esp_buff_t* buff, size_t skip_count, void* data, size_t count);
+uint8_t     BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size);
+void        BUF_PREF(buff_free)(BUF_PREF(buff_t)* buff);
+void        BUF_PREF(buff_reset)(BUF_PREF(buff_t)* buff);
 
-size_t      esp_buff_get_free(esp_buff_t* buff);
-size_t      esp_buff_get_full(esp_buff_t* buff);
+/* Read/Write functions */
+size_t      BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t count);
+size_t      BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t count);
+size_t      BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_t count);
 
-void *      esp_buff_get_linear_block_address(esp_buff_t* buff);
-size_t      esp_buff_get_linear_block_length(esp_buff_t* buff);
-size_t      esp_buff_skip(esp_buff_t* buff, size_t len);
+/* Buffer size information */
+size_t      BUF_PREF(buff_get_free)(BUF_PREF(buff_t)* buff);
+size_t      BUF_PREF(buff_get_full)(BUF_PREF(buff_t)* buff);
+
+/* Read data block management */
+void *      BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t)* buff);
+size_t      BUF_PREF(buff_get_linear_block_read_length)(BUF_PREF(buff_t)* buff);
+size_t      BUF_PREF(buff_skip)(BUF_PREF(buff_t)* buff, size_t len);
+
+/* Write data block management */
+void *      BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t)* buff);
+size_t      BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t)* buff);
+size_t      BUF_PREF(buff_advance)(BUF_PREF(buff_t)* buff, size_t len);
+
+#undef BUF_PREF         /* Prefix not needed anymore */
 
 /**
  * \}

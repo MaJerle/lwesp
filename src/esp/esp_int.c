@@ -991,13 +991,13 @@ espi_process_buffer(void) {
          * Get length of linear memory in buffer
          * we can process directly as memory
          */
-        len = esp_buff_get_linear_block_length(&esp.buff);
+        len = esp_buff_get_linear_block_read_length(&esp.buff);
         if (len) {
             /*
              * Get memory address of first element
              * in linear block of data to process
              */
-            data = esp_buff_get_linear_block_address(&esp.buff);
+            data = esp_buff_get_linear_block_read_address(&esp.buff);
 
             /* Process actual received data */
             espi_process(data, len);

@@ -399,10 +399,10 @@ send_data(esp_mqtt_client_p client) {
         return;
     }
 
-    len = esp_buff_get_linear_block_length(&client->tx_buff);   /* Get length of linear memory */
+    len = esp_buff_get_linear_block_read_length(&client->tx_buff);  /* Get length of linear memory */
     if (len) {                                  /* Anything to send? */
         espr_t res;
-        addr = esp_buff_get_linear_block_address(&client->tx_buff); /* Get address of linear memory */
+        addr = esp_buff_get_linear_block_read_address(&client->tx_buff);/* Get address of linear memory */
         if ((res = esp_conn_send(client->conn, addr, len, NULL, 0)) == espOK) {
             client->written_total += len;       /* Increase number of bytes written to queue */
             client->is_sending = 1;             /* Remember active sending flag */
