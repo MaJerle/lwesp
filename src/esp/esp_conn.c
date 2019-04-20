@@ -185,7 +185,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
 /**
  * \brief           Flush buffer on connection
  * \param[in]       conn: Connection to flush buffer on
- * \return          espOK if data flushed and put to queue, member of \ref espr_t otherwise
+ * \return          \ref espOK if data flushed and put to queue, member of \ref espr_t otherwise
  */
 static espr_t
 flush_buff(esp_conn_p conn) {

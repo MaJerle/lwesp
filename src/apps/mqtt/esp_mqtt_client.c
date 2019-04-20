@@ -1114,7 +1114,7 @@ esp_mqtt_client_connect(esp_mqtt_client_p client, const char* host, esp_port_t p
 /**
  * \brief           Disconnect from MQTT server
  * \param[in]       client: MQTT client
- * \return          espOK if request sent to queue or member of \ref espr_t otherwise
+ * \return          \ref espOK if request sent to queue or member of \ref espr_t otherwise
  */
 espr_t
 esp_mqtt_client_disconnect(esp_mqtt_client_p client) {

@@ -205,7 +205,7 @@ strcmpa(const char* a, const char* b) {
 /**
  * \brief           Parse URI from HTTP request and copy it to linear memory location
  * \param[in]       p: Chain of pbufs from request
- * \return          espOK if successfully parsed, member of \ref espr_t otherwise
+ * \return          \ref espOK if successfully parsed, member of \ref espr_t otherwise
  */
 static espr_t
 http_parse_uri(esp_pbuf_p p) {

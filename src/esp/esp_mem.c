@@ -53,11 +53,11 @@ typedef struct mem_block {
 #define MEM_BLOCK_USER_SIZE(ptr)    ((MEM_BLOCK_FROM_PTR(ptr)->size & ~mem_alloc_bit) - MEMBLOCK_METASIZE)
 
 static mem_block_t start_block;                 /*!< First block data for allocations */
-static mem_block_t* end_block = NULL;           /*!< Pointer to last block in linked list */
-static size_t mem_total_size = 0;               /*!< Total size of heap memory for allocation */
-static size_t mem_available_bytes = 0;          /*!< Number of available bytes for allocations */
-static size_t mem_min_available_bytes = 0;      /*!< Minimum number of bytes ever */
-static size_t mem_alloc_bit = 0;                /*!< Bit indicating block is allocated */
+static mem_block_t* end_block;                  /*!< Pointer to last block in linked list */
+static size_t mem_total_size;                   /*!< Total size of heap memory for allocation */
+static size_t mem_available_bytes;              /*!< Number of available bytes for allocations */
+static size_t mem_min_available_bytes;          /*!< Minimum number of bytes ever */
+static size_t mem_alloc_bit;                    /*!< Bit indicating block is allocated */
 
 /**
  * \brief           Insert a new block to linked list of free blocks
@@ -69,7 +69,7 @@ mem_insertfreeblock(mem_block_t* nb) {
     uint8_t* addr;
 
     /* Find block position to insert new block between */
-    for (ptr = &start_block; ptr != NULL && ptr->next < nb; ptr = ptr->next);
+    for (ptr = &start_block; ptr != NULL && ptr->next < nb; ptr = ptr->next) {}
 
     /*
      * If the new inserted block and block before create a one big block (contiguous)
@@ -213,14 +213,14 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
 static void *
 mem_alloc(size_t size) {
     mem_block_t *prev, *curr, *next;
-    void* retval = 0;
+    void* retval = NULL;
 
     if (end_block == NULL) {                    /* If end block is not yet defined */
         return NULL;                            /* Invalid, not initialized */
     }
 
     if (!size || size >= mem_alloc_bit) {       /* Check input parameters */
-        return 0;
+        return NULL;
     }
 
     size = MEM_ALIGN(size) + MEMBLOCK_METASIZE; /* Increase size for metadata */
