@@ -40,8 +40,8 @@
 /* --- Buffer unique part ends --- */
 
 /* Buffer utility macros */
-#define BUF_MEMSET                      memset
-#define BUF_MEMCPY                      memcpy
+#define BUF_MEMSET                      ESP_MEMSET
+#define BUF_MEMCPY                      ESP_MEMCPY
 #define BUF_IS_VALID(b)                 ((b) != NULL && (b)->buff != NULL && (b)->size > 0)
 #define BUF_MIN(x, y)                   ((x) < (y) ? (x) : (y))
 #define BUF_MAX(x, y)                   ((x) > (y) ? (x) : (y))
