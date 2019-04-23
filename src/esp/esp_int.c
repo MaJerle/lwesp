@@ -567,9 +567,11 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.evt.evt.reset_detected.forced = 1;
         } else {                                /* Reset due unknown error */
             esp.evt.evt.reset_detected.forced = 0;
-            is_ok = 0;
-            is_error = 1;
-            is_ready = 0;
+            if (esp.msg != NULL) {
+                is_ok = 0;
+                is_error = 1;
+                is_ready = 0;
+            }
         }
         espi_reset_everything(esp.evt.evt.reset_detected.forced);   /* Put everything to default state */
         espi_send_cb(ESP_EVT_RESET_DETECTED);   /* Call user callback function */
@@ -778,6 +780,8 @@ espi_parse_received(esp_recv_t* rcv) {
     if (esp.msg != NULL) {                      /* Do we have valid message? */
         if ((CMD_IS_CUR(ESP_CMD_RESET) || CMD_IS_CUR(ESP_CMD_RESTORE)) && is_ok) {  /* Check for reset/restore command */
             is_ok = 0;                          /* We must wait for "ready", not only "OK" */
+            esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;/* Save user baudrate */
+            esp_ll_init(&esp.ll);               /* Set new baudrate */
         } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {
             if (!strncmp(rcv->data, "+CIPSTATUS", 10)) {
                 espi_parse_cipstatus(rcv->data + 11);   /* Parse CIPSTATUS response */
@@ -1480,11 +1484,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 esp_ll_init(&esp.ll);           /* Set new baudrate */
 
                 esp_delay(10);                  /* Wait some time */
-                esp.ll.reset_fn(0);             /* Reset at this point */
+                esp.ll.reset_fn(0);             /* Release reset */
             } else {
                 ESP_AT_PORT_SEND_BEGIN();
                 ESP_AT_PORT_SEND_CONST_STR("+RST");
                 ESP_AT_PORT_SEND_END();
+                /* Do not modify baudrate yet as we need "OK" or "ERROR" response first */
             }
             break;
         }
