@@ -169,6 +169,15 @@ uart_thread(void* param) {
 }
 
 /**
+ * \brief           Reset device GPIO management
+ * \note            Dummy function, not available under Windows port for NodeMCU (only UART pins available)
+ */
+static uint8_t
+reset_device(uint8_t state) {
+    return 0;                   /* Hardware reset was not successful */
+}
+
+/**
  * \brief           Callback function called from initialization process
  *
  * \note            This function may be called multiple times if AT baudrate is changed from application.
@@ -200,6 +209,7 @@ esp_ll_init(esp_ll_t* ll) {
     /* Step 2: Set AT port send function to use when we have data to transmit */
     if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
+        ll->reset_fn = reset_device;
     }
 
     /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
