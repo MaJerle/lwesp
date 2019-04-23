@@ -411,10 +411,20 @@ typedef size_t (*esp_ll_send_fn)(const void* data, size_t len);
 
 /**
  * \ingroup         ESP_LL
+ * \brief           Function prototype for hardware reset of ESP device
+ * \param[in]       state: State indicating reset. When set to `1`, reset must be active (usually pin active low),
+ *                      or set to `0` when reset is cleared
+ * \return          `1` on successful action, `0` otherwise
+ */
+typedef uint8_t (*esp_ll_reset_fn)(uint8_t state);
+
+/**
+ * \ingroup         ESP_LL
  * \brief           Low level user specific functions
  */
 typedef struct {
     esp_ll_send_fn send_fn;                     /*!< Callback function to transmit data */
+    esp_ll_reset_fn reset_fn;                   /*!< Reset callback function */
     struct {
         uint32_t baudrate;                      /*!< UART baudrate value */
     } uart;                                     /*!< UART communication parameters */
