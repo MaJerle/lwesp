@@ -369,6 +369,10 @@ espi_reset_everything(uint8_t forced) {
     esp.m.device = ESP_DEVICE_UNKNOWN;
 #endif  /* ESP_CFG_ESP8266 && !ESP_CFG_ESP32 */
 
+    /* Reset baudrate to default */
+    esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;
+    esp_ll_init(&esp.ll);
+
     /* If reset was not forced by user, repeat with manual reset */
     if (!forced) {
         esp_reset(NULL, NULL, 0);
@@ -563,6 +567,9 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.evt.evt.reset_detected.forced = 1;
         } else {                                /* Reset due unknown error */
             esp.evt.evt.reset_detected.forced = 0;
+            is_ok = 0;
+            is_error = 1;
+            is_ready = 0;
         }
         espi_reset_everything(esp.evt.evt.reset_detected.forced);   /* Put everything to default state */
         espi_send_cb(ESP_EVT_RESET_DETECTED);   /* Call user callback function */
@@ -1465,9 +1472,20 @@ espr_t
 espi_initiate_cmd(esp_msg_t* msg) {
     switch (CMD_GET_CUR()) {                    /* Check current message we want to send over AT */
         case ESP_CMD_RESET: {                   /* Reset MCU with AT commands */
-            ESP_AT_PORT_SEND_BEGIN();
-            ESP_AT_PORT_SEND_CONST_STR("+RST");
-            ESP_AT_PORT_SEND_END();
+            /* Try hardware reset first */
+            if (esp.ll.reset_fn != NULL && esp.ll.reset_fn(1)) {
+
+                /* Set baudrate to default one */
+                esp.ll.uart.baudrate = ESP_CFG_AT_PORT_BAUDRATE;
+                esp_ll_init(&esp.ll);           /* Set new baudrate */
+
+                esp_delay(10);                  /* Wait some time */
+                esp.ll.reset_fn(0);             /* Reset at this point */
+            } else {
+                ESP_AT_PORT_SEND_BEGIN();
+                ESP_AT_PORT_SEND_CONST_STR("+RST");
+                ESP_AT_PORT_SEND_END();
+            }
             break;
         }
         case ESP_CMD_RESTORE: {                 /* Reset MCU with AT commands */
