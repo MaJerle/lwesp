@@ -107,6 +107,11 @@ esp_thread_produce(void* const arg) {
                 }
             }
 
+            /* Notify application on command timeout */
+            if (res == espTIMEOUT) {
+                espi_send_cb(ESP_EVT_CMD_TIMEOUT);
+            }
+
             ESP_DEBUGW(ESP_CFG_DBG_THREAD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE,
                 res == espTIMEOUT,
                 "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");

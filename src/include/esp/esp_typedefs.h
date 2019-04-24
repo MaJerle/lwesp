@@ -274,6 +274,10 @@ typedef enum esp_evt_type_t {
     ESP_EVT_RESET,                              /*!< Device reset operation finished */
     ESP_EVT_RESTORE,                            /*!< Device restore operation finished */
 
+    ESP_EVT_CMD_TIMEOUT,                        /*!< Timeout on command.
+                                                        When application receives this event,
+                                                        it may reset system as there was (maybe) a problem in device */
+
     ESP_EVT_DEVICE_PRESENT,                     /*!< Notification when device present status changes */
 
     ESP_EVT_AT_VERSION_NOT_SUPPORTED,           /*!< Library does not support firmware version on ESP device. */
