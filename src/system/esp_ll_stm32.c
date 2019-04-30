@@ -288,17 +288,22 @@ configure_uart(uint32_t baudrate) {
     if (usart_ll_thread_id == NULL) {
         usart_ll_thread_id = osThreadCreate(osThread(usart_ll_thread), usart_ll_mbox_id);
     }
+}
 
 #if defined(ESP_RESET_PIN)
-    /* Reset device on first init */
-    if (!initialized) {
+/**
+ * \brief           Hardware reset callback
+ */
+static uint8_t
+reset_device(uint8_t state) {
+    if (state) {                                /* Activate reset line */
         LL_GPIO_ResetOutputPin(ESP_RESET_PORT, ESP_RESET_PIN);
-        osDelay(1);
+    } else {
         LL_GPIO_SetOutputPin(ESP_RESET_PORT, ESP_RESET_PIN);
-        osDelay(200);
     }
-#endif /* defined(ESP_RESET_PIN) */
+    return 1;
 }
+#endif /* defined(ESP_RESET_PIN) */
 
 /**
  * \brief           Send data to ESP device
@@ -333,6 +338,9 @@ esp_ll_init(esp_ll_t* ll) {
 
     if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
+#if defined(ESP_RESET_PIN)
+        ll->reset_fn = reset_device;            /* Set callback for hardware reset */
+#endif /* defined(ESP_RESET_PIN) */
 
         esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
     }
