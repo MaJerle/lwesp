@@ -1336,7 +1336,9 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
             RESET_SEND_EVT(msg, *is_ok ? espOK : espERR);
         }
     } else if (CMD_IS_DEF(ESP_CMD_RESTORE)) {
-        if ((CMD_IS_CUR(ESP_CMD_RESTORE) && *is_ready) ||
+        if ((CMD_IS_CUR(ESP_CMD_RESET)) && *is_ready) {
+            SET_NEW_CMD(ESP_CMD_RESTORE);
+        } else if ((CMD_IS_CUR(ESP_CMD_RESTORE) && *is_ready) ||
             !CMD_IS_CUR(ESP_CMD_RESTORE)) {
             SET_NEW_CMD(espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready));
         }

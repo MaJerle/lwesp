@@ -67,6 +67,8 @@ esp_thread_produce(void* const arg) {
         }
 
         res = espOK;                            /* Start with OK */
+        e->msg = msg;                           /* Set message handle */
+
         /*
          * This check is performed when adding command to queue
          * Do it again here to prevent long timeouts,
@@ -77,8 +79,11 @@ esp_thread_produce(void* const arg) {
         }
 
         /* For reset message, we can have delay! */
-        if (res == espOK && CMD_IS_DEF(ESP_CMD_RESET) && msg->msg.reset.delay) {
-            esp_delay(msg->msg.reset.delay);
+        if (res == espOK && msg->cmd_def == ESP_CMD_RESET) {
+            if (msg->msg.reset.delay) {
+                esp_delay(msg->msg.reset.delay);
+            }
+            espi_reset_everything(1);           /* Reset stack before trying to reset */
         }
 
         /*
@@ -95,7 +100,6 @@ esp_thread_produce(void* const arg) {
             esp_core_unlock();
             esp_sys_sem_wait(&e->sem_sync, 0);  /* First call */
             esp_core_lock();
-            e->msg = msg;
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             time = ~ESP_SYS_TIMEOUT;            /* Reset time */
             if (res == espOK) {                 /* We have valid data and data were sent */
@@ -127,7 +131,7 @@ esp_thread_produce(void* const arg) {
              * Case 2: If time == TIMEOUT, acquiring on second call was not successful,
              *           application has to manually release semaphore, taken on first call
              * Case 3: If time != TIMEOUT, acquiring on second call was successful,
-             *           which effectively means that another thread successfuly released semaphore,
+             *           which effectively means that another thread successfully released semaphore,
              *           application has to release semaphore, now taken on second call
              *
              * If application would not manually release semaphore,
