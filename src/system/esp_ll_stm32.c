@@ -377,16 +377,15 @@ esp_ll_deinit(esp_ll_t* ll) {
  */
 void
 ESP_USART_IRQHANDLER(void) {
-    if (LL_USART_IsActiveFlag_IDLE(ESP_USART)) {
-        LL_USART_ClearFlag_IDLE(ESP_USART);
-        if (usart_ll_mbox_id != NULL) {
-            osMessagePut(usart_ll_mbox_id, 0, 0);
-        }
-    }
+    LL_USART_ClearFlag_IDLE(ESP_USART);
     LL_USART_ClearFlag_PE(ESP_USART);
     LL_USART_ClearFlag_FE(ESP_USART);
     LL_USART_ClearFlag_ORE(ESP_USART);
     LL_USART_ClearFlag_NE(ESP_USART);
+
+    if (usart_ll_mbox_id != NULL) {
+        osMessagePut(usart_ll_mbox_id, 0, 0);
+    }
 }
 
 /**
@@ -396,6 +395,7 @@ void
 ESP_USART_DMA_RX_IRQHANDLER(void) {
     ESP_USART_DMA_RX_CLEAR_TC;
     ESP_USART_DMA_RX_CLEAR_HT;
+
     if (usart_ll_mbox_id != NULL) {
         osMessagePut(usart_ll_mbox_id, 0, 0);
     }
