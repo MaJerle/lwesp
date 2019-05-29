@@ -89,7 +89,7 @@ espi_conn_start_timeout(esp_conn_p conn) {
  */
 espr_t
 espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
-	uint32_t blocking = 0;
+    uint32_t blocking = 0;
     esp_pbuf_p p;
     espr_t res;
 
@@ -97,6 +97,8 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
 
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     ESP_ASSERT("len > 0", len > 0);             /* Assert input parameters */
+
+    ESP_MSG_VAR_ALLOC(msg);
 
     len = ESP_MIN(ESP_CFG_CONN_MAX_DATA_LEN, ESP_MIN(len, conn->tcp_available_data));   /* Get maximal number of bytes we can read */
 
@@ -111,13 +113,14 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
         return espERRMEM;
     }
 
-    ESP_MSG_VAR_ALLOC(msg);
+    /* Config read data */
     msg->msg.ciprecvdata.len = len;
     msg->msg.ciprecvdata.buff = p;
     msg->msg.ciprecvdata.conn = conn;
 
     /* Send command to queue */
     if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) != espOK) {
+        ESP_MSG_VAR_FREE(msg);
         esp_pbuf_free(p);
     }
     return res;
