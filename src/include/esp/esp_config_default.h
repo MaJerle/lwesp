@@ -216,7 +216,7 @@
 #endif
 
 /**
- * \brief           Default delay (milliseconds unit) before sending first AT command on reset sequence
+ * \brief           Maximum length of SSID for access point scan
  *
  * \note            This parameter must include trailling zero
  */
