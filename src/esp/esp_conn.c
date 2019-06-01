@@ -42,11 +42,11 @@
  */
 #define CONN_CHECK_CLOSED_IN_CLOSING(conn) do { \
     espr_t r = espOK;                           \
-    esp_core_lock();                         \
+    esp_core_lock();                            \
     if (conn->status.f.in_closing || !conn->status.f.active) {  \
         r = espCLOSED;                          \
     }                                           \
-    esp_core_unlock();                       \
+    esp_core_unlock();                          \
     if (r != espOK) {                           \
         return r;                               \
     }                                           \

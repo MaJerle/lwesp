@@ -2067,7 +2067,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
             res = espERRMEM;
         }
     }
-    if (msg->is_blocking && res == espOK) {     /* In case we have blocking request */
+    if (res == espOK && msg->is_blocking) {     /* In case we have blocking request */
         uint32_t time;
         time = esp_sys_sem_wait(&msg->sem, 0);  /* Wait forever for semaphore */
         if (ESP_SYS_TIMEOUT == time) {          /* If semaphore was not accessed in given time */
