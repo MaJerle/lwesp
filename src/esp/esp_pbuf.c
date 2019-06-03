@@ -95,7 +95,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
     esp_pbuf_p p, pn;
     size_t ref, cnt;
 
-    ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
+    ESP_ASSERT("pbuf != NULL", pbuf != NULL);
 
     /*
      * Free all pbufs until first ->ref > 1 is reached
@@ -133,8 +133,8 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
  */
 espr_t
 esp_pbuf_cat(esp_pbuf_p head, const esp_pbuf_p tail) {
-    ESP_ASSERT("head != NULL", head != NULL);   /* Assert input parameters */
-    ESP_ASSERT("tail != NULL", tail != NULL);   /* Assert input parameters */
+    ESP_ASSERT("head != NULL", head != NULL);
+    ESP_ASSERT("tail != NULL", tail != NULL);
 
     /*
      * For all pbuf packets in head,
@@ -201,7 +201,7 @@ esp_pbuf_unchain(esp_pbuf_p head) {
  */
 espr_t
 esp_pbuf_ref(esp_pbuf_p pbuf) {
-    ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
+    ESP_ASSERT("pbuf != NULL", pbuf != NULL);
 
     pbuf->ref++;                                /* Increase reference count for pbuf */
     return espOK;
@@ -220,10 +220,10 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
     const uint8_t* d = data;
     size_t copy_len;
 
-    ESP_ASSERT("pbuf != NULL", pbuf != NULL);   /* Assert input parameters */
-    ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
-    ESP_ASSERT("len", len);             /* Assert input parameters */
-    ESP_ASSERT("pbuf->tot_len >= len", pbuf->tot_len >= len);   /* Assert input parameters */
+    ESP_ASSERT("pbuf != NULL", pbuf != NULL);
+    ESP_ASSERT("data != NULL", data != NULL);
+    ESP_ASSERT("len", len);
+    ESP_ASSERT("pbuf->tot_len >= len", pbuf->tot_len >= len);
 
     /* Skip if necessary and check if we are in valid range */
     if (offset) {
@@ -269,7 +269,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
     size_t tot, tc;
     uint8_t* d = data;
 
-    if (pbuf == NULL || data == NULL || !len || pbuf->tot_len < offset) {   /* Assert input parameters */
+    if (pbuf == NULL || data == NULL || !len || pbuf->tot_len < offset) {
         return 0;
     }
 

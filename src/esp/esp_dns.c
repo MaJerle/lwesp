@@ -50,8 +50,8 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
                         const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
-    ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
+    ESP_ASSERT("host != NULL", host != NULL);
+    ESP_ASSERT("ip != NULL", ip != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);

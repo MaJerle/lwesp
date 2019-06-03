@@ -81,7 +81,7 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
+    ESP_ASSERT("ip != NULL", ip != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);
@@ -133,7 +133,7 @@ esp_ap_setmac(const esp_mac_t* mac, uint8_t def,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("mac != NULL", mac != NULL);     /* Assert input parameters */
+    ESP_ASSERT("mac != NULL", mac != NULL);
     ESP_ASSERT("Bit 0 of byte 0 in AP MAC must be 0!", !(((uint8_t *)mac)[0] & 0x01));
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -166,8 +166,8 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("ssid != NULL", ssid != NULL);   /* Assert input parameters */
-    ESP_ASSERT("pwd == NULL || (pwd && strlen(pwd) <= 64)", pwd == NULL || (pwd != NULL && strlen(pwd) <= 64)); /* Assert input parameters */
+    ESP_ASSERT("ssid != NULL", ssid != NULL);
+    ESP_ASSERT("pwd == NULL || (pwd && strlen(pwd) <= 64)", pwd == NULL || (pwd != NULL && strlen(pwd) <= 64));
     ESP_ASSERT("ecn == open || ecn == WPA_PSK || ecn == WPA2_PSK || ecn == WPA_WPA2_PSK",
         ecn == ESP_ECN_OPEN || ecn == ESP_ECN_WPA_PSK || ecn == ESP_ECN_WPA2_PSK || ecn == ESP_ECN_WPA_WPA2_PSK);
     ESP_ASSERT("ch <= 128", ch <= 128);
@@ -202,8 +202,8 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("sta != NULL", sta != NULL);     /* Assert input parameters */
-    ESP_ASSERT("stal", stal);                   /* Assert input parameters */
+    ESP_ASSERT("sta != NULL", sta != NULL);
+    ESP_ASSERT("stal", stal);
 
     if (staf != NULL) {
         *staf = 0;

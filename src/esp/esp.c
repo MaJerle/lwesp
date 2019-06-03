@@ -295,7 +295,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("port", port);           /* Assert input parameters */
+    ESP_ASSERT("port", port);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);
@@ -379,7 +379,7 @@ esp_evt_register(esp_evt_fn fn) {
     espr_t res = espOK;
     esp_evt_func_t* func, *newFunc;
 
-    ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
+    ESP_ASSERT("fn != NULL", fn != NULL);
 
     esp_core_lock();
 
@@ -420,7 +420,7 @@ espr_t
 esp_evt_unregister(esp_evt_fn fn) {
     esp_evt_func_t* func, *prev;
 
-    ESP_ASSERT("fn != NULL", fn != NULL);       /* Assert input parameters */
+    ESP_ASSERT("fn != NULL", fn != NULL);
 
     esp_core_lock();
     for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {

@@ -73,7 +73,7 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("name != NULL", name != NULL);   /* Assert input parameters */
+    ESP_ASSERT("name != NULL", name != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);
@@ -126,7 +126,7 @@ esp_sta_get_ap_info(esp_sta_info_ap_t* info,
     if (!esp_sta_is_joined()) {
         return espERRWIFINOTCONNECTED;
     }
-    ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
+    ESP_ASSERT("info != NULL", info != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);
@@ -181,7 +181,7 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("ip != NULL", ip != NULL);       /* Assert input parameters */
+    ESP_ASSERT("ip != NULL", ip != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);
@@ -233,7 +233,7 @@ esp_sta_setmac(const esp_mac_t* mac, uint8_t def,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("mac != NULL", mac != NULL);     /* Assert input parameters */
+    ESP_ASSERT("mac != NULL", mac != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);

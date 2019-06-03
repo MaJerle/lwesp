@@ -53,9 +53,9 @@ esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t 
     ESP_MSG_VAR_DEFINE(msg);
 
     if (en) {
-        ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
-        ESP_ASSERT("server != NULL", server != NULL);   /* Assert input parameters */
-        ESP_ASSERT("port", port);               /* Assert input parameters */
+        ESP_ASSERT("host != NULL", host != NULL);
+        ESP_ASSERT("server != NULL", server != NULL);
+        ESP_ASSERT("port", port);
     }
 
     ESP_MSG_VAR_ALLOC(msg);

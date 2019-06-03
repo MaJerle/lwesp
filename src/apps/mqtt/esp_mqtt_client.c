@@ -1091,9 +1091,9 @@ esp_mqtt_client_connect(esp_mqtt_client_p client, const char* host, esp_port_t p
     espr_t res = espERR;
 
     ESP_ASSERT("client != NULL", client != NULL);   /* t input parameters */
-    ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
-    ESP_ASSERT("port", port);           /* Assert input parameters */
-    ESP_ASSERT("info != NULL", info != NULL);   /* Assert input parameters */
+    ESP_ASSERT("host != NULL", host != NULL);
+    ESP_ASSERT("port", port);
+    ESP_ASSERT("info != NULL", info != NULL);
 
     esp_core_lock();
     if (esp_sta_is_joined() && client->conn_state == ESP_MQTT_CONN_DISCONNECTED) {
