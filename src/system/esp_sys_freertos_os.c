@@ -119,7 +119,7 @@ esp_sys_sem_delete(esp_sys_sem_t* p) {
 uint32_t
 esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
     uint32_t t = xTaskGetTickCount();
-    return xSemaphoreTake(*p, timeout == 0 ? portMAX_DELAY : timeout) == pdPASS ? (xTaskGetTickCount() - t) : ESP_SYS_TIMEOUT;
+    return xSemaphoreTake(*p, !timeout ? portMAX_DELAY : timeout) == pdPASS ? (xTaskGetTickCount() - t) : ESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -168,7 +168,7 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     freertos_mbox mb;
     uint32_t t = xTaskGetTickCount();
 
-    if (xQueueReceive(*b, &mb, timeout == 0 ? portMAX_DELAY : timeout)) {
+    if (xQueueReceive(*b, &mb, !timeout ? portMAX_DELAY : timeout)) {
        *m = mb.d;
        return xTaskGetTickCount()-t;
     }

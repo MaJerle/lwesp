@@ -243,7 +243,7 @@ cli_in_data(cli_printf cliprintf, char ch) {
             case '\n':
             case '\r':
                 cmd_history_pos = 0;
-                if (strlen(cmd_buffer) == 0) {
+                if (!strlen(cmd_buffer)) {
                     clear_cmd_buffer();
                     cliprintf(CLI_NL CLI_PROMPT);
                     return;

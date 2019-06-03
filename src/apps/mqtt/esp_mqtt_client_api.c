@@ -307,7 +307,7 @@ esp_mqtt_conn_status_t
 esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host,
                             esp_port_t port, const esp_mqtt_client_info_t* info) {
     if (client == NULL || host == NULL
-        || port == 0 || info == NULL) {
+        || !port || info == NULL) {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
             "[MQTT API] Invalid parameters in function\r\n");
         return ESP_MQTT_CONN_STATUS_TCP_FAILED;
@@ -493,7 +493,7 @@ esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_bu
     *p = NULL;
 
     /* Get new entry from mbox */
-    if (timeout == 0) {
+    if (!timeout) {
         if (!esp_sys_mbox_getnow(&client->rcv_mbox, (void **)p)) {
             return espTIMEOUT;
         }

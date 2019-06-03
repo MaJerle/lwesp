@@ -100,7 +100,7 @@ espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t tim
             return esp_sys_mbox_get(b, m, timeout); /* Get entry from message queue */
         }
         wait_time = get_next_timeout_diff();    /* Get time to wait for next timeout execution */
-        if (wait_time == 0 || esp_sys_mbox_get(b, m, wait_time) == ESP_SYS_TIMEOUT) {
+        if (!wait_time || esp_sys_mbox_get(b, m, wait_time) == ESP_SYS_TIMEOUT) {
             ESP_THREAD_PROCESS_HOOK();          /* Process thread hook */
             esp_core_lock();
             process_next_timeout();             /* Process with next timeout */

@@ -54,7 +54,7 @@
  */
 uint8_t
 BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size) {
-    if (buff == NULL || size == 0) {            /* Check buffer structure */
+    if (buff == NULL || !size) {                /* Check buffer structure */
         return 0;
     }
     BUF_MEMSET(buff, 0, sizeof(*buff));
@@ -95,7 +95,7 @@ BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t count) {
     size_t tocopy, free;
     const uint8_t* d = data;
 
-    if (!BUF_IS_VALID(buff) || count == 0) {
+    if (!BUF_IS_VALID(buff) || !count) {
         return 0;
     }
 
@@ -141,7 +141,7 @@ BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t count) {
     size_t tocopy, full;
     uint8_t *d = data;
 
-    if (!BUF_IS_VALID(buff) || count == 0) {
+    if (!BUF_IS_VALID(buff) || !count) {
         return 0;
     }
 
@@ -187,7 +187,7 @@ BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_
     size_t full, tocopy, r;
     uint8_t *d = data;
 
-    if (!BUF_IS_VALID(buff) || count == 0) {
+    if (!BUF_IS_VALID(buff) || !count) {
         return 0;
     }
 
@@ -344,7 +344,7 @@ size_t
 BUF_PREF(buff_skip)(BUF_PREF(buff_t)* buff, size_t len) {
     size_t full;
 
-    if (!BUF_IS_VALID(buff) || len == 0) {
+    if (!BUF_IS_VALID(buff) || !len) {
         return 0;
     }
 
@@ -392,7 +392,7 @@ BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t)* buff) {
          * maximal length is one less as if too many bytes 
          * are written, buffer would be considered empty again (r == w)
          */
-        if (r == 0) {
+        if (!r) {
             /*
              * Cannot overflow:
              * - If r != 0, statement does not get called
@@ -419,7 +419,7 @@ size_t
 BUF_PREF(buff_advance)(BUF_PREF(buff_t)* buff, size_t len) {
     size_t free;
 
-    if (!BUF_IS_VALID(buff) || len == 0) {
+    if (!BUF_IS_VALID(buff) || !len) {
         return 0;
     }
 

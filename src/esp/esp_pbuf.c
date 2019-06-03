@@ -106,7 +106,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
         esp_core_lock();
         ref = --p->ref;                         /* Decrease current value and save it */
         esp_core_unlock();
-        if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
+        if (!ref) {                             /* Did we reach 0 and are ready to free it? */
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
                 "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
             pn = p->next;                       /* Save next entry */

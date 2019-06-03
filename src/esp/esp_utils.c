@@ -52,7 +52,7 @@ esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
     /* Convert number to string */
     i = 0;
     tmp[0] = '0';
-    if (num == 0) {
+    if (!num) {
         i++;
     } else {
         if (is_hex) {

@@ -55,7 +55,7 @@ http_fs_open(http_fs_file_t* file, const char* path) {
     FIL* fil;
 
     /* Do we have to mount our file system? */
-    if (*file->rem_open_files == 0) {
+    if (!*file->rem_open_files) {
         if (f_mount(&fs, "SD:", 1) != FR_OK) {
             return 0;
         }

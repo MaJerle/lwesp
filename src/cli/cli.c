@@ -61,7 +61,7 @@ cli_lookup_command(char* command) {
     uint32_t module_index, command_index;
     for (module_index = 0; module_index < num_of_modules; module_index++) {
         for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; command_index++) {
-            if (strcmp(command, cli_command_table[module_index].commands[command_index].name) == 0) {
+            if (!strcmp(command, cli_command_table[module_index].commands[command_index].name)) {
                 return &cli_command_table[module_index].commands[command_index];
             }
         }
@@ -86,9 +86,9 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
     for (module_index = 0; module_index < num_of_modules; module_index++) {
         for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; command_index++) {
             const cli_command_t *command = &cli_command_table[module_index].commands[command_index];
-            if (strncmp(cmd_buffer, cli_command_table[module_index].commands[command_index].name, *cmd_pos) == 0) {
+            if (!strncmp(cmd_buffer, cli_command_table[module_index].commands[command_index].name, *cmd_pos)) {
                 /* Found a new command which matches the string */
-                if (num_of_matched_commands == 0) {
+                if (!num_of_matched_commands) {
                     /*
                      * Save the first match for later tab completion in case
                      * print_option is true (double tab)
