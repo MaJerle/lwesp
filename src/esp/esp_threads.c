@@ -121,7 +121,7 @@ esp_thread_produce(void* const arg) {
                 "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
             ESP_DEBUGW(ESP_CFG_DBG_THREAD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE,
                 res != espOK && res != espTIMEOUT,
-                "[THREAD] Could not start command execution of command %d\r\n", (int)msg->cmd);
+                "[THREAD] Could not start execution for command %d\r\n", (int)msg->cmd);
 
             /*
              * Manually release semaphore in all cases:
