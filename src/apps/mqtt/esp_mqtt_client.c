@@ -446,9 +446,8 @@ sub_unsub(esp_mqtt_client_p client, const char* topic, esp_mqtt_qos_t qos, void*
     uint16_t len_topic, pkt_id;
     uint32_t rem_len;
     esp_mqtt_request_t* request;
-
-    len_topic = ESP_U16(strlen(topic));         /* Get length of topic */
-    if (!len_topic) {
+    
+    if (!(len_topic = ESP_U16(strlen(topic)))) {
         return 0;
     }
 
