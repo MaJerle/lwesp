@@ -353,7 +353,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
 
     ESP_ASSERT("nc != NULL", nc != NULL);       /* Assert input parameters */
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
-    ESP_ASSERT("port > 0", port);               /* Assert input parameters */
+    ESP_ASSERT("port", port);               /* Assert input parameters */
 
     /*
      * Start a new connection as client and:
@@ -588,7 +588,7 @@ esp_netconn_flush(esp_netconn_p nc) {
      * flush them out to network
      */
     if (nc->buff.buff != NULL) {                /* Check remaining data */
-        if (nc->buff.ptr > 0) {                 /* Do we have data in current buffer? */
+        if (nc->buff.ptr) {                     /* Do we have data in current buffer? */
             esp_conn_send(nc->conn, nc->buff.buff, nc->buff.ptr, NULL, 1);  /* Send data */
         }
         esp_mem_free(nc->buff.buff);            /* Free memory */

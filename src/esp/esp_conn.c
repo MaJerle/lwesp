@@ -96,7 +96,7 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
-    ESP_ASSERT("len > 0", len > 0);             /* Assert input parameters */
+    ESP_ASSERT("len", len);             /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
 
@@ -162,7 +162,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
 
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
-    ESP_ASSERT("btw > 0", btw > 0);             /* Assert input parameters */
+    ESP_ASSERT("btw", btw);             /* Assert input parameters */
 
     if (bw != NULL) {
         *bw = 0;
@@ -240,7 +240,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("host != NULL", host != NULL);   /* Assert input parameters */
-    ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
+    ESP_ASSERT("port", port);           /* Assert input parameters */
     ESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL); /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -329,7 +329,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
 
     ESP_ASSERT("conn != NULL", conn != NULL);   /* Assert input parameters */
     ESP_ASSERT("data != NULL", data != NULL);   /* Assert input parameters */
-    ESP_ASSERT("btw > 0", btw > 0);             /* Assert input parameters */
+    ESP_ASSERT("btw", btw);             /* Assert input parameters */
 
     esp_core_lock();
     if (conn->buff.buff != NULL) {              /* Check if memory available */

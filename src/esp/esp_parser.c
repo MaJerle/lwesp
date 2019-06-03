@@ -254,7 +254,7 @@ espi_parse_ciprecvdata(const char* str) {
     }
 
     /* Check data length */
-    if ((len = espi_parse_number(&str)) > 0) {  /* Get number of bytes to read */
+    if ((len = espi_parse_number(&str))) {      /* Get number of bytes to read */
         esp.ipd.read = 1;                       /* Start reading network data */
         esp.ipd.tot_len = len;                  /* Total number of bytes in this received packet */
         esp.ipd.rem_len = len;                  /* Number of remaining bytes to read */

@@ -143,7 +143,7 @@ uart_thread(void* param) {
          */
         do {
             ReadFile(com_port, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
-            if (bytes_read > 0) {
+            if (bytes_read) {
                 for (DWORD i = 0; i < bytes_read; i++) {
                     printf("%c", data_buffer[i]);
                 }

@@ -42,7 +42,7 @@
 /* Buffer utility macros */
 #define BUF_MEMSET                      ESP_MEMSET
 #define BUF_MEMCPY                      ESP_MEMCPY
-#define BUF_IS_VALID(b)                 ((b) != NULL && (b)->buff != NULL && (b)->size > 0)
+#define BUF_IS_VALID(b)                 ((b) != NULL && (b)->buff != NULL && (b)->size)
 #define BUF_MIN(x, y)                   ((x) < (y) ? (x) : (y))
 #define BUF_MAX(x, y)                   ((x) > (y) ? (x) : (y))
 
@@ -117,7 +117,7 @@ BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t count) {
     count -= tocopy;
 
     /* Step 2: Write data to beginning of buffer (overflow part) */
-    if (count > 0) {
+    if (count) {
         BUF_MEMCPY(buff->buff, (void *)&d[tocopy], count);
         buff->w = count;
     }
@@ -163,7 +163,7 @@ BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t count) {
     count -= tocopy;
 
     /* Step 2: Read data from beginning of buffer (overflow part) */
-    if (count > 0) {
+    if (count) {
         BUF_MEMCPY(&d[tocopy], buff->buff, count);
         buff->r = count;
     }
@@ -221,7 +221,7 @@ BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_
     count -= tocopy;
 
     /* Step 2: Read data from beginning of buffer (overflow part) */
-    if (count > 0) {
+    if (count) {
         BUF_MEMCPY(&d[tocopy], buff->buff, count);
     }
     return tocopy + count;                      /* Number of elements read */

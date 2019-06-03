@@ -295,12 +295,12 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("port > 0", port > 0);           /* Assert input parameters */
+    ESP_ASSERT("port", port);           /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSERVER;
-    if (en > 0) {
+    if (en) {
         ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSERVERMAXCONN;  /* First command is to set maximal number of connections for server */
     }
     ESP_MSG_VAR_REF(msg).msg.tcpip_server.en = en;

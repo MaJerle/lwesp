@@ -436,7 +436,7 @@ esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, con
     ESP_ASSERT("client != NULL", client != NULL);
     ESP_ASSERT("topic != NULL", topic != NULL);
     ESP_ASSERT("data != NULL", data != NULL);
-    ESP_ASSERT("btw > 0", btw > 0);
+    ESP_ASSERT("btw", btw);
 
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);

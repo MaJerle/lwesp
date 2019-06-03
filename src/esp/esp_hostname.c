@@ -74,7 +74,7 @@ esp_hostname_get(char* hostname, size_t length,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("hostname != NULL", hostname != NULL);   /* Assert input parameters */
-    ESP_ASSERT("length > 0", length > 0);       /* Assert input parameters */
+    ESP_ASSERT("length", length);                       /* Assert input parameters */
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg);

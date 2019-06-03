@@ -772,7 +772,7 @@ send_response_no_ssi(http_state_t* hs) {
         }
 #endif /* HTTP_DYNAMIC_HEADERS */
 
-        if (blen > 0) {
+        if (blen) {
             if (esp_conn_send(hs->conn, b, blen, NULL, 0) == espOK) {
                 hs->written_total += blen;      /* Set written total length */
             }
@@ -979,7 +979,7 @@ http_evt(esp_evt_t* evt) {
                                  * to user from data part of request
                                  */
                                 pbuf_total_len = esp_pbuf_length(hs->p, 1); /* Get total length of current received pbuf */
-                                if ((pbuf_total_len - data_pos) > 0) {
+                                if ((pbuf_total_len - data_pos)) {
                                     hs->content_received = pbuf_total_len - data_pos;
 
                                     /* Send data to user */

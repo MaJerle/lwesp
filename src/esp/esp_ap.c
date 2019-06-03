@@ -203,7 +203,7 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("sta != NULL", sta != NULL);     /* Assert input parameters */
-    ESP_ASSERT("stal > 0", stal > 0);           /* Assert input parameters */
+    ESP_ASSERT("stal", stal);                   /* Assert input parameters */
 
     if (staf != NULL) {
         *staf = 0;

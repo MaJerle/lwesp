@@ -149,7 +149,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                 /* TODO not finnished
                  * need to implement a courser
                  */
-                if (cmd_pos > 0) {
+                if (cmd_pos) {
                     cmd_pos--;
                     cliprintf("\033[\1D");
                 } else {
