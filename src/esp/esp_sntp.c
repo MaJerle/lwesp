@@ -54,7 +54,7 @@ esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const 
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSNTPCFG;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg.en = en;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg.tz = tz;
@@ -79,7 +79,7 @@ esp_sntp_gettime(esp_datetime_t* dt,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSNTPTIME;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sntp_time.dt = dt;
 

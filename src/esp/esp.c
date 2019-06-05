@@ -206,7 +206,7 @@ esp_reset_with_delay(uint32_t delay,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
     ESP_MSG_VAR_REF(msg).msg.reset.delay = delay;
 
@@ -225,7 +225,7 @@ esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESTORE;
     ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_RESET;
 
@@ -248,7 +248,7 @@ esp_set_wifi_mode(esp_mode_t mode, uint8_t def,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.def = def;
@@ -270,7 +270,7 @@ esp_set_at_baudrate(uint32_t baud,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_UART;
     ESP_MSG_VAR_REF(msg).msg.uart.baudrate = baud;
 
@@ -298,7 +298,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
     ESP_ASSERT("port", port);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSERVER;
     if (en) {
         ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSERVERMAXCONN;  /* First command is to set maximal number of connections for server */
@@ -327,7 +327,7 @@ esp_update_sw(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIUPDATE;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 180000);

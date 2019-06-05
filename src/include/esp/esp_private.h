@@ -526,7 +526,7 @@ extern esp_t esp;
     ESP_MEMSET(name, 0x00, sizeof(*(name)));        \
     (name)->is_blocking = ESP_U8(blocking);         \
 } while (0)
-#define ESP_MSG_VAR_SET_EVT(name)               do {\
+#define ESP_MSG_VAR_SET_EVT(name, evt_fn, evt_arg)  do {\
     (name)->evt_fn = (evt_fn);                      \
     (name)->evt_arg = (evt_arg);                    \
 } while (0)

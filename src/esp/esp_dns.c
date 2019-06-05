@@ -54,7 +54,7 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
     ESP_ASSERT("ip != NULL", ip != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDOMAIN;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
     ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
@@ -82,7 +82,7 @@ esp_dns_set_config(uint8_t en, const char* s1, const char* s2, uint8_t def,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDNS_SET;
     ESP_MSG_VAR_REF(msg).msg.dns_setconfig.en = en;
     ESP_MSG_VAR_REF(msg).msg.dns_setconfig.s1 = s1;

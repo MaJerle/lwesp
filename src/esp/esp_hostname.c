@@ -52,7 +52,7 @@ esp_hostname_set(const char* hostname,
     ESP_ASSERT("hostname != NULL", hostname != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_SET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_set = hostname;
 
@@ -77,7 +77,7 @@ esp_hostname_get(char* hostname, size_t length,
     ESP_ASSERT("length", length);
 
     ESP_MSG_VAR_ALLOC(msg);
-    ESP_MSG_VAR_SET_EVT(msg);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_GET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_get = hostname;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = length;
