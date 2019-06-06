@@ -1080,7 +1080,7 @@ espi_process(const void* data, size_t data_len) {
             }
 
             /* Did we reach end of buffer or no more data? */
-            if (!esp.m.ipd.rem_len > 0 || (esp.m.ipd.buff != NULL && esp.m.ipd.buff_ptr == esp.m.ipd.buff->len)) {
+            if (esp.m.ipd.rem_len == 0 || (esp.m.ipd.buff != NULL && esp.m.ipd.buff_ptr == esp.m.ipd.buff->len)) {
                 espr_t res = espOK;
 
                 /* Call user callback function with received data */
