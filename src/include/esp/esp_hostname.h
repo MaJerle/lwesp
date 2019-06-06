@@ -47,7 +47,7 @@ extern "C" {
  */
 
 espr_t      esp_hostname_set(const char* hostname, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_hostname_get(char* hostname, size_t length, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_hostname_get(char* hostname, size_t size, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

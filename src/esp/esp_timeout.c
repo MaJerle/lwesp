@@ -44,7 +44,7 @@ static uint32_t last_timeout_time;
 static uint32_t
 get_next_timeout_diff(void) {
     uint32_t diff;
-    if (!first_timeout) {
+    if (first_timeout == NULL) {
         return 0xFFFFFFFF;
     }
     diff = esp_sys_now() - last_timeout_time;   /* Get difference between current time and last process time */

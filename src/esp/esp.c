@@ -295,7 +295,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("port", port);
+    ESP_ASSERT("port > 0", port > 0);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -514,7 +514,7 @@ esp_get_current_at_fw_version(esp_sw_version_t* const version) {
 uint8_t
 esp_delay(const uint32_t ms) {
     esp_sys_sem_t sem;
-    if (!ms) {
+    if (ms == 0) {
         return 1;
     }
     if (esp_sys_sem_create(&sem, 0)) {

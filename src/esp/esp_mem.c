@@ -219,7 +219,7 @@ mem_alloc(size_t size) {
         return NULL;                            /* Invalid, not initialized */
     }
 
-    if (!size || size >= mem_alloc_bit) {       /* Check input parameters */
+    if (size == 0 || size >= mem_alloc_bit) {
         return NULL;
     }
 

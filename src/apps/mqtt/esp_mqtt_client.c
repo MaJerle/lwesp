@@ -152,7 +152,7 @@ mqtt_evt_fn_default(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 static uint16_t
 create_packet_id(esp_mqtt_client_p client) {
     client->last_packet_id++;
-    if (!client->last_packet_id) {
+    if (client->last_packet_id == 0) {
         client->last_packet_id = 1;
     }
     return client->last_packet_id;
@@ -400,7 +400,7 @@ send_data(esp_mqtt_client_p client) {
     }
 
     len = esp_buff_get_linear_block_read_length(&client->tx_buff);  /* Get length of linear memory */
-    if (len) {                                  /* Anything to send? */
+    if (len > 0) {                                  /* Anything to send? */
         espr_t res;
         addr = esp_buff_get_linear_block_read_address(&client->tx_buff);/* Get address of linear memory */
         if ((res = esp_conn_send(client->conn, addr, len, NULL, 0)) == espOK) {
@@ -532,7 +532,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
             data = topic + topic_len;           /* Get data pointer */
 
             /* Packet ID is only available if quality of service is not 0 */
-            if (qos) {
+            if (qos > 0) {
                 pkt_id = (client->rx_buff[2 + topic_len] << 8) | client->rx_buff[2 + topic_len + 1];/* Get packet ID */
                 data += 2;                      /* Increase pointer for 2 bytes */
             } else {
@@ -551,7 +551,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
              * Response type depends on QoS and is
              * either PUBACK or PUBREC
              */
-            if (qos) {                          /* We have to reply on QoS > 0 */
+            if (qos > 0) {                      /* We have to reply on QoS > 0 */
                 mqtt_msg_type_t resp_msg_type = qos == 1 ? MQTT_MSG_TYPE_PUBACK : MQTT_MSG_TYPE_PUBREC;
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] Sending publish resp: %s on pkt_id: %d\r\n", \
                             mqtt_msg_type_to_str(resp_msg_type), (int)pkt_id);
@@ -679,7 +679,7 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
                             "[MQTT] Remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
 
-                        if (client->msg_rem_len) {
+                        if (client->msg_rem_len > 0) {
                             client->parser_state = MQTT_PARSER_STATE_READ_REM;
                         } else {
                             mqtt_process_incoming_message(client);
@@ -1091,7 +1091,7 @@ esp_mqtt_client_connect(esp_mqtt_client_p client, const char* host, esp_port_t p
 
     ESP_ASSERT("client != NULL", client != NULL);   /* t input parameters */
     ESP_ASSERT("host != NULL", host != NULL);
-    ESP_ASSERT("port", port);
+    ESP_ASSERT("port > 0", port > 0);
     ESP_ASSERT("info != NULL", info != NULL);
 
     esp_core_lock();
@@ -1183,7 +1183,7 @@ esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void*
      * rem_len = 2 (topic_len) + topic_len + 2 (pkt_idm only if qos > 0) + payload_len
      */
     rem_len = 2 + len_topic + (payload != NULL ? payload_len : 0);
-    if (qos_u8) {
+    if (qos_u8 > 0) {
         rem_len += 2;
     }
 
@@ -1191,7 +1191,7 @@ esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void*
     if (client->conn_state != ESP_MQTT_CONNECTED) {
         res = espCLOSED;
     } else if ((raw_len = output_check_enough_memory(client, rem_len)) != 0) {
-        pkt_id = qos_u8 ? create_packet_id(client) : 0; /* Create new packet ID */
+        pkt_id = qos_u8 > 0 ? create_packet_id(client) : 0; /* Create new packet ID */
         request = request_create(client, pkt_id, arg);  /* Create request for packet */
         if (request != NULL) {
             /*

@@ -171,7 +171,7 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
     ESP_ASSERT("ecn == open || ecn == WPA_PSK || ecn == WPA2_PSK || ecn == WPA_WPA2_PSK",
         ecn == ESP_ECN_OPEN || ecn == ESP_ECN_WPA_PSK || ecn == ESP_ECN_WPA2_PSK || ecn == ESP_ECN_WPA_WPA2_PSK);
     ESP_ASSERT("ch <= 128", ch <= 128);
-    ESP_ASSERT("1 <= max_sta <= 10", max_sta && max_sta <= 10);
+    ESP_ASSERT("1 <= max_sta <= 10", max_sta > 0 && max_sta <= 10);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -203,7 +203,7 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("sta != NULL", sta != NULL);
-    ESP_ASSERT("stal", stal);
+    ESP_ASSERT("stal > 0", stal > 0);
 
     if (staf != NULL) {
         *staf = 0;

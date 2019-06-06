@@ -62,25 +62,25 @@ esp_hostname_set(const char* hostname,
 /**
  * \brief           Get hostname of WiFi station
  * \param[in]       hostname: Pointer to output variable holding memory to save hostname
- * \param[in]       length: Length of buffer for hostname. Length includes memory for `NULL` termination
+ * \param[in]       size: Size of buffer for hostname. Size includes memory for `NULL` termination
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_hostname_get(char* hostname, size_t length,
+esp_hostname_get(char* hostname, size_t size,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("hostname != NULL", hostname != NULL);
-    ESP_ASSERT("length", length);
+    ESP_ASSERT("size > 0", size);
 
     ESP_MSG_VAR_ALLOC(msg);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_GET;
     ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_get = hostname;
-    ESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = length;
+    ESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = size;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }

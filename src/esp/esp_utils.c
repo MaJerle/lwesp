@@ -52,12 +52,12 @@ esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
     /* Convert number to string */
     i = 0;
     tmp[0] = '0';
-    if (!num) {
+    if (num == 0) {
         i++;
     } else {
         if (is_hex) {
             uint8_t mod;
-            while (num) {
+            while (num > 0) {
                 mod = num & 0x0F;
                 if (mod < 10) {
                     tmp[i] = mod + '0';
@@ -68,7 +68,7 @@ esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
                 i++;
             }
         } else {
-            while (num) {
+            while (num > 0) {
                 tmp[i] = (num % 10) + '0';
                 num /= 10;
                 i++;

@@ -139,7 +139,7 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
         p++;
     }
     i = 0;
-    if (dst_len) {
+    if (dst_len > 0) {
         dst_len--;
     }
     while (*p) {

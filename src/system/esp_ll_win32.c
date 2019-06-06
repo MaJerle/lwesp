@@ -76,7 +76,7 @@ configure_uart(uint32_t baudrate) {
      * as generic read and write
      */
     if (!initialized) {
-        com_port = CreateFile(L"\\\\.\\COM6",
+        com_port = CreateFile(L"\\\\.\\COM4",
             GENERIC_READ | GENERIC_WRITE,
             0,
             0,
@@ -143,7 +143,7 @@ uart_thread(void* param) {
          */
         do {
             ReadFile(com_port, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
-            if (bytes_read) {
+            if (bytes_read > 0) {
                 for (DWORD i = 0; i < bytes_read; i++) {
                     printf("%c", data_buffer[i]);
                 }

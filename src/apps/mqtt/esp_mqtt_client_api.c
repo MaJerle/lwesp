@@ -436,7 +436,7 @@ esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, con
     ESP_ASSERT("client != NULL", client != NULL);
     ESP_ASSERT("topic != NULL", topic != NULL);
     ESP_ASSERT("data != NULL", data != NULL);
-    ESP_ASSERT("btw", btw);
+    ESP_ASSERT("btw > 0", btw > 0);
 
     esp_sys_mutex_lock(&client->mutex);
     esp_sys_sem_wait(&client->sync_sem, 0);
@@ -493,7 +493,7 @@ esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_bu
     *p = NULL;
 
     /* Get new entry from mbox */
-    if (!timeout) {
+    if (timeout == 0) {
         if (!esp_sys_mbox_getnow(&client->rcv_mbox, (void **)p)) {
             return espTIMEOUT;
         }

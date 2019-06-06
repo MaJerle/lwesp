@@ -108,7 +108,7 @@ usart_ll_thread(void const * arg) {
                 esp_input_process(&usart_mem[old_pos], pos - old_pos);
             } else {
                 esp_input_process(&usart_mem[old_pos], sizeof(usart_mem) - old_pos);
-                if (pos) {
+                if (pos > 0) {
                     esp_input_process(&usart_mem[0], pos);
                 }
             }

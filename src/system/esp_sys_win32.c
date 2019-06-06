@@ -173,7 +173,7 @@ esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
     DWORD ret;
     uint32_t tick = osKernelSysTick();
 
-    if (!timeout) {
+    if (timeout == 0) {
         ret = WaitForSingleObject(*p, INFINITE);
         return 1;
     } else {
@@ -276,7 +276,7 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
          * Timeout = 0 means unlimited time
          * Wait either unlimited time or for specific timeout
          */
-        if (!timeout) {
+        if (timeout == 0) {
             esp_sys_sem_wait(&mbox->sem_not_empty, 0);
         } else {
             spent_time = esp_sys_sem_wait(&mbox->sem_not_empty, timeout);

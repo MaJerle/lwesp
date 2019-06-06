@@ -43,7 +43,7 @@
  */
 espr_t
 espi_unicode_decode(esp_unicode_t* s, uint8_t c) {
-    if (!s->r) {                                /* Are we expecting a first character? */
+    if (s->r == 0) {                            /* Are we expecting a first character? */
         s->t = 0;                               /* Reset sequence */
         s->ch[0] = c;                           /* Save current character */
         if (c < 0x80) {                         /* One byte only in UTF-8 representation */
@@ -65,7 +65,7 @@ espi_unicode_decode(esp_unicode_t* s, uint8_t c) {
     } else if ((c & 0xC0) == 0x80) {            /* Next character in sequence */
         s->r--;                                 /* Decrease character */
         s->ch[s->t - s->r - 1] = c;             /* Save character to array */
-        if (!s->r) {                            /* Did we finish? */
+        if (s->r == 0) {                        /* Did we finish? */
             return espOK;                       /* Return OK, we are ready to proceed */
         }
         return espINPROG;                       /* Still in progress */

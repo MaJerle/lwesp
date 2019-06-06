@@ -496,7 +496,7 @@ espi_tcpip_process_data_sent(uint8_t sent) {
             return 1;                           /* Return 1 and indicate error */
         }
     }
-    if (esp.msg->msg.conn_send.btw) {           /* Do we still have data to send? */
+    if (esp.msg->msg.conn_send.btw > 0) {       /* Do we still have data to send? */
         if (espi_tcpip_process_send_data() != espOK) {  /* Check if we can continue */
             return 1;                           /* Finish at this point */
         }
@@ -1003,7 +1003,7 @@ espi_process_buffer(void) {
          * we can process directly as memory
          */
         len = esp_buff_get_linear_block_read_length(&esp.buff);
-        if (len) {
+        if (len > 0) {
             /*
              * Get memory address of first element
              * in linear block of data to process
@@ -1064,7 +1064,7 @@ espi_process(const void* data, size_t data_len) {
             len = ESP_MIN(d_len, ESP_MIN(esp.m.ipd.rem_len, esp.m.ipd.buff != NULL ? (esp.m.ipd.buff->len - esp.m.ipd.buff_ptr) : esp.m.ipd.rem_len));
             ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                 "[IPD] New length to read: %d bytes\r\n", (int)len);
-            if (len) {
+            if (len > 0) {
                 if (esp.m.ipd.buff != NULL) {   /* Is buffer valid? */
                     ESP_MEMCPY(&esp.m.ipd.buff->payload[esp.m.ipd.buff_ptr], d, len);
                     ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
@@ -1080,7 +1080,7 @@ espi_process(const void* data, size_t data_len) {
             }
 
             /* Did we reach end of buffer or no more data? */
-            if (!esp.m.ipd.rem_len || (esp.m.ipd.buff != NULL && esp.m.ipd.buff_ptr == esp.m.ipd.buff->len)) {
+            if (!esp.m.ipd.rem_len > 0 || (esp.m.ipd.buff != NULL && esp.m.ipd.buff_ptr == esp.m.ipd.buff->len)) {
                 espr_t res = espOK;
 
                 /* Call user callback function with received data */
@@ -1113,7 +1113,7 @@ espi_process(const void* data, size_t data_len) {
                      *  - Previous one was successful and more data to read and
                      *  - Connection is not in closing state
                      */
-                    if (esp.m.ipd.buff != NULL && esp.m.ipd.rem_len && !esp.m.ipd.conn->status.f.in_closing) {
+                    if (esp.m.ipd.buff != NULL && esp.m.ipd.rem_len > 0 && !esp.m.ipd.conn->status.f.in_closing) {
                         size_t new_len = ESP_MIN(esp.m.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE); /* Calculate new buffer length */
 
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
@@ -1130,7 +1130,7 @@ espi_process(const void* data, size_t data_len) {
                         esp.m.ipd.buff = NULL;  /* Reset it */
                     }
                 }
-                if (!esp.m.ipd.rem_len) {       /* Check if we read everything */
+                if (esp.m.ipd.rem_len == 0) {   /* Check if we read everything */
                     esp.m.ipd.buff = NULL;      /* Reset buffer pointer */
                     esp.m.ipd.read = 0;         /* Stop reading data */
                 }

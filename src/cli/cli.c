@@ -88,7 +88,7 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
             const cli_command_t *command = &cli_command_table[module_index].commands[command_index];
             if (!strncmp(cmd_buffer, cli_command_table[module_index].commands[command_index].name, *cmd_pos)) {
                 /* Found a new command which matches the string */
-                if (!num_of_matched_commands) {
+                if (num_of_matched_commands == 0) {
                     /*
                      * Save the first match for later tab completion in case
                      * print_option is true (double tab)
@@ -117,10 +117,10 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
                      */
                     uint32_t last_common_command_len = common_command_len;
                     common_command_len = 0;
-                    while (matched_command[common_command_len] == command->name[common_command_len] &&
-                            matched_command[common_command_len] != '\0' &&
-                            command->name[common_command_len] != '\0' &&
-                            common_command_len < last_common_command_len) {
+                    while (matched_command[common_command_len] == command->name[common_command_len]
+                            && matched_command[common_command_len] != '\0'
+                            && command->name[common_command_len] != '\0'
+                            && common_command_len < last_common_command_len) {
                         common_command_len++;
                     }
                 }

@@ -57,7 +57,7 @@ clear_cmd_buffer( void ) {
  * \brief           Stores the command to history
  */
 static void
-store_command_to_history( void ) {
+store_command_to_history(void) {
     uint32_t hist_count;
     if (strcmp(cmd_history_buffer[0], cmd_buffer)) {
         for (hist_count = CLI_CMD_HISTORY-1; hist_count > 0; hist_count--) {
@@ -117,7 +117,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                 }
                 break;
             case 'B':                           /* Down */
-                if (cmd_history_pos) {
+                if (cmd_history_pos > 0) {
                     /* Clear the line */
                     memset(cmd_buffer, ' ', cmd_pos);
                     cliprintf("\r%s       \r" CLI_PROMPT, cmd_buffer);
@@ -149,7 +149,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                 /* TODO not finnished
                  * need to implement a courser
                  */
-                if (cmd_pos) {
+                if (cmd_pos > 0) {
                     cmd_pos--;
                     cliprintf("\033[\1D");
                 } else {

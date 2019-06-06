@@ -564,11 +564,11 @@ read_resp_file(http_state_t* hs) {
      */
     if (hs->buff == NULL) {                     /* Do we have a buffer empty? */
         len = http_fs_data_read_file(hi, &hs->resp_file, NULL, 0, NULL);    /* Get number of remaining bytes to read in file */
-        if (len) {                              /* Is there anything to read? On static files, this should be valid only once */
+        if (len > 0) {                              /* Is there anything to read? On static files, this should be valid only once */
             if (hs->resp_file.is_static) {      /* On static files... */
                 len = http_fs_data_read_file(hi, &hs->resp_file, (void **)&hs->buff, len, NULL);    /* ...simply set file pointer */
                 hs->buff_len = len;             /* Set buffer length */
-                if (!len) {                     /* Empty read? */
+                if (len == 0) {                 /* Empty read? */
                     hs->buff = NULL;            /* Reset buffer */
                 }
             } else {
@@ -616,7 +616,7 @@ send_response_ssi(http_state_t* hs) {
     if (hs->ssi_tag_buff_written < hs->ssi_tag_buff_ptr) {  /* Do we have to send something from SSI buffer? */
         size_t len;
         len = ESP_MIN(hs->ssi_tag_buff_ptr - hs->ssi_tag_buff_written, hs->conn_mem_available);
-        if (len) {                              /* More data to send? */
+        if (len > 0) {                              /* More data to send? */
             esp_conn_write(hs->conn, &hs->ssi_tag_buff[hs->ssi_tag_buff_written], len, 0, &hs->conn_mem_available);
             hs->written_total += len;           /* Increase total number of written elements */
             hs->ssi_tag_buff_written += len;    /* Increase total number of written SSI buffer */
@@ -708,7 +708,7 @@ send_response_ssi(http_state_t* hs) {
 
             if (reset) {
                 reset = 0;
-                if (hs->ssi_tag_buff_ptr) {     /* Do we have to send something from temporary TAG buffer? */
+                if (hs->ssi_tag_buff_ptr > 0) { /* Do we have to send something from temporary TAG buffer? */
                     size_t len;
 
                     len = ESP_MIN(hs->ssi_tag_buff_ptr, hs->conn_mem_available);
@@ -719,7 +719,7 @@ send_response_ssi(http_state_t* hs) {
                         hs->ssi_tag_buff_ptr = 0;
                     }
                 }
-                if (hs->conn_mem_available) {   /* Is there memory to write a current byte? */
+                if (hs->conn_mem_available > 0) {   /* Is there memory to write a current byte? */
                     esp_conn_write(hs->conn, &ch, 1, 0, &hs->conn_mem_available);
                     hs->written_total++;
                     hs->buff_ptr++;
@@ -741,9 +741,7 @@ static void
 send_response_no_ssi(http_state_t* hs) {
     ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] processing NO SSI\r\n");
 
-    /*
-     * Are we ready to read more?
-     */
+    /* Are we ready to read more? */
     if (hs->buff == NULL || hs->written_total == hs->sent_total) {
         read_resp_file(hs);                     /* Try to read response file */
     }
@@ -762,7 +760,7 @@ send_response_no_ssi(http_state_t* hs) {
          * In case we still have remaining memory from dynamic headers write,
          * try to write more to fill packet to send as much data as possible at single time
          */
-        if (hs->conn_mem_available) {
+        if (hs->conn_mem_available > 0) {
             size_t to_write;
             to_write = ESP_MIN(hs->buff_len, hs->conn_mem_available);
             esp_conn_write(hs->conn, b, to_write, 0, &hs->conn_mem_available);
@@ -772,7 +770,7 @@ send_response_no_ssi(http_state_t* hs) {
         }
 #endif /* HTTP_DYNAMIC_HEADERS */
 
-        if (blen) {
+        if (blen > 0) {
             if (esp_conn_send(hs->conn, b, blen, NULL, 0) == espOK) {
                 hs->written_total += blen;      /* Set written total length */
             }
@@ -790,7 +788,7 @@ send_response(http_state_t* hs, uint8_t ft) {
     uint8_t close = 0;
 
     if (!hs->process_resp ||                    /* Not yet ready to process response? */
-        (hs->written_total && hs->written_total != hs->sent_total)) {   /* Did we wrote something but didn't send yet? */
+        (hs->written_total > 0 && hs->written_total != hs->sent_total)) {   /* Did we wrote something but didn't send yet? */
         return;
     }
 
@@ -965,7 +963,7 @@ http_evt(esp_evt_t* evt) {
                             }
 
                             /* Check if we are expecting any data on POST request */
-                            if (hs->content_length) {
+                            if (hs->content_length > 0) {
                                 /*
                                  * Call user POST start method here
                                  * to notify him to prepare himself to receive POST data
@@ -979,7 +977,7 @@ http_evt(esp_evt_t* evt) {
                                  * to user from data part of request
                                  */
                                 pbuf_total_len = esp_pbuf_length(hs->p, 1); /* Get total length of current received pbuf */
-                                if ((pbuf_total_len - data_pos)) {
+                                if ((pbuf_total_len - data_pos) > 0) {
                                     hs->content_received = pbuf_total_len - data_pos;
 
                                     /* Send data to user */

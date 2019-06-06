@@ -85,7 +85,7 @@ esp_input_process(const void* data, size_t len) {
     esp_recv_total_len += len;                  /* Update total number of received bytes */
     esp_recv_calls++;                           /* Update number of calls */
 
-    if (len) {
+    if (len > 0) {
         esp_core_lock();
         res = espi_process(data, len);          /* Process input data */
         esp_core_unlock();

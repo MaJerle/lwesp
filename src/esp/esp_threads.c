@@ -80,7 +80,7 @@ esp_thread_produce(void* const arg) {
 
         /* For reset message, we can have delay! */
         if (res == espOK && msg->cmd_def == ESP_CMD_RESET) {
-            if (msg->msg.reset.delay) {
+            if (msg->msg.reset.delay > 0) {
                 esp_delay(msg->msg.reset.delay);
             }
             espi_reset_everything(1);           /* Reset stack before trying to reset */

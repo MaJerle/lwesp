@@ -106,7 +106,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
         esp_core_lock();
         ref = --p->ref;                         /* Decrease current value and save it */
         esp_core_unlock();
-        if (!ref) {                             /* Did we reach 0 and are ready to free it? */
+        if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
                 "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
             pn = p->next;                       /* Save next entry */
@@ -222,11 +222,11 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
 
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);
     ESP_ASSERT("data != NULL", data != NULL);
-    ESP_ASSERT("len", len);
+    ESP_ASSERT("len > 0", len > 0);
     ESP_ASSERT("pbuf->tot_len >= len", pbuf->tot_len >= len);
 
     /* Skip if necessary and check if we are in valid range */
-    if (offset) {
+    if (offset > 0) {
         pbuf = pbuf_skip(pbuf, offset, &offset);    /* Offset and check for new length */
         if (pbuf == NULL) {
             return espERR;
@@ -238,7 +238,7 @@ esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
     }
 
     /* First only copy in case we have some offset from first pbuf */
-    if (offset) {
+    if (offset > 0) {
         copy_len = ESP_MIN(pbuf->len - offset, len);    /* Get length to copy to current pbuf */
         ESP_MEMCPY(pbuf->payload + offset, d, copy_len);/* Copy to memory with offset */
         len -= copy_len;                        /* Decrease remaining bytes to copy */
@@ -269,7 +269,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
     size_t tot, tc;
     uint8_t* d = data;
 
-    if (pbuf == NULL || data == NULL || !len || pbuf->tot_len < offset) {
+    if (pbuf == NULL || data == NULL || len == 0 || pbuf->tot_len < offset) {
         return 0;
     }
 
@@ -277,7 +277,7 @@ esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
      * In case user wants offset,
      * skip to necessary pbuf
      */
-    if (offset) {
+    if (offset > 0) {
         pbuf = pbuf_skip(pbuf, offset, &offset);/* Skip offset if necessary */
         if (pbuf == NULL) {
             return 0;
@@ -375,7 +375,7 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
     uint8_t el;
     const uint8_t* d = data;
 
-    if (pbuf == NULL || data == NULL || !len || /* Input parameters check */
+    if (pbuf == NULL || data == NULL || len == 0 || /* Input parameters check */
         pbuf->tot_len < (offset + len)) {       /* Check of valid ranges */
         return ESP_SIZET_MAX;                   /* Invalid check here */
     }
@@ -433,7 +433,7 @@ esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) 
         SET_NEW_LEN(new_len, 0);
         return NULL;
     }
-    if (offset) {                               /* Is there any offset? */
+    if (offset > 0) {                           /* Is there any offset? */
         p = pbuf_skip(pbuf, offset, &offset);   /* Skip pbuf to desired length */
         if (p == NULL) {
             SET_NEW_LEN(new_len, 0);
@@ -495,10 +495,10 @@ esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port) {
 uint8_t
 esp_pbuf_advance(esp_pbuf_p pbuf, int len) {
     uint8_t process = 0;
-    if (pbuf == NULL || !len) {
+    if (pbuf == NULL || len == 0) {
         return 0;
     }
-    if (len) {                              /* When we want to decrease size */
+    if (len > 0) {                              /* When we want to decrease size */
         if ((size_t)len <= pbuf->len) {         /* Is there space to decrease? */
             process = 1;
         }

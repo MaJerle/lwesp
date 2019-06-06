@@ -55,7 +55,7 @@ esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t 
     if (en) {
         ESP_ASSERT("host != NULL", host != NULL);
         ESP_ASSERT("server != NULL", server != NULL);
-        ESP_ASSERT("port", port);
+        ESP_ASSERT("port > 0", port > 0);
     }
 
     ESP_MSG_VAR_ALLOC(msg);

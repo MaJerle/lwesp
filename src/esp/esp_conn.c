@@ -96,7 +96,7 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("conn != NULL", conn != NULL);
-    ESP_ASSERT("len", len);
+    ESP_ASSERT("len > 0", len > 0);
 
     ESP_MSG_VAR_ALLOC(msg);
 
@@ -162,7 +162,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
 
     ESP_ASSERT("conn != NULL", conn != NULL);
     ESP_ASSERT("data != NULL", data != NULL);
-    ESP_ASSERT("btw", btw);
+    ESP_ASSERT("btw > 0", btw > 0);
 
     if (bw != NULL) {
         *bw = 0;
@@ -199,7 +199,7 @@ flush_buff(esp_conn_p conn) {
          * If there is nothing to write or if write was not successful,
          * simply free the memory and stop execution
          */
-        if (conn->buff.ptr) {                   /* Anything to send at the moment? */
+        if (conn->buff.ptr > 0) {               /* Anything to send at the moment? */
             res = conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0);
         } else {
             res = espERR;
@@ -240,7 +240,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("host != NULL", host != NULL);
-    ESP_ASSERT("port", port);
+    ESP_ASSERT("port > 0", port > 0);
     ESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
 
     ESP_MSG_VAR_ALLOC(msg);
@@ -329,13 +329,13 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
 
     ESP_ASSERT("conn != NULL", conn != NULL);
     ESP_ASSERT("data != NULL", data != NULL);
-    ESP_ASSERT("btw", btw);
+    ESP_ASSERT("btw > 0", btw > 0);
 
     esp_core_lock();
     if (conn->buff.buff != NULL) {              /* Check if memory available */
         size_t to_copy;
         to_copy = ESP_MIN(btw, conn->buff.len - conn->buff.ptr);
-        if (to_copy) {
+        if (to_copy > 0) {
             ESP_MEMCPY(&conn->buff.buff[conn->buff.ptr], d, to_copy);
             conn->buff.ptr += to_copy;
             d += to_copy;
@@ -344,7 +344,7 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
     }
     esp_core_unlock();
     res = flush_buff(conn);                     /* Flush currently written memory if exists */
-    if (btw) {                                  /* Check for remaining data */
+    if (btw > 0) {                              /* Check for remaining data */
         res = conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
     }
     return res;
@@ -371,7 +371,7 @@ esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
     len = esp_pbuf_length(pbuf, 1);             /* Get length of pbuf */
     if (conn->tcp_available_data > len) {
         conn->tcp_available_data -= len;        /* Decrease for available length */
-        if (conn->tcp_available_data) {
+        if (conn->tcp_available_data > 0) {
             /* Start new manual receive here... */
         }
     }
@@ -629,7 +629,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
         ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff.buff == NULL,
             "[CONN] Cannot allocate new write buffer\r\n");
     }
-    if (btw) {
+    if (btw > 0) {
         if (conn->buff.buff != NULL) {
             ESP_MEMCPY(conn->buff.buff, d, btw);    /* Copy data to memory */
             conn->buff.ptr = btw;

@@ -353,7 +353,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
 
     ESP_ASSERT("nc != NULL", nc != NULL);
     ESP_ASSERT("host != NULL", host != NULL);
-    ESP_ASSERT("port", port);
+    ESP_ASSERT("port > 0", port > 0);
 
     /*
      * Start a new connection as client and:
@@ -375,6 +375,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
 espr_t
 esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
     espr_t res = espOK;
+
     ESP_ASSERT("nc != NULL", nc != NULL);
 
     /*
@@ -517,7 +518,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
     /* Step 1 */
     if (nc->buff.buff != NULL) {                /* Is there a write buffer ready to accept more data? */
         len = ESP_MIN(nc->buff.len - nc->buff.ptr, btw);    /* Get number of bytes we can write to buffer */
-        if (len) {
+        if (len > 0) {
             ESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], data, len);/* Copy memory to temporary write buffer */
             d += len;
             nc->buff.ptr += len;
@@ -550,7 +551,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
         btw -= sent;                            /* Decrease remaining data to send */
     }
 
-    if (!btw) {                                 /* Sent everything? */
+    if (btw == 0) {                             /* Sent everything? */
         return espOK;
     }
 
@@ -588,7 +589,7 @@ esp_netconn_flush(esp_netconn_p nc) {
      * flush them out to network
      */
     if (nc->buff.buff != NULL) {                /* Check remaining data */
-        if (nc->buff.ptr) {                     /* Do we have data in current buffer? */
+        if (nc->buff.ptr > 0) {                 /* Do we have data in current buffer? */
             esp_conn_send(nc->conn, nc->buff.buff, nc->buff.ptr, NULL, 1);  /* Send data */
         }
         esp_mem_free(nc->buff.buff);            /* Free memory */
