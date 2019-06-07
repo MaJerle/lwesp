@@ -126,7 +126,7 @@ BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t btw) {
 
 /**
  * \brief           Read data from buffer
- *                  Copies data from buffer to `data` array and marks buffer as free for maximum `count` number of bytes
+ *                  Copies data from buffer to `data` array and marks buffer as free for maximum `btr` number of bytes
  * \param[in]       buff: Buffer handle
  * \param[out]      data: Pointer to output memory to copy buffer data to
  * \param[in]       btr: Number of bytes to read
@@ -324,7 +324,7 @@ BUF_PREF(buff_get_linear_block_read_length)(BUF_PREF(buff_t)* buff) {
 
 /**
  * \brief           Skip (ignore; advance read pointer) buffer data
- *                  Marks data as read in the buffer and increases free memory up to `len` bytes
+ *                  Marks data as read in the buffer and increases free memory for up to `len` bytes
  * \note            Useful at the end of streaming transfer such as DMA
  * \param[in]       buff: Buffer handle
  * \param[in]       len: Number of bytes to skip and mark as read
