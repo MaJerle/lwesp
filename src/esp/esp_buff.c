@@ -42,7 +42,7 @@
 /* Buffer utility macros */
 #define BUF_MEMSET                      ESP_MEMSET
 #define BUF_MEMCPY                      ESP_MEMCPY
-#define BUF_IS_VALID(b)                 ((b) != NULL && (b)->buff != NULL && (b)->size)
+#define BUF_IS_VALID(b)                 ((b) != NULL && (b)->buff != NULL && (b)->size > 0)
 #define BUF_MIN(x, y)                   ((x) < (y) ? (x) : (y))
 #define BUF_MAX(x, y)                   ((x) > (y) ? (x) : (y))
 
@@ -85,47 +85,43 @@ BUF_PREF(buff_free)(BUF_PREF(buff_t)* buff) {
  *                  Copies data from `data` array to buffer and marks buffer as full for maximum `count` number of bytes
  * \param[in]       buff: Buffer handle
  * \param[in]       data: Pointer to data to write into buffer
- * \param[in]       count: Number of bytes to write
+ * \param[in]       btw: Number of bytes to write
  * \return          Number of bytes written to buffer.
- *                  When value is less than `count`, there was no enough memory available
+ *                  When returned value is less than `btw`, there was no enough memory available
  *                  to copy full data array
  */
 size_t
-BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t count) {
+BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t btw) {
     size_t tocopy, free;
     const uint8_t* d = data;
 
-    if (!BUF_IS_VALID(buff) || count == 0) {
+    if (!BUF_IS_VALID(buff) || btw == 0) {
         return 0;
-    }
-
-    if (buff->w >= buff->size) {                /* Check input pointer */
-        buff->w = 0;                            /* On normal use, this should never happen */
     }
 
     /* Calculate maximum number of bytes available to write */
     free = BUF_PREF(buff_get_free)(buff);
-    count = BUF_MIN(free, count);
-    if (count == 0) {
+    btw = BUF_MIN(free, btw);
+    if (btw == 0) {
         return 0;
     }
 
     /* Step 1: Write data to linear part of buffer */
-    tocopy = BUF_MIN(buff->size - buff->w, count);
+    tocopy = BUF_MIN(buff->size - buff->w, btw);
     BUF_MEMCPY(&buff->buff[buff->w], d, tocopy);
     buff->w += tocopy;
-    count -= tocopy;
+    btw -= tocopy;
 
     /* Step 2: Write data to beginning of buffer (overflow part) */
-    if (count > 0) {
-        BUF_MEMCPY(buff->buff, (void *)&d[tocopy], count);
-        buff->w = count;
+    if (btw > 0) {
+        BUF_MEMCPY(buff->buff, (void *)&d[tocopy], btw);
+        buff->w = btw;
     }
 
-    if (buff->w >= buff->size) {                /* Check input overflow */
+    if (buff->w >= buff->size) {
         buff->w = 0;
     }
-    return tocopy + count;                      /* Number of elements written */
+    return tocopy + btw;
 }
 
 /**
@@ -133,45 +129,42 @@ BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t count) {
  *                  Copies data from buffer to `data` array and marks buffer as free for maximum `count` number of bytes
  * \param[in]       buff: Buffer handle
  * \param[out]      data: Pointer to output memory to copy buffer data to
- * \param[in]       count: Number of bytes to read
+ * \param[in]       btr: Number of bytes to read
  * \return          Number of bytes read and copied to data array
  */
 size_t
-BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t count) {
+BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t btr) {
     size_t tocopy, full;
     uint8_t *d = data;
 
-    if (!BUF_IS_VALID(buff) || count == 0) {
+    if (!BUF_IS_VALID(buff) || btr == 0) {
         return 0;
-    }
-
-    if (buff->r >= buff->size) {                /* Check output pointer */
-        buff->r = 0;                            /* On normal use, this should never happen */
     }
 
     /* Calculate maximum number of bytes available to read */
     full = BUF_PREF(buff_get_full)(buff);
-    count = BUF_MIN(full, count);
-    if (count == 0) {
+    btr = BUF_MIN(full, btr);
+    if (btr == 0) {
         return 0;
     }
 
     /* Step 1: Read data from linear part of buffer */
-    tocopy = BUF_MIN(buff->size - buff->r, count);
+    tocopy = BUF_MIN(buff->size - buff->r, btr);
     BUF_MEMCPY(d, &buff->buff[buff->r], tocopy);
     buff->r += tocopy;
-    count -= tocopy;
+    btr -= tocopy;
 
     /* Step 2: Read data from beginning of buffer (overflow part) */
-    if (count > 0) {
-        BUF_MEMCPY(&d[tocopy], buff->buff, count);
-        buff->r = count;
+    if (btr > 0) {
+        BUF_MEMCPY(&d[tocopy], buff->buff, btr);
+        buff->r = btr;
     }
 
-    if (buff->r >= buff->size) {                /* Check output overflow */
+    /* Step 3: Check end of buffer */
+    if (buff->r >= buff->size) {
         buff->r = 0;
     }
-    return tocopy + count;                      /* Number of elements read */
+    return tocopy + btr;
 }
 
 /**
@@ -179,21 +172,18 @@ BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t count) {
  * \param[in]       buff: Buffer handle
  * \param[in]       skip_count: Number of bytes to skip before reading data
  * \param[out]      data: Pointer to output memory to copy buffer data to
- * \param[in]       count: Number of bytes to peek
+ * \param[in]       btp: Number of bytes to peek
  * \return          Number of bytes peeked and written to output array
  */
 size_t
-BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_t count) {
+BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_t btp) {
     size_t full, tocopy, r;
     uint8_t *d = data;
 
-    if (!BUF_IS_VALID(buff) || count == 0) {
+    if (!BUF_IS_VALID(buff) || btp == 0) {
         return 0;
     }
-
-    if (buff->r >= buff->size) {                /* Check output pointer */
-        buff->r = 0;                            /* On normal use, this should never happen */
-    }
+    
     r = buff->r;
 
     /* Calculate maximum number of bytes available to read */
@@ -210,21 +200,21 @@ BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_
     }
 
     /* Check maximum number of bytes available to read after skip */
-    count = BUF_MIN(full, count);
-    if (count == 0) {
+    btp = BUF_MIN(full, btp);
+    if (btp == 0) {
         return 0;
     }
 
     /* Step 1: Read data from linear part of buffer */
-    tocopy = BUF_MIN(buff->size - r, count);
+    tocopy = BUF_MIN(buff->size - r, btp);
     BUF_MEMCPY(d, &buff->buff[r], tocopy);
-    count -= tocopy;
+    btp -= tocopy;
 
     /* Step 2: Read data from beginning of buffer (overflow part) */
-    if (count > 0) {
-        BUF_MEMCPY(&d[tocopy], buff->buff, count);
+    if (btp > 0) {
+        BUF_MEMCPY(&d[tocopy], buff->buff, btp);
     }
-    return tocopy + count;                      /* Number of elements read */
+    return tocopy + btp;
 }
 
 /**
@@ -388,15 +378,15 @@ BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t)* buff) {
     if (w >= r) {
         len = buff->size - w;
         /*
-         * When read pointer == 0,
+         * When read pointer is 0,
          * maximal length is one less as if too many bytes 
          * are written, buffer would be considered empty again (r == w)
          */
         if (r == 0) {
             /*
              * Cannot overflow:
-             * - If r != 0, statement does not get called
-             * - buff->size cannot be 0 and if r == 0, len is > 0
+             * - If r is not 0, statement does not get called
+             * - buff->size cannot be 0 and if r is 0, len is greater 0
              */
             len--;
         }

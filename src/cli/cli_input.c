@@ -60,7 +60,7 @@ static void
 store_command_to_history(void) {
     uint32_t hist_count;
     if (strcmp(cmd_history_buffer[0], cmd_buffer)) {
-        for (hist_count = CLI_CMD_HISTORY-1; hist_count > 0; hist_count--) {
+        for (hist_count = CLI_CMD_HISTORY - 1; hist_count > 0; hist_count--) {
             memcpy(cmd_history_buffer[hist_count], cmd_history_buffer[hist_count-1], CLI_MAX_CMD_LENGTH);
         }
         cmd_history_full++;
@@ -68,7 +68,7 @@ store_command_to_history(void) {
             cmd_history_full = CLI_CMD_HISTORY;
         }
         memcpy(cmd_history_buffer[0], cmd_buffer, CLI_MAX_CMD_LENGTH);
-        cmd_history_buffer[0][CLI_MAX_CMD_LENGTH-1] = '\0';
+        cmd_history_buffer[0][CLI_MAX_CMD_LENGTH - 1] = '\0';
     }
 }
 
