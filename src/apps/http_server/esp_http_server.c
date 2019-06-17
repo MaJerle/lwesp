@@ -577,8 +577,8 @@ read_resp_file(http_state_t* hs) {
                 }
                 hs->buff_ptr = 0;               /* Reset read pointer */
                 do {
-                    hs->buff_len = len;         /* Set length... */
-                    hs->buff = (const void *)esp_mem_alloc(sizeof(*hs->buff) * hs->buff_len);   /* ...and try to allocate memory for it */
+                    hs->buff_len = len;
+                    hs->buff = (const void *)esp_mem_malloc(sizeof(*hs->buff) * hs->buff_len);
                     if (hs->buff != NULL) {     /* Is memory ready? */
                         /* Read file directly and stop everything */
                         if (!http_fs_data_read_file(hi, &hs->resp_file, (void **)&hs->buff, hs->buff_len, NULL)) {

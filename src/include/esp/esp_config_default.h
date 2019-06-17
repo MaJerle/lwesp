@@ -82,6 +82,24 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` custom memory management functions
+ *
+ * When set to `1`, \ref ESP_MEM block must be provided manually.
+ * This includes implementation of functions \ref esp_mem_malloc,
+ * \ref esp_mem_calloc, \ref esp_mem_realloc and \ref esp_mem_free
+ *
+ * \note            Function declaration follows standard C functions `malloc, calloc, realloc, free`.
+ *                  Declaration is available in `esp/esp_mem.h` file. Include this file to final
+ *                  implementation file
+ *
+ * \note            When implementing custom memory allocation, it is necessary
+ *                  to take care of multiple threads accessing same resource for custom allocator
+ */
+#ifndef ESP_CFG_MEM_CUSTOM
+#define ESP_CFG_MEM_CUSTOM                  0
+#endif
+
+/**
  * \brief           Memory alignment for dynamic memory allocations
  *
  * \note            Some CPUs can work faster if memory is aligned, usually to `4` or `8` bytes.

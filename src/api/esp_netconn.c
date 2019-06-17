@@ -557,7 +557,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 
     /* Step 3 */
     if (nc->buff.buff == NULL) {                /* Check if we should allocate a new buffer */
-        nc->buff.buff = esp_mem_alloc(sizeof(*nc->buff.buff) * ESP_CFG_CONN_MAX_DATA_LEN);
+        nc->buff.buff = esp_mem_malloc(sizeof(*nc->buff.buff) * ESP_CFG_CONN_MAX_DATA_LEN);
         nc->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;   /* Save buffer length */
         nc->buff.ptr = 0;                       /* Save buffer pointer */
     }

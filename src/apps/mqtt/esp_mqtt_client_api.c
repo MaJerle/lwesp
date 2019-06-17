@@ -127,7 +127,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                 payload_size = ESP_MEM_ALIGN(sizeof(*payload) * (payload_len + 1));
                 
                 size = buf_size + topic_size + payload_size;
-                buf = esp_mem_alloc(size);
+                buf = esp_mem_malloc(size);
                 if (buf != NULL) {
                     ESP_MEMSET(buf, 0x00, size);
                     buf->topic = (void *)((uint8_t *)buf + buf_size);

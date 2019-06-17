@@ -392,7 +392,7 @@ esp_evt_register(esp_evt_fn fn) {
     }
 
     if (res == espOK) {
-        newFunc = esp_mem_alloc(sizeof(*newFunc));  /* Get memory for new function */
+        newFunc = esp_mem_malloc(sizeof(*newFunc));
         if (newFunc != NULL) {
             ESP_MEMSET(newFunc, 0x00, sizeof(*newFunc));/* Reset memory */
             newFunc->fn = fn;                   /* Set function pointer */

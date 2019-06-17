@@ -65,7 +65,7 @@ http_fs_open(http_fs_file_t* file, const char* path) {
     sprintf(fs_path, "SD:www%s", path);
 
     /* Allocate memory for FATFS file structure */
-    fil = esp_mem_alloc(sizeof(*fil));
+    fil = esp_mem_malloc(sizeof(*fil));
     if (fil == NULL) {
         return 0;
     }

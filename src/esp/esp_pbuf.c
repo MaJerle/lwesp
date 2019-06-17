@@ -70,7 +70,7 @@ esp_pbuf_p
 esp_pbuf_new(size_t len) {
     esp_pbuf_p p;
 
-    p = esp_mem_alloc(SIZEOF_PBUF_STRUCT + sizeof(*p->payload) * len);  /* Allocate memory for packet buffer */
+    p = esp_mem_malloc(SIZEOF_PBUF_STRUCT + sizeof(*p->payload) * len);
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p == NULL,
         "[PBUF] Failed to allocate %d bytes\r\n", (int)len);
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p != NULL,

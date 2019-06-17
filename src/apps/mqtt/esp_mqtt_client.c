@@ -1035,7 +1035,7 @@ esp_mqtt_client_t *
 esp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
     esp_mqtt_client_p client;
 
-    client = esp_mem_alloc(sizeof(*client));    /* Allocate memory for client structure */
+    client = esp_mem_malloc(sizeof(*client));
     if (client != NULL) {
         ESP_MEMSET(client, 0x00, sizeof(*client));
         client->conn_state = ESP_MQTT_CONN_DISCONNECTED;/* Set to disconnected mode */
@@ -1046,7 +1046,7 @@ esp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
         }
         if (client != NULL) {
             client->rx_buff_len = rx_buff_len;
-            client->rx_buff = esp_mem_alloc(rx_buff_len);
+            client->rx_buff = esp_mem_malloc(rx_buff_len);
             if (client->rx_buff == NULL) {
                 esp_buff_free(&client->tx_buff);
                 esp_mem_free(client);
