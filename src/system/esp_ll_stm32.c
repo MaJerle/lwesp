@@ -331,18 +331,22 @@ send_data(const void* data, size_t len) {
  */
 espr_t
 esp_ll_init(esp_ll_t* ll) {
+#if !ESP_CFG_MEM_CUSTOM
     static uint8_t memory[ESP_MEM_SIZE];
     esp_mem_region_t mem_regions[] = {
         { memory, sizeof(memory) }
     };
 
     if (!initialized) {
+        esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
+    }
+#endif /* !ESP_CFG_MEM_CUSTOM */
+    
+    if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
 #if defined(ESP_RESET_PIN)
         ll->reset_fn = reset_device;            /* Set callback for hardware reset */
 #endif /* defined(ESP_RESET_PIN) */
-
-        esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
     }
 
     configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
