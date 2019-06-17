@@ -56,9 +56,7 @@ typedef struct mem_block {
 
 static mem_block_t start_block;                 /*!< First block data for allocations */
 static mem_block_t* end_block;                  /*!< Pointer to last block in linked list */
-static size_t mem_total_size;                   /*!< Total size of heap memory for allocation */
 static size_t mem_available_bytes;              /*!< Number of available bytes for allocations */
-static size_t mem_min_available_bytes;          /*!< Minimum number of bytes ever */
 static size_t mem_alloc_bit;                    /*!< Bit indicating block is allocated */
 
 /**
@@ -199,7 +197,6 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
 
         regions++;                              /* Go to next region */
     }
-    mem_min_available_bytes = mem_available_bytes;  /* Save minimum ever available bytes in region */
 
     /* Set upper bit in memory allocation bit */
     mem_alloc_bit = ESP_SZ(ESP_SZ(1) << (sizeof(size_t) * 8 - 1));
@@ -272,9 +269,6 @@ mem_alloc(size_t size) {
         curr->next = NULL;                      /* Clear next free block pointer as there is no one */
 
         mem_available_bytes -= size;            /* Decrease available memory */
-        if (mem_available_bytes < mem_min_available_bytes) {/* Check if current available memory is less than ever before */
-            mem_min_available_bytes = mem_available_bytes;  /* Update minimal available memory */
-        }
     } else {
         /* Allocation failed, no free blocks of required size */
     }
@@ -312,19 +306,6 @@ mem_free(void* ptr) {
 }
 
 /**
- * \brief           Get block size in units of bytes
- * \param[in]       ptr: Memory address
- * \return          Size of memory on success, `0` otherwise
- */
-static size_t
-mem_getusersize(void* ptr) {
-    if (ptr == NULL) {
-        return 0;
-    }
-    return MEM_BLOCK_USER_SIZE(ptr);
-}
-
-/**
  * \brief           Allocate memory of specific size
  * \param[in]       size: Number of bytes to allocate
  * \return          Memory address on success, `NULL` otherwise
@@ -358,7 +339,7 @@ mem_realloc(void* ptr, size_t size) {
         return newPtr;
     }
 
-    oldSize = mem_getusersize(ptr);             /* Get size of old pointer */
+    oldSize = MEM_BLOCK_USER_SIZE(ptr);       	/* Get size of old pointer */
     newPtr = mem_alloc(size);                   /* Try to allocate new memory block */
     if (newPtr != NULL) {                       /* Check success */
         ESP_MEMCPY(newPtr, ptr, ESP_MIN(size, oldSize));/* Copy old data to new array */
