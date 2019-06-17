@@ -32,6 +32,7 @@
  */
 #include "esp/esp_private.h"
 #include "esp/esp_mem.h"
+#include "limits.h"
 
 #if !ESP_CFG_MEM_CUSTOM || __DOXYGEN__
 
@@ -51,13 +52,13 @@ typedef struct mem_block {
 
 #define MEMBLOCK_METASIZE           MEM_ALIGN(sizeof(mem_block_t))
 
+#define MEM_ALLOC_BIT               ((size_t)((size_t)1 << (sizeof(size_t) * CHAR_BIT - 1)))
 #define MEM_BLOCK_FROM_PTR(ptr)     ((mem_block_t *)(((uint8_t *)(ptr)) - MEMBLOCK_METASIZE))
-#define MEM_BLOCK_USER_SIZE(ptr)    ((MEM_BLOCK_FROM_PTR(ptr)->size & ~mem_alloc_bit) - MEMBLOCK_METASIZE)
+#define MEM_BLOCK_USER_SIZE(ptr)    ((MEM_BLOCK_FROM_PTR(ptr)->size & ~MEM_ALLOC_BIT) - MEMBLOCK_METASIZE)
 
 static mem_block_t start_block;                 /*!< First block data for allocations */
 static mem_block_t* end_block;                  /*!< Pointer to last block in linked list */
 static size_t mem_available_bytes;              /*!< Number of available bytes for allocations */
-static size_t mem_alloc_bit;                    /*!< Bit indicating block is allocated */
 
 /**
  * \brief           Insert a new block to linked list of free blocks
@@ -198,9 +199,6 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
         regions++;                              /* Go to next region */
     }
 
-    /* Set upper bit in memory allocation bit */
-    mem_alloc_bit = ESP_SZ(ESP_SZ(1) << (sizeof(size_t) * 8 - 1));
-
     return 1;                                   /* Regions set as expected */
 }
 
@@ -218,7 +216,7 @@ mem_alloc(size_t size) {
         return NULL;                            /* Invalid, not initialized */
     }
 
-    if (size == 0 || size >= mem_alloc_bit) {
+    if (size == 0 || size >= MEM_ALLOC_BIT) {
         return NULL;
     }
 
@@ -265,7 +263,7 @@ mem_alloc(size_t size) {
              */
             mem_insertfreeblock(next);          /* Insert free memory block to list of free memory blocks (linked list chain) */
         }
-        curr->size |= mem_alloc_bit;            /* Set allocated bit = memory is allocated */
+        curr->size |= MEM_ALLOC_BIT;            /* Set allocated bit = memory is allocated */
         curr->next = NULL;                      /* Clear next free block pointer as there is no one */
 
         mem_available_bytes -= size;            /* Decrease available memory */
@@ -294,12 +292,12 @@ mem_free(void* ptr) {
      * Check if block is even allocated by upper bit on size
      * and next free block must be set to NULL in order to work properly
      */
-    if ((block->size & mem_alloc_bit) && block->next == NULL) {
+    if ((block->size & MEM_ALLOC_BIT) && block->next == NULL) {
         /*
          * Clear allocated bit before entering back to free list
          * List will automatically take care for fragmentation
          */
-        block->size &= ~mem_alloc_bit;          /* Clear allocated bit */
+        block->size &= ~MEM_ALLOC_BIT;          /* Clear allocated bit */
         mem_available_bytes += block->size;     /* Increase available bytes back */
         mem_insertfreeblock(block);             /* Insert block to list of free blocks */
     }
@@ -331,21 +329,20 @@ mem_calloc(size_t num, size_t size) {
  */
 static void *
 mem_realloc(void* ptr, size_t size) {
-    void* newPtr;
-    size_t oldSize;
+    void* new_ptr;
+    size_t old_size;
 
     if (ptr == NULL) {                          /* If pointer is not valid */
-        newPtr = mem_alloc(size);               /* Only allocate memory */
-        return newPtr;
+        return mem_alloc(size);                 /* Only allocate memory */
     }
 
-    oldSize = MEM_BLOCK_USER_SIZE(ptr);       	/* Get size of old pointer */
-    newPtr = mem_alloc(size);                   /* Try to allocate new memory block */
-    if (newPtr != NULL) {                       /* Check success */
-        ESP_MEMCPY(newPtr, ptr, ESP_MIN(size, oldSize));/* Copy old data to new array */
+    old_size = MEM_BLOCK_USER_SIZE(ptr);       	/* Get size of old pointer */
+    new_ptr = mem_alloc(size);                  /* Try to allocate new memory block */
+    if (new_ptr != NULL) {
+        ESP_MEMCPY(new_ptr, ptr, ESP_MIN(size, old_size));  /* Copy old data to new array */
         mem_free(ptr);                          /* Free old pointer */
     }
-    return newPtr;
+    return new_ptr;
 }
 
 /**
