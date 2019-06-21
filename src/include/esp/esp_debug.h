@@ -37,8 +37,8 @@
 extern "C" {
 #endif
 
-#include "stdint.h"
-#include "string.h"
+#include <stdint.h>
+#include <string.h>
 
 /**
  * \ingroup         ESP

@@ -38,7 +38,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "stdint.h"
+#include <stdint.h>
 #include "stdlib.h"
 
 #include "esp_config.h"

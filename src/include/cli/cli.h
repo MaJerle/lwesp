@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 
-#include "stdbool.h"
-#include "stdint.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 /**
  * \defgroup        CLI Command line interface

@@ -32,7 +32,7 @@
  */
 #include "esp/esp_private.h"
 #include "esp/esp_mem.h"
-#include "limits.h"
+#include <limits.h>
 
 #if !ESP_CFG_MEM_CUSTOM || __DOXYGEN__
 

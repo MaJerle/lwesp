@@ -32,7 +32,7 @@
  */
 #include "esp/esp_private.h"
 #include "esp/esp_utils.h"
-#include "stdint.h"
+#include <stdint.h>
 
 /**
  * \brief           Convert `unsigned 32-bit` number to string

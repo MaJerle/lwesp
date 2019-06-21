@@ -31,7 +31,7 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #include "system/esp_sys.h"
-#include "string.h"
+#include <string.h>
 #include "stdlib.h"
 #include "windows.h"
 
