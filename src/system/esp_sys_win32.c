@@ -32,7 +32,7 @@
  */
 #include "system/esp_sys.h"
 #include <string.h>
-#include "stdlib.h"
+#include <stdlib.h>
 #include "windows.h"
 
 #if !__DOXYGEN__
