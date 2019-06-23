@@ -115,6 +115,16 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` callback function and custom parameter for API functions
+ *
+ * When enabled, `2` additional parameters are available in API functions.
+ * When command is executed, callback function with its parameter could be called when not set to `NULL`.
+ */
+#ifndef ESP_CFG_USE_API_FUNC_EVT
+#define ESP_CFG_USE_API_FUNC_EVT            1
+#endif
+
+/**
  * \brief           Maximal number of connections AT software can support on ESP device
  * \note            In case of official AT software, leave this on default value (`5`)
  */

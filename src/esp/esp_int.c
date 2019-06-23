@@ -334,7 +334,7 @@ void
 espi_reset_everything(uint8_t forced) {
     /**
      * \todo: Put stack to default state:
-     *          - Close all the connection in memory
+     *          - Close all the connections in memory
      *          - Clear entire data memory
      *          - Reset esp structure with IP
      *          - Start over init procedure

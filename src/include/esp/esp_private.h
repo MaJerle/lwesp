@@ -219,8 +219,10 @@ typedef struct esp_msg {
     espr_t          res;                        /*!< Result of message operation */
     espr_t          (*fn)(struct esp_msg *);    /*!< Processing callback function to process packet */
 
+#if ESP_CFG_USE_API_FUNC_EVT
     esp_api_cmd_evt_fn evt_fn;                  /*!< Command callback API function */
     void*           evt_arg;                    /*!< Command callback API callback parameter */
+#endif /* ESP_CFG_USE_API_FUNC_EVT */
 
     union {
         struct {
@@ -523,12 +525,8 @@ extern esp_t esp;
     if ((name) == NULL) {                           \
         return espERRMEM;                           \
     }                                               \
-    ESP_MEMSET(name, 0x00, sizeof(*(name)));        \
-    (name)->is_blocking = ESP_U8(blocking);         \
-} while (0)
-#define ESP_MSG_VAR_SET_EVT(name, evt_fn, evt_arg)  do {\
-    (name)->evt_fn = (evt_fn);                      \
-    (name)->evt_arg = (evt_arg);                    \
+    ESP_MEMSET((name), 0x00, sizeof(*(name)));      \
+    (name)->is_blocking = ESP_U8((blocking) > 0);   \
 } while (0)
 #define ESP_MSG_VAR_REF(name)                   (*(name))
 #define ESP_MSG_VAR_FREE(name)                  do {\
@@ -536,6 +534,14 @@ extern esp_t esp;
     esp_mem_free(name);                             \
     (name) = NULL;                                  \
 } while (0)
+#if ESP_CFG_USE_API_FUNC_EVT
+#define ESP_MSG_VAR_SET_EVT(name, evt_fn, evt_arg)  do {\
+    (name)->evt_fn = (evt_fn);                      \
+    (name)->evt_arg = (evt_arg);                    \
+} while (0)
+#else /* ESP_CFG_USE_API_FUNC_EVT */
+#define ESP_MSG_VAR_SET_EVT(name, evt_fn, evt_arg) do { ESP_UNUSED(evt_fn); ESP_UNUSED(evt_arg); } while (0)
+#endif /* !ESP_CFG_USE_API_FUNC_EVT */
 
 #define ESP_CHARISNUM(x)                    ((x) >= '0' && (x) <= '9')
 #define ESP_CHARTONUM(x)                    ((x) - '0')

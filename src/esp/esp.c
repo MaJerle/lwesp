@@ -31,7 +31,6 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
 #include "esp/esp_private.h"
-#include "esp/esp.h"
 #include "esp/esp_mem.h"
 #include "esp/esp_threads.h"
 #include "system/esp_ll.h"
