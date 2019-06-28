@@ -79,7 +79,7 @@ esp_pbuf_new(size_t len) {
         p->next = NULL;                         /* No next element in chain */
         p->tot_len = len;                       /* Set total length of pbuf chain */
         p->len = len;                           /* Set payload length */
-        p->payload = (uint8_t *)(((char *)p) + SIZEOF_PBUF_STRUCT); /* Set pointer to payload data */
+        p->payload = (void *)(((char *)p) + SIZEOF_PBUF_STRUCT);/* Set pointer to payload data */
         p->ref = 1;                             /* Single reference is used on this pbuf */
     }
     return p;
