@@ -531,9 +531,9 @@ extern esp_t esp;
 #define ESP_MSG_VAR_REF(name)                   (*(name))
 #define ESP_MSG_VAR_FREE(name)                  do {\
     ESP_DEBUGF(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, "[MSG VAR] Free memory: %p\r\n", (name)); \
-    if (esp_sys_sem_isvalid((name)->sem)) {         \
-        esp_sys_sem_delete((name)->sem);            \
-        esp_sys_sem_invalid((name)->sem);           \
+    if (esp_sys_sem_isvalid(&((name)->sem))) {      \
+        esp_sys_sem_delete(&((name)->sem));         \
+        esp_sys_sem_invalid(&((name)->sem));        \
     }                                               \
     esp_mem_free(name);                             \
     (name) = NULL;                                  \
