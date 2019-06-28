@@ -2039,7 +2039,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
         res = espERRBLOCKING;                   /* Blocking mode not allowed */
     }
     /* Check if device present */
-    if (!esp.status.f.dev_present) {
+    if (res == espOK && !esp.status.f.dev_present) {
         res = espERRNODEVICE;                   /* No device connected */
     }
     esp_core_unlock();
@@ -2064,20 +2064,16 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     } else {
         if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
             ESP_MSG_VAR_FREE(msg);              /* Release message */
-            res = espERRMEM;
+            return espERRMEM;
         }
     }
     if (res == espOK && msg->is_blocking) {     /* In case we have blocking request */
         uint32_t time;
         time = esp_sys_sem_wait(&msg->sem, 0);  /* Wait forever for semaphore */
-        if (ESP_SYS_TIMEOUT == time) {          /* If semaphore was not accessed in given time */
+        if (time == ESP_SYS_TIMEOUT) {          /* If semaphore was not accessed in given time */
             res = espTIMEOUT;                   /* Semaphore not released in time */
         } else {
             res = msg->res;                     /* Set response status from message response */
-        }
-        if (esp_sys_sem_isvalid(&msg->sem)) {   /* In case we have valid semaphore */
-            esp_sys_sem_delete(&msg->sem);      /* Delete semaphore object */
-            esp_sys_sem_invalid(&msg->sem);     /* Invalidate semaphore object */
         }
         ESP_MSG_VAR_FREE(msg);                  /* Release message */
     }
