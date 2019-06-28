@@ -518,7 +518,7 @@ typedef struct {
 extern esp_t esp;
 
 #define ESP_MSG_VAR_DEFINE(name)                esp_msg_t* name
-#define ESP_MSG_VAR_ALLOC(name)                 do {\
+#define ESP_MSG_VAR_ALLOC(name, blocking)       do {\
     (name) = esp_mem_malloc(sizeof(*(name)));       \
     ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) != NULL, "[MSG VAR] Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
     ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) == NULL, "[MSG VAR] Error allocating %d bytes\r\n", sizeof(*(name))); \

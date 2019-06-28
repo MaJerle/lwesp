@@ -204,7 +204,7 @@ esp_reset_with_delay(uint32_t delay,
                         const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESET;
     ESP_MSG_VAR_REF(msg).msg.reset.delay = delay;
@@ -223,7 +223,7 @@ espr_t
 esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_RESTORE;
     ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_RESET;
@@ -246,7 +246,7 @@ esp_set_wifi_mode(esp_mode_t mode, uint8_t def,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode;
@@ -268,7 +268,7 @@ esp_set_at_baudrate(uint32_t baud,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_UART;
     ESP_MSG_VAR_REF(msg).msg.uart.baudrate = baud;
@@ -296,7 +296,7 @@ esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout,
 
     ESP_ASSERT("port > 0", port > 0);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSERVER;
     if (en) {
@@ -325,7 +325,7 @@ espr_t
 esp_update_sw(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIUPDATE;
 

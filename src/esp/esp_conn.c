@@ -98,7 +98,7 @@ espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
     ESP_ASSERT("conn != NULL", conn != NULL);
     ESP_ASSERT("len > 0", len > 0);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
 
     len = ESP_MIN(ESP_CFG_CONN_MAX_DATA_LEN, ESP_MIN(len, conn->tcp_available_data));   /* Get maximal number of bytes we can read */
 
@@ -170,7 +170,7 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
 
     CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
 
     ESP_MSG_VAR_REF(msg).msg.conn_send.conn = conn;
@@ -243,7 +243,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
     ESP_ASSERT("port > 0", port > 0);
     ESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTART;
     ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSTATUS;
     ESP_MSG_VAR_REF(msg).msg.conn_start.num = ESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
@@ -273,7 +273,7 @@ esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
     CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
 
     /* Proceed with close event at this point! */
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPCLOSE;
     ESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
     ESP_MSG_VAR_REF(msg).msg.conn_close.val_id = espi_conn_get_val_id(conn);
@@ -421,7 +421,7 @@ espr_t
 esp_get_conns_status(const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTATUS;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
@@ -517,7 +517,7 @@ espr_t
 esp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLSIZE;
     ESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
 

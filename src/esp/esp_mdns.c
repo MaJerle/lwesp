@@ -58,7 +58,7 @@ esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t 
         ESP_ASSERT("port > 0", port > 0);
     }
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_MDNS;
     ESP_MSG_VAR_REF(msg).msg.mdns.en = en;

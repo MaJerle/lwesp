@@ -53,7 +53,7 @@ esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPAP_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.ip = ip;
@@ -83,7 +83,7 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t
 
     ESP_ASSERT("ip != NULL", ip != NULL);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPAP_SET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip = ip;
@@ -109,7 +109,7 @@ esp_ap_getmac(esp_mac_t* mac, uint8_t def,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPAPMAC_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
@@ -136,7 +136,7 @@ esp_ap_setmac(const esp_mac_t* mac, uint8_t def,
     ESP_ASSERT("mac != NULL", mac != NULL);
     ESP_ASSERT("Bit 0 of byte 0 in AP MAC must be 0!", !(((uint8_t *)mac)[0] & 0x01));
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPAPMAC_SET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
@@ -173,7 +173,7 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
     ESP_ASSERT("ch <= 128", ch <= 128);
     ESP_ASSERT("1 <= max_sta <= 10", max_sta > 0 && max_sta <= 10);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWSAP_SET;
     ESP_MSG_VAR_REF(msg).msg.ap_conf.ssid = ssid;
@@ -209,7 +209,7 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf,
         *staf = 0;
     }
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWLIF;
     ESP_MSG_VAR_REF(msg).msg.sta_list.stas = sta;

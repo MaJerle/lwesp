@@ -49,7 +49,7 @@ esp_wps_configure(uint8_t en,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_WPS;
     ESP_MSG_VAR_REF(msg).msg.wps_cfg.en = en;
