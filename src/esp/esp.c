@@ -425,8 +425,7 @@ esp_evt_unregister(esp_evt_fn fn) {
     for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {
         if (func->fn == fn) {
             prev->next = func->next;
-            esp_mem_free(func);
-            func = NULL;
+            esp_mem_free_s(&func);
             break;
         }
     }

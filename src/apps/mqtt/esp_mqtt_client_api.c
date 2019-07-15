@@ -144,7 +144,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                     if (!esp_sys_mbox_putnow(&api_client->rcv_mbox, buf)) {
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
                             "[MQTT API] Cannot put new received MQTT publish to queue\r\n");
-                        esp_mem_free(buf);
+                        esp_mem_free_s(&buf);
                     }
                 } else {
                     ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
@@ -292,7 +292,7 @@ esp_mqtt_client_api_delete(esp_mqtt_client_api_p client) {
         esp_mqtt_client_delete(client->mc);
         client->mc = NULL;
     }
-    esp_mem_free(client);
+    esp_mem_free_s(&client);
 }
 
 /**
@@ -518,7 +518,5 @@ esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_bu
  */
 void
 esp_mqtt_client_api_buf_free(esp_mqtt_client_api_buf_p p) {
-    if (p != NULL) {
-        esp_mem_free(p);
-    }
+    esp_mem_free_s(&p);
 }

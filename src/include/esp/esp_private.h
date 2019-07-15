@@ -535,8 +535,7 @@ extern esp_t esp;
         esp_sys_sem_delete(&((name)->sem));         \
         esp_sys_sem_invalid(&((name)->sem));        \
     }                                               \
-    esp_mem_free(name);                             \
-    (name) = NULL;                                  \
+    esp_mem_free_s(&(name));                        \
 } while (0)
 #if ESP_CFG_USE_API_FUNC_EVT
 #define ESP_MSG_VAR_SET_EVT(name, evt_fn, evt_arg)  do {\

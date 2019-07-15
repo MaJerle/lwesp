@@ -80,8 +80,7 @@ process_next_timeout(void) {
          */
         first_timeout = first_timeout->next;    /* Set next timeout on a list as first timeout */
         to->fn(to->arg);                        /* Call user callback function */
-        esp_mem_free(to);                       /* Free timeout memory */
-        to = NULL;
+        esp_mem_free_s(&to);
     }
 }
 
@@ -222,8 +221,7 @@ esp_timeout_remove(esp_timeout_fn fn) {
             } else {
                 first_timeout = t->next;
             }
-            esp_mem_free(t);
-            t = NULL;
+            esp_mem_free_s(&t);
             success = 1;
             break;
         }

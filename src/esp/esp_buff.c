@@ -75,8 +75,7 @@ BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size) {
 void
 BUF_PREF(buff_free)(BUF_PREF(buff_t)* buff) {
     if (BUF_IS_VALID(buff)) {
-        esp_mem_free(buff->buff);               /* Free memory */
-        buff->buff = NULL;
+        esp_mem_free_s(&buff->buff);
     }
 }
 

@@ -91,8 +91,7 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
         if ((m)->msg.conn_send.data != NULL) {      \
             ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,   \
                 "[CONN] Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
-            esp_mem_free((void *)(m)->msg.conn_send.data);  \
-            (m)->msg.conn_send.data = NULL;         \
+            esp_mem_free_s((void **)&((m)->msg.conn_send.data));\
         }                                           \
     }                                               \
 } while (0)
@@ -862,8 +861,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 if (conn->buff.buff != NULL) {
                     ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
                         "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
-                    esp_mem_free(conn->buff.buff);  /* Free memory */
-                    conn->buff.buff = NULL;
+                    esp_mem_free_s(&conn->buff.buff);
                 }
             } else if (!esp.m.link_conn.failed && !conn->status.f.active) {
                 id = conn->val_id;
@@ -939,8 +937,7 @@ espi_parse_received(esp_recv_t* rcv) {
             if (conn->buff.buff != NULL) {
                 ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
                     "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
-                esp_mem_free(conn->buff.buff);  /* Free the memory */
-                conn->buff.buff = NULL;
+                esp_mem_free_s(&conn->buff.buff);
             }
         }
     } else if (is_error && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {
