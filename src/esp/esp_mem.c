@@ -440,3 +440,18 @@ esp_mem_assignmemory(const esp_mem_region_t* regions, size_t len) {
 }
 
 #endif /* !ESP_CFG_MEM_CUSTOM || __DOXYGEN__ */
+
+/**
+ * \brief           Free memory in safe way by invalidating pointer after freeing
+ * \param[in]       ptr: Pointer to pointer to allocated memory to free
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_mem_free_s(void** ptr) {
+    if (ptr != NULL && *ptr != NULL) {
+        esp_mem_free(*ptr);
+        *ptr = NULL;
+        return 1;
+    }
+    return 0;
+}
