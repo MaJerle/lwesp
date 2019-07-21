@@ -1106,7 +1106,7 @@ http_evt(esp_evt_t* evt) {
                     }
                     hs->resp_file_opened = 0;   /* File is not opened anymore */
                 }
-                esp_mem_free_s(&hs);
+                esp_mem_free_s((void**)&hs);
             }
             break;
         }

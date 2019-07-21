@@ -424,7 +424,7 @@ esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, 
         esp_sys_sem_release(&c->sem);
         esp_sys_sem_delete(&c->sem);
         esp_sys_sem_invalid(&c->sem);
-        esp_mem_free_s(&c->api_c);
+        esp_mem_free_s((void**)&c->api_c);
         c->info_c = NULL;
         return espERRMEM;
     }

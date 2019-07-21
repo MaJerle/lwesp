@@ -293,7 +293,7 @@ free_ret:
         esp_sys_mbox_invalid(&a->mbox_receive);
     }
     if (a != NULL) {
-        esp_mem_free_s(&a);
+        esp_mem_free_s((void**)&a);
     }
     return NULL;
 }
@@ -334,7 +334,7 @@ esp_netconn_delete(esp_netconn_p nc) {
     }
     esp_core_unlock();
 
-    esp_mem_free_s(&nc);
+    esp_mem_free_s((void**)&nc);
     return espOK;
 }
 
@@ -527,7 +527,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
         if (nc->buff.ptr == nc->buff.len) {
             res = esp_conn_send(nc->conn, nc->buff.buff, nc->buff.len, &sent, 1);
 
-            esp_mem_free_s(&nc->buff.buff);
+            esp_mem_free_s((void**)&nc->buff.buff);
             if (res != espOK) {
                 return res;
             }
@@ -589,7 +589,7 @@ esp_netconn_flush(esp_netconn_p nc) {
         if (nc->buff.ptr > 0) {                 /* Do we have data in current buffer? */
             esp_conn_send(nc->conn, nc->buff.buff, nc->buff.ptr, NULL, 1);  /* Send data */
         }
-        esp_mem_free_s(&nc->buff.buff);
+        esp_mem_free_s((void**)&nc->buff.buff);
     }
     return espOK;
 }
