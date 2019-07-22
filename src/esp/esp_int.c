@@ -861,7 +861,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 if (conn->buff.buff != NULL) {
                     ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
                         "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
-                    esp_mem_free_s((void**)&conn->buff.buff);
+                    esp_mem_free_s((void **)&conn->buff.buff);
                 }
             } else if (!esp.m.link_conn.failed && !conn->status.f.active) {
                 id = conn->val_id;
@@ -937,7 +937,7 @@ espi_parse_received(esp_recv_t* rcv) {
             if (conn->buff.buff != NULL) {
                 ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
                     "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
-                esp_mem_free_s((void**)&conn->buff.buff);
+                esp_mem_free_s((void **)&conn->buff.buff);
             }
         }
     } else if (is_error && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {

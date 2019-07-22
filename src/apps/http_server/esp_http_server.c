@@ -582,7 +582,7 @@ read_resp_file(http_state_t* hs) {
                     if (hs->buff != NULL) {     /* Is memory ready? */
                         /* Read file directly and stop everything */
                         if (!http_fs_data_read_file(hi, &hs->resp_file, (void **)&hs->buff, hs->buff_len, NULL)) {
-                            esp_mem_free_s((void**)&hs->buff);
+                            esp_mem_free_s((void **)&hs->buff);
                         }
                         break;
                     }
@@ -1102,11 +1102,11 @@ http_evt(esp_evt_t* evt) {
                     uint8_t is_static = hs->resp_file.is_static;
                     http_fs_data_close_file(hi, &hs->resp_file);    /* Close file at this point */
                     if (!is_static && hs->buff != NULL) {
-                        esp_mem_free_s((void**)&hs->buff);
+                        esp_mem_free_s((void **)&hs->buff);
                     }
                     hs->resp_file_opened = 0;   /* File is not opened anymore */
                 }
-                esp_mem_free_s((void**)&hs);
+                esp_mem_free_s((void **)&hs);
             }
             break;
         }

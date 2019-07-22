@@ -207,7 +207,7 @@ flush_buff(esp_conn_p conn) {
         if (res != espOK) {
             ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
                 "[CONN] Free write buffer: %p\r\n", (void *)conn->buff.buff);
-            esp_mem_free_s((void**)&conn->buff.buff);
+            esp_mem_free_s((void **)&conn->buff.buff);
         }
         conn->buff.buff = NULL;
     }
@@ -591,7 +591,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
             if (conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != espOK) {
                 ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
                     "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
-                esp_mem_free_s((void**)&conn->buff.buff);
+                esp_mem_free_s((void **)&conn->buff.buff);
             }
             conn->buff.buff = NULL;
         }
@@ -606,7 +606,7 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
             if (conn_send(conn, NULL, 0, buff, ESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
                 ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
                     "[CONN] Free write buffer: %p\r\n", (void *)buff);
-                esp_mem_free_s((void**)&buff);
+                esp_mem_free_s((void **)&buff);
                 return espERRMEM;
             }
         } else {
