@@ -85,7 +85,7 @@ esp_sys_mutex_unlock(esp_sys_mutex_t* p) {
 
 uint8_t
 esp_sys_mutex_isvalid(esp_sys_mutex_t* p) {
-    return *p != NULL;
+    return p != NULL && *p != NULL;
 }
 
 uint8_t
@@ -123,7 +123,7 @@ esp_sys_sem_release(esp_sys_sem_t* p) {
 
 uint8_t
 esp_sys_sem_isvalid(esp_sys_sem_t* p) {
-    return *p != NULL;
+    return p != NULL && *p != NULL;
 }
 
 uint8_t
@@ -185,7 +185,7 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
 
 uint8_t
 esp_sys_mbox_isvalid(esp_sys_mbox_t* b) {
-    return *b != NULL;
+    return b != NULL && *b != NULL;
 }
 
 uint8_t
