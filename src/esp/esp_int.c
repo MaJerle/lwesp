@@ -588,7 +588,7 @@ espi_parse_received(esp_recv_t* rcv) {
         } else if (!strncmp(rcv->data, "+STA_CONNECTED", 14)) {
             espi_parse_ap_conn_disconn_sta(&rcv->data[15], 1);  /* Parse string and send to user layer */
         } else if (!strncmp(rcv->data, "+STA_DISCONNECTED", 17)) {
-            espi_parse_ap_conn_disconn_sta(&rcv->data[18], 1);  /* Parse string and send to user layer */
+            espi_parse_ap_conn_disconn_sta(&rcv->data[18], 0);  /* Parse string and send to user layer */
         } else if (!strncmp(rcv->data, "+DIST_STA_IP", 12)) {
             espi_parse_ap_ip_sta(&rcv->data[13]);   /* Parse string and send to user layer */
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
