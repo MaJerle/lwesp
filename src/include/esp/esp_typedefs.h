@@ -293,9 +293,13 @@ typedef enum esp_evt_type_t {
 
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     ESP_EVT_WIFI_CONNECTED,                     /*!< Station just connected to AP */
-    ESP_EVT_WIFI_GOT_IP,                        /*!< Station has valid IP */
+    ESP_EVT_WIFI_GOT_IP,                        /*!< Station has valid IP.
+                                                    When this event is received to application, no IP has been read from device.
+                                                    Stack will proceed with IP read from device and will later send \ref ESP_EVT_WIFI_IP_ACQUIRED event */
     ESP_EVT_WIFI_DISCONNECTED,                  /*!< Station just disconnected from AP */
-    ESP_EVT_WIFI_IP_ACQUIRED,                   /*!< Station IP address acquired */
+    ESP_EVT_WIFI_IP_ACQUIRED,                   /*!< Station IP address acquired.
+                                                    At this point, valid IP address has been received from device.
+                                                    Application may use \ref esp_sta_copy_ip function to read it */
 
     ESP_EVT_STA_LIST_AP,                        /*!< Station listed APs event */
     ESP_EVT_STA_JOIN_AP,                        /*!< Join to access point */
