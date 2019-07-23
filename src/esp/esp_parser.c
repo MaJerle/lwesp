@@ -677,3 +677,32 @@ espi_parse_hostname(const char* str, esp_msg_t* msg) {
 }
 
 #endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
+
+/**
+ * \brief           Parse received message for DHCP
+ * \param[in]       str: Pointer to input string starting with +CWDHCP
+ * \param[in]       msg: Pointer to message
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+espi_parse_cwdhcp(const char* str) {
+    uint8_t val;
+
+    if (!CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET)) {
+        return 0;
+    }
+    if (*str == '+') {
+        str += 12;
+    }
+
+    val = espi_parse_number(&str);
+
+#if ESP_CFG_MODE_ACCESS_POINT
+    esp.m.ap.dhcp = (val & 0x01) == 0x01;
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
+#if ESP_CFG_MODE_STATION
+    esp.m.sta.dhcp = (val & 0x02) == 0x02;
+#endif /* ESP_CFG_MODE_STATION */
+
+    return 1;
+}

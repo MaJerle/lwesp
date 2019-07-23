@@ -166,6 +166,7 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
 
 /**
  * \brief           Set station IP address
+ * \note            DHCP is automatically disabled when setting IP address manually
  * \param[in]       ip: Pointer to IP address
  * \param[in]       gw: Pointer to gateway address. Set to `NULL` to use default gateway
  * \param[in]       nm: Pointer to netmask address. Set to `NULL` to use default netmask
@@ -272,10 +273,11 @@ esp_sta_is_joined(void) {
  * \param[out]      ip: Pointer to output IP variable. Set to `NULL` if not interested in IP address
  * \param[out]      gw: Pointer to output gateway variable. Set to `NULL` if not interested in gateway address
  * \param[out]      nm: Pointer to output netmask variable. Set to `NULL` if not interested in netmask address
+ * \param[out]      is_dhcp: Pointer to output DHCP status variable. Set to `NULL` if not interested
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
+esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t* is_dhcp) {
     espr_t res = espERR;
     if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip()) { /* Do we have a valid IP address? */
         esp_core_lock();
@@ -287,6 +289,9 @@ esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm) {
         }
         if (nm != NULL) {
             ESP_MEMCPY(nm, &esp.m.sta.nm, sizeof(esp.m.sta.nm));/* Copy netmask address */
+        }
+        if (is_dhcp != NULL) {
+            *is_dhcp = esp.m.sta.dhcp;
         }
         res = espOK;
         esp_core_unlock();
@@ -332,7 +337,7 @@ esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf,
  */
 uint8_t
 esp_sta_is_ap_802_11b(esp_ap_t* ap) {
-    return ESP_U8(!!(ap->bgn & 0x01));          /* Bit 0 is for b check */
+    return ESP_U8((ap->bgn & 0x01) == 0x01);    /* Bit 0 is for b check */
 }
 
 /**
@@ -342,7 +347,7 @@ esp_sta_is_ap_802_11b(esp_ap_t* ap) {
  */
 uint8_t
 esp_sta_is_ap_802_11g(esp_ap_t* ap) {
-    return ESP_U8(!!(ap->bgn & 0x02));          /* Bit 1 is for g check */
+    return ESP_U8((ap->bgn & 0x02) == 0x02);    /* Bit 1 is for g check */
 }
 
 /**
@@ -352,7 +357,7 @@ esp_sta_is_ap_802_11g(esp_ap_t* ap) {
  */
 uint8_t
 esp_sta_is_ap_802_11n(esp_ap_t* ap) {
-    return ESP_U8(!!(ap->bgn & 0x04));          /* Bit 2 is for n check */
+    return ESP_U8((ap->bgn & 0x04) == 0x04);    /* Bit 2 is for n check */
 }
 
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */

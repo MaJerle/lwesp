@@ -89,6 +89,10 @@ typedef enum {
     ESP_CMD_WIFI_CIPSTA_SET,                    /*!< Set IP address of ESP station */
     ESP_CMD_WIFI_CWAUTOCONN,                    /*!< Configure auto connection to access point */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+    ESP_CMD_WIFI_CWDHCP_SET,                    /*!< Set DHCP config */
+    ESP_CMD_WIFI_CWDHCP_GET,                    /*!< Get DHCP config */
+    ESP_CMD_WIFI_CWDHCPS_SET,                   /*!< Set DHCP SoftAP IP config */
+    ESP_CMD_WIFI_CWDHCPS_GET,                   /*!< Get DHCP SoftAP IP config */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     ESP_CMD_WIFI_CWSAP_GET,                     /*!< Get software access point configuration */
     ESP_CMD_WIFI_CWSAP_SET,                     /*!< Set software access point configuration */
@@ -299,6 +303,12 @@ typedef struct esp_msg {
             char* hostname_get;                 /*!< Hostname get value */
             size_t length;                      /*!< Length of buffer when reading hostname */
         } wifi_hostname;                        /*!< Set or get hostname structure */
+        struct {
+            uint8_t sta;                        /*!< Set station DHCP settings */
+            uint8_t ap;                         /*!< Set access point DHCP settings */
+            uint8_t en;                         /*!< Enable/disable DHCP settings */
+            uint8_t def;                        /*!< Set command as default */
+        } wifi_cwdhcp;                          /*!< Set DHCP settings */
 
         /* Connection based commands */
         struct {
@@ -407,6 +417,7 @@ typedef struct {
     esp_ip_t gw;                                /*!< Gateway address */
     esp_ip_t nm;                                /*!< Netmask address */
     esp_mac_t mac;                              /*!< MAC address */
+    uint8_t dhcp;                               /*!< Flag indicating DHCP is enabled */
     uint8_t has_ip;                             /*!< Flag indicating ESP has IP */
     uint8_t is_connected;                       /*!< Flag indicating ESP is connected to wifi */
 } esp_ip_mac_t;

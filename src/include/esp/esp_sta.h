@@ -55,7 +55,7 @@ espr_t      esp_sta_getmac(esp_mac_t* mac, uint8_t def, const esp_api_cmd_evt_fn
 espr_t      esp_sta_setmac(const esp_mac_t* mac, uint8_t def, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 uint8_t     esp_sta_has_ip(void);
 uint8_t     esp_sta_is_joined(void);
-espr_t      esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm);
+espr_t      esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t* is_dhcp);
 espr_t      esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_sta_get_ap_info(esp_sta_info_ap_t* info, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 uint8_t     esp_sta_is_ap_802_11b(esp_ap_t* ap);
