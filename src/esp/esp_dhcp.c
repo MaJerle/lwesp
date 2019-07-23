@@ -34,6 +34,18 @@
 #include "esp/esp_dhcp.h"
 #include "esp/esp_mem.h"
 
+/**
+ * \brief           Configure DHCP settings for station or access point (or both)
+ * \param[in]       sta: Set to `1` to affect station DHCP configuration, set to `0` to keep current setup
+ * \param[in]       sta: Set to `1` to affect access point DHCP configuration, set to `0` to keep current setup
+ * \param[in]       en: Set to `1` to enable DHCP, or `0` to disable (static IP)
+ * \param[in]       def: Set to `1` make configuration default (write to device flash)
+ *                      or set to `0` to make configuration valid until device reset
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
 espr_t
 esp_dhcp_configure(uint8_t sta, uint8_t ap, uint8_t en, uint8_t def,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
