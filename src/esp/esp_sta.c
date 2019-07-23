@@ -156,6 +156,7 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTA_GET;
+    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_WIFI_CWDHCP_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.gw = gw;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.nm = nm;
@@ -166,7 +167,14 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
 
 /**
  * \brief           Set station IP address
- * \note            DHCP is automatically disabled when setting IP address manually
+ * 
+ * Application may manually set IP address.
+ * When this happens, stack will check for DHCP settings and will read actual IP address from device.
+ * Once procedure is finished, \ref ESP_EVT_WIFI_IP_ACQUIRED event will be sent to application where
+ * user may read the actual new IP and DHCP settings.
+ *
+ * \note            DHCP is automatically disabled when using static IP address
+ *
  * \param[in]       ip: Pointer to IP address
  * \param[in]       gw: Pointer to gateway address. Set to `NULL` to use default gateway
  * \param[in]       nm: Pointer to netmask address. Set to `NULL` to use default netmask
