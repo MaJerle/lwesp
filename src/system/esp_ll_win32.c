@@ -42,7 +42,7 @@ static uint8_t initialized = 0;
 DWORD thread_id;
 HANDLE thread_handle;
 static void uart_thread(void* param);
-HANDLE com_port;                                /*!< COM port handle */
+volatile HANDLE com_port;                       /*!< COM port handle */
 uint8_t data_buffer[0x1000];                    /*!< Received data array */
 
 /**
@@ -144,9 +144,13 @@ uart_thread(void* param) {
         do {
             ReadFile(com_port, data_buffer, sizeof(data_buffer), &bytes_read, NULL);
             if (bytes_read > 0) {
+                HANDLE hConsole;
+                hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+                SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
                 for (DWORD i = 0; i < bytes_read; i++) {
                     printf("%c", data_buffer[i]);
                 }
+                SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
                 /* Send received data to input processing module */
 #if ESP_CFG_INPUT_USE_PROCESS
