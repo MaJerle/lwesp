@@ -710,8 +710,10 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_SNTP */
 #if ESP_CFG_HOSTNAME
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWHOSTNAME_GET) && !strncmp(rcv->data, "+CWHOSTNAME", 11)) {
-                espi_parse_hostname(rcv->data, esp.msg);    /* Parse HOSTNAME entry */
+                espi_parse_hostname(rcv->data, esp.msg);/* Parse HOSTNAME entry */
 #endif /* ESP_CFG_HOSTNAME */
+            } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET) && !strncmp(rcv->data, "+CWDHCP", 7)) {
+                espi_parse_cwdhcp(rcv->data);   /* Parse CWDHCP state */
             }
         }
 #if ESP_CFG_MODE_STATION
@@ -1286,11 +1288,12 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
         case ESP_CMD_RESET:
         case ESP_CMD_RESTORE: SET_NEW_CMD(ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0); break;
         case ESP_CMD_ATE0:
-        case ESP_CMD_ATE1: SET_NEW_CMD(ESP_CMD_GMR); break;
+        case ESP_CMD_ATE1: SET_NEW_CMD(ESP_CMD_SYSMSG_CUR); break;
+        case ESP_CMD_SYSMSG_CUR: SET_NEW_CMD(!*is_ok ? ESP_CMD_GMR : ESP_CMD_SYSMSG); break;
+        case ESP_CMD_SYSMSG: SET_NEW_CMD(ESP_CMD_GMR); break;
         case ESP_CMD_GMR: SET_NEW_CMD(ESP_CMD_WIFI_CWMODE); break;
-        case ESP_CMD_WIFI_CWMODE: SET_NEW_CMD(ESP_CMD_SYSMSG_CUR); break;
-        case ESP_CMD_SYSMSG_CUR: SET_NEW_CMD(!*is_ok ? ESP_CMD_SYSMSG : ESP_CMD_TCPIP_CIPMUX); break;
-        case ESP_CMD_SYSMSG: SET_NEW_CMD(ESP_CMD_TCPIP_CIPMUX); break;
+        case ESP_CMD_WIFI_CWMODE: SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET); break;
+        case ESP_CMD_WIFI_CWDHCP_GET: SET_NEW_CMD(ESP_CMD_TCPIP_CIPMUX); break;
         case ESP_CMD_TCPIP_CIPMUX:
 #if ESP_CFG_MODE_STATION
             SET_NEW_CMD(ESP_CMD_WIFI_CWLAPOPT); break;/* Set visible data for CWLAP command */
@@ -1346,7 +1349,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWJAP)) {/* Is our intention to join to access point? */
         if (CMD_IS_CUR(ESP_CMD_WIFI_CWJAP)) {   /* Is the current command join? */
             if (*is_ok) {                       /* Did we join successfully? */
-                SET_NEW_CMD(ESP_CMD_WIFI_CIPSTA_GET);   /* Go to next command to get IP address */
+                SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET);   /* Check IP address status */
             } else {
                 esp.m.sta.is_connected = 0;     /* Force disconnected status */
                 /*
@@ -1362,6 +1365,8 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                     default: esp.evt.evt.sta_join_ap.res = espERR;
                 }
             }
+        } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET)) {
+            SET_NEW_CMD(ESP_CMD_WIFI_CIPSTA_GET);   /* Get IP address */
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
             espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
             SET_NEW_CMD(ESP_CMD_WIFI_CIPSTAMAC_GET);/* Go to next command to get MAC address */
@@ -1373,16 +1378,24 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
         if (n_cmd == ESP_CMD_IDLE) {
             STA_JOIN_AP_SEND_EVT(msg, esp.evt.evt.sta_join_ap.res);
         }
-    } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_SET)) {
-        if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_SET)) {
-            SET_NEW_CMD(ESP_CMD_WIFI_CIPSTA_GET);
-        }
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWLAP)) {
         STA_LIST_AP_SEND_EVT(msg, *is_ok ? espOK : espERR);
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWJAP_GET)) {
         STA_INFO_AP_SEND_EVT(msg, *is_ok ? espOK : espERR);
-    } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_GET) || CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
-        espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
+    } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_SET)) {
+        if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_SET)) {
+            SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET);
+        } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET)) {
+            SET_NEW_CMD(ESP_CMD_WIFI_CIPSTA_GET);
+        } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
+            espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
+        }
+    } else if (CMD_IS_DEF(ESP_CMD_WIFI_CIPSTA_GET)) {
+        if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET)) {
+            SET_NEW_CMD(ESP_CMD_WIFI_CIPSTA_GET);
+        } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
+            espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED);
+        }   
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWMODE) &&
@@ -1396,6 +1409,10 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                 SET_NEW_CMD(ESP_CMD_WIFI_CIPAP_GET);/* Go to next command to get IP address */
             }
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET)) {
+            if (*is_ok) {
+                SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET);
+            }
+        } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET)) {
             if (*is_ok) {
                 SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET); /* Go to next command to get IP address */
             }
@@ -1422,6 +1439,10 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                 *is_ok = 0;
                 *is_error = 1;
             }
+        }
+    } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWDHCP_SET)) {
+        if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_SET)) {
+            SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET);
         }
     }
 
@@ -1720,6 +1741,33 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_CONST_STR("MAC");
             AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_setmac.def, 1);
             espi_send_ip_mac(msg->msg.sta_ap_setmac.mac, 0, 1, 0);
+            AT_PORT_SEND_END();
+            break;
+        }
+        case ESP_CMD_WIFI_CWDHCP_GET: {
+            AT_PORT_SEND_BEGIN();
+            AT_PORT_SEND_CONST_STR("+CWDHCP");
+            AT_PORT_SEND_CUR_DEF(0, 0);
+            AT_PORT_SEND_CONST_STR("?");
+            AT_PORT_SEND_END();
+            break;
+        }
+        case ESP_CMD_WIFI_CWDHCP_SET: {
+            uint32_t num = 0;
+
+            /* This command is not compatible with ESP32 */
+            AT_PORT_SEND_BEGIN();
+            AT_PORT_SEND_CONST_STR("+CWDHCP");
+            AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) & msg->msg.wifi_cwdhcp.def, 1);
+            if (msg->msg.wifi_cwdhcp.sta > 0 && msg->msg.wifi_cwdhcp.ap > 0) {
+                num = 2;
+            } else if (msg->msg.wifi_cwdhcp.sta > 0) {
+                num = 1;
+            } else {
+                num = 0;
+            }
+            espi_send_number(num, 0, 0);
+            espi_send_number(ESP_U32(msg->msg.wifi_cwdhcp.en > 0), 0, 1);
             AT_PORT_SEND_END();
             break;
         }
