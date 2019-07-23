@@ -206,7 +206,7 @@ parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     /* Parse topic format here */
     switch (msg->topic) {
         case ESP_CAYENNE_TOPIC_DATA: {
-            printf("TOPIC DATA: %*s\r\n", (int)buf->payload_len, (const char *)buf->payload);
+            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC DATA: %*s\r\n", (int)buf->payload_len, (const char *)buf->payload);
             /* Parse data with '=' separator */
             break;
         }
@@ -228,7 +228,7 @@ parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
             break;
         }
         case ESP_CAYENNE_TOPIC_ANALOG: {
-            printf("TOPIC ANALOG: %*s\r\n", (int)buf->payload_len, (const char *)buf->payload);
+            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC ANALOG: %*s\r\n", (int)buf->payload_len, (const char *)buf->payload);
             /* Here parse type,value */
         }
         default:
@@ -296,7 +296,7 @@ build_topic(char* topic_str, size_t topic_str_len, const char* username,
         }
     }
 
-    printf("Topic: %s\r\n", topic_name);
+    ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic: %s\r\n", topic_name);
 
     return espOK;
 }
@@ -352,12 +352,12 @@ mqtt_thread(void * const arg) {
 
                 if (res == espOK) {
                     if (buf != NULL) {
-                        printf("Packet received\r\nTopic: %s\r\nData: %s\r\n\r\n", buf->topic, buf->payload);
+                        ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Packet received\r\nTopic: %s\r\nData: %s\r\n\r\n", buf->topic, buf->payload);
 
                         /* Parse received topic and payload */
                         if (parse_topic(c, buf) == espOK && parse_payload(c, buf) == espOK) {
-                            printf("Topic and payload parsed!\r\n");
-                            printf("Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
+                            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic and payload parsed!\r\n");
+                            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
                                 (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value
                             );
 
