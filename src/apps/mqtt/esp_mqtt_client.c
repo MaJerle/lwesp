@@ -225,10 +225,7 @@ request_get_pending(esp_mqtt_client_p client, int32_t pkt_id) {
     /* Try to find a new request which does not have IN_USE flag set */
     for (size_t i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; i++) {
         if ((client->requests[i].status & MQTT_REQUEST_FLAG_PENDING)
-            && (
-                pkt_id == -1
-                || client->requests[i].packet_id == (uint16_t)pkt_id
-                )) {
+            && (pkt_id == -1 || client->requests[i].packet_id == (uint16_t)pkt_id)) {
             return &client->requests[i];
         }
     }
@@ -808,6 +805,7 @@ mqtt_data_recv_cb(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
 /**
  * \brief           Data sent callback
  * \param[in]       client: MQTT client
+ * \param[in]       sent_len: Number of bytes sent (or not)
  * \param[in]       successful: Send status. Set to `1` on success or `0` if send error occurred
  * \return          `1` on success, `0` otherwise
  */
