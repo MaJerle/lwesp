@@ -311,15 +311,16 @@ espi_send_signed_number(int32_t num, uint8_t q, uint8_t c) {
  */
 static void
 reset_connections(uint8_t forced) {
-    esp.evt.type = ESP_EVT_CONN_CLOSED;
-    esp.evt.evt.conn_active_closed.forced = forced;
+    esp.evt.type = ESP_EVT_CONN_CLOSE;
+    esp.evt.evt.conn_active_close.forced = forced;
+    esp.evt.evt.conn_active_close.res = espOK;
 
     for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {/* Check all connections */
         if (esp.m.conns[i].status.f.active) {
             esp.m.conns[i].status.f.active = 0;
 
-            esp.evt.evt.conn_active_closed.conn = &esp.m.conns[i];
-            esp.evt.evt.conn_active_closed.client = esp.m.conns[i].status.f.client;
+            esp.evt.evt.conn_active_close.conn = &esp.m.conns[i];
+            esp.evt.evt.conn_active_close.client = esp.m.conns[i].status.f.client;
             espi_send_conn_cb(&esp.m.conns[i], NULL);   /* Send callback function */
         }
     }
@@ -413,7 +414,7 @@ espi_send_cb(esp_evt_type_t type) {
  */
 espr_t
 espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn evt) {
-    if (conn->status.f.in_closing && esp.evt.type != ESP_EVT_CONN_CLOSED) { /* Do not continue if in closing mode */
+    if (conn->status.f.in_closing && esp.evt.type != ESP_EVT_CONN_CLOSE) {  /* Do not continue if in closing mode */
         /* return espOK; */
     }
 
@@ -852,11 +853,12 @@ espi_parse_received(esp_recv_t* rcv) {
             if (esp.m.link_conn.failed && conn->status.f.active) {  /* Connection failed and now closed? */
                 conn->status.f.active = 0;      /* Connection was just closed */
 
-                esp.evt.type = ESP_EVT_CONN_CLOSED; /* Connection just active */
-                esp.evt.evt.conn_active_closed.conn = conn; /* Set connection */
-                esp.evt.evt.conn_active_closed.client = conn->status.f.client;  /* Set if it is client or not */
+                esp.evt.type = ESP_EVT_CONN_CLOSE;
+                esp.evt.evt.conn_active_close.conn = conn;
+                esp.evt.evt.conn_active_close.client = conn->status.f.client;   /* Set if it is client or not */
                 /** @todo: Check if we really tried to close connection which was just closed */
-                esp.evt.evt.conn_active_closed.forced = CMD_IS_CUR(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
+                esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
+                esp.evt.evt.conn_active_close.client = espOK;
                 espi_send_conn_cb(conn, NULL);  /* Send event */
 
                 /* Check if write buffer is set */
@@ -892,9 +894,9 @@ espi_parse_received(esp_recv_t* rcv) {
                 }
 
                 esp.evt.type = ESP_EVT_CONN_ACTIVE; /* Connection just active */
-                esp.evt.evt.conn_active_closed.conn = conn; /* Set connection */
-                esp.evt.evt.conn_active_closed.client = conn->status.f.client;  /* Set if it is client or not */
-                esp.evt.evt.conn_active_closed.forced = conn->status.f.client;  /* Set if action was forced = if client mode */
+                esp.evt.evt.conn_active_close.conn = conn; /* Set connection */
+                esp.evt.evt.conn_active_close.client = conn->status.f.client;   /* Set if it is client or not */
+                esp.evt.evt.conn_active_close.forced = conn->status.f.client;   /* Set if action was forced = if client mode */
                 espi_send_conn_cb(conn, NULL);  /* Send event */
                 espi_conn_start_timeout(conn);  /* Start connection timeout timer */
             }
@@ -916,11 +918,11 @@ espi_parse_received(esp_recv_t* rcv) {
             if (conn->status.f.active) {        /* Is connection actually active? */
                 conn->status.f.active = 0;      /* Connection was just closed */
 
-                esp.evt.type = ESP_EVT_CONN_CLOSED; /* Connection just active */
-                esp.evt.evt.conn_active_closed.conn = conn; /* Set connection */
-                esp.evt.evt.conn_active_closed.client = conn->status.f.client;  /* Set if it is client or not */
-                /** @todo: Check if we really tried to close connection which was just closed */
-                esp.evt.evt.conn_active_closed.forced = CMD_IS_CUR(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
+                esp.evt.type = ESP_EVT_CONN_CLOSE;
+                esp.evt.evt.conn_active_close.conn = conn;
+                esp.evt.evt.conn_active_close.client = conn->status.f.client;   /* Set if it is client or not */
+                esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(ESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
+                esp.evt.evt.conn_active_close.res = espOK;
                 espi_send_conn_cb(conn, NULL);  /* Send event */
 
                 /*
@@ -1439,6 +1441,16 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                 *is_ok = 0;
                 *is_error = 1;
             }
+        }
+    } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPCLOSE)) {
+        if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPCLOSE) && *is_error) {
+            /* Notify upper layer about failed close event */
+            esp.evt.type = ESP_EVT_CONN_CLOSE;
+            esp.evt.evt.conn_active_close.conn = msg->msg.conn_close.conn;
+            esp.evt.evt.conn_active_close.forced = 1;
+            esp.evt.evt.conn_active_close.res = espERR;
+            esp.evt.evt.conn_active_close.client = msg->msg.conn_close.conn->status.f.active && msg->msg.conn_close.conn->status.f.client;
+            espi_send_conn_cb(msg->msg.conn_close.conn, NULL);
         }
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWDHCP_SET)) {
         if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_SET)) {

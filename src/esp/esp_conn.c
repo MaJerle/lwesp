@@ -533,7 +533,7 @@ esp_conn_p
 esp_conn_get_from_evt(esp_evt_t* evt) {
     switch (evt->type) {
         case ESP_EVT_CONN_ACTIVE: return esp_evt_conn_active_get_conn(evt);
-        case ESP_EVT_CONN_CLOSED: return esp_evt_conn_closed_get_conn(evt);
+        case ESP_EVT_CONN_CLOSE: return esp_evt_conn_close_get_conn(evt);
         case ESP_EVT_CONN_RECV: return esp_evt_conn_recv_get_conn(evt);
         case ESP_EVT_CONN_SEND: return esp_evt_conn_send_get_conn(evt);
         case ESP_EVT_CONN_POLL: return esp_evt_conn_poll_get_conn(evt);

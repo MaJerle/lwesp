@@ -162,14 +162,15 @@ uint8_t     esp_evt_conn_active_is_client(esp_evt_t* cc);
  */
 
 /**
- * \anchor          ESP_EVT_CONN_CLOSED
- * \name            Connection closed
- * \brief           Event helper functions for \ref ESP_EVT_CONN_CLOSED event
+ * \anchor          ESP_EVT_CONN_CLOSE
+ * \name            Connection close event
+ * \brief           Event helper functions for \ref ESP_EVT_CONN_CLOSE event
  */
 
-esp_conn_p  esp_evt_conn_closed_get_conn(esp_evt_t* cc);
-uint8_t     esp_evt_conn_closed_is_client(esp_evt_t* cc);
-uint8_t     esp_evt_conn_closed_is_forced(esp_evt_t* cc);
+esp_conn_p  esp_evt_conn_close_get_conn(esp_evt_t* cc);
+uint8_t     esp_evt_conn_close_is_client(esp_evt_t* cc);
+uint8_t     esp_evt_conn_close_is_forced(esp_evt_t* cc);
+espr_t      esp_evt_conn_close_get_result(esp_evt_t* cc);
 
 /**
  * \}

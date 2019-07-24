@@ -1082,7 +1082,7 @@ http_evt(esp_evt_t* evt) {
         }
 
         /* Connection was just closed, either forced by user or by remote side */
-        case ESP_EVT_CONN_CLOSED: {
+        case ESP_EVT_CONN_CLOSE: {
             ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] connection closed\r\n");
             if (hs != NULL) {
 #if HTTP_SUPPORT_POST

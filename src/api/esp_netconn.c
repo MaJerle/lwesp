@@ -199,7 +199,7 @@ netconn_evt(esp_evt_t* evt) {
         }
 
         /* Connection was just closed */
-        case ESP_EVT_CONN_CLOSED: {
+        case ESP_EVT_CONN_CLOSE: {
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
 
             /*

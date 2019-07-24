@@ -286,7 +286,7 @@ typedef enum esp_evt_type_t {
     ESP_EVT_CONN_SEND,                          /*!< Connection data send */
     ESP_EVT_CONN_ACTIVE,                        /*!< Connection just became active */
     ESP_EVT_CONN_ERROR,                         /*!< Client connection start was not successful */
-    ESP_EVT_CONN_CLOSED,                        /*!< Connection was just closed */
+    ESP_EVT_CONN_CLOSE,                         /*!< Connection close event. Check status if successful */
     ESP_EVT_CONN_POLL,                          /*!< Poll for connection if there are any changes */
 
     ESP_EVT_SERVER,                             /*!< Server status changed */
@@ -356,7 +356,8 @@ typedef struct esp_evt {
             esp_conn_p conn;                    /*!< Pointer to connection */
             uint8_t client;                     /*!< Set to 1 if connection is/was client mode */
             uint8_t forced;                     /*!< Set to 1 if connection action was forced (when active: 1 = CLIENT, 0 = SERVER: when closed, 1 = CMD, 0 = REMOTE) */
-        } conn_active_closed;                   /*!< Process active and closed statuses at the same time. Use with \ref ESP_EVT_CONN_ACTIVE or \ref ESP_EVT_CONN_CLOSED events */
+            espr_t res;                         /*!< Result of close event. Set to \ref espOK on success */
+        } conn_active_close;                    /*!< Process active and closed statuses at the same time. Use with \ref ESP_EVT_CONN_ACTIVE or \ref ESP_EVT_CONN_CLOSE events */
         struct {
             esp_conn_p conn;                    /*!< Set connection pointer */
         } conn_poll;                            /*!< Polling active connection to check for timeouts. Use with \ref ESP_EVT_CONN_POLL event */

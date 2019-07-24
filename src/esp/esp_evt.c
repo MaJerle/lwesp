@@ -175,7 +175,7 @@ esp_evt_conn_send_get_result(esp_evt_t* cc) {
  */
 esp_conn_p
 esp_evt_conn_active_get_conn(esp_evt_t* cc) {
-    return cc->evt.conn_active_closed.conn;
+    return cc->evt.conn_active_close.conn;
 }
 
 /**
@@ -185,7 +185,7 @@ esp_evt_conn_active_get_conn(esp_evt_t* cc) {
  */
 uint8_t
 esp_evt_conn_active_is_client(esp_evt_t* cc) {
-    return ESP_U8(!!cc->evt.conn_active_closed.client);
+    return ESP_U8(cc->evt.conn_active_close.client > 0);
 }
 
 /**
@@ -194,8 +194,8 @@ esp_evt_conn_active_is_client(esp_evt_t* cc) {
  * \return          Connection handle
  */
 esp_conn_p
-esp_evt_conn_closed_get_conn(esp_evt_t* cc) {
-    return cc->evt.conn_active_closed.conn;
+esp_evt_conn_close_get_conn(esp_evt_t* cc) {
+    return cc->evt.conn_active_close.conn;
 }
 
 /**
@@ -204,8 +204,8 @@ esp_evt_conn_closed_get_conn(esp_evt_t* cc) {
  * \return          `1` if client, `0` otherwise
  */
 uint8_t
-esp_evt_conn_closed_is_client(esp_evt_t* cc) {
-    return cc->evt.conn_active_closed.client;
+esp_evt_conn_close_is_client(esp_evt_t* cc) {
+    return cc->evt.conn_active_close.client;
 }
 
 /**
@@ -214,8 +214,18 @@ esp_evt_conn_closed_is_client(esp_evt_t* cc) {
  * \return          `1` if forced, `0` otherwise
  */
 uint8_t
-esp_evt_conn_closed_is_forced(esp_evt_t* cc) {
-    return cc->evt.conn_active_closed.forced;
+esp_evt_conn_close_is_forced(esp_evt_t* cc) {
+    return cc->evt.conn_active_close.forced;
+}
+
+/**
+ * \brief           Get connection close event result
+ * \param[in]       cc: Event handle
+ * \return          Member of \ref gsmr_t enumeration
+ */
+espr_t
+esp_evt_conn_close_get_result(esp_evt_t* cc) {
+    return cc->evt.conn_active_close.res;
 }
 
 /**
