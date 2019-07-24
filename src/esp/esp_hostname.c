@@ -74,7 +74,7 @@ esp_hostname_get(char* hostname, size_t size,
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("hostname != NULL", hostname != NULL);
-    ESP_ASSERT("size > 0", size);
+    ESP_ASSERT("size > 0", size > 0);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
