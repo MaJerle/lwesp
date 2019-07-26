@@ -407,6 +407,14 @@ send_data(esp_mqtt_client_p client) {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING,
                 "[MQTT] Cannot send data with error: %d\r\n", (int)res);
         }
+    } else {
+        /* 
+         * If buffer is empty, reset it to default state (read & write pointers)
+         * This is to make sure everytime function needs to send data,
+         * it can do it in single shot rather than in 2 attempts (when read > write pointer).
+         * Effectively this means faster transmission of MQTT packets and lower latency.
+         */
+        esp_buff_reset(&client->tx_buff);
     }
 }
 
@@ -418,8 +426,8 @@ send_data(esp_mqtt_client_p client) {
 static espr_t
 mqtt_close(esp_mqtt_client_p client) {
     espr_t res = espERR;
-    if (client->conn_state != ESP_MQTT_CONN_DISCONNECTED &&
-        client->conn_state != ESP_MQTT_CONN_DISCONNECTING) {
+    if (client->conn_state != ESP_MQTT_CONN_DISCONNECTED
+        && client->conn_state != ESP_MQTT_CONN_DISCONNECTING) {
 
         res = esp_conn_close(client->conn, 0);  /* Close the connection in non-blocking mode */
         if (res == espOK) {
@@ -444,7 +452,7 @@ sub_unsub(esp_mqtt_client_p client, const char* topic, esp_mqtt_qos_t qos, void*
     uint32_t rem_len;
     esp_mqtt_request_t* request;
     
-    if (!(len_topic = ESP_U16(strlen(topic)))) {
+    if ((len_topic = ESP_U16(strlen(topic))) == 0) {
         return 0;
     }
 
@@ -565,7 +573,6 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
             client->evt.evt.publish_recv.dup = dup;
             client->evt.evt.publish_recv.qos = qos;
             client->evt_fn(client, &client->evt);
-
             break;
         }
         case MQTT_MSG_TYPE_PINGRESP: {          /* Respond to PINGREQ received */
@@ -627,7 +634,6 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
                         "[MQTT] Protocol violation. Received ACK without sent packet\r\n");
                 }
             }
-
             break;
         }
         default:
