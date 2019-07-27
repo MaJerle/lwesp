@@ -55,6 +55,18 @@ static size_t
 send_data(const void* data, size_t len) {
     DWORD written;
     if (com_port != NULL) {
+#if !ESP_CFG_AT_ECHO
+        const uint8_t* d = data;
+        HANDLE hConsole;
+
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+        for (DWORD i = 0; i < len; i++) {
+            printf("%c", d[i]);
+        }
+        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+#endif /* !ESP_CFG_AT_ECHO */
+
         WriteFile(com_port, data, len, &written, NULL);
         FlushFileBuffers(com_port);
         return written;
