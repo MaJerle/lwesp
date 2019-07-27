@@ -44,7 +44,7 @@
  */
 typedef struct {
     char data[128];                             /*!< Received characters */
-    uint8_t len;                                /*!< Length of valid characters */
+    size_t len;                                 /*!< Length of valid characters */
 } esp_recv_t;
 
 /* Receive character macros */
