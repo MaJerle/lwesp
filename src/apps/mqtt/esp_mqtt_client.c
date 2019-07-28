@@ -502,6 +502,10 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
 
     msg_type = MQTT_RCV_GET_PACKET_TYPE(client->msg_hdr_byte);  /* Get packet type from message header byte */
 
+    /* Debug message */
+    ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
+        "[MQTT] Processing package type %s\r\n", mqtt_msg_type_to_str(msg_type));
+
     /* Check received packet type */
     switch (msg_type) {
         case MQTT_MSG_TYPE_CONNACK: {
@@ -664,7 +668,7 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
             switch (client->parser_state) {     /* Check parser state */
                 case MQTT_PARSER_STATE_INIT: {  /* We are waiting for start byte and packet type */
                     ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
-                        "[MQTT] Parser init state, received first byte of packet 0x%02X\r\n", ch);
+                        "[MQTT] Parser init state, received first byte of packet 0x%02X\r\n", (unsigned)ch);
 
                     /* Save other info about message */
                     client->msg_hdr_byte = ch;  /* Save first entry */
