@@ -265,7 +265,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
  */
 espr_t
 esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
-    espr_t res = espOK;
+    espr_t res;
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("conn != NULL", conn != NULL);

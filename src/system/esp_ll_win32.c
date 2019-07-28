@@ -44,6 +44,7 @@ HANDLE thread_handle;
 static void uart_thread(void* param);
 volatile HANDLE com_port;                       /*!< COM port handle */
 uint8_t data_buffer[0x1000];                    /*!< Received data array */
+volatile uint8_t esp_ll_win32_driver_ignore_data;
 
 /**
  * \brief           Send data to ESP device, function called from ESP stack when we have data to send
@@ -163,6 +164,11 @@ uart_thread(void* param) {
                     printf("%c", data_buffer[i]);
                 }
                 SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+                if (esp_ll_win32_driver_ignore_data) {
+                    printf("IGNORING..\r\n");
+                    continue;
+                }
 
                 /* Send received data to input processing module */
 #if ESP_CFG_INPUT_USE_PROCESS
