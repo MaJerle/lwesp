@@ -582,9 +582,7 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
         str += 13;
     }
 
-    /*
-     * Scan for day in a week
-     */
+    /* Scan for day in a week */
     if (!strncmp(str, "Mon", 3)) {
         msg->msg.tcpip_sntp_time.dt->day = 1;
     } else if (!strncmp(str, "Tue", 3)) {
@@ -602,9 +600,7 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
     }
     str += 4;
 
-    /*
-     * Scan for month in a year
-     */
+    /* Scan for month in a year */
     if (!strncmp(str, "Jan", 3)) {
         msg->msg.tcpip_sntp_time.dt->month = 1;
     } else if (!strncmp(str, "Feb", 3)) {
@@ -631,7 +627,9 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
         msg->msg.tcpip_sntp_time.dt->month = 12;
     }
     str += 4;
-
+    if (*str == ' ') {                              /* Numbers < 10 could have one more space */
+        str++;
+    }
     msg->msg.tcpip_sntp_time.dt->date = espi_parse_number(&str);
     str++;
     msg->msg.tcpip_sntp_time.dt->hours = espi_parse_number(&str);
