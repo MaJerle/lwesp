@@ -46,13 +46,13 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_sta_quit(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_sta_autojoin(uint8_t en, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_getmac(esp_mac_t* mac, uint8_t def, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_setmac(const esp_mac_t* mac, uint8_t def, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_sta_getmac(esp_mac_t* mac, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_sta_setmac(const esp_mac_t* mac, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 uint8_t     esp_sta_has_ip(void);
 uint8_t     esp_sta_is_joined(void);
 espr_t      esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t* is_dhcp);

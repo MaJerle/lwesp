@@ -56,20 +56,21 @@ esp_sta_quit(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_
 
 /**
  * \brief           Join as station to access point
+ *
+ * Configuration changes will be saved in the NVS area of ESP device.
+ *
  * \param[in]       name: SSID of access point to connect to
  * \param[in]       pass: Password of access point. Use `NULL` if AP does not have password
  * \param[in]       mac: Pointer to MAC address of AP.
  *                      If multiple APs with same name exist, MAC may help to select proper one.
  *                      Set to `NULL` if not needed
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t def, 
+esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, 
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -78,7 +79,6 @@ esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, uint8_t d
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWJAP;
-    ESP_MSG_VAR_REF(msg).msg.sta_join.def = def;
     ESP_MSG_VAR_REF(msg).msg.sta_join.name = name;
     ESP_MSG_VAR_REF(msg).msg.sta_join.pass = pass;
     ESP_MSG_VAR_REF(msg).msg.sta_join.mac = mac;
@@ -141,15 +141,13 @@ esp_sta_get_ap_info(esp_sta_info_ap_t* info,
  * \param[out]      ip: Pointer to variable to save IP address
  * \param[out]      gw: Pointer to output variable to save gateway address
  * \param[out]      nm: Pointer to output variable to save netmask address
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
+esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -160,7 +158,6 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.gw = gw;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.nm = nm;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -173,20 +170,20 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
  * Once procedure is finished, \ref ESP_EVT_WIFI_IP_ACQUIRED event will be sent to application where
  * user may read the actual new IP and DHCP settings.
  *
+ * Configuration changes will be saved in the NVS area of ESP device.
+ *
  * \note            DHCP is automatically disabled when using static IP address
  *
  * \param[in]       ip: Pointer to IP address
  * \param[in]       gw: Pointer to gateway address. Set to `NULL` to use default gateway
  * \param[in]       nm: Pointer to netmask address. Set to `NULL` to use default netmask
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def,
+esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -198,7 +195,6 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw = gw;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm = nm;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -206,15 +202,13 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_
 /**
  * \brief           Get station MAC address
  * \param[out]      mac: Pointer to output variable to save MAC address
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getmac(esp_mac_t* mac, uint8_t def, 
+esp_sta_getmac(esp_mac_t* mac, 
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -222,23 +216,23 @@ esp_sta_getmac(esp_mac_t* mac, uint8_t def,
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTAMAC_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
  * \brief           Set station MAC address
+ *
+ * Configuration changes will be saved in the NVS area of ESP device.
+ *
  * \param[in]       mac: Pointer to variable with MAC address
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_setmac(const esp_mac_t* mac, uint8_t def,
+esp_sta_setmac(const esp_mac_t* mac,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -248,7 +242,6 @@ esp_sta_setmac(const esp_mac_t* mac, uint8_t def,
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTAMAC_SET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }

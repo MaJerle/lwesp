@@ -230,14 +230,12 @@ typedef struct esp_msg {
         } uart;                                 /*!< UART configuration */
         struct {
             esp_mode_t mode;                    /*!< Mode of operation */
-            uint8_t def;                        /*!< Value indicates to set mode as default or not */
         } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
             const char* name;                   /*!< AP name */
             const char* pass;                   /*!< AP password */
             const esp_mac_t* mac;               /*!< Specific MAC address to use when connecting to AP */
-            uint8_t def;                        /*!< Value indicates to connect as current only or as default */
             uint8_t error_num;                  /*!< Error number on connecting */
         } sta_join;                             /*!< Message for joining to access point */
         struct {
@@ -262,7 +260,6 @@ typedef struct esp_msg {
             uint8_t ch;                         /*!< RF Channel used */
             uint8_t max_sta;                    /*!< Max allowed connected stations */
             uint8_t hid;                        /*!< Configuration if network is hidden or visible */
-            uint8_t def;                        /*!< Save as default configuration */
         } ap_conf;                              /*!< Parameters to configure access point */
         struct {
             esp_sta_t* stas;                    /*!< Pointer to array to save access points */
@@ -275,27 +272,22 @@ typedef struct esp_msg {
             esp_ip_t* ip;                       /*!< Pointer to IP variable */
             esp_ip_t* gw;                       /*!< Pointer to gateway variable */
             esp_ip_t* nm;                       /*!< Pointer to netmask variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_getip;                         /*!< Message for reading station or access point IP */
         struct {
             esp_mac_t* mac;                     /*!< Pointer to MAC variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_getmac;                        /*!< Message for reading station or access point MAC address */
         struct {
             const esp_ip_t* ip;                 /*!< Pointer to IP variable */
             const esp_ip_t* gw;                 /*!< Pointer to gateway variable */
             const esp_ip_t* nm;                 /*!< Pointer to netmask variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setip;                         /*!< Message for setting station or access point IP */
         struct {
             const esp_mac_t* mac;               /*!< Pointer to MAC variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
         struct {
             uint8_t sta;                        /*!< Set station DHCP settings */
             uint8_t ap;                         /*!< Set access point DHCP settings */
             uint8_t en;                         /*!< Enable/disable DHCP settings */
-            uint8_t def;                        /*!< Set command as default */
         } wifi_cwdhcp;                          /*!< Set DHCP settings */
 
         /* Connection based commands */
@@ -359,7 +351,6 @@ typedef struct esp_msg {
             uint8_t en;                         /*!< Enable/Disable status */
             const char* s1;                     /*!< DNS server 1 */
             const char* s2;                     /*!< DNS server 2 */
-            uint8_t def;                        /*!< Default/current config */
         } dns_setconfig;                        /*!< Set DNS config */
 #endif /* ESP_CFG_DNS */
 #if ESP_CFG_SNTP || __DOXYGEN__

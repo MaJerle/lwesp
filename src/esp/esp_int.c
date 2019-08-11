@@ -574,7 +574,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 const char* tmp;
                 esp_mac_t mac;
 
-                 if (rcv->data[9] == ':') {
+                if (rcv->data[9] == ':') {
                     tmp = &rcv->data[10];
                 } else if (rcv->data[10] == ':') {
                     tmp = &rcv->data[11];
@@ -672,7 +672,7 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.m.sta.is_connected = 1;         /* Wifi is connected */
             espi_send_cb(ESP_EVT_WIFI_CONNECTED);   /* Call user callback function */
             if (!CMD_IS_CUR(ESP_CMD_WIFI_CWJAP)) {  /* In case of auto connection */
-                esp_sta_getip(NULL, NULL, NULL, 0, NULL, NULL, 0);  /* Get new IP address */
+                esp_sta_getip(NULL, NULL, NULL, NULL, NULL, 0);  /* Get new IP address */
             }
         } else if (!strncmp(&rcv->data[5], "DISCONNECT", 10)) {
             esp.m.sta.is_connected = 0;         /* Wifi is disconnected */
@@ -682,7 +682,7 @@ espi_parse_received(esp_recv_t* rcv) {
             esp.m.sta.has_ip = 1;               /* Wifi got IP address */
             espi_send_cb(ESP_EVT_WIFI_GOT_IP);  /* Call user callback function */
             if (!CMD_IS_CUR(ESP_CMD_WIFI_CWJAP)) { /* In case of auto connection */
-                esp_sta_getip(NULL, NULL, NULL, 0, NULL, NULL, 0);  /* Get new IP address */
+                esp_sta_getip(NULL, NULL, NULL, NULL, NULL, 0); /* Get new IP address */
             }
         }
     } else if (CMD_IS_CUR(ESP_CMD_GMR)) {
@@ -1566,7 +1566,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #endif /* ESP_CFG_MODE_STATION */
         case ESP_CMD_WIFI_CWMODE: {             /* Set WIFI mode */
             esp_mode_t m;
-            uint8_t def = 0;                    /* Set value as current */
 
             if (!CMD_IS_DEF(ESP_CMD_WIFI_CWMODE)) { /* Is this command part of reset sequence? */
 #if ESP_CFG_MODE_STATION_ACCESS_POINT
@@ -1579,7 +1578,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else {
                 /* Use user setup */
                 m = msg->msg.wifi_mode.mode;
-                def = msg->msg.wifi_mode.def;
             }
 
             AT_PORT_SEND_BEGIN();

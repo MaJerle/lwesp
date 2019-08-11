@@ -233,24 +233,23 @@ esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t
 
 /**
  * \brief           Sets WiFi mode to either station only, access point only or both
+ *
+ * Configuration changes will be saved in the NVS area of ESP device.
+ *
  * \param[in]       mode: Mode of operation. This parameter can be a value of \ref esp_mode_t enumeration
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_wifi_mode(esp_mode_t mode, uint8_t def,
+esp_set_wifi_mode(esp_mode_t mode,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
-    ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode;
-    ESP_MSG_VAR_REF(msg).msg.wifi_mode.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
