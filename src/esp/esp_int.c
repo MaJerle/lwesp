@@ -67,15 +67,6 @@ typedef struct {
 #define AT_PORT_SEND_QUOTE_COND(q)          do { if ((q)) { AT_PORT_SEND_CONST_STR("\""); } } while (0)
 #define AT_PORT_SEND_COMMA_COND(c)          do { if ((c)) { AT_PORT_SEND_CONST_STR(","); } } while (0)
 #define AT_PORT_SEND_EQUAL_COND(e)          do { if ((e)) { AT_PORT_SEND_CONST_STR("="); } } while (0)
-static void AT_PORT_SEND_CUR_DEF(uint8_t is_d, uint8_t e) {
-#if ESP_CFG_ESP8266
-    /* _CUR or _DEF are only available in ESP8266 */
-    if (esp.m.device == ESP_DEVICE_ESP8266) {
-        AT_PORT_SEND_STR(is_d ? "_DEF" : "_CUR");
-    }
-#endif /* ESP_CFG_ESP8266 */
-    AT_PORT_SEND_EQUAL_COND(e);
-}
 #endif /* !__DOXYGEN__ */
 
 static esp_recv_t recv_buff;
@@ -1581,8 +1572,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_MODE_STATION
         case ESP_CMD_WIFI_CWJAP: {              /* Try to join to access point */
             AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CWJAP");
-            AT_PORT_SEND_CUR_DEF(msg->msg.sta_join.def, 1);
+            AT_PORT_SEND_CONST_STR("+CWJAP=");
             espi_send_string(msg->msg.sta_join.name, 1, 1, 0);
             espi_send_string(msg->msg.sta_join.pass, 1, 1, 1);
             if (msg->msg.sta_join.mac != NULL) {
@@ -1646,8 +1636,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
 
             AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CWMODE");
-            AT_PORT_SEND_CUR_DEF(def, 1);
+            AT_PORT_SEND_CONST_STR("+CWMODE=");
             espi_send_number(ESP_U32(m), 0, 0);
             AT_PORT_SEND_END();
             break;
@@ -1671,7 +1660,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 AT_PORT_SEND_CONST_STR("AP");
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
-            AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_getip.def, 0);
             AT_PORT_SEND_CONST_STR("?");
             AT_PORT_SEND_END();
             break;
@@ -1695,9 +1683,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 AT_PORT_SEND_CONST_STR("AP");
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
-            AT_PORT_SEND_CONST_STR("MAC");
-            AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_getmac.def, 0);
-            AT_PORT_SEND_CONST_STR("?");
+            AT_PORT_SEND_CONST_STR("MAC?");
             AT_PORT_SEND_END();
             break;
         }
@@ -1720,7 +1706,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 AT_PORT_SEND_CONST_STR("AP");
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
-            AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_setip.def, 1);
+            AT_PORT_SEND_CONST_STR("=");
             espi_send_ip_mac(msg->msg.sta_ap_setip.ip, 1, 1, 0);/* Send IP address */
             if (msg->msg.sta_ap_setip.gw != NULL) { /* Is gateway set? */
                 espi_send_ip_mac(msg->msg.sta_ap_setip.gw, 1, 1, 1);/* Send gateway address */
@@ -1750,17 +1736,14 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 AT_PORT_SEND_CONST_STR("AP");
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
-            AT_PORT_SEND_CONST_STR("MAC");
-            AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) && msg->msg.sta_ap_setmac.def, 1);
+            AT_PORT_SEND_CONST_STR("MAC=");
             espi_send_ip_mac(msg->msg.sta_ap_setmac.mac, 0, 1, 0);
             AT_PORT_SEND_END();
             break;
         }
         case ESP_CMD_WIFI_CWDHCP_GET: {
             AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CWDHCP");
-            AT_PORT_SEND_CUR_DEF(0, 0);
-            AT_PORT_SEND_CONST_STR("?");
+            AT_PORT_SEND_CONST_STR("+CWDHCP?");
             AT_PORT_SEND_END();
             break;
         }
@@ -1769,8 +1752,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 
             /* This command is not compatible with ESP32 */
             AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CWDHCP");
-            AT_PORT_SEND_CUR_DEF(CMD_IS_CUR(CMD_GET_DEF()) & msg->msg.wifi_cwdhcp.def, 1);
+            AT_PORT_SEND_CONST_STR("+CWDHCP=");
             if (msg->msg.wifi_cwdhcp.sta > 0 && msg->msg.wifi_cwdhcp.ap > 0) {
                 num = 2;
             } else if (msg->msg.wifi_cwdhcp.sta > 0) {
@@ -1787,8 +1769,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
 #if ESP_CFG_MODE_ACCESS_POINT
         case ESP_CMD_WIFI_CWSAP_SET: {          /* Set access point parameters */
             AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CWSAP");
-            AT_PORT_SEND_CUR_DEF(msg->msg.ap_conf.def, 1);
+            AT_PORT_SEND_CONST_STR("+CWSAP=");
             espi_send_string(msg->msg.ap_conf.ssid, 1, 1, 0);
             espi_send_string(msg->msg.ap_conf.pwd, 1, 1, 1);
             espi_send_number(ESP_U32(msg->msg.ap_conf.ch), 0, 1);
@@ -2007,8 +1988,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_TCPIP_CIPDNS_SET: {        /* DNS set config */
             AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CIPDNS");
-            AT_PORT_SEND_CUR_DEF(msg->msg.dns_setconfig.def, 1);
+            AT_PORT_SEND_CONST_STR("+CIPDNS=");
             espi_send_number(ESP_U32(!!msg->msg.dns_setconfig.en), 0, 0);
             if (msg->msg.dns_setconfig.en) {
                 if (msg->msg.dns_setconfig.s1 != NULL) {
