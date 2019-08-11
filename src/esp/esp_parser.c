@@ -633,7 +633,7 @@ espi_parse_cwdhcp(const char* str) {
         return 0;
     }
     if (*str == '+') {
-        str += 12;
+        str += 8;
     }
 
     val = espi_parse_number(&str);

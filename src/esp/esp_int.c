@@ -574,11 +574,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 const char* tmp;
                 esp_mac_t mac;
 
-                if (rcv->data[9] == '_') {      /* Do we have "_CUR" or "_DEF" included? */
-                    tmp = &rcv->data[14];
-                } else if (rcv->data[10] == '_') {
-                    tmp = &rcv->data[15];
-                } else if (rcv->data[9] == ':') {
+                 if (rcv->data[9] == ':') {
                     tmp = &rcv->data[10];
                 } else if (rcv->data[10] == ':') {
                     tmp = &rcv->data[11];
@@ -623,12 +619,8 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
 
                 if (im != NULL) {
-                    /* We expect "+CIPSTA_CUR:" or "+CIPSTA_DEF:" or "+CIPAP_CUR:" or "+CIPAP_DEF:" or "+CIPSTA:" or "+CIPAP:" ... */
-                    if (rcv->data[6] == '_') {
-                        ch = rcv->data[11];
-                    } else if (rcv->data[7] == '_') {
-                        ch = rcv->data[12];
-                    } else if (rcv->data[6] == ':') {
+                    /* We expect "+CIPSTA:" or "+CIPAP:" ... */
+                    if (rcv->data[6] == ':') {
                         ch = rcv->data[7];
                     } else if (rcv->data[7] == ':') {
                         ch = rcv->data[8];
@@ -1127,7 +1119,7 @@ espi_process(const void* data, size_t data_len) {
 
                     /* If we are waiting for "\n> " sequence when CIPSEND command is active */
                     if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSEND)) {
-                        if (ch_prev2 == '\n' && ch_prev1 == '>' && ch == ' ') {
+                        if (ch_prev2 == '\r' && ch_prev1 == '\n' && ch == '>') {
                             RECV_RESET();       /* Reset received object */
 
                             /* Now actually send the data prepared before */
@@ -1517,7 +1509,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_WIFI_CWLAPOPT: {           /* Set visible data on CWLAP command */
             AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,2047");
+            AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,31");
             AT_PORT_SEND_END();
             break;
         }
@@ -1705,13 +1697,14 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_WIFI_CWDHCP_SET: {
             uint32_t num = 0;
 
-            /* This command is not compatible with ESP32 */
+            /* Configure DHCP setup */
+            num |= (msg->msg.wifi_cwdhcp.sta > 0 ? 0x01 : 0x00);
+            num |= (msg->msg.wifi_cwdhcp.ap > 0 ? 0x02 : 0x00);
+
             AT_PORT_SEND_BEGIN();
             AT_PORT_SEND_CONST_STR("+CWDHCP=");
-            espi_send_number(ESP_U32(msg->msg.wifi_cwdhcp.en > 0), 0, 1);
-            num |= (msg->msg.wifi_cwdhcp.sta > 0 ? 0x01 : 0);
-            num |= (msg->msg.wifi_cwdhcp.ap > 0 ? 0x02 : 0);
-            espi_send_number(num, 0, 0);
+            espi_send_number(ESP_U32(msg->msg.wifi_cwdhcp.en > 0), 0, 0);
+            espi_send_number(num, 0, 1);
             AT_PORT_SEND_END();
             break;
         }
