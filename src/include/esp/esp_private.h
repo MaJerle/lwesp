@@ -108,10 +108,6 @@ typedef enum {
 #if ESP_CFG_MDNS || __DOXYGEN__
     ESP_CMD_WIFI_MDNS,                          /*!< Configure MDNS function */
 #endif /* ESP_CFG_MDNS || __DOXYGEN__ */
-#if ESP_CFG_HOSTNAME || __DOXYGEN__
-    ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
-    ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
-#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
 
     /* TCP/IP related commands */
 #if ESP_CFG_DNS || __DOXYGEN__
@@ -134,9 +130,6 @@ typedef enum {
     ESP_CMD_TCPIP_CIPRECVMODE,                  /*!< Sets mode for TCP data receive (manual or automatic) */
     ESP_CMD_TCPIP_CIPRECVDATA,                  /*!< Manually reads TCP data from device */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
-#if ESP_CFG_PING || __DOXYGEN__
-    ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIUPDATE,                     /*!< Perform self-update */
 #if ESP_CFG_SNTP || __DOXYGEN__
     ESP_CMD_TCPIP_CIPSNTPCFG,                   /*!< Configure SNTP servers */
@@ -299,11 +292,6 @@ typedef struct esp_msg {
             uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
         struct {
-            const char* hostname_set;           /*!< Hostname set value */
-            char* hostname_get;                 /*!< Hostname get value */
-            size_t length;                      /*!< Length of buffer when reading hostname */
-        } wifi_hostname;                        /*!< Set or get hostname structure */
-        struct {
             uint8_t sta;                        /*!< Set station DHCP settings */
             uint8_t ap;                         /*!< Set access point DHCP settings */
             uint8_t en;                         /*!< Enable/disable DHCP settings */
@@ -374,13 +362,6 @@ typedef struct esp_msg {
             uint8_t def;                        /*!< Default/current config */
         } dns_setconfig;                        /*!< Set DNS config */
 #endif /* ESP_CFG_DNS */
-#if ESP_CFG_PING || __DOXYGEN__
-        struct {
-            const char* host;                   /*!< Hostname to ping */
-            uint32_t time;                      /*!< Time used for ping */
-            uint32_t* time_out;                 /*!< Pointer to time output variable */
-        } tcpip_ping;                           /*!< Pinging structure */
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
 #if ESP_CFG_SNTP || __DOXYGEN__
         struct {
             uint8_t en;                         /*!< Status if SNTP is enabled or not */

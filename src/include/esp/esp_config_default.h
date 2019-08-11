@@ -592,14 +592,6 @@
 #endif
 
 /**
- * \brief           Enables `1` or disables `0` support for ping functions
- *
- */
-#ifndef ESP_CFG_PING
-#define ESP_CFG_PING                        0
-#endif
-
-/**
  * \brief           Enables `1` or disables `0` support for WPS functions
  *
  */
@@ -621,14 +613,6 @@
  */
 #ifndef ESP_CFG_MDNS
 #define ESP_CFG_MDNS                        0
-#endif
-
-/**
- * \brief           Enables `1` or disables `0` support for SNTP protocol with AT commands
- *
- */
-#ifndef ESP_CFG_HOSTNAME
-#define ESP_CFG_HOSTNAME                    0
 #endif
 
 /**

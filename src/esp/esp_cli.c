@@ -35,29 +35,18 @@
 #if ESP_CFG_MODE_STATION
 #include "esp/esp_sta.h"
 #endif /* ESP_CFG_MODE_STATION */
-#if ESP_CFG_HOSTNAME
-#include "esp/esp_hostname.h"
-#endif /* ESP_CFG_HOSTNAME */
 #include "cli/cli.h"
 #include "cli/cli_config.h"
 
 #if ESP_CFG_MODE_STATION
 static void cli_station_info(cli_printf cliprintf, int argc, char** argv);
 #endif /* ESP_CFG_MODE_STATION */
-#if ESP_CFG_HOSTNAME
-static void cli_hostname_get(cli_printf cliprintf, int argc, char** argv);
-static void cli_hostname_set(cli_printf cliprintf, int argc, char** argv);
-#endif /* ESP_CFG_HOSTNAME */
 
 static const cli_command_t
 commands[] = {
 #if ESP_CFG_MODE_STATION
     { "station-info",       "Get current station info",                 cli_station_info },
 #endif /* ESP_CFG_MODE_STATION */
-#if ESP_CFG_HOSTNAME
-    { "hostname-get",       "Read the ESPs hostname",                   cli_hostname_get },
-    { "hostname-set",       "Set the ESPs hostname",                    cli_hostname_set },
-#endif /* ESP_CFG_HOSTNAME */
 
 };
 
@@ -98,54 +87,3 @@ cli_station_info(cli_printf cliprintf, int argc, char** argv) {
 }
 
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
-
-#if ESP_CFG_HOSTNAME || __DOXYGEN__
-
-/**
- * \brief           CLI command for reading ESPs hostname
- * \param[in]       cliprintf: Pointer to CLI printf function
- * \param[in]       argc: Number fo arguments in argv
- * \param[in]       argv: Pointer to the commands arguments
- */
-static void
-cli_hostname_get(cli_printf cliprintf, int argc, char** argv) {
-    espr_t res;
-    char hostname[32];
-
-    res = esp_hostname_get(hostname, sizeof(hostname), NULL, NULL, 1);
-    if (res != espOK) {
-        cliprintf("Error: Failed to get the hostname (%d)"CLI_NL, res);
-        return;
-    }
-
-    cliprintf("  %s"CLI_NL, hostname);
-}
-
-/**
- * \brief           CLI command for setting the ESP hostname
- * \param[in]       cliprintf: Pointer to CLI printf function
- * \param[in]       argc: Number fo arguments in argv
- * \param[in]       argv: Pointer to the commands arguments
- */
-static void
-cli_hostname_set(cli_printf cliprintf, int argc, char** argv) {
-    espr_t res;
-    char * hostname;
-
-    if (argc < 2) {
-        cliprintf("Error: too few parameters. Provied desired ESP hostname"CLI_NL);
-        return;
-    }
-
-    hostname = argv[1];
-
-    res = esp_hostname_set(hostname, NULL, NULL, 1);
-    if (res != espOK) {
-        cliprintf("Error: Failed to set the hostname (%d)"CLI_NL, res);
-        return;
-    }
-
-    cliprintf("  Set to: %s"CLI_NL, hostname);
-}
-
-#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */

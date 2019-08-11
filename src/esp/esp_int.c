@@ -670,10 +670,6 @@ espi_parse_received(esp_recv_t* rcv) {
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSNTPTIME) && !strncmp(rcv->data, "+CIPSNTPTIME", 12)) {
                 espi_parse_cipsntptime(rcv->data, esp.msg); /* Parse CIPSNTPTIME entry */
 #endif /* ESP_CFG_SNTP */
-#if ESP_CFG_HOSTNAME
-            } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWHOSTNAME_GET) && !strncmp(rcv->data, "+CWHOSTNAME", 11)) {
-                espi_parse_hostname(rcv->data, esp.msg);/* Parse HOSTNAME entry */
-#endif /* ESP_CFG_HOSTNAME */
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET) && !strncmp(rcv->data, "+CWDHCP", 7)) {
                 espi_parse_cwdhcp(rcv->data);   /* Parse CWDHCP state */
             }
@@ -1740,21 +1736,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
-#if ESP_CFG_HOSTNAME
-        case ESP_CMD_WIFI_CWHOSTNAME_SET: {     /* List stations connected on access point */
-            AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CWHOSTNAME=");
-            espi_send_string(msg->msg.wifi_hostname.hostname_set, 1, 1, 0);
-            AT_PORT_SEND_END();
-            break;
-        }
-        case ESP_CMD_WIFI_CWHOSTNAME_GET: {     /* List stations connected on access point */
-            AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+CWHOSTNAME?");
-            AT_PORT_SEND_END();
-            break;
-        }
-#endif /* ESP_CFG_HOSTNAME */
 #if ESP_CFG_WPS
         case ESP_CMD_WIFI_WPS: {                /* Enable WPS function */
             AT_PORT_SEND_BEGIN();

@@ -69,4 +69,4 @@ esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
+#endif /* ESP_CFG_MDNS || __DOXYGEN__ */
