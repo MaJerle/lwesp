@@ -119,19 +119,7 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
 #define RESTORE_SEND_EVT(m, err)  do {              \
     esp.evt.evt.restore.res = err;                  \
     espi_send_cb(ESP_EVT_RESTORE);                  \
-} while (0)
-
-/**
- * \brief           Send ping event to user
- * \param[in]       m: Command message
- * \param[in]       err: Error of type \ref espr_t
- */
-#define PING_SEND_EVT(m, err)   do {                \
-    esp.evt.evt.ping.res = err;  \
-    esp.evt.evt.ping.host = (m)->msg.tcpip_ping.host;   \
-    esp.evt.evt.ping.time = (m)->msg.tcpip_ping.time;   \
-    espi_send_cb(ESP_EVT_PING);                     \
-} while (0)
+} while (0) 
 
 /**
  * \brief           Send cipdomain (DNS function) event to user
@@ -371,16 +359,6 @@ espi_reset_everything(uint8_t forced) {
 }
 
 /**
- * \brief           Check if received string includes "_CUR" or "_DEF" as current or default setup
- * \param[in]       str: Pointer to string to test
- * \return          1 if current setting, 0 otherwise
- */
-static uint8_t
-is_received_current_setting(const char* str) {
-    return strstr(str, "_DEF") == NULL;         /* In case there is no "_DEF", we have current setting active */
-}
-
-/**
  * \brief           Process callback function to user with specific type
  * \param[in]       type: Callback event type
  * \return          Member of \ref espr_t enumeration
@@ -607,18 +585,16 @@ espi_parse_received(esp_recv_t* rcv) {
                 }
 
                 espi_parse_mac(&tmp, &mac);     /* Save as current MAC address */
-                if (is_received_current_setting(rcv->data)) {
 #if ESP_CFG_MODE_STATION
-                    if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET)) {
-                        ESP_MEMCPY(&esp.m.sta.mac, &mac, 6);/* Copy to current setup */
-                    }
+                if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTAMAC_GET)) {
+                    ESP_MEMCPY(&esp.m.sta.mac, &mac, 6);/* Copy to current setup */
+                }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
-                    if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_GET)) {
-                        ESP_MEMCPY(&esp.m.ap.mac, &mac, 6); /* Copy to current setup */
-                    }
-#endif /* ESP_CFG_MODE_ACCESS_POINT */
+                if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAPMAC_GET)) {
+                    ESP_MEMCPY(&esp.m.ap.mac, &mac, 6); /* Copy to current setup */
                 }
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
                 if (esp.msg->msg.sta_ap_getmac.mac != NULL && CMD_IS_CUR(CMD_GET_DEF())) {
                     ESP_MEMCPY(esp.msg->msg.sta_ap_getmac.mac, &mac, sizeof(mac));  /* Copy to current setup */
                 }
@@ -671,9 +647,7 @@ espi_parse_received(esp_recv_t* rcv) {
                             tmp++;
                         }
                         espi_parse_ip(&tmp, &ip);   /* Parse IP address */
-                        if (is_received_current_setting(rcv->data)) {
-                            ESP_MEMCPY(a, &ip, sizeof(ip)); /* Copy to current setup */
-                        }
+                        ESP_MEMCPY(a, &ip, sizeof(ip)); /* Copy to current setup */
                         if (b != NULL && CMD_IS_CUR(CMD_GET_DEF())) {   /* Is current command the same as default one? */
                             ESP_MEMCPY(b, &ip, sizeof(ip)); /* Copy to user variable */
                         }
@@ -692,10 +666,6 @@ espi_parse_received(esp_recv_t* rcv) {
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 espi_parse_cipdomain(rcv->data, esp.msg);   /* Parse CIPDOMAIN entry */
 #endif /* ESP_CFG_DNS */
-#if ESP_CFG_PING
-            } else if (CMD_IS_CUR(ESP_CMD_TCPIP_PING) && ESP_CHARISNUM(rcv->data[1])) {
-                espi_parse_ping_time(rcv->data, esp.msg);   /* Parse ping time */
-#endif /* ESP_CFG_PING */
 #if ESP_CFG_SNTP
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSNTPTIME) && !strncmp(rcv->data, "+CIPSNTPTIME", 12)) {
                 espi_parse_cipsntptime(rcv->data, esp.msg); /* Parse CIPSNTPTIME entry */
@@ -1281,8 +1251,7 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
         case ESP_CMD_RESET:
         case ESP_CMD_RESTORE: SET_NEW_CMD(ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0); break;
         case ESP_CMD_ATE0:
-        case ESP_CMD_ATE1: SET_NEW_CMD(ESP_CMD_SYSMSG_CUR); break;
-        case ESP_CMD_SYSMSG_CUR: SET_NEW_CMD(!*is_ok ? ESP_CMD_GMR : ESP_CMD_SYSMSG); break;
+        case ESP_CMD_ATE1: SET_NEW_CMD(ESP_CMD_SYSMSG); break;
         case ESP_CMD_SYSMSG: SET_NEW_CMD(ESP_CMD_GMR); break;
         case ESP_CMD_GMR: SET_NEW_CMD(ESP_CMD_WIFI_CWMODE); break;
         case ESP_CMD_WIFI_CWMODE: SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET); break;
@@ -1415,10 +1384,6 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {
         CIPDOMAIN_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
 #endif /* ESP_CFG_DNS */
-#if ESP_CFG_PING
-    } else if (CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
-        PING_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
-#endif
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSTART)) {/* Is our intention to join to access point? */
         if (!msg->i && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
             if (*is_ok) {
@@ -1543,12 +1508,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_SYSMSG: {                  /* Set system messages */
             AT_PORT_SEND_BEGIN();
             AT_PORT_SEND_CONST_STR("+SYSMSG=3");
-            AT_PORT_SEND_END();
-            break;
-        }
-        case ESP_CMD_SYSMSG_CUR: {              /* Set system messages */
-            AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+SYSMSG_CUR=3");
             AT_PORT_SEND_END();
             break;
         }
@@ -1753,15 +1712,10 @@ espi_initiate_cmd(esp_msg_t* msg) {
             /* This command is not compatible with ESP32 */
             AT_PORT_SEND_BEGIN();
             AT_PORT_SEND_CONST_STR("+CWDHCP=");
-            if (msg->msg.wifi_cwdhcp.sta > 0 && msg->msg.wifi_cwdhcp.ap > 0) {
-                num = 2;
-            } else if (msg->msg.wifi_cwdhcp.sta > 0) {
-                num = 1;
-            } else {
-                num = 0;
-            }
-            espi_send_number(num, 0, 0);
             espi_send_number(ESP_U32(msg->msg.wifi_cwdhcp.en > 0), 0, 1);
+            num |= (msg->msg.wifi_cwdhcp.sta > 0 ? 0x01 : 0);
+            num |= (msg->msg.wifi_cwdhcp.ap > 0 ? 0x02 : 0);
+            espi_send_number(num, 0, 0);
             AT_PORT_SEND_END();
             break;
         }
@@ -2002,15 +1956,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_DNS */
-#if ESP_CFG_PING
-        case ESP_CMD_TCPIP_PING: {              /* Pinging hostname or IP address */
-            AT_PORT_SEND_BEGIN();
-            AT_PORT_SEND_CONST_STR("+PING=");
-            espi_send_string(msg->msg.tcpip_ping.host, 1, 1, 0);
-            AT_PORT_SEND_END();
-            break;
-        }
-#endif /* ESP_CFG_PING */
 #if ESP_CFG_SNTP
         case ESP_CMD_TCPIP_CIPSNTPCFG: {        /* Configure SNTP */
             AT_PORT_SEND_BEGIN();
@@ -2174,14 +2119,6 @@ espi_process_events_for_timeout_or_error(esp_msg_t* msg, espr_t err) {
             break;
         }
 #endif /* ESP_CFG_MODE_STATION */
-
-#if ESP_CFG_PING
-        case ESP_CMD_TCPIP_PING: {
-            /* Ping error */
-            PING_SEND_EVT(msg, err);
-            break;
-        }
-#endif /* ESP_CFG_PING */
 
 #if ESP_CFG_DNS
         case ESP_CMD_TCPIP_CIPDOMAIN: {
