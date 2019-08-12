@@ -488,6 +488,40 @@ esp_device_is_present(void) {
     return res;
 }
 
+#if ESP_CFG_ESP8266 || __DOXYGEN__
+
+/**
+ * \brief           Check if modem device is ESP8266
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_device_is_esp8266(void) {
+    uint8_t res;
+    esp_core_lock();
+    res = esp.status.f.dev_present && esp.m.device == ESP_DEVICE_ESP8266;
+    esp_core_unlock();
+    return res;
+}
+
+#endif /* ESP_CFG_ESP8266 || __DOXYGEN__ */
+
+#if ESP_CFG_ESP32 || __DOXYGEN__
+
+/**
+ * \brief           Check if modem device is ESP32
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_device_is_esp32(void) {
+    uint8_t res;
+    esp_core_lock();
+    res = esp.status.f.dev_present && esp.m.device == ESP_DEVICE_ESP32;
+    esp_core_unlock();
+    return res;
+}
+
+#endif /* ESP_CFG_ESP32 || __DOXYGEN__ */
+
 /**
  * \brief           Get current AT firmware version of connected device
  * \param[out]      version: Output version variable
