@@ -136,6 +136,11 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
 #endif /* ESP_SNT || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIPDINFO,                     /*!< Configure what data are received on +IPD statement */
+
+    /* BLE commands, ESP32 only */
+#if ESP_CFG_ESP32 || __DOXYGEN__
+    ESP_CMD_BLEINIT_GET,                        /*!< Get BLE status */
+#endif /* ESP_CFG_ESP32 || __DOXYGEN__ */
 } esp_cmd_t;
 
 /**

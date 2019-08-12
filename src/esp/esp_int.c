@@ -1240,7 +1240,17 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
         case ESP_CMD_RESTORE: SET_NEW_CMD(ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0); break;
         case ESP_CMD_ATE0:
         case ESP_CMD_ATE1: SET_NEW_CMD(ESP_CMD_SYSMSG); break;
-        case ESP_CMD_SYSMSG: SET_NEW_CMD(ESP_CMD_GMR); break;
+        case ESP_CMD_SYSMSG:
+#if ESP_CFG_ESP32 && ESP_CFG_ESP8266
+            SET_NEW_CMD(ESP_CMD_BLEINIT_GET); break;
+        case ESP_CMD_BLEINIT_GET:
+            if (*is_ok) {
+                esp.m.device = ESP_DEVICE_ESP32;
+            } else {
+                esp.m.device = ESP_DEVICE_ESP8266;
+            }
+#endif /* ESP_CFG_ESP32 */
+            SET_NEW_CMD(ESP_CMD_GMR); break;
         case ESP_CMD_GMR: SET_NEW_CMD(ESP_CMD_WIFI_CWMODE); break;
         case ESP_CMD_WIFI_CWMODE: SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET); break;
         case ESP_CMD_WIFI_CWDHCP_GET: SET_NEW_CMD(ESP_CMD_TCPIP_CIPMUX); break;
@@ -1953,6 +1963,15 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_SNTP */
+
+#if ESP_CFG_ESP32
+        case ESP_CMD_BLEINIT_GET: {
+            AT_PORT_SEND_BEGIN();
+            AT_PORT_SEND_CONST_STR("+BLEINIT?");
+            AT_PORT_SEND_END();
+            break;
+        }
+#endif /* ESP_CFG_ESP32 */
 
         default:
             return espERR;                      /* Invalid command */
