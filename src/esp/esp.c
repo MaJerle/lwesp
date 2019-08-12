@@ -250,6 +250,7 @@ esp_set_wifi_mode(esp_mode_t mode,
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
+    ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
