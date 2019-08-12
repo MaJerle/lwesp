@@ -67,6 +67,9 @@ espr_t      esp_evt_unregister(esp_evt_fn fn);
 espr_t      esp_device_set_present(uint8_t present, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 uint8_t     esp_device_is_present(void);
 
+uint8_t     esp_device_is_esp8266(void);
+uint8_t     esp_device_is_esp32(void);
+
 uint8_t     esp_delay(const uint32_t ms);
 
 uint8_t     esp_get_current_at_fw_version(esp_sw_version_t* const version);
