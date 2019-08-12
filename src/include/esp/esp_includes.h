@@ -56,7 +56,7 @@ extern "C" {
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 #if ESP_CFG_NETCONN || __DOXYGEN__
 #include "esp/esp_netconn.h"
-#endif /* ESP_CFG_NETCONN || __DOXYGEN__ *//
+#endif /* ESP_CFG_NETCONN || __DOXYGEN__ */
 #if ESP_CFG_WPS || __DOXYGEN__
 #include "esp/esp_wps.h"
 #endif /* ESP_CFG_WPS || __DOXYGEN__ */
