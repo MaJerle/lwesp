@@ -221,7 +221,7 @@ esp_evt_conn_close_is_forced(esp_evt_t* cc) {
 /**
  * \brief           Get connection close event result
  * \param[in]       cc: Event handle
- * \return          Member of \ref gsmr_t enumeration
+ * \return          Member of \ref espr_t enumeration
  */
 espr_t
 esp_evt_conn_close_get_result(esp_evt_t* cc) {

@@ -37,7 +37,7 @@
 /**
  * \brief           Configure DHCP settings for station or access point (or both)
  * \param[in]       sta: Set to `1` to affect station DHCP configuration, set to `0` to keep current setup
- * \param[in]       sta: Set to `1` to affect access point DHCP configuration, set to `0` to keep current setup
+ * \param[in]       ap: Set to `1` to affect access point DHCP configuration, set to `0` to keep current setup
  * \param[in]       en: Set to `1` to enable DHCP, or `0` to disable (static IP)
  * \param[in]       def: Set to `1` make configuration default (write to device flash)
  *                      or set to `0` to make configuration valid until device reset
