@@ -40,7 +40,7 @@
  * Configuration changes will be saved in the NVS area of ESP device.
  *
  * \param[in]       sta: Set to `1` to affect station DHCP configuration, set to `0` to keep current setup
- * \param[in]       sta: Set to `1` to affect access point DHCP configuration, set to `0` to keep current setup
+ * \param[in]       ap: Set to `1` to affect access point DHCP configuration, set to `0` to keep current setup
  * \param[in]       en: Set to `1` to enable DHCP, or `0` to disable (static IP)
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
