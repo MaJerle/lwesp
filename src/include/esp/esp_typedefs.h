@@ -414,8 +414,10 @@ typedef struct esp_evt {
 /**
  * \ingroup         ESP_LL
  * \brief           Function prototype for AT output data
- * \param[in]       data: Pointer to data to send
- * \param[in]       len: Number of bytes to send
+ * \param[in]       data: Pointer to data to send. This parameter can be set to `NULL`
+ * \param[in]       len: Number of bytes to send. This parameter can be set to `0`
+ *                      to indicate that internal buffer can be flushed to stream.
+ *                      This is implementation defined and feature might be ignored
  * \return          Number of bytes sent
  */
 typedef size_t (*esp_ll_send_fn)(const void* data, size_t len);
