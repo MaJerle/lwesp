@@ -275,20 +275,6 @@ uint8_t     esp_evt_server_is_enable(esp_evt_t* cc);
  */
 
 /**
- * \anchor          ESP_EVT_PING
- * \name            Ping
- * \brief           Event helper functions for \ref ESP_EVT_PING event
- */
-
-espr_t      esp_evt_ping_get_result(esp_evt_t* cc);
-const char* esp_evt_ping_get_host(esp_evt_t* cc);
-uint32_t    esp_evt_ping_get_time(esp_evt_t* cc);
-
-/**
- * \}
- */
-
-/**
  * \}
  */
 
