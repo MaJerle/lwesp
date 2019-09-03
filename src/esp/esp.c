@@ -60,6 +60,12 @@ def_callback(esp_evt_t* evt) {
     return espOK;
 }
 
+// this is needed becaus the send function is called before the pointer is set
+static size_t dummy_send_at_init(const void* data, size_t len)
+{
+    return 0;
+}
+
 /**
  * \brief           Init and prepare ESP stack for device operation
  * \note            Function must be called from operating system thread context. 
@@ -107,6 +113,7 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     }
 
     /* Create threads */
+    esp.ll.send_fn = dummy_send_at_init;
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Lock semaphore */
     if (!esp_sys_thread_create(&esp.thread_produce, "esp_produce", esp_thread_produce, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
         ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
@@ -134,7 +141,9 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */
 
     esp.status.f.initialized = 1;               /* We are initialized now */
+#if !ESP_CFG_DEVICE_NEEDS_CONFIGURE
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
+#endif //!ESP_CFG_DEVICE_NEEDS_CONFIGURE
 
     espi_send_cb(ESP_EVT_INIT_FINISH);          /* Call user callback function */
 
@@ -455,6 +464,10 @@ esp_device_set_present(uint8_t present,
         esp.status.f.dev_present = present;
 
         if (!esp.status.f.dev_present) {
+            /* flag device as deconfigured in AT if */
+#if ESP_CFG_DEVICE_NEEDS_CONFIGURE
+            esp_ll_configure_device(&esp.ll, false);
+#endif //!ESP_CFG_DEVICE_NEEDS_CONFIGURE
             /* Manually reset stack to default device state */
             espi_reset_everything(1);
         } else {
@@ -463,6 +476,9 @@ esp_device_set_present(uint8_t present,
             res = esp_reset_with_delay(ESP_CFG_RESET_DELAY_DEFAULT, evt_fn, evt_arg, blocking);
             esp_core_lock();
 #endif /* ESP_CFG_RESET_ON_DEVICE_PRESENT */
+#if ESP_CFG_DEVICE_NEEDS_CONFIGURE
+            esp_ll_configure_device(&esp.ll, true);
+#endif //!ESP_CFG_DEVICE_NEEDS_CONFIGURE
         }
         espi_send_cb(ESP_EVT_DEVICE_PRESENT);       /* Send present event */
     }

@@ -48,6 +48,7 @@ extern "C" {
 
 espr_t      esp_ll_init(esp_ll_t* ll);
 espr_t      esp_ll_deinit(esp_ll_t* ll);
+espr_t      esp_ll_configure_device(esp_ll_t* ll, bool enable);
 
 /**
  * \}

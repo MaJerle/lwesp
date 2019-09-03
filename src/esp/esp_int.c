@@ -1462,6 +1462,7 @@ espr_t
 espi_initiate_cmd(esp_msg_t* msg) {
     switch (CMD_GET_CUR()) {                    /* Check current message we want to send over AT */
         case ESP_CMD_RESET: {                   /* Reset MCU with AT commands */
+#if !ESP_CFG_DEVICE_NEEDS_CONFIGURE
             /* Try hardware reset first */
             if (esp.ll.reset_fn != NULL && esp.ll.reset_fn(1)) {
 
@@ -1477,12 +1478,15 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 AT_PORT_SEND_END();
                 /* Do not modify baudrate yet as we need "OK" or "ERROR" response first */
             }
+#endif //!ESP_CFG_DEVICE_NEEDS_CONFIGURE
             break;
         }
         case ESP_CMD_RESTORE: {                 /* Reset MCU with AT commands */
+            #if !ESP_CFG_DEVICE_NEEDS_CONFIGURE
             AT_PORT_SEND_BEGIN();
             AT_PORT_SEND_CONST_STR("+RESTORE");
             AT_PORT_SEND_END();
+            #endif //!ESP_CFG_DEVICE_NEEDS_CONFIGURE
             break;
         }
         case ESP_CMD_ATE0: {                    /* Disable AT echo mode */
