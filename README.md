@@ -8,9 +8,11 @@ Official ESP AT firmware is based on Espressif RTOS-SDK.
 
 If you are only interested in using module and not writing firmware for it, you may download pre-build AT firmware from [Espressif systems download section](https://www.espressif.com/en/support/download/at) and focus only on firmware development on host side, for which you need the library posted here.
 
+Follow documentation for more information on implementation and other details.
+
 ## Features
 
-- Supports latest ESP32 ESP8266 RTOS-SDK based AT commands firmware
+- Supports latest ESP32 & ESP8266 RTOS-SDK based AT commands firmware
 - Platform independent and very easy to port
 - Development of library under Win32 platform
 - Available examples for ARM Cortex-M or Win32 platforms
