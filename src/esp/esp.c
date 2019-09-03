@@ -233,16 +233,17 @@ esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t
 
 /**
  * \brief           Sets WiFi mode to either station only, access point only or both
+ *
+ * Configuration changes will be saved in the NVS area of ESP device.
+ *
  * \param[in]       mode: Mode of operation. This parameter can be a value of \ref esp_mode_t enumeration
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_set_wifi_mode(esp_mode_t mode, uint8_t def,
+esp_set_wifi_mode(esp_mode_t mode,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -250,7 +251,6 @@ esp_set_wifi_mode(esp_mode_t mode, uint8_t def,
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode;
-    ESP_MSG_VAR_REF(msg).msg.wifi_mode.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -487,6 +487,40 @@ esp_device_is_present(void) {
     esp_core_unlock();
     return res;
 }
+
+#if ESP_CFG_ESP8266 || __DOXYGEN__
+
+/**
+ * \brief           Check if modem device is ESP8266
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_device_is_esp8266(void) {
+    uint8_t res;
+    esp_core_lock();
+    res = esp.status.f.dev_present && esp.m.device == ESP_DEVICE_ESP8266;
+    esp_core_unlock();
+    return res;
+}
+
+#endif /* ESP_CFG_ESP8266 || __DOXYGEN__ */
+
+#if ESP_CFG_ESP32 || __DOXYGEN__
+
+/**
+ * \brief           Check if modem device is ESP32
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_device_is_esp32(void) {
+    uint8_t res;
+    esp_core_lock();
+    res = esp.status.f.dev_present && esp.m.device == ESP_DEVICE_ESP32;
+    esp_core_unlock();
+    return res;
+}
+
+#endif /* ESP_CFG_ESP32 || __DOXYGEN__ */
 
 /**
  * \brief           Get current AT firmware version of connected device

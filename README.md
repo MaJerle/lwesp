@@ -1,5 +1,11 @@
 # ESP8266 AT commands parser for RTOS systems
 
+> This branch is dedicated for testing new AT commands based on ESP-IDF. Its purpose is to have unified commands for ESP32 and ESP8266, allowing customer to use same AT host firmware for both devices.
+> Library development always follows latest ESP AT commands releases, based on Espressif official firmware: https://github.com/espressif/esp32-at
+> You can download latest AT commands for ESP32 or ESP8266 here: https://www.espressif.com/en/support/download/at
+> Once library is stable and Espressif releases few updates, library will be migrated to this firmware. Currently stable one will be marked as legacy.
+> Current ESP AT versions: - ESP32: v1.2, ESP8266: v2.0, both based on RTOS SDK
+
 ESP-AT Library commands parser is a generic, platform independent, library for communicating with ESP8266 Wi-Fi module using AT commands. Module is written in C99 and is independent from used platform. Its main targets are embedded system devices like ARM Cortex-M, AVR, PIC and others, but can easily work under `Windows`, `Linux` or `MAC` environments.
 
 ## Features

@@ -52,7 +52,7 @@ espr_t      esp_reset_with_delay(uint32_t delay, const esp_api_cmd_evt_fn evt_fn
 
 espr_t      esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_set_wifi_mode(esp_mode_t mode, uint8_t def, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_set_wifi_mode(esp_mode_t mode, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 espr_t      esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn cb, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
@@ -66,6 +66,9 @@ espr_t      esp_evt_unregister(esp_evt_fn fn);
 
 espr_t      esp_device_set_present(uint8_t present, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 uint8_t     esp_device_is_present(void);
+
+uint8_t     esp_device_is_esp8266(void);
+uint8_t     esp_device_is_esp32(void);
 
 uint8_t     esp_delay(const uint32_t ms);
 

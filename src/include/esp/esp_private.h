@@ -108,10 +108,6 @@ typedef enum {
 #if ESP_CFG_MDNS || __DOXYGEN__
     ESP_CMD_WIFI_MDNS,                          /*!< Configure MDNS function */
 #endif /* ESP_CFG_MDNS || __DOXYGEN__ */
-#if ESP_CFG_HOSTNAME || __DOXYGEN__
-    ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
-    ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
-#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
 
     /* TCP/IP related commands */
 #if ESP_CFG_DNS || __DOXYGEN__
@@ -134,15 +130,17 @@ typedef enum {
     ESP_CMD_TCPIP_CIPRECVMODE,                  /*!< Sets mode for TCP data receive (manual or automatic) */
     ESP_CMD_TCPIP_CIPRECVDATA,                  /*!< Manually reads TCP data from device */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
-#if ESP_CFG_PING || __DOXYGEN__
-    ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIUPDATE,                     /*!< Perform self-update */
 #if ESP_CFG_SNTP || __DOXYGEN__
     ESP_CMD_TCPIP_CIPSNTPCFG,                   /*!< Configure SNTP servers */
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
 #endif /* ESP_SNT || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIPDINFO,                     /*!< Configure what data are received on +IPD statement */
+
+    /* BLE commands, ESP32 only */
+#if ESP_CFG_ESP32 || __DOXYGEN__
+    ESP_CMD_BLEINIT_GET,                        /*!< Get BLE status */
+#endif /* ESP_CFG_ESP32 || __DOXYGEN__ */
 } esp_cmd_t;
 
 /**
@@ -237,14 +235,12 @@ typedef struct esp_msg {
         } uart;                                 /*!< UART configuration */
         struct {
             esp_mode_t mode;                    /*!< Mode of operation */
-            uint8_t def;                        /*!< Value indicates to set mode as default or not */
         } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
             const char* name;                   /*!< AP name */
             const char* pass;                   /*!< AP password */
             const esp_mac_t* mac;               /*!< Specific MAC address to use when connecting to AP */
-            uint8_t def;                        /*!< Value indicates to connect as current only or as default */
             uint8_t error_num;                  /*!< Error number on connecting */
         } sta_join;                             /*!< Message for joining to access point */
         struct {
@@ -269,7 +265,6 @@ typedef struct esp_msg {
             uint8_t ch;                         /*!< RF Channel used */
             uint8_t max_sta;                    /*!< Max allowed connected stations */
             uint8_t hid;                        /*!< Configuration if network is hidden or visible */
-            uint8_t def;                        /*!< Save as default configuration */
         } ap_conf;                              /*!< Parameters to configure access point */
         struct {
             esp_sta_t* stas;                    /*!< Pointer to array to save access points */
@@ -282,32 +277,22 @@ typedef struct esp_msg {
             esp_ip_t* ip;                       /*!< Pointer to IP variable */
             esp_ip_t* gw;                       /*!< Pointer to gateway variable */
             esp_ip_t* nm;                       /*!< Pointer to netmask variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_getip;                         /*!< Message for reading station or access point IP */
         struct {
             esp_mac_t* mac;                     /*!< Pointer to MAC variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_getmac;                        /*!< Message for reading station or access point MAC address */
         struct {
             const esp_ip_t* ip;                 /*!< Pointer to IP variable */
             const esp_ip_t* gw;                 /*!< Pointer to gateway variable */
             const esp_ip_t* nm;                 /*!< Pointer to netmask variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setip;                         /*!< Message for setting station or access point IP */
         struct {
             const esp_mac_t* mac;               /*!< Pointer to MAC variable */
-            uint8_t def;                        /*!< Value for receiving default or current settings */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
-        struct {
-            const char* hostname_set;           /*!< Hostname set value */
-            char* hostname_get;                 /*!< Hostname get value */
-            size_t length;                      /*!< Length of buffer when reading hostname */
-        } wifi_hostname;                        /*!< Set or get hostname structure */
         struct {
             uint8_t sta;                        /*!< Set station DHCP settings */
             uint8_t ap;                         /*!< Set access point DHCP settings */
             uint8_t en;                         /*!< Enable/disable DHCP settings */
-            uint8_t def;                        /*!< Set command as default */
         } wifi_cwdhcp;                          /*!< Set DHCP settings */
 
         /* Connection based commands */
@@ -371,16 +356,8 @@ typedef struct esp_msg {
             uint8_t en;                         /*!< Enable/Disable status */
             const char* s1;                     /*!< DNS server 1 */
             const char* s2;                     /*!< DNS server 2 */
-            uint8_t def;                        /*!< Default/current config */
         } dns_setconfig;                        /*!< Set DNS config */
 #endif /* ESP_CFG_DNS */
-#if ESP_CFG_PING || __DOXYGEN__
-        struct {
-            const char* host;                   /*!< Hostname to ping */
-            uint32_t time;                      /*!< Time used for ping */
-            uint32_t* time_out;                 /*!< Pointer to time output variable */
-        } tcpip_ping;                           /*!< Pinging structure */
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
 #if ESP_CFG_SNTP || __DOXYGEN__
         struct {
             uint8_t en;                         /*!< Status if SNTP is enabled or not */

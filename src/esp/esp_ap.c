@@ -41,15 +41,13 @@
  * \param[out]      ip: Pointer to variable to write IP address
  * \param[out]      gw: Pointer to variable to write gateway address
  * \param[out]      nm: Pointer to variable to write netmask address
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
+esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -59,25 +57,25 @@ esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t def,
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.gw = gw;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.nm = nm;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_getip.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
  * \brief           Set IP of access point
+ *
+ * Configuration changes will be saved in the NVS area of ESP device.
+ *
  * \param[in]       ip: Pointer to IP address
  * \param[in]       gw: Pointer to gateway address. Set to `NULL` to use default gateway
  * \param[in]       nm: Pointer to netmask address. Set to `NULL` to use default netmask
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t def,
+esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -89,7 +87,6 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip = ip;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw = gw;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm = nm;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -97,15 +94,13 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, uint8_t
 /**
  * \brief           Get MAC of access point
  * \param[out]      mac: Pointer to output variable to save MAC address
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_ap_getmac(esp_mac_t* mac, uint8_t def,
+esp_ap_getmac(esp_mac_t* mac,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -113,23 +108,23 @@ esp_ap_getmac(esp_mac_t* mac, uint8_t def,
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPAPMAC_GET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
  * \brief           Set MAC of access point
+ *
+ * Configuration changes will be saved in the NVS area of ESP device.
+ *
  * \param[in]       mac: Pointer to variable with MAC address. Memory of at least 6 bytes is required
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_ap_setmac(const esp_mac_t* mac, uint8_t def,
+esp_ap_setmac(const esp_mac_t* mac,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -140,13 +135,15 @@ esp_ap_setmac(const esp_mac_t* mac, uint8_t def,
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPAPMAC_SET;
     ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
  * \brief           Configure access point
+ *
+ * Configuration changes will be saved in the NVS area of ESP device.
+ *
  * \note            Before you can configure access point, ESP device must be in AP mode. Check \ref esp_set_wifi_mode for more information
  * \param[in]       ssid: SSID name of access point
  * \param[in]       pwd: Password for network. Either set it to `NULL` or less than `64` characters
@@ -154,15 +151,13 @@ esp_ap_setmac(const esp_mac_t* mac, uint8_t def,
  * \param[in]       ecn: Encryption type. Valid options are `OPEN`, `WPA_PSK`, `WPA2_PSK` and `WPA_WPA2_PSK`
  * \param[in]       max_sta: Maximal number of stations access point can accept. Valid between 1 and 10 stations
  * \param[in]       hid: Set to `1` to hide access point from public access
- * \param[in]       def: Set to `1` make configuration default (write to device flash)
- *                      or set to `0` to make configuration valid until device reset
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, uint8_t max_sta, uint8_t hid, uint8_t def,
+esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, uint8_t max_sta, uint8_t hid,
                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -182,7 +177,6 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
     ESP_MSG_VAR_REF(msg).msg.ap_conf.ecn = ecn;
     ESP_MSG_VAR_REF(msg).msg.ap_conf.max_sta = max_sta;
     ESP_MSG_VAR_REF(msg).msg.ap_conf.hid = hid;
-    ESP_MSG_VAR_REF(msg).msg.ap_conf.def = def;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
 }

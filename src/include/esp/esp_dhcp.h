@@ -46,7 +46,7 @@ extern "C" {
  * \{
  */
 
-espr_t      esp_dhcp_configure(uint8_t sta, uint8_t ap, uint8_t en, uint8_t def, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_dhcp_configure(uint8_t sta, uint8_t ap, uint8_t en, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

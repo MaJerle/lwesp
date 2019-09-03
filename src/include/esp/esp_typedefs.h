@@ -156,10 +156,12 @@ typedef struct {
     int16_t rssi;                               /*!< Received signal strength indicator */
     esp_mac_t mac;                              /*!< MAC physical address */
     uint8_t ch;                                 /*!< WiFi channel used on access point */
-    int8_t offset;                              /*!< Access point offset */
-    uint8_t cal;                                /*!< Calibration value */
+
+    /* Not support for now */
+    //int8_t offset;                              /*!< Access point offset */
+    //uint8_t cal;                                /*!< Calibration value */
     uint8_t bgn;                                /*!< Information about 802.11[b|g|n] support */
-    uint8_t wps;                                /*!< Status if WPS function is supported */
+    //uint8_t wps;                                /*!< Status if WPS function is supported */
 } esp_ap_t;
 
 /**
@@ -412,8 +414,10 @@ typedef struct esp_evt {
 /**
  * \ingroup         ESP_LL
  * \brief           Function prototype for AT output data
- * \param[in]       data: Pointer to data to send
- * \param[in]       len: Number of bytes to send
+ * \param[in]       data: Pointer to data to send. This parameter can be set to `NULL`
+ * \param[in]       len: Number of bytes to send. This parameter can be set to `0`
+ *                      to indicate that internal buffer can be flushed to stream.
+ *                      This is implementation defined and feature might be ignored
  * \return          Number of bytes sent
  */
 typedef size_t (*esp_ll_send_fn)(const void* data, size_t len);

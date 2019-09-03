@@ -410,13 +410,16 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = espi_parse_number(&str);
     espi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = espi_parse_number(&str);
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = espi_parse_number(&str);
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = espi_parse_number(&str);
 
-    espi_parse_number(&str);                    /* Parse pwc */
-    espi_parse_number(&str);                    /* Parse gc */
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = espi_parse_number(&str);
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = espi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = 0;
+
+    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = espi_parse_number(&str);
+    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = espi_parse_number(&str);
+
+    //espi_parse_number(&str);                    /* Parse pwc */
+    //espi_parse_number(&str);                    /* Parse gc */
+    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = espi_parse_number(&str);
+    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = espi_parse_number(&str);
 
     msg->msg.ap_list.apsi++;                    /* Increase number of found elements */
     if (msg->msg.ap_list.apf != NULL) {         /* Set pointer if necessary */
@@ -540,31 +543,6 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
 
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
-#if ESP_CFG_PING || __DOXYGEN__
-
-/**
- * \brief           Parse received time for ping
- * \param[in]       str: Pointer to input string starting with +time
- * \param[in]       msg: Pointer to message
- * \return          `1` on success, `0` otherwise
- */
-uint8_t
-espi_parse_ping_time(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
-        return 0;
-    }
-    if (*str == '+') {
-        str++;
-    }
-    msg->msg.tcpip_ping.time = espi_parse_number(&str);
-    if (msg->msg.tcpip_ping.time_out != NULL) {
-        *msg->msg.tcpip_ping.time_out = msg->msg.tcpip_ping.time;
-    }
-    return 1;
-}
-
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
-
 #if ESP_CFG_SNTP || __DOXYGEN__
 
 /**
@@ -644,38 +622,6 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
 
 #endif /* ESP_CFG_SNTP || __DOXYGEN__ */
 
-#if ESP_CFG_HOSTNAME || __DOXYGEN__
-
-/**
- * \brief           Parse received message for HOSTNAME
- * \param[in]       str: Pointer to input string starting with +CWHOSTNAME
- * \param[in]       msg: Pointer to message
- * \return          `1` on success, `0` otherwise
- */
-uint8_t
-espi_parse_hostname(const char* str, esp_msg_t* msg) {
-    size_t i;
-    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWHOSTNAME_GET)) {
-        return 0;
-    }
-    if (*str == '+') {                              /* Check input string */
-        str += 12;
-    }
-    msg->msg.wifi_hostname.hostname_get[0] = 0;
-    if (*str != '\r') {
-        i = 0;
-        while (i < (msg->msg.wifi_hostname.length - 1) && *str && *str != '\r') {
-            msg->msg.wifi_hostname.hostname_get[i] = *str;
-            i++;
-            str++;
-        }
-        msg->msg.wifi_hostname.hostname_get[i] = 0;
-    }
-    return 1;
-}
-
-#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
-
 /**
  * \brief           Parse received message for DHCP
  * \param[in]       str: Pointer to input string starting with +CWDHCP
@@ -690,7 +636,7 @@ espi_parse_cwdhcp(const char* str) {
         return 0;
     }
     if (*str == '+') {
-        str += 12;
+        str += 8;
     }
 
     val = espi_parse_number(&str);
