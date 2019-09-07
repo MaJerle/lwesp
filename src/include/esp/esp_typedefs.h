@@ -396,13 +396,6 @@ typedef struct esp_evt {
             esp_ip_t* ip;                       /*!< Pointer to IP result */
         } dns_hostbyname;                       /*!< DNS domain service finished. Use with \ref ESP_EVT_DNS_HOSTBYNAME event */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
-#if ESP_CFG_PING || __DOXYGEN__
-        struct {
-            espr_t res;                         /*!< Result of command */
-            const char* host;                   /*!< Host name for ping */
-            uint32_t time;                      /*!< Time required for ping. Valid only if operation succedded */
-        } ping;                                 /*!< Ping finished. Use with \ref ESP_EVT_PING event */
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
     } evt;                                      /*!< Callback event union */
 } esp_evt_t;
 
