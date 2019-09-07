@@ -315,9 +315,6 @@ typedef enum esp_evt_type_t {
 #if ESP_CFG_DNS || __DOXYGEN__
     ESP_EVT_DNS_HOSTBYNAME,                     /*!< DNS domain service finished */
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
-#if ESP_CFG_PING || __DOXYGEN__
-    ESP_EVT_PING,                               /*!< PING service finished */
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
 } esp_evt_type_t;
 
 /**
