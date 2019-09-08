@@ -60,7 +60,7 @@ esp_thread_produce(void* const arg) {
     while (1) {
         esp_core_unlock();
         do {
-            time = esp_sys_mbox_get(&e->mbox_producer, (void**)&msg, 0);/* Get message from queue */
+            time = esp_sys_mbox_get(&e->mbox_producer, (void **)&msg, 0);   /* Get message from queue */
         } while (time == ESP_SYS_TIMEOUT || msg == NULL);
         ESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
         esp_core_lock();
