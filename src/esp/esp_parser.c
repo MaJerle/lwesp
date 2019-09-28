@@ -523,6 +523,32 @@ espi_parse_ap_ip_sta(const char* str) {
 
 #if ESP_CFG_DNS || __DOXYGEN__
 
+#if ESP_CFG_PING || __DOXYGEN__
+
+/**
+ * \brief           Parse received time for ping
+ * \param[in]       str: Pointer to input string starting with +time
+ * \param[in]       msg: Pointer to message
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+espi_parse_ping_time(const char* str, esp_msg_t* msg) {
+    if (!CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
+        return 0;
+    }
+    if (*str == '+') {
+        str += 6;
+    }
+    msg->msg.tcpip_ping.time = espi_parse_number(&str);
+    if (msg->msg.tcpip_ping.time_out != NULL) {
+        *msg->msg.tcpip_ping.time_out = msg->msg.tcpip_ping.time;
+    }
+    return 1;
+}
+
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
+
+
 /**
  * \brief           Parse received message domain DNS name
  * \param[in]       str: Pointer to input string starting with +CWLAP

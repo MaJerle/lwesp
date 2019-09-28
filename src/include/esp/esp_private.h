@@ -140,6 +140,9 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
 #endif /* ESP_SNT || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIPDINFO,                     /*!< Configure what data are received on +IPD statement */
+#if ESP_CFG_PING || __DOXYGEN__
+    ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
 
     /* BLE commands, ESP32 only */
 #if ESP_CFG_ESP32 || __DOXYGEN__
@@ -369,7 +372,14 @@ typedef struct esp_msg {
             const char* s1;                     /*!< DNS server 1 */
             const char* s2;                     /*!< DNS server 2 */
         } dns_setconfig;                        /*!< Set DNS config */
-#endif /* ESP_CFG_DNS */
+#endif /* ESP_CFG_DNS */ 
+#if ESP_CFG_PING || __DOXYGEN__
+        struct {
+            const char* host;                   /*!< Hostname to ping */
+            uint32_t time;                      /*!< Time used for ping */
+            uint32_t* time_out;                 /*!< Pointer to time output variable */
+        } tcpip_ping;                           /*!< Pinging structure */
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
 #if ESP_CFG_SNTP || __DOXYGEN__
         struct {
             uint8_t en;                         /*!< Status if SNTP is enabled or not */

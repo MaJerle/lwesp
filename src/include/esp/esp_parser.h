@@ -53,6 +53,7 @@ uint8_t     espi_parse_cwjap(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_cwlif(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_cipdomain(const char* src, esp_msg_t* msg);
 uint8_t     espi_parse_cipsntptime(const char* str, esp_msg_t* msg);
+uint8_t     espi_parse_ping_time(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_hostname(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_link_conn(const char* str);
 

@@ -416,6 +416,41 @@ esp_evt_dns_hostbyname_get_ip(esp_evt_t* cc) {
 
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
 
+#if ESP_CFG_PING || __DOXYGEN__
+
+/**
+ * \brief           Get ping status
+ * \param[in]       cc: Event handle
+ * \return          Member of \ref espr_t enumeration
+ */
+espr_t
+esp_evt_ping_get_result(esp_evt_t* cc) {
+    return cc->evt.ping.res;
+}
+
+/**
+ * \brief           Get hostname used to ping
+ * \param[in]       cc: Event handle
+ * \return          Hostname
+ */
+const char*
+esp_evt_ping_get_host(esp_evt_t* cc) {
+    return cc->evt.ping.host;
+}
+
+/**
+ * \brief           Get time required for ping
+ * \param[in]       cc: Event handle
+ * \return          Ping time
+ */
+uint32_t
+esp_evt_ping_get_time(esp_evt_t* cc) {
+    return cc->evt.ping.time;
+}
+
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
+
+
 /**
  * \brief           Get server command result
  * \param[in]       cc: Event handle

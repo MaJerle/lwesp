@@ -121,7 +121,19 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
 #define RESTORE_SEND_EVT(m, err)  do {              \
     esp.evt.evt.restore.res = err;                  \
     espi_send_cb(ESP_EVT_RESTORE);                  \
-} while (0) 
+} while (0)
+ 
+ /**
+ * \brief           Send ping event to user
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref espr_t
+ */
+#define PING_SEND_EVT(m, err)   do {                \
+    esp.evt.evt.ping.res = err;  \
+    esp.evt.evt.ping.host = (m)->msg.tcpip_ping.host;   \
+    esp.evt.evt.ping.time = (m)->msg.tcpip_ping.time;   \
+    espi_send_cb(ESP_EVT_PING);                     \
+} while (0)
 
 /**
  * \brief           Send cipdomain (DNS function) event to user
@@ -659,7 +671,11 @@ espi_parse_received(esp_recv_t* rcv) {
 #if ESP_CFG_DNS
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 espi_parse_cipdomain(rcv->data, esp.msg);   /* Parse CIPDOMAIN entry */
-#endif /* ESP_CFG_DNS */
+#endif /* ESP_CFG_DNS */ 
+#if ESP_CFG_PING
+            } else if (CMD_IS_CUR(ESP_CMD_TCPIP_PING) && !strncmp(rcv->data, "+PING", 5)) {
+                espi_parse_ping_time(rcv->data, esp.msg);   /* Parse ping time */
+#endif /* ESP_CFG_PING */
 #if ESP_CFG_SNTP
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPSNTPTIME) && !strncmp(rcv->data, "+CIPSNTPTIME", 12)) {
                 espi_parse_cipsntptime(rcv->data, esp.msg); /* Parse CIPSNTPTIME entry */
@@ -1388,6 +1404,10 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {
         CIPDOMAIN_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
 #endif /* ESP_CFG_DNS */
+#if ESP_CFG_PING
+    } else if (CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
+        PING_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
+#endif
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSTART)) {/* Is our intention to join to access point? */
         if (!msg->i && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
             if (*is_ok) {
@@ -1959,6 +1979,15 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_DNS */
+#if ESP_CFG_PING
+        case ESP_CMD_TCPIP_PING: {              /* Ping hostname or IP address */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+PING=");
+            espi_send_string(msg->msg.tcpip_ping.host, 1, 1, 0);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+#endif /* ESP_CFG_PING */
 #if ESP_CFG_SNTP
         case ESP_CMD_TCPIP_CIPSNTPCFG: {        /* Configure SNTP */
             AT_PORT_SEND_BEGIN_AT();
@@ -2131,6 +2160,14 @@ espi_process_events_for_timeout_or_error(esp_msg_t* msg, espr_t err) {
             break;
         }
 #endif /* ESP_CFG_MODE_STATION */
+
+#if ESP_CFG_PING
+        case ESP_CMD_TCPIP_PING: {
+            /* Ping error */
+            PING_SEND_EVT(msg, err);
+            break;
+        }
+#endif /* ESP_CFG_PING */
 
 #if ESP_CFG_DNS
         case ESP_CMD_TCPIP_CIPDOMAIN: {

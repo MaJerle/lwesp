@@ -57,6 +57,9 @@ extern "C" {
 #if ESP_CFG_NETCONN || __DOXYGEN__
 #include "esp/esp_netconn.h"
 #endif /* ESP_CFG_NETCONN || __DOXYGEN__ */
+#if ESP_CFG_PING || __DOXYGEN__
+#include "esp/esp_ping.h"
+#endif /* ESP_CFG_PING || __DOXYGEN__ */
 #if ESP_CFG_WPS || __DOXYGEN__
 #include "esp/esp_wps.h"
 #endif /* ESP_CFG_WPS || __DOXYGEN__ */
