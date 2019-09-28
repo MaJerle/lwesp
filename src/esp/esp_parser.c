@@ -622,6 +622,38 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
 
 #endif /* ESP_CFG_SNTP || __DOXYGEN__ */
 
+#if ESP_CFG_HOSTNAME || __DOXYGEN__
+
+/**
+ * \brief           Parse received message for HOSTNAME
+ * \param[in]       str: Pointer to input string starting with +CWHOSTNAME
+ * \param[in]       msg: Pointer to message
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+espi_parse_hostname(const char* str, esp_msg_t* msg) {
+    size_t i;
+    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWHOSTNAME_GET)) {
+        return 0;
+    }
+    if (*str == '+') {                              /* Check input string */
+        str += 12;
+    }
+    msg->msg.wifi_hostname.hostname_get[0] = 0;
+    if (*str != '\r') {
+        i = 0;
+        while (i < (msg->msg.wifi_hostname.length - 1) && *str && *str != '\r') {
+            msg->msg.wifi_hostname.hostname_get[i] = *str;
+            i++;
+            str++;
+        }
+        msg->msg.wifi_hostname.hostname_get[i] = 0;
+    }
+    return 1;
+}
+
+#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
+
 /**
  * \brief           Parse received message for DHCP
  * \param[in]       str: Pointer to input string starting with +CWDHCP

@@ -1,6 +1,6 @@
 /**
- * \file            esp_includes.h
- * \brief           All main includes
+ * \file            esp_hostname.h
+ * \brief           Hostname API
  */
 
 /*
@@ -30,49 +30,31 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  */
-#ifndef ESP_HDR_INCLUDES_H
-#define ESP_HDR_INCLUDES_H
+#ifndef ESP_HDR_HOSTNAME_H
+#define ESP_HDR_HOSTNAME_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif /* __cplusplus */
+#endif
 
-#include "esp_config.h"
-#include "esp/esp_typedefs.h"
-#include "esp/esp_buff.h"
-#include "esp/esp_input.h"
-#include "esp/esp_evt.h"
-#include "esp/esp_debug.h"
-#include "esp/esp_utils.h"
-#include "esp/esp_pbuf.h"
-#include "esp/esp_conn.h"
-#include "system/esp_sys.h"
+#include "esp/esp.h"
 
-#if ESP_CFG_MODE_STATION || __DOXYGEN__
-#include "esp/esp_sta.h"
-#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
-#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-#include "esp/esp_ap.h"
-#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
-#if ESP_CFG_NETCONN || __DOXYGEN__
-#include "esp/esp_netconn.h"
-#endif /* ESP_CFG_NETCONN || __DOXYGEN__ */
-#if ESP_CFG_WPS || __DOXYGEN__
-#include "esp/esp_wps.h"
-#endif /* ESP_CFG_WPS || __DOXYGEN__ */
-#if ESP_CFG_SNTP || __DOXYGEN__
-#include "esp/esp_sntp.h"
-#endif /* ESP_CFG_SNTP || __DOXYGEN__ */
-#if ESP_CFG_HOSTNAME || __DOXYGEN__
-#include "esp/esp_hostname.h"
-#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
-#if ESP_CFG_DNS || __DOXYGEN__
-#include "esp/esp_dns.h"
-#endif /* ESP_CFG_DNS || __DOXYGEN__ */
-#include "esp/esp_dhcp.h"
+/**
+ * \ingroup         ESP
+ * \defgroup        ESP_HOSTNAME Hostname API
+ * \brief           Hostname API
+ * \{
+ */
+
+espr_t      esp_hostname_set(const char* hostname, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_hostname_get(char* hostname, size_t size, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+
+/**
+ * \}
+ */
 
 #ifdef __cplusplus
 }
-#endif /* __cplusplus */
+#endif
 
-#endif /* ESP_HDR_INCLUDES_H */
+#endif /* ESP_HDR_HOSTNAME_H */

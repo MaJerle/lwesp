@@ -608,6 +608,15 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` support for hostname with AT commands
+ *
+ */
+#ifndef ESP_CFG_HOSTNAME
+#define ESP_CFG_HOSTNAME                    0
+#endif
+
+
+/**
  * \brief           Enables `1` or disables `0` support for mDNS
  *
  */

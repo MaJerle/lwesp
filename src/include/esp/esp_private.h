@@ -108,6 +108,10 @@ typedef enum {
 #if ESP_CFG_MDNS || __DOXYGEN__
     ESP_CMD_WIFI_MDNS,                          /*!< Configure MDNS function */
 #endif /* ESP_CFG_MDNS || __DOXYGEN__ */
+#if ESP_CFG_HOSTNAME || __DOXYGEN__
+    ESP_CMD_WIFI_CWHOSTNAME_SET,                /*!< Set device hostname */
+    ESP_CMD_WIFI_CWHOSTNAME_GET,                /*!< Get device hostname */
+#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
 
     /* TCP/IP related commands */
 #if ESP_CFG_DNS || __DOXYGEN__
@@ -294,6 +298,14 @@ typedef struct esp_msg {
             uint8_t ap;                         /*!< Set access point DHCP settings */
             uint8_t en;                         /*!< Enable/disable DHCP settings */
         } wifi_cwdhcp;                          /*!< Set DHCP settings */
+
+#if ESP_CFG_HOSTNAME || __DOXYGEN__
+        struct {
+            const char* hostname_set;           /*!< Hostname set value */
+            char* hostname_get;                 /*!< Hostname get value */
+            size_t length;                      /*!< Length of buffer when reading hostname */
+        } wifi_hostname;                        /*!< Set or get hostname structure */
+#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
 
         /* Connection based commands */
         struct {
