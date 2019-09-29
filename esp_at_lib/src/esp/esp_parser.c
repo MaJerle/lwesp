@@ -521,8 +521,6 @@ espi_parse_ap_ip_sta(const char* str) {
 }
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 
-#if ESP_CFG_DNS || __DOXYGEN__
-
 #if ESP_CFG_PING || __DOXYGEN__
 
 /**
@@ -548,6 +546,7 @@ espi_parse_ping_time(const char* str, esp_msg_t* msg) {
 
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
 
+#if ESP_CFG_DNS || __DOXYGEN__
 
 /**
  * \brief           Parse received message domain DNS name
