@@ -27,10 +27,6 @@ Follow documentation for more information on implementation and other details.
 - Embeds other AT features, such as `WPS`, `DNS` and others
 - User friendly MIT license
 
-## Examples and resources
-
-For examples, please check second repository, available at https://github.com/MaJerle/ESP_AT_Lib_res
-
 ## Documentation
 
 Full API documentation with description and examples is available and is regulary updated with the source changes
