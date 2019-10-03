@@ -63,6 +63,7 @@ typedef struct esp_mqtt_client {
     uint8_t parser_state;                       /*!< Incoming data parser state */
     uint8_t msg_hdr_byte;                       /*!< Incoming message header byte */
     uint32_t msg_rem_len;                       /*!< Remaining length value of current message */
+    uint8_t msg_rem_len_mult;                   /*!< Multiplier for remaining length */
     uint32_t msg_curr_pos;                      /*!< Current buffer write pointer */
 
     void* arg;                                  /*!< User argument */
@@ -535,7 +536,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
             qos = MQTT_RCV_GET_PACKET_QOS(client->msg_hdr_byte);    /* Get QoS from received packet */
             dup = MQTT_RCV_GET_PACKET_DUP(client->msg_hdr_byte);    /* Get duplicate flag */
 
-            topic_len = client->rx_buff[0] << 8 | client->rx_buff[1];
+            topic_len = (client->rx_buff[0] << 8) | client->rx_buff[1];
             topic = &client->rx_buff[2];        /* Start of topic */
 
             data = topic + topic_len;           /* Get data pointer */
@@ -673,14 +674,16 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                     /* Save other info about message */
                     client->msg_hdr_byte = ch;  /* Save first entry */
                     client->msg_rem_len = 0;    /* Reset remaining length */
+                    client->msg_rem_len_mult = 0;   /* Reset length multiplier */
                     client->msg_curr_pos = 0;   /* Reset current buffer write pointer */
 
                     client->parser_state = MQTT_PARSER_STATE_CALC_REM_LEN;
                     break;
                 }
                 case MQTT_PARSER_STATE_CALC_REM_LEN: {  /* Calculate remaining length of packet */
-                    client->msg_rem_len <<= 7;  /* Shift remaining length by 7 bits */
-                    client->msg_rem_len |= (ch & 0x7F);
+                    /* Length of packet is LSB first, each consist of up to 7 bits */
+                    client->msg_rem_len |= (ch & 0x7F) << ((size_t)7 * (size_t)client->msg_rem_len_mult++);
+
                     /* TODO: Ignore too-big messages */
                     if (!(ch & 0x80)) {         /* Is this last entry? */
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
@@ -696,13 +699,23 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                     break;
                 }
                 case MQTT_PARSER_STATE_READ_REM: {  /* Read remaining bytes and write to RX buffer */
-                    client->rx_buff[client->msg_curr_pos++] = ch;   /* Write received character */
+                    /* Process only if rx buff length is big enough */
+                    if (client->msg_curr_pos < client->rx_buff_len) {
+                        client->rx_buff[client->msg_curr_pos] = ch; /* Write received character */
+                    }
+                    client->msg_curr_pos++;
 
+                    /* We reached end of received characters? */
                     if (client->msg_curr_pos == client->msg_rem_len) {
-                        ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
-                            "[MQTT] Packet parsed and ready for processing\r\n");
+                        if (client->msg_curr_pos <= client->rx_buff_len) {  /* Check if it was possible to write all data to rx buffer */
+                            ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
+                                "[MQTT] Packet parsed and ready for processing\r\n");
 
-                        mqtt_process_incoming_message(client);  /* Process incoming packet */
+                            mqtt_process_incoming_message(client);  /* Process incoming packet */
+                        } else {
+                            ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING,
+                                "[MQTT] Packet too big for rx buffer. Packet discarded\r\n");
+                        }
                         client->parser_state = MQTT_PARSER_STATE_INIT;  /* Go to initial state and listen for next received packet */
                     }
                     break;
