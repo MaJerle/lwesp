@@ -160,12 +160,6 @@
     <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_mem_lwmem.c">
       <Filter>Source Files\ESP LL</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\lwmem_res\lwmem\src\lwmem\lwmem.c">
-      <Filter>Source Files\LWMEM</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\lwmem_res\lwmem\src\system\lwmem_sys_win32.c">
-      <Filter>Source Files\LWMEM</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_dhcp.c">
       <Filter>Source Files\ESP CORE</Filter>
     </ClCompile>
@@ -174,6 +168,12 @@
     </ClCompile>
     <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_ping.c">
       <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lwmem\lwmem\src\lwmem\lwmem.c">
+      <Filter>Source Files\LWMEM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lwmem\lwmem\src\system\lwmem_sys_win32.c">
+      <Filter>Source Files\LWMEM</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
