@@ -390,8 +390,8 @@ write_string(esp_mqtt_client_p client, const char* str, uint16_t len) {
  */
 static void
 send_data(esp_mqtt_client_p client) {
-    const void* addr;
     size_t len;
+    const void* addr;
 
     if (client->is_sending) {                   /* We are currently sending data */
         return;
@@ -448,10 +448,10 @@ mqtt_close(esp_mqtt_client_p client) {
  */
 static uint8_t
 sub_unsub(esp_mqtt_client_p client, const char* topic, esp_mqtt_qos_t qos, void* arg, uint8_t sub) {
-    uint8_t ret = 0;
-    uint16_t len_topic, pkt_id;
-    uint32_t rem_len;
     esp_mqtt_request_t* request;
+    uint32_t rem_len;
+    uint16_t len_topic, pkt_id;
+    uint8_t ret = 0;
     
     if ((len_topic = ESP_U16(strlen(topic))) == 0) {
         return 0;
@@ -498,8 +498,8 @@ sub_unsub(esp_mqtt_client_p client, const char* topic, esp_mqtt_qos_t qos, void*
 static uint8_t
 mqtt_process_incoming_message(esp_mqtt_client_p client) {
     mqtt_msg_type_t msg_type;
-    uint16_t pkt_id;
     esp_mqtt_qos_t qos;
+    uint16_t pkt_id;
 
     msg_type = MQTT_RCV_GET_PACKET_TYPE(client->msg_hdr_byte);  /* Get packet type from message header byte */
 
@@ -656,16 +656,16 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
 static uint8_t
 mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
     size_t idx, buff_len = 0, buff_offset = 0;
-    const uint8_t* d;
-    uint8_t ch;
+    uint8_t ch, *d;
 
     do {
         buff_offset += buff_len;                /* Calculate new offset of buffer */
         d = esp_pbuf_get_linear_addr(pbuf, buff_offset, &buff_len); /* Get address pointer */
-
-        idx = 0;
-        while (d != NULL && idx < buff_len) {   /* Process entire linear buffer */
-            ch = d[idx++];                      /* Get element */
+        if (d == NULL) {
+            break;
+        }
+        for (idx = 0; idx < buff_len; idx++) {  /* Process entire linear buffer */
+            ch = d[idx];
             switch (client->parser_state) {     /* Check parser state */
                 case MQTT_PARSER_STATE_INIT: {  /* We are waiting for start byte and packet type */
                     ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
@@ -684,13 +684,32 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                     /* Length of packet is LSB first, each consist of up to 7 bits */
                     client->msg_rem_len |= (ch & 0x7F) << ((size_t)7 * (size_t)client->msg_rem_len_mult++);
 
-                    /* TODO: Ignore too-big messages */
                     if (!(ch & 0x80)) {         /* Is this last entry? */
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
                             "[MQTT] Remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
 
                         if (client->msg_rem_len > 0) {
-                            client->parser_state = MQTT_PARSER_STATE_READ_REM;
+                            /* Are all remaining bytes part of single buffer? */
+                            /* Compare with more as idx is one byte behind vs data position by 1 byte */
+                            if ((buff_len - idx) > client->msg_rem_len) {
+                                void* tmp_ptr = client->rx_buff;
+                                size_t tmp_len = client->rx_buff_len;
+
+                                /* Set new client pointer */
+                                client->rx_buff = &d[idx + 1];  /* Data are one byte after */
+                                client->rx_buff_len = client->msg_rem_len;
+
+                                mqtt_process_incoming_message(client);  /* Process new message */
+
+                                /* Reset to previous values */
+                                client->rx_buff = tmp_ptr;
+                                client->rx_buff_len = tmp_len;
+                                client->parser_state = MQTT_PARSER_STATE_INIT;
+
+                                idx += client->msg_rem_len; /* Skip data part only, idx is increased again in for loop */
+                            } else {
+                                client->parser_state = MQTT_PARSER_STATE_READ_REM;
+                            }
                         } else {
                             mqtt_process_incoming_message(client);
                             client->parser_state = MQTT_PARSER_STATE_INIT;
@@ -724,7 +743,7 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                     client->parser_state = MQTT_PARSER_STATE_INIT;
             }
         }
-    } while (buff_len);
+    } while (buff_len > 0);
     return 0;
 }
 
@@ -740,8 +759,8 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
  */
 static void
 mqtt_connected_cb(esp_mqtt_client_p client) {
-    uint8_t flags = 0;
     uint16_t rem_len, len_id, len_pass = 0, len_user = 0, len_will_topic = 0, len_will_message = 0;
+    uint8_t flags = 0;
 
     flags |= MQTT_FLAG_CONNECT_CLEAN_SESSION;   /* Start as clean session */
 
@@ -937,8 +956,8 @@ mqtt_poll_cb(esp_mqtt_client_p client) {
  */
 static uint8_t
 mqtt_closed_cb(esp_mqtt_client_p client, espr_t res, uint8_t forced) {
-    esp_mqtt_request_t* request;
     esp_mqtt_state_t state = client->conn_state;
+    esp_mqtt_request_t* request;
 
     /*
      * Call user function only if connection was closed
@@ -1186,11 +1205,11 @@ esp_mqtt_client_unsubscribe(esp_mqtt_client_p client, const char* topic, void* a
 espr_t
 esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void* payload,
                         uint16_t payload_len, esp_mqtt_qos_t qos, uint8_t retain, void* arg) {
-    uint8_t qos_u8 = ESP_U8(qos);
-    uint16_t len_topic, pkt_id;
-    uint32_t rem_len, raw_len;
-    esp_mqtt_request_t* request = NULL;
     espr_t res = espOK;
+    esp_mqtt_request_t* request = NULL;
+    uint32_t rem_len, raw_len;
+    uint16_t len_topic, pkt_id;
+    uint8_t qos_u8 = ESP_U8(qos);
 
     if (!(len_topic = ESP_U16(strlen(topic)))) {    /* Get length of topic */
         return espERR;
