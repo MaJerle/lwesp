@@ -41,11 +41,13 @@ extern "C" {
 
 /**
  * \ingroup         ESP
- * \defgroup        ESP_EVT Event helpers
+ * \defgroup        ESP_EVT Events management
  * \brief           Event helper functions
  * \{
  */
 
+espr_t          esp_evt_register(esp_evt_fn fn);
+espr_t          esp_evt_unregister(esp_evt_fn fn);
 esp_evt_type_t  esp_evt_get_type(esp_evt_t* cc);
 
 /**

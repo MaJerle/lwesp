@@ -61,9 +61,6 @@ espr_t      esp_update_sw(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, 
 espr_t      esp_core_lock(void);
 espr_t      esp_core_unlock(void);
 
-espr_t      esp_evt_register(esp_evt_fn fn);
-espr_t      esp_evt_unregister(esp_evt_fn fn);
-
 espr_t      esp_device_set_present(uint8_t present, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 uint8_t     esp_device_is_present(void);
 

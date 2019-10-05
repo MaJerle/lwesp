@@ -35,6 +35,73 @@
 #include "esp/esp_mem.h"
 
 /**
+ * \brief           Register event function for global (non-connection based) events
+ * \param[in]       fn: Callback function to call on specific event
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_evt_register(esp_evt_fn fn) {
+    espr_t res = espOK;
+    esp_evt_func_t* func, *newFunc;
+
+    ESP_ASSERT("fn != NULL", fn != NULL);
+
+    esp_core_lock();
+
+    /* Check if function already exists on list */
+    for (func = esp.evt_func; func != NULL; func = func->next) {
+        if (func->fn == fn) {
+            res = espERR;
+            break;
+        }
+    }
+
+    if (res == espOK) {
+        newFunc = esp_mem_malloc(sizeof(*newFunc));
+        if (newFunc != NULL) {
+            ESP_MEMSET(newFunc, 0x00, sizeof(*newFunc));
+            newFunc->fn = fn;                   /* Set function pointer */
+            for (func = esp.evt_func; func != NULL && func->next != NULL; func = func->next) {}
+            if (func != NULL) {
+                func->next = newFunc;           /* Set new function as next */
+                res = espOK;
+            } else {
+                esp_mem_free_s((void**)& newFunc);
+                res = espERRMEM;
+            }
+        } else {
+            res = espERRMEM;
+        }
+    }
+    esp_core_unlock();
+    return res;
+}
+
+/**
+ * \brief           Unregister callback function for global (non-connection based) events
+ * \note            Function must be first registered using \ref esp_evt_register
+ * \param[in]       fn: Callback function to remove from event list
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_evt_unregister(esp_evt_fn fn) {
+    esp_evt_func_t* func, *prev;
+
+    ESP_ASSERT("fn != NULL", fn != NULL);
+
+    esp_core_lock();
+    for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {
+        if (func->fn == fn) {
+            prev->next = func->next;
+            esp_mem_free_s((void **)&func);
+            break;
+        }
+    }
+    esp_core_unlock();
+    return espOK;
+}
+
+/**
  * \brief           Get event type
  * \param[in]       cc: Event handle
  * \return          Event type. Member of \ref esp_evt_type_t enumeration
