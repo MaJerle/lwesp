@@ -286,13 +286,13 @@ write_fixed_header(esp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup, 
 
     do {                                        /* Encode length, we must write a len byte even if 0 */
         /*
-         * Length if encoded LSB first up to 127 (0x7F) long,
-         * where bit 7 indicates we have more data in queue
+         * Length is encoded LSB first up to 127 (0x7F) long,
+         * where bit 7 indicates we have more data in queue for length parameter
          */
         b = ESP_U8((rem_len & 0x7F) | (rem_len > 0x7F ? 0x80 : 0));
         esp_buff_write(&client->tx_buff, &b, 1);/* Write single byte */
         rem_len >>= 7;                          /* Go to next 127 bytes */
-    } while (rem_len);
+    } while (rem_len > 0);
 }
 
 /**
@@ -344,7 +344,7 @@ output_check_enough_memory(esp_mqtt_client_p client, uint16_t rem_len) {
     do {                                        /* Calculate bytes for encoding remaining length itself */
         total_len++;
         rem_len >>= 7;                          /* Encoded with 7 bits per byte */
-    } while (rem_len);
+    } while (rem_len > 0);
 
     return ESP_U16(esp_buff_get_free(&client->tx_buff)) >= total_len ? total_len : 0;
 }
@@ -869,22 +869,17 @@ mqtt_data_sent_cb(esp_mqtt_client_p client, size_t sent_len, uint8_t successful)
      * and clear all pending requests in closed callback function
      */
     if (!successful) {
+        ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING,
+                    "[MQTT] Failed to send %d bytes. Manually closing down..\r\n", (int)sent_len);
+
         mqtt_close(client);
         return 0;
     }
+    gsm_buff_skip(&client->tx_buff, sent_len);  /* Skip buffer for actual sent data */
 
     /*
-     * Even if sent was in general not successful,
-     * on larger packets it may happen (if they are fragmented)
-     * that part of packet was still sent and we have to update this part
-     */
-    esp_buff_skip(&client->tx_buff, sent_len);  /* Skip buffer for actual skipped data */
-
-    /**
-     * Check pending publish requests without QoS
-     * because there is no confirmation received by server.
-     * Use technique to count number of bytes sent and what should be minimal sent value
-     * before we decide we have pending request sent.
+     * Check pending publish requests without QoS because there is no confirmation received by server.
+     * Use technique to count number of bytes sent versus expected number of bytes sent before we ack request sent
      *
      * Requests without QoS have packet id set to 0
      */
