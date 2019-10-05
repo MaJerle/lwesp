@@ -43,7 +43,6 @@
 /**
  * \brief           Enables `1` or disables `0` support for ESP8266 AT commands
  *
- * \note            Value must be set to `1` in the current revision
  */
 #ifndef ESP_CFG_ESP8266
 #define ESP_CFG_ESP8266                     1
@@ -52,7 +51,6 @@
 /**
  * \brief           Enables `1` or disables `0` support for ESP32 AT commands
  *
- * \note            Value must be set to `0` in the current revision
  */
 #ifndef ESP_CFG_ESP32
 #define ESP_CFG_ESP32                       0
