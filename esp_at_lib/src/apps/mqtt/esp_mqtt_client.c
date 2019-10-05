@@ -505,7 +505,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
 
     /* Debug message */
     ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
-        "[MQTT] Processing package type %s\r\n", mqtt_msg_type_to_str(msg_type));
+        "[MQTT] Processing packet type %s\r\n", mqtt_msg_type_to_str(msg_type));
 
     /* Check received packet type */
     switch (msg_type) {
@@ -689,8 +689,11 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                             "[MQTT] Remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
 
                         if (client->msg_rem_len > 0) {
-                            /* Are all remaining bytes part of single buffer? */
-                            /* Compare with more as idx is one byte behind vs data position by 1 byte */
+                            /*
+                             * Check if all data bytes are part of single pbuf.
+                             * this is done by check if current idx position vs length is more than expected data length
+                             * Check must be "greater as" due to idx currently pointing to last length byte and not beginning of data
+                             */
                             if ((buff_len - idx) > client->msg_rem_len) {
                                 void* tmp_ptr = client->rx_buff;
                                 size_t tmp_len = client->rx_buff_len;
