@@ -875,7 +875,7 @@ mqtt_data_sent_cb(esp_mqtt_client_p client, size_t sent_len, uint8_t successful)
         mqtt_close(client);
         return 0;
     }
-    gsm_buff_skip(&client->tx_buff, sent_len);  /* Skip buffer for actual sent data */
+    esp_buff_skip(&client->tx_buff, sent_len);  /* Skip buffer for actual sent data */
 
     /*
      * Check pending publish requests without QoS because there is no confirmation received by server.
