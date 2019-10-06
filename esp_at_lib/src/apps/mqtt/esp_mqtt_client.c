@@ -468,8 +468,8 @@ sub_unsub(esp_mqtt_client_p client, const char* topic, esp_mqtt_qos_t qos, void*
     }
 
     esp_core_lock();
-    if (client->conn_state == ESP_MQTT_CONNECTED &&
-        output_check_enough_memory(client, rem_len)) {  /* Check if enough memory to write packet data */
+    if (client->conn_state == ESP_MQTT_CONNECTED
+        && output_check_enough_memory(client, rem_len)) {   /* Check if enough memory to write packet data */
         pkt_id = create_packet_id(client);      /* Create new packet ID */
         request = request_create(client, pkt_id, arg);  /* Create request for packet */
         if (request != NULL) {                  /* Do we have a request */
