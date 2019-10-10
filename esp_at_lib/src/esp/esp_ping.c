@@ -29,7 +29,7 @@
  * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         $_version_$
+ * Version:         v0.6.1
  */
 #include "esp/esp_private.h"
 #include "esp/esp_ping.h"

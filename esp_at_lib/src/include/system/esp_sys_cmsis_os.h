@@ -29,7 +29,7 @@
  * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         $_version_$
+ * Version:         v0.6.1
  */
 #ifndef ESP_HDR_SYSTEM_CMSIS_OS_H
 #define ESP_HDR_SYSTEM_CMSIS_OS_H
