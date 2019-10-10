@@ -160,6 +160,7 @@ input_thread(void* arg) {
             esp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
         } else if (IS_LINE("listap")) {
             esp_sta_list_ap(NULL, aps, ESP_ARRAYSIZE(aps), &aps_count, NULL, NULL, 1);
+            printf("Detected %d number of access points\r\n", (int)aps_count);
         } else if (IS_LINE("getapinfo")) {
             esp_sta_info_ap_t ap;
             esp_sta_get_ap_info(&ap, NULL, NULL, 1);
