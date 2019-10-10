@@ -29,6 +29,7 @@
  * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
+ * Version:         v0.6.1
  */
 #include "esp/apps/esp_mqtt_client_evt.h"
 
