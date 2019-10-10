@@ -27,6 +27,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
+ * Version:         $_version_$
  * Author:          Adrian Carpenter (FreeRTOS port)
  */
 

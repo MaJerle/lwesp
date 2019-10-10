@@ -29,6 +29,7 @@
  * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
+ * Version:         $_version_$
  */
 #ifndef ESP_HDR_APP_MQTT_CLIENT_H
 #define ESP_HDR_APP_MQTT_CLIENT_H

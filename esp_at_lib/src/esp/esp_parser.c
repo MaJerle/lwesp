@@ -29,6 +29,7 @@
  * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
+ * Version:         $_version_$
  */
 #include "esp/esp_private.h"
 #include "esp/esp_parser.h"
