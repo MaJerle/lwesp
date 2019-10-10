@@ -1388,7 +1388,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
         )) {
         if (CMD_IS_CUR(ESP_CMD_WIFI_CWMODE)) {
             if (*is_ok) {
-                SET_NEW_CMD(ESP_CMD_WIFI_CIPAP_GET);/* Go to next command to get IP address */
+                SET_NEW_CMD(ESP_CMD_WIFI_CIPAP_GET);
             }
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET)) {
             if (*is_ok) {
@@ -1396,7 +1396,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
             }
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET)) {
             if (*is_ok) {
-                SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET); /* Go to next command to get IP address */
+                SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET);
             }
         }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
