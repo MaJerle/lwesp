@@ -184,17 +184,17 @@
 			<locationURI>PARENT-4-PROJECT_LOC/ESP_AT_Lib/src/system/esp_sys_cmsis_os.c</locationURI>
 		</link>
 		<link>
-			<name>ESP MQTT/esp_mqtt_client.c</name>
+			<name>ESP MQTT CLIENT/esp_mqtt_client.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ESP_AT_Lib/src/apps/mqtt/esp_mqtt_client.c</locationURI>
 		</link>
 		<link>
-			<name>ESP MQTT/esp_mqtt_client_api.c</name>
+			<name>ESP MQTT CLIENT/esp_mqtt_client_api.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ESP_AT_Lib/src/apps/mqtt/esp_mqtt_client_api.c</locationURI>
 		</link>
 		<link>
-			<name>ESP MQTT/esp_mqtt_client_evt.c</name>
+			<name>ESP MQTT CLIENT/esp_mqtt_client_evt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/ESP_AT_Lib/src/apps/mqtt/esp_mqtt_client_evt.c</locationURI>
 		</link>
