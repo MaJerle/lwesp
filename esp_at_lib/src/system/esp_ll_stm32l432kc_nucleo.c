@@ -29,8 +29,8 @@
  * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v0.6.1
- * Author:          Miha Česnik
+ * Author:          Miha CESNIK <>
+ * Version:         $_version_$
  */
 
 /*

@@ -29,7 +29,7 @@
  * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v0.6.1
+ * Version:         $_version_$
  * Author:          Adrian Carpenter (FreeRTOS port)
  */
 #ifndef ESP_HDR_SYSTEM_FREERTOS_OS_H
