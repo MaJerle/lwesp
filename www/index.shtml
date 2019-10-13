@@ -9,11 +9,11 @@
     </head>
     <body>
         <div class="container">
-            <h1>Welcome to web server hosted by ESP8266 Wi-Fi module!</h1>
+            <h1>Welcome to web server hosted by ESP Wi-Fi module!</h1>
         </div>
         <footer>
             <div class="container">
-                Copyright &copy; 2017. All rights reserved. Webserver is hosted on ESP8266.
+                Copyright &copy; 2019. All rights reserved. Webserver is hosted on ESP module.
             </div>
         </footer>
     </body>
