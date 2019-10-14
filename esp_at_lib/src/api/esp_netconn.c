@@ -670,7 +670,6 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
     if (nc->mbox_receive_entries > 0) {
         nc->mbox_receive_entries--;
     }
-    printf("[NETCONNN] Mbox receive is now: %d\r\n", (int)nc->mbox_receive_entries);
     esp_core_unlock();
 
     /* Check if connection closed */
