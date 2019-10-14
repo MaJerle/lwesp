@@ -1278,15 +1278,15 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
         case ESP_CMD_WIFI_CWMODE: SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET); break;
         case ESP_CMD_WIFI_CWDHCP_GET: SET_NEW_CMD(ESP_CMD_TCPIP_CIPMUX); break;
         case ESP_CMD_TCPIP_CIPMUX:
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+            SET_NEW_CMD(ESP_CMD_TCPIP_CIPRECVMODE); break;
+        case ESP_CMD_TCPIP_CIPRECVMODE: {
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_STATION
             SET_NEW_CMD(ESP_CMD_WIFI_CWLAPOPT); break;/* Set visible data for CWLAP command */
         case ESP_CMD_WIFI_CWLAPOPT: SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTATUS); break;/* Get connection status */
         case ESP_CMD_TCPIP_CIPSTATUS:
 #endif /* ESP_CFG_MODE_STATION */
-#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
-            SET_NEW_CMD(ESP_CMD_TCPIP_CIPRECVMODE); break;
-        case ESP_CMD_TCPIP_CIPRECVMODE: {
-#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_ACCESS_POINT
             SET_NEW_CMD(ESP_CMD_WIFI_CIPAP_GET); break; /* Get access point IP */
         case ESP_CMD_WIFI_CIPAP_GET: SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET); break; /* Get access point MAC */
