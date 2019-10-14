@@ -52,6 +52,7 @@ typedef struct esp_netconn {
 
     esp_sys_mbox_t mbox_accept;                 /*!< List of active connections waiting to be processed */
     esp_sys_mbox_t mbox_receive;                /*!< Message queue for receive mbox */
+    size_t mbox_receive_entries;                /*!< Number of entries written to receive mbox */
 
     esp_linbuff_t buff;                         /*!< Linear buffer structure */
 
@@ -82,6 +83,9 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
     }
     if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
         while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
+            if (nc->mbox_receive_entries > 0) {
+                nc->mbox_receive_entries--;
+            }
             if (pbuf != NULL && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
                 esp_pbuf_free(pbuf);            /* Free received data buffers */
             }
@@ -192,6 +196,7 @@ netconn_evt(esp_evt_t* evt) {
                 esp_pbuf_free(pbuf);            /* Free pbuf */
                 return espOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
             }
+            nc->mbox_receive_entries++;         /* Increase number of packets in receive mbox */
             nc->rcv_packets++;                  /* Increase number of packets received */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE,
                 "[NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
@@ -208,7 +213,9 @@ netconn_evt(esp_evt_t* evt) {
              * simply write pointer to received variable to indicate closed state
              */
             if (nc != NULL && esp_sys_mbox_isvalid(&nc->mbox_receive)) {
-                esp_sys_mbox_putnow(&nc->mbox_receive, (void *)&recv_closed);
+                if (esp_sys_mbox_putnow(&nc->mbox_receive, (void*)& recv_closed)) {
+                    nc->mbox_receive_entries++;
+                }
             }
 
             break;
@@ -658,6 +665,13 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
     /* Forever wait for new receive packet */
     esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
 #endif /* !ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
+
+    esp_core_lock();
+    if (nc->mbox_receive_entries > 0) {
+        nc->mbox_receive_entries--;
+    }
+    printf("[NETCONNN] Mbox receive is now: %d\r\n", (int)nc->mbox_receive_entries);
+    esp_core_unlock();
 
     /* Check if connection closed */
     if ((uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
