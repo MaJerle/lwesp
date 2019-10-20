@@ -1292,7 +1292,7 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
         case ESP_CMD_TCPIP_CIPMUX:
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPRECVMODE); break;
-        case ESP_CMD_TCPIP_CIPRECVMODE: {
+        case ESP_CMD_TCPIP_CIPRECVMODE:
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_STATION
             SET_NEW_CMD(ESP_CMD_WIFI_CWLAPOPT); break;/* Set visible data for CWLAP command */
