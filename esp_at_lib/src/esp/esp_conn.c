@@ -89,40 +89,51 @@ espi_conn_start_timeout(esp_conn_p conn) {
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len) {
+espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
     uint32_t blocking = 0;
-    esp_pbuf_p p;
-    espr_t res;
-
+    esp_pbuf_p p = NULL;
+    espr_t res = espOK;
+    size_t len;
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("conn != NULL", conn != NULL);
-    ESP_ASSERT("len > 0", len > 0);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
+    /* Check if we can read more data now */
+    if (conn->tcp_queued_bytes > 1000 || conn->tcp_not_ack_bytes > 1000) {
+        return espINPROG;
+    }
 
-    len = ESP_MIN(ESP_CFG_CONN_MAX_DATA_LEN, ESP_MIN(len, conn->tcp_available_data));   /* Get maximal number of bytes we can read */
+    /* Remaining bytes to be read is always available bytes in ESP memory - already queued bytes to read */
+    len = ESP_MIN(ESP_CFG_CONN_MAX_DATA_LEN, conn->tcp_available_bytes - conn->tcp_queued_bytes);   /* Get maximal number of bytes we can read */
+    if (len == 0) {
+        return espOK;
+    }
 
-    do {
+    ESP_MSG_VAR_ALLOC(msg, blocking);           /* Allocate first, will return on failure */
+
+    while (p == NULL) {
         p = esp_pbuf_new(len);                  /* Try to allocate buffer */
         if (p == NULL) {                        /* In case of failure */
             len /= 2;                           /* Try with half of value on next try */
+            if (len < 10) {                     /* If not possible to allocate at least 10 bytes from first try, stop immediately */
+                break;
+            }
         }
-    } while (p == NULL && len > 10);
-
-    if (p == NULL) {                            /* Stop if we were not successful */
-        return espERRMEM;
     }
+    if (p != NULL) {                            /* Stop if we were not successful */        /* Config read data */
+        ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPRECVDATA;
+        ESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = len;
+        ESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = p;
+        ESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
 
-    /* Config read data */
-    msg->msg.ciprecvdata.len = len;
-    msg->msg.ciprecvdata.buff = p;
-    msg->msg.ciprecvdata.conn = conn;
-
-    /* Send command to queue */
-    if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) != espOK) {
+        /* Send command to queue */
+        if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) != espOK) {
+            ESP_MSG_VAR_FREE(msg);
+            esp_pbuf_free(p);
+        }
+    } else {
         ESP_MSG_VAR_FREE(msg);
-        esp_pbuf_free(p);
+        res = espERRMEM;
     }
     return res;
 }
@@ -370,12 +381,12 @@ esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
     size_t len;
     len = esp_pbuf_length(pbuf, 1);             /* Get length of pbuf */
-    if (conn->tcp_available_data >= len) {
-        conn->tcp_available_data -= len;        /* Decrease for available length */
-        if (conn->tcp_available_data > 0) {
-            /* Start new manual receive here... */
-        }
+    if (conn->tcp_not_ack_bytes >= len) {       /* Check length of not-acknowledged bytes */
+        conn->tcp_not_ack_bytes -= len;
+    } else {
+        /* Warning here, de-sync happened somewhere! */
     }
+    espi_conn_manual_tcp_try_read_data(conn);   /* Try to read more connection data */
 #else /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     ESP_UNUSED(conn);
     ESP_UNUSED(pbuf);

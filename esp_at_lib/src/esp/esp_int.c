@@ -1058,8 +1058,21 @@ espi_process(const void* data, size_t data_len) {
 
                 /* Call user callback function with received data */
                 if (esp.m.ipd.buff != NULL) {     /* Do we have valid buffer? */
-                    esp.m.ipd.conn->total_recved += esp.m.ipd.buff->tot_len;  /* Increase number of bytes received */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+                    size_t pbuf_len;
 
+                    pbuf_len = esp_pbuf_length(esp.m.ipd.buff, 1);
+                    esp.m.ipd.conn->tcp_not_ack_bytes += pbuf_len;
+                    if (esp.m.ipd.conn->tcp_queued_bytes >= pbuf_len) {
+                        esp.m.ipd.conn->tcp_queued_bytes -= pbuf_len;
+                    }
+                    if (esp.m.ipd.conn->tcp_available_bytes >= pbuf_len) {
+                        esp.m.ipd.conn->tcp_available_bytes -= pbuf_len;
+                    }
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+
+                    esp.m.ipd.conn->total_recved += esp.m.ipd.buff->tot_len;  /* Increase number of bytes received */
+                    
                     /*
                      * Send data buffer to upper layer
                      *
@@ -1108,6 +1121,7 @@ espi_process(const void* data, size_t data_len) {
                     esp.m.ipd.read = 0;         /* Stop reading data */
                 }
                 esp.m.ipd.buff_ptr = 0;         /* Reset input buffer pointer */
+                RECV_RESET();                   /* Reset receive data */
             }
 
         /*
@@ -1167,10 +1181,8 @@ espi_process(const void* data, size_t data_len) {
                              */
                             esp.m.ipd.buff = esp.msg->msg.ciprecvdata.buff;
                             esp.m.ipd.conn = esp.msg->msg.ciprecvdata.conn;
-                            if (esp.m.ipd.buff != NULL) {
-
-                            }
                             esp.msg->msg.ciprecvdata.buff = NULL;   /* Clear reference for this pbuf */
+                            RECV_RESET();       /* Reset receive data */
                         }
                     } else
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
@@ -1209,8 +1221,14 @@ espi_process(const void* data, size_t data_len) {
                                     (int)esp.m.ipd.conn->num, (int)len);
                             }
                             esp.m.ipd.conn->status.f.data_received = 1; /* We have first received data */
+                            esp.m.ipd.buff_ptr = 0; /* Reset buffer write pointer */
                         }
-                        esp.m.ipd.buff_ptr = 0; /* Reset buffer write pointer */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+                        else {
+                            /* IPD message notification? */
+                            espi_conn_manual_tcp_try_read_data(esp.m.ipd.conn);
+                        }
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
                         RECV_RESET();           /* Reset received buffer */
                     }
                 } else {                        /* We have sequence of unicode characters */
@@ -1952,8 +1970,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_CIPRECVDATA: {       /* Set TCP data receive mode */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPRECVDATA=");
-            /* send_number(ESP_U32(connection_number_here), 0, 0); */
-            /* send_number(ESP_U32(number_of_bytes_to_read), 0, 1); */
+            espi_send_number(ESP_U32(msg->msg.ciprecvdata.conn->num), 0, 0);
+            espi_send_number(ESP_U32(msg->msg.ciprecvdata.len), 0, 1);
             AT_PORT_SEND_END_AT();
             break;
         }

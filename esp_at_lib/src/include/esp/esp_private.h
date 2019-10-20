@@ -172,7 +172,9 @@ typedef struct esp_conn {
     size_t          total_recved;               /*!< Total number of bytes received */
 
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
-    size_t          tcp_available_data;         /*!< Number of bytes ready to read from ESP device on TCP connection */
+    size_t          tcp_available_bytes;        /*!< Indication message about number of available bytes in ESP buffer for manual read */
+    size_t          tcp_queued_bytes;           /*!< Number of bytes queued for read, not yet processed */
+    size_t          tcp_not_ack_bytes;          /*!< Number of bytes not acknowledge by application done with processing */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
 
     union {
@@ -579,7 +581,7 @@ espr_t      espi_send_cb(esp_evt_type_t type);
 espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn cb);
 void        espi_conn_init(void);
 void        espi_conn_start_timeout(esp_conn_p conn);
-espr_t      espi_conn_manual_tcp_read_data(esp_conn_p conn, size_t len);
+espr_t      espi_conn_manual_tcp_try_read_data(esp_conn_p conn);
 espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t max_block_time);
 uint32_t    espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout);
 
