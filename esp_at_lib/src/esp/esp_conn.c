@@ -130,6 +130,8 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
         if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) != espOK) {
             ESP_MSG_VAR_FREE(msg);
             esp_pbuf_free(p);
+        } else {
+            conn->tcp_queued_bytes += len;      /* Add length to queued bytes */
         }
     } else {
         ESP_MSG_VAR_FREE(msg);
