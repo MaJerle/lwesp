@@ -1247,6 +1247,13 @@ espi_process(const void* data, size_t data_len) {
     n_cmd = (new_cmd);                          \
 } while (0)
 
+/* Set new cmd if condition passes */
+#define SET_NEW_CMD_COND(new_cmd, cond)  do {   \
+    if ((cond)) {                               \
+        n_cmd = (new_cmd);                      \
+    }                                           \
+} while (0)
+
 /**
  * \brief           Get next sub command for reset or restore sequence
  * \param[in]       msg: Pointer to current message
@@ -1260,9 +1267,11 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
     esp_cmd_t n_cmd = ESP_CMD_IDLE;
     switch (CMD_GET_CUR()) {
         case ESP_CMD_RESET:
-        case ESP_CMD_RESTORE: SET_NEW_CMD(ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0); break;
+        case ESP_CMD_RESTORE:
+            SET_NEW_CMD(ESP_CFG_AT_ECHO ? ESP_CMD_ATE1 : ESP_CMD_ATE0); break;
         case ESP_CMD_ATE0:
-        case ESP_CMD_ATE1: SET_NEW_CMD(ESP_CMD_SYSMSG); break;
+        case ESP_CMD_ATE1:
+            SET_NEW_CMD(ESP_CMD_SYSMSG); break;
         case ESP_CMD_SYSMSG:
 #if ESP_CFG_ESP32 && ESP_CFG_ESP8266
             SET_NEW_CMD(ESP_CMD_BLEINIT_GET); break;
@@ -1274,9 +1283,12 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             }
 #endif /* ESP_CFG_ESP32 */
             SET_NEW_CMD(ESP_CMD_GMR); break;
-        case ESP_CMD_GMR: SET_NEW_CMD(ESP_CMD_WIFI_CWMODE); break;
-        case ESP_CMD_WIFI_CWMODE: SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET); break;
-        case ESP_CMD_WIFI_CWDHCP_GET: SET_NEW_CMD(ESP_CMD_TCPIP_CIPMUX); break;
+        case ESP_CMD_GMR: 
+            SET_NEW_CMD(ESP_CMD_WIFI_CWMODE); break;
+        case ESP_CMD_WIFI_CWMODE: 
+            SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET); break;
+        case ESP_CMD_WIFI_CWDHCP_GET: 
+            SET_NEW_CMD(ESP_CMD_TCPIP_CIPMUX); break;
         case ESP_CMD_TCPIP_CIPMUX:
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPRECVMODE); break;
@@ -1284,12 +1296,14 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_STATION
             SET_NEW_CMD(ESP_CMD_WIFI_CWLAPOPT); break;/* Set visible data for CWLAP command */
-        case ESP_CMD_WIFI_CWLAPOPT: SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTATUS); break;/* Get connection status */
+        case ESP_CMD_WIFI_CWLAPOPT: 
+            SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTATUS); break;/* Get connection status */
         case ESP_CMD_TCPIP_CIPSTATUS:
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
             SET_NEW_CMD(ESP_CMD_WIFI_CIPAP_GET); break; /* Get access point IP */
-        case ESP_CMD_WIFI_CIPAP_GET: SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET); break; /* Get access point MAC */
+        case ESP_CMD_WIFI_CIPAP_GET: 
+            SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET); break; /* Get access point MAC */
         case ESP_CMD_WIFI_CIPAPMAC_GET:
 #endif /* ESP_CFG_MODE_STATION */
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPDINFO); break; /* Set visible data on +IPD */
@@ -1321,8 +1335,8 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
     } else if (CMD_IS_DEF(ESP_CMD_RESTORE)) {
         if ((CMD_IS_CUR(ESP_CMD_RESET)) && *is_ready) {
             SET_NEW_CMD(ESP_CMD_RESTORE);
-        } else if ((CMD_IS_CUR(ESP_CMD_RESTORE) && *is_ready) ||
-            !CMD_IS_CUR(ESP_CMD_RESTORE)) {
+        } else if ((CMD_IS_CUR(ESP_CMD_RESTORE) && *is_ready)
+            || !CMD_IS_CUR(ESP_CMD_RESTORE)) {
             SET_NEW_CMD(espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready));
         }
         if (n_cmd == ESP_CMD_IDLE) {
@@ -1388,17 +1402,11 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
 #endif /* ESP_CFG_MODE_STATION */
         )) {
         if (CMD_IS_CUR(ESP_CMD_WIFI_CWMODE)) {
-            if (*is_ok) {
-                SET_NEW_CMD(ESP_CMD_WIFI_CIPAP_GET);
-            }
+            SET_NEW_CMD_COND(ESP_CMD_WIFI_CIPAP_GET, *is_ok);
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPAP_GET)) {
-            if (*is_ok) {
-                SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET);
-            }
+            SET_NEW_CMD_COND(ESP_CMD_WIFI_CWDHCP_GET, *is_ok);
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET)) {
-            if (*is_ok) {
-                SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET);
-            }
+            SET_NEW_CMD_COND(ESP_CMD_WIFI_CIPAPMAC_GET, *is_ok);
         }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
 #if ESP_CFG_DNS
@@ -1410,10 +1418,8 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
         PING_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
 #endif
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSTART)) {/* Is our intention to join to access point? */
-        if (!msg->i && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
-            if (*is_ok) {
-                SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTART);/* Now actually start connection */
-            }
+        if (msg->i == 0 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
+            SET_NEW_CMD_COND(ESP_CMD_TCPIP_CIPSTART, *is_ok);   /* Now actually start connection */
         } else if (msg->i == 1 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTATUS);   /* Go to status mode */
         } else if (msg->i == 2 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {
@@ -1792,11 +1798,13 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_WIFI_MDNS: {               /* Set mDNS parameters */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+MDNS=");
-            espi_send_number(ESP_U32(!!msg->msg.mdns.en), 0, 0);
             if (msg->msg.mdns.en) {             /* Send the rest only in case mDNS should be enabled */
+                AT_PORT_SEND_CONST_STR("1");
                 espi_send_string(msg->msg.mdns.host, 0, 1, 1);
                 espi_send_string(msg->msg.mdns.server, 0, 1, 1);
                 espi_send_port(msg->msg.mdns.port, 0, 1);
+            } else {
+                AT_PORT_SEND_CONST_STR("0");
             }
             AT_PORT_SEND_END_AT();
             break;
@@ -1809,7 +1817,6 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSERVER=");
             if (msg->msg.tcpip_server.en) {     /* Do we want to enable server? */
-                AT_PORT_SEND_CONST_STR("1");
                 espi_send_port(msg->msg.tcpip_server.port, 0, 1);
             } else {                            /* Disable server */
                 AT_PORT_SEND_CONST_STR("0");
@@ -1924,12 +1931,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
         case ESP_CMD_TCPIP_CIPMUX: {            /* Set multiple connections */
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+CIPMUX=");
-            if (!CMD_IS_DEF(ESP_CMD_TCPIP_CIPMUX) || msg->msg.tcpip_mux.mux) {  /* If reset command is active, enable CIPMUX */
-                AT_PORT_SEND_CONST_STR("1");
-            } else {
-                AT_PORT_SEND_CONST_STR("0");
-            }
+            AT_PORT_SEND_CONST_STR("+CIPMUX=1");
             AT_PORT_SEND_END_AT();
             break;
         }
