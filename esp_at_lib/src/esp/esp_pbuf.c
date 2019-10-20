@@ -468,6 +468,27 @@ esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot) {
 }
 
 /**
+ * \brief           Set new length of pbuf
+ * \note            New length can only be smaller than existing one. It has no effect when greater than existing one
+ * \note            This function can be used on single-chain pbufs only, without `next` pbuf in chain
+ * \param[in]       pbuf: Pbuf to make it smaller
+ * \param[in]       new_len: New length in units of bytes
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+esp_pbuf_set_length(esp_pbuf_p pbuf, size_t new_len) {
+    if (pbuf == NULL || pbuf->tot_len != pbuf->len || new_len > pbuf->len || new_len == 0 || pbuf->next != NULL) {
+        return 0;
+    }
+
+    /* Works only on single-chain pbuf */
+    pbuf->tot_len = new_len;
+    pbuf->len = new_len;
+
+    return 1;
+}
+
+/**
  * \brief           Set IP address and port number for received data
  * \param[in]       pbuf: Packet buffer
  * \param[in]       ip: IP to assing to packet buffer

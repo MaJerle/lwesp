@@ -70,6 +70,10 @@ conn_timeout_cb(void* arg) {
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
             "[CONN] Poll event: %p\r\n", conn);
     }
+
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+    espi_conn_manual_tcp_try_read_data(conn);   /* Try to read data manually */
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 }
 
 /**
@@ -122,6 +126,7 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
     }
     if (p != NULL) {                            /* Stop if we were not successful */        /* Config read data */
         ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPRECVDATA;
+        ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPRECVLEN;
         ESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = len;
         ESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = p;
         ESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;

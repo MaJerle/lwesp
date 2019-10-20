@@ -48,6 +48,7 @@ uint8_t     espi_parse_mac(const char** src, esp_mac_t* mac);
 espr_t      espi_parse_cipstatus(const char* str);
 espr_t      espi_parse_ipd(const char* str);
 espr_t      espi_parse_ciprecvdata(const char* str);
+espr_t      espi_parse_ciprecvlen(const char* str);
 
 uint8_t     espi_parse_cwlap(const char* str, esp_msg_t* msg);
 uint8_t     espi_parse_cwjap(const char* str, esp_msg_t* msg);

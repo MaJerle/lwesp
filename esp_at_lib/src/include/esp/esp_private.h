@@ -134,6 +134,7 @@ typedef enum {
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
     ESP_CMD_TCPIP_CIPRECVMODE,                  /*!< Sets mode for TCP data receive (manual or automatic) */
     ESP_CMD_TCPIP_CIPRECVDATA,                  /*!< Manually reads TCP data from device */
+    ESP_CMD_TCPIP_CIPRECVLEN,                   /*!< Gets number of available bytes in connection to be read */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
     ESP_CMD_TCPIP_CIUPDATE,                     /*!< Perform self-update */
 #if ESP_CFG_SNTP || __DOXYGEN__

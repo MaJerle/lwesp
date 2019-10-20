@@ -264,6 +264,29 @@ espi_parse_ciprecvdata(const char* str) {
     }
     return espOK;
 }
+
+/**
+ * \brief           Parse +CIPRECVLEN statement
+ * \param[in]       str: Input string to parse
+ * \return          Member of \ref espr_t enumeration
+ */
+espr_t
+espi_parse_ciprecvlen(const char* str) {
+    int32_t len;
+    if (*str == '+') {
+        str += 12;
+    }
+
+    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {
+        len = espi_parse_number(&str);
+        if (len < 0) {
+            continue;
+        }
+        esp.m.conns[i].tcp_available_bytes = len;
+    }
+
+    return espOK;
+}
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
 
 /**
@@ -283,8 +306,6 @@ espi_parse_ipd(const char* str) {
 
     conn = espi_parse_number(&str);             /* Parse number for connection number */
     len = espi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
-
-    printf("IPD received with conn = %d, LEN = %d\r\n", (int)conn, (int)len);
 
     c = conn < ESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL;   /* Get connection handle */
     if (c == NULL) {                            /* Invalid connection number */

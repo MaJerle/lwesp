@@ -568,6 +568,8 @@ espi_parse_received(esp_recv_t* rcv) {
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
         } else if (!strncmp("+CIPRECVDATA", rcv->data, 12)) {
             espi_parse_ciprecvdata(rcv->data);  /* Parse CIPRECVDATA statement and start receiving network data */
+        } else if (!strncmp("+CIPRECVLEN", rcv->data, 11)) {
+            espi_parse_ciprecvlen(rcv->data);   /* Parse CIPRECVLEN statement */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_ACCESS_POINT
         } else if (!strncmp(rcv->data, "+STA_CONNECTED", 14)) {
@@ -1181,6 +1183,7 @@ espi_process(const void* data, size_t data_len) {
                              */
                             esp.m.ipd.buff = esp.msg->msg.ciprecvdata.buff;
                             esp.m.ipd.conn = esp.msg->msg.ciprecvdata.conn;
+                            esp_pbuf_set_length(esp.m.ipd.buff, esp.m.ipd.tot_len); /* Set new length of buffer */
                             esp.msg->msg.ciprecvdata.buff = NULL;   /* Clear reference for this pbuf */
                             RECV_RESET();       /* Reset receive data */
                         }
@@ -1410,7 +1413,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
             SET_NEW_CMD(ESP_CMD_WIFI_CIPSTA_GET);
         } else if (CMD_IS_CUR(ESP_CMD_WIFI_CIPSTA_GET)) {
             espi_send_cb(ESP_EVT_WIFI_IP_ACQUIRED);
-        }   
+        }
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWMODE) &&
@@ -1457,6 +1460,22 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
             esp.evt.evt.conn_active_close.client = msg->msg.conn_close.conn->status.f.active && msg->msg.conn_close.conn->status.f.client;
             espi_send_conn_cb(msg->msg.conn_close.conn, NULL);
         }
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+    } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPRECVDATA)) {
+        if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPRECVLEN)) {
+            SET_NEW_CMD_COND(ESP_CMD_TCPIP_CIPRECVDATA, *is_ok);
+        } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPRECVDATA)) {
+            /* Read failed? Handle queue len */
+            if (*is_error) {
+                msg->msg.ciprecvdata.conn->tcp_queued_bytes -= msg->msg.ciprecvdata.len;
+                if (msg->msg.ciprecvdata.buff != NULL) {
+                    esp_pbuf_free(msg->msg.ciprecvdata.buff);
+                    msg->msg.ciprecvdata.buff = NULL;
+                }
+            }
+            espi_conn_manual_tcp_try_read_data(msg->msg.ciprecvdata.conn);
+        }
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWDHCP_SET)) {
         if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_SET)) {
             SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET);
@@ -1967,11 +1986,17 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-        case ESP_CMD_TCPIP_CIPRECVDATA: {       /* Set TCP data receive mode */
+        case ESP_CMD_TCPIP_CIPRECVDATA: {       /* Manually read data */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPRECVDATA=");
             espi_send_number(ESP_U32(msg->msg.ciprecvdata.conn->num), 0, 0);
             espi_send_number(ESP_U32(msg->msg.ciprecvdata.len), 0, 1);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_TCPIP_CIPRECVLEN: {        /* Get length to read */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPRECVLEN?");
             AT_PORT_SEND_END_AT();
             break;
         }
