@@ -388,7 +388,7 @@ esp_netconn_bind(esp_netconn_p nc, esp_port_t port) {
      * Protection is not needed as it is expected
      * that this function is called only from single
      * thread for single netconn connection,
-     * thus it is reentrant in this case
+     * thus it is considered reentrant
      */
 
     nc->listen_port = port;
@@ -476,7 +476,7 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* client) {
     *client = NULL;
     time = esp_sys_mbox_get(&nc->mbox_accept, (void **)&tmp, 0);
     if (time == ESP_SYS_TIMEOUT) {
-        return espERR;
+        return espTIMEOUT;
     }
     if ((uint8_t *)tmp == (uint8_t *)&recv_closed) {
         esp_core_lock();
