@@ -670,6 +670,9 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
     if (nc->mbox_receive_entries > 0) {
         nc->mbox_receive_entries--;
     }
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+    espi_conn_manual_tcp_try_read_data(nc->conn);
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     esp_core_unlock();
 
     /* Check if connection closed */
