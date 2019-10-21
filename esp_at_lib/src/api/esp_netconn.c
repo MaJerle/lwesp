@@ -186,7 +186,9 @@ netconn_evt(esp_evt_t* evt) {
             nc = esp_conn_get_arg(conn);        /* Get API from connection */
             pbuf = esp_evt_conn_recv_get_buff(evt); /* Get received buff */
 
+#if !ESP_CFG_CONN_MANUAL_TCP_RECEIVE
             esp_conn_recved(conn, pbuf);        /* Notify stack about received data */
+#endif /* !ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
             esp_pbuf_ref(pbuf);                 /* Increase reference counter */
             if (nc == NULL || !esp_sys_mbox_isvalid(&nc->mbox_receive)
@@ -670,9 +672,6 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
     if (nc->mbox_receive_entries > 0) {
         nc->mbox_receive_entries--;
     }
-#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
-    espi_conn_manual_tcp_try_read_data(nc->conn);
-#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     esp_core_unlock();
 
     /* Check if connection closed */
@@ -680,6 +679,13 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
         *pbuf = NULL;                           /* Reset pbuf */
         return espCLOSED;
     }
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+    else {
+        esp_core_lock();
+        esp_conn_recved(nc->conn, *pbuf);       /* Notify stack about received data */
+        esp_core_unlock();
+    }
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     return espOK;                               /* We have data available */
 }
 
