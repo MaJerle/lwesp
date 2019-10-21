@@ -151,8 +151,8 @@ netconn_evt(esp_evt_t* evt) {
                      * In case there is no listening connection,
                      * simply close the connection
                      */
-                    if (!esp_sys_mbox_isvalid(&listen_api->mbox_accept) ||
-                        !esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
+                    if (!esp_sys_mbox_isvalid(&listen_api->mbox_accept)
+                        || !esp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
                         close = 1;
                     }
                 } else {
@@ -199,6 +199,14 @@ netconn_evt(esp_evt_t* evt) {
                 return espOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
             }
             nc->mbox_receive_entries++;         /* Increase number of packets in receive mbox */
+
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+            /* Check against 1 less to still allow potential close event to be written to queue */
+            if (nc->mbox_receive_entries >= (ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN - 1)) {
+                /* Todo: Here we should suspend manual reading */
+            }
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+
             nc->rcv_packets++;                  /* Increase number of packets received */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE,
                 "[NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
@@ -682,6 +690,7 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
     else {
         esp_core_lock();
+        /* todo: Resume manual reading */
         esp_conn_recved(nc->conn, *pbuf);       /* Notify stack about received data */
         esp_core_unlock();
     }
