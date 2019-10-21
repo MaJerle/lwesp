@@ -240,7 +240,6 @@ main_thread(void* arg) {
     esp_ping("majerle.eu", &ping_time, NULL, NULL, 1);
     printf("Ping time: %d\r\n", (int)ping_time);
 
-
     /*
      * Check if device has set IP address
      *
@@ -262,8 +261,8 @@ main_thread(void* arg) {
     //    printf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
     //}
 
-    esp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
-    esp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
+    //esp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
+    //esp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
 
     /* Start server on port 80 */
     //http_server_start();
@@ -282,6 +281,37 @@ main_thread(void* arg) {
 
     /* Notify user */
     esp_sys_thread_create(NULL, "input", (esp_sys_thread_fn)input_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
+
+    {
+        espr_t res;
+        esp_pbuf_p pbuf;
+        esp_netconn_p client;
+
+        client = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
+        if (client != NULL) {
+            while (1) {
+                res = esp_netconn_connect(client, "10.57.218.181", 123);
+                if (res == espOK) {                     /* Are we successfully connected? */
+                    printf("Connected to host\r\n");
+                    do {
+                        res = esp_netconn_receive(client, &pbuf);
+                        if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
+                            printf("Connection closed by remote side...\r\n");
+                            break;
+                        }
+                        if (res == espOK && pbuf != NULL) {
+                            printf("Received new data packet of %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
+                            esp_pbuf_free(pbuf);
+                            pbuf = NULL;
+                        }
+                    } while (1);
+                } else {
+                    printf("Cannot connect to remote host!\r\n");
+                }
+            }
+        }
+        esp_netconn_delete(client);             /* Delete netconn structure */
+    }
 
     /* Terminate thread */
     esp_sys_thread_terminate(NULL);
