@@ -188,6 +188,10 @@ typedef struct esp_conn {
             uint8_t data_received:1;            /*!< Status whether first data were received on connection */
             uint8_t in_closing:1;               /*!< Status if connection is in closing mode.
                                                     When in closing mode, ignore any possible received data from function */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
+            uint8_t receive_blocked:1;          /*!< Status whether we should block manual receive for some time */
+            uint8_t receive_is_command_queued:1;/*!< Status whether manual read command is in the queue already */
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
         } f;                                    /*!< Connection flags */
     } status;                                   /*!< Connection status union with flag bits */
 } esp_conn_t;
