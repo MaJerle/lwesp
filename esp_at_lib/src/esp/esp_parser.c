@@ -257,7 +257,7 @@ espi_parse_ciprecvdata(const char* str) {
 
     /* Check data length */
     conn = espi_parse_number(&str);             /* Parse connection ID */
-    if ((len = espi_parse_number(&str))) {      /* Get number of bytes to read */
+    if ((len = espi_parse_number(&str)) > 0) {  /* Get number of bytes to read */
         esp.m.ipd.read = 1;                     /* Start reading network data */
         esp.m.ipd.tot_len = len;                /* Total number of bytes in this received packet */
         esp.m.ipd.rem_len = len;                /* Number of remaining bytes to read */
@@ -324,7 +324,6 @@ espi_parse_ipd(const char* str) {
      *                                                              as response on automatic read of all connection types
      */
     is_data_ipd = strchr(str, ':') != NULL;     /* Check if we have ':' in string */
-    is_data_ipd = *str == ',';
 
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
     /*
