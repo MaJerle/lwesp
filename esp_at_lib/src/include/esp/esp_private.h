@@ -175,8 +175,6 @@ typedef struct esp_conn {
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
     size_t          tcp_available_bytes;        /*!< Number of bytes in ESP ready to be read on connection.
                                                         This variable always holds last known info from ESP device and is not decremented (or incremented) by application */
-    size_t          tcp_queued_bytes;           /*!< Number of bytes queued for read, not yet processed.
-                                                        This variable is increased when command is written to the queue and decreased once part of buffer is read */
     size_t          tcp_not_ack_bytes;          /*!< Number of bytes not acknowledge by application done with processing
                                                         This variable is increased everytime new packet is read to be sent to application and decreased when application acknowledges it */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */

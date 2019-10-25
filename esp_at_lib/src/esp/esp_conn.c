@@ -95,9 +95,7 @@ espi_conn_start_timeout(esp_conn_p conn) {
 espr_t
 espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
     uint32_t blocking = 0;
-    esp_pbuf_p p = NULL;
     espr_t res = espOK;
-    size_t len;
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("conn != NULL", conn != NULL);
@@ -105,49 +103,24 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
     /* Receive must not be blocked and other command must not be in queue to read data */
     if (conn->status.f.receive_blocked
         || conn->status.f.receive_is_command_queued) {
-        return espERRBLOCKING;
-    }
-
-    /* Check if we can read more data now */
-    if (conn->tcp_queued_bytes > 1000 || conn->tcp_not_ack_bytes > 1000) {
         return espINPROG;
     }
 
-    /* Remaining bytes to be read is always available bytes in ESP memory - already queued bytes to read */
-    len = ESP_MIN(ESP_CFG_CONN_MAX_DATA_LEN, conn->tcp_available_bytes - conn->tcp_queued_bytes);   /* Get maximal number of bytes we can read */
-    if (len == 0) {
-        return espOK;
+    /* Any available data to process? */
+    if (conn->tcp_available_bytes == 0) {
+        return espERR;
     }
 
     ESP_MSG_VAR_ALLOC(msg, blocking);           /* Allocate first, will return on failure */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPRECVDATA;
+    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPRECVLEN;
+    ESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = 0;   /* Filled after RECVLEN received */
+    ESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = NULL;   /* Filled after RECVLEN received */
+    ESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
 
-    while (p == NULL) {
-        p = esp_pbuf_new(len);                  /* Try to allocate buffer */
-        if (p == NULL) {                        /* In case of failure */
-            len /= 2;                           /* Try with half of value on next try */
-            if (len < 10) {                     /* If not possible to allocate at least 10 bytes from first try, stop immediately */
-                break;
-            }
-        }
-    }
-    if (p != NULL) {                            /* Stop if we were not successful */        /* Config read data */
-        ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPRECVDATA;
-        ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPRECVLEN;
-        ESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = len;
-        ESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = p;
-        ESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
-
-        /* Send command to queue */
-        if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) != espOK) {
-            ESP_MSG_VAR_FREE(msg);
-            esp_pbuf_free(p);
-        } else {
-            conn->tcp_queued_bytes += len;      /* Add length to queued bytes */
-            conn->status.f.receive_is_command_queued = 1;   /* Command queued */
-        }
-    } else {
-        ESP_MSG_VAR_FREE(msg);
-        res = espERRMEM;
+    /* Try to start command */
+    if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) == espOK) {
+        conn->status.f.receive_is_command_queued = 1;   /* Command queued */
     }
     return res;
 }

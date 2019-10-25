@@ -1067,9 +1067,6 @@ espi_process(const void* data, size_t data_len) {
 
                     pbuf_len = esp_pbuf_length(esp.m.ipd.buff, 1);
                     esp.m.ipd.conn->tcp_not_ack_bytes += pbuf_len;
-                    if (esp.m.ipd.conn->tcp_queued_bytes >= pbuf_len) {
-                        esp.m.ipd.conn->tcp_queued_bytes -= pbuf_len;
-                    }
                     if (esp.m.ipd.conn->tcp_available_bytes >= pbuf_len) {
                         esp.m.ipd.conn->tcp_available_bytes -= pbuf_len;
                     }
@@ -1464,19 +1461,64 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
         }
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
     } else if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPRECVDATA)) {
-        if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPRECVLEN)) {
-            SET_NEW_CMD_COND(ESP_CMD_TCPIP_CIPRECVDATA, *is_ok);
+        if (msg->i == 0 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPRECVLEN)) {
+            uint8_t set_error = 0;
+            ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE, *is_error,
+                "[CONN] CIPRECVLEN returned ERROR\r\n");
+
+            /* If command is OK */
+            if (*is_ok) {
+                size_t len;
+
+                /* Number of bytes to read */
+                len = ESP_MIN(ESP_CFG_CONN_MAX_DATA_LEN, msg->msg.ciprecvdata.conn->tcp_available_bytes);
+                if (len > 0) {
+                    esp_pbuf_p p = NULL;
+
+                    /* Try to allocate packet buffer */
+                    while (p == NULL) {
+                        p = esp_pbuf_new(len);  /* Try to allocate buffer */
+                        if (p == NULL) {        /* In case of failure */
+                            len /= 2;           /* Try with half of value on next try */
+                            if (len < 10) {     /* If not possible to allocate at least 10 bytes from first try, stop immediately */
+                                break;
+                            }
+                        }
+                    }
+
+                    /* Start reading procedure */
+                    if (p != NULL) {
+                        msg->msg.ciprecvdata.buff = p;
+                        msg->msg.ciprecvdata.len = len;
+                        SET_NEW_CMD(ESP_CMD_TCPIP_CIPRECVDATA);
+                    } else {
+                        set_error = 1;
+                    }
+                } else {
+                    set_error = 1;
+                }
+            } else {
+                set_error = 1;
+            }
+            if (set_error) {
+                *is_ok = 0;
+                *is_error = 1;
+            }
         } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPRECVDATA)) {
             /* Read failed? Handle queue len */
             if (*is_error) {
-                msg->msg.ciprecvdata.conn->tcp_queued_bytes -= msg->msg.ciprecvdata.len;
                 if (msg->msg.ciprecvdata.buff != NULL) {
                     esp_pbuf_free(msg->msg.ciprecvdata.buff);
                     msg->msg.ciprecvdata.buff = NULL;
                 }
             }
             msg->msg.ciprecvdata.conn->status.f.receive_is_command_queued = 0;  /* Not queued anymore */
-            espi_conn_manual_tcp_try_read_data(msg->msg.ciprecvdata.conn);
+            espi_conn_manual_tcp_try_read_data(msg->msg.ciprecvdata.conn);  /* Try to read more data */
+
+            /* This one is optional, to check for more data just at the end */
+            //SET_NEW_CMD(ESP_CMD_TCPIP_CIPRECVLEN);  /* Inquiry for latest status on data */
+        } else if (msg->i == 2 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPRECVLEN)) {
+
         }
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     } else if (CMD_IS_DEF(ESP_CMD_WIFI_CWDHCP_SET)) {
