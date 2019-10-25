@@ -42,7 +42,7 @@
 #endif /* ESP_CFG_OS != 1 */
 
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
-#error ESP_CFG_CONN_MANUAL_TCP_RECEIVE must be set to 0 in current revision!
+//#error ESP_CFG_CONN_MANUAL_TCP_RECEIVE must be set to 0 in current revision!
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
 static espr_t           def_callback(esp_evt_t* evt);
