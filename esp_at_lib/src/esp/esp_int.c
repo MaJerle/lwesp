@@ -1495,7 +1495,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                         set_error = 1;
                     }
                 } else {
-                    set_error = 1;
+                    /* No error if buffer empty */
                 }
             } else {
                 set_error = 1;
