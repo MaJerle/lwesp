@@ -566,6 +566,8 @@ espi_parse_received(esp_recv_t* rcv) {
         if (!strncmp("+IPD", rcv->data, 4)) {   /* Check received network data */
             espi_parse_ipd(rcv->data);          /* Parse IPD statement and start receiving network data */
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+            /* IPD message notification? */
+            espi_conn_manual_tcp_try_read_data(esp.m.ipd.conn);
         } else if (!strncmp("+CIPRECVDATA", rcv->data, 12)) {
             espi_parse_ciprecvdata(rcv->data);  /* Parse CIPRECVDATA statement and start receiving network data */
         } else if (!strncmp("+CIPRECVLEN", rcv->data, 11)) {
@@ -1145,6 +1147,7 @@ espi_process(const void* data, size_t data_len) {
             }
             if (res == espOK) {                 /* Can we process the character(s) */
                 if (unicode.t == 1) {           /* Totally 1 character? */
+                    char* tmp_ptr;
                     switch (ch) {
                         case '\n':
                             RECV_ADD(ch);       /* Add character to input buffer */
@@ -1172,7 +1175,9 @@ espi_process(const void* data, size_t data_len) {
                      * Check if "+CIPRECVDATA" statement is in array and now we received colon,
                      * indicating end of +CIPRECVDATA statement and start of actual data
                      */
-                    if (ch == ':' && RECV_LEN() > 12 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)) {
+                    if (ch == ',' && RECV_LEN() > 12 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)
+                        && (tmp_ptr = strchr(recv_buff.data, ',')) != NULL  /* Search for first comma */
+                        && strchr(tmp_ptr + 1, ',') != NULL) {  /* Search for second comma, the one just received */
                         espi_parse_received(&recv_buff);    /* Parse received string */
                         if (esp.m.ipd.read) {   /* Shall we start read procedure? */
                             /*
@@ -1185,7 +1190,8 @@ espi_process(const void* data, size_t data_len) {
                             esp.m.ipd.conn = esp.msg->msg.ciprecvdata.conn;
                             esp_pbuf_set_length(esp.m.ipd.buff, esp.m.ipd.tot_len); /* Set new length of buffer */
                             esp.msg->msg.ciprecvdata.buff = NULL;   /* Clear reference for this pbuf */
-                            RECV_RESET();       /* Reset receive data */
+                        } else {
+                            /* ERROR handling */
                         }
                     } else
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
@@ -1226,12 +1232,6 @@ espi_process(const void* data, size_t data_len) {
                             esp.m.ipd.conn->status.f.data_received = 1; /* We have first received data */
                             esp.m.ipd.buff_ptr = 0; /* Reset buffer write pointer */
                         }
-#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
-                        else {
-                            /* IPD message notification? */
-                            espi_conn_manual_tcp_try_read_data(esp.m.ipd.conn);
-                        }
-#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
                         RECV_RESET();           /* Reset received buffer */
                     }
                 } else {                        /* We have sequence of unicode characters */
@@ -1473,6 +1473,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                     msg->msg.ciprecvdata.buff = NULL;
                 }
             }
+            msg->msg.ciprecvdata.conn->status.f.receive_is_command_queued = 0;  /* Not queued anymore */
             espi_conn_manual_tcp_try_read_data(msg->msg.ciprecvdata.conn);
         }
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
