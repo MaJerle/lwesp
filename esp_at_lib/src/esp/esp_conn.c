@@ -102,6 +102,12 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
 
     ESP_ASSERT("conn != NULL", conn != NULL);
 
+    /* Receive must not be blocked and other command must not be in queue to read data */
+    if (conn->status.f.receive_blocked
+        || conn->status.f.receive_is_command_queued) {
+        return espERRBLOCKING;
+    }
+
     /* Check if we can read more data now */
     if (conn->tcp_queued_bytes > 1000 || conn->tcp_not_ack_bytes > 1000) {
         return espINPROG;
@@ -137,6 +143,7 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
             esp_pbuf_free(p);
         } else {
             conn->tcp_queued_bytes += len;      /* Add length to queued bytes */
+            conn->status.f.receive_is_command_queued = 1;   /* Command queued */
         }
     } else {
         ESP_MSG_VAR_FREE(msg);
