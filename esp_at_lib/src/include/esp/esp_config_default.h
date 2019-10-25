@@ -135,6 +135,8 @@
  * \brief           Maximal number of bytes we can send at single command to ESP
  * \note            Value can not exceed `2048` bytes or no data will be send at all (ESP8266 AT SW limitation)
  *
+ * When manual TCP read mode is enabled, this parameter defines number of bytes to be read at a time
+ *
  * \note            This is limitation of ESP AT commands and on systems where RAM
  *                  is not an issue, it should be set to maximal value (`2048`)
  *                  to optimize data transfer speed performance

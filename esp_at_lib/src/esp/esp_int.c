@@ -1147,7 +1147,9 @@ espi_process(const void* data, size_t data_len) {
             }
             if (res == espOK) {                 /* Can we process the character(s) */
                 if (unicode.t == 1) {           /* Totally 1 character? */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
                     char* tmp_ptr;
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
                     switch (ch) {
                         case '\n':
                             RECV_ADD(ch);       /* Add character to input buffer */
