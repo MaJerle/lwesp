@@ -1512,8 +1512,6 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
                     msg->msg.ciprecvdata.buff = NULL;
                 }
             }
-            msg->msg.ciprecvdata.conn->status.f.receive_is_command_queued = 0;  /* Not queued anymore */
-            espi_conn_manual_tcp_try_read_data(msg->msg.ciprecvdata.conn);  /* Try to read more data */
 
             /* This one is optional, to check for more data just at the end */
             //SET_NEW_CMD(ESP_CMD_TCPIP_CIPRECVLEN);  /* Inquiry for latest status on data */

@@ -86,6 +86,20 @@ espi_conn_start_timeout(esp_conn_p conn) {
 }
 
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+
+/**
+ * \brief           Callback function when manual TCP receive finishes
+ * \param[in]       res: Result of reading
+ * \param[in]       arg: Custom user argument
+ */
+static void
+manual_tcp_read_data_evt_fn(espr_t res, void* arg) {
+    esp_conn_p conn = arg;
+
+    conn->status.f.receive_is_command_queued = 0;
+    espi_conn_manual_tcp_try_read_data(conn);
+}
+
 /**
  * \brief           Manually start data read operation with desired length on specific connection
  * \param[in]       conn: Connection handle
@@ -112,6 +126,7 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
     }
 
     ESP_MSG_VAR_ALLOC(msg, blocking);           /* Allocate first, will return on failure */
+    ESP_MSG_VAR_SET_EVT(msg, manual_tcp_read_data_evt_fn, conn);/* Set event callback function */
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPRECVDATA;
     ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPRECVLEN;
     ESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = 0;   /* Filled after RECVLEN received */
