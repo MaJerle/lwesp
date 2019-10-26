@@ -249,12 +249,10 @@ esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
         esp_sys_sem_wait(&mbox->sem, 0);        /* Wait availability again */
     }
     mbox->entries[mbox->in] = m;
-    if (mbox->in == mbox->out) {                /* Was the previous state empty? */
-        esp_sys_sem_release(&mbox->sem_not_empty);  /* Signal non-empty state */
-    }
     if (++mbox->in >= mbox->size) {
         mbox->in = 0;
     }
+    esp_sys_sem_release(&mbox->sem_not_empty);  /* Signal non-empty state */
     esp_sys_sem_release(&mbox->sem);            /* Release access for other threads */
     return osKernelSysTick() - time;
 }
@@ -262,44 +260,27 @@ esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
 uint32_t
 esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     win32_mbox_t* mbox = *b;
-    uint32_t time = osKernelSysTick();          /* Get current time */
-    uint32_t spent_time;
+    uint32_t time;
+
+    time = osKernelSysTick();
 
     /* Get exclusive access to message queue */
-    if ((spent_time = esp_sys_sem_wait(&mbox->sem, timeout)) == ESP_SYS_TIMEOUT) {
-        return spent_time;
+    if (esp_sys_sem_wait(&mbox->sem, timeout) == ESP_SYS_TIMEOUT) {
+        return ESP_SYS_TIMEOUT;
     }
-
-    /* Make sure we have something to read from queue. */
     while (mbox_is_empty(mbox)) {
-        esp_sys_sem_release(&mbox->sem);        /* Release semaphore and allow other threads to write something */
-        /*
-         * Timeout = 0 means unlimited time
-         * Wait either unlimited time or for specific timeout
-         */
-        if (timeout == 0) {
-            esp_sys_sem_wait(&mbox->sem_not_empty, 0);
-        } else {
-            spent_time = esp_sys_sem_wait(&mbox->sem_not_empty, timeout);
-            if (spent_time == ESP_SYS_TIMEOUT) {
-                return spent_time;
-            }
+        esp_sys_sem_release(&mbox->sem);
+        if (esp_sys_sem_wait(&mbox->sem_not_empty, timeout) == ESP_SYS_TIMEOUT) {
+            return ESP_SYS_TIMEOUT;
         }
-        spent_time = esp_sys_sem_wait(&mbox->sem, timeout); /* Wait again for exclusive access */
+        esp_sys_sem_wait(&mbox->sem, timeout);
     }
-
-    /*
-     * At this point, semaphore is not empty and
-     * we have exclusive access to content
-     */
     *m = mbox->entries[mbox->out];
     if (++mbox->out >= mbox->size) {
         mbox->out = 0;
     }
-
-    /* Release it only if waiting for it */
-    esp_sys_sem_release(&mbox->sem_not_full);   /* Release semaphore as it is not full */
-    esp_sys_sem_release(&mbox->sem);            /* Release exclusive access to mbox */
+    esp_sys_sem_release(&mbox->sem_not_full);
+    esp_sys_sem_release(&mbox->sem);
 
     return osKernelSysTick() - time;
 }
