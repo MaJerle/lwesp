@@ -492,6 +492,27 @@ typedef struct {
  */
 typedef void (*esp_api_cmd_evt_fn) (espr_t res, void* arg);
 
+/**
+ * \ingroup         ESP_CONN
+ * \brief           Connection start structure, used to start the connection in extended mode
+ */
+typedef struct {
+    esp_conn_type_t type;                       /*!< Connection type */
+    const char* remote_host;                    /*!< Host name or IP address in string format */
+    esp_port_t remote_port;                     /*!< Remote server port */
+    const char* local_ip;                       /*!< Local IP. Optional parameter, set to NULL if not used (most cases) */
+    union {
+        struct {
+            uint16_t keep_alive;                /*!< Keep alive parameter for TCP/SSL connection in units of seconds.
+                                                    Value can be between `0 - 7200` where `0` means no keep alive */
+        } tcp_ssl;                              /*!< TCP/SSL specific features */
+        struct {
+            esp_port_t local_port;              /*!< Custom local port for UDP */
+            uint8_t mode;                       /*!< UDP mode. Set to `0` by default. Check ESP AT commands instruction set for more info when needed */
+        } udp;
+    } ext;                                      /*!< Extended support union */
+} esp_conn_start_t;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

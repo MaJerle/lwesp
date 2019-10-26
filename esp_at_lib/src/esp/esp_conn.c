@@ -241,20 +241,20 @@ espi_conn_init(void) {
  * \brief           Start a new connection of specific type
  * \param[out]      conn: Pointer to connection handle to set new connection reference in case of successfully connected
  * \param[in]       type: Connection type. This parameter can be a value of \ref esp_conn_type_t enumeration
- * \param[in]       host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
- * \param[in]       port: Connection port
+ * \param[in]       remote_host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
+ * \param[in]       remote_port: Connection port
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
  * \param[in]       conn_evt_fn: Callback function for this connection
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, esp_port_t port,
+esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const remote_host, esp_port_t remote_port,
                 void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("host != NULL", host != NULL);
-    ESP_ASSERT("port > 0", port > 0);
+    ESP_ASSERT("remote_host != NULL", remote_host != NULL);
+    ESP_ASSERT("remote_port > 0", remote_port > 0);
     ESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -263,10 +263,52 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const host, e
     ESP_MSG_VAR_REF(msg).msg.conn_start.num = ESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
     ESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
     ESP_MSG_VAR_REF(msg).msg.conn_start.type = type;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.host = host;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.port = port;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = remote_host;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.remote_port = remote_port;
     ESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
     ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
+}
+
+/**
+ * \brief           Start a new connection of specific type in extended mode
+ * \param[out]      conn: Pointer to connection handle to set new connection reference in case of successfully connected
+ * \param[in]       start_struct: Connection information are handled by one giant structure
+ * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
+ * \param[in]       conn_evt_fn: Callback function for this connection
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_conn_startex(esp_conn_p* conn, esp_conn_start_t* start_struct,
+    void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);
+
+    ESP_ASSERT("start_struct != NULL", start_struct != NULL);
+    ESP_ASSERT("start_struct->remote_host != NULL", start_struct->remote_host != NULL);
+    ESP_ASSERT("start_struct->remote_port > 0", start_struct->remote_port > 0);
+    ESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
+
+    ESP_MSG_VAR_ALLOC(msg, blocking);
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTART;
+    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSTATUS;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.num = ESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
+    ESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.type = start_struct->type;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = start_struct->remote_host;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.remote_port = start_struct->remote_port;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.local_ip = start_struct->local_ip;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
+    ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
+
+    /* Add connection type specific features */
+    if (start_struct->type != ESP_CONN_TYPE_UDP) {
+        ESP_MSG_VAR_REF(msg).msg.conn_start.tcp_ssl_keep_alive = start_struct->ext.tcp_ssl.keep_alive;
+    } else {
+        ESP_MSG_VAR_REF(msg).msg.conn_start.udp_local_port = start_struct->ext.udp.local_port;
+        ESP_MSG_VAR_REF(msg).msg.conn_start.udp_mode = start_struct->ext.udp.mode;
+    }
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
 }

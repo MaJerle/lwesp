@@ -322,9 +322,13 @@ typedef struct esp_msg {
         /* Connection based commands */
         struct {
             esp_conn_t** conn;                  /*!< Pointer to pointer to save connection used */
-            const char* host;                   /*!< Host to use for connection */
-            esp_port_t port;                    /*!< Remote port used for connection */
+            const char* remote_host;            /*!< Host to use for connection */
+            esp_port_t remote_port;             /*!< Remote port used for connection */
             esp_conn_type_t type;               /*!< Connection type */
+            const char* local_ip;               /*!< Local IP address. Normally set to NULL */
+            uint16_t tcp_ssl_keep_alive;        /*!< Keep alive parameter for TCP */
+            uint8_t udp_mode;                   /*!< UDP mode */
+            esp_port_t udp_local_port;          /*!< UDP local port */
             void* arg;                          /*!< Connection custom argument */
             esp_evt_fn evt_func;                /*!< Callback function to use on connection */
             uint8_t num;                        /*!< Connection number used for start */

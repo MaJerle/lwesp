@@ -497,8 +497,8 @@ espi_tcpip_process_data_sent(uint8_t sent) {
 static void
 espi_send_conn_error_cb(esp_msg_t* msg, espr_t error) {
     esp.evt.type = ESP_EVT_CONN_ERROR;          /* Connection error */
-    esp.evt.evt.conn_error.host = esp.msg->msg.conn_start.host;
-    esp.evt.evt.conn_error.port = esp.msg->msg.conn_start.port;
+    esp.evt.evt.conn_error.host = esp.msg->msg.conn_start.remote_host;
+    esp.evt.evt.conn_error.port = esp.msg->msg.conn_start.remote_port;
     esp.evt.evt.conn_error.type = esp.msg->msg.conn_start.type;
     esp.evt.evt.conn_error.arg = esp.msg->msg.conn_start.arg;
     esp.evt.evt.conn_error.err = error;
@@ -1969,8 +1969,23 @@ espi_initiate_cmd(esp_msg_t* msg) {
             } else if (msg->msg.conn_start.type == ESP_CONN_TYPE_UDP) {
                 espi_send_string("UDP", 0, 1, 1);
             }
-            espi_send_string(msg->msg.conn_start.host, 0, 1, 1);
-            espi_send_port(msg->msg.conn_start.port, 0, 1);
+            espi_send_string(msg->msg.conn_start.remote_host, 0, 1, 1);
+            espi_send_port(msg->msg.conn_start.remote_port, 0, 1);
+
+            /* Connection-type specific features */
+            if (msg->msg.conn_start.type != ESP_CONN_TYPE_UDP) {
+                espi_send_number(ESP_U32(msg->msg.conn_start.tcp_ssl_keep_alive), 0, 1);
+            } else {
+                if (msg->msg.conn_start.udp_local_port > 0) {
+                    espi_send_port(msg->msg.conn_start.udp_local_port, 0, 1);
+                } else {
+                    AT_PORT_SEND_CONST_STR(",");
+                }
+                espi_send_number(msg->msg.conn_start.udp_mode, 0, 1);
+            }
+            if (msg->msg.conn_start.local_ip != NULL) {
+                espi_send_string(msg->msg.conn_start.local_ip, 0, 1, 1);
+            }
             AT_PORT_SEND_END_AT();
             break;
         }
