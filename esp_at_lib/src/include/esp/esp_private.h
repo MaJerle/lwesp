@@ -554,12 +554,12 @@ extern esp_t esp;
     esp_mem_free_s((void **)&(name));               \
 } while (0)
 #if ESP_CFG_USE_API_FUNC_EVT
-#define ESP_MSG_VAR_SET_EVT(name, evt_fn, evt_arg)  do {\
-    (name)->evt_fn = (evt_fn);                      \
-    (name)->evt_arg = (evt_arg);                    \
+#define ESP_MSG_VAR_SET_EVT(name, e_fn, e_arg)  do {\
+    (name)->evt_fn = (e_fn);                        \
+    (name)->evt_arg = (e_arg);                      \
 } while (0)
 #else /* ESP_CFG_USE_API_FUNC_EVT */
-#define ESP_MSG_VAR_SET_EVT(name, evt_fn, evt_arg) do { ESP_UNUSED(evt_fn); ESP_UNUSED(evt_arg); } while (0)
+#define ESP_MSG_VAR_SET_EVT(name, e_fn, e_arg) do { ESP_UNUSED(e_fn); ESP_UNUSED(e_arg); } while (0)
 #endif /* !ESP_CFG_USE_API_FUNC_EVT */
 
 #define ESP_CHARISNUM(x)                    ((x) >= '0' && (x) <= '9')
