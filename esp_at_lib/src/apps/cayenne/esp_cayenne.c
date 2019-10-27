@@ -44,7 +44,7 @@
 
 #define ESP_CAYENNE_API_VERSION_LEN             (sizeof(ESP_CAYENNE_API_VERSION) - 1)
 
-#define CHECK_FORWARDSLASH_AND_FORWARD(str)     do { if ((str) == NULL || *(str) != '/') { return espERR; } (str)++; } while (0)
+#define CHECK_FORWARDSLASH_AND_FORWARD(str)     do { if ((str) == NULL || *(str) != '/') { return espERR; } ++(str); } while (0)
 
 #if !ESP_CFG_NETCONN || !ESP_CFG_MODE_STATION
 #error "Netconn and station mode must be enabled!"
@@ -148,7 +148,7 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
 
     /* Now parse topic string */
     msg->topic = ESP_CAYENNE_TOPIC_END;
-    for (i = 0; i < ESP_ARRAYSIZE(topic_cmd_str_pairs); i++) {
+    for (i = 0; i < ESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
         len = strlen(topic_cmd_str_pairs[i].str);
         if (!strncmp(topic_cmd_str_pairs[i].str, topic, len)) {
             msg->topic = topic_cmd_str_pairs[i].topic;
@@ -164,7 +164,7 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     /* Parse channel */
     msg->channel = ESP_CAYENNE_NO_CHANNEL;
     if (*topic == '/') {
-        topic++;
+        ++topic;
         if (*topic == '+') {
             msg->channel = ESP_CAYENNE_ALL_CHANNELS;
         } else if (*topic == '#') {
@@ -173,7 +173,7 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
             msg->channel = 0;
             while (*topic >= '0' && *topic <= '9') {
                 msg->channel = 10 * msg->channel + *topic - '0';
-                topic++;
+                ++topic;
             }
         } else {
             return espERR;
@@ -275,7 +275,7 @@ build_topic(char* topic_str, size_t topic_str_len, const char* username,
     rem_len = topic_str_len - strlen(topic_str) - 1;
 
     /* Topic string */
-    for (size_t i = 0; i < ESP_ARRAYSIZE(topic_cmd_str_pairs); i++) {
+    for (size_t i = 0; i < ESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
         if (topic == topic_cmd_str_pairs[i].topic) {
             ESP_ASSERT("strlen(topic_cmd_str_pairs[i].str) <= rem_len", strlen(topic_cmd_str_pairs[i].str) <= rem_len);
             strcat(topic_str, topic_cmd_str_pairs[i].str);

@@ -38,6 +38,8 @@
 
 #if !__DOXYGEN__
 #define ESP_CFG_NETCONN                     1
+#define ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN   16
+
 #define ESP_CFG_DBG                         ESP_DBG_ON
 #define ESP_CFG_DBG_TYPES_ON                ESP_DBG_TYPE_TRACE | ESP_DBG_TYPE_STATE
 #define ESP_CFG_DBG_IPD                     ESP_DBG_OFF
@@ -57,6 +59,7 @@
 #define ESP_CFG_ESP8266                     1
 
 #define ESP_CFG_IPD_MAX_BUFF_SIZE           1460
+#define ESP_CFG_CONN_MAX_DATA_LEN           2048
 #define ESP_CFG_INPUT_USE_PROCESS           1
 #define ESP_CFG_AT_ECHO                     0
 
@@ -73,7 +76,7 @@
 
 #define ESP_CFG_RESET_ON_INIT               1
 
-#define ESP_CFG_CONN_MANUAL_TCP_RECEIVE     0
+#define ESP_CFG_CONN_MANUAL_TCP_RECEIVE     1
 
 #if defined(WIN32)
 #define ESP_CFG_SYS_PORT					ESP_SYS_PORT_WIN32

@@ -56,7 +56,7 @@ esp_input(const void* data, size_t len) {
     esp_buff_write(&esp.buff, data, len);       /* Write data to buffer */
     esp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write empty box, don't care if write fails */
     esp_recv_total_len += len;                  /* Update total number of received bytes */
-    esp_recv_calls++;                           /* Update number of calls */
+    ++esp_recv_calls;                           /* Update number of calls */
     return espOK;
 }
 
@@ -84,7 +84,7 @@ esp_input_process(const void* data, size_t len) {
     }
 
     esp_recv_total_len += len;                  /* Update total number of received bytes */
-    esp_recv_calls++;                           /* Update number of calls */
+    ++esp_recv_calls;                           /* Update number of calls */
 
     if (len > 0) {
         esp_core_lock();

@@ -48,24 +48,24 @@ espi_parse_number(const char** str) {
     const char* p = *str;                       /*  */
 
     if (*p == '"') {                            /* Skip leading quotes */
-        p++;
+        ++p;
     }
     if (*p == ',') {                            /* Skip leading comma */
-        p++;
+        ++p;
     }
     if (*p == '"') {                            /* Skip leading quotes */
-        p++;
+        ++p;
     }
     if (*p == '-') {                            /* Check negative number */
         minus = 1;
-        p++;
+        ++p;
     }
     while (ESP_CHARISNUM(*p)) {                 /* Parse until character is valid number */
         val = val * 10 + ESP_CHARTONUM(*p);
-        p++;
+        ++p;
     }
     if (*p == ',') {                            /* Go to next entry if possible */
-        p++;
+        ++p;
     }
     *str = p;                                   /* Save new pointer with new offset */
 
@@ -98,20 +98,20 @@ espi_parse_hexnumber(const char** str) {
     const char* p = *str;                       /*  */
 
     if (*p == '"') {                            /* Skip leading quotes */
-        p++;
+        ++p;
     }
     if (*p == ',') {                            /* Skip leading comma */
-        p++;
+        ++p;
     }
     if (*p == '"') {                            /* Skip leading quotes */
-        p++;
+        ++p;
     }
     while (ESP_CHARISHEXNUM(*p)) {              /* Parse until character is valid number */
         val = val * 16 + ESP_CHARHEXTONUM(*p);
-        p++;
+        ++p;
     }
     if (*p == ',') {                            /* Go to next entry if possible */
-        p++;
+        ++p;
     }
     *str = p;                                   /* Save new pointer with new offset */
     return val;
@@ -134,10 +134,10 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
     size_t i;
 
     if (*p == ',') {
-        p++;
+        ++p;
     }
     if (*p == '"') {
-        p++;
+        ++p;
     }
     i = 0;
     if (dst_len > 0) {
@@ -145,18 +145,18 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
     }
     while (*p) {
         if (*p == '"' && (p[1] == ',' || p[1] == '\r' || p[1] == '\n')) {
-            p++;
+            ++p;
             break;
         }
         if (dst != NULL) {
             if (i < dst_len) {
                 *dst++ = *p;
-                i++;
+                ++i;
             } else if (!trim) {
                 break;
             }
         }
-        p++;
+        ++p;
     }
     if (dst != NULL) {
         *dst = 0;
@@ -176,14 +176,14 @@ espi_parse_ip(const char** src, esp_ip_t* ip) {
     const char* p = *src;
 
     if (*p == '"') {
-        p++;
+        ++p;
     }
-    ip->ip[0] = espi_parse_number(&p); p++;
-    ip->ip[1] = espi_parse_number(&p); p++;
-    ip->ip[2] = espi_parse_number(&p); p++;
+    ip->ip[0] = espi_parse_number(&p); ++p;
+    ip->ip[1] = espi_parse_number(&p); ++p;
+    ip->ip[2] = espi_parse_number(&p); ++p;
     ip->ip[3] = espi_parse_number(&p);
     if (*p == '"') {
-        p++;
+        ++p;
     }
 
     *src = p;                                   /* Set new pointer */
@@ -201,19 +201,19 @@ espi_parse_mac(const char** src, esp_mac_t* mac) {
     const char* p = *src;
 
     if (*p == '"') {                            /* Go to next entry if possible */
-        p++;
+        ++p;
     }
-    mac->mac[0] = espi_parse_hexnumber(&p); p++;
-    mac->mac[1] = espi_parse_hexnumber(&p); p++;
-    mac->mac[2] = espi_parse_hexnumber(&p); p++;
-    mac->mac[3] = espi_parse_hexnumber(&p); p++;
-    mac->mac[4] = espi_parse_hexnumber(&p); p++;
+    mac->mac[0] = espi_parse_hexnumber(&p); ++p;
+    mac->mac[1] = espi_parse_hexnumber(&p); ++p;
+    mac->mac[2] = espi_parse_hexnumber(&p); ++p;
+    mac->mac[3] = espi_parse_hexnumber(&p); ++p;
+    mac->mac[4] = espi_parse_hexnumber(&p); ++p;
     mac->mac[5] = espi_parse_hexnumber(&p);
     if (*p == '"') {                            /* Skip quotes if possible */
-        p++;
+        ++p;
     }
     if (*p == ',') {                            /* Go to next entry if possible */
-        p++;
+        ++p;
     }
     *src = p;                                   /* Set new pointer */
     return 1;
@@ -282,7 +282,7 @@ espi_parse_ciprecvlen(const char* str) {
         str += 12;
     }
 
-    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {
+    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; ++i) {
         len = espi_parse_number(&str);
         if (len < 0) {
             continue;
@@ -379,8 +379,8 @@ espi_parse_ipd(const char* str) {
  */
 uint8_t
 espi_parse_at_sdk_version(const char* str, esp_sw_version_t* version_out) {
-    version_out->major = ((uint8_t)espi_parse_number(&str));   str++;
-    version_out->minor = ((uint8_t)espi_parse_number(&str));   str++;
+    version_out->major = ((uint8_t)espi_parse_number(&str));   ++str;
+    version_out->minor = ((uint8_t)espi_parse_number(&str));   ++str;
     version_out->patch = ((uint8_t)espi_parse_number(&str));
 
     return 1;
@@ -432,9 +432,10 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     if (*str == '+') {                          /* Does string contain '+' as first character */
         str += 7;                               /* Skip this part */
     }
-    if (*str++ != '(') {                        /* We must start with opening bracket */
+    if (*str != '(') {                          /* We must start with opening bracket */
         return 0;
     }
+    ++str;
 
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (esp_ecn_t)espi_parse_number(&str);
     espi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
@@ -452,7 +453,7 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = espi_parse_number(&str);
     //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = espi_parse_number(&str);
 
-    msg->msg.ap_list.apsi++;                    /* Increase number of found elements */
+    ++msg->msg.ap_list.apsi;                    /* Increase number of found elements */
     if (msg->msg.ap_list.apf != NULL) {         /* Set pointer if necessary */
         *msg->msg.ap_list.apf = msg->msg.ap_list.apsi;
     }
@@ -474,10 +475,9 @@ espi_parse_cwjap(const char* str, esp_msg_t* msg) {
     if (*str == '+') {                          /* Does string contain '+' as first character */
         str += 7;                               /* Skip this part */
     }
-    if (*str++ != '"') {                        /* We must start with quotation mark */
+    if (*str != '"') {                          /* We must start with quotation mark */
         return 0;
     }
-
     espi_parse_string(&str, esp.msg->msg.sta_info_ap.info->ssid, ESP_CFG_MAX_SSID_LENGTH, 1);
     espi_parse_mac(&str, &esp.msg->msg.sta_info_ap.info->mac);
     esp.msg->msg.sta_info_ap.info->ch = espi_parse_number(&str);
@@ -508,7 +508,7 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
     espi_parse_ip(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].ip);
     espi_parse_mac(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].mac);
 
-    msg->msg.sta_list.stai++;                   /* Increase number of found elements */
+    ++msg->msg.sta_list.stai;                   /* Increase number of found elements */
     if (msg->msg.sta_list.staf != NULL) {       /* Set pointer if necessary */
         *msg->msg.sta_list.staf = msg->msg.sta_list.stai;
     }
@@ -662,16 +662,16 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
     }
     str += 4;
     if (*str == ' ') {                              /* Numbers < 10 could have one more space */
-        str++;
+        ++str;
     }
     msg->msg.tcpip_sntp_time.dt->date = espi_parse_number(&str);
-    str++;
+    ++str;
     msg->msg.tcpip_sntp_time.dt->hours = espi_parse_number(&str);
-    str++;
+    ++str;
     msg->msg.tcpip_sntp_time.dt->minutes = espi_parse_number(&str);
-    str++;
+    ++str;
     msg->msg.tcpip_sntp_time.dt->seconds = espi_parse_number(&str);
-    str++;
+    ++str;
     msg->msg.tcpip_sntp_time.dt->year = espi_parse_number(&str);
     return 1;
 }
@@ -698,10 +698,8 @@ espi_parse_hostname(const char* str, esp_msg_t* msg) {
     msg->msg.wifi_hostname.hostname_get[0] = 0;
     if (*str != '\r') {
         i = 0;
-        while (i < (msg->msg.wifi_hostname.length - 1) && *str && *str != '\r') {
+        for (; i < (msg->msg.wifi_hostname.length - 1) && *str && *str != '\r'; ++i, ++str) {
             msg->msg.wifi_hostname.hostname_get[i] = *str;
-            i++;
-            str++;
         }
         msg->msg.wifi_hostname.hostname_get[i] = 0;
     }

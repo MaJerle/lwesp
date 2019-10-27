@@ -195,9 +195,9 @@ http_404_uris[] = {
 int
 strcmpa(const char* a, const char* b) {
     int d;
-    for (;; a++, b++) {
+    for (;; ++a, ++b) {
         d = tolower(*a) - tolower(*b);
-        if (d || !*a) {
+        if (d != 0 || !*a) {
             return d;
         }
     }
@@ -250,7 +250,7 @@ http_get_params(char* params) {
     char *amp, *eq;
 
     if (params != NULL) {
-        for (size_t i = 0; params && i < HTTP_MAX_PARAMS; i++, cnt++) {
+        for (size_t i = 0; params != NULL && i < HTTP_MAX_PARAMS; ++i, ++cnt) {
             http_params[i].name = params;
 
             eq = params;
@@ -353,7 +353,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
         /* Step 2: Compare extension against known pairs */
         i = 0;
         if (ext != NULL) {                      /* Do we have an extension? */
-            for (; i < ESP_ARRAYSIZE(dynamic_headers_pairs); i++) {
+            for (; i < ESP_ARRAYSIZE(dynamic_headers_pairs); ++i) {
                 if (!strcmpa(ext, dynamic_headers_pairs[i].ext)) {
                     break;
                 }
@@ -387,7 +387,7 @@ send_dynamic_headers(http_state_t* hs) {
     while (hs->conn_mem_available && hs->dyn_hdr_idx < HTTP_MAX_HEADERS) {
         if (hs->dyn_hdr_strs[hs->dyn_hdr_idx] == NULL) {    /* Check if string is set */
             hs->dyn_hdr_pos = 0;                /* Reset header position */
-            hs->dyn_hdr_idx++;                  /* Go to next string */
+            ++hs->dyn_hdr_idx;                  /* Go to next string */
             continue;
         }
         rem_len = strlen(&hs->dyn_hdr_strs[hs->dyn_hdr_idx][hs->dyn_hdr_pos]);  /* Get remaining length of string to write */
@@ -400,7 +400,7 @@ send_dynamic_headers(http_state_t* hs) {
         hs->dyn_hdr_pos += to_write;            /* Advance for written position */
         if (to_write == rem_len) {              /* Did we write everything? */
             hs->dyn_hdr_pos = 0;                /* Reset output variable position */
-            hs->dyn_hdr_idx++;                  /* Increase header index string */
+            ++hs->dyn_hdr_idx;                  /* Increase header index string */
         }
     }
     /*
@@ -431,7 +431,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
          * Scan index files and check if there is one from user
          * available to return as main file
          */
-        for (i = 0; i < ESP_ARRAYSIZE(http_index_filenames); i++) {
+        for (i = 0; i < ESP_ARRAYSIZE(http_index_filenames); ++i) {
             hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, http_index_filenames[i]); /* Give me a file with desired path */
             if (hs->resp_file_opened) {         /* Do we have a file? */
                 uri = http_index_filenames[i];  /* Set new URI for next of this func */
@@ -450,12 +450,12 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
         req_params = strchr(uri, '?');          /* Search for params delimiter */
         if (req_params != NULL) {               /* We found parameters? They should not exists in static strings or we may have buf! */
             req_params[0] = 0;                  /* Reset everything at this point */
-            req_params++;                       /* Skip NULL part and go to next one */
+            ++req_params;                       /* Skip NULL part and go to next one */
         }
 
         params_len = http_get_params(req_params);   /* Get request params from request */
         if (hi != NULL && hi->cgi != NULL) {    /* Check if any user specific controls to process */
-            for (size_t i = 0; i < hi->cgi_count; i++) {
+            for (size_t i = 0; i < hi->cgi_count; ++i) {
                 if (!strcmp(hi->cgi[i].uri, uri)) {
                     uri = hi->cgi[i].fn(http_params, params_len);
                     break;
@@ -470,7 +470,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
      * Try with 404 error page if available by user
      */
     if (!hs->resp_file_opened) {
-        for (size_t i = 0; i < ESP_ARRAYSIZE(http_404_uris); i++) {
+        for (size_t i = 0; i < ESP_ARRAYSIZE(http_404_uris); ++i) {
             uri = http_404_uris[i];
             hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, uri); /* Get 404 error page */
             if (hs->resp_file_opened) {
@@ -488,7 +488,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
         const char* suffix;
 
         uri_len = strlen(uri);                  /* Get length of URI */
-        for (size_t i = 0; i < ESP_ARRAYSIZE(http_ssi_suffixes); i++) {
+        for (size_t i = 0; i < ESP_ARRAYSIZE(http_ssi_suffixes); ++i) {
             suffix = http_ssi_suffixes[i];      /* Get suffix */
             suffix_len = strlen(suffix);        /* Get length of suffix */
 
@@ -651,9 +651,10 @@ send_response_ssi(http_state_t* hs) {
                     break;
                 }
                 case HTTP_SSI_STATE_BEGIN: {
-                    if (hs->ssi_tag_buff_ptr < HTTP_SSI_TAG_START_LEN &&
-                        ch == HTTP_SSI_TAG_START[hs->ssi_tag_buff_ptr]) {
-                        hs->ssi_tag_buff[hs->ssi_tag_buff_ptr++] = ch;
+                    if (hs->ssi_tag_buff_ptr < HTTP_SSI_TAG_START_LEN
+                        && ch == HTTP_SSI_TAG_START[hs->ssi_tag_buff_ptr]) {
+                        hs->ssi_tag_buff[hs->ssi_tag_buff_ptr] = ch;
+                        ++hs->ssi_tag_buff_ptr;
 
                         if (hs->ssi_tag_buff_ptr == HTTP_SSI_TAG_START_LEN) {
                             hs->ssi_state = HTTP_SSI_STATE_TAG;
@@ -670,8 +671,9 @@ send_response_ssi(http_state_t* hs) {
                         hs->ssi_state = HTTP_SSI_STATE_END;
                     } else {
                         if ((hs->ssi_tag_buff_ptr - HTTP_SSI_TAG_START_LEN) < HTTP_SSI_TAG_MAX_LEN) {
-                            hs->ssi_tag_buff[hs->ssi_tag_buff_ptr++] = ch;
-                            hs->ssi_tag_len++;
+                            hs->ssi_tag_buff[hs->ssi_tag_buff_ptr] = ch;
+                            ++hs->ssi_tag_buff_ptr;
+                            ++hs->ssi_tag_len;
                         } else {
                             reset = 1;
                         }
@@ -679,8 +681,8 @@ send_response_ssi(http_state_t* hs) {
                     break;
                 }
                 case HTTP_SSI_STATE_END: {
-                    if ((hs->ssi_tag_buff_ptr - HTTP_SSI_TAG_START_LEN - hs->ssi_tag_len) < HTTP_SSI_TAG_END_LEN &&
-                        ch == HTTP_SSI_TAG_END[(hs->ssi_tag_buff_ptr - HTTP_SSI_TAG_START_LEN - hs->ssi_tag_len)]) {
+                    if ((hs->ssi_tag_buff_ptr - HTTP_SSI_TAG_START_LEN - hs->ssi_tag_len) < HTTP_SSI_TAG_END_LEN
+                        && ch == HTTP_SSI_TAG_END[(hs->ssi_tag_buff_ptr - HTTP_SSI_TAG_START_LEN - hs->ssi_tag_len)]) {
 
                         hs->ssi_tag_buff[hs->ssi_tag_buff_ptr++] = ch;
 
@@ -721,12 +723,12 @@ send_response_ssi(http_state_t* hs) {
                 }
                 if (hs->conn_mem_available > 0) {   /* Is there memory to write a current byte? */
                     esp_conn_write(hs->conn, &ch, 1, 0, &hs->conn_mem_available);
-                    hs->written_total++;
-                    hs->buff_ptr++;
+                    ++hs->written_total;
+                    ++hs->buff_ptr;
                 }
                 hs->ssi_state = HTTP_SSI_STATE_WAIT_BEGIN;
             } else {
-                hs->buff_ptr++;
+                ++hs->buff_ptr;
             }
         }
     }
@@ -950,12 +952,12 @@ http_evt(esp_evt_t* evt) {
 
                                 pos += 15;      /* Skip this part */
                                 if (esp_pbuf_get_at(hs->p, pos, &ch) && ch == ' ') {
-                                    pos++;
+                                    ++pos;
                                 }
                                 esp_pbuf_get_at(hs->p, pos, &ch);
                                 while (ch >= '0' && ch <= '9') {
                                     hs->content_length = 10 * hs->content_length + (ch - '0');
-                                    pos++;
+                                    ++pos;
                                     if (!esp_pbuf_get_at(hs->p, pos, &ch)) {
                                         break;
                                     }

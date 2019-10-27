@@ -141,7 +141,7 @@ http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* 
         file->rem_open_files = &http_fs_opened_files_cnt;   /* Set pointer to opened files */
         res = hi->fs_open(file, path);          /* Try to read file from user file system */
         if (res) {
-            http_fs_opened_files_cnt++;         /* Increase number of opened files */
+            ++http_fs_opened_files_cnt;         /* Increase number of opened files */
 
             file->is_static = 0;                /* File is not static */
             return 1;                           /* File is opened! */
@@ -151,7 +151,7 @@ http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* 
     /*
      * Try to open static file if available
      */
-    for (i = 0; i < ESP_ARRAYSIZE(http_fs_static_files); i++) {
+    for (i = 0; i < ESP_ARRAYSIZE(http_fs_static_files); ++i) {
         if (path != NULL && !strcmp(http_fs_static_files[i].path, path)) {
             ESP_MEMSET(file, 0x00, sizeof(*file));
 

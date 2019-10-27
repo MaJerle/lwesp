@@ -113,7 +113,7 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
             pn = p->next;                       /* Save next entry */
             esp_mem_free_s((void **)&p);         /* Free memory for pbuf */
             p = pn;                             /* Restore with next entry */
-            cnt++;                              /* Increase number of freed pbufs */
+            ++cnt;                              /* Increase number of freed pbufs */
         } else {
             break;
         }
@@ -204,7 +204,7 @@ espr_t
 esp_pbuf_ref(esp_pbuf_p pbuf) {
     ESP_ASSERT("pbuf != NULL", pbuf != NULL);
 
-    pbuf->ref++;                                /* Increase reference count for pbuf */
+    ++pbuf->ref;                                /* Increase reference count for pbuf */
     return espOK;
 }
 
@@ -338,7 +338,7 @@ esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* needle, size_t len, size_t o
          * Try entire buffer element by element
          * and in case we have a match, report it
          */
-        for (size_t i = off; i <= pbuf->tot_len - len; i++) {
+        for (size_t i = off; i <= pbuf->tot_len - len; ++i) {
             if (!esp_pbuf_memcmp(pbuf, needle, len, i)) {   /* Check if identical */
                 return i;                       /* We have a match! */
             }
@@ -395,7 +395,7 @@ esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offs
      *
      * Use byte by byte read function to inspect bytes separatelly
      */
-    for (size_t i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; ++i) {
         if (!esp_pbuf_get_at(p, offset + i, &el) || el != d[i]) {   /* Get value from pbuf at specific offset */
             return offset + 1;                  /* Return value from offset where it failed */
         }

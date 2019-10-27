@@ -60,8 +60,8 @@ commands[] = {
 const cli_command_t *
 cli_lookup_command(char* command) {
     uint32_t module_index, command_index;
-    for (module_index = 0; module_index < num_of_modules; module_index++) {
-        for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; command_index++) {
+    for (module_index = 0; module_index < num_of_modules; ++module_index) {
+        for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; ++command_index) {
             if (!strcmp(command, cli_command_table[module_index].commands[command_index].name)) {
                 return &cli_command_table[module_index].commands[command_index];
             }
@@ -84,8 +84,8 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
     uint32_t num_of_matched_commands = 0;
     uint32_t common_command_len = 0;
 
-    for (module_index = 0; module_index < num_of_modules; module_index++) {
-        for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; command_index++) {
+    for (module_index = 0; module_index < num_of_modules; ++module_index) {
+        for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; ++command_index) {
             const cli_command_t *command = &cli_command_table[module_index].commands[command_index];
             if (!strncmp(cmd_buffer, cli_command_table[module_index].commands[command_index].name, *cmd_pos)) {
                 /* Found a new command which matches the string */
@@ -122,10 +122,10 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
                             && matched_command[common_command_len] != '\0'
                             && command->name[common_command_len] != '\0'
                             && common_command_len < last_common_command_len) {
-                        common_command_len++;
+                        ++common_command_len;
                     }
                 }
-                num_of_matched_commands++;
+                ++num_of_matched_commands;
             }
         }
     }
@@ -158,7 +158,7 @@ cli_register_commands(const cli_command_t* commands, size_t num_of_commands) {
      */
     cli_command_table[num_of_modules].commands = commands;
     cli_command_table[num_of_modules].num_of_commands = num_of_commands;
-    num_of_modules++;
+    ++num_of_modules;
 
     return true;
 }
@@ -209,8 +209,8 @@ cli_list(cli_printf cliprintf, int argc, char** argv) {
     cliprintf("%-20s%s"CLI_NL, "Command", "Description");
     cliprintf("-----------------------------------------------------------"CLI_NL);
 
-    for (module_index = 0; module_index < num_of_modules; module_index++) {
-        for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; command_index++) {
+    for (module_index = 0; module_index < num_of_modules; ++module_index) {
+        for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; ++command_index) {
             cliprintf("%-20s%s"CLI_NL, cli_command_table[module_index].commands[command_index].name, cli_command_table[module_index].commands[command_index].help);
         }
     }

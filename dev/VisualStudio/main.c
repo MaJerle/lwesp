@@ -290,17 +290,22 @@ main_thread(void* arg) {
         client = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
         if (client != NULL) {
             while (1) {
-                res = esp_netconn_connect(client, "10.57.218.181", 123);
+                res = esp_netconn_connect(client, "10.57.218.183", 123);
                 if (res == espOK) {                     /* Are we successfully connected? */
                     printf("Connected to host\r\n");
                     do {
                         res = esp_netconn_receive(client, &pbuf);
+                        printf("GOT FROM BUFFER...delaying...\r\n");
+                        //esp_delay(5000);
                         if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
                             printf("Connection closed by remote side...\r\n");
                             break;
                         }
                         if (res == espOK && pbuf != NULL) {
-                            printf("Received new data packet of %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
+                            int len = esp_pbuf_length(pbuf, 1);
+                            printf("Received new data packet of %d bytes: %.*s\r\n",
+                                len, len,
+                                (const char *)esp_pbuf_get_linear_addr(pbuf, 0, NULL));
                             esp_pbuf_free(pbuf);
                             pbuf = NULL;
                         }

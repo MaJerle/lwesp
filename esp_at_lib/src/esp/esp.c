@@ -348,7 +348,7 @@ esp_update_sw(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32
 espr_t
 esp_core_lock(void) {
     esp_sys_protect();
-    esp.locked_cnt++;
+    ++esp.locked_cnt;
     return espOK;
 }
 
@@ -364,7 +364,7 @@ esp_core_lock(void) {
  */
 espr_t
 esp_core_unlock(void) {
-    esp.locked_cnt--;
+    --esp.locked_cnt;
     esp_sys_unprotect();
     return espOK;
 }

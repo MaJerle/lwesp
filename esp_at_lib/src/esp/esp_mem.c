@@ -125,18 +125,17 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
 
     /* Check if region address are linear and rising */
     mem_start_addr = (uint8_t *)0;
-    for (size_t i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; ++i) {
         if (mem_start_addr >= (uint8_t *)regions[i].start_addr) {   /* Check if previous greater than current */
             return 0;                           /* Return as invalid and failed */
         }
         mem_start_addr = (uint8_t *)regions[i].start_addr;  /* Save as previous address */
     }
 
-    while (len--) {
+    for (; len > 0; --len, ++regions) {
         /* Check minimum region size */
         mem_size = regions->size;
         if (mem_size < (MEM_ALIGN_NUM + MEMBLOCK_METASIZE)) {
-            regions++;
             continue;
         }
         /*
@@ -196,8 +195,6 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
 
         /* Set number of free bytes available to allocate in region */
         mem_available_bytes += first_block->size;
-
-        regions++;                              /* Go to next region */
     }
 
     return 1;                                   /* Regions set as expected */

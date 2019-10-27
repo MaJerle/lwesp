@@ -63,7 +63,7 @@ send_data(const void* data, size_t len) {
 
         hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
-        for (DWORD i = 0; i < len; i++) {
+        for (DWORD i = 0; i < len; ++i) {
             printf("%c", d[i]);
         }
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -161,7 +161,7 @@ uart_thread(void* param) {
                 HANDLE hConsole;
                 hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
                 SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
-                for (DWORD i = 0; i < bytes_read; i++) {
+                for (DWORD i = 0; i < bytes_read; ++i) {
                     printf("%c", data_buffer[i]);
                 }
                 SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);

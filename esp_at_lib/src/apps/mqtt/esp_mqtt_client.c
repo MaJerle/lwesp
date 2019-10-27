@@ -153,8 +153,7 @@ mqtt_evt_fn_default(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
  */
 static uint16_t
 create_packet_id(esp_mqtt_client_p client) {
-    client->last_packet_id++;
-    if (client->last_packet_id == 0) {
+    if (++client->last_packet_id == 0) {
         client->last_packet_id = 1;
     }
     return client->last_packet_id;
@@ -179,7 +178,7 @@ request_create(esp_mqtt_client_p client, uint16_t packet_id, void* arg) {
     uint16_t i;
 
     /* Try to find a new request which does not have IN_USE flag set */
-    for (request = NULL, i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; i++) {
+    for (request = NULL, i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; ++i) {
         if (!(client->requests[i].status & MQTT_REQUEST_FLAG_IN_USE)) {
             request = &client->requests[i];     /* We have empty request */
             break;
@@ -225,7 +224,7 @@ request_set_pending(esp_mqtt_client_p client, esp_mqtt_request_t* request) {
 static esp_mqtt_request_t *
 request_get_pending(esp_mqtt_client_p client, int32_t pkt_id) {
     /* Try to find a new request which does not have IN_USE flag set */
-    for (size_t i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; i++) {
+    for (size_t i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; ++i) {
         if ((client->requests[i].status & MQTT_REQUEST_FLAG_PENDING)
             && (pkt_id == -1 || client->requests[i].packet_id == (uint16_t)pkt_id)) {
             return &client->requests[i];
@@ -343,7 +342,7 @@ output_check_enough_memory(esp_mqtt_client_p client, uint16_t rem_len) {
     uint16_t total_len = rem_len + 1;           /* Remaining length + first (packet start) byte */
 
     do {                                        /* Calculate bytes for encoding remaining length itself */
-        total_len++;
+        ++total_len;
         rem_len >>= 7;                          /* Encoded with 7 bits per byte */
     } while (rem_len > 0);
 
@@ -465,7 +464,7 @@ sub_unsub(esp_mqtt_client_p client, const char* topic, esp_mqtt_qos_t qos, void*
      */
     rem_len = 2 + len_topic + 2;
     if (sub) {
-        rem_len++;
+        ++rem_len;
     }
 
     esp_core_lock();
@@ -656,7 +655,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
  */
 static uint8_t
 mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
-    size_t idx, buff_len = 0, buff_offset = 0;
+    size_t buff_len = 0, buff_offset = 0;
     uint8_t ch, *d;
 
     do {
@@ -665,7 +664,7 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
         if (d == NULL) {
             break;
         }
-        for (idx = 0; idx < buff_len; idx++) {  /* Process entire linear buffer */
+        for (size_t idx = 0; idx < buff_len; ++idx) {   /* Process entire linear buffer */
             ch = d[idx];
             switch (client->parser_state) {     /* Check parser state */
                 case MQTT_PARSER_STATE_INIT: {  /* We are waiting for start byte and packet type */
@@ -683,7 +682,8 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                 }
                 case MQTT_PARSER_STATE_CALC_REM_LEN: {  /* Calculate remaining length of packet */
                     /* Length of packet is LSB first, each consist of up to 7 bits */
-                    client->msg_rem_len |= (ch & 0x7F) << ((size_t)7 * (size_t)client->msg_rem_len_mult++);
+                    client->msg_rem_len |= (ch & 0x7F) << ((size_t)7 * (size_t)client->msg_rem_len_mult);
+                    ++client->msg_rem_len_mult;
 
                     if (!(ch & 0x80)) {         /* Is this last entry? */
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
@@ -726,7 +726,7 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                     if (client->msg_curr_pos < client->rx_buff_len) {
                         client->rx_buff[client->msg_curr_pos] = ch; /* Write received character */
                     }
-                    client->msg_curr_pos++;
+                    ++client->msg_curr_pos;
 
                     /* We reached end of received characters? */
                     if (client->msg_curr_pos == client->msg_rem_len) {
@@ -912,7 +912,7 @@ mqtt_data_sent_cb(esp_mqtt_client_p client, size_t sent_len, uint8_t successful)
  */
 static uint8_t
 mqtt_poll_cb(esp_mqtt_client_p client) {
-    client->poll_time++;
+    ++client->poll_time;
 
     if (client->conn_state == ESP_MQTT_CONN_DISCONNECTING) {
         return 0;

@@ -298,8 +298,7 @@ esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
     if (mbox->in == mbox->out) {
         esp_sys_sem_release(&mbox->sem_not_empty);
     }
-    mbox->in++;
-    if (mbox->in >= mbox->size) {
+    if (++mbox->in >= mbox->size) {
         mbox->in = 0;
     }
     esp_sys_sem_release(&mbox->sem);
@@ -317,8 +316,7 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     }
 
     *m = mbox->entries[mbox->out];
-    mbox->out++;
-    if (mbox->out >= mbox->size) {
+    if (++mbox->out >= mbox->size) {
         mbox->out = 0;
     }
     esp_sys_sem_release(&mbox->sem_not_full);   /* Queue not full anymore */

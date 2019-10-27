@@ -201,7 +201,7 @@ espi_send_ip_mac(const void* d, uint8_t is_ip, uint8_t q, uint8_t c) {
     }
     AT_PORT_SEND_QUOTE_COND(q);                 /* Send quote */
     ch = is_ip ? '.' : ':';                     /* Get delimiter character */
-    for (uint8_t i = 0; i < (is_ip ? 4 : 6); i++) { /* Process byte by byte */
+    for (uint8_t i = 0; i < (is_ip ? 4 : 6); ++i) { /* Process byte by byte */
         if (is_ip) {                            /* In case of IP ... */
             esp_u8_to_str(ip->ip[i], str);      /* ... go to decimal format ... */
         } else {                                /* ... in case of MAC ... */
@@ -235,7 +235,7 @@ espi_send_string(const char* str, uint8_t e, uint8_t q, uint8_t c) {
                     AT_PORT_SEND_CHR(&special); /* Send special character */
                 }
                 AT_PORT_SEND_CHR(str);          /* Send character */
-                str++;
+                ++str;
             }
         } else {
             AT_PORT_SEND_STR(str);              /* Send plain string */
@@ -309,7 +309,7 @@ reset_connections(uint8_t forced) {
     esp.evt.evt.conn_active_close.forced = forced;
     esp.evt.evt.conn_active_close.res = espOK;
 
-    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {/* Check all connections */
+    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; ++i) {/* Check all connections */
         if (esp.m.conns[i].status.f.active) {
             esp.m.conns[i].status.f.active = 0;
 
@@ -475,7 +475,7 @@ espi_tcpip_process_data_sent(uint8_t sent) {
         }
         esp.msg->msg.conn_send.tries = 0;
     } else {                                    /* We were not successful */
-        esp.msg->msg.conn_send.tries++;         /* Increase number of tries */
+        ++esp.msg->msg.conn_send.tries;         /* Increase number of tries */
         if (esp.msg->msg.conn_send.tries == ESP_CFG_MAX_SEND_RETRIES) { /* In case we reached max number of retransmissions */
             return 1;                           /* Return 1 and indicate error */
         }
@@ -655,7 +655,7 @@ espi_parse_received(esp_recv_t* rcv) {
                             tmp += 4;           /* Skip it */
                         }
                         if (*tmp == ':') {
-                            tmp++;
+                            ++tmp;
                         }
                         espi_parse_ip(&tmp, &ip);   /* Parse IP address */
                         ESP_MEMCPY(a, &ip, sizeof(ip)); /* Copy to current setup */
@@ -764,7 +764,7 @@ espi_parse_received(esp_recv_t* rcv) {
             if (!strncmp(rcv->data, "+CIPSTATUS", 10)) {
                 espi_parse_cipstatus(rcv->data + 11);   /* Parse CIPSTATUS response */
             } else if (is_ok) {
-                for (size_t i = 0; i < ESP_CFG_MAX_CONNS; i++) {    /* Set current connection statuses */
+                for (size_t i = 0; i < ESP_CFG_MAX_CONNS; ++i) {    /* Set current connection statuses */
                     esp.m.conns[i].status.f.active = !!(esp.m.active_conns & (1 << i));
                 }
             }
@@ -949,7 +949,7 @@ espi_parse_received(esp_recv_t* rcv) {
                     res = esp.msg->res = res;   /* Set the error status */
                 }
             } else {
-                esp.msg->i++;                   /* Number of continue calls */
+                ++esp.msg->i;                   /* Number of continue calls */
             }
 
             /*
@@ -1020,9 +1020,10 @@ espi_process(const void* data, size_t data_len) {
         return espERRNODEVICE;
     }
 
-    while (d_len) {                             /* Read entire set of characters from buffer */
-        ch = *d++;                              /* Get next character */
-        d_len--;                                /* Decrease remaining length */
+    while (d_len > 0) {                         /* Read entire set of characters from buffer */
+        ch = *d;                                /* Get next character */
+        ++d;                                    /* Go to next character, must be here as it is used later on */
+        --d_len;                                /* Decrease remaining length, must be here as it is decreased later too */
 
         /*
          * First check if we are in IPD mode and process plain data
@@ -1034,8 +1035,8 @@ espi_process(const void* data, size_t data_len) {
             if (esp.m.ipd.buff != NULL) {       /* Do we have active buffer? */
                 esp.m.ipd.buff->payload[esp.m.ipd.buff_ptr] = ch;   /* Save data character */
             }
-            esp.m.ipd.buff_ptr++;
-            esp.m.ipd.rem_len--;
+            ++esp.m.ipd.buff_ptr;
+            --esp.m.ipd.rem_len;
 
             /* Try to read more data directly from buffer */
             len = ESP_MIN(d_len, ESP_MIN(esp.m.ipd.rem_len, esp.m.ipd.buff != NULL ? (esp.m.ipd.buff->len - esp.m.ipd.buff_ptr) : esp.m.ipd.rem_len));
@@ -1239,7 +1240,7 @@ espi_process(const void* data, size_t data_len) {
                      * so it is safe to just add them to receive array without checking
                      * what are the actual values
                      */
-                    for (uint8_t i = 0; i < unicode.t; i++) {
+                    for (uint8_t i = 0; i < unicode.t; ++i) {
                         RECV_ADD(unicode.ch[i]);/* Add character to receive array */
                     }
                 }
@@ -2140,7 +2141,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
  */
 uint8_t
 espi_is_valid_conn_ptr(esp_conn_p conn) {
-    for (size_t i = 0; i < ESP_ARRAYSIZE(esp.m.conns); i++) {
+    for (size_t i = 0; i < ESP_ARRAYSIZE(esp.m.conns); ++i) {
         if (conn == &esp.m.conns[i]) {
             return 1;
         }

@@ -64,7 +64,7 @@ store_command_to_history(void) {
         for (hist_count = CLI_CMD_HISTORY - 1; hist_count > 0; hist_count--) {
             memcpy(cmd_history_buffer[hist_count], cmd_history_buffer[hist_count-1], CLI_MAX_CMD_LENGTH);
         }
-        cmd_history_full++;
+        ++cmd_history_full;
         if (cmd_history_full > CLI_CMD_HISTORY) {
             cmd_history_full = CLI_CMD_HISTORY;
         }
@@ -112,7 +112,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                     cmd_pos = strlen(cmd_buffer);
                     cliprintf("%s", cmd_buffer);
 
-                    cmd_history_pos++;
+                    ++cmd_history_pos;
                 } else {
                     cliprintf("\a");
                 }
@@ -140,7 +140,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                  * need to implement a courser
                  */
                 if (cmd_pos < strlen(cmd_buffer)) {
-                    cmd_pos++;
+                    ++cmd_pos;
                     cliprintf("\033[\1C");
                 } else {
                     cliprintf("\a");
@@ -151,7 +151,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                  * need to implement a courser
                  */
                 if (cmd_pos > 0) {
-                    cmd_pos--;
+                    --cmd_pos;
                     cliprintf("\033[\1D");
                 } else {
                     cliprintf("\a");

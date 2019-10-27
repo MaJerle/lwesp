@@ -198,7 +198,7 @@ netconn_evt(esp_evt_t* evt) {
                 esp_pbuf_free(pbuf);            /* Free pbuf */
                 return espOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
             }
-            nc->mbox_receive_entries++;         /* Increase number of packets in receive mbox */
+            ++nc->mbox_receive_entries;         /* Increase number of packets in receive mbox */
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
             /* Check against 1 less to still allow potential close event to be written to queue */
             if (nc->mbox_receive_entries >= (ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN - 1)) {
@@ -206,7 +206,7 @@ netconn_evt(esp_evt_t* evt) {
             }
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
-            nc->rcv_packets++;                  /* Increase number of packets received */
+            ++nc->rcv_packets;                  /* Increase number of packets received */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE,
                 "[NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
                 (int)esp_pbuf_length(pbuf, 0));
@@ -222,8 +222,8 @@ netconn_evt(esp_evt_t* evt) {
              * simply write pointer to received variable to indicate closed state
              */
             if (nc != NULL && esp_sys_mbox_isvalid(&nc->mbox_receive)) {
-                if (esp_sys_mbox_putnow(&nc->mbox_receive, (void*)& recv_closed)) {
-                    nc->mbox_receive_entries++;
+                if (esp_sys_mbox_putnow(&nc->mbox_receive, (void *)&recv_closed)) {
+                    ++nc->mbox_receive_entries;
                 }
             }
 
