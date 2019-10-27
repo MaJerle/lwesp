@@ -64,7 +64,7 @@ espi_unicode_decode(esp_unicode_t* s, uint8_t c) {
         s->t = s->r + 1;                        /* Number of bytes is 1 byte more than remaining in sequence */
         return espINPROG;                       /* Return in progress status */
     } else if ((c & 0xC0) == 0x80) {            /* Next character in sequence */
-        s->r--;                                 /* Decrease character */
+        --s->r;                                 /* Decrease character */
         s->ch[s->t - s->r - 1] = c;             /* Save character to array */
         if (s->r == 0) {                        /* Did we finish? */
             return espOK;                       /* Return OK, we are ready to proceed */

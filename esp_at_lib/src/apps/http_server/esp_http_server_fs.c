@@ -211,7 +211,7 @@ void
 http_fs_data_close_file(const http_init_t* hi, http_fs_file_t* file) {
     if (!file->is_static && hi != NULL && hi->fs_close != NULL) {
         if (hi->fs_close(file)) {               /* Close file handle */
-            http_fs_opened_files_cnt--;         /* Decrease number of files opened */
+            --http_fs_opened_files_cnt;         /* Decrease number of files opened */
         }
     }
 }

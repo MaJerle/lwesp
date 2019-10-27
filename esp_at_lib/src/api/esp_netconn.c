@@ -84,7 +84,7 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
     if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
         while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
             if (nc->mbox_receive_entries > 0) {
-                nc->mbox_receive_entries--;
+                --nc->mbox_receive_entries;
             }
             if (pbuf != NULL && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
                 esp_pbuf_free(pbuf);            /* Free received data buffers */
@@ -677,7 +677,7 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 
     esp_core_lock();
     if (nc->mbox_receive_entries > 0) {
-        nc->mbox_receive_entries--;
+        --nc->mbox_receive_entries;
     }
     esp_core_unlock();
 

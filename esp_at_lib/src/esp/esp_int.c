@@ -885,7 +885,7 @@ espi_parse_received(esp_recv_t* rcv) {
         const char* tmp = s;
         uint32_t num = 0;
         while (tmp > rcv->data && ESP_CHARISNUM(tmp[-1])) {
-            tmp--;
+            --tmp;
         }
         num = espi_parse_number(&tmp);          /* Parse connection number */
         if (num < ESP_CFG_MAX_CONNS) {
@@ -1942,7 +1942,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
 
             msg->msg.conn_start.num = 0;        /* Start with max value = invalidated */
-            for (int16_t i = ESP_CFG_MAX_CONNS - 1; i >= 0; i--) {  /* Find available connection */
+            for (int16_t i = ESP_CFG_MAX_CONNS - 1; i >= 0; --i) {  /* Find available connection */
                 if (!esp.m.conns[i].status.f.active
                     || !(esp.m.active_conns & (1 << i))) {
                     c = &esp.m.conns[i];
