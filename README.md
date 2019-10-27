@@ -2,13 +2,12 @@
 
 ESP-AT Library commands parser is a generic, platform independent, library for communicating with ESP8266 Wi-Fi module using AT commands. Module is written in C99 and is independent from used platform. Its main targets are embedded system devices like ARM Cortex-M, AVR, PIC and others, but can easily work under `Windows`, `Linux` or `MAC` environments.
 
-`ESP_AT_Lib` is a library for host device (MCU for example) which drivers ESP32 or ESP8266 devices which run official `AT commands` firmware written and maintained by Espressif System.
-Source of official firmware is publicly available in [esp32-at](https://github.com/espressif/esp32-at) repository [Although name might be confusing, it supports ESP32 and ESP8266 aswell].
-Official ESP AT firmware is based on Espressif RTOS-SDK.
+`ESP_AT_Lib` is a library for host device (MCU as an example) which drives ESP32 or ESP8266 devices running official `AT commands` firmware written and maintained by Espressif System.
+Source of official firmware is publicly available at [esp32-at](https://github.com/espressif/esp-at) repository.
 
 If you are only interested in using module and not writing firmware for it, you may download pre-build AT firmware from [Espressif systems download section](https://www.espressif.com/en/support/download/at) and focus only on firmware development on host side, for which you need the library posted here.
 
-Follow documentation for more information on implementation and other details.
+Follow documentation for more information on implementation and details.
 
 ## Features
 
@@ -24,7 +23,7 @@ Follow documentation for more information on implementation and other details.
   - Netconn sequential API for client and server
   - HTTP server with dynamic files (file system) supported
   - MQTT client
-- Embeds other AT features, such as `WPS`, `DNS` and others
+- Embeds other AT features, such as WPS management, custom DNS setup, Hostname for DHCP, Ping feature
 - User friendly MIT license
 
 ## Documentation
