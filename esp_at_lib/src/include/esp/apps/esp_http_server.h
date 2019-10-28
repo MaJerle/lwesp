@@ -57,7 +57,7 @@ extern "C" {
  * \brief           Server debug default setting
  */
 #ifndef ESP_CFG_DBG_SERVER
-#define ESP_CFG_DBG_SERVER                  ESP_CFG_DBG_OFF
+#define ESP_CFG_DBG_SERVER                  ESP_DBG_OFF
 #endif
 
 #ifndef HTTP_SSI_TAG_START
@@ -154,7 +154,7 @@ extern "C" {
  * \brief           Default server name for `Server: x` response dynamic header
  */
 #ifndef HTTP_SERVER_NAME
-#define HTTP_SERVER_NAME                    "ESP8266 AT Lib (majerle.eu)"
+#define HTTP_SERVER_NAME                    "ESP8266 AT Lib"
 #endif
 
 /**
