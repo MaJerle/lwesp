@@ -144,18 +144,18 @@ esp_sys_mbox_delete(esp_sys_mbox_t* b) {
 uint32_t
 esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
     uint32_t tick = osKernelSysTick();
-    return osMessageQueuePut(*b, m, 0, osWaitForever) == osOK ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
+    return osMessageQueuePut(*b, &m, 0, osWaitForever) == osOK ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
 }
 
 uint32_t
 esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t tick = osKernelSysTick();
-    return osMessageQueueGet(*b, m, NULL, timeout == 0 ? osWaitForever : timeout) == osOK ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
+    return (osMessageQueueGet(*b, m, NULL, timeout == 0 ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
 }
 
 uint8_t
 esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
-    return osMessageQueuePut(*b, m, 0, 0) == osOK;
+    return osMessageQueuePut(*b, &m, 0, 0) == osOK;
 }
 
 uint8_t
@@ -180,7 +180,7 @@ esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn t
     const osThreadAttr_t thread_attr = {
             .name = (char *)name,
             .priority = (osPriority)prio,
-            .stack_size = stack_size ? stack_size : ESP_SYS_THREAD_SS
+            .stack_size = stack_size > 0 ? stack_size : ESP_SYS_THREAD_SS
     };
 
     id = osThreadNew(thread_func, arg, &thread_attr);
