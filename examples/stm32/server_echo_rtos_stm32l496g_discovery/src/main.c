@@ -40,8 +40,7 @@ static void LL_Init(void);
 void SystemClock_Config(void);
 static void USART_Printf_Init(void);
 
-static void init_thread(void const* arg);
-osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
+static void init_thread(void* arg);
 
 static espr_t esp_callback_func(esp_evt_t* evt);
 static espr_t server_callback_func(esp_evt_t* evt);
@@ -57,8 +56,13 @@ main(void) {
     
     printf("Application running on STM32L496G-Discovery!\r\n");
     
-    osThreadCreate(osThread(init_thread), NULL);/* Create init thread */
-    osKernelStart();                            /* Start kernel */
+    /* Initialize, create first thread and start kernel */
+    osKernelInitialize();
+    const osThreadAttr_t attr = {
+            .stack_size = 512
+    };
+    osThreadNew(init_thread, NULL, &attr);
+    osKernelStart();
     
     while (1) {}
 }
@@ -68,7 +72,7 @@ main(void) {
  * \param[in]       arg: Thread argument
  */
 static void
-init_thread(void const* arg) {
+init_thread(void* arg) {
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
     if (esp_init(esp_callback_func, 1) != espOK) {
@@ -91,7 +95,7 @@ init_thread(void const* arg) {
         esp_delay(1000);
     }
 
-    osThreadTerminate(NULL);
+	osThreadExit();
 }
 
 /**

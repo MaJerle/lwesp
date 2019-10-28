@@ -72,31 +72,26 @@ static uint8_t      is_running, initialized;
 static size_t       old_pos;
 
 /* USART thread */
-static void usart_ll_thread(void const * arg);
-static osThreadDef(usart_ll_thread, usart_ll_thread, osPriorityNormal, 0, 1024);
+static void usart_ll_thread(void* arg);
 static osThreadId usart_ll_thread_id;
 
 /* Message queue */
-static osMessageQDef(usart_ll_mbox, 10, uint8_t);
 static osMessageQId usart_ll_mbox_id;
 
 /**
  * \brief           USART data processing
  */
 static void
-usart_ll_thread(void const * arg) {
-    osEvent evt;
-    size_t pos;
+usart_ll_thread(void* arg) {
     static size_t old_pos;
-    
+    size_t pos;
+
     ESP_UNUSED(arg);
 
     while (1) {
+        void* d;
         /* Wait for the event message from DMA or USART */
-        evt = osMessageGet(usart_ll_mbox_id, osWaitForever);
-        if (evt.status != osEventMessage) {
-            continue;
-        }
+        osMessageQueueGet(usart_ll_mbox_id, &d, NULL, osWaitForever);
 
         /* Read data */
 #if defined(ESP_USART_DMA_RX_STREAM)
@@ -284,10 +279,13 @@ configure_uart(uint32_t baudrate) {
 
     /* Create mbox and start thread */
     if (usart_ll_mbox_id == NULL) {
-        usart_ll_mbox_id = osMessageCreate(osMessageQ(usart_ll_mbox), NULL);
+        usart_ll_mbox_id = osMessageQueueNew(10, sizeof(void *), NULL);
     }
     if (usart_ll_thread_id == NULL) {
-        usart_ll_thread_id = osThreadCreate(osThread(usart_ll_thread), usart_ll_mbox_id);
+        const osThreadAttr_t attr = {
+            .stack_size = 1024
+        };
+        usart_ll_thread_id = osThreadNew(usart_ll_thread, usart_ll_mbox_id, &attr);
     }
 }
 
@@ -307,7 +305,7 @@ reset_device(uint8_t state) {
 #endif /* defined(ESP_RESET_PIN) */
 
 /**
- * \brief           Send data to ESP device
+ * \brief           Send data to GSM device
  * \param[in]       data: Pointer to data to send
  * \param[in]       len: Number of bytes to send
  * \return          Number of bytes sent
@@ -342,7 +340,7 @@ esp_ll_init(esp_ll_t* ll) {
         esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
     }
 #endif /* !ESP_CFG_MEM_CUSTOM */
-    
+
     if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
 #if defined(ESP_RESET_PIN)
@@ -363,12 +361,12 @@ esp_ll_init(esp_ll_t* ll) {
 espr_t
 esp_ll_deinit(esp_ll_t* ll) {
     if (usart_ll_mbox_id != NULL) {
-        osMessageQId tmp = usart_ll_mbox_id;
+        osMessageQueueId_t tmp = usart_ll_mbox_id;
         usart_ll_mbox_id = NULL;
-        osMessageDelete(tmp);
+        osMessageQueueDelete(tmp);
     }
     if (usart_ll_thread_id != NULL) {
-        osThreadId tmp = usart_ll_thread_id;
+        osThreadId_t tmp = usart_ll_thread_id;
         usart_ll_thread_id = NULL;
         osThreadTerminate(tmp);
     }
@@ -389,7 +387,7 @@ ESP_USART_IRQHANDLER(void) {
     LL_USART_ClearFlag_NE(ESP_USART);
 
     if (usart_ll_mbox_id != NULL) {
-        osMessagePut(usart_ll_mbox_id, 0, 0);
+        osMessageQueuePut(usart_ll_mbox_id, (void *)1, 0, 0);
     }
 }
 
@@ -402,7 +400,7 @@ ESP_USART_DMA_RX_IRQHANDLER(void) {
     ESP_USART_DMA_RX_CLEAR_HT;
 
     if (usart_ll_mbox_id != NULL) {
-        osMessagePut(usart_ll_mbox_id, 0, 0);
+        osMessageQueuePut(usart_ll_mbox_id, (void *)1, 0, 0);
     }
 }
 

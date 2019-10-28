@@ -189,14 +189,9 @@
 			<locationURI>PARENT-4-PROJECT_LOC/snippets/station_manager.c</locationURI>
 		</link>
 		<link>
-			<name>FreeRTOS/cmsis_os.c</name>
+			<name>FreeRTOS/cmsis_os2.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/third_party/Embedded_Libs/FreeRTOS/CMSIS_RTOS/cmsis_os.c</locationURI>
-		</link>
-		<link>
-			<name>FreeRTOS/cpu_utils.c</name>
-			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/third_party/Embedded_Libs/FreeRTOS/CMSIS_RTOS/cpu_utils.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/third_party/Embedded_Libs/FreeRTOS/CMSIS_RTOS_V2/cmsis_os2.c</locationURI>
 		</link>
 		<link>
 			<name>FreeRTOS/croutine.c</name>

@@ -40,8 +40,7 @@ static void LL_Init(void);
 void SystemClock_Config(void);
 static void USART_Printf_Init(void);
 
-static void init_thread(void const* arg);
-osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
+static void init_thread(void* arg);
 
 static espr_t esp_callback_func(esp_evt_t* evt);
 
@@ -56,8 +55,13 @@ main(void) {
     
     printf("Application running on STM32F429ZI-Nucleo!\r\n");
     
-    osThreadCreate(osThread(init_thread), NULL);/* Create init thread */
-    osKernelStart();                            /* Start kernel */
+    /* Initialize, create first thread and start kernel */
+    osKernelInitialize();
+    const osThreadAttr_t attr = {
+            .stack_size = 512
+    };
+    osThreadNew(init_thread, NULL, &attr);
+    osKernelStart();
     
     while (1) {}
 }
@@ -67,7 +71,7 @@ main(void) {
  * \param[in]       arg: Thread argument
  */
 static void
-device_present_thread(void const* arg) {
+device_present_thread(void* arg) {
     while (1) {
         /* Set device is present */
         printf("Setting device is present\r\n");
@@ -94,7 +98,7 @@ device_present_thread(void const* arg) {
  * \param[in]       arg: Thread argument
  */
 static void
-init_thread(void const* arg) {
+init_thread(void* arg) {
     espr_t res;
     uint32_t time;
 
@@ -108,7 +112,7 @@ init_thread(void const* arg) {
 
     /* Start thread for device present */
     esp_sys_thread_create(NULL, "dev_present", (esp_sys_thread_fn)device_present_thread, NULL, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
-    osThreadTerminate(NULL);                    /* Terminate current thread */
+    osThreadExit();
 }
 
 /**

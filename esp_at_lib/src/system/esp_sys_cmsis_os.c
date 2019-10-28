@@ -35,7 +35,8 @@
 #include "cmsis_os.h"
 
 #if !__DOXYGEN__
-static osMutexId sys_mutex;
+
+static osMutexId_t sys_mutex;
 
 uint8_t
 esp_sys_init(void) {
@@ -47,8 +48,6 @@ uint32_t
 esp_sys_now(void) {
     return osKernelSysTick();
 }
-
-#if ESP_CFG_OS
 
 uint8_t
 esp_sys_protect(void) {
@@ -64,8 +63,10 @@ esp_sys_unprotect(void) {
 
 uint8_t
 esp_sys_mutex_create(esp_sys_mutex_t* p) {
-    osMutexDef(MUT);
-    *p = osRecursiveMutexCreate(osMutex(MUT));
+    const osMutexAttr_t attr = {
+            .attr_bits = osMutexRecursive
+    };
+    *p = osMutexNew(&attr);
     return *p != NULL;
 }
 
@@ -76,12 +77,12 @@ esp_sys_mutex_delete(esp_sys_mutex_t* p) {
 
 uint8_t
 esp_sys_mutex_lock(esp_sys_mutex_t* p) {
-    return osRecursiveMutexWait(*p, osWaitForever) == osOK;
+    return osMutexAcquire(*p, osWaitForever) == osOK;
 }
 
 uint8_t
 esp_sys_mutex_unlock(esp_sys_mutex_t* p) {
-    return osRecursiveMutexRelease(*p) == osOK;
+    return osMutexRelease(*p) == osOK;
 }
 
 uint8_t
@@ -97,13 +98,7 @@ esp_sys_mutex_invalid(esp_sys_mutex_t* p) {
 
 uint8_t
 esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
-    osSemaphoreDef(SEM);
-    *p = osSemaphoreCreate(osSemaphore(SEM), 1);
-
-    if (*p != NULL && !cnt) {
-        osSemaphoreWait(*p, 0);
-    }
-    return *p != NULL;
+    return (*p = osSemaphoreNew(1, cnt > 0 ? 1 : 0, NULL)) != NULL;
 }
 
 uint8_t
@@ -114,7 +109,7 @@ esp_sys_sem_delete(esp_sys_sem_t* p) {
 uint32_t
 esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
     uint32_t tick = osKernelSysTick();
-    return (osSemaphoreWait(*p, !timeout ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
+    return (osSemaphoreAcquire(*p, timeout == 0 ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -135,53 +130,37 @@ esp_sys_sem_invalid(esp_sys_sem_t* p) {
 
 uint8_t
 esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
-    osMessageQDef(MBOX, size, void *);
-    *b = osMessageCreate(osMessageQ(MBOX), NULL);
-    return *b != NULL;
+    return (*b = osMessageQueueNew(size, sizeof(void *), NULL)) != NULL;
 }
 
 uint8_t
 esp_sys_mbox_delete(esp_sys_mbox_t* b) {
-    if (osMessageWaiting(*b)) {
+    if (osMessageQueueGetCount(*b) > 0) {
         return 0;
     }
-    return osMessageDelete(*b) == osOK;
+    return osMessageQueueDelete(*b) == osOK;
 }
 
 uint32_t
 esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
     uint32_t tick = osKernelSysTick();
-    return osMessagePut(*b, (uint32_t)m, osWaitForever) == osOK ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
+    return osMessageQueuePut(*b, m, 0, osWaitForever) == osOK ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
 }
 
 uint32_t
 esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
-    osEvent evt;
-    uint32_t time = osKernelSysTick();
-
-    evt = osMessageGet(*b, !timeout ? osWaitForever : timeout);
-    if (evt.status == osEventMessage) {
-        *m = evt.value.p;
-        return osKernelSysTick() - time;
-    }
-    return ESP_SYS_TIMEOUT;
+    uint32_t tick = osKernelSysTick();
+    return osMessageQueueGet(*b, m, NULL, timeout == 0 ? osWaitForever : timeout) == osOK ? (osKernelSysTick() - tick) : ESP_SYS_TIMEOUT;
 }
 
 uint8_t
 esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
-    return osMessagePut(*b, (uint32_t)m, 0) == osOK;
+    return osMessageQueuePut(*b, m, 0, 0) == osOK;
 }
 
 uint8_t
 esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
-    osEvent evt;
-
-    evt = osMessageGet(*b, 0);
-    if (evt.status == osEventMessage) {
-        *m = evt.value.p;
-        return 1;
-    }
-    return 0;
+    return osMessageQueueGet(*b, m, NULL, 0) == osOK;
 }
 
 uint8_t
@@ -198,8 +177,13 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
 uint8_t
 esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
     esp_sys_thread_t id;
-    const osThreadDef_t thread_def = {(char *)name, (os_pthread)thread_func, (osPriority)prio, 0, stack_size ? stack_size : ESP_SYS_THREAD_SS };    /* Create thread description */
-    id = osThreadCreate(&thread_def, arg);
+    const osThreadAttr_t thread_attr = {
+            .name = (char *)name,
+            .priority = (osPriority)prio,
+            .stack_size = stack_size ? stack_size : ESP_SYS_THREAD_SS
+    };
+
+    id = osThreadNew(thread_func, arg, &thread_attr);
     if (t != NULL) {
         *t = id;
     }
@@ -208,7 +192,11 @@ esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn t
 
 uint8_t
 esp_sys_thread_terminate(esp_sys_thread_t* t) {
-    osThreadTerminate(t != NULL ? *t : NULL);
+    if (t != NULL) {
+        osThreadTerminate(*t);
+    } else {
+        osThreadExit();
+    }
     return 1;
 }
 
@@ -218,5 +206,4 @@ esp_sys_thread_yield(void) {
     return 1;
 }
 
-#endif /* ESP_CFG_OS */
 #endif /* !__DOXYGEN__ */
