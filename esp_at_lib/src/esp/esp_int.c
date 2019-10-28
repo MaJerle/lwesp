@@ -1897,7 +1897,8 @@ espi_initiate_cmd(esp_msg_t* msg) {
         case ESP_CMD_TCPIP_CIPSERVER: {         /* Enable or disable server */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSERVER=");
-            if (msg->msg.tcpip_server.en) {     /* Do we want to enable server? */
+            if (CMD_IS_DEF(ESP_CMD_TCPIP_CIPSERVER) && msg->msg.tcpip_server.en) {
+                AT_PORT_SEND_CONST_STR("1");
                 espi_send_port(msg->msg.tcpip_server.port, 0, 1);
             } else {                            /* Disable server */
                 AT_PORT_SEND_CONST_STR("0");
@@ -1941,7 +1942,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
                 return espERRNOIP;
             }
 
-            msg->msg.conn_start.num = 0;        /* Start with max value = invalidated */
+            msg->msg.conn_start.num = 0;
             for (int16_t i = ESP_CFG_MAX_CONNS - 1; i >= 0; --i) {  /* Find available connection */
                 if (!esp.m.conns[i].status.f.active
                     || !(esp.m.active_conns & (1 << i))) {
