@@ -73,10 +73,10 @@ static size_t       old_pos;
 
 /* USART thread */
 static void usart_ll_thread(void* arg);
-static osThreadId usart_ll_thread_id;
+static osThreadId_t usart_ll_thread_id;
 
 /* Message queue */
-static osMessageQId usart_ll_mbox_id;
+static osMessageQueueId_t usart_ll_mbox_id;
 
 /**
  * \brief           USART data processing
@@ -387,7 +387,8 @@ ESP_USART_IRQHANDLER(void) {
     LL_USART_ClearFlag_NE(ESP_USART);
 
     if (usart_ll_mbox_id != NULL) {
-        osMessageQueuePut(usart_ll_mbox_id, (void *)1, 0, 0);
+        void* d = (void *)1;
+        osMessageQueuePut(usart_ll_mbox_id, &d, 0, 0);
     }
 }
 
@@ -400,7 +401,8 @@ ESP_USART_DMA_RX_IRQHANDLER(void) {
     ESP_USART_DMA_RX_CLEAR_HT;
 
     if (usart_ll_mbox_id != NULL) {
-        osMessageQueuePut(usart_ll_mbox_id, (void *)1, 0, 0);
+        void* d = (void *)1;
+        osMessageQueuePut(usart_ll_mbox_id, &d, 0, 0);
     }
 }
 

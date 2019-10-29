@@ -55,49 +55,49 @@ extern "C" {
  * \brief           ESP system mutex ID type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef osMutexId           esp_sys_mutex_t;
+typedef osMutexId_t        esp_sys_mutex_t;
 
 /**
  * \brief           ESP system semaphore ID type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef osSemaphoreId       esp_sys_sem_t;
+typedef osSemaphoreId_t    esp_sys_sem_t;
 
 /**
  * \brief           ESP system message queue ID type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef osMessageQId        esp_sys_mbox_t;
+typedef osMessageQueueId_t  esp_sys_mbox_t;
 
 /**
  * \brief           ESP system thread ID type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef osThreadId          esp_sys_thread_t;
+typedef osThreadId_t        esp_sys_thread_t;
 
 /**
  * \brief           ESP system thread priority type
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-typedef osPriority          esp_sys_thread_prio_t;
+typedef osPriority_t        esp_sys_thread_prio_t;
 
 /**
  * \brief           Value indicating message queue is not valid
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-#define ESP_SYS_MBOX_NULL           (osMessageQId)0
+#define ESP_SYS_MBOX_NULL           (esp_sys_mbox_t)0
 
 /**
  * \brief           Value indicating semaphore is not valid
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-#define ESP_SYS_SEM_NULL            (osSemaphoreId)0
+#define ESP_SYS_SEM_NULL            (esp_sys_sem_t)0
 
 /**
  * \brief           Value indicating mutex is not valid
  * \note            Keep as is in case of CMSIS based OS, otherwise change for your OS
  */
-#define ESP_SYS_MUTEX_NULL          (osMutexId)0
+#define ESP_SYS_MUTEX_NULL          (esp_sys_mutex_t)0
 
 /**
  * \brief           Value indicating timeout for OS timings
