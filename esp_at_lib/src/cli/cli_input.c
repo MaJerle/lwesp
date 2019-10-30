@@ -226,7 +226,7 @@ cli_in_data(cli_printf cliprintf, char ch) {
             case '\b':
             case 127:
                 if (cmd_pos != 0) {
-                    /* TODO not finnished
+                    /* TODO not finished
                      * in case courser is not at the end this doesn't work properly
                      */
                     cmd_buffer[--cmd_pos] = '\0';
