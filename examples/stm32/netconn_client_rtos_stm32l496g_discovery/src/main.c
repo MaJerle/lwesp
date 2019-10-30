@@ -127,11 +127,6 @@ esp_callback_func(esp_evt_t* evt) {
         }
         case ESP_EVT_WIFI_IP_ACQUIRED: {        /* We have IP address and we are fully ready to work */
             if (esp_sta_is_joined()) {          /* Check if joined on any network */
-                /*
-                 * Create a Netconn based server in separated thread
-                 *
-                 * Process all the incoming connections with separate thread
-                 */
                 esp_sys_thread_create(NULL, "netconn_client", (esp_sys_thread_fn)netconn_client_thread, NULL, 512, ESP_SYS_THREAD_PRIO);
             }
             break;
