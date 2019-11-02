@@ -30,8 +30,8 @@
  *
  * \section         sect_resources Download & Resources
  *
- *  - <a class="download_url" href="https://github.com/MaJerle/ESP_AT_Lib/releases">Download library from Github releases</a>
- *  - <a href="https://github.com/MaJerle/ESP_AT_Lib_res">Resources and examples repository</a>
+ *  - <a class="download_url" href="https://github.com/MaJerle/ESP_AT_Lib/releases">Download library at Github releases</a>
+ *  - <a href="https://github.com/MaJerle/ESP_AT_Lib">Resources and examples repository</a>
  *  - Read \ref page_appnote before you start development
  *  - <a href="https://github.com/MaJerle/ESP_AT_Lib">Official development repository on Github</a>
  *  - <a href="http://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf">Official AT commands instruction set by Espressif systems</a>
