@@ -411,8 +411,8 @@ espi_parse_link_conn(const char* str) {
     str += 6;
     esp.m.link_conn.is_server = espi_parse_number(&str);
     espi_parse_ip(&str, &esp.m.link_conn.remote_ip);
-    esp.m.link_conn.remote_port = espi_parse_number(&str);
-    esp.m.link_conn.local_port = espi_parse_number(&str);
+    esp.m.link_conn.remote_port = espi_parse_port(&str);
+    esp.m.link_conn.local_port = espi_parse_port(&str);
     return 1;
 }
 
