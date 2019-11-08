@@ -256,16 +256,17 @@ espi_parse_ciprecvdata(const char* str) {
     }
 
     /* Check data length */
-    conn = espi_parse_number(&str);             /* Parse connection ID */
-    if (conn < ESP_CFG_MAX_CONNS) {
-        esp.m.ipd.conn = &esp.m.conns[conn];    /* Set connection */
-    } else {
-        return espERR;
-    }
     if ((len = espi_parse_number(&str)) > 0) {  /* Get number of bytes to read */
+        esp_ip_t ip;
+        esp_port_t port;
+
         esp.m.ipd.read = 1;                     /* Start reading network data */
         esp.m.ipd.tot_len = len;                /* Total number of bytes in this received packet */
         esp.m.ipd.rem_len = len;                /* Number of remaining bytes to read */
+
+        espi_parse_ip(&str, &ip);
+        port = espi_parse_port(&str);
+        esp_pbuf_set_ip(esp.m.ipd.buff, &ip, port);
     }
     return espOK;
 }

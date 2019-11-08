@@ -1174,10 +1174,15 @@ espi_process(const void* data, size_t data_len) {
                     /*
                      * Check if "+CIPRECVDATA" statement is in array and now we received colon,
                      * indicating end of +CIPRECVDATA statement and start of actual data
+                     *
+                     * Final conclustion for +CIPRECVDATA is:
+                     * +CIPRECVDATA:<len>,<IP>,<port>,data...
+                     *
                      */
-                    if (ch == ',' && RECV_LEN() > 12 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)
+                    if (ch == ',' && RECV_LEN() > 13 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)
                         && (tmp_ptr = strchr(recv_buff.data, ',')) != NULL  /* Search for first comma */
-                        && strchr(tmp_ptr + 1, ',') != NULL) {  /* Search for second comma, the one just received */
+                        && (tmp_ptr = strchr(tmp_ptr + 1, ',')) != NULL /* Search for second comma */
+                        && (tmp_ptr = strchr(tmp_ptr + 1, ',')) != NULL) {  /* Search for third comma */
                         espi_parse_received(&recv_buff);    /* Parse received string */
                         if (esp.m.ipd.read) {   /* Shall we start read procedure? */
                             /*
