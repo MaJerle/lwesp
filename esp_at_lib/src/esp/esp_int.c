@@ -1296,6 +1296,8 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
         case ESP_CMD_ATE1:
             SET_NEW_CMD(ESP_CMD_SYSMSG); break;
         case ESP_CMD_SYSMSG:
+            SET_NEW_CMD(ESP_CMD_SYSLOG); break;
+        case ESP_CMD_SYSLOG:
 #if ESP_CFG_ESP32 && ESP_CFG_ESP8266
             SET_NEW_CMD(ESP_CMD_BLEINIT_GET); break;
         case ESP_CMD_BLEINIT_GET:
@@ -1619,9 +1621,15 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-        case ESP_CMD_SYSMSG: {                  /* Set system messages */
+        case ESP_CMD_SYSMSG: {                  /* Enable system messages */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+SYSMSG=3");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_SYSLOG: {                  /* Enable system error logs */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SYSLOG=1");
             AT_PORT_SEND_END_AT();
             break;
         }
