@@ -68,13 +68,8 @@ typedef enum {
     ESP_CMD_RFAUTOTRACE,
     ESP_CMD_SYSRAM,
     ESP_CMD_SYSADC,
-    ESP_CMD_SYSIOSETCFG,
-    ESP_CMD_SYSIOGETCFG,
-    ESP_CMD_SYSGPIODIR,
-    ESP_CMD_SYSGPIOWRITE,
-    ESP_CMD_SYSGPIOREAD,
-    ESP_CMD_SYSMSG,                             /*!< Configure system messages */
-    ESP_CMD_SYSMSG_CUR,
+    ESP_CMD_SYSMSG,
+    ESP_CMD_SYSLOG,
 
     /* WiFi based commands */
     ESP_CMD_WIFI_CWMODE,                        /*!< Set/Get wifi mode */
