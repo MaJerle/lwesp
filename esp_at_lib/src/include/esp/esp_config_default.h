@@ -716,10 +716,10 @@ void *  my_memset(void* dst, int b, size_t len);
  */
 
 #define ESP_MIN_AT_VERSION_MAJOR_ESP8266    2   /*!< Minimal major version for ESP8266 */
-#define ESP_MIN_AT_VERSION_MINOR_ESP8266    0   /*!< Minimal minor version for ESP8266 */
+#define ESP_MIN_AT_VERSION_MINOR_ESP8266    1   /*!< Minimal minor version for ESP8266 */
 #define ESP_MIN_AT_VERSION_PATCH_ESP8266    0   /*!< Minimal patch version for ESP8266 */
-#define ESP_MIN_AT_VERSION_MAJOR_ESP32      1   /*!< Minimal major version for ESP32 */
-#define ESP_MIN_AT_VERSION_MINOR_ESP32      2   /*!< Minimal minor version for ESP32 */
+#define ESP_MIN_AT_VERSION_MAJOR_ESP32      2   /*!< Minimal major version for ESP32 */
+#define ESP_MIN_AT_VERSION_MINOR_ESP32      0   /*!< Minimal minor version for ESP32 */
 #define ESP_MIN_AT_VERSION_PATCH_ESP32      0   /*!< Minimal patch version for ESP32 */
 
 /**
