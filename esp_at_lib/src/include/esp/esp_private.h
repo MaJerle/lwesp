@@ -102,6 +102,7 @@ typedef enum {
     ESP_CMD_WIFI_CIPAP_GET,                     /*!< Get IP address of ESP access point */
     ESP_CMD_WIFI_CIPAP_SET,                     /*!< Set IP address of ESP access point */
     ESP_CMD_WIFI_CWLIF,                         /*!< Get connected stations on access point */
+    ESP_CMD_WIFI_CWQIF,                         /*!< Discnnect station from SoftAP */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_WPS || __DOXYGEN__
     ESP_CMD_WIFI_WPS,                           /*!< Set WPS option */
@@ -271,7 +272,7 @@ typedef struct esp_msg {
             size_t apsl;                        /*!< Length of input array of access points */
             size_t apsi;                        /*!< Current access point array */
             size_t* apf;                        /*!< Pointer to output variable holding number of access points found */
-        } ap_list;                              /*!< List for access points */
+        } ap_list;                              /*!< List for available access points to connect to */
 #endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
         struct {
@@ -287,7 +288,10 @@ typedef struct esp_msg {
             size_t stal;                        /*!< Length of input array of access points */
             size_t stai;                        /*!< Current access point array */
             size_t* staf;                       /*!< Pointer to output variable holding number of access points found */
-        } sta_list;                             /*!< List for stations */
+        } sta_list;                             /*!< List for stations connected to SoftAP */
+        struct {
+            esp_mac_t mac;                      /*!< MAC address to disconnect from access point */
+        } ap_disconn_sta;                       /*!< Disconnect station from access point */
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
         struct {
             esp_ip_t* ip;                       /*!< Pointer to IP variable */
@@ -298,12 +302,12 @@ typedef struct esp_msg {
             esp_mac_t* mac;                     /*!< Pointer to MAC variable */
         } sta_ap_getmac;                        /*!< Message for reading station or access point MAC address */
         struct {
-            const esp_ip_t* ip;                 /*!< Pointer to IP variable */
-            const esp_ip_t* gw;                 /*!< Pointer to gateway variable */
-            const esp_ip_t* nm;                 /*!< Pointer to netmask variable */
+            esp_ip_t ip;                        /*!< Pointer to IP variable */
+            esp_ip_t gw;                        /*!< Pointer to gateway variable */
+            esp_ip_t nm;                        /*!< Pointer to netmask variable */
         } sta_ap_setip;                         /*!< Message for setting station or access point IP */
         struct {
-            const esp_mac_t* mac;               /*!< Pointer to MAC variable */
+            esp_mac_t mac;                      /*!< Pointer to MAC variable */
         } sta_ap_setmac;                        /*!< Message for setting station or access point MAC address */
         struct {
             uint8_t sta;                        /*!< Set station DHCP settings */

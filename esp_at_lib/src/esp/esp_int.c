@@ -651,9 +651,6 @@ espi_parse_received(esp_recv_t* rcv) {
                         default: tmp = NULL; a = NULL; b = NULL; break;
                     }
                     if (tmp != NULL) {          /* Do we have temporary string? */
-                        if (rcv->data[6] == '_' || rcv->data[7] == '_') {   /* Do we have "_CUR" or "_DEF" included? */
-                            tmp += 4;           /* Skip it */
-                        }
                         if (*tmp == ':') {
                             ++tmp;
                         }
@@ -673,6 +670,10 @@ espi_parse_received(esp_recv_t* rcv) {
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWJAP_GET) && !strncmp(rcv->data, "+CWJAP", 6)) {
                 espi_parse_cwjap(rcv->data, esp.msg);/* Parse CWJAP */
 #endif /* ESP_CFG_MODE_STATION */
+#if ESP_CFG_MODE_ACCESS_POINT
+            } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWLIF) && !strncmp(rcv->data, "+CWLIF", 6)) {
+                espi_parse_cwlif(rcv->data, esp.msg);   /* Parse CWLIF entry */
+#endif /* ESP_CFG_MODE_ACCESS_POINT */
 #if ESP_CFG_DNS
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 espi_parse_cipdomain(rcv->data, esp.msg);   /* Parse CIPDOMAIN entry */
@@ -807,10 +808,6 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.ll.uart.baudrate = esp.msg->msg.uart.baudrate;  /* Save user baudrate */
                 esp_ll_init(&esp.ll);           /* Set new baudrate */
             }
-#if ESP_CFG_MODE_ACCESS_POINT
-        } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWLIF) && ESP_CHARISNUM(rcv->data[0])) {
-            espi_parse_cwlif(rcv->data, esp.msg);   /* Parse CWLIF entry */
-#endif /* ESP_CFG_MODE_ACCESS_POINT */
         }
     }
 
@@ -1781,11 +1778,11 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
             AT_PORT_SEND_CONST_STR("=");
-            espi_send_ip_mac(msg->msg.sta_ap_setip.ip, 1, 1, 0);/* Send IP address */
-            if (msg->msg.sta_ap_setip.gw != NULL) { /* Is gateway set? */
-                espi_send_ip_mac(msg->msg.sta_ap_setip.gw, 1, 1, 1);/* Send gateway address */
-                if (msg->msg.sta_ap_setip.nm != NULL) { /* Is netmask set ? */
-                    espi_send_ip_mac(msg->msg.sta_ap_setip.nm, 1, 1, 1);/* Send netmask address */
+            espi_send_ip_mac(&msg->msg.sta_ap_setip.ip, 1, 1, 0);   /* Send IP address */
+            if (msg->msg.sta_ap_setip.gw.ip[0] > 0) {   /* Is gateway set? */
+                espi_send_ip_mac(&msg->msg.sta_ap_setip.gw, 1, 1, 1);/* Send gateway address */
+                if (msg->msg.sta_ap_setip.nm.ip[0] > 0) {   /* Is netmask set ? */
+                    espi_send_ip_mac(&msg->msg.sta_ap_setip.nm, 1, 1, 1);   /* Send netmask address */
                 }
             }
             AT_PORT_SEND_END_AT();
@@ -1811,7 +1808,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
             AT_PORT_SEND_CONST_STR("MAC=");
-            espi_send_ip_mac(msg->msg.sta_ap_setmac.mac, 0, 1, 0);
+            espi_send_ip_mac(&msg->msg.sta_ap_setmac.mac, 0, 1, 0);
             AT_PORT_SEND_END_AT();
             break;
         }
@@ -1853,6 +1850,14 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWLIF");
             AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_WIFI_CWQIF: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWQIF=");
+            espi_send_ip_mac(&msg->msg.ap_disconn_sta.mac, 0, 1, 0);
+            AT_PORT_SEND_END_AT();
+            break;
             break;
         }
 #endif /* ESP_CFG_MODE_ACCESS_POINT */

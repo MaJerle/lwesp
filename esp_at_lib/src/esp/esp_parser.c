@@ -250,7 +250,7 @@ espi_parse_cipstatus(const char* str) {
 espr_t
 espi_parse_ciprecvdata(const char* str) {
     size_t len;
-    uint8_t conn;
+
     if (*str == '+') {
         str += 13;
     }
@@ -501,9 +501,13 @@ espi_parse_cwjap(const char* str, esp_msg_t* msg) {
  */
 uint8_t
 espi_parse_cwlif(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWLIF) ||      /* Do we have valid message here and enough memory to save everything? */
-        msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal) {
+    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWLIF)         /* Do we have valid message here and enough memory to save everything? */
+        || msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal) {
         return 0;
+    }
+
+    if (*str == '+') {
+        str += 7;
     }
 
     espi_parse_ip(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].ip);

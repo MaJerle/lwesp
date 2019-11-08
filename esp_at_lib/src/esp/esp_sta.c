@@ -193,9 +193,9 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm,
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTA_SET;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip = ip;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw = gw;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm = nm;
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip, ip, sizeof(*ip));
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw, gw, sizeof(*gw));
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm, nm, sizeof(*nm));
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -242,7 +242,7 @@ esp_sta_setmac(const esp_mac_t* mac,
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPSTAMAC_SET;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac, mac, sizeof(*mac));
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }

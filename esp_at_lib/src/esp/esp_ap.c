@@ -85,9 +85,9 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm,
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPAP_SET;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip = ip;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw = gw;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm = nm;
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.ip, ip, sizeof(*ip));
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw, gw, sizeof(*gw));
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm, nm, sizeof(*nm));
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -135,7 +135,7 @@ esp_ap_setmac(const esp_mac_t* mac,
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CIPAPMAC_SET;
-    ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac = mac;
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac, mac, sizeof(*mac));
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -210,6 +210,30 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf,
     ESP_MSG_VAR_REF(msg).msg.sta_list.stas = sta;
     ESP_MSG_VAR_REF(msg).msg.sta_list.stal = stal;
     ESP_MSG_VAR_REF(msg).msg.sta_list.staf = staf;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+}
+
+/**
+ * \brief           Disconnects connected station from SoftAP access point
+ * \param[in]       mac: Device MAC address to disconnect.
+ *                      Application may use \ref esp_ap_list_sta to obtain list of connected stations to SoftAP.
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_ap_disconn_sta(const esp_mac_t* mac,
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);
+
+    ESP_ASSERT("mac != NULL", mac != NULL);
+
+    ESP_MSG_VAR_ALLOC(msg, blocking);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWQIF;
+    ESP_MEMCPY(&ESP_MSG_VAR_REF(msg).msg.ap_disconn_sta.mac, mac, sizeof(*mac));
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
