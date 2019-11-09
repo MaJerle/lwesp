@@ -169,6 +169,12 @@ input_thread(void* arg) {
             esp_ap_configure("ESP8266_SSID", "its private", 13, ESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
         } else if (IS_LINE("apdisable")) {
             esp_set_wifi_mode(ESP_MODE_STA, NULL, NULL, 1);
+        } else if (IS_LINE("apliststa")) {
+            esp_sta_t stas[10];
+            size_t stat;
+
+            esp_ap_list_sta(stas, ESP_ARRAYSIZE(stas), &stat, NULL, NULL, 1);
+            printf("Number of stations: %d\r\n", (int)stat);
         } else if (IS_LINE("ping")) {
             uint32_t pingtime;
             esp_ping("example.com", &pingtime, NULL, NULL, 1);
