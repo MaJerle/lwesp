@@ -38,14 +38,13 @@
 
 #if !__DOXYGEN__
 
-static uint8_t initialized = 0;
-
-DWORD thread_id;
-HANDLE thread_handle;
-static void uart_thread(void* param);
-volatile HANDLE com_port;                       /*!< COM port handle */
-uint8_t data_buffer[0x1000];                    /*!< Received data array */
 volatile uint8_t esp_ll_win32_driver_ignore_data;
+static uint8_t initialized = 0;
+static HANDLE thread_handle;
+static volatile HANDLE com_port;                /*!< COM port handle */
+static uint8_t data_buffer[0x1000];             /*!< Received data array */
+
+static void uart_thread(void* param);
 
 /**
  * \brief           Send data to ESP device, function called from ESP stack when we have data to send
