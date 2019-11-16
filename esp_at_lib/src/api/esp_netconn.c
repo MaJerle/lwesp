@@ -38,6 +38,15 @@
 
 #if ESP_CFG_NETCONN || __DOXYGEN__
 
+/* Check conditions */
+#if ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN < 2
+#error "ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN must be greater or equal to 2"
+#endif /* ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN < 2 */
+
+#if ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN < 2
+#error "ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN must be greater or equal to 2"
+#endif /* ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN < 2 */
+
 /**
  * \brief           Sequential API structure
  */
@@ -336,7 +345,7 @@ esp_netconn_delete(esp_netconn_p nc) {
     }
 
     /* Remove netconn from linkedlist */
-    if (netconn_list == nc) {
+    if (nc == netconn_list) {
         netconn_list = netconn_list->next;      /* Remove first from linked list */
     } else if (netconn_list != NULL) {
         esp_netconn_p tmp, prev;
