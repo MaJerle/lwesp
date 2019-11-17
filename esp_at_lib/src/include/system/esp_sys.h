@@ -61,8 +61,8 @@ typedef void (*esp_sys_thread_fn)(void *);
  * Configure \ref ESP_CFG_SYS_PORT with one of these values to use preconfigured ports
  */
 
-#define ESP_SYS_PORT_CMSIS_OS               1   /*!< CMSIS-OS based port for OS systems capable of ARM CMSIS standard */
-#define ESP_SYS_PORT_WIN32                  2   /*!< WIN32 based port to use ESP library with Windows applications */
+#define ESP_SYS_PORT_WIN32                  1   /*!< WIN32 based port to use ESP library with Windows applications */
+#define ESP_SYS_PORT_CMSIS_OS               2   /*!< CMSIS-OS based port for OS systems capable of ARM CMSIS standard */
 #define ESP_SYS_PORT_USER                   99  /*!< User custom implementation.
                                                     When port is selected to user mode, user must provide "esp_sys_user.h" file,
                                                     which is not provided with library. Refer to `system/esp_sys_template.h` file for more information
@@ -73,13 +73,13 @@ typedef void (*esp_sys_thread_fn)(void *);
  */
 
 /* Decide which port to include */
-#if ESP_CFG_SYS_PORT == ESP_SYS_PORT_CMSIS_OS
-#include "system/esp_sys_cmsis_os.h"
-#elif ESP_CFG_SYS_PORT == ESP_SYS_PORT_WIN32
+#if ESP_CFG_SYS_PORT == ESP_SYS_PORT_WIN32
 #include "system/esp_sys_win32.h"
+#elif ESP_CFG_SYS_PORT == ESP_SYS_PORT_CMSIS_OS
+#include "system/esp_sys_cmsis_os.h"
 #elif ESP_CFG_SYS_PORT == ESP_SYS_PORT_USER
 #include "esp_sys_user.h"
-#endif
+#endif /* GSM_CFG_SYS_PORT check */
 
 uint8_t     esp_sys_init(void);
 uint32_t    esp_sys_now(void);
