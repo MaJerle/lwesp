@@ -389,6 +389,8 @@ espi_parse_at_sdk_version(const char* str, esp_sw_version_t* version_out) {
 
 /**
  * \brief           Parse +LINK_CONN received string for new connection active
+ * \param[in]       str: Pointer to input string starting with +LINK_CONN
+ * \return          `1` on success, `0` otherwise
  */
 uint8_t
 espi_parse_link_conn(const char* str) {
