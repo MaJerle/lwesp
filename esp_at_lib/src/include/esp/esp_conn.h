@@ -70,6 +70,8 @@ size_t      esp_conn_get_total_recved_count(esp_conn_p conn);
 uint8_t     esp_conn_get_remote_ip(esp_conn_p conn, esp_ip_t* ip);
 esp_port_t  esp_conn_get_remote_port(esp_conn_p conn);
 esp_port_t  esp_conn_get_local_port(esp_conn_p conn);
+espr_t      esp_conn_ssl_cfg(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+
 
 /**
  * \}

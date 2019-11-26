@@ -137,7 +137,7 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSNTPCFG,                   /*!< Configure SNTP servers */
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
 #endif /* ESP_SNT || __DOXYGEN__ */
-	ESP_CMD_TCPIP_SSLCCONF,                     /*!< Set the SSL configuration */
+    ESP_CMD_TCPIP_SSLCCONF,                     /*!< Set the SSL configuration */
     ESP_CMD_TCPIP_CIPDINFO,                     /*!< Configure what data are received on +IPD statement */
 #if ESP_CFG_PING || __DOXYGEN__
     ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
