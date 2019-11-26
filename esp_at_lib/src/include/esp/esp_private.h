@@ -121,6 +121,7 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSEND,                      /*!< Send network data */
     ESP_CMD_TCPIP_CIPCLOSE,                     /*!< Close active connection */
     ESP_CMD_TCPIP_CIPSSLSIZE,                   /*!< Set SSL buffer size for SSL connection */
+    ESP_CMD_TCPIP_CIPSSLCCONF,                  /*!< Set the SSL configuration */
     ESP_CMD_TCPIP_CIFSR,                        /*!< Get local IP */
     ESP_CMD_TCPIP_CIPMUX,                       /*!< Set single or multiple connections */
     ESP_CMD_TCPIP_CIPSERVER,                    /*!< Enables/Disables server mode */
@@ -137,7 +138,6 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSNTPCFG,                   /*!< Configure SNTP servers */
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
 #endif /* ESP_SNT || __DOXYGEN__ */
-    ESP_CMD_TCPIP_CIPSSLCCONF,                     /*!< Set the SSL configuration */
     ESP_CMD_TCPIP_CIPDINFO,                     /*!< Configure what data are received on +IPD statement */
 #if ESP_CFG_PING || __DOXYGEN__
     ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
