@@ -793,7 +793,7 @@ esp_conn_ssl_cfg(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_SSLCCONF;
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLCCONF;
     ESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.link_id = link_id;
     ESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.auth_mode = auth_mode;
     ESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.pki_number = pki_number;

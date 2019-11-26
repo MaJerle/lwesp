@@ -2137,7 +2137,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_SNTP */
-        case ESP_CMD_TCPIP_SSLCCONF: {       /* Set SSL Configuration */
+        case ESP_CMD_TCPIP_CIPSSLCCONF: {       /* Set SSL Configuration */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSSLCCONF=");
             espi_send_number(ESP_U32(msg->msg.tcpip_ssl_cfg.link_id), 0, 0);
