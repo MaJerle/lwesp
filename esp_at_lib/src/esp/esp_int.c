@@ -2137,7 +2137,15 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_SNTP */
-
+        case ESP_CMD_TCPIP_SSLCCONF: {       /* Set SSL Configuration */
+            	AT_PORT_SEND_BEGIN_AT();
+            	AT_PORT_SEND_CONST_STR("+CIPSSLCCONF=");
+            	espi_send_number(ESP_U32(msg->msg.tcpip_ssl_cfg.link_id), 0, 0);
+            	espi_send_number(ESP_U32(msg->msg.tcpip_ssl_cfg.auth_mode), 0, 1);
+            	espi_send_number(ESP_U32(msg->msg.tcpip_ssl_cfg.pki_number), 0, 1);
+            	espi_send_number(ESP_U32(msg->msg.tcpip_ssl_cfg.ca_number), 0, 1);
+            	AT_PORT_SEND_END_AT();
+        }
 #if ESP_CFG_ESP32
         case ESP_CMD_BLEINIT_GET: {
             AT_PORT_SEND_BEGIN_AT();
