@@ -137,6 +137,7 @@ typedef enum {
     ESP_CMD_TCPIP_CIPSNTPCFG,                   /*!< Configure SNTP servers */
     ESP_CMD_TCPIP_CIPSNTPTIME,                  /*!< Get current time using SNTP */
 #endif /* ESP_SNT || __DOXYGEN__ */
+    ESP_CMD_TCPIP_CIPSSLCCONF,                     /*!< Set the SSL configuration */
     ESP_CMD_TCPIP_CIPDINFO,                     /*!< Configure what data are received on +IPD statement */
 #if ESP_CFG_PING || __DOXYGEN__
     ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
@@ -414,6 +415,12 @@ typedef struct esp_msg {
             esp_port_t port;                    /*!< mDNS server port */
         } mdns;                                 /*!< mDNS configuration */
 #endif /* ESP_CFG_MDNS || __DOXYGEN__ */
+        struct {
+            uint8_t link_id;                    /*!< Link ID of connection to set SSL configuration for */
+            uint8_t auth_mode;                  /*!< Timezone setup */
+            uint8_t pki_number;                 /*!< The index of cert and private key, if only one cert and private key, the value should be 0. */
+            uint8_t ca_number;                  /*!< The index of CA, if only one CA, the value should be 0. */
+        } tcpip_ssl_cfg;
     } msg;                                      /*!< Group of different message contents */
 } esp_msg_t;
 
