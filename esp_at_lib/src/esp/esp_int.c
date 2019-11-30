@@ -510,7 +510,7 @@ espi_send_conn_error_cb(esp_msg_t* msg, espr_t error) {
 
 /**
  * \brief           Process received string from ESP
- * \param[in]       recv: Pointer to \ref esp_rect_t structure with input string
+ * \param[in]       rcv: Pointer to \ref esp_recv_t structure with input string
  */
 static void
 espi_parse_received(esp_recv_t* rcv) {

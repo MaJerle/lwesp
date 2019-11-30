@@ -538,7 +538,7 @@ http_post_send_to_user(http_state_t* hs, esp_pbuf_p pbuf, size_t offset) {
 
 /**
  * \brief           Read next part of response file
- * \param[in]       ht: HTTP state
+ * \param[in]       hs: HTTP state
  */
 static uint32_t
 read_resp_file(http_state_t* hs) {

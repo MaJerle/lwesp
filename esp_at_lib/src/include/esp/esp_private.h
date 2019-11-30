@@ -424,7 +424,7 @@ typedef struct esp_msg {
             uint8_t auth_mode;                  /*!< Timezone setup */
             uint8_t pki_number;                 /*!< The index of cert and private key, if only one cert and private key, the value should be 0. */
             uint8_t ca_number;                  /*!< The index of CA, if only one CA, the value should be 0. */
-        } tcpip_ssl_cfg;
+        } tcpip_ssl_cfg;                        /*!< SSl configuration for connection */
     } msg;                                      /*!< Group of different message contents */
 } esp_msg_t;
 

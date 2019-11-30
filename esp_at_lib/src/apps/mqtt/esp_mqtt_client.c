@@ -138,6 +138,7 @@ mqtt_msg_type_to_str(mqtt_msg_type_t msg_type) {
 
 /**
  * \brief           Default event callback function
+ * \param[in]       client: MQTT client
  * \param[in]       evt: MQTT event
  */
 static void
@@ -377,6 +378,7 @@ write_ack_rec_rel_resp(esp_mqtt_client_p client, mqtt_msg_type_t msg_type, uint1
  * \brief           Write string to output buffer
  * \param[in]       client: MQTT client
  * \param[in]       str: String to write to buffer
+ * \param[in]       len: Length of string
  */
 static void
 write_string(esp_mqtt_client_p client, const char* str, uint16_t len) {
@@ -443,6 +445,7 @@ mqtt_close(esp_mqtt_client_p client) {
  * \param[in]       client: MQTT client
  * \param[in]       topic: MQTT topic to (un)subscribe
  * \param[in]       qos: Quality of service, used only on subscribe part
+ * \param[in]       arg: Custom argument
  * \param[in]       sub: Status set to `1` on subscribe or `0` on unsubscribe
  * \return          `1` on success, `0` otherwise
  */

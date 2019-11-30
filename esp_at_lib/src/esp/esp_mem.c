@@ -303,7 +303,8 @@ mem_free(void* ptr) {
 
 /**
  * \brief           Allocate memory of specific size
- * \param[in]       size: Number of bytes to allocate
+ * \param[in]       num: Number of elements to allocate
+ * \param[in]       size: Size of element in units of bytes
  * \return          Memory address on success, `NULL` otherwise
  */
 static void *

@@ -38,7 +38,7 @@
 /**
  * \brief           Parse number from string
  * \note            Input string pointer is changed and number is skipped
- * \param[in]       Pointer to pointer to string to parse
+ * \param[in,out]   str: Pointer to pointer to string to parse
  * \return          Parsed number
  */
 int32_t
@@ -75,7 +75,7 @@ espi_parse_number(const char** str) {
 /**
  * \brief           Parse port from string
  * \note            Input string pointer is changed and number is skipped
- * \param[in]       Pointer to pointer to string to parse
+ * \param[in,out]   str: Pointer to pointer to string to parse
  * \return          Parsed port number
  */
 esp_port_t
@@ -89,7 +89,7 @@ espi_parse_port(const char** str) {
 /**
  * \brief           Parse number from string as hex
  * \note            Input string pointer is changed and number is skipped
- * \param[in]       Pointer to pointer to string to parse
+ * \param[in,out]   str: Pointer to pointer to string to parse
  * \return          Parsed number
  */
 uint32_t
@@ -168,7 +168,7 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
 /**
  * \brief           Parse string as IP address
  * \param[in,out]   src: Pointer to pointer to string to parse from
- * \param[in]       dst: Destination pointer
+ * \param[out]      ip: Pointer to IP memory
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
@@ -193,7 +193,7 @@ espi_parse_ip(const char** src, esp_ip_t* ip) {
 /**
  * \brief           Parse string as MAC address
  * \param[in,out]   src: Pointer to pointer to string to parse from
- * \param[in]       dst: Destination pointer
+ * \param[out]      mac: Pointer to MAC memory
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
@@ -467,7 +467,6 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
  * \brief           Parse received message for current AP information
  * \param[in]       str: Pointer to input string starting with +CWJAP
  * \param[in]       msg: Pointer to message
- * \param[in]       evt: Pointer to event
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
@@ -718,7 +717,6 @@ espi_parse_hostname(const char* str, esp_msg_t* msg) {
 /**
  * \brief           Parse received message for DHCP
  * \param[in]       str: Pointer to input string starting with +CWDHCP
- * \param[in]       msg: Pointer to message
  * \return          `1` on success, `0` otherwise
  */
 uint8_t

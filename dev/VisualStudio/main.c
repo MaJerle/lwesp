@@ -313,13 +313,13 @@ input_thread(void* arg) {
             char hn[20];
             esp_hostname_get(hn, sizeof(hn), NULL, NULL, 1);
             safeprintf("Hostname: %s\r\n", hn);
-        } else if (IS_LINE("netconnclient")) {
+        } else if (IS_LINE("netconn_client")) {
             esp_sys_sem_t sem;
             esp_sys_sem_create(&sem, 0);
             esp_sys_thread_create(NULL, "netconn_client", (esp_sys_thread_fn)netconn_client_thread, &sem, 0, ESP_SYS_THREAD_PRIO);
             esp_sys_sem_wait(&sem, 0);
             esp_sys_sem_delete(&sem);
-        } else if (IS_LINE("netconnserver")) {
+        } else if (IS_LINE("netconn_server")) {
             esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
         } else if (IS_LINE("mqttthread")) {
             esp_sys_thread_create(NULL, "mqtt_client_api", (esp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, ESP_SYS_THREAD_PRIO);

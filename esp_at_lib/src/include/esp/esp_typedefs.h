@@ -509,7 +509,7 @@ typedef struct {
         struct {
             esp_port_t local_port;              /*!< Custom local port for UDP */
             uint8_t mode;                       /*!< UDP mode. Set to `0` by default. Check ESP AT commands instruction set for more info when needed */
-        } udp;
+        } udp;                                  /*!< UPD specific features */
     } ext;                                      /*!< Extended support union */
 } esp_conn_start_t;
 
