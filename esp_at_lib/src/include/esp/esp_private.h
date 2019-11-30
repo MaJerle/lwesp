@@ -358,6 +358,10 @@ typedef struct esp_msg {
             esp_conn_t* conn;                   /*!< Connection handle */
             size_t len;                         /*!< Number of bytes to read */
             esp_pbuf_p buff;                    /*!< Buffer handle */
+            uint8_t ipd_recv;                   /*!< Status indicating `+IPD` has been received during `AT+CIPRECVLEN` command.
+                                                    When this happens, we need to repeat same command */
+            uint8_t is_last_check;              /*!< Status indicating check for data length is at the end of command.
+                                                    Do nothing after successful command */
         } ciprecvdata;                          /*!< Structure to manually read TCP data */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
