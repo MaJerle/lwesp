@@ -47,7 +47,7 @@
 									<listOptionValue builtIn="false" value="../../../../../third_party/embedded-libs/st_hal/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../../third_party/embedded-libs"/>
 									<listOptionValue builtIn="false" value="../../inc"/>
-									<listOptionValue builtIn="false" value="../../../../../ESP_AT_Lib/src/include"/>
+									<listOptionValue builtIn="false" value="../../../../../esp_at_lib/src/include"/>
 									<listOptionValue builtIn="false" value="../../../../../third_party/embedded-libs/FreeRTOS/portable/GCC/ARM_CM4F"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.definedsymbols.1698502957" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.definedsymbols" useByScannerDiscovery="false" valueType="definedSymbols">
