@@ -30,7 +30,7 @@ Follow documentation for more information on implementation and details.
 
 ## Contribute
 
-We always welcome new contributors. To be as efficient as possible, we recommend:
+Fresh contributions are always welcome. Simple instructions to proceed::
 
 1. Fork Github repository
 2. Respect C style & coding rules used by the library
