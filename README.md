@@ -1,4 +1,4 @@
-# ESP8266 AT commands parser for RTOS systems
+# ESP8266/ESP32 AT commands parser for RTOS systems
 
 ESP-AT Library commands parser is a generic, platform independent, library for communicating with ESP8266 Wi-Fi module using AT commands. Module is written in C99 and is independent from used platform. Its main targets are embedded system devices like ARM Cortex-M, AVR, PIC and others, but can easily work under `Windows`, `Linux` or `MAC` environments.
 
