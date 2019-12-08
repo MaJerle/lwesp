@@ -121,7 +121,8 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
     }
 
     /* Any available data to process? */
-    if (conn->tcp_available_bytes == 0) {
+    if (conn->tcp_available_bytes == 0
+        || !conn->status.f.active) {
         return espERR;
     }
 
@@ -138,6 +139,34 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
         conn->status.f.receive_is_command_queued = 1;   /* Command queued */
     }
     return res;
+}
+
+/**
+ * \brief           Callback function for checking receive length in manual TCP receive buffer
+ * \param[in]       res: Result of reading
+ * \param[in]       arg: Custom user argument
+ */
+static void
+check_available_rx_data_evt_fn(espr_t res, void* arg) {
+    /* Try to read data if possible */
+    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; ++i) {
+        espi_conn_manual_tcp_try_read_data(&esp.m.conns[i]);
+    }
+}
+
+/**
+ * \brief           Manually check for received buffer status for connections
+ * \return          \ref espOK on success, member of \ref espr_t otherwise
+ */
+espr_t
+espi_conn_check_available_rx_data(void) {
+    ESP_MSG_VAR_DEFINE(msg);
+
+    ESP_MSG_VAR_ALLOC(msg, 0);                  /* Allocate first, will return on failure */
+    ESP_MSG_VAR_SET_EVT(msg, check_available_rx_data_evt_fn, NULL); /* Set event callback function */
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPRECVLEN;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 

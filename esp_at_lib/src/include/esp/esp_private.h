@@ -601,6 +601,7 @@ espr_t      espi_send_cb(esp_evt_type_t type);
 espr_t      espi_send_conn_cb(esp_conn_t* conn, esp_evt_fn cb);
 void        espi_conn_init(void);
 void        espi_conn_start_timeout(esp_conn_p conn);
+espr_t      espi_conn_check_available_rx_data(void);
 espr_t      espi_conn_manual_tcp_try_read_data(esp_conn_p conn);
 espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t max_block_time);
 uint32_t    espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout);

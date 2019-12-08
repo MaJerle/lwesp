@@ -875,6 +875,9 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp.evt.evt.conn_active_close.forced = conn->status.f.client;   /* Set if action was forced = if client mode */
                 espi_send_conn_cb(conn, NULL);  /* Send event */
                 espi_conn_start_timeout(conn);  /* Start connection timeout timer */
+#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+                espi_conn_check_available_rx_data();
+#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
             }
         }
     /*
