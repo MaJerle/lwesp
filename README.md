@@ -2,12 +2,14 @@
 
 ESP-AT Library commands parser is a generic, platform independent, library for communicating with ESP8266 Wi-Fi module using AT commands. Module is written in C99 and is independent from used platform. Its main targets are embedded system devices like ARM Cortex-M, AVR, PIC and others, but can easily work under `Windows`, `Linux` or `MAC` environments.
 
-`ESP_AT_Lib` is a library for host device (MCU as an example) which drives ESP32 or ESP8266 devices running official `AT commands` firmware written and maintained by Espressif System.
+`esp-at-lib` is a library for host device (MCU as an example) which drives ESP32 or ESP8266 devices running official `AT commands` firmware written and maintained by Espressif System.
 Source of official firmware is publicly available at [esp32-at](https://github.com/espressif/esp-at) repository.
 
 If you are only interested in using module and not writing firmware for it, you may download pre-build AT firmware from [Espressif systems download section](https://www.espressif.com/en/support/download/at) and focus only on firmware development on host side, for which you need the library posted here.
 
 Follow documentation for more information on implementation and details.
+
+<h3><a href="https://majerle.eu/documentation/esp_at/html/index.html">Documentation</a></h3>
 
 ## Features
 
@@ -26,12 +28,15 @@ Follow documentation for more information on implementation and details.
 - Embeds other AT features, such as WPS management, custom DNS setup, Hostname for DHCP, Ping feature
 - User friendly MIT license
 
-## Documentation
+## Contribute
 
-Full API documentation with description and examples is available and is regulary updated with the source changes
+We always welcome new contributors. To be as efficient as possible, we recommend:
 
-http://majerle.eu/documentation/esp_at/html/index.html
+1. Fork Github repository
+2. Respect C style & coding rules used by the library
+3. Make a pull request to develop branch with new features or bug fixes
 
-## Contribution
+Alternatively you may:
 
-I invite you to give feature request or report a bug. Please use issues tracker.
+1. Report a bug
+2. Ask for a feature request
