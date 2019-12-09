@@ -1,6 +1,6 @@
 .. _api_cli_config:
 
-Configuration
-=============
+CLI Configuration
+=================
 
 .. doxygengroup:: CLI_CONFIG

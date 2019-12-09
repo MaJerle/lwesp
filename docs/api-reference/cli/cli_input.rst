@@ -1,7 +1,7 @@
 .. _api_cli_input:
 
-Input module
-============
+CLI Input module
+================
 
 .. doxygengroup:: CLI_INPUT
 	

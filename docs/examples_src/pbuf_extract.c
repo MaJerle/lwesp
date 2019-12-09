@@ -1,7 +1,7 @@
 const void* data;
 size_t pos, len;
-
 esp_pbuf_p a, b, c;
+
 const char str_a[] = "This is one long";
 const char str_a[] = "string. We want to save";
 const char str_a[] = "chain of pbufs to file";
@@ -36,9 +36,12 @@ do {
 	data = esp_pbuf_get_linear_addr(a, pos, &len);
 	if (data != NULL) {
 		/* Custom process function... */
-		process_data(data, len);				/* Process data with data pointer and block length */
+		/* Process data with data pointer and block length */
+		process_data(data, len);
 		printf("Str: %.*s", len, data);
-		pos += len;								/* Increase offset position for next block */
+
+		/* Increase offset position for next block */
+		pos += len;
 	}
 } while (data != NULL);
 

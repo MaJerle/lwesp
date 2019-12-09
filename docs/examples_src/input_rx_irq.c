@@ -1,8 +1,6 @@
 /*
  * esp_ll.c file with LL communication
  * enables RX interrupt for AT port communication
- *
- *
  */
 ...
 esp_ll_init(...) {
