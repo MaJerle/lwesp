@@ -28,21 +28,21 @@ esp_pbuf_chain(a, c);
  */
 pos = 0;
 do {
-	/*
-	 * Get linear address of current pbuf at specific offset
-	 * Function will return pointer to memory address at specific position
-	 * and will save length of data block
-	 */
-	data = esp_pbuf_get_linear_addr(a, pos, &len);
-	if (data != NULL) {
-		/* Custom process function... */
-		/* Process data with data pointer and block length */
-		process_data(data, len);
-		printf("Str: %.*s", len, data);
+    /*
+     * Get linear address of current pbuf at specific offset
+     * Function will return pointer to memory address at specific position
+     * and will save length of data block
+     */
+    data = esp_pbuf_get_linear_addr(a, pos, &len);
+    if (data != NULL) {
+        /* Custom process function... */
+        /* Process data with data pointer and block length */
+        process_data(data, len);
+        printf("Str: %.*s", len, data);
 
-		/* Increase offset position for next block */
-		pos += len;
-	}
+        /* Increase offset position for next block */
+        pos += len;
+    }
 } while (data != NULL);
 
 /* Call free only on a pbuf. Since we have chain, b and c will be freed aswell */

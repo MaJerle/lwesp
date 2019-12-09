@@ -4,15 +4,15 @@
  */
 ...
 esp_ll_init(...) {
-	...
-	...
-	...
+    ...
+    ...
+    ...
 
-	/* 
-	 * Configure UART for communication
-	 * and enable AT RX received data interrupt
-	 */
-	configure_uart(...);
+    /* 
+     * Configure UART for communication
+     * and enable AT RX received data interrupt
+     */
+    configure_uart(...);
 }
 
 /*
@@ -20,16 +20,16 @@ esp_ll_init(...) {
  */
 void
 AT_PORT_IRQ_Handler(void) {
-	uint8_t ch;
+    uint8_t ch;
 
-	/* Read received character from AT port */
-	ch = ...
+    /* Read received character from AT port */
+    ch = ...
 
-	/*
-	 * Send character to upper buffer layer
-	 * 
-	 * Use esp_input function which will write element
-	 * to input buffer with raw data
-	 */
-	esp_input(&ch, 1);
+    /*
+     * Send character to upper buffer layer
+     * 
+     * Use esp_input function which will write element
+     * to input buffer with raw data
+     */
+    esp_input(&ch, 1);
 }

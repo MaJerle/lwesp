@@ -1,5 +1,6 @@
 /* Request data are sent to server once we are connected */
-uint8_t req_data[] = ""
+static const uint8_t
+req_data[] = ""
     "GET / HTTP/1.1\r\n"
     "Host: example.com\r\n"
     "Connection: close\r\n"
@@ -31,7 +32,7 @@ conn_evt(esp_evt_t* evt) {
         }
         
         /* Connection closed event */
-        case ESP_EVT_CONN_CLOSED: {
+        case ESP_EVT_CONN_CLOSE: {
             printf("Connection closed!\r\n");
             if (evt->evt.conn_active_closed.forced) {   /* Was it forced by user? */
                 printf("Connection closed by user\r\n");
@@ -62,8 +63,8 @@ conn_evt(esp_evt_t* evt) {
                 len = esp_pbuf_length(pbuf, 1); /* Get total length of buffer */
                 printf("Length of data: %d bytes\r\n", (int)len);
             }
-			
-			esp_conn_recved(conn, pbuf);        /* Notify stack about received data */ 
+            
+            esp_conn_recved(conn, pbuf);        /* Notify stack about received data */ 
         }
         default:
             break;
