@@ -384,7 +384,7 @@
 /**
  * \brief           Set debug level for dynamic variable allocations
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_VAR
 #define ESP_CFG_DBG_VAR                     ESP_DBG_OFF
