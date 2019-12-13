@@ -101,8 +101,8 @@ extern "C" {
 /**
  * \brief           Enables `1` or disables `0` method not allowed response.
  *
- *                  Response is used in case user makes HTTP request with method
- *                  which is not on the list of allowed methods. See \ref http_req_method_t
+ * Response is used in case user makes HTTP request with method
+ * which is not on the list of allowed methods. See \ref http_req_method_t
  *
  * \note            When disabled, connection will be closed without response
  */
@@ -113,12 +113,12 @@ extern "C" {
 /**
  * \brief           Enables `1` or disables `1` default static files
  *
- *                  To allow fast startup of server development,
- *                  several static files are included by default:
- *                      - /index.html
- *                      - /index.shtml
- *                      - /js/style.css
- *                      - /js/js.js
+ * To allow fast startup of server development,
+ * several static files are included by default:
+ *  - /index.html
+ *  - /index.shtml
+ *  - /js/style.css
+ *  - /js/js.js
  */
 #ifndef HTTP_USE_DEFAULT_STATIC_FILES
 #define HTTP_USE_DEFAULT_STATIC_FILES       1
@@ -127,11 +127,11 @@ extern "C" {
 /**
  * \brief           Enables `1` or disables `0` dynamic headers support
  *
- *                  With dynamic headers enabled, script will try to detect most common
- *                  file extensions and will try to response with:
- *                      - HTTP response code as first line
- *                      - Server name as second line
- *                      - Content type as third line including end of headers (empty line)
+ * With dynamic headers enabled, script will try to detect most common
+ * file extensions and will try to response with:
+ *  - HTTP response code as first line
+ *  - Server name as second line
+ *  - Content type as third line including end of headers (empty line)
  */
 #ifndef HTTP_DYNAMIC_HEADERS
 #define HTTP_DYNAMIC_HEADERS                1
@@ -140,9 +140,9 @@ extern "C" {
 /**
  * \brief           Enables `1` or disables `0` content length header for response
  *
- *                  If response has fixed length without SSI tags,
- *                  dynamic headers will try to include "Content-Length" header
- *                  as part of response message sent to client
+ * If response has fixed length without SSI tags,
+ * dynamic headers will try to include "Content-Length" header
+ * as part of response message sent to client
  *
  * \note            In order to use this, \ref HTTP_DYNAMIC_HEADERS must be enabled
  */

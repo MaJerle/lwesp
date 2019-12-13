@@ -156,12 +156,12 @@
 #endif
 
 /**
- * \brief           Maximum single buffer size for network receive data (TCP/UDP connections)
+ * \brief           Maximum single buffer size for network receive data on active connection
  *
- * \note            When ESP sends buffer buffer than maximal, multiple buffers are created
+ * \note            When ESP sends buffer bigger than maximal, multiple buffers are created
  */
-#ifndef ESP_CFG_IPD_MAX_BUFF_SIZE
-#define ESP_CFG_IPD_MAX_BUFF_SIZE           1460
+#ifndef ESP_CFG_CONN_MAX_RECV_BUFF_SIZE
+#define ESP_CFG_CONN_MAX_RECV_BUFF_SIZE     1460
 #endif
 
 /**
@@ -384,7 +384,7 @@
 /**
  * \brief           Set debug level for dynamic variable allocations
  *
- *                  Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
+ * Possible values are \ref ESP_DBG_ON or \ref ESP_DBG_OFF
  */
 #ifndef ESP_CFG_DBG_VAR
 #define ESP_CFG_DBG_VAR                     ESP_DBG_OFF

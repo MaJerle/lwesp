@@ -178,7 +178,8 @@ esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail) {
 /**
  * \brief           Unchain first pbuf from list and return second one
  *
- *                  `tot_len` and `len` fields are adjusted to reflect new values and reference counter is as is
+ * `tot_len` and `len` fields are adjusted to reflect new values and reference counter is `as is`
+ * 
  * \note            After unchain, user must take care of both pbufs (`head` and `new returned one`)
  * \param[in]       head: First pbuf in chain to remove from chain
  * \return          Next pbuf after `head`
