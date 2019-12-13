@@ -9,7 +9,7 @@ List of all the modules:
 	:maxdepth: 2
 
 	esp/index
-	esp_config
+	config
 	port/index
 	apps/index
 	cli/index
