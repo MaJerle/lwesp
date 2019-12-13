@@ -391,7 +391,7 @@ size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len
  */
 
 #ifdef __cplusplus
-};
+}
 #endif /* __cplusplus */
 
 #endif /* ESP_HDR_HTTP_SERVER_H */

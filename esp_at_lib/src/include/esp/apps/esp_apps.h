@@ -51,7 +51,7 @@ extern "C" {
  */
 
 #ifdef __cplusplus
-};
+}
 #endif /* __cplusplus */
 
 #endif /* ESP_HDR_HTTP_SERVER_H */

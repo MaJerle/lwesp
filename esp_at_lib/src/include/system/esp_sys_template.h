@@ -125,7 +125,7 @@ typedef osPriority_t        esp_sys_thread_prio_t;
  */
 
 #ifdef __cplusplus
-};
+}
 #endif /* __cplusplus */
 
 #endif /* ESP_HDR_SYSTEM_H */

@@ -64,7 +64,7 @@ typedef UBaseType_t                 esp_sys_thread_prio_t;
 #endif /* ESP_CFG_OS && !__DOXYGEN__ */
 
 #ifdef __cplusplus
-};
+}
 #endif /* __cplusplus */
 
 #endif /* ESP_HDR_SYSTEM_FREERTOS_OS_H */

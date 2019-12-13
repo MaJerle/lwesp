@@ -56,7 +56,7 @@ uint8_t     http_fs_close(http_fs_file_t* file);
  */
 
 #ifdef __cplusplus
-};
+}
 #endif /* __cplusplus */
 
 #endif /* ESP_HDR_HTTP_SERVER_H */
