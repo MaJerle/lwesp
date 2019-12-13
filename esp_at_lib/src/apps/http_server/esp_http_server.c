@@ -100,7 +100,7 @@ typedef enum {
 /**
  * \brief           Array of supported response strings
  */
-static const char* const
+static const char * const
 http_dynstrs[] = {
     /* Response code */
     "HTTP/1.1 200 OK" CRLF,

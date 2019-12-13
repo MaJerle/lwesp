@@ -1105,7 +1105,7 @@ espi_process(const void* data, size_t data_len) {
                      *  - Connection is not in closing state
                      */
                     if (esp.m.ipd.buff != NULL && esp.m.ipd.rem_len > 0 && !esp.m.ipd.conn->status.f.in_closing) {
-                        size_t new_len = ESP_MIN(esp.m.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE); /* Calculate new buffer length */
+                        size_t new_len = ESP_MIN(esp.m.ipd.rem_len, ESP_CFG_CONN_MAX_RECV_BUFF_SIZE);   /* Calculate new buffer length */
 
                         ESP_DEBUGF(ESP_CFG_DBG_IPD | ESP_DBG_TYPE_TRACE,
                             "[IPD] Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
@@ -1216,7 +1216,7 @@ espi_process(const void* data, size_t data_len) {
                                 "[IPD] Data on connection %d with total size %d byte(s)\r\n",
                                 (int)esp.m.ipd.conn->num, (int)esp.m.ipd.tot_len);
 
-                            len = ESP_MIN(esp.m.ipd.rem_len, ESP_CFG_IPD_MAX_BUFF_SIZE);
+                            len = ESP_MIN(esp.m.ipd.rem_len, ESP_CFG_CONN_MAX_RECV_BUFF_SIZE);
 
                             /*
                              * Read received data in case of:
