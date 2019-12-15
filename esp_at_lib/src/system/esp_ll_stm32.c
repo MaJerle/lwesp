@@ -83,7 +83,6 @@ static osMessageQueueId_t usart_ll_mbox_id;
  */
 static void
 usart_ll_thread(void* arg) {
-    static size_t old_pos;
     size_t pos;
 
     ESP_UNUSED(arg);
