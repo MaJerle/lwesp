@@ -1454,7 +1454,7 @@ espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t*
         } else if (msg->i == 1 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTART)) {
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTATUS);   /* Go to status mode */
         } else if (msg->i == 2 && CMD_IS_CUR(ESP_CMD_TCPIP_CIPSTATUS)) {
-            /* Check if connect actually succedded */
+            /* Check if connect actually succeeded */
             if (!msg->msg.conn_start.success) {
                 *is_ok = 0;
                 *is_error = 1;
