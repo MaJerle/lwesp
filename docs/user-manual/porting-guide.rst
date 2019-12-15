@@ -7,6 +7,12 @@ High level of *ESP-AT* library is platform independent, written in ANSI C99,
 however there is an important part where middleware needs to communicate with target *ESP* device
 and it must work under different optional operating systems chosed by final customer.
 
+Implement low-level part
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Implement system functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Example: Low-level driver for WIN32
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -45,6 +51,24 @@ Notes:
 
 .. literalinclude:: ../../esp_at_lib/src/system/esp_ll_stm32.c
 	:language: c
+
+Example: System functions for WIN32
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: ../../esp_at_lib/src/include/system/esp_sys_win32.h
+  :language: c
+  
+.. literalinclude:: ../../esp_at_lib/src/system/esp_sys_win32.c
+  :language: c
+
+Example: System functions for CMSIS-OS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: ../../esp_at_lib/src/include/system/esp_sys_cmsis_os.h
+  :language: c
+
+.. literalinclude:: ../../esp_at_lib/src/system/esp_sys_cmsis_os.c
+  :language: c
 
 .. toctree::
     :maxdepth: 2
