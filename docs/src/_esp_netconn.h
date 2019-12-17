@@ -72,7 +72,7 @@
  * \par             Example code
  *
  * An example shows single netconn thread which waits for new client.
- * When new client is accepted, it will initiate a new thread with client handle and will immediatelly wait for next client,
+ * When new client is accepted, it will initiate a new thread with client handle and will immediately wait for next client,
  * instead of waiting to process current client.
  *
  * \include         _example_netconn_server_threads.c

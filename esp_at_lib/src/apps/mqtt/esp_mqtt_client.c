@@ -1004,7 +1004,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
     if (conn != NULL) {
         client = esp_conn_get_arg(conn);        /* Get client structure from connection */
         if (client == NULL) {
-            esp_conn_close(conn, 0);            /* Force connection close immediatelly */
+            esp_conn_close(conn, 0);            /* Force connection close immediately */
             return espERR;
         }
     } else if (evt->type != ESP_EVT_CONN_ERROR) {

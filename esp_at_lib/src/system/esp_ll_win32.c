@@ -112,7 +112,7 @@ configure_uart(uint32_t baudrate) {
             printf("Cannot set COM PORT info\r\n");
         }
         if (GetCommTimeouts(com_port, &timeouts)) {
-            /* Set timeout to return immediatelly from ReadFile function */
+            /* Set timeout to return immediately from ReadFile function */
             timeouts.ReadIntervalTimeout = MAXDWORD;
             timeouts.ReadTotalTimeoutConstant = 0;
             timeouts.ReadTotalTimeoutMultiplier = 0;

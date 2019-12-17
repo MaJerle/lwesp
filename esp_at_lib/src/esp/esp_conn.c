@@ -632,7 +632,7 @@ esp_conn_get_from_evt(esp_evt_t* evt) {
  * \param[in]       conn: Connection to write
  * \param[in]       data: Data to copy to write buffer
  * \param[in]       btw: Number of bytes to write
- * \param[in]       flush: Flush flag. Set to `1` if you want to send data immediatelly after copying
+ * \param[in]       flush: Flush flag. Set to `1` if you want to send data immediately after copying
  * \param[out]      mem_available: Available memory size available in current write buffer.
  *                  When the buffer length is reached, current one is sent and a new one is automatically created.
  *                  If function returns \ref espOK and `*mem_available = 0`, there was a problem
