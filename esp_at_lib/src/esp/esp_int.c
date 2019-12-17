@@ -2221,7 +2221,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     }
 
     if (msg->is_blocking) {                     /* In case message is blocking */
-        if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediatelly */
+        if (!esp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediately */
             ESP_MSG_VAR_FREE(msg);              /* Release memory and return */
             return espERRMEM;
         }
@@ -2234,7 +2234,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     if (msg->is_blocking) {
         esp_sys_mbox_put(&esp.mbox_producer, msg);  /* Write message to producer queue and wait forever */
     } else {
-        if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediatelly */
+        if (!esp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediately */
             ESP_MSG_VAR_FREE(msg);              /* Release message */
             return espERRMEM;
         }

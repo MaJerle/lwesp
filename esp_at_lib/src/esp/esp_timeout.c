@@ -50,7 +50,7 @@ get_next_timeout_diff(void) {
     }
     diff = esp_sys_now() - last_timeout_time;   /* Get difference between current time and last process time */
     if (diff >= first_timeout->time) {          /* Are we over already? */
-        return 0;                               /* We have to immediatelly process this timeout */
+        return 0;                               /* We have to immediately process this timeout */
     }
     return first_timeout->time - diff;          /* Return remaining time for sleep */
 }

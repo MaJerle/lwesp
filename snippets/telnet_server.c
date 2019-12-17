@@ -17,7 +17,8 @@ static bool close_conn = false;
 
 static void telnet_cli_exit(cli_printf cliprintf, int argc, char** argv);
 
-static const cli_command_t telnet_commands[] = {
+static const cli_command_t
+telnet_commands[] = {
     { "exit",           "Close/Exit the terminal",                  telnet_cli_exit },
     { "close",          "Close/Exit the terminal",                  telnet_cli_exit },
 };
@@ -48,7 +49,7 @@ telnet_cli_printf(const char *fmt, ...) {
     len = vsprintf(tempStr, fmt, argptr);
     va_end(argptr);
 
-    if (len && len < 128 ) {
+    if (len > 0 && len < 128) {
         esp_netconn_write(client, (uint8_t *)tempStr, len);
     }
 }
@@ -64,20 +65,20 @@ telnet_client_config(esp_netconn_p nc) {
     uint8_t cfg_data[12];
 
     /* do echo 'I will echo your chars' (RFC 857) */
-    cfg_data[0] = 0xff;
-    cfg_data[1] = 0xfd;
-    cfg_data[2] = 0x1;
+    cfg_data[0] = 0xFF;
+    cfg_data[1] = 0xFD;
+    cfg_data[2] = 0x01;
     /* will echo */
-    cfg_data[3] = 0xff;
-    cfg_data[4] = 0xfb;
-    cfg_data[5] = 0x1;
+    cfg_data[3] = 0xFF;
+    cfg_data[4] = 0xFB;
+    cfg_data[5] = 0x01;
     /* will SGA */
-    cfg_data[6] = 0xff;
-    cfg_data[7] = 0xfb;
-    cfg_data[8] = 0x3;
+    cfg_data[6] = 0xFF;
+    cfg_data[7] = 0xFB;
+    cfg_data[8] = 0x03;
     /* don't LINEMODE 'Send each char as you get it' (RFC 1184) */
-    cfg_data[9] = 0xff;
-    cfg_data[10] = 0xfe;
+    cfg_data[9] = 0xFF;
+    cfg_data[10] = 0xFE;
     cfg_data[11] = 0x22;
 
     res = esp_netconn_write(nc, cfg_data, sizeof(cfg_data));
@@ -230,15 +231,18 @@ telnet_server_thread(void const* arg) {
         }
 
         while (1) {
+            const uint8_t* in_data;
+            size_t length;
+
             res = esp_netconn_receive(client, &pbuf);
             if (res == espCLOSED) {
                 break;
             }
 
-            const uint8_t * in_data = esp_pbuf_data(pbuf);
-            size_t length = esp_pbuf_length(pbuf, 1); /* Get length of received packet */
+            in_data = esp_pbuf_data(pbuf);
+            length = esp_pbuf_length(pbuf, 1);  /* Get length of received packet */
 
-            for (int i = 0; i < length; i++) {
+            for (size_t i = 0; i < length; ++i) {
                 if (!telnet_command_sequence_check(in_data[i])) {
                     cli_in_data(telnet_cli_printf, in_data[i]);
                 }
