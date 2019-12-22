@@ -35,6 +35,7 @@
 #include "esp/esp.h"
 #include "station_manager.h"
 #include "netconn_client.h"
+#include "client.h"
 
 static void LL_Init(void);
 void SystemClock_Config(void);
@@ -43,7 +44,6 @@ static void USART_Printf_Init(void);
 static void init_thread(void* arg);
 
 static espr_t esp_callback_func(esp_evt_t* evt);
-static espr_t conn_callback_func(esp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -73,7 +73,6 @@ main(void) {
  */
 static void
 init_thread(void* arg) {
-    espr_t res;
 
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
@@ -91,78 +90,10 @@ init_thread(void* arg) {
      */
     connect_to_preferred_access_point(1);
 
-    /* Start a new connection as client in non-blocking mode */
-    if ((res = esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "example.com", 80, NULL, conn_callback_func, 0)) == espOK) {
-        printf("Connection to example.com started...\r\n");
-    } else {
-        printf("Cannot start connection to example.com!\r\n");
-    }
+    /* Start client connections */
+    client_connect();
 
     osThreadExit();
-}
-
-/**
- * \brief           Request data for connection
- */
-static const
-uint8_t req_data[] = ""
-"GET / HTTP/1.1\r\n"
-"Host: example.com\r\n"
-"Connection: close\r\n"
-"\r\n";
-
-/**
- * \brief           Event callback function for connection-only
- * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref espr_t otherwise
- */
-static espr_t
-conn_callback_func(esp_evt_t* evt) {
-    esp_conn_p conn;
-    espr_t res;
-
-    conn = esp_conn_get_from_evt(evt);          /* Get connection handle from event */
-    if (conn == NULL) {
-        return espERR;
-    }
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_CONN_ACTIVE: {             /* Connection just active */
-            printf("Connection active!\r\n");
-            res = esp_conn_send(conn, req_data, sizeof(req_data) - 1, NULL, 0); /* Start sending data in non-blocking mode */
-            if (res == espOK) {
-                printf("Sending request data to server...\r\n");
-            } else {
-                printf("Cannot send request data to server. Closing connection manually...\r\n");
-                esp_conn_close(conn, 0);        /* Close the connection */
-            }
-            break;
-        }
-        case ESP_EVT_CONN_CLOSE: {              /* Connection closed */
-            if (esp_evt_conn_close_is_forced(evt)) {
-                printf("Connection closed by client!\r\n");
-            } else {
-                printf("Connection closed by remote side!\r\n");
-            }
-            break;
-        }
-        case ESP_EVT_CONN_SEND: {               /* Data send event */
-            espr_t res = esp_evt_conn_send_get_result(evt);
-            if (res == espOK) {
-                printf("Data sent successfully...waiting to receive data from remote side...\r\n");
-            } else {
-                printf("Error while sending data!\r\n");
-            }
-            break;
-        }
-        case ESP_EVT_CONN_RECV: {               /* Data received from remote side */
-            esp_pbuf_p pbuf = esp_evt_conn_recv_get_buff(evt);
-            esp_conn_recved(conn, pbuf);        /* Notify stack about received pbuf */
-            printf("Received %d bytes on connection..\r\n", (int)esp_pbuf_length(pbuf, 1));
-            break;
-        }
-        default: break;
-    }
-    return espOK;
 }
 
 /**

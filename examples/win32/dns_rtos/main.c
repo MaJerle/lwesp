@@ -33,6 +33,7 @@
  */
 #include "esp/esp.h"
 #include "station_manager.h"
+#include "dns.h"
 
 static espr_t esp_callback_func(esp_evt_t* evt);
 
@@ -41,7 +42,6 @@ static espr_t esp_callback_func(esp_evt_t* evt);
  */
 int
 main(void) {
-    esp_ip_t ip;
     printf("Starting ESP application!\r\n");
 
     /* Initialize ESP with default callback function */
@@ -60,12 +60,12 @@ main(void) {
      */
     connect_to_preferred_access_point(1);
 
-    /* Use DNS protocol to get IP address of domain name */
-    if (esp_dns_gethostbyname("example.com", &ip, NULL, NULL, 1) == espOK) {
-        printf("DNS record for example.com: %d.%d.%d.%d\r\n",
-            (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3]);
-    } else {
-        printf("Error on DNS resolver\r\n");
+    /* Start DNS request */
+    dns_start();
+
+    /* Do not stop execution */
+    while (1) {
+        esp_delay(1000);
     }
 
     return 0;

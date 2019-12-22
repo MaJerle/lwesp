@@ -184,6 +184,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/system/esp_sys_cmsis_os.c</locationURI>
 		</link>
 		<link>
+			<name>ESP SNIPPETS/client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/snippets/client.c</locationURI>
+		</link>
+		<link>
 			<name>ESP SNIPPETS/station_manager.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/snippets/station_manager.c</locationURI>
