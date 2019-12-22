@@ -17,7 +17,7 @@ and it can be called from one of these ``3`` threads:
 
 - *Producing thread*
 - *Processing thread*
-- *Input thread*, when ``ESP_CFG_INPUT_USE_PROCESS`` is enabled and ``esp_input_process`` function is called 
+- *Input thread*, when :c:macro:`ESP_CFG_INPUT_USE_PROCESS` is enabled and :cpp:func:`esp_input_process` function is called 
 
 .. tip::
     Check :ref:`um_inter_thread_comm` for more details about *Producing* and *Processing* thread.
@@ -39,11 +39,11 @@ It is used by the application to receive any kind of event, except the one relat
 
 By default, global event function is single function.
 If the application tries to split different events with different callback functions,
-it is possible to do so by using ``esp_evt_register`` function to register a new,
+it is possible to do so by using :cpp:func:`esp_evt_register` function to register a new,
 custom, event function.
 
 .. tip::
-    Implementation of :ref:`api_app_netconn` leverages ``esp_evt_register`` to 
+    Implementation of :ref:`api_app_netconn` leverages :cpp:func:`esp_evt_register` to 
     receive event when station disconnected from wifi access point.
     Check its source file for actual implementation.
 
@@ -57,13 +57,13 @@ This events are subset of global event callback.
 They work exactly the same way as global, but only receive events related to connections.
 
 .. tip::
-    Connection related events start with ``ESP_EVT_CONN_*``. 
+    Connection related events start with ``ESP_EVT_CONN_*``, such as :c:member:`ESP_EVT_CONN_RECV`. 
     Check :ref:`api_esp_evt` for list of all connection events.
 
 Connection events callback function is set for ``2`` cases:
 
-* Each client (when application starts connection) sets event callback function when trying to connect with ``esp_conn_start`` function
-* Application sets global event callback function when enabling server mode with ``esp_set_server`` function
+* Each client (when application starts connection) sets event callback function when trying to connect with :cpp:func:`esp_conn_start` function
+* Application sets global event callback function when enabling server mode with :cpp:func:`esp_set_server` function
 
 .. literalinclude:: ../../snippets/client.c
     :language: c

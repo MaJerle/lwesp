@@ -55,7 +55,7 @@ Functions need to provide:
 Low-level implementation
 ************************
 
-Low-Level, or `ESP_LL`, is part, dedicated for communication between *ESP-AT* middleware and *ESP* physical device.
+Low-Level, or *ESP_LL*, is part, dedicated for communication between *ESP-AT* middleware and *ESP* physical device.
 Application needs to implement output function to send necessary *AT command* instruction aswell as implement
 *input module* to send received data from *ESP* device to *ESP-AT* middleware.
 

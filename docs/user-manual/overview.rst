@@ -30,7 +30,7 @@ Now it is time to use *ESP-AT Lib* you are reading this manual for.
 * Shorten time to market
 
 Customers using *ESP-AT Lib* do not need to take care about proper command for specific task,
-they can call API functions, such as ``esp_sta_join`` to join WiFi network instead.
+they can call API functions, such as :cpp:func:`esp_sta_join` to join WiFi network instead.
 Library will take the necessary steps in order to send right command to device via low-level driver (usually UART) and 
 process incoming response from device before it will notify application layer if it was successfuly or not.
 
