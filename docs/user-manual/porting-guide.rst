@@ -5,7 +5,13 @@ Porting guide
 
 High level of *ESP-AT* library is platform independent, written in ANSI C99,
 however there is an important part where middleware needs to communicate with target *ESP* device
-and it must work under different optional operating systems chosed by final customer.
+and it must work under different optional operating systems selected by final customer.
+
+Porting consists of:
+
+* Implementation of *low-level* part, for actual communication between host device and *ESP* device
+* Implementation of system functions, link between target operating system and middleware functions
+* Assignment of memory for allocation manager
 
 Implement low-level part
 ^^^^^^^^^^^^^^^^^^^^^^^^

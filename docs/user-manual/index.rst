@@ -8,8 +8,8 @@ User manual
 
     overview
     architecture
-    porting-guide
     inter-thread-comm
-    blocking-nonblocking
     events-cb-fn
+    blocking-nonblocking
+    porting-guide
     
