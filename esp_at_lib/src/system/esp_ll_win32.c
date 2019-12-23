@@ -48,9 +48,6 @@ static void uart_thread(void* param);
 
 /**
  * \brief           Send data to ESP device, function called from ESP stack when we have data to send
- * \param[in]       data: Pointer to data to send
- * \param[in]       len: Number of bytes to send
- * \return          Number of bytes sent
  */
 static size_t
 send_data(const void* data, size_t len) {
@@ -129,7 +126,7 @@ configure_uart(uint32_t baudrate) {
 
     /* On first function call, create a thread to read data from COM port */
     if (!initialized) {
-        thread_handle = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)uart_thread, NULL, 0, 0);
+        esp_sys_thread_create(&thread_handle, "esp_ll_thread", uart_thread, NULL, 0, 0);
     }
 }
 
@@ -192,7 +189,6 @@ uart_thread(void* param) {
 
 /**
  * \brief           Reset device GPIO management
- * \note            Dummy function, not available under Windows port for NodeMCU (only UART pins available)
  */
 static uint8_t
 reset_device(uint8_t state) {
@@ -201,15 +197,6 @@ reset_device(uint8_t state) {
 
 /**
  * \brief           Callback function called from initialization process
- *
- * \note            This function may be called multiple times if AT baudrate is changed from application.
- *                  It is important that every configuration except AT baudrate is configured only once!
- *
- * \note            This function may be called from different threads in ESP stack when using OS.
- *                  When \ref ESP_CFG_INPUT_USE_PROCESS is set to 1, this function may be called from user UART thread.
- *
- * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ll_init(esp_ll_t* ll) {
@@ -244,13 +231,11 @@ esp_ll_init(esp_ll_t* ll) {
 
 /**
  * \brief           Callback function to de-init low-level communication part
- * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ll_deinit(esp_ll_t* ll) {
     if (thread_handle != NULL) {
-        CloseHandle(thread_handle);             /* Close handle */
+        esp_sys_thread_terminate(&thread_handle);
         thread_handle = NULL;
     }
     initialized = 0;                            /* Clear initialized flag */

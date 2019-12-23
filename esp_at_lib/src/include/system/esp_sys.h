@@ -79,7 +79,7 @@ typedef void (*esp_sys_thread_fn)(void *);
 #include "system/esp_sys_cmsis_os.h"
 #elif ESP_CFG_SYS_PORT == ESP_SYS_PORT_USER
 #include "esp_sys_user.h"
-#endif /* GSM_CFG_SYS_PORT check */
+#endif /* ESP_CFG_SYS_PORT check */
 
 uint8_t     esp_sys_init(void);
 uint32_t    esp_sys_now(void);

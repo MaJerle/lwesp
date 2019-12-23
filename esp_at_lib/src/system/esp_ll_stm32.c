@@ -304,7 +304,7 @@ reset_device(uint8_t state) {
 #endif /* defined(ESP_RESET_PIN) */
 
 /**
- * \brief           Send data to GSM device
+ * \brief           Send data to ESP device
  * \param[in]       data: Pointer to data to send
  * \param[in]       len: Number of bytes to send
  * \return          Number of bytes sent
@@ -322,10 +322,6 @@ send_data(const void* data, size_t len) {
 
 /**
  * \brief           Callback function called from initialization process
- * \note            This function may be called multiple times if AT baudrate is changed from application
- * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
- * \param[in]       baudrate: Baudrate to use on AT port
- * \return          Member of \ref espr_t enumeration
  */
 espr_t
 esp_ll_init(esp_ll_t* ll) {
@@ -354,8 +350,6 @@ esp_ll_init(esp_ll_t* ll) {
 
 /**
  * \brief           Callback function to de-init low-level communication part
- * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
 esp_ll_deinit(esp_ll_t* ll) {
