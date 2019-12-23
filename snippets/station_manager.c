@@ -12,9 +12,8 @@ ap_entry_t
 ap_list[] = {
     //{ "SSID name", "SSID password" },
     { "TilenM_ST", "its private" },
-    //{ "Majerle AMIS", "majerle_internet_private" },
     { "Majerle WIFI", "majerle_internet_private" },
-    { "Slikop.", "slikop2012" },
+    { "Majerle AMIS", "majerle_internet_private" },
 };
 
 /**
@@ -96,99 +95,4 @@ connect_to_preferred_access_point(uint8_t unlimited) {
         }
     } while (1);
     return espERR;
-}
-
-static size_t last_index = 0;
-static uint8_t is_listing = 0, is_connected;
-
-static void
-scan_access_points(void) {
-    if (!is_listing) {
-        if (esp_sta_list_ap(NULL, aps, ESP_ARRAYSIZE(aps), &apf, NULL, NULL, 0) == espOK) {
-            printf("Access point scan started\r\n");
-            is_listing = 1;                 /* Start scan procedure in async way */
-        } else {
-            printf("Access point scan failed\r\n");
-        }
-    }
-}
-
-static void
-join_to_next_ap(void) {
-    if (esp_sta_is_joined()) {
-        last_index = 0;
-        return;
-    }
-    if (last_index >= apf) {
-        last_index = 0;
-        scan_access_points();               /* Scan access points */
-        return;
-    }
-
-    /* Continue with other access points */
-    for (; last_index < apf; last_index++) {
-        for (size_t i = 0; i < ESP_ARRAYSIZE(ap_list); i++) {
-            if (!strcmp(aps[last_index].ssid, ap_list[i].ssid)) {
-                printf("Start connection to %s access point\r\n", aps[last_index].ssid);
-                if (esp_sta_join(ap_list[i].ssid, ap_list[i].pass, NULL, NULL, NULL, 0) == espOK) {
-                    last_index++;               /* Manually increase index */
-                    return;
-                }
-            }
-        }
-    }
-}
-
-/**
- * \brief           Callback function for access points operation
- */
-static espr_t
-access_points_cb(esp_evt_t* evt) {
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_STA_LIST_AP: {
-            is_listing = 0;
-            printf("Access points listed!\r\n");
-            last_index = 0;
-            join_to_next_ap();
-            break;
-        }
-        case ESP_EVT_WIFI_CONNECTED: {
-            is_connected = 1;
-            printf("Wifi connected!\r\n");
-            break;
-        }
-        case ESP_EVT_WIFI_GOT_IP: {
-            printf("Wifi got IP!\r\n");
-            is_connected = 1;
-            break;
-        }
-        case ESP_EVT_WIFI_DISCONNECTED: {
-            if (is_connected) {
-                scan_access_points();
-            }
-            is_connected = 0;
-            join_to_next_ap();
-            break;
-        }
-        case ESP_EVT_STA_JOIN_AP: {
-            espr_t status = esp_evt_sta_join_ap_get_result(evt);
-            if (status != espOK) {
-                printf("Join NOT OK.\r\n");
-                join_to_next_ap();
-            }
-            break;
-        }
-        default: break;
-    }
-    return espOK;
-}
-
-/**
- * \brief           Start async scan of access points and connect to preferred.
- *                  If station gets disconnected from access point, start procedure again
- */
-void
-start_access_point_scan_and_connect_procedure(void) {
-    esp_evt_register(access_points_cb);         /* Register access points */
-    scan_access_points();                       /* Scan for access points */
 }
