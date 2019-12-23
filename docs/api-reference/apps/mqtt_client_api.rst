@@ -3,4 +3,10 @@
 MQTT Client API
 ===============
 
+*MQTT Client API* provides sequential API built on top of :ref:`api_app_mqtt_client`.
+
+.. literalinclude:: ../../../snippets/mqtt_client_api.c
+    :language: c
+    :caption: MQTT API application example code
+
 .. doxygengroup:: ESP_APP_MQTT_CLIENT_API

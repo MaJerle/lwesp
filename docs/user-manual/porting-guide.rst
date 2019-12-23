@@ -16,8 +16,46 @@ Porting consists of:
 Implement low-level part
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+To successfully implement all parts of *low-level* driver, application must take care of:
+
+* Implementing :cpp:func:`esp_ll_init` and :cpp:func:`esp_ll_deinit` callback functions
+* Implement and assign *send data* and optional *hardware reset* functions callbacks
+* Assign memory for allocation manager when using default allocator
+* Process received data from *ESP* device and send them to input module for further processing
+
+.. tip::
+    Port examples are available for STM32 and WIN32 architectures.
+    Both actual working and up-to-date implementations are available within the library.
+
+.. note::
+    Check :ref:`api_esp_input` for more information about direct & indirect input processing.
+
 Implement system functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+System functions are bridge between operating system calls and *ESP* middleware.
+*ESP* library relies on stable operating system features and its implementation and
+does not require any special features which do not normally come with operating systems.
+
+Operating system must support:
+
+* Thread management
+* Mutex management
+* Binary semaphores
+* Message queues
+
+.. warning::
+    If any of the features are not available within targeted operating system,
+    customer needs to resolve it with care. As an example, message queue is not available
+    in WIN32 OS API therefore custom message queue has been implemented using binary semaphores
+
+Application needs to implement all system call functions, starting with ``esp_sys_``.
+It must also prepare header file for standard types in order to support OS types within *ESP* middleware.
+
+An example code is provided latter section of this page for WIN32 and STM32.
+
+.. note::
+    Check :ref:`api_esp_sys` for function prototypes.
 
 Example: Low-level driver for WIN32
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
