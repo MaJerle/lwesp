@@ -112,7 +112,8 @@ After concating *2 pbufs* together, reference counter of second is still set to 
 An example code showing proper usage of concat operation:
 
 .. literalinclude:: ../../examples_src/pbuf_cat.c
-	:language: c
+    :language: c
+    :caption: Packet buffer concat example
 
 Chain operation
 ***************
@@ -135,7 +136,8 @@ After chainin *2 pbufs* together, reference counter of second is increased by ``
 An example code showing proper usage of chain operation:
 
 .. literalinclude:: ../../examples_src/pbuf_chain.c
-	:language: c
+    :language: c
+    :caption: Packet buffer chain example
 
 Extract pbuf data
 *****************
@@ -147,5 +149,6 @@ An example code showing proper reading of any *pbuf*:
 
 .. literalinclude:: ../../examples_src/pbuf_extract.c
 	:language: c
+    :caption: Packet buffer data extraction
 
 .. doxygengroup:: ESP_PBUF

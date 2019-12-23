@@ -67,3 +67,4 @@ This file shall be named ``esp_config.h`` and its default template looks like th
 
 .. literalinclude:: ../../esp_at_lib/src/include/esp/esp_config_template.h
     :language: c
+    :caption: Config file template

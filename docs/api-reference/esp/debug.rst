@@ -28,8 +28,10 @@ An example code with config and latter usage:
 
 .. literalinclude:: ../../examples_src/debug_config.h
     :language: c
+    :caption: Debug configuration setup
 
 .. literalinclude:: ../../examples_src/debug.c
     :language: c
+    :caption: Debug usage within middleware
 
 .. doxygengroup:: ESP_DEBUG

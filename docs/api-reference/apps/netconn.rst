@@ -32,16 +32,17 @@ Every netconn connection uses dedicated structure to handle message queue for da
 Each time new packet is received (red block, *data received event*), reference to it is written to message queue of netconn structure, while application thread reads new entries from the same queue to get packets.
 
 .. literalinclude:: ../../../snippets/netconn_client.c
-	:language: c
+    :language: c
+    :caption: Netconn client example
 
 Netconn server
 ^^^^^^^^^^^^^^
 
 .. figure:: ../../static/images/netconn_server_1thread.svg
-	:align: center
-	:alt: Netconn API server block diagram
+    :align: center
+    :alt: Netconn API server block diagram
 
-	Netconn API server block diagram
+    Netconn API server block diagram
 
 When netconn is configured in server mode, it is possible to accept new clients from remote side.
 Application creates *netconn server connection*, which can only accept *clients* and cannot send/receive any data.
@@ -67,6 +68,7 @@ It waits for client and processes it in blocking mode.
 
 .. literalinclude:: ../../../snippets/netconn_server_1thread.c
 	:language: c
+    :caption: Netconn server with single processing thread
 
 Netconn server concurrency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,6 +91,7 @@ Every time *server application thread* (green block) gets new client to process,
 
 .. literalinclude:: ../../../snippets/netconn_server.c
 	:language: c
+    :caption: Netconn server with multiple processing threads
 
 Non-blocking receive
 ^^^^^^^^^^^^^^^^^^^^

@@ -24,6 +24,7 @@ Example code:
 
 .. literalinclude:: ../examples_src/command_blocking.c
 	:language: c
+    :caption: Blocking command example
 
 Non-blocking mode
 ^^^^^^^^^^^^^^^^^
@@ -39,6 +40,7 @@ Example code:
 
 .. literalinclude:: ../examples_src/command_nonblocking.c
 	:language: c
+    :caption: Non-blocking command example
 
 .. warning::
 	When using non-blocking API calls, do not use local variables as parameter. 
@@ -48,6 +50,7 @@ Example of a bad code:
 
 .. literalinclude:: ../examples_src/command_nonblocking_bad.c
 	:language: c
+    :caption: Example of bad usage of non-blocking command
 
 .. toctree::
     :maxdepth: 2
