@@ -1,5 +1,5 @@
-#ifndef __NETCONN_CLIENT_H
-#define __NETCONN_CLIENT_H
+#ifndef SNIPPET_HDR_NETCONN_CLIENT_H
+#define SNIPPET_HDR_NETCONN_CLIENT_H
 
 #ifdef __cplusplus
 extern "C" {

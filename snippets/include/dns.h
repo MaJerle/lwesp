@@ -1,5 +1,5 @@
-#ifndef __DNS_H
-#define __DNS_H
+#ifndef SNIPPET_HDR_DNS_H
+#define SNIPPET_HDR_DNS_H
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,5 +1,5 @@
-#ifndef __SNTP_H
-#define __SNTP_H
+#ifndef SNIPPET_HDR_SNTP_H
+#define SNIPPET_HDR_SNTP_H
 
 #ifdef __cplusplus
 extern "C" {

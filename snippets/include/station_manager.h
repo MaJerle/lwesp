@@ -1,5 +1,5 @@
-#ifndef __STATION_MANAGER_H
-#define __STATION_MANAGER_H
+#ifndef SNIPPET_HDR_STATION_MANAGER_H
+#define SNIPPET_HDR_STATION_MANAGER_H
 
 #ifdef __cplusplus
 extern "C" {

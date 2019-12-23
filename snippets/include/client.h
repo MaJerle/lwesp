@@ -1,5 +1,5 @@
-#ifndef __CLIENT_H
-#define __CLIENT_H
+#ifndef SNIPPET_HDR_CLIENT_H
+#define SNIPPET_HDR_CLIENT_H
 
 #ifdef __cplusplus
 extern "C" {

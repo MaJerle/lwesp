@@ -1,5 +1,5 @@
-#ifndef __TELNET_SERVER_H
-#define __TELNET_SERVER_H
+#ifndef SNIPPET_HDR_TELNET_SERVER_H
+#define SNIPPET_HDR_TELNET_SERVER_H
 
 #ifdef __cplusplus
 extern "C" {

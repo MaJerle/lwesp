@@ -1,5 +1,5 @@
-#ifndef __HTTP_SERVER_H
-#define __HTTP_SERVER_H
+#ifndef SNIPPET_HDR_HTTP_SERVER_H
+#define SNIPPET_HDR_HTTP_SERVER_H
 
 #ifdef __cplusplus
 extern "C" {
