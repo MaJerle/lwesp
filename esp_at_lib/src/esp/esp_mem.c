@@ -335,7 +335,7 @@ mem_realloc(void* ptr, size_t size) {
         return mem_alloc(size);                 /* Only allocate memory */
     }
 
-    old_size = MEM_BLOCK_USER_SIZE(ptr);       	/* Get size of old pointer */
+    old_size = MEM_BLOCK_USER_SIZE(ptr);        /* Get size of old pointer */
     new_ptr = mem_alloc(size);                  /* Try to allocate new memory block */
     if (new_ptr != NULL) {
         ESP_MEMCPY(new_ptr, ptr, ESP_MIN(size, old_size));  /* Copy old data to new array */

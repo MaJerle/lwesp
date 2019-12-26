@@ -39,9 +39,9 @@
  * STM32 TX (ESP RX):   GPIOD, GPIO_PIN_5
  * STM32 RX (ESP TX):   GPIOD, GPIO_PIN_6
  * RESET:               GPIOD, GPIO_PIN_1
- * GPIO0:				GPIOD, GPIO_PIN_4
- * GPIO2:				GPIOD, GPIO_PIN_7
- * CH_PD:				GPIOD, GPIO_PIN_3
+ * GPIO0:               GPIOD, GPIO_PIN_4
+ * GPIO2:               GPIOD, GPIO_PIN_7
+ * CH_PD:               GPIOD, GPIO_PIN_3
  *
  * USART_DMA:           DMA1
  * USART_DMA_STREAM:    DMA_STREAM_5

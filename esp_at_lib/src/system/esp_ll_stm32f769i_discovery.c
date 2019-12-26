@@ -35,7 +35,7 @@
 /*
  * Default UART configuration is (Connector CN2 on board):
  *
- * UART: 				UART5
+ * UART:                UART5
  * STM32 TX (ESP RX):   GPIOC, GPIO_PIN_12
  * STM32 RX (ESP TX):   GPIOD, GPIO_PIN_2
  * RESET:               GPIOJ, GPIO_PIN_14
