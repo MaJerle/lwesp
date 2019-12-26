@@ -1,5 +1,5 @@
 /**
- * \file            esp_sys_cmsis_os.h
+ * \file            esp_sys_port.h
  * \brief           CMSIS-OS based system file
  */
 
@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_SYSTEM_CMSIS_OS_H
-#define ESP_HDR_SYSTEM_CMSIS_OS_H
+#ifndef ESP_HDR_SYSTEM_PORT_H
+#define ESP_HDR_SYSTEM_PORT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,16 +42,16 @@ extern "C" {
 #include <stdlib.h>
 
 #include "esp_config.h"
+#include "cmsis_os.h"
 
 #if ESP_CFG_OS && !__DOXYGEN__
-
-#include "cmsis_os.h"
 
 typedef osMutexId_t                 esp_sys_mutex_t;
 typedef osSemaphoreId_t             esp_sys_sem_t;
 typedef osMessageQueueId_t          esp_sys_mbox_t;
 typedef osThreadId_t                esp_sys_thread_t;
 typedef osPriority_t                esp_sys_thread_prio_t;
+
 #define ESP_SYS_MBOX_NULL           ((esp_sys_mbox_t)0)
 #define ESP_SYS_SEM_NULL            ((esp_sys_sem_t)0)
 #define ESP_SYS_MUTEX_NULL          ((esp_sys_mutex_t)0)
@@ -65,4 +65,4 @@ typedef osPriority_t                esp_sys_thread_prio_t;
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_SYSTEM_CMSIS_OS_H */
+#endif /* ESP_HDR_SYSTEM_PORT_H */

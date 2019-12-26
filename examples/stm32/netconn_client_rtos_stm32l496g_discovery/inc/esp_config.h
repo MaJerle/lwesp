@@ -36,7 +36,6 @@
 
 /* User specific config */
 #define ESP_CFG_AT_ECHO                     1
-#define ESP_CFG_SYS_PORT                    ESP_SYS_PORT_CMSIS_OS
 #define ESP_CFG_INPUT_USE_PROCESS           1
 
 #define ESP_CFG_NETCONN                     1

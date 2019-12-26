@@ -175,5 +175,17 @@
     <ClCompile Include="..\..\..\lwmem\lwmem\src\system\lwmem_sys_win32.c">
       <Filter>Source Files\LWMEM</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\snippets\client.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\snippets\dns.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\snippets\sntp.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\snippets\telnet_server.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

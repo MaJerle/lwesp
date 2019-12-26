@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.;..\..\ESP_AT_Lib\src\include;..\..\snippets\include;..\..\..\lwmem\lwmem\src\include;$(IncludePath)</IncludePath>
+    <IncludePath>.;..\..\esp_at_lib\src\include\system\port\win32;..\..\esp_at_Lib\src\include;..\..\snippets\include;..\..\..\lwmem\lwmem\src\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -151,6 +151,8 @@
     <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_ping.c" />
     <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_utils.c" />
     <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_mem_lwmem.c" />
+    <ClCompile Include="..\..\snippets\client.c" />
+    <ClCompile Include="..\..\snippets\dns.c" />
     <ClCompile Include="..\..\snippets\http_server.c" />
     <ClCompile Include="..\..\snippets\mqtt_client.c" />
     <ClCompile Include="..\..\snippets\mqtt_client_api.c" />
@@ -158,6 +160,7 @@
     <ClCompile Include="..\..\snippets\netconn_client.c" />
     <ClCompile Include="..\..\snippets\netconn_server.c" />
     <ClCompile Include="..\..\snippets\netconn_server_1thread.c" />
+    <ClCompile Include="..\..\snippets\sntp.c" />
     <ClCompile Include="..\..\snippets\station_manager.c" />
     <ClCompile Include="..\..\ESP_AT_Lib\src\api\esp_netconn.c" />
     <ClCompile Include="..\..\ESP_AT_Lib\src\apps\http_server\esp_http_server.c" />
@@ -186,6 +189,7 @@
     <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_wps.c" />
     <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_ll_win32.c" />
     <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_sys_win32.c" />
+    <ClCompile Include="..\..\snippets\telnet_server.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

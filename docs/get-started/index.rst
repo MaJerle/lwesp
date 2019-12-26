@@ -51,8 +51,10 @@ Add library to project
 At this point it is assumed that you have successfully download library, either cloned it or from releases page.
 
 * Copy ``esp_at_lib`` folder to your project
-* Add ``esp_at_lib/src/include`` folder to `include path` of your toolchain
+* Add ``esp_at_lib/src/include`` folder to *include path* of your toolchain
+* Add folder to port ``esp_at_lib/src/include/system/port/_arch_`` folder to *include path* of your toolchain
 * Add source files from ``esp_at_lib/src/`` folder to toolchain build
+* Add source files from ``esp_at_lib/src/system/`` folder to toolchain build for arch port
 * Copy ``esp_at_lib/src/include/esp/esp_config_template.h`` to project folder and rename it to ``esp_config.h``
 * Build the project
 

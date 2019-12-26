@@ -1,6 +1,6 @@
 /**
- * \file            esp_sys_freertos_os.h
- * \brief           FreeRTOS native port
+ * \file            esp_sys_port.h
+ * \brief           WIN32 based system file implementation
  */
 
 /*
@@ -30,10 +30,9 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
- * Author:          Adrian Carpenter (FreeRTOS port)
  */
-#ifndef ESP_HDR_SYSTEM_FREERTOS_OS_H
-#define ESP_HDR_SYSTEM_FREERTOS_OS_H
+#ifndef ESP_HDR_SYSTEM_PORT_H
+#define ESP_HDR_SYSTEM_PORT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,28 +42,27 @@ extern "C" {
 #include <stdlib.h>
 
 #include "esp_config.h"
+#include "windows.h"
 
 #if ESP_CFG_OS && !__DOXYGEN__
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
 
-typedef SemaphoreHandle_t           esp_sys_mutex_t;
-typedef SemaphoreHandle_t           esp_sys_sem_t;
-typedef QueueHandle_t               esp_sys_mbox_t;
-typedef TaskHandle_t                esp_sys_thread_t;
-typedef UBaseType_t                 esp_sys_thread_prio_t;
+typedef HANDLE                      esp_sys_mutex_t;
+typedef HANDLE                      esp_sys_sem_t;
+typedef HANDLE                      esp_sys_mbox_t;
+typedef HANDLE                      esp_sys_thread_t;
+typedef int                         esp_sys_thread_prio_t;
 
-#define ESP_SYS_MBOX_NULL           (QueueHandle_t)0
-#define ESP_SYS_SEM_NULL            (SemaphoreHandle_t)0
-#define ESP_SYS_MUTEX_NULL          (SemaphoreHandle_t)0
-#define ESP_SYS_TIMEOUT             ((TickType_t)portMAX_DELAY)
-#define ESP_SYS_THREAD_PRIO         (1)
+#define ESP_SYS_MBOX_NULL           ((HANDLE)0)
+#define ESP_SYS_SEM_NULL            ((HANDLE)0)
+#define ESP_SYS_MUTEX_NULL          ((HANDLE)0)
+#define ESP_SYS_TIMEOUT             (INFINITE)
+#define ESP_SYS_THREAD_PRIO         (0)
 #define ESP_SYS_THREAD_SS           (1024)
+
 #endif /* ESP_CFG_OS && !__DOXYGEN__ */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_SYSTEM_FREERTOS_OS_H */
+#endif /* ESP_HDR_SYSTEM_PORT_H */

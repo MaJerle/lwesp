@@ -1859,7 +1859,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
         }
 
 #if ESP_CFG_MODE_ACCESS_POINT
-        case ESP_CMD_WIFI_CWSAP_SET: {          /* Set access point parameters */
+        case ESP_CMD_WIFI_CWSAP_SET: {          /* Set soft-access point parameters */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWSAP=");
             espi_send_string(msg->msg.ap_conf.ssid, 1, 1, 0);
@@ -1871,13 +1871,13 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-        case ESP_CMD_WIFI_CWLIF: {              /* List stations connected on access point */
+        case ESP_CMD_WIFI_CWLIF: {              /* List stations connected on soft-access point */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWLIF");
             AT_PORT_SEND_END_AT();
             break;
         }
-        case ESP_CMD_WIFI_CWQIF: {
+        case ESP_CMD_WIFI_CWQIF: {              /* Disconnect station from soft-access point */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWQIF=");
             espi_send_ip_mac(&msg->msg.ap_disconn_sta.mac, 0, 1, 0);
