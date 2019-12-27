@@ -39,10 +39,10 @@ does not require any special features which do not normally come with operating 
 
 Operating system must support:
 
-* Thread management
-* Mutex management
-* Binary semaphores
-* Message queues
+* Thread management functions
+* Mutex management functions
+* Binary semaphores only, no need for counting semaphores
+* Message queue management functions
 
 .. warning::
     If any of the features are not available within targeted operating system,
@@ -53,6 +53,15 @@ Application needs to implement all system call functions, starting with ``esp_sy
 It must also prepare header file for standard types in order to support OS types within *ESP* middleware.
 
 An example code is provided latter section of this page for WIN32 and STM32.
+
+Steps to follow
+***************
+
+* Copy ``esp_at_lib/src/system/esp_sys_template.c`` to the same folder and rename it to application port, eg. ``esp_sys_win32.c``
+* Open newly created file and implement all system functions
+* Copy folder ``esp_at_lib/src/include/system/port/template/*`` to the same folder and rename *folder name* to application port, eg. ``cmsis_os``
+* Open ``esp_sys_port.h`` file from newly created folder and implement all *typedefs* and *macros* for specific target
+* Add source file to compiler sources and add path to header file to include paths in compiler options
 
 .. note::
     Check :ref:`api_esp_sys` for function prototypes.
