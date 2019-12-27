@@ -2242,7 +2242,7 @@ espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *)
     if (res == espOK && msg->is_blocking) {     /* In case we have blocking request */
         uint32_t time;
         time = esp_sys_sem_wait(&msg->sem, 0);  /* Wait forever for semaphore */
-        if (time == ESP_SYS_TIMEOUT) {          /* If semaphore was not accessed in given time */
+        if (time == ESP_SYS_TIMEOUT) {          /* If semaphore was not accessed within given time */
             res = espTIMEOUT;                   /* Semaphore not released in time */
         } else {
             res = msg->res;                     /* Set response status from message response */
