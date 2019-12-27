@@ -52,9 +52,9 @@ typedef osMessageQueueId_t          esp_sys_mbox_t;
 typedef osThreadId_t                esp_sys_thread_t;
 typedef osPriority_t                esp_sys_thread_prio_t;
 
-#define ESP_SYS_MBOX_NULL           ((esp_sys_mbox_t)0)
-#define ESP_SYS_SEM_NULL            ((esp_sys_sem_t)0)
 #define ESP_SYS_MUTEX_NULL          ((esp_sys_mutex_t)0)
+#define ESP_SYS_SEM_NULL            ((esp_sys_sem_t)0)
+#define ESP_SYS_MBOX_NULL           ((esp_sys_mbox_t)0)
 #define ESP_SYS_TIMEOUT             ((uint32_t)osWaitForever)
 #define ESP_SYS_THREAD_PRIO         (osPriorityNormal)
 #define ESP_SYS_THREAD_SS           (512)

@@ -41,7 +41,6 @@ extern "C" {
 #include "esp/esp.h"
 
 /**
- * \ingroup         ESP_PORT
  * \defgroup        ESP_LL Low-level functions
  * \brief           Low-level communication functions
  * \{
