@@ -33,6 +33,7 @@ Each time new packet is received (red block, *data received event*), reference t
 
 .. literalinclude:: ../../../snippets/netconn_client.c
     :language: c
+    :linenos:
     :caption: Netconn client example
 
 Netconn server
@@ -67,7 +68,8 @@ It waits for client and processes it in blocking mode.
     Check netconn concurrency option to process multiple clients at the same time
 
 .. literalinclude:: ../../../snippets/netconn_server_1thread.c
-	:language: c
+    :language: c
+    :linenos:
     :caption: Netconn server with single processing thread
 
 Netconn server concurrency
@@ -90,7 +92,8 @@ Every time *server application thread* (green block) gets new client to process,
 * Higher memory footprint is necessary as there are multiple threads active
 
 .. literalinclude:: ../../../snippets/netconn_server.c
-	:language: c
+    :language: c
+    :linenos:
     :caption: Netconn server with multiple processing threads
 
 Non-blocking receive

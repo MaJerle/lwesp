@@ -24,6 +24,7 @@ Example code:
 
 .. literalinclude:: ../examples_src/command_blocking.c
     :language: c
+    :linenos:
     :caption: Blocking command example
 
 Non-blocking mode
@@ -40,6 +41,7 @@ Example code:
 
 .. literalinclude:: ../examples_src/command_nonblocking.c
     :language: c
+    :linenos:
     :caption: Non-blocking command example
 
 .. warning::
@@ -50,6 +52,7 @@ Example of a bad code:
 
 .. literalinclude:: ../examples_src/command_nonblocking_bad.c
     :language: c
+    :linenos:
     :caption: Example of bad usage of non-blocking command
 
 .. toctree::

@@ -27,8 +27,9 @@ Example below shows *bare minimum* implementation to:
 * Process received data in event and print number of received bytes 
 
 .. literalinclude:: ../../../snippets/client.c
-	:language: c
-	:caption: Client connection minimum example
+    :language: c
+    :linenos:
+    :caption: Client connection minimum example
 
 Sending data
 ^^^^^^^^^^^^
@@ -54,8 +55,9 @@ Temporary buffer hence prevents many *send command* instructions as it is faster
 than many of them with smaller chunks of bytes.
 
 .. literalinclude:: ../../examples_src/conn_write.c
-	:language: c
-	:caption: Write data to connection output buffer
+    :language: c
+    :linenos:
+    :caption: Write data to connection output buffer
 
 Transmit packet manually
 ************************

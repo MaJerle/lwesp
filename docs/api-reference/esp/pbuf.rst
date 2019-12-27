@@ -113,6 +113,7 @@ An example code showing proper usage of concat operation:
 
 .. literalinclude:: ../../examples_src/pbuf_cat.c
     :language: c
+    :linenos:
     :caption: Packet buffer concat example
 
 Chain operation
@@ -137,6 +138,7 @@ An example code showing proper usage of chain operation:
 
 .. literalinclude:: ../../examples_src/pbuf_chain.c
     :language: c
+    :linenos:
     :caption: Packet buffer chain example
 
 Extract pbuf data
@@ -148,7 +150,8 @@ It is necessary to process block by block manually.
 An example code showing proper reading of any *pbuf*:
 
 .. literalinclude:: ../../examples_src/pbuf_extract.c
-	:language: c
+    :language: c
+    :linenos:
     :caption: Packet buffer data extraction
 
 .. doxygengroup:: ESP_PBUF

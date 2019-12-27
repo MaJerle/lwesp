@@ -49,6 +49,7 @@ custom, event function.
 
 .. literalinclude:: ../../esp_at_lib/src/api/esp_netconn.c
     :language: c
+    :linenos:
     :caption: Netconn API module actual implementation
 
 Connection specific event
@@ -68,6 +69,7 @@ Connection events callback function is set for ``2`` cases:
 
 .. literalinclude:: ../../snippets/client.c
     :language: c
+    :linenos:
     :caption: An example of client with its dedicated event callback function
 
 API call event
@@ -89,6 +91,7 @@ used to distinguis domain name (when multiple domains are to be resolved).
 
 .. literalinclude:: ../../snippets/dns.c
     :language: c
+    :linenos:
     :caption: Simple example for API call event, using DNS module
 
 .. toctree::

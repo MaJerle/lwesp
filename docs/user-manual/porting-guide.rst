@@ -88,6 +88,7 @@ Notes:
 
 .. literalinclude:: ../../esp_at_lib/src/system/esp_ll_win32.c
     :language: c
+    :linenos:
     :caption: Actual implementation of low-level driver for WIN32
 
 Example: Low-level driver for STM32
@@ -105,6 +106,7 @@ Notes:
 
 .. literalinclude:: ../../esp_at_lib/src/system/esp_ll_stm32.c
     :language: c
+    :linenos:
     :caption: Actual implementation of low-level driver for STM32
 
 Example: System functions for WIN32
@@ -112,10 +114,12 @@ Example: System functions for WIN32
 
 .. literalinclude:: ../../esp_at_lib/src/include/system/port/win32/esp_sys_port.h
     :language: c
+    :linenos:
     :caption: Actual header implementation of system functions for WIN32
   
 .. literalinclude:: ../../esp_at_lib/src/system/esp_sys_win32.c
     :language: c
+    :linenos:
     :caption: Actual implementation of system functions for WIN32
 
 Example: System functions for CMSIS-OS
@@ -123,10 +127,12 @@ Example: System functions for CMSIS-OS
 
 .. literalinclude:: ../../esp_at_lib/src/include/system/port/cmsis_os/esp_sys_port.h
     :language: c
+    :linenos:
     :caption: Actual header implementation of system functions for CMSIS-OS based operating systems
 
 .. literalinclude:: ../../esp_at_lib/src/system/esp_sys_cmsis_os.c
     :language: c
+    :linenos:
     :caption: Actual implementation of system functions for CMSIS-OS based operating systems
 
 .. toctree::

@@ -11,6 +11,7 @@ try to connect to AP from list of preferred one.
 
 .. literalinclude:: ../../../snippets/station_manager.c
     :language: c
+    :linenos:
     :caption: Station manager used with all examples
 
 .. doxygengroup:: ESP_STA

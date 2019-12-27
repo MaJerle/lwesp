@@ -8,6 +8,7 @@ It is support through middleware API calls for configuring servers and reading a
 
 .. literalinclude:: ../../../snippets/sntp.c
     :language: c
+    :linenos:
     :caption: Minimum SNTP example
 
 .. doxygengroup:: ESP_SNTP
