@@ -39,7 +39,7 @@
  * USART is configured in RX DMA mode and any incoming bytes are processed inside thread function.
  * DMA and USART implement interrupt handlers to notify main thread about new data ready to send to upper layer.
  *
- * More about UART + RX DMA: https://github.com/MaJerle/STM32_USART_DMA_RX
+ * More about UART + RX DMA: https://github.com/MaJerle/stm32-usart-dma-rx-tx
  *
  * \ref ESP_CFG_INPUT_USE_PROCESS must be enabled in `esp_config.h` to use this driver.
  */
