@@ -23,7 +23,7 @@ subprocess.call('doxygen doxy_esp.doxy', shell=True)
 # -- Project information -----------------------------------------------------
 
 project = 'ESP-AT Lib'
-copyright = '2019, Tilen Majerle'
+copyright = '2019, Tilen MAJERLE'
 author = 'Tilen MAJERLE'
 
 # The full version, including alpha/beta/rc tags
