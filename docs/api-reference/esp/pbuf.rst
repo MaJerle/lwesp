@@ -26,7 +26,7 @@ Image above shows structure of *pbuf* chain. Each *pbuf* consists of:
 * Reference counter, indicating how many pointers point to current *pbuf*
 * Actual buffer data
 
-Top image display ``3`` pbufs connected to single chain.
+Top image shows ``3`` pbufs connected to single chain.
 There are ``2`` custom pointer variables to point at different *pbuf* structures. Second *pbuf* has reference counter set to ``2``, as ``2`` variables point to it:
 
 * *next* of *pbuf 1* is the first one
@@ -47,7 +47,7 @@ There are ``2`` custom pointer variables to point at different *pbuf* structures
 Reference counter
 ^^^^^^^^^^^^^^^^^
 
-Reference counter holds number of references (or variables) pointing to one block.
+Reference counter holds number of references (or variables) pointing to this block.
 It is used to properly handle memory free operation, especially when *pbuf* is used by lib core and application layer.
 
 .. note::
@@ -56,10 +56,14 @@ It is used to properly handle memory free operation, especially when *pbuf* is u
 When application tries to free pbuf chain as on first image, it would normally call :cpp:func:`esp_pbuf_free` function. That would:
 
 * Decrease reference counter by ``1``
-* If reference counter ``== 0``, free packet buffer
-* Go to next pbuf in current chain and start at first point
+* If reference counter ``== 0``, it removes it from chain list and frees packet buffer memory
+* If reference counter ``!= 0`` after decrease, it stops free procedure
+* Go to next pbuf in chain and repeat steps
 
-As per first example, result of freeing would look similar to image and table below.
+As per first example, result of freeing from *user variable 1* would look similar to image and table below.
+First block (blue) had reference counter set to ``1`` prior freeing operation.
+It was successfully removed as *user variable 1* was the only one pointing to it,
+while second (green) block had reference counter set to ``2``, preventing free operation.
 
 .. figure:: ../../static/images/pbuf_block_diagram_after_free.svg
 	:align: center
@@ -84,13 +88,16 @@ As per first example, result of freeing would look similar to image and table be
 Concatenating vs chaining
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This section will explain difference between *concat* and *chain* operations. Both operations link ``2`` pbufs together in a chain of pbufs, difference is that *chain* operation increases *reference counter* to linked pbuf, while *concat* keeps *reference counter* at its current status.
+This section will explain difference between *concat* and *chain* operations.
+Both operations link ``2`` pbufs together in a chain of pbufs,
+difference is that *chain* operation increases *reference counter* to linked pbuf,
+while *concat* keeps *reference counter* at its current status.
 
 .. figure:: ../../static/images/pbuf_cat_vs_chain_1.svg
 	:align: center
-	:alt: Separate pbufs, each pointed to by separate pointers
+	:alt: Different pbufs, each pointed to by its own variable
 
-	Separate pbufs, each pointed to by separate pointers
+	Different pbufs, each pointed to by its own variable
 
 Concat operation
 ****************
