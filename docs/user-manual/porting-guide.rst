@@ -13,8 +13,8 @@ Porting consists of:
 * Implementation of system functions, link between target operating system and middleware functions
 * Assignment of memory for allocation manager
 
-Implement low-level part
-^^^^^^^^^^^^^^^^^^^^^^^^
+Implement low-level driver
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To successfully implement all parts of *low-level* driver, application must take care of:
 
