@@ -19,7 +19,7 @@ import subprocess, os
 # Run doxygen first
 # read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
 # if read_the_docs_build:
-subprocess.call('doxygen doxy_esp.doxy', shell=True)
+subprocess.call('doxygen doxyfile.doxy', shell=True)
 # -- Project information -----------------------------------------------------
 
 project = 'ESP-AT Lib'
@@ -79,7 +79,7 @@ html_theme_options = {
     'includehidden': True,
     'titles_only': False
 }
-html_logo = 'static/images/logo_tm.png'
+html_logo = 'static/images/logo.svg'
 github_url = 'https://github.com/MaJerle/esp-at-lib'
 
 # Add any paths that contain custom static files (such as style sheets) here,
