@@ -72,7 +72,8 @@ typedef enum {
     ESP_CMD_SYSLOG,
 
     /* WiFi based commands */
-    ESP_CMD_WIFI_CWMODE,                        /*!< Set/Get wifi mode */
+    ESP_CMD_WIFI_CWMODE,                        /*!< Set wifi mode */
+    ESP_CMD_WIFI_CWMODE_GET,                    /*!< Get wifi mode */
     ESP_CMD_WIFI_CWLAPOPT,                      /*!< Configure what is visible on CWLAP response */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     ESP_CMD_WIFI_CWJAP,                         /*!< Connect to access point */
@@ -248,6 +249,7 @@ typedef struct esp_msg {
         } uart;                                 /*!< UART configuration */
         struct {
             esp_mode_t mode;                    /*!< Mode of operation */
+            esp_mode_t* mode_get;               /*!< Get mode */
         } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {

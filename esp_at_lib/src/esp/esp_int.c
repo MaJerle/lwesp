@@ -695,6 +695,9 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_HOSTNAME */
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET) && !strncmp(rcv->data, "+CWDHCP", 7)) {
                 espi_parse_cwdhcp(rcv->data);   /* Parse CWDHCP state */
+            } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWMODE_GET) && !strncmp(rcv->data, "+CWMODE", 7)) {
+                const char* tmp = &rcv->data[8];/* Go to the number position */
+                *esp.msg->msg.wifi_mode.mode_get = (uint8_t)espi_parse_number(&tmp);
             }
         }
 #if ESP_CFG_MODE_STATION
@@ -1734,6 +1737,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWMODE=");
             espi_send_number(ESP_U32(m), 0, 0);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_WIFI_CWMODE_GET: {         /* Get WIFI mode */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWMODE?");
             AT_PORT_SEND_END_AT();
             break;
         }
