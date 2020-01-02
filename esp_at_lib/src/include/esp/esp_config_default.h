@@ -722,7 +722,7 @@ void *  my_memset(void* dst, int b, size_t len);
 
 /* At least one of them must be enabled */
 #if !ESP_CFG_MODE_STATION && !ESP_CFG_MODE_ACCESS_POINT
-#error "Invalid ESP configuration. ESP_CFG_MODE_STATION and ESP_CFG_MODE_STATION cannot be disabled at the same time!"
+#error "Invalid ESP configuration. ESP_CFG_MODE_STATION and ESP_CFG_MODE_ACCESS_POINT cannot be disabled at the same time!"
 #endif
 
 /* Operating system config */
