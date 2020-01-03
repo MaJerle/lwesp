@@ -281,16 +281,17 @@ esp_sta_is_joined(void) {
 espr_t
 esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t* is_dhcp) {
     espr_t res = espERR;
-    if ((ip != NULL || gw != NULL || nm != NULL) && esp_sta_has_ip()) { /* Do we have a valid IP address? */
+    if ((ip != NULL || gw != NULL || nm != NULL || is_dhcp != NULL)
+        && esp_sta_has_ip()) {                  /* Do we have a valid IP address? */
         esp_core_lock();
         if (ip != NULL) {
-            ESP_MEMCPY(ip, &esp.m.sta.ip, sizeof(esp.m.sta.ip));/* Copy IP address */
+            ESP_MEMCPY(ip, &esp.m.sta.ip, sizeof(esp.m.sta.ip));
         }
         if (gw != NULL) {
-            ESP_MEMCPY(gw, &esp.m.sta.gw, sizeof(esp.m.sta.gw));/* Copy gateway address */
+            ESP_MEMCPY(gw, &esp.m.sta.gw, sizeof(esp.m.sta.gw));
         }
         if (nm != NULL) {
-            ESP_MEMCPY(nm, &esp.m.sta.nm, sizeof(esp.m.sta.nm));/* Copy netmask address */
+            ESP_MEMCPY(nm, &esp.m.sta.nm, sizeof(esp.m.sta.nm));
         }
         if (is_dhcp != NULL) {
             *is_dhcp = esp.m.sta.dhcp;
