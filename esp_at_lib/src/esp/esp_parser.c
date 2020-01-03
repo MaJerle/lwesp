@@ -144,7 +144,8 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
         --dst_len;
     }
     while (*p) {
-        if (*p == '"' && (p[1] == ',' || p[1] == '\r' || p[1] == '\n')) {
+        if ((*p == '"' && (p[1] == ',' || *p == '\r' || *p == '\n'))
+            || (*p == '\r' || *p == '\n')) {
             ++p;
             break;
         }
