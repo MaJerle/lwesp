@@ -243,6 +243,15 @@
 #endif
 
 /**
+ * \brief           Maximum length of PWD for access point
+ *
+ * \note            This parameter must include trailling zero
+ */
+#ifndef ESP_CFG_MAX_PWD_LENGTH
+#define ESP_CFG_MAX_PWD_LENGTH             65
+#endif
+
+/**
  * \defgroup        ESP_CONFIG_DBG Debugging
  * \brief           Debugging configurations
  * \{

@@ -281,6 +281,7 @@ typedef struct esp_msg {
             uint8_t max_sta;                    /*!< Max allowed connected stations */
             uint8_t hid;                        /*!< Configuration if network is hidden or visible */
         } ap_conf;                              /*!< Parameters to configure access point */
+        esp_ap_conf_t *ap_conf_get;             /*!< Get the soft AP configuration */
         struct {
             esp_sta_t* stas;                    /*!< Pointer to array to save access points */
             size_t stal;                        /*!< Length of input array of access points */

@@ -676,6 +676,8 @@ espi_parse_received(esp_recv_t* rcv) {
 #if ESP_CFG_MODE_ACCESS_POINT
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWLIF) && !strncmp(rcv->data, "+CWLIF", 6)) {
                 espi_parse_cwlif(rcv->data, esp.msg);   /* Parse CWLIF entry */
+            } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWSAP_GET) && !strncmp(rcv->data, "+CWSAP", 6)) {
+                espi_parse_cwsap(rcv->data, esp.msg);
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
 #if ESP_CFG_DNS
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
@@ -1877,6 +1879,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             espi_send_number(ESP_U32(msg->msg.ap_conf.ecn), 0, 1);
             espi_send_number(ESP_U32(msg->msg.ap_conf.max_sta), 0, 1);
             espi_send_number(ESP_U32(!!msg->msg.ap_conf.hid), 0, 1);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_WIFI_CWSAP_GET: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWSAP?");
             AT_PORT_SEND_END_AT();
             break;
         }
