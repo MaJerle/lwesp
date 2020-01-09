@@ -63,6 +63,8 @@ typedef enum {
     ESP_NETCONN_TYPE_UDP = ESP_CONN_TYPE_UDP,   /*!< UDP connection */
 } esp_netconn_type_t;
 
+esp_conn_p      esp_netconn_get_conn(esp_netconn_p nc);
+
 esp_netconn_p   esp_netconn_new(esp_netconn_type_t type);
 espr_t          esp_netconn_delete(esp_netconn_p nc);
 espr_t          esp_netconn_bind(esp_netconn_p nc, esp_port_t port);

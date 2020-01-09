@@ -771,6 +771,16 @@ esp_netconn_get_receive_timeout(esp_netconn_p nc) {
     return nc->rcv_timeout;                     /* Return receive timeout */
 }
 
+/**
+ * \brief           Get netconn's conn handle
+ * \param[in]       nc: Netconn handle
+ * \return          esp conn handle.
+ */
+esp_conn_p
+esp_netconn_get_conn(esp_netconn_p nc) {
+    return nc->conn;
+}
+
 #endif /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__ */
 
 #endif /* ESP_CFG_NETCONN || __DOXYGEN__ */
