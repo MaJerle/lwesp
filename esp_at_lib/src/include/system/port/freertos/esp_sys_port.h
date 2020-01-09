@@ -35,10 +35,6 @@
 #ifndef ESP_HDR_SYSTEM_PORT_H
 #define ESP_HDR_SYSTEM_PORT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -46,6 +42,10 @@ extern "C" {
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #if ESP_CFG_OS && !__DOXYGEN__
 

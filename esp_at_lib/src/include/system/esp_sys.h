@@ -34,12 +34,15 @@
 #ifndef ESP_HDR_MAIN_SYS_H
 #define ESP_HDR_MAIN_SYS_H
 
+#include "esp_config.h"
+#include <stdint.h>
+
+/* Include system port file from portable folder */
+#include "esp_sys_port.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "esp_config.h"
-#include <stdint.h>
 
 /**
  * \defgroup        ESP_SYS System functions
@@ -51,9 +54,6 @@ extern "C" {
  * \brief           Thread function prototype
  */
 typedef void (*esp_sys_thread_fn)(void *);
-
-/* Include system port file from portable folder */
-#include "esp_sys_port.h"
 
 /**
  * \anchor          ESP_SYS_CORE
