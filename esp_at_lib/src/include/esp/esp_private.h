@@ -389,6 +389,10 @@ typedef struct esp_msg {
             const char* s1;                     /*!< DNS server 1 */
             const char* s2;                     /*!< DNS server 2 */
         } dns_setconfig;                        /*!< Set DNS config */
+        struct {
+            uint8_t dnsi;                        /*!< DNS server index to get */
+            esp_ip_t* s[2];                      /*!< DNS servers */
+        } dns_getconf;                           /*!< Get DNS config */
 #endif /* ESP_CFG_DNS */ 
 #if ESP_CFG_PING || __DOXYGEN__
         struct {

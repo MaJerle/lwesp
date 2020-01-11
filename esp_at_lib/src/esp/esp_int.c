@@ -682,6 +682,15 @@ espi_parse_received(esp_recv_t* rcv) {
 #if ESP_CFG_DNS
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 espi_parse_cipdomain(rcv->data, esp.msg);   /* Parse CIPDOMAIN entry */
+            } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDNS_GET) && !strncmp(rcv->data, "+CIPDNS", 7)) {
+                const char* tmp = &rcv->data[8];/* Go to the ip position */
+                esp_ip_t ip;
+                uint8_t index = espi_parse_number(&tmp);
+                esp.msg->msg.dns_getconf.dnsi = index;
+                espi_parse_ip(&tmp, &ip);      /* Parse DNS address */
+                *esp.msg->msg.dns_getconf.s[0] = ip;
+                if (espi_parse_ip(&tmp, &ip))  /* Parse Secondary DNS address */
+                    *esp.msg->msg.dns_getconf.s[1] = ip;
 #endif /* ESP_CFG_DNS */ 
 #if ESP_CFG_PING
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_PING) && !strncmp(rcv->data, "+PING", 5)) {
@@ -2142,6 +2151,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
                     espi_send_string(msg->msg.dns_setconfig.s2, 0, 1, 1);
                 }
             }
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_TCPIP_CIPDNS_GET: {        /* DNS get config */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPDNS?");
             AT_PORT_SEND_END_AT();
             break;
         }
