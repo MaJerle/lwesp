@@ -75,6 +75,9 @@ int8_t          esp_netconn_getconnnum(esp_netconn_p nc);
 void            esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout);
 uint32_t        esp_netconn_get_receive_timeout(esp_netconn_p nc);
 
+espr_t          esp_netconn_connect_ex(esp_netconn_p nc, const char* host, esp_port_t port,
+                                       uint16_t keep_alive, const char* local_ip, esp_port_t local_port, uint8_t mode);
+
 /* TCP only */
 espr_t          esp_netconn_listen(esp_netconn_p nc);
 espr_t          esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections);

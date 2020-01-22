@@ -393,6 +393,45 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
 }
 
 /**
+ * \brief           Connect to server as client, allow keep-alive option
+ * \param[in]       nc: Netconn handle
+ * \param[in]       host: Pointer to host, such as domain name or IP address in string format
+ * \param[in]       port: Target port to use
+ * \param[in]       keep_alive: keep alive period seconds
+ * \param[in]       local_ip: local ip in connected command
+ * \return          \ref espOK if successfully connected, member of \ref espr_t otherwise
+ */
+espr_t
+esp_netconn_connect_ex(esp_netconn_p nc, const char* host, esp_port_t port, uint16_t keep_alive, const char* local_ip, esp_port_t local_port, uint8_t mode) {
+    esp_conn_start_t cs[1] = {0};
+    espr_t res;
+
+    ESP_ASSERT("nc != NULL", nc != NULL);
+    ESP_ASSERT("host != NULL", host != NULL);
+    ESP_ASSERT("port > 0", port > 0);
+
+    /*
+     * Start a new connection as client and:
+     *
+     *  - Set current netconn structure as argument
+     *  - Set netconn callback function for connection management
+     *  - Start connection in blocking mode
+     */
+    cs->type = nc->type;
+    cs->remote_host = host;
+    cs->remote_port = port;
+    cs->local_ip = local_ip;
+    if (nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL) {
+        cs->ext.tcp_ssl.keep_alive = keep_alive;
+    } else {
+        cs->ext.udp.local_port = local_port;
+        cs->ext.udp.mode = mode;
+    }
+    res = esp_conn_startex(NULL, cs, nc, netconn_evt, 1);
+    return res;
+}
+
+/**
  * \brief           Bind a connection to specific port, can be only used for server connections
  * \param[in]       nc: Netconn handle
  * \param[in]       port: Port used to bind a connection to
