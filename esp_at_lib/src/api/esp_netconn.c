@@ -71,6 +71,7 @@ typedef struct esp_netconn {
                                                     data exchange in time. Set to `0` when timeout feature is disabled. */
 
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__
+    #define _RCV_NO_WAIT			UINT32_MAX
     uint32_t rcv_timeout;                       /*!< Receive timeout in unit of milliseconds */
 #endif
 } esp_netconn_t;
@@ -673,6 +674,11 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 
     *pbuf = NULL;
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT
+    if (nc->rcv_timeout == _RCV_NO_WAIT) {
+        if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)pbuf)) {
+            return espTIMEOUT;
+        }
+    } else
     /*
      * Wait for new received data for up to specific timeout
      * or throw error for timeout notification
