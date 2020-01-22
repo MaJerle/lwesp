@@ -74,6 +74,9 @@
 #if ESP_CFG_DNS || __DOXYGEN__
 #include "esp/esp_dns.h"
 #endif /* ESP_CFG_DNS || __DOXYGEN__ */
+#if ESP_CFG_SMART || __DOXYGEN__
+#include "esp/esp_smart.h"
+#endif /* ESP_CFG_SMART || __DOXYGEN__ */
 #include "esp/esp_dhcp.h"
 
 #ifdef __cplusplus

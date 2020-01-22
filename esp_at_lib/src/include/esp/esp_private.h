@@ -143,6 +143,10 @@ typedef enum {
 #if ESP_CFG_PING || __DOXYGEN__
     ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
+#if ESP_CFG_SMART || __DOXYGEN__
+    ESP_CMD_WIFI_SMART_START,                   /*!< Start smart config */
+    ESP_CMD_WIFI_SMART_STOP,                    /*!< Stop smart config */
+#endif /* ESP_CFG_SMART || __DOXYGEN__ */
 
     /* BLE commands, ESP32 only */
 #if ESP_CFG_ESP32 || __DOXYGEN__

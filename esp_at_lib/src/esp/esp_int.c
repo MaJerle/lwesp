@@ -2195,6 +2195,20 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_SNTP */
+#if ESP_CFG_SMART
+        case ESP_CMD_WIFI_SMART_START: {        /* Start smart config */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWSTARTSMART");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_WIFI_SMART_STOP: {         /* Stop smart config */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWSTOPSMART");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+#endif /* ESP_CFG_SMART */
 #if ESP_CFG_ESP32
         case ESP_CMD_BLEINIT_GET: {
             AT_PORT_SEND_BEGIN_AT();
