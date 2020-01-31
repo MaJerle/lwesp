@@ -9,7 +9,7 @@ If you are only interested in using module and not writing firmware for it, you 
 
 Follow documentation for more information on implementation and details.
 
-<h3><a href="https://docs.majerle.eu/projects/esp-at-lib">Documentation</a></h3>
+<h3><a href="https://docs.majerle.eu/projects/esp-at-lib/">Documentation</a></h3>
 
 ## Features
 
