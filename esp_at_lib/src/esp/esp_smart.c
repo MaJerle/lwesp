@@ -1,10 +1,11 @@
 /**
- * \file            esp_dns.h
- * \brief           DNS API
+ * \file            esp_smart.c
+ * \brief           SMART API
  */
 
 /*
  * Copyright (c) 2020 Tilen MAJERLE
+ * Copyright (c) 2020 Seeed Technology
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,32 +32,30 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_DNS_H
-#define ESP_HDR_DNS_H
+#include "esp/esp_private.h"
+#include "esp/esp_smart.h"
+#include "esp/esp_mem.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "esp/esp.h"
+#if ESP_CFG_SMART || __DOXYGEN__
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_DNS Domain name server
- * \brief           Domain name server
- * \{
+ * \brief           Configure SMART function on ESP device
+ * \param[in]       en: Set to `1` to start SMART or `0` to stop SMART
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
+espr_t
+esp_smart_configure(uint8_t en,
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);
 
-espr_t      esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_dns_get_config(esp_ip_t* s1, esp_ip_t* s2, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_dns_set_config(uint8_t en, const char* s1, const char* s2, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+    ESP_MSG_VAR_ALLOC(msg, blocking);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    ESP_MSG_VAR_REF(msg).cmd_def = en? ESP_CMD_WIFI_SMART_START: ESP_CMD_WIFI_SMART_STOP;
 
-/**
- * \}
- */
-
-#ifdef __cplusplus
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
 }
-#endif
 
-#endif /* ESP_HDR_DNS_H */
+#endif /* ESP_CFG_SMART || __DOXYGEN__ */

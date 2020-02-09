@@ -1,10 +1,11 @@
 /**
- * \file            esp_dns.h
- * \brief           DNS API
+ * \file            esp_smart.h
+ * \brief           Smart API
  */
 
 /*
  * Copyright (c) 2020 Tilen MAJERLE
+ * Copyright (c) 2020 Seeed Technology
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,8 +32,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_DNS_H
-#define ESP_HDR_DNS_H
+#ifndef ESP_HDR_SMART_H
+#define ESP_HDR_SMART_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,14 +43,12 @@ extern "C" {
 
 /**
  * \ingroup         ESP
- * \defgroup        ESP_DNS Domain name server
- * \brief           Domain name server
+ * \defgroup        ESP_SMART
+ * \brief           SMART function on ESP device
  * \{
  */
 
-espr_t      esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_dns_get_config(esp_ip_t* s1, esp_ip_t* s2, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_dns_set_config(uint8_t en, const char* s1, const char* s2, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_smart_configure(uint8_t en, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}
@@ -59,4 +58,4 @@ espr_t      esp_dns_set_config(uint8_t en, const char* s1, const char* s2, const
 }
 #endif
 
-#endif /* ESP_HDR_DNS_H */
+#endif /* ESP_HDR_SMART_H */

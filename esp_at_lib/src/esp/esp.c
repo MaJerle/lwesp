@@ -257,6 +257,28 @@ esp_set_wifi_mode(esp_mode_t mode,
 }
 
 /**
+ * \brief           Gets WiFi mode of either station only, access point only or both
+ *
+ * \param[in]       mode: point to space of Mode to get. This parameter can be a pointer of \ref esp_mode_t enumeration
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_get_wifi_mode(esp_mode_t* mode,
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);
+
+    ESP_MSG_VAR_ALLOC(msg, blocking);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE_GET;
+    ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode_get = mode;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+}
+
+/**
  * \brief           Sets baudrate of AT port (usually UART)
  * \param[in]       baud: Baudrate in units of bits per second
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used

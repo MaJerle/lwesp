@@ -72,7 +72,8 @@ typedef enum {
     ESP_CMD_SYSLOG,
 
     /* WiFi based commands */
-    ESP_CMD_WIFI_CWMODE,                        /*!< Set/Get wifi mode */
+    ESP_CMD_WIFI_CWMODE,                        /*!< Set wifi mode */
+    ESP_CMD_WIFI_CWMODE_GET,                    /*!< Get wifi mode */
     ESP_CMD_WIFI_CWLAPOPT,                      /*!< Configure what is visible on CWLAP response */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
     ESP_CMD_WIFI_CWJAP,                         /*!< Connect to access point */
@@ -142,6 +143,10 @@ typedef enum {
 #if ESP_CFG_PING || __DOXYGEN__
     ESP_CMD_TCPIP_PING,                         /*!< Ping domain */
 #endif /* ESP_CFG_PING || __DOXYGEN__ */
+#if ESP_CFG_SMART || __DOXYGEN__
+    ESP_CMD_WIFI_SMART_START,                   /*!< Start smart config */
+    ESP_CMD_WIFI_SMART_STOP,                    /*!< Stop smart config */
+#endif /* ESP_CFG_SMART || __DOXYGEN__ */
 
     /* BLE commands, ESP32 only */
 #if ESP_CFG_ESP32 || __DOXYGEN__
@@ -248,6 +253,7 @@ typedef struct esp_msg {
         } uart;                                 /*!< UART configuration */
         struct {
             esp_mode_t mode;                    /*!< Mode of operation */
+            esp_mode_t* mode_get;               /*!< Get mode */
         } wifi_mode;                            /*!< When message type \ref ESP_CMD_WIFI_CWMODE is used */
 #if ESP_CFG_MODE_STATION || __DOXYGEN__
         struct {
@@ -279,6 +285,9 @@ typedef struct esp_msg {
             uint8_t max_sta;                    /*!< Max allowed connected stations */
             uint8_t hid;                        /*!< Configuration if network is hidden or visible */
         } ap_conf;                              /*!< Parameters to configure access point */
+        struct {
+            esp_ap_conf_t* ap_conf;             /*!< AP configuration */
+        } ap_conf_get;                          /*!< Get the soft AP configuration */
         struct {
             esp_sta_t* stas;                    /*!< Pointer to array to save access points */
             size_t stal;                        /*!< Length of input array of access points */
@@ -386,6 +395,11 @@ typedef struct esp_msg {
             const char* s1;                     /*!< DNS server 1 */
             const char* s2;                     /*!< DNS server 2 */
         } dns_setconfig;                        /*!< Set DNS config */
+        struct {
+            uint8_t dnsi;                       /*!< DNS server index to get */
+            esp_ip_t* s1;                       /*!< DNS server 1 */
+            esp_ip_t* s2;                       /*!< DNS server 2 */
+        } dns_getconf;                          /*!< Get DNS config */
 #endif /* ESP_CFG_DNS */ 
 #if ESP_CFG_PING || __DOXYGEN__
         struct {

@@ -557,6 +557,35 @@ espi_parse_ap_ip_sta(const char* str) {
     espi_send_cb(ESP_EVT_AP_IP_STA);            /* Send event function */
     return 1;
 }
+
+/**
+ * \brief           Parse received message for current AP information
+ * \param[in]       str: Pointer to input string starting with +CWSAP
+ * \param[in]       msg: Pointer to message
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+espi_parse_cwsap(const char* str, esp_msg_t* msg) {
+    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWSAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
+        return 0;
+    }
+    if (*str == '+') {                          /* Does string contain '+' as first character */
+        str += 7;                               /* Skip this part */
+    }
+    if (*str != '"') {                          /* We must start with quotation mark */
+        return 0;
+    }
+    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->ssid, ESP_CFG_MAX_SSID_LENGTH, 1);
+    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->pwd, ESP_CFG_MAX_PWD_LENGTH, 1);
+    esp.msg->msg.ap_conf_get.ap_conf->ch = espi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->ecn = espi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->max_cons = espi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->hidden = espi_parse_number(&str);
+
+    ESP_UNUSED(msg);
+
+    return 1;
+}
 #endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 
 #if ESP_CFG_PING || __DOXYGEN__
