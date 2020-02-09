@@ -243,6 +243,15 @@
 #endif
 
 /**
+ * \brief           Maximum length of PWD for access point
+ *
+ * \note            This parameter must include trailling zero
+ */
+#ifndef ESP_CFG_MAX_PWD_LENGTH
+#define ESP_CFG_MAX_PWD_LENGTH             65
+#endif
+
+/**
  * \defgroup        ESP_CONFIG_DBG Debugging
  * \brief           Debugging configurations
  * \{
@@ -722,7 +731,7 @@ void *  my_memset(void* dst, int b, size_t len);
 
 /* At least one of them must be enabled */
 #if !ESP_CFG_MODE_STATION && !ESP_CFG_MODE_ACCESS_POINT
-#error "Invalid ESP configuration. ESP_CFG_MODE_STATION and ESP_CFG_MODE_STATION cannot be disabled at the same time!"
+#error "Invalid ESP configuration. ESP_CFG_MODE_STATION and ESP_CFG_MODE_ACCESS_POINT cannot be disabled at the same time!"
 #endif
 
 /* Operating system config */

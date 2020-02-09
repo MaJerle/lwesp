@@ -35,10 +35,6 @@
 #ifndef ESP_HDR_SYSTEM_PORT_H
 #define ESP_HDR_SYSTEM_PORT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -46,6 +42,10 @@ extern "C" {
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #if ESP_CFG_OS && !__DOXYGEN__
 
@@ -59,7 +59,7 @@ typedef UBaseType_t                 esp_sys_thread_prio_t;
 #define ESP_SYS_SEM_NULL            ((SemaphoreHandle_t)0)
 #define ESP_SYS_MBOX_NULL           ((QueueHandle_t)0)
 #define ESP_SYS_TIMEOUT             ((TickType_t)portMAX_DELAY)
-#define ESP_SYS_THREAD_PRIO         (1)
+#define ESP_SYS_THREAD_PRIO         (configMAX_PRIORITIES - 1)
 #define ESP_SYS_THREAD_SS           (1024)
 
 #endif /* ESP_CFG_OS && !__DOXYGEN__ */

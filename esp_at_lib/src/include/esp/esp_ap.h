@@ -56,6 +56,7 @@ espr_t      esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t*
 espr_t      esp_ap_getmac(esp_mac_t* mac, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_ap_setmac(const esp_mac_t* mac, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
+espr_t      esp_ap_get_conf(esp_ap_conf_t* ap_conf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, uint8_t max_sta, uint8_t hid, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 espr_t      esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
