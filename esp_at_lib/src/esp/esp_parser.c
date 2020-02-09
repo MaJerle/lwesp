@@ -575,12 +575,12 @@ espi_parse_cwsap(const char* str, esp_msg_t* msg) {
     if (*str != '"') {                          /* We must start with quotation mark */
         return 0;
     }
-    espi_parse_string(&str, esp.msg->msg.ap_conf_get->ssid, ESP_CFG_MAX_SSID_LENGTH, 1);
-    espi_parse_string(&str, esp.msg->msg.ap_conf_get->pwd, ESP_CFG_MAX_PWD_LENGTH, 1);
-    esp.msg->msg.ap_conf_get->ch = espi_parse_number(&str);
-    esp.msg->msg.ap_conf_get->ecn = espi_parse_number(&str);
-    esp.msg->msg.ap_conf_get->max_cons = espi_parse_number(&str);
-    esp.msg->msg.ap_conf_get->hidden = espi_parse_number(&str);
+    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->ssid, ESP_CFG_MAX_SSID_LENGTH, 1);
+    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->pwd, ESP_CFG_MAX_PWD_LENGTH, 1);
+    esp.msg->msg.ap_conf_get.ap_conf->ch = espi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->ecn = espi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->max_cons = espi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->hidden = espi_parse_number(&str);
 
     ESP_UNUSED(msg);
 

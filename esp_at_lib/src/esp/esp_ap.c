@@ -192,7 +192,7 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
-espr_t esp_ap_get_conf(esp_ap_conf_t* ap_conf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+espr_t esp_ap_get_config(esp_ap_conf_t* ap_conf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("ap_conf != NULL", ap_conf != NULL);
@@ -200,7 +200,7 @@ espr_t esp_ap_get_conf(esp_ap_conf_t* ap_conf, const esp_api_cmd_evt_fn evt_fn, 
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWSAP_GET;
-    ESP_MSG_VAR_REF(msg).msg.ap_conf_get = ap_conf;
+    ESP_MSG_VAR_REF(msg).msg.ap_conf_get.ap_conf = ap_conf;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
 }
