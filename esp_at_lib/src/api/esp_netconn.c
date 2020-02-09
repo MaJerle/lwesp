@@ -402,7 +402,7 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
  */
 espr_t
 esp_netconn_connect_ex(esp_netconn_p nc, const char* host, esp_port_t port, uint16_t keep_alive, const char* local_ip, esp_port_t local_port, uint8_t mode) {
-    esp_conn_start_t cs[1] = {0};
+    esp_conn_start_t cs = {0};
     espr_t res;
 
     ESP_ASSERT("nc != NULL", nc != NULL);
@@ -416,17 +416,17 @@ esp_netconn_connect_ex(esp_netconn_p nc, const char* host, esp_port_t port, uint
      *  - Set netconn callback function for connection management
      *  - Start connection in blocking mode
      */
-    cs->type = nc->type;
-    cs->remote_host = host;
-    cs->remote_port = port;
-    cs->local_ip = local_ip;
+    cs.type = nc->type;
+    cs.remote_host = host;
+    cs.remote_port = port;
+    cs.local_ip = local_ip;
     if (nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL) {
-        cs->ext.tcp_ssl.keep_alive = keep_alive;
+        cs.ext.tcp_ssl.keep_alive = keep_alive;
     } else {
-        cs->ext.udp.local_port = local_port;
-        cs->ext.udp.mode = mode;
+        cs.ext.udp.local_port = local_port;
+        cs.ext.udp.mode = mode;
     }
-    res = esp_conn_startex(NULL, cs, nc, netconn_evt, 1);
+    res = esp_conn_startex(NULL, &cs, nc, netconn_evt, 1);
     return res;
 }
 
