@@ -631,6 +631,14 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` support for SMART config
+ *
+ */
+#ifndef ESP_CFG_SMART
+#define ESP_CFG_SMART                       0
+#endif
+
+/**
  * \}
  */
 
