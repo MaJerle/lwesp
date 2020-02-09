@@ -396,8 +396,10 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
  * \param[in]       nc: Netconn handle
  * \param[in]       host: Pointer to host, such as domain name or IP address in string format
  * \param[in]       port: Target port to use
- * \param[in]       keep_alive: keep alive period seconds
- * \param[in]       local_ip: local ip in connected command
+ * \param[in]       keep_alive: Keep alive period seconds
+ * \param[in]       local_ip: Local ip in connected command
+ * \param[in]       local_port: Local port address
+ * \param[in]       mode: UDP mode
  * \return          \ref espOK if successfully connected, member of \ref espr_t otherwise
  */
 espr_t
@@ -779,7 +781,7 @@ esp_netconn_close(esp_netconn_p nc) {
  * \return          `-1` on failure, connection number between `0` and \ref ESP_CFG_MAX_CONNS otherwise
  */
 int8_t
-esp_netconn_getconnnum(esp_netconn_p nc) {
+esp_netconn_get_connnum(esp_netconn_p nc) {
     if (nc != NULL && nc->conn != NULL) {
         return esp_conn_getnum(nc->conn);
     }
