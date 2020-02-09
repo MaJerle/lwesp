@@ -55,6 +55,12 @@ struct esp_netconn;
 typedef struct esp_netconn* esp_netconn_p;
 
 /**
+ * \brief           Receive data with no timeout
+ * \note            Used with \ref esp_netconn_set_receive_timeout function
+ */
+#define ESP_NETCONN_RECEIVE_NO_WAIT             0xFFFFFFFF
+
+/**
  * \brief           Netconn connection type
  */
 typedef enum {
@@ -63,15 +69,14 @@ typedef enum {
     ESP_NETCONN_TYPE_UDP = ESP_CONN_TYPE_UDP,   /*!< UDP connection */
 } esp_netconn_type_t;
 
-esp_conn_p      esp_netconn_get_conn(esp_netconn_p nc);
-
 esp_netconn_p   esp_netconn_new(esp_netconn_type_t type);
 espr_t          esp_netconn_delete(esp_netconn_p nc);
 espr_t          esp_netconn_bind(esp_netconn_p nc, esp_port_t port);
 espr_t          esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port);
 espr_t          esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf);
 espr_t          esp_netconn_close(esp_netconn_p nc);
-int8_t          esp_netconn_getconnnum(esp_netconn_p nc);
+int8_t          esp_netconn_get_connnum(esp_netconn_p nc);
+esp_conn_p      esp_netconn_get_conn(esp_netconn_p nc);
 void            esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout);
 uint32_t        esp_netconn_get_receive_timeout(esp_netconn_p nc);
 

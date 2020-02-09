@@ -71,7 +71,6 @@ typedef struct esp_netconn {
                                                     data exchange in time. Set to `0` when timeout feature is disabled. */
 
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__
-    #define _RCV_NO_WAIT			UINT32_MAX
     uint32_t rcv_timeout;                       /*!< Receive timeout in unit of milliseconds */
 #endif
 } esp_netconn_t;
@@ -713,16 +712,15 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
 
     *pbuf = NULL;
 #if ESP_CFG_NETCONN_RECEIVE_TIMEOUT
-    if (nc->rcv_timeout == _RCV_NO_WAIT) {
-        if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)pbuf)) {
-            return espTIMEOUT;
-        }
-    } else
     /*
      * Wait for new received data for up to specific timeout
      * or throw error for timeout notification
      */
-    if (esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, nc->rcv_timeout) == ESP_SYS_TIMEOUT) {
+    if (nc->rcv_timeout == ESP_NETCONN_RECEIVE_NO_WAIT) {
+        if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)pbuf)) {
+            return espTIMEOUT;
+        }
+    } else if (esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, nc->rcv_timeout) == ESP_SYS_TIMEOUT) {
         return espTIMEOUT;
     }
 #else /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
@@ -798,7 +796,9 @@ esp_netconn_getconnnum(esp_netconn_p nc) {
  *
  * \param[in]       nc: Netconn handle
  * \param[in]       timeout: Timeout in units of milliseconds.
- *                  Set to `0` to disable timeout for \ref esp_netconn_receive function
+ *                      Set to `0` to disable timeout feature
+ *                      Set to `> 0` to set maximum milliseconds to wait before timeout
+ *                      Set to \ref ESP_NETCONN_RECEIVE_NO_WAIT to enable non-blocking receive
  */
 void
 esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout) {
@@ -813,19 +813,19 @@ esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout) {
  */
 uint32_t
 esp_netconn_get_receive_timeout(esp_netconn_p nc) {
-    return nc->rcv_timeout;                     /* Return receive timeout */
+    return nc->rcv_timeout;
 }
 
+#endif /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__ */
+
 /**
- * \brief           Get netconn's conn handle
+ * \brief           Get netconn connection handle
  * \param[in]       nc: Netconn handle
- * \return          esp conn handle.
+ * \return          ESP connection handle
  */
 esp_conn_p
 esp_netconn_get_conn(esp_netconn_p nc) {
     return nc->conn;
 }
-
-#endif /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__ */
 
 #endif /* ESP_CFG_NETCONN || __DOXYGEN__ */
