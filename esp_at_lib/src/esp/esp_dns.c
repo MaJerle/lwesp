@@ -80,7 +80,7 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
  */
 espr_t
 esp_dns_set_config(uint8_t en, const char* s1, const char* s2,
-    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -108,14 +108,14 @@ esp_dns_set_config(uint8_t en, const char* s1, const char* s2,
  */
 espr_t
 esp_dns_get_config(esp_ip_t* s1, esp_ip_t* s2,
-    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDNS_GET;
-    ESP_MSG_VAR_REF(msg).msg.dns_getconf.s[0] = s1;
-    ESP_MSG_VAR_REF(msg).msg.dns_getconf.s[1] = s2;
+    ESP_MSG_VAR_REF(msg).msg.dns_getconf.s1 = s1;
+    ESP_MSG_VAR_REF(msg).msg.dns_getconf.s2 = s2;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }

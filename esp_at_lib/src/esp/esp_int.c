@@ -687,10 +687,13 @@ espi_parse_received(esp_recv_t* rcv) {
                 esp_ip_t ip;
                 uint8_t index = espi_parse_number(&tmp);
                 esp.msg->msg.dns_getconf.dnsi = index;
-                espi_parse_ip(&tmp, &ip);      /* Parse DNS address */
-                *esp.msg->msg.dns_getconf.s[0] = ip;
-                if (espi_parse_ip(&tmp, &ip))  /* Parse Secondary DNS address */
-                    *esp.msg->msg.dns_getconf.s[1] = ip;
+                espi_parse_ip(&tmp, &ip);       /* Parse DNS address */
+                if (esp.msg->msg.dns_getconf.s1 != NULL) {
+                    *esp.msg->msg.dns_getconf.s1 = ip;
+                }
+                if (esp.msg->msg.dns_getconf.s2 != NULL && espi_parse_ip(&tmp, &ip)) {
+                    *esp.msg->msg.dns_getconf.s2 = ip;
+                }
 #endif /* ESP_CFG_DNS */ 
 #if ESP_CFG_PING
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_PING) && !strncmp(rcv->data, "+PING", 5)) {
