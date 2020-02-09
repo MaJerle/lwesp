@@ -35,8 +35,7 @@
 #define ESP_HDR_INCLUDES_H
 
 #ifdef __cplusplus
-// don't nest extern "C"
-// extern "C" {
+extern "C" {
 #endif /* __cplusplus */
 
 #include "esp_config.h"
@@ -80,7 +79,7 @@
 #include "esp/esp_dhcp.h"
 
 #ifdef __cplusplus
-// }
+}
 #endif /* __cplusplus */
 
 #endif /* ESP_HDR_INCLUDES_H */
