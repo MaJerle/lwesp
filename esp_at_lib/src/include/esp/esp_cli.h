@@ -1,6 +1,6 @@
 /**
  * \file            esp_cli.h
- * \brief           Esp CLI commands
+ * \brief           ESP CLI commands
  */
 
 /*
