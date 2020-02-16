@@ -20,10 +20,10 @@ Netconn client
 ^^^^^^^^^^^^^^
 
 .. figure:: ../../static/images/netconn_client.svg
-	:align: center
-	:alt: Netconn API client block diagram
+    :align: center
+    :alt: Netconn API client block diagram
 
-	Netconn API client block diagram
+    Netconn API client block diagram
 
 Above block diagram shows basic architecture of netconn client application. 
 There is always one application thread (in green) which calls *netconn API* functions to interact with connection API in synchronous mode.

@@ -10,10 +10,10 @@ Pbuf block diagram
 ^^^^^^^^^^^^^^^^^^
 
 .. figure:: ../../static/images/pbuf_block_diagram.svg
-	:align: center
-	:alt: Block diagram of pbuf chain
+    :align: center
+    :alt: Block diagram of pbuf chain
 
-	Block diagram of pbuf chain
+    Block diagram of pbuf chain
 
 Image above shows structure of *pbuf* chain. Each *pbuf* consists of:
 
@@ -66,24 +66,24 @@ It was successfully removed as *user variable 1* was the only one pointing to it
 while second (green) block had reference counter set to ``2``, preventing free operation.
 
 .. figure:: ../../static/images/pbuf_block_diagram_after_free.svg
-	:align: center
-	:alt: Block diagram of pbuf chain after free from *user variable 1*
+    :align: center
+    :alt: Block diagram of pbuf chain after free from *user variable 1*
 
-	Block diagram of pbuf chain after free from *user variable 1*
+    Block diagram of pbuf chain after free from *user variable 1*
 
 .. table:: Block diagram of pbuf chain after free from *user variable 1*
 
-	+--------------+-----------+------------+---------------------+-------------------+
-	| Block number | Next pbuf | Block size | Total size in chain | Reference counter |
-	+==============+===========+============+=====================+===================+
-	| Block 2      | *Block 3* | ``130``    | ``400``             | ``1``             |
-	+--------------+-----------+------------+---------------------+-------------------+
-	| Block 3      | ``NULL``  | ``270``    | ``270``             | ``1``             |
-	+--------------+-----------+------------+---------------------+-------------------+
+    +--------------+-----------+------------+---------------------+-------------------+
+    | Block number | Next pbuf | Block size | Total size in chain | Reference counter |
+    +==============+===========+============+=====================+===================+
+    | Block 2      | *Block 3* | ``130``    | ``400``             | ``1``             |
+    +--------------+-----------+------------+---------------------+-------------------+
+    | Block 3      | ``NULL``  | ``270``    | ``270``             | ``1``             |
+    +--------------+-----------+------------+---------------------+-------------------+
 
 .. note::
-	*Block 1* has been successfully freed, but since *block 2* had reference counter set to ``2`` before, it was only decreased by ``1`` to a new value ``1`` and free operation stopped instead.
-	*User variable 2* is still using *pbuf* starting at *block 2* and must manually call :cpp:func:`esp_pbuf_free` to free it.
+    *Block 1* has been successfully freed, but since *block 2* had reference counter set to ``2`` before, it was only decreased by ``1`` to a new value ``1`` and free operation stopped instead.
+    *User variable 2* is still using *pbuf* starting at *block 2* and must manually call :cpp:func:`esp_pbuf_free` to free it.
 
 Concatenating vs chaining
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -94,10 +94,10 @@ difference is that *chain* operation increases *reference counter* to linked pbu
 while *concat* keeps *reference counter* at its current status.
 
 .. figure:: ../../static/images/pbuf_cat_vs_chain_1.svg
-	:align: center
-	:alt: Different pbufs, each pointed to by its own variable
+    :align: center
+    :alt: Different pbufs, each pointed to by its own variable
 
-	Different pbufs, each pointed to by its own variable
+    Different pbufs, each pointed to by its own variable
 
 Concat operation
 ****************
@@ -105,16 +105,16 @@ Concat operation
 Concat operation shall be used when ``2`` pbufs are linked together and reference to *second* is no longer used.
 
 .. figure:: ../../static/images/pbuf_cat_vs_chain_2.svg
-	:align: center
-	:alt: Structure after pbuf concat
+    :align: center
+    :alt: Structure after pbuf concat
 
-	Structure after pbuf concat
+    Structure after pbuf concat
 
 After concating *2 pbufs* together, reference counter of second is still set to ``1``, however we can see that ``2`` pointers point to *second pbuf*.
 
 .. note::
-	After application calls :cpp:func:`esp_pbuf_cat`, it must not use pointer which points to *second pbuf*.
-	This would invoke *undefined behavior* if one pointer tries to free memory while second still points to it.
+    After application calls :cpp:func:`esp_pbuf_cat`, it must not use pointer which points to *second pbuf*.
+    This would invoke *undefined behavior* if one pointer tries to free memory while second still points to it.
 
 An example code showing proper usage of concat operation:
 
@@ -129,10 +129,10 @@ Chain operation
 Chain operation shall be used when ``2`` pbufs are linked together and reference to *second* is still required.
 
 .. figure:: ../../static/images/pbuf_cat_vs_chain_3.svg
-	:align: center
-	:alt: Structure after pbuf chain
+    :align: center
+    :alt: Structure after pbuf chain
 
-	Structure after pbuf chain
+    Structure after pbuf chain
 
 After chainin *2 pbufs* together, reference counter of second is increased by ``1``, which allows application to reference second *pbuf* separatelly.
 

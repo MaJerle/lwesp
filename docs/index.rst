@@ -7,7 +7,7 @@ ESP-AT Lib is generic, platform independent, library for control of *ESP8266* or
 Its objective is to run on master system, while Espressif device runs official AT commands firmware developed and maintained by *Espressif systems*.
 
 .. image:: static/images/logo.svg
-  :align: center 
+    :align: center 
 
 .. rst-class:: center
 .. rst-class:: index_links
