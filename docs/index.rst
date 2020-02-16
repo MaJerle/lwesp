@@ -1,5 +1,7 @@
-ESP-AT Lib documentation!
-=========================
+ESP-AT Lib |version| documentation
+==================================
+
+Welcome to the documentation for version |version|.
 
 ESP-AT Lib is generic, platform independent, library for control of *ESP8266* or *ESP32* WiFi-based microcontrollers from *Espressif systems*. 
 Its objective is to run on master system, while Espressif device runs official AT commands firmware developed and maintained by *Espressif systems*.
