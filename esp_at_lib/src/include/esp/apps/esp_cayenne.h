@@ -54,7 +54,7 @@ extern "C" {
 #ifndef ESP_CAYENNE_API_VERSION
 #define ESP_CAYENNE_API_VERSION                 "v1"
 #endif
-                                                
+
  /**
  * \brief           Cayenne host server
  */

@@ -123,7 +123,7 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
     esp.evt.evt.restore.res = err;                  \
     espi_send_cb(ESP_EVT_RESTORE);                  \
 } while (0)
- 
+
  /**
  * \brief           Send ping event to user
  * \param[in]       m: Command message
@@ -694,7 +694,7 @@ espi_parse_received(esp_recv_t* rcv) {
                 if (esp.msg->msg.dns_getconf.s2 != NULL && espi_parse_ip(&tmp, &ip)) {
                     *esp.msg->msg.dns_getconf.s2 = ip;
                 }
-#endif /* ESP_CFG_DNS */ 
+#endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_PING) && !strncmp(rcv->data, "+PING", 5)) {
                 espi_parse_ping_time(rcv->data, esp.msg);   /* Parse ping time */
@@ -1094,7 +1094,7 @@ espi_process(const void* data, size_t data_len) {
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
                     esp.m.ipd.conn->total_recved += esp.m.ipd.buff->tot_len;  /* Increase number of bytes received */
-                    
+
                     /*
                      * Send data buffer to upper layer
                      *
@@ -1331,11 +1331,11 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             }
 #endif /* ESP_CFG_ESP32 */
             SET_NEW_CMD(ESP_CMD_GMR); break;
-        case ESP_CMD_GMR: 
+        case ESP_CMD_GMR:
             SET_NEW_CMD(ESP_CMD_WIFI_CWMODE); break;
-        case ESP_CMD_WIFI_CWMODE: 
+        case ESP_CMD_WIFI_CWMODE:
             SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET); break;
-        case ESP_CMD_WIFI_CWDHCP_GET: 
+        case ESP_CMD_WIFI_CWDHCP_GET:
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPMUX); break;
         case ESP_CMD_TCPIP_CIPMUX:
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -1344,13 +1344,13 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_STATION
             SET_NEW_CMD(ESP_CMD_WIFI_CWLAPOPT); break;/* Set visible data for CWLAP command */
-        case ESP_CMD_WIFI_CWLAPOPT: 
+        case ESP_CMD_WIFI_CWLAPOPT:
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTATUS); break;/* Get connection status */
         case ESP_CMD_TCPIP_CIPSTATUS:
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
             SET_NEW_CMD(ESP_CMD_WIFI_CIPAP_GET); break; /* Get access point IP */
-        case ESP_CMD_WIFI_CIPAP_GET: 
+        case ESP_CMD_WIFI_CIPAP_GET:
             SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET); break; /* Get access point MAC */
         case ESP_CMD_WIFI_CIPAPMAC_GET:
 #endif /* ESP_CFG_MODE_STATION */

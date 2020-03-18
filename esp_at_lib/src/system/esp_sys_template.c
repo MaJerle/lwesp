@@ -357,7 +357,7 @@ esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn t
         stack_size > 0 ? stack_size : ESP_SYS_THREAD_SS
     };
     esp_sys_thread_t id;
-    
+
     id = osThreadCreate(&thread_def, arg);
     if (t != NULL) {
         *t = id;

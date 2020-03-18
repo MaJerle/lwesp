@@ -46,7 +46,7 @@ extern "C" {
  * \brief           Connection API functions
  * \{
  */
-    
+
 espr_t      esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const remote_host, esp_port_t remote_port, void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking);
 espr_t      esp_conn_startex(esp_conn_p* conn, esp_conn_start_t* start_struct, void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking);
 

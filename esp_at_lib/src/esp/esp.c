@@ -63,7 +63,7 @@ def_callback(esp_evt_t* evt) {
 
 /**
  * \brief           Init and prepare ESP stack for device operation
- * \note            Function must be called from operating system thread context. 
+ * \note            Function must be called from operating system thread context.
  *                  It creates necessary threads and waits them to start, thus running operating system is important.
  *                  - When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device
  *                      otherwise manual call to \ref esp_reset is required to setup device
@@ -494,7 +494,7 @@ esp_get_current_at_fw_version(esp_sw_version_t* const version) {
 /**
  * \brief           Delay for amount of milliseconds
  *
- * Delay is based on operating system semaphores. 
+ * Delay is based on operating system semaphores.
  * It locks semaphore and waits for timeout in `ms` time.
  * Based on operating system, thread may be put to \e blocked list during delay and may improve execution speed
  *

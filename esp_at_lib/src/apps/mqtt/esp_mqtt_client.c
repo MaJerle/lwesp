@@ -411,7 +411,7 @@ send_data(esp_mqtt_client_p client) {
                 "[MQTT] Cannot send data with error: %d\r\n", (int)res);
         }
     } else {
-        /* 
+        /*
          * If buffer is empty, reset it to default state (read & write pointers)
          * This is to make sure everytime function needs to send data,
          * it can do it in single shot rather than in 2 attempts (when read > write pointer).
@@ -455,7 +455,7 @@ sub_unsub(esp_mqtt_client_p client, const char* topic, esp_mqtt_qos_t qos, void*
     uint32_t rem_len;
     uint16_t len_topic, pkt_id;
     uint8_t ret = 0;
-    
+
     if ((len_topic = ESP_U16(strlen(topic))) == 0) {
         return 0;
     }

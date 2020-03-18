@@ -400,7 +400,7 @@ typedef struct esp_msg {
             esp_ip_t* s1;                       /*!< DNS server 1 */
             esp_ip_t* s2;                       /*!< DNS server 2 */
         } dns_getconf;                          /*!< Get DNS config */
-#endif /* ESP_CFG_DNS */ 
+#endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING || __DOXYGEN__
         struct {
             const char* host;                   /*!< Hostname to ping */
