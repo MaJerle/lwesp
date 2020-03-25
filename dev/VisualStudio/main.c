@@ -1,6 +1,7 @@
 // esp_dev_os.cpp : Defines the entry point for the console application.
 //
 
+#include <string.h>
 #include "windows.h"
 #include "esp/esp.h"
 #include "esp/apps/esp_mqtt_client_api.h"
@@ -13,7 +14,6 @@
 #include "netconn_client.h"
 #include "netconn_server.h"
 #include "netconn_server_1thread.h"
-#include "string.h"
 #include "esp/esp_timeout.h"
 #include "lwmem/lwmem.h"
 #include "esp_config.h"
@@ -294,7 +294,7 @@ input_thread(void* arg) {
         } else if (IS_LINE("ping")) {
             uint32_t pingtime;
             char* host;
-            
+
             if (parse_str(&str, &host)) {
                 esp_ping(host, &pingtime, NULL, NULL, 1);
                 safeprintf("Ping time: %d\r\n", (int)pingtime);
@@ -303,7 +303,7 @@ input_thread(void* arg) {
             }
         } else if (IS_LINE("hnset")) {
             char* host;
-            
+
             if (parse_str(&str, &host)) {
                 esp_hostname_set(host, NULL, NULL, 1);
             } else {
@@ -413,7 +413,7 @@ main_thread(void* arg) {
     }*/
 
     /* Notify user */
-    
+
 
     while (1) {}
 
@@ -528,7 +528,7 @@ esp_evt(esp_evt_t* evt) {
             } else {
                 safeprintf("Acquired IP is not valid\r\n");
             }
-            
+
             break;
         }
 #if ESP_CFG_MODE_ACCESS_POINT

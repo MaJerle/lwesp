@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_AP_H
 #define ESP_HDR_AP_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -68,6 +68,6 @@ espr_t      esp_ap_disconn_sta(const esp_mac_t* mac, const esp_api_cmd_evt_fn ev
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_AP_H */

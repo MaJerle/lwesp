@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_BUFF_H
 #define ESP_HDR_BUFF_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -90,6 +90,6 @@ size_t      BUF_PREF(buff_advance)(BUF_PREF(buff_t)* buff, size_t len);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_BUFF_H */

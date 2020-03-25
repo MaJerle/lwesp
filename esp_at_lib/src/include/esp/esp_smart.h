@@ -35,11 +35,11 @@
 #ifndef ESP_HDR_SMART_H
 #define ESP_HDR_SMART_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -56,6 +56,6 @@ espr_t      esp_smart_configure(uint8_t en, const esp_api_cmd_evt_fn evt_fn, voi
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_SMART_H */

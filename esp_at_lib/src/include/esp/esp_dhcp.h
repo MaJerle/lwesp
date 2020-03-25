@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_DHCP_H
 #define ESP_HDR_DHCP_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -55,6 +55,6 @@ espr_t      esp_dhcp_configure(uint8_t sta, uint8_t ap, uint8_t en, const esp_ap
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_DHCP_H */

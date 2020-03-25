@@ -34,12 +34,12 @@
 #ifndef ESP_HDR_APP_CAYENNE_H
 #define ESP_HDR_APP_CAYENNE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "esp/esp.h"
 #include "esp/apps/esp_mqtt_client_api.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP_APPS
@@ -185,6 +185,6 @@ espr_t      esp_cayenne_publish_response(esp_cayenne_t* c, esp_cayenne_msg_t* ms
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_APP_CAYENNE_H */

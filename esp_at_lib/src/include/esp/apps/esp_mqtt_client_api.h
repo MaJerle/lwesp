@@ -34,12 +34,12 @@
 #ifndef ESP_HDR_APP_MQTT_CLIENT_API_H
 #define ESP_HDR_APP_MQTT_CLIENT_API_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "esp/esp.h"
 #include "esp/apps/esp_mqtt_client.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP_APPS
@@ -91,6 +91,6 @@ void                    esp_mqtt_client_api_buf_free(esp_mqtt_client_api_buf_p p
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_APP_MQTT_CLIENT_H */

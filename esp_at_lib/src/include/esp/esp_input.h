@@ -34,12 +34,12 @@
 #ifndef ESP_HDR_INPUT_H
 #define ESP_HDR_INPUT_H
 
+#include <string.h>
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <string.h>
-#include "esp/esp.h"
 
 /**
  * \ingroup         ESP

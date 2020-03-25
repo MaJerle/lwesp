@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_UNICODE_H
 #define ESP_HDR_UNICODE_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -55,6 +55,6 @@ espr_t          espi_unicode_decode(esp_unicode_t* uni, uint8_t ch);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_UNICODE_H */

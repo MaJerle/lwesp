@@ -29,15 +29,15 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-#ifndef __CLI_H
-#define __CLI_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef CLI_HDR_H
+#define CLI_HDR_H
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \defgroup        CLI Command line interface
@@ -89,7 +89,7 @@ void                    cli_init(void);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
-#endif /* __CLI_H */
+#endif /* CLI_HDR_H */
 

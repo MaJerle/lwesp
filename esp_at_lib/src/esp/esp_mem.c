@@ -31,9 +31,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
+#include <limits.h>
 #include "esp/esp_private.h"
 #include "esp/esp_mem.h"
-#include <limits.h>
 
 #if !ESP_CFG_MEM_CUSTOM || __DOXYGEN__
 

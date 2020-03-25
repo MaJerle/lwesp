@@ -32,9 +32,11 @@
 #ifndef ESP_HDR_CLI_H
 #define ESP_HDR_CLI_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -42,8 +44,6 @@ extern "C" {
  * \brief           Command line interface
  * \{
  */
-
-#include "esp/esp.h"
 
 void esp_cli_register_commands(void);
 
@@ -53,7 +53,7 @@ void esp_cli_register_commands(void);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_CLI_H */
 

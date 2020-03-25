@@ -34,13 +34,13 @@
 #ifndef ESP_HDR_PRIV_H
 #define ESP_HDR_PRIV_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include "esp/esp.h"
 #include "esp/esp_typedefs.h"
 #include "esp/esp_debug.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \addtogroup      ESP_TYPEDEFS

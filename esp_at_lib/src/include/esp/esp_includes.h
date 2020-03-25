@@ -34,10 +34,6 @@
 #ifndef ESP_HDR_INCLUDES_H
 #define ESP_HDR_INCLUDES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include "esp_config.h"
 #include "esp/esp_typedefs.h"
 #include "esp/esp_buff.h"
@@ -77,6 +73,12 @@ extern "C" {
 #include "esp/esp_smart.h"
 #endif /* ESP_CFG_SMART || __DOXYGEN__ */
 #include "esp/esp_dhcp.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+
 
 #ifdef __cplusplus
 }

@@ -34,12 +34,11 @@
 #ifndef ESP_HDR_H
 #define ESP_HDR_H
 
+#include "esp/esp_includes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/* Get most important include files */
-#include "esp/esp_includes.h"
 
 /**
  * \defgroup        ESP ESP-AT Lib

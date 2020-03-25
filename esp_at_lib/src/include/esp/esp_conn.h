@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_CONN_H
 #define ESP_HDR_CONN_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -79,6 +79,6 @@ espr_t      esp_conn_ssl_configure(uint8_t link_id, uint8_t auth_mode, uint8_t p
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_CONN_H */

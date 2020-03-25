@@ -3,12 +3,12 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 void netconn_client_thread(void const* arg);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif

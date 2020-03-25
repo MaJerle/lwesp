@@ -1,12 +1,12 @@
 #ifndef SNIPPET_HDR_STATION_MANAGER_H
 #define SNIPPET_HDR_STATION_MANAGER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include "esp/esp.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \brief           Lookup table for preferred SSIDs with password for auto connect feature
@@ -21,6 +21,6 @@ void        start_access_point_scan_and_connect_procedure(void);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif

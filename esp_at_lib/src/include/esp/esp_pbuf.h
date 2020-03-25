@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_PBUF_H
 #define ESP_HDR_PBUF_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -81,6 +81,6 @@ void            esp_pbuf_dump(esp_pbuf_p p, uint8_t seq);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_PBUF_H */

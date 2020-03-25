@@ -34,12 +34,12 @@
 #ifndef ESP_HDR_APP_MQTT_CLIENT_H
 #define ESP_HDR_APP_MQTT_CLIENT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "esp/esp.h"
 #include "esp/apps/esp_mqtt_client_evt.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP_APPS
@@ -194,6 +194,6 @@ void                esp_mqtt_client_set_arg(esp_mqtt_client_p client, void* arg)
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_APP_MQTT_CLIENT_H */
