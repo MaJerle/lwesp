@@ -576,9 +576,9 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
      *
      * 1. Check if buffer is set and check if there is something to write to it.
      *    1. In case buffer will be full after copy, send it and free memory.
-     * 2. Check how many bytes we can write directly without needed to copy
+     * 2. Check how many bytes we can write directly without need to copy
      * 3. Try to allocate a new buffer and copy remaining input data to it
-     * 4. In case buffer allocation fails, send data directly (may affect on speed and effectivenes)
+     * 4. In case buffer allocation fails, send data directly (may have impact on speed and effectivenes)
      */
 
     /* Step 1 */
@@ -600,7 +600,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
                 return res;
             }
         } else {
-            return espOK;                       /* Buffer is not yet full yet */
+            return espOK;                       /* Buffer is not full yet */
         }
     }
 
@@ -638,8 +638,8 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 }
 
 /**
- * \brief           Flush buffered data on netconn \e TCP/SSL connection
- * \note            This function may only be used on \e TCP/SSL connection
+ * \brief           Flush buffered data on netconn TCP/SSL connection
+ * \note            This function may only be used on TCP/SSL connection
  * \param[in]       nc: Netconn handle to flush data
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -663,7 +663,7 @@ esp_netconn_flush(esp_netconn_p nc) {
 }
 
 /**
- * \brief           Send data on \e UDP connection to default IP and port
+ * \brief           Send data on UDP connection to default IP and port
  * \param[in]       nc: Netconn handle used to send
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
@@ -679,7 +679,7 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
 }
 
 /**
- * \brief           Send data on \e UDP connection to specific IP and port
+ * \brief           Send data on UDP connection to specific IP and port
  * \note            Use this function in case of UDP type netconn
  * \param[in]       nc: Netconn handle used to send
  * \param[in]       ip: Pointer to IP address
@@ -794,7 +794,7 @@ esp_netconn_get_connnum(esp_netconn_p nc) {
  * \brief           Set timeout value for receiving data.
  *
  * When enabled, \ref esp_netconn_receive will only block for up to
- * \e timeout value and will return if no new data within this time
+ * `timeout` value and will return if no new data within this time
  *
  * \param[in]       nc: Netconn handle
  * \param[in]       timeout: Timeout in units of milliseconds.
