@@ -1,16 +1,16 @@
 #ifndef SNIPPET_HDR_HTTP_SERVER_H
 #define SNIPPET_HDR_HTTP_SERVER_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 espr_t  http_server_start(void);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif

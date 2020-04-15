@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_DNS_H
 #define ESP_HDR_DNS_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -48,6 +48,7 @@ extern "C" {
  */
 
 espr_t      esp_dns_gethostbyname(const char* host, esp_ip_t* const ip, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_dns_get_config(esp_ip_t* s1, esp_ip_t* s2, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_dns_set_config(uint8_t en, const char* s1, const char* s2, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
@@ -56,6 +57,6 @@ espr_t      esp_dns_set_config(uint8_t en, const char* s1, const char* s2, const
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_DNS_H */

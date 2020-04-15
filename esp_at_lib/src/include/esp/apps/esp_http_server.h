@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_HTTP_SERVER_H
 #define ESP_HDR_HTTP_SERVER_H
 
+#include "esp/apps/esp_apps.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "esp/apps/esp_apps.h"
 
 /**
  * \ingroup         ESP_APPS

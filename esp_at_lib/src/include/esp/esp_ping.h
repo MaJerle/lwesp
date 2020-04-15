@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_PING_H
 #define ESP_HDR_PING_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -55,6 +55,6 @@ espr_t      esp_ping(const char* host, uint32_t* time, const esp_api_cmd_evt_fn 
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_PING_H */

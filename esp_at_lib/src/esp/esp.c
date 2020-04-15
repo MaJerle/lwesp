@@ -63,7 +63,7 @@ def_callback(esp_evt_t* evt) {
 
 /**
  * \brief           Init and prepare ESP stack for device operation
- * \note            Function must be called from operating system thread context. 
+ * \note            Function must be called from operating system thread context.
  *                  It creates necessary threads and waits them to start, thus running operating system is important.
  *                  - When \ref ESP_CFG_RESET_ON_INIT is enabled, reset sequence will be sent to device
  *                      otherwise manual call to \ref esp_reset is required to setup device
@@ -252,6 +252,28 @@ esp_set_wifi_mode(esp_mode_t mode,
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE;
     ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+}
+
+/**
+ * \brief           Gets WiFi mode of either station only, access point only or both
+ *
+ * \param[in]       mode: point to space of Mode to get. This parameter can be a pointer of \ref esp_mode_t enumeration
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_get_wifi_mode(esp_mode_t* mode,
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);
+
+    ESP_MSG_VAR_ALLOC(msg, blocking);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWMODE_GET;
+    ESP_MSG_VAR_REF(msg).msg.wifi_mode.mode_get = mode;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
@@ -472,7 +494,7 @@ esp_get_current_at_fw_version(esp_sw_version_t* const version) {
 /**
  * \brief           Delay for amount of milliseconds
  *
- * Delay is based on operating system semaphores. 
+ * Delay is based on operating system semaphores.
  * It locks semaphore and waits for timeout in `ms` time.
  * Based on operating system, thread may be put to \e blocked list during delay and may improve execution speed
  *

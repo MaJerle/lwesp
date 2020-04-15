@@ -8,6 +8,8 @@
  */
 #include "netconn_server.h"
 #include "esp/esp.h"
+#include "esp/esp_netconn.h"
+
 
 static void netconn_server_processing_thread(void* const arg);
 

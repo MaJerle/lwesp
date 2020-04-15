@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_THREADS_H
 #define ESP_HDR_THREADS_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "esp/esp.h"
 
 void    esp_thread_produce(void* const arg);
 void    esp_thread_process(void* const arg);

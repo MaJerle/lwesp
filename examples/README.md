@@ -149,3 +149,26 @@ DEBUG UART, connected through ST-LinkV2/1
 ```
 
 Driver implementation is available in [esp_ll_stm32l432kc_nucleo.c](/src/system/esp_ll_stm32l432kc_nucleo.c)
+
+
+## STM32F107-Core107v
+
+ESP-32 connection
+- ESP_RX:           PD8
+- ESP_TX:           PD9
+- ESP_RESET:        PE11
+
+- UART:             USART3
+- UART DMA:         DMA1
+- UART DMA CHANNEL: DMA_CHANNEL_3
+
+
+DEBUG UART, connected through ST-LinkV2/1
+- UART:             USART2
+- UART_TX:          PD5
+- UART_RX:          PD6
+- UART baudrate:    115200
+```
+
+Driver implementation is available in [esp_ll_stm32f107_core.c](/src/system/esp_ll_stm32f107_core.c)
+

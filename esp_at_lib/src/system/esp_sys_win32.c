@@ -31,9 +31,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "system/esp_sys.h"
 #include <string.h>
 #include <stdlib.h>
+#include "system/esp_sys.h"
 #include "windows.h"
 
 #if !__DOXYGEN__

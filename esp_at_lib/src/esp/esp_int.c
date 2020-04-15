@@ -123,7 +123,7 @@ static espr_t espi_process_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_e
     esp.evt.evt.restore.res = err;                  \
     espi_send_cb(ESP_EVT_RESTORE);                  \
 } while (0)
- 
+
  /**
  * \brief           Send ping event to user
  * \param[in]       m: Command message
@@ -676,11 +676,25 @@ espi_parse_received(esp_recv_t* rcv) {
 #if ESP_CFG_MODE_ACCESS_POINT
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWLIF) && !strncmp(rcv->data, "+CWLIF", 6)) {
                 espi_parse_cwlif(rcv->data, esp.msg);   /* Parse CWLIF entry */
+            } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWSAP_GET) && !strncmp(rcv->data, "+CWSAP", 6)) {
+                espi_parse_cwsap(rcv->data, esp.msg);
 #endif /* ESP_CFG_MODE_ACCESS_POINT */
 #if ESP_CFG_DNS
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 espi_parse_cipdomain(rcv->data, esp.msg);   /* Parse CIPDOMAIN entry */
-#endif /* ESP_CFG_DNS */ 
+            } else if (CMD_IS_CUR(ESP_CMD_TCPIP_CIPDNS_GET) && !strncmp(rcv->data, "+CIPDNS", 7)) {
+                const char* tmp = &rcv->data[8];/* Go to the ip position */
+                esp_ip_t ip;
+                uint8_t index = espi_parse_number(&tmp);
+                esp.msg->msg.dns_getconf.dnsi = index;
+                espi_parse_ip(&tmp, &ip);       /* Parse DNS address */
+                if (esp.msg->msg.dns_getconf.s1 != NULL) {
+                    *esp.msg->msg.dns_getconf.s1 = ip;
+                }
+                if (esp.msg->msg.dns_getconf.s2 != NULL && espi_parse_ip(&tmp, &ip)) {
+                    *esp.msg->msg.dns_getconf.s2 = ip;
+                }
+#endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING
             } else if (CMD_IS_CUR(ESP_CMD_TCPIP_PING) && !strncmp(rcv->data, "+PING", 5)) {
                 espi_parse_ping_time(rcv->data, esp.msg);   /* Parse ping time */
@@ -695,6 +709,9 @@ espi_parse_received(esp_recv_t* rcv) {
 #endif /* ESP_CFG_HOSTNAME */
             } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET) && !strncmp(rcv->data, "+CWDHCP", 7)) {
                 espi_parse_cwdhcp(rcv->data);   /* Parse CWDHCP state */
+            } else if (CMD_IS_CUR(ESP_CMD_WIFI_CWMODE_GET) && !strncmp(rcv->data, "+CWMODE", 7)) {
+                const char* tmp = &rcv->data[8];/* Go to the number position */
+                *esp.msg->msg.wifi_mode.mode_get = (uint8_t)espi_parse_number(&tmp);
             }
         }
 #if ESP_CFG_MODE_STATION
@@ -1024,7 +1041,8 @@ espi_process(const void* data, size_t data_len) {
     }
 
     while (d_len > 0) {                         /* Read entire set of characters from buffer */
-        ch = *d;                                /* Get next character */
+        ch = *d;
+        /* Get next character */
         ++d;                                    /* Go to next character, must be here as it is used later on */
         --d_len;                                /* Decrease remaining length, must be here as it is decreased later too */
 
@@ -1077,7 +1095,7 @@ espi_process(const void* data, size_t data_len) {
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
                     esp.m.ipd.conn->total_recved += esp.m.ipd.buff->tot_len;  /* Increase number of bytes received */
-                    
+
                     /*
                      * Send data buffer to upper layer
                      *
@@ -1314,11 +1332,11 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             }
 #endif /* ESP_CFG_ESP32 */
             SET_NEW_CMD(ESP_CMD_GMR); break;
-        case ESP_CMD_GMR: 
+        case ESP_CMD_GMR:
             SET_NEW_CMD(ESP_CMD_WIFI_CWMODE); break;
-        case ESP_CMD_WIFI_CWMODE: 
+        case ESP_CMD_WIFI_CWMODE:
             SET_NEW_CMD(ESP_CMD_WIFI_CWDHCP_GET); break;
-        case ESP_CMD_WIFI_CWDHCP_GET: 
+        case ESP_CMD_WIFI_CWDHCP_GET:
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPMUX); break;
         case ESP_CMD_TCPIP_CIPMUX:
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -1327,13 +1345,13 @@ espi_get_reset_sub_cmd(esp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if ESP_CFG_MODE_STATION
             SET_NEW_CMD(ESP_CMD_WIFI_CWLAPOPT); break;/* Set visible data for CWLAP command */
-        case ESP_CMD_WIFI_CWLAPOPT: 
+        case ESP_CMD_WIFI_CWLAPOPT:
             SET_NEW_CMD(ESP_CMD_TCPIP_CIPSTATUS); break;/* Get connection status */
         case ESP_CMD_TCPIP_CIPSTATUS:
 #endif /* ESP_CFG_MODE_STATION */
 #if ESP_CFG_MODE_ACCESS_POINT
             SET_NEW_CMD(ESP_CMD_WIFI_CIPAP_GET); break; /* Get access point IP */
-        case ESP_CMD_WIFI_CIPAP_GET: 
+        case ESP_CMD_WIFI_CIPAP_GET:
             SET_NEW_CMD(ESP_CMD_WIFI_CIPAPMAC_GET); break; /* Get access point MAC */
         case ESP_CMD_WIFI_CIPAPMAC_GET:
 #endif /* ESP_CFG_MODE_STATION */
@@ -1737,6 +1755,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
+        case ESP_CMD_WIFI_CWMODE_GET: {         /* Get WIFI mode */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWMODE?");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
 #if ESP_CFG_MODE_STATION
         case ESP_CMD_WIFI_CIPSTA_GET:           /* Get station IP address */
 #endif /* ESP_CFG_MODE_STATION */
@@ -1868,6 +1892,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             espi_send_number(ESP_U32(msg->msg.ap_conf.ecn), 0, 1);
             espi_send_number(ESP_U32(msg->msg.ap_conf.max_sta), 0, 1);
             espi_send_number(ESP_U32(!!msg->msg.ap_conf.hid), 0, 1);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_WIFI_CWSAP_GET: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWSAP?");
             AT_PORT_SEND_END_AT();
             break;
         }
@@ -2128,6 +2158,12 @@ espi_initiate_cmd(esp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
+        case ESP_CMD_TCPIP_CIPDNS_GET: {        /* DNS get config */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPDNS?");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
 #endif /* ESP_CFG_DNS */
 #if ESP_CFG_PING
         case ESP_CMD_TCPIP_PING: {              /* Ping hostname or IP address */
@@ -2163,6 +2199,20 @@ espi_initiate_cmd(esp_msg_t* msg) {
             break;
         }
 #endif /* ESP_CFG_SNTP */
+#if ESP_CFG_SMART
+        case ESP_CMD_WIFI_SMART_START: {        /* Start smart config */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWSTARTSMART");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case ESP_CMD_WIFI_SMART_STOP: {         /* Stop smart config */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWSTOPSMART");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+#endif /* ESP_CFG_SMART */
 #if ESP_CFG_ESP32
         case ESP_CMD_BLEINIT_GET: {
             AT_PORT_SEND_BEGIN_AT();

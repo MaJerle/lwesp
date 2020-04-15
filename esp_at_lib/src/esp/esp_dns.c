@@ -80,7 +80,7 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
  */
 espr_t
 esp_dns_set_config(uint8_t en, const char* s1, const char* s2,
-    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -89,6 +89,33 @@ esp_dns_set_config(uint8_t en, const char* s1, const char* s2,
     ESP_MSG_VAR_REF(msg).msg.dns_setconfig.en = en;
     ESP_MSG_VAR_REF(msg).msg.dns_setconfig.s1 = s1;
     ESP_MSG_VAR_REF(msg).msg.dns_setconfig.s2 = s2;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+}
+
+/**
+ * \brief           Get the DNS server configuration
+ *
+ * Retrive configuration saved in the NVS area of ESP device.
+ *
+ * \param[out]      s1: First server IP address in esp_ip_t format, set to 0.0.0.0 if not used
+ * \param[out]      s2: Second server IP address in esp_ip_t format, set to to 0.0.0.0 if not used.
+ *                  Address `s1` cannot be the same as `s2`
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t
+esp_dns_get_config(esp_ip_t* s1, esp_ip_t* s2,
+                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);
+
+    ESP_MSG_VAR_ALLOC(msg, blocking);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDNS_GET;
+    ESP_MSG_VAR_REF(msg).msg.dns_getconf.s1 = s1;
+    ESP_MSG_VAR_REF(msg).msg.dns_getconf.s2 = s2;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }

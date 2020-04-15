@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_UTILS_H
 #define ESP_HDR_UTILS_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -248,6 +248,6 @@ char *      esp_i32_to_gen_str(int32_t num, char* out);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_UTILITIES_H */

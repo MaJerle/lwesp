@@ -71,7 +71,7 @@ esp_sta_quit(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, 
+esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
@@ -165,7 +165,7 @@ esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm,
 
 /**
  * \brief           Set station IP address
- * 
+ *
  * Application may manually set IP address.
  * When this happens, stack will check for DHCP settings and will read actual IP address from device.
  * Once procedure is finished, \ref ESP_EVT_WIFI_IP_ACQUIRED event will be sent to application where
@@ -209,7 +209,7 @@ esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm,
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
 espr_t
-esp_sta_getmac(esp_mac_t* mac, 
+esp_sta_getmac(esp_mac_t* mac,
                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 

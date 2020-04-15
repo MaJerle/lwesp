@@ -34,12 +34,12 @@
 #ifndef ESP_HDR_DEBUG_H
 #define ESP_HDR_DEBUG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -125,6 +125,6 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_DEBUG_H */

@@ -31,9 +31,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
+#include <limits.h>
 #include "esp/esp_private.h"
 #include "esp/esp_mem.h"
-#include <limits.h>
 
 #if !ESP_CFG_MEM_CUSTOM || __DOXYGEN__
 
@@ -321,7 +321,7 @@ mem_calloc(size_t num, size_t size) {
 /**
  * \brief           Reallocate memory to specific size
  * \note            After new memory is allocated, content of old one is copied to new memory
- * \param[in]       ptr: Pointer to current allocated memory to resize, returned using 
+ * \param[in]       ptr: Pointer to current allocated memory to resize, returned using
  *                      \ref esp_mem_malloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
  * \param[in]       size: Number of bytes to allocate on new memory
  * \return          Memory address on success, `NULL` otherwise

@@ -183,6 +183,29 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
 }
 
 /**
+ * \brief           Get configuration of Soft Access Point
+ *
+ * \note            Before you can get configuration access point, ESP device must be in AP mode. Check \ref esp_set_wifi_mode for more information
+ * \param[out]      ap_conf: soft access point configuration
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ */
+espr_t esp_ap_get_config(esp_ap_conf_t* ap_conf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    ESP_MSG_VAR_DEFINE(msg);
+
+    ESP_ASSERT("ap_conf != NULL", ap_conf != NULL);
+
+    ESP_MSG_VAR_ALLOC(msg, blocking);
+    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWSAP_GET;
+    ESP_MSG_VAR_REF(msg).msg.ap_conf_get.ap_conf = ap_conf;
+
+    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
+}
+
+/**
  * \brief           List stations connected to access point
  * \param[in]       sta: Pointer to array of \ref esp_sta_t structure to fill with stations
  * \param[in]       stal: Number of array entries of sta parameter

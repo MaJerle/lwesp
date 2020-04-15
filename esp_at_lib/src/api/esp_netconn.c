@@ -31,7 +31,7 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_netconn.h"
+#include "esp_netconn.h"
 #include "esp/esp_private.h"
 #include "esp/esp_conn.h"
 #include "esp/esp_mem.h"
@@ -392,6 +392,47 @@ esp_netconn_connect(esp_netconn_p nc, const char* host, esp_port_t port) {
 }
 
 /**
+ * \brief           Connect to server as client, allow keep-alive option
+ * \param[in]       nc: Netconn handle
+ * \param[in]       host: Pointer to host, such as domain name or IP address in string format
+ * \param[in]       port: Target port to use
+ * \param[in]       keep_alive: Keep alive period seconds
+ * \param[in]       local_ip: Local ip in connected command
+ * \param[in]       local_port: Local port address
+ * \param[in]       mode: UDP mode
+ * \return          \ref espOK if successfully connected, member of \ref espr_t otherwise
+ */
+espr_t
+esp_netconn_connect_ex(esp_netconn_p nc, const char* host, esp_port_t port, uint16_t keep_alive, const char* local_ip, esp_port_t local_port, uint8_t mode) {
+    esp_conn_start_t cs = {0};
+    espr_t res;
+
+    ESP_ASSERT("nc != NULL", nc != NULL);
+    ESP_ASSERT("host != NULL", host != NULL);
+    ESP_ASSERT("port > 0", port > 0);
+
+    /*
+     * Start a new connection as client and:
+     *
+     *  - Set current netconn structure as argument
+     *  - Set netconn callback function for connection management
+     *  - Start connection in blocking mode
+     */
+    cs.type = nc->type;
+    cs.remote_host = host;
+    cs.remote_port = port;
+    cs.local_ip = local_ip;
+    if (nc->type == ESP_NETCONN_TYPE_TCP || nc->type == ESP_NETCONN_TYPE_SSL) {
+        cs.ext.tcp_ssl.keep_alive = keep_alive;
+    } else {
+        cs.ext.udp.local_port = local_port;
+        cs.ext.udp.mode = mode;
+    }
+    res = esp_conn_startex(NULL, &cs, nc, netconn_evt, 1);
+    return res;
+}
+
+/**
  * \brief           Bind a connection to specific port, can be only used for server connections
  * \param[in]       nc: Netconn handle
  * \param[in]       port: Port used to bind a connection to
@@ -535,9 +576,9 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
      *
      * 1. Check if buffer is set and check if there is something to write to it.
      *    1. In case buffer will be full after copy, send it and free memory.
-     * 2. Check how many bytes we can write directly without needed to copy
+     * 2. Check how many bytes we can write directly without need to copy
      * 3. Try to allocate a new buffer and copy remaining input data to it
-     * 4. In case buffer allocation fails, send data directly (may affect on speed and effectivenes)
+     * 4. In case buffer allocation fails, send data directly (may have impact on speed and effectivenes)
      */
 
     /* Step 1 */
@@ -559,7 +600,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
                 return res;
             }
         } else {
-            return espOK;                       /* Buffer is not yet full yet */
+            return espOK;                       /* Buffer is not full yet */
         }
     }
 
@@ -597,8 +638,8 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
 }
 
 /**
- * \brief           Flush buffered data on netconn \e TCP/SSL connection
- * \note            This function may only be used on \e TCP/SSL connection
+ * \brief           Flush buffered data on netconn TCP/SSL connection
+ * \note            This function may only be used on TCP/SSL connection
  * \param[in]       nc: Netconn handle to flush data
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
@@ -622,7 +663,7 @@ esp_netconn_flush(esp_netconn_p nc) {
 }
 
 /**
- * \brief           Send data on \e UDP connection to default IP and port
+ * \brief           Send data on UDP connection to default IP and port
  * \param[in]       nc: Netconn handle used to send
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
@@ -638,7 +679,7 @@ esp_netconn_send(esp_netconn_p nc, const void* data, size_t btw) {
 }
 
 /**
- * \brief           Send data on \e UDP connection to specific IP and port
+ * \brief           Send data on UDP connection to specific IP and port
  * \note            Use this function in case of UDP type netconn
  * \param[in]       nc: Netconn handle used to send
  * \param[in]       ip: Pointer to IP address
@@ -677,7 +718,11 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
      * Wait for new received data for up to specific timeout
      * or throw error for timeout notification
      */
-    if (esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, nc->rcv_timeout) == ESP_SYS_TIMEOUT) {
+    if (nc->rcv_timeout == ESP_NETCONN_RECEIVE_NO_WAIT) {
+        if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)pbuf)) {
+            return espTIMEOUT;
+        }
+    } else if (esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, nc->rcv_timeout) == ESP_SYS_TIMEOUT) {
         return espTIMEOUT;
     }
 #else /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
@@ -736,7 +781,7 @@ esp_netconn_close(esp_netconn_p nc) {
  * \return          `-1` on failure, connection number between `0` and \ref ESP_CFG_MAX_CONNS otherwise
  */
 int8_t
-esp_netconn_getconnnum(esp_netconn_p nc) {
+esp_netconn_get_connnum(esp_netconn_p nc) {
     if (nc != NULL && nc->conn != NULL) {
         return esp_conn_getnum(nc->conn);
     }
@@ -749,11 +794,13 @@ esp_netconn_getconnnum(esp_netconn_p nc) {
  * \brief           Set timeout value for receiving data.
  *
  * When enabled, \ref esp_netconn_receive will only block for up to
- * \e timeout value and will return if no new data within this time
+ * `timeout` value and will return if no new data within this time
  *
  * \param[in]       nc: Netconn handle
  * \param[in]       timeout: Timeout in units of milliseconds.
- *                  Set to `0` to disable timeout for \ref esp_netconn_receive function
+ *                      Set to `0` to disable timeout feature
+ *                      Set to `> 0` to set maximum milliseconds to wait before timeout
+ *                      Set to \ref ESP_NETCONN_RECEIVE_NO_WAIT to enable non-blocking receive
  */
 void
 esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout) {
@@ -768,9 +815,19 @@ esp_netconn_set_receive_timeout(esp_netconn_p nc, uint32_t timeout) {
  */
 uint32_t
 esp_netconn_get_receive_timeout(esp_netconn_p nc) {
-    return nc->rcv_timeout;                     /* Return receive timeout */
+    return nc->rcv_timeout;
 }
 
 #endif /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT || __DOXYGEN__ */
+
+/**
+ * \brief           Get netconn connection handle
+ * \param[in]       nc: Netconn handle
+ * \return          ESP connection handle
+ */
+esp_conn_p
+esp_netconn_get_conn(esp_netconn_p nc) {
+    return nc->conn;
+}
 
 #endif /* ESP_CFG_NETCONN || __DOXYGEN__ */

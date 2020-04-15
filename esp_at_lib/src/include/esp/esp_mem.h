@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_MEM_H
 #define ESP_HDR_MEM_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "esp/esp.h"
 
 /**
  * \ingroup         ESP

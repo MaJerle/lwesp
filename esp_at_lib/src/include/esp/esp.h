@@ -34,12 +34,11 @@
 #ifndef ESP_HDR_H
 #define ESP_HDR_H
 
+#include "esp/esp_includes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/* Get most important include files */
-#include "esp/esp_includes.h"
 
 /**
  * \defgroup        ESP ESP-AT Lib
@@ -54,6 +53,7 @@ espr_t      esp_reset_with_delay(uint32_t delay, const esp_api_cmd_evt_fn evt_fn
 espr_t      esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_set_at_baudrate(uint32_t baud, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 espr_t      esp_set_wifi_mode(esp_mode_t mode, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+espr_t      esp_get_wifi_mode(esp_mode_t* mode,const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 espr_t      esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn cb, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 

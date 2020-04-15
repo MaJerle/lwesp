@@ -34,12 +34,12 @@
 #ifndef ESP_HDR_MAIN_SYS_H
 #define ESP_HDR_MAIN_SYS_H
 
+#include <stdint.h>
+#include "esp_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "esp_config.h"
-#include <stdint.h>
 
 /**
  * \defgroup        ESP_SYS System functions

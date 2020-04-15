@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_HOSTNAME_H
 #define ESP_HDR_HOSTNAME_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -56,6 +56,6 @@ espr_t      esp_hostname_get(char* hostname, size_t size, const esp_api_cmd_evt_
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_HOSTNAME_H */

@@ -29,12 +29,12 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-#ifndef __CLI_INPUT_H
-#define __CLI_INPUT_H
+#ifndef ESP_HDR_CLI_INPUT_H
+#define ESP_HDR_CLI_INPUT_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 /**
  * \ingroup         CLI
@@ -53,6 +53,6 @@ void cli_in_data(cli_printf cliprintf, char ch);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
-#endif /* __CLI_INPUT_H */
+#endif /* ESP_HDR_CLI_INPUT_H */

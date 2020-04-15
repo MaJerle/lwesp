@@ -34,12 +34,12 @@
 #ifndef ESP_HDR_APP_CAYENNE_EVT_H
 #define ESP_HDR_APP_CAYENNE_EVT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "esp/esp.h"
 #include "esp/apps/esp_cayenne.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP_APP_CAYENNE_API
@@ -71,6 +71,6 @@ esp_cayenne_msg_t *         esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt)
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_APP_CAYENNE_EVT_H */

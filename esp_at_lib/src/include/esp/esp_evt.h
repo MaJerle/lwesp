@@ -34,11 +34,11 @@
 #ifndef ESP_HDR_EVT_H
 #define ESP_HDR_EVT_H
 
+#include "esp/esp.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#include "esp/esp.h"
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -298,6 +298,6 @@ uint8_t     esp_evt_server_is_enable(esp_evt_t* cc);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif /* ESP_HDR_EVT_H */

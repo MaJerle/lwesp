@@ -97,7 +97,7 @@ topic_name[256];
 static char
 payload_data[128];
 
-/** 
+/**
  * \brief           Parse received topic string
  * \param[in]       c: Cayenne handle
  * \param[in]       buf: MQTT buffer with received data

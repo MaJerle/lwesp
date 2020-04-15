@@ -5,24 +5,24 @@
 
 /*
  * Copyright (c) 2020 Tilen MAJERLE
- *  
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
@@ -52,9 +52,9 @@ main(void) {
     LL_Init();                                  /* Reset of all peripherals, initializes the Flash interface and the Systick. */
     SystemClock_Config();                       /* Configure the system clock */
     USART_Printf_Init();                        /* Init USART for printf */
-    
+
     printf("Application running on STM32F769-Discovery!\r\n");
-    
+
     /* Initialize, create first thread and start kernel */
     osKernelInitialize();
     const osThreadAttr_t attr = {
@@ -62,7 +62,7 @@ main(void) {
     };
     osThreadNew(init_thread, NULL, &attr);
     osKernelStart();
-    
+
     while (1) {}
 }
 
@@ -87,7 +87,7 @@ init_thread(void* arg) {
      * Check for station_manager.c to define preferred access points ESP should connect to
      */
     connect_to_preferred_access_point(1);
-    
+
     /*
      * Create a Netconn based server in separated thread
      *
@@ -154,36 +154,36 @@ SystemClock_Config(void) {
     if (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_7) {
         while (1) {}
     }
-    
+
     /* Set voltage scaling */
     LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
     LL_PWR_EnableOverDriveMode();
-    
+
     /* Enable HSI */
     LL_RCC_HSI_SetCalibTrimming(16);
     LL_RCC_HSI_Enable();
     while (LL_RCC_HSI_IsReady() != 1) {}
-    
+
     /* Configure PLL */
     LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_8, 216, LL_RCC_PLLP_DIV_2);
     LL_RCC_PLL_Enable();
     while (LL_RCC_PLL_IsReady() != 1) {}
-    
+
     /* Set prescalers */
     LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
     LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_4);
     LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_2);
-    
+
     /* Configure system clock */
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
     while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL) {}
-    
+
     /* Configure systick */
     LL_Init1msTick(216000000);
     LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
     NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 15, 0));
     LL_SYSTICK_EnableIT();
-    
+
     LL_SetSystemCoreClock(216000000);
     LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK2);
 }
@@ -199,9 +199,9 @@ USART_Printf_Init(void) {
     /* Peripheral clock enable */
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1);
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-    
+
     /*
-     * USART1 GPIO Configuration  
+     * USART1 GPIO Configuration
      *
      * PA9  ------> USART1_TX
      * PA10 ------> USART1_RX
@@ -211,7 +211,7 @@ USART_Printf_Init(void) {
     GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
     GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
     GPIO_InitStruct.Alternate = LL_GPIO_AF_7;
-    
+
     GPIO_InitStruct.Pin = LL_GPIO_PIN_10;
     LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 

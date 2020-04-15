@@ -31,9 +31,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
+#include <ctype.h>
 #include "esp/apps/esp_http_server.h"
 #include "esp/esp_mem.h"
-#include <ctype.h>
 
 #define ESP_CFG_DBG_SERVER_TRACE            (ESP_CFG_DBG_SERVER | ESP_DBG_TYPE_TRACE)
 #define ESP_CFG_DBG_SERVER_TRACE_WARNING    (ESP_CFG_DBG_SERVER | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING)

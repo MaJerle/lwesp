@@ -34,15 +34,14 @@
 #ifndef ESP_HDR_SYSTEM_PORT_H
 #define ESP_HDR_SYSTEM_PORT_H
 
+#include <stdint.h>
+#include <stdlib.h>
+#include "esp_config.h"
+#include "cmsis_os.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <stdint.h>
-#include <stdlib.h>
-
-#include "esp_config.h"
-#include "cmsis_os.h"
 
 #if ESP_CFG_OS && !__DOXYGEN__
 

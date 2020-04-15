@@ -43,10 +43,17 @@
  *
  * \ref ESP_CFG_INPUT_USE_PROCESS must be enabled in `esp_config.h` to use this driver.
  */
+#include "main.h"
+#include "cmsis_os.h"
+
 #include "esp/esp.h"
 #include "esp/esp_mem.h"
 #include "esp/esp_input.h"
 #include "system/esp_ll.h"
+
+#include "esp_ll_stm32f107_core.c"
+
+static size_t send_data(const void* data, size_t len);
 
 #if !__DOXYGEN__
 
@@ -86,11 +93,12 @@ usart_ll_thread(void* arg) {
     size_t pos;
 
     ESP_UNUSED(arg);
-
+    
     while (1) {
-        void* d;
+        void* d;        
+        
         /* Wait for the event message from DMA or USART */
-        osMessageQueueGet(usart_ll_mbox_id, &d, NULL, osWaitForever);
+        osMessageQueueGet(usart_ll_mbox_id, &d, NULL, osWaitForever);        
 
         /* Read data */
 #if defined(ESP_USART_DMA_RX_STREAM)
@@ -120,171 +128,27 @@ usart_ll_thread(void* arg) {
  */
 static void
 configure_uart(uint32_t baudrate) {
-    static LL_USART_InitTypeDef usart_init;
-    static LL_DMA_InitTypeDef dma_init;
-    LL_GPIO_InitTypeDef gpio_init;
 
-    if (!initialized) {
-        /* Enable peripheral clocks */
-        ESP_USART_CLK;
-        ESP_USART_DMA_CLK;
-        ESP_USART_TX_PORT_CLK;
-        ESP_USART_RX_PORT_CLK;
-
-#if defined(ESP_RESET_PIN)
-        ESP_RESET_PORT_CLK;
-#endif /* defined(ESP_RESET_PIN) */
-
-#if defined(ESP_GPIO0_PIN)
-        ESP_GPIO0_PORT_CLK;
-#endif /* defined(ESP_GPIO0_PIN) */
-
-#if defined(ESP_GPIO2_PIN)
-        ESP_GPIO2_PORT_CLK;
-#endif /* defined(ESP_GPIO2_PIN) */
-
-#if defined(ESP_CH_PD_PIN)
-        ESP_CH_PD_PORT_CLK;
-#endif /* defined(ESP_CH_PD_PIN) */
-
-        /* Global pin configuration */
-        LL_GPIO_StructInit(&gpio_init);
-        gpio_init.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-        gpio_init.Pull = LL_GPIO_PULL_UP;
-        gpio_init.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-        gpio_init.Mode = LL_GPIO_MODE_OUTPUT;
-
-#if defined(ESP_RESET_PIN)
-        /* Configure RESET pin */
-        gpio_init.Pin = ESP_RESET_PIN;
-        LL_GPIO_Init(ESP_RESET_PORT, &gpio_init);
-#endif /* defined(ESP_RESET_PIN) */
-
-#if defined(ESP_GPIO0_PIN)
-        /* Configure GPIO0 pin */
-        gpio_init.Pin = ESP_GPIO0_PIN;
-        LL_GPIO_Init(ESP_GPIO0_PORT, &gpio_init);
-        LL_GPIO_SetOutputPin(ESP_GPIO0_PORT, ESP_GPIO0_PIN);
-#endif /* defined(ESP_GPIO0_PIN) */
-
-#if defined(ESP_GPIO2_PIN)
-        /* Configure GPIO2 pin */
-        gpio_init.Pin = ESP_GPIO2_PIN;
-        LL_GPIO_Init(ESP_GPIO2_PORT, &gpio_init);
-        LL_GPIO_SetOutputPin(ESP_GPIO2_PORT, ESP_GPIO2_PIN);
-#endif /* defined(ESP_GPIO2_PIN) */
-
-#if defined(ESP_CH_PD_PIN)
-        /* Configure CH_PD pin */
-        gpio_init.Pin = ESP_CH_PD_PIN;
-        LL_GPIO_Init(ESP_CH_PD_PORT, &gpio_init);
-        LL_GPIO_SetOutputPin(ESP_CH_PD_PORT, ESP_CH_PD_PIN);
-#endif /* defined(ESP_CH_PD_PIN) */
-
-        /* Configure USART pins */
-        gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
-
-        /* TX PIN */
-        gpio_init.Alternate = ESP_USART_TX_PIN_AF;
-        gpio_init.Pin = ESP_USART_TX_PIN;
-        LL_GPIO_Init(ESP_USART_TX_PORT, &gpio_init);
-
-        /* RX PIN */
-        gpio_init.Alternate = ESP_USART_RX_PIN_AF;
-        gpio_init.Pin = ESP_USART_RX_PIN;
-        LL_GPIO_Init(ESP_USART_RX_PORT, &gpio_init);
-
-        /* Configure UART */
-        LL_USART_DeInit(ESP_USART);
-        LL_USART_StructInit(&usart_init);
-        usart_init.BaudRate = baudrate;
-        usart_init.DataWidth = LL_USART_DATAWIDTH_8B;
-        usart_init.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-        usart_init.OverSampling = LL_USART_OVERSAMPLING_16;
-        usart_init.Parity = LL_USART_PARITY_NONE;
-        usart_init.StopBits = LL_USART_STOPBITS_1;
-        usart_init.TransferDirection = LL_USART_DIRECTION_TX_RX;
-        LL_USART_Init(ESP_USART, &usart_init);
-
-        /* Enable USART interrupts and DMA request */
-        LL_USART_EnableIT_IDLE(ESP_USART);
-        LL_USART_EnableIT_PE(ESP_USART);
-        LL_USART_EnableIT_ERROR(ESP_USART);
-        LL_USART_EnableDMAReq_RX(ESP_USART);
-
-        /* Enable USART interrupts */
-        NVIC_SetPriority(ESP_USART_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x07, 0x00));
-        NVIC_EnableIRQ(ESP_USART_IRQ);
-
-        /* Configure DMA */
-        is_running = 0;
-#if defined(ESP_USART_DMA_RX_STREAM)
-        LL_DMA_DeInit(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        dma_init.Channel = ESP_USART_DMA_RX_CH;
-#else
-        LL_DMA_DeInit(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-        dma_init.PeriphRequest = ESP_USART_DMA_RX_REQ_NUM;
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
-        dma_init.PeriphOrM2MSrcAddress = (uint32_t)&ESP_USART->ESP_USART_RDR_NAME;
-        dma_init.MemoryOrM2MDstAddress = (uint32_t)usart_mem;
-        dma_init.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
-        dma_init.Mode = LL_DMA_MODE_CIRCULAR;
-        dma_init.PeriphOrM2MSrcIncMode = LL_DMA_PERIPH_NOINCREMENT;
-        dma_init.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
-        dma_init.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_BYTE;
-        dma_init.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_BYTE;
-        dma_init.NbData = sizeof(usart_mem);
-        dma_init.Priority = LL_DMA_PRIORITY_MEDIUM;
-#if defined(ESP_USART_DMA_RX_STREAM)
-        LL_DMA_Init(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM, &dma_init);
-#else
-        LL_DMA_Init(ESP_USART_DMA, ESP_USART_DMA_RX_CH, &dma_init);
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
-
-        /* Enable DMA interrupts */
-#if defined(ESP_USART_DMA_RX_STREAM)
-        LL_DMA_EnableIT_HT(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        LL_DMA_EnableIT_TC(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        LL_DMA_EnableIT_TE(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        LL_DMA_EnableIT_FE(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        LL_DMA_EnableIT_DME(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-#else
-        LL_DMA_EnableIT_HT(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-        LL_DMA_EnableIT_TC(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-        LL_DMA_EnableIT_TE(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
-
-        /* Enable DMA interrupts */
-        NVIC_SetPriority(ESP_USART_DMA_RX_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x07, 0x00));
-        NVIC_EnableIRQ(ESP_USART_DMA_RX_IRQ);
-
-        old_pos = 0;
-        is_running = 1;
-
-        /* Start DMA and USART */
-#if defined(ESP_USART_DMA_RX_STREAM)
-        LL_DMA_EnableStream(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-#else
-        LL_DMA_EnableChannel(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
-        LL_USART_Enable(ESP_USART);
-    } else {
-        osDelay(10);
-        LL_USART_Disable(ESP_USART);
-        usart_init.BaudRate = baudrate;
-        LL_USART_Init(ESP_USART, &usart_init);
-        LL_USART_Enable(ESP_USART);
-    }
+if (!initialized) {
+        
+    usart_init(baudrate);
 
     /* Create mbox and start thread */
     if (usart_ll_mbox_id == NULL) {
-        usart_ll_mbox_id = osMessageQueueNew(10, sizeof(void *), NULL);
+        usart_ll_mbox_id = osMessageQueueNew(10, sizeof(void *), NULL);        
     }
     if (usart_ll_thread_id == NULL) {
         const osThreadAttr_t attr = {
             .stack_size = 1024
         };
         usart_ll_thread_id = osThreadNew(usart_ll_thread, usart_ll_mbox_id, &attr);
+    }
+}
+else {    
+        osDelay(10);
+        LL_USART_Disable(ESP_USART);                
+        usart_init(baudrate);      
+        LL_USART_Enable(ESP_USART);
     }
 }
 
@@ -311,9 +175,9 @@ reset_device(uint8_t state) {
  */
 static size_t
 send_data(const void* data, size_t len) {
-    const uint8_t* d = data;
-
-    for (size_t i = 0; i < len; ++i, ++d) {
+    const uint8_t* d = data;  
+    
+    for (size_t i = 0; i < len; ++i, ++d) {                
         LL_USART_TransmitData8(ESP_USART, *d);
         while (!LL_USART_IsActiveFlag_TXE(ESP_USART)) {}
     }
@@ -325,6 +189,7 @@ send_data(const void* data, size_t len) {
  */
 espr_t
 esp_ll_init(esp_ll_t* ll) {
+
 #if !ESP_CFG_MEM_CUSTOM
     static uint8_t memory[ESP_MEM_SIZE];
     esp_mem_region_t mem_regions[] = {
@@ -335,7 +200,7 @@ esp_ll_init(esp_ll_t* ll) {
         esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
     }
 #endif /* !ESP_CFG_MEM_CUSTOM */
-
+    
     if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
 #if defined(ESP_RESET_PIN)
@@ -373,6 +238,7 @@ esp_ll_deinit(esp_ll_t* ll) {
  */
 void
 ESP_USART_IRQHANDLER(void) {
+
     LL_USART_ClearFlag_IDLE(ESP_USART);
     LL_USART_ClearFlag_PE(ESP_USART);
     LL_USART_ClearFlag_FE(ESP_USART);
@@ -383,6 +249,7 @@ ESP_USART_IRQHANDLER(void) {
         void* d = (void *)1;
         osMessageQueuePut(usart_ll_mbox_id, &d, 0, 0);
     }
+
 }
 
 /**
@@ -390,13 +257,109 @@ ESP_USART_IRQHANDLER(void) {
  */
 void
 ESP_USART_DMA_RX_IRQHANDLER(void) {
+
     ESP_USART_DMA_RX_CLEAR_TC;
     ESP_USART_DMA_RX_CLEAR_HT;
 
     if (usart_ll_mbox_id != NULL) {
         void* d = (void *)1;
+        
         osMessageQueuePut(usart_ll_mbox_id, &d, 0, 0);
     }
+
+}
+
+
+// ---------------- ESP INIT LL USART DMA1 ---------------- 
+
+/**
+ * \brief           USART3 Initialization Function
+ */
+void
+usart_init( uint32_t baudrate ) {
+    
+    LL_USART_InitTypeDef USART_InitStruct;
+    LL_GPIO_InitTypeDef GPIO_InitStruct;
+
+    /* Peripheral clock enable */
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART3);    
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_GPIOD);
+
+    /*
+     * USART1 GPIO Configuration
+     *
+     * PD8  ------> USART3_TX
+     * PD9  ------> USART3_RX
+     */
+    GPIO_InitStruct.Pin = LL_GPIO_PIN_8;
+    GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+    GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    LL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = LL_GPIO_PIN_9;
+    GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+    GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;    
+    GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
+    LL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    LL_GPIO_AF_EnableRemap_USART3();
+
+    /* Configure DMA */
+    is_running = 0;
+    
+    LL_DMA_DeInit(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
+
+    /* USART1 DMA Init */
+        
+    /* USART1_RX Init */
+    LL_DMA_SetDataTransferDirection(ESP_USART_DMA, ESP_USART_DMA_RX_CH, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+    LL_DMA_SetChannelPriorityLevel(ESP_USART_DMA, ESP_USART_DMA_RX_CH, LL_DMA_PRIORITY_LOW);
+    LL_DMA_SetMode(ESP_USART_DMA, ESP_USART_DMA_RX_CH, LL_DMA_MODE_CIRCULAR);
+    LL_DMA_SetPeriphIncMode(ESP_USART_DMA, ESP_USART_DMA_RX_CH, LL_DMA_PERIPH_NOINCREMENT);
+    LL_DMA_SetMemoryIncMode(ESP_USART_DMA, ESP_USART_DMA_RX_CH, LL_DMA_MEMORY_INCREMENT);
+    LL_DMA_SetPeriphSize(ESP_USART_DMA, ESP_USART_DMA_RX_CH, LL_DMA_PDATAALIGN_BYTE);
+    LL_DMA_SetMemorySize(ESP_USART_DMA, ESP_USART_DMA_RX_CH, LL_DMA_MDATAALIGN_BYTE);
+
+    LL_DMA_SetPeriphAddress(ESP_USART_DMA, ESP_USART_DMA_RX_CH, (uint32_t)&ESP_USART->ESP_USART_RDR_NAME);
+    LL_DMA_SetMemoryAddress(ESP_USART_DMA, ESP_USART_DMA_RX_CH, (uint32_t)usart_mem);
+    LL_DMA_SetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_CH, ARRAY_LEN(usart_mem));
+
+    /* Enable HT & TC interrupts */
+    LL_DMA_EnableIT_HT(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
+    LL_DMA_EnableIT_TC(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
+
+    /* Init with LL driver */
+    /* DMA controller clock enable */
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
+
+    /* DMA1_Channel3_IRQn interrupt configuration */
+    NVIC_SetPriority(ESP_USART_DMA_RX_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+    NVIC_EnableIRQ(ESP_USART_DMA_RX_IRQ);
+
+    /* USART configuration */
+    USART_InitStruct.BaudRate = baudrate;
+    USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
+    USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
+    USART_InitStruct.Parity = LL_USART_PARITY_NONE;
+    USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
+    USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
+    LL_USART_Init(ESP_USART, &USART_InitStruct);
+    LL_USART_ConfigAsyncMode(ESP_USART);
+    LL_USART_EnableDMAReq_RX(ESP_USART);
+
+    /* USART interrupt */
+    NVIC_SetPriority(ESP_USART_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
+    NVIC_EnableIRQ(ESP_USART_IRQ);
+
+    old_pos = 0;
+    is_running = 1;
+
+    /* Enable USART and DMA */
+    LL_DMA_EnableChannel(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
+    LL_USART_Enable(ESP_USART);
+
 }
 
 #endif /* !__DOXYGEN__ */

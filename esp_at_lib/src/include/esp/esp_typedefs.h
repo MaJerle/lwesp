@@ -34,14 +34,14 @@
 #ifndef ESP_HDR_DEFS_H
 #define ESP_HDR_DEFS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  * \ingroup         ESP
@@ -175,6 +175,19 @@ typedef struct {
     esp_mac_t mac;                              /*!< MAC address */
     uint8_t ch;                                 /*!< Channel information */
 } esp_sta_info_ap_t;
+
+/**
+ * \ingroup         ESP_AP
+ * \brief           Soft access point data structure
+ */
+typedef struct {
+    char ssid[ESP_CFG_MAX_SSID_LENGTH];         /*!< Access point name */
+    char pwd[ESP_CFG_MAX_PWD_LENGTH];           /*!< Access point password/passphrase */
+    uint8_t ch;                                 /*!< WiFi channel used on access point */
+    esp_ecn_t ecn;                              /*!< Encryption mode */
+    uint8_t max_cons;                           /*!< Maximum number of stations allowed connected to this AP */
+    uint8_t hidden;                             /*!< broadcast the SSID, 0 -- No, 1 -- Yes */
+} esp_ap_conf_t;
 
 /**
  * \ingroup         ESP_STA
