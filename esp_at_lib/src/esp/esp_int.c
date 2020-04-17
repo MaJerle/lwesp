@@ -2111,6 +2111,7 @@ espi_initiate_cmd(esp_msg_t* msg) {
             espi_send_number(ESP_U32(msg->msg.tcpip_ssl_cfg.pki_number), 0, 1);
             espi_send_number(ESP_U32(msg->msg.tcpip_ssl_cfg.ca_number), 0, 1);
             AT_PORT_SEND_END_AT();
+            break;
         }
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
         case ESP_CMD_TCPIP_CIPRECVMODE: {       /* Set TCP data receive mode */
