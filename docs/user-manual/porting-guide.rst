@@ -16,12 +16,12 @@ Porting consists of:
 Implement low-level driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To successfully implement all parts of *low-level* driver, application must take care of:
+To successfully prepare all parts of *low-level* driver, application must take care of:
 
 * Implementing :cpp:func:`esp_ll_init` and :cpp:func:`esp_ll_deinit` callback functions
-* Implement and assign *send data* and optional *hardware reset* functions callbacks
-* Assign memory for allocation manager when using default allocator
-* Process received data from *ESP* device and send them to input module for further processing
+* Implement and assign *send data* and optional *hardware reset* function callbacks
+* Assign memory for allocation manager when using default allocator or use custom allocator
+* Process received data from *ESP* device and send it to input module for further processing
 
 .. tip::
     Port examples are available for STM32 and WIN32 architectures.
@@ -116,7 +116,7 @@ Example: System functions for WIN32
     :language: c
     :linenos:
     :caption: Actual header implementation of system functions for WIN32
-  
+
 .. literalinclude:: ../../esp_at_lib/src/system/esp_sys_win32.c
     :language: c
     :linenos:
