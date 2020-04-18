@@ -29,8 +29,8 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-#ifndef __CLI_CONFIG_H
-#define __CLI_CONFIG_H
+#ifndef ESP_HDR_CLI_CONFIG_H
+#define ESP_HDR_CLI_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,4 +96,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* __CLI_CONFIG_H */
+#endif /* ESP_HDR_CLI_CONFIG_H */

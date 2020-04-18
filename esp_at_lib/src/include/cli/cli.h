@@ -29,8 +29,8 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-#ifndef CLI_HDR_H
-#define CLI_HDR_H
+#ifndef ESP_HDR_CLI_H
+#define ESP_HDR_CLI_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -91,5 +91,5 @@ void                    cli_init(void);
 }
 #endif /* __cplusplus */
 
-#endif /* CLI_HDR_H */
+#endif /* ESP_HDR_CLI_H */
 
