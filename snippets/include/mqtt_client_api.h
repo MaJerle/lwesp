@@ -12,4 +12,4 @@ void mqtt_client_api_cayenne_thread(void const* arg);
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* SNIPPET_HDR_MQTT_CLIENT_API_H */

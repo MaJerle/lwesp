@@ -11,4 +11,4 @@ void sntp_gettime(void);
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* SNIPPET_HDR_SNTP_H */

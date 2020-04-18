@@ -11,4 +11,4 @@ void netconn_server_1thread_thread(void* arg);
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* SNIPPET_HDR_NETCONN_SERVER_1THREAD_H */

@@ -11,4 +11,4 @@ void mqtt_client_thread(void const* arg);
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* SNIPPET_HDR_MQTT_CLIENT_H */

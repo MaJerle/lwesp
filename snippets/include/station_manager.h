@@ -23,4 +23,4 @@ void        start_access_point_scan_and_connect_procedure(void);
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* SNIPPET_HDR_STATION_MANAGER_H */

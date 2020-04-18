@@ -11,4 +11,4 @@ void telnet_server_thread(void const* arg);
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* SNIPPET_HDR_TELNET_SERVER_H */

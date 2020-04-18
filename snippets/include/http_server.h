@@ -13,4 +13,4 @@ espr_t  http_server_start(void);
 }
 #endif /* __cplusplus */
 
-#endif
+#endif /* SNIPPET_HDR_HTTP_SERVER_H */
