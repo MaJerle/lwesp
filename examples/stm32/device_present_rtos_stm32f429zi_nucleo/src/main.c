@@ -34,7 +34,6 @@
 
 #include "esp/esp.h"
 #include "station_manager.h"
-#include "esp_config.h"
 
 static void LL_Init(void);
 void SystemClock_Config(void);

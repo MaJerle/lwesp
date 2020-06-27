@@ -1,4 +1,4 @@
-.. _api_cli_config:
+.. _api_cli_opt:
 
 CLI Configuration
 =================

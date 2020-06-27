@@ -1,10 +1,10 @@
-/* Modifications of esp_config.h file for configuration */
+/* Modifications of esp_opts.h file for configuration */
 
 /* Enable global debug */
 #define ESP_CFG_DBG                 ESP_DBG_ON
 
 /*
- * Enable debug types. 
+ * Enable debug types.
  * Application may use bitwise OR | to use multiple types:
  *    ESP_DBG_TYPE_TRACE | ESP_DBG_TYPE_STATE
  */

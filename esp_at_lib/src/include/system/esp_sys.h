@@ -35,7 +35,7 @@
 #define ESP_HDR_MAIN_SYS_H
 
 #include <stdint.h>
-#include "esp_config.h"
+#include "esp/esp_opt.h"
 
 #ifdef __cplusplus
 extern "C" {

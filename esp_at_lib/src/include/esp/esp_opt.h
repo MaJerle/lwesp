@@ -1,6 +1,6 @@
 /**
- * \file            esp_config_default.h
- * \brief           Default configuration for ESP-AT library
+ * \file            esp_opt.h
+ * \brief           ESP-AT options
  */
 
 /*
@@ -34,9 +34,13 @@
 #ifndef ESP_HDR_DEFAULT_CONFIG_H
 #define ESP_HDR_DEFAULT_CONFIG_H
 
+/* Include application options */
+#include "esp_opts.h"
+#include "esp/esp_debug.h"
+
 /**
- * \defgroup        ESP_CONFIG Configuration
- * \brief           Configuration parameters
+ * \defgroup        ESP_OPT Configuration
+ * \brief           ESP-AT options
  * \{
  *
  */
@@ -62,7 +66,7 @@
  *
  * \note            Value must be set to `1` in the current revision
  *
- * \note            Check \ref ESP_CONFIG_OS group for more configuration related to operating system
+ * \note            Check \ref ESP_OPT_OS group for more configuration related to operating system
  *
  */
 #ifndef ESP_CFG_OS
@@ -252,7 +256,7 @@
 #endif
 
 /**
- * \defgroup        ESP_CONFIG_DBG Debugging
+ * \defgroup        ESP_OPT_DBG Debugging
  * \brief           Debugging configurations
  * \{
  */
@@ -403,7 +407,7 @@
  */
 
 /**
- * \defgroup        ESP_CONFIG_OS OS configuration
+ * \defgroup        ESP_OPT_OS OS configuration
  * \brief           Operating system dependant configuration
  * \{
  */
@@ -470,13 +474,13 @@
  */
 
 /**
- * \defgroup        ESP_CONFIG_MODULES Modules
+ * \defgroup        ESP_OPT_MODULES Modules
  * \brief           Configuration of specific modules
  * \{
  */
 
 /**
- * \defgroup        ESP_CONFIG_MODULES_NETCONN Netconn module
+ * \defgroup        ESP_OPT_MODULES_NETCONN Netconn module
  * \brief           Configuration of netconn API module
  * \{
  */
@@ -528,7 +532,7 @@
  */
 
 /**
- * \defgroup        ESP_CONFIG_MODULES_MQTT MQTT client module
+ * \defgroup        ESP_OPT_MODULES_MQTT MQTT client module
  * \brief           Configuration of MQTT and MQTT API client modules
  * \{
  */
@@ -564,7 +568,7 @@
  */
 
 /**
- * \defgroup        ESP_CONFIG_MODULES_CAYENNE Cayenne MQTT client
+ * \defgroup        ESP_OPT_MODULES_CAYENNE Cayenne MQTT client
  * \brief           Configuration of Cayenne MQTT client
  * \{
  */
@@ -670,7 +674,7 @@
 #endif
 
 /**
- * \defgroup        ESP_CONFIG_STD_LIB Standard library
+ * \defgroup        ESP_OPT_STD_LIB Standard library
  * \brief           Standard C library configuration
  * \{
  *

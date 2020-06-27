@@ -1,5 +1,5 @@
 /**
- * \file            cli_config.h
+ * \file            cli_opts.h
  * \brief           Command line interface configuration file
  */
 

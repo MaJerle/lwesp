@@ -37,7 +37,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "esp_config.h"
+#include "esp/esp_opt.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"

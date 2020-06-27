@@ -1,6 +1,6 @@
 /**
- * \file            esp_config.h
- * \brief           Configuration for ESP
+ * \file            esp_opts.h
+ * \brief           ESP application options
  */
 
 /*
@@ -31,16 +31,18 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_CONFIG_H
-#define ESP_HDR_CONFIG_H
+#ifndef ESP_HDR_OPTS_H
+#define ESP_HDR_OPTS_H
 
-/* User specific config */
+/* Rename this file to "esp_opts.h" for your application */
+
+/*
+ * Open "include/esp/esp_opt.h" and
+ * copy & replace here settings you want to change values
+ */
 #define ESP_CFG_AT_ECHO                     1
 #define ESP_CFG_INPUT_USE_PROCESS           1
 
-#define ESP_CFG_NETCONN                     1
+#define ESP_CFG_DNS                         1
 
-/* Include default configuration setup */
-#include "esp/esp_config_default.h"
-
-#endif /* ESP_HDR_CONFIG_H */
+#endif /* ESP_HDR_OPTS_H */

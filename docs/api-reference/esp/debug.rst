@@ -3,7 +3,7 @@
 Debug support
 =============
 
-Middleware has extended debugging capabilities. 
+Middleware has extended debugging capabilities.
 These consist of different debugging levels and types of debug messages,
 allowing to track and catch different types of warnings, severe problems or simply output messages
 program flow messages (trace messages).
@@ -22,11 +22,11 @@ For successful debugging, application must:
 * Enable specific modules to debug, by setting its configuration value to :c:macro:`ESP_DBG_ON`
 
 .. tip::
-    Check :ref:`api_esp_config` for all modules with debug implementation.
+    Check :ref:`api_esp_opt` for all modules with debug implementation.
 
 An example code with config and latter usage:
 
-.. literalinclude:: ../../examples_src/debug_config.h
+.. literalinclude:: ../../examples_src/debug_opts.h
     :language: c
     :linenos:
     :caption: Debug configuration setup

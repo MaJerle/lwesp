@@ -34,7 +34,7 @@
 #ifndef ESP_HDR_INCLUDES_H
 #define ESP_HDR_INCLUDES_H
 
-#include "esp_config.h"
+#include "esp/esp_opt.h"
 #include "esp/esp_typedefs.h"
 #include "esp/esp_buff.h"
 #include "esp/esp_input.h"

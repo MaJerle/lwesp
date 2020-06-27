@@ -55,19 +55,19 @@ At this point it is assumed that you have successfully download library, either 
 * Add port architecture ``esp_at_lib/src/include/system/port/_arch_`` folder to *include path* of your toolchain
 * Add source files from ``esp_at_lib/src/`` folder to toolchain build
 * Add source files from ``esp_at_lib/src/system/`` folder to toolchain build for arch port
-* Copy ``esp_at_lib/src/include/esp/esp_config_template.h`` to project folder and rename it to ``esp_config.h``
+* Copy ``esp_at_lib/src/include/esp/esp_opts_template.h`` to project folder and rename it to ``esp_opts.h``
 * Build the project
 
 Configuration file
 ^^^^^^^^^^^^^^^^^^
 
 Library comes with template config file, which can be modified according to needs.
-This file shall be named ``esp_config.h`` and its default template looks like the one below:
+This file shall be named ``esp_opts.h`` and its default template looks like the one below:
 
 .. tip::
-    Check :ref:`api_esp_config` section for possible configuration settings
+    Check :ref:`api_esp_opt` section for possible configuration settings
 
-.. literalinclude:: ../../esp_at_lib/src/include/esp/esp_config_template.h
+.. literalinclude:: ../../esp_at_lib/src/include/esp/esp_opts_template.h
     :language: c
     :linenos:
-    :caption: Config file template
+    :caption: Template options file

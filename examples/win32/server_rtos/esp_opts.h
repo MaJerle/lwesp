@@ -1,6 +1,6 @@
 /**
- * \file            lwmem_config.h
- * \brief           LwMEM configuration file
+ * \file            esp_opts.h
+ * \brief           ESP application options
  */
 
 /*
@@ -26,26 +26,21 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of LwMEM - Lightweight dynamic memory manager library.
+ * This file is part of ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef LWMEM_HDR_CONFIG_H
-#define LWMEM_HDR_CONFIG_H
+#ifndef ESP_HDR_OPTS_H
+#define ESP_HDR_OPTS_H
 
-/* Rename this file to "lwmem_config.h" for your application */
-
-#include "windows.h"
+/* Rename this file to "esp_opts.h" for your application */
 
 /*
- * Open "include/lwmem/lwmem_config_default.h" and
+ * Open "include/esp/esp_opt.h" and
  * copy & replace here settings you want to change values
  */
-#define LWMEM_CFG_OS                            1
-#define LWMEM_CFG_OS_MUTEX_HANDLE               HANDLE
+#define ESP_CFG_AT_ECHO                     1
+#define ESP_CFG_INPUT_USE_PROCESS           1
 
-/* After user configuration, call default config to merge config together */
-#include "lwmem/lwmem_config_default.h"
-
-#endif /* LWMEM_HDR_CONFIG_H */
+#endif /* ESP_HDR_OPTS_H */

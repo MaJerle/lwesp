@@ -48,7 +48,7 @@ extern "C" {
  */
 
 /**
- * \defgroup        ESP_CONFIG_APP_HTTP Configuration
+ * \defgroup        ESP_OPT_APP_HTTP Configuration
  * \brief           Configuration of HTTP server app
  * \{
  */
