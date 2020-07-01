@@ -278,8 +278,24 @@ request_send_err_callback(esp_mqtt_client_p client, uint8_t status, void* arg) {
 static void
 write_fixed_header(esp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup, esp_mqtt_qos_t qos, uint8_t retain, uint16_t rem_len) {
     uint8_t b;
-
-    b = ESP_U8(((ESP_U8(type)) << 0x04) | (ESP_U8(!!dup) << 0x03) | ((ESP_U8(qos) & 0x03) << 0x01) | ESP_U8(!!retain));
+    
+    /*
+     * Fixed header flags according to:
+     * http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
+     */
+    b = ESP_U8(type) << 0x04;
+    switch (type) {
+        case MQTT_MSG_TYPE_PUBLISH:
+            b |= ESP_U8(!!dup) << 0x03 | (ESP_U8(qos & 0x03)) << 0x01 | ESP_U8(!!retain);
+            break;
+        case MQTT_MSG_TYPE_PUBREL:
+        case MQTT_MSG_TYPE_SUBSCRIBE:
+        case MQTT_MSG_TYPE_UNSUBSCRIBE:
+            b |= ESP_U8(ESP_MQTT_QOS_AT_LEAST_ONCE) << 0x01;
+            break;
+        default:
+            break;
+    }
     esp_buff_write(&client->tx_buff, &b, 1);    /* Write start of packet parameters */
 
     ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
@@ -845,8 +861,7 @@ mqtt_connected_cb(esp_mqtt_client_p client) {
  */
 static uint8_t
 mqtt_data_recv_cb(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
-    client->poll_time = 0;                      /* Reset kep alive time */
-    mqtt_parse_incoming(client, pbuf);
+    mqtt_parse_incoming(client, pbuf);          /* We need to process incoming data */
     esp_conn_recved(client->conn, pbuf);        /* Notify stack about received data */
     return 1;
 }
