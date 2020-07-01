@@ -35,7 +35,6 @@
 #include <string.h>
 #include <stdio.h>
 #include "cli/cli.h"
-#include "cli/cli_config.h"
 
 static cli_commands_t cli_command_table[CLI_MAX_MODULES];
 static size_t num_of_modules;

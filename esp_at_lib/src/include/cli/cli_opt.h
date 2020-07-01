@@ -32,6 +32,8 @@
 #ifndef ESP_HDR_CLI_CONFIG_H
 #define ESP_HDR_CLI_CONFIG_H
 
+#include "esp_opts.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */

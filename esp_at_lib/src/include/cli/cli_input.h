@@ -29,8 +29,10 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_CLI_INPUT_H
-#define ESP_HDR_CLI_INPUT_H
+#ifndef CLI_HDR_CLI_INPUT_H
+#define CLI_HDR_CLI_INPUT_H
+
+#include "cli/cli.h"
 
 #ifdef __cplusplus
 extern "C" {

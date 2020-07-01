@@ -29,11 +29,12 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_CLI_H
-#define ESP_HDR_CLI_H
+#ifndef CLI_HDR_CLI_H
+#define CLI_HDR_CLI_H
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "cli/cli_opt.h"
 
 #ifdef __cplusplus
 extern "C" {

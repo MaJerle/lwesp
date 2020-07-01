@@ -37,7 +37,7 @@
 #include "esp/esp_sta.h"
 #endif /* ESP_CFG_MODE_STATION */
 #include "cli/cli.h"
-#include "cli/cli_config.h"
+#include "cli/cli_opt.h"
 
 #if ESP_CFG_MODE_STATION
 static void cli_station_info(cli_printf cliprintf, int argc, char** argv);

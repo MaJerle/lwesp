@@ -36,7 +36,6 @@
 
 /* Include application options */
 #include "esp_opts.h"
-#include "esp/esp_debug.h"
 
 /**
  * \defgroup        ESP_OPT Configuration
@@ -764,5 +763,7 @@ void *  my_memset(void* dst, int b, size_t len);
 #endif /* ESP_CFG_WPS && !ESP_CFG_MODE_STATION */
 
 #endif /* !__DOXYGEN__ */
+
+#include "esp/esp_debug.h"
 
 #endif /* ESP_HDR_DEFAULT_CONFIG_H */

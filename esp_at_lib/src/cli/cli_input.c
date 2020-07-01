@@ -35,7 +35,7 @@
 #include <string.h>
 #include "cli/cli.h"
 #include "cli/cli_input.h"
-#include "cli/cli_config.h"
+#include "cli/cli_opt.h"
 
 /* Statically allocate CLI buffer to eliminate overhead of using heap*/
 static char cmd_buffer[CLI_MAX_CMD_LENGTH];

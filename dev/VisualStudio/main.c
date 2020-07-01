@@ -16,7 +16,7 @@
 #include "netconn_server_1thread.h"
 #include "esp/esp_timeout.h"
 #include "lwmem/lwmem.h"
-#include "esp_config.h"
+#include "esp/esp_opt.h"
 
 #define safeprintf              printf
 
