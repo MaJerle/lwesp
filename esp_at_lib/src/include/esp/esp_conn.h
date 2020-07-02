@@ -54,7 +54,7 @@ espr_t      esp_conn_close(esp_conn_p conn, const uint32_t blocking);
 espr_t      esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw, const uint32_t blocking);
 espr_t      esp_conn_sendto(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data, size_t btw, size_t* bw, const uint32_t blocking);
 espr_t      esp_conn_set_arg(esp_conn_p conn, void* const arg);
-void *      esp_conn_get_arg(esp_conn_p conn);
+void*       esp_conn_get_arg(esp_conn_p conn);
 uint8_t     esp_conn_is_client(esp_conn_p conn);
 uint8_t     esp_conn_is_server(esp_conn_p conn);
 uint8_t     esp_conn_is_active(esp_conn_p conn);

@@ -179,9 +179,12 @@ espi_parse_ip(const char** src, esp_ip_t* ip) {
     if (*p == '"') {
         ++p;
     }
-    ip->ip[0] = espi_parse_number(&p); ++p;
-    ip->ip[1] = espi_parse_number(&p); ++p;
-    ip->ip[2] = espi_parse_number(&p); ++p;
+    ip->ip[0] = espi_parse_number(&p);
+    ++p;
+    ip->ip[1] = espi_parse_number(&p);
+    ++p;
+    ip->ip[2] = espi_parse_number(&p);
+    ++p;
     ip->ip[3] = espi_parse_number(&p);
     if (*p == '"') {
         ++p;
@@ -204,11 +207,16 @@ espi_parse_mac(const char** src, esp_mac_t* mac) {
     if (*p == '"') {                            /* Go to next entry if possible */
         ++p;
     }
-    mac->mac[0] = espi_parse_hexnumber(&p); ++p;
-    mac->mac[1] = espi_parse_hexnumber(&p); ++p;
-    mac->mac[2] = espi_parse_hexnumber(&p); ++p;
-    mac->mac[3] = espi_parse_hexnumber(&p); ++p;
-    mac->mac[4] = espi_parse_hexnumber(&p); ++p;
+    mac->mac[0] = espi_parse_hexnumber(&p);
+    ++p;
+    mac->mac[1] = espi_parse_hexnumber(&p);
+    ++p;
+    mac->mac[2] = espi_parse_hexnumber(&p);
+    ++p;
+    mac->mac[3] = espi_parse_hexnumber(&p);
+    ++p;
+    mac->mac[4] = espi_parse_hexnumber(&p);
+    ++p;
     mac->mac[5] = espi_parse_hexnumber(&p);
     if (*p == '"') {                            /* Skip quotes if possible */
         ++p;
@@ -340,22 +348,22 @@ espi_parse_ipd(const char* str) {
         c->tcp_available_bytes = len;           /* Set new value for number of bytes available to read from device */
     } else
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-    /*
-     * If additional information are enabled (IP and PORT),
-     * parse them and save.
-     *
-     * Even if information is enabled, in case of manual TCP
-     * receive, these information are not present.
-     *
-     * Check for ':' character if it is end of string and determine how to proceed
-     */
-    if (*str != ':') {
-        espi_parse_ip(&str, &esp.m.ipd.ip);     /* Parse incoming packet IP */
-        esp.m.ipd.port = espi_parse_port(&str); /* Get port on IPD data */
+        /*
+         * If additional information are enabled (IP and PORT),
+         * parse them and save.
+         *
+         * Even if information is enabled, in case of manual TCP
+         * receive, these information are not present.
+         *
+         * Check for ':' character if it is end of string and determine how to proceed
+         */
+        if (*str != ':') {
+            espi_parse_ip(&str, &esp.m.ipd.ip);     /* Parse incoming packet IP */
+            esp.m.ipd.port = espi_parse_port(&str); /* Get port on IPD data */
 
-        ESP_MEMCPY(&esp.m.conns[conn].remote_ip, &esp.m.ipd.ip, sizeof(esp.m.ipd.ip));
-        ESP_MEMCPY(&esp.m.conns[conn].remote_port, &esp.m.ipd.port, sizeof(esp.m.ipd.port));
-    }
+            ESP_MEMCPY(&esp.m.conns[conn].remote_ip, &esp.m.ipd.ip, sizeof(esp.m.ipd.ip));
+            ESP_MEMCPY(&esp.m.conns[conn].remote_port, &esp.m.ipd.port, sizeof(esp.m.ipd.port));
+        }
 
     /*
      * Data read procedure may only happen in case there is
@@ -381,8 +389,10 @@ espi_parse_ipd(const char* str) {
  */
 uint8_t
 espi_parse_at_sdk_version(const char* str, esp_sw_version_t* version_out) {
-    version_out->major = ((uint8_t)espi_parse_number(&str));   ++str;
-    version_out->minor = ((uint8_t)espi_parse_number(&str));   ++str;
+    version_out->major = ((uint8_t)espi_parse_number(&str));
+    ++str;
+    version_out->minor = ((uint8_t)espi_parse_number(&str));
+    ++str;
     version_out->patch = ((uint8_t)espi_parse_number(&str));
 
     return 1;

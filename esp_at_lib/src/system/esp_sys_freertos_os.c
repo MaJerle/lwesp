@@ -41,7 +41,7 @@
 static SemaphoreHandle_t sys_mutex;
 
 typedef struct freertos_mbox {
-    void *d;
+    void* d;
 } freertos_mbox;
 
 uint8_t
@@ -161,7 +161,7 @@ esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
 
     mb.d = m;
     xQueueSend(*b, &mb, portMAX_DELAY);
-    return xTaskGetTickCount()-t;
+    return xTaskGetTickCount() - t;
 }
 
 uint32_t
@@ -170,8 +170,8 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t t = xTaskGetTickCount();
 
     if (xQueueReceive(*b, &mb, !timeout ? portMAX_DELAY : timeout)) {
-       *m = mb.d;
-       return xTaskGetTickCount()-t;
+        *m = mb.d;
+        return xTaskGetTickCount() - t;
     }
     return ESP_SYS_TIMEOUT;
 }
@@ -189,8 +189,8 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
     freertos_mbox mb;
 
     if (xQueueReceive(*b, &mb, 0)) {
-       *m = mb.d;
-       return 1;
+        *m = mb.d;
+        return 1;
     }
     return 0;
 }

@@ -111,7 +111,7 @@ mqtt_client_api_thread(void const* arg) {
         //goto terminate;
     }
 
-terminate: 
+terminate:
     esp_mqtt_client_api_delete(client);
     printf("MQTT client thread terminate\r\n");
     esp_sys_thread_terminate(NULL);

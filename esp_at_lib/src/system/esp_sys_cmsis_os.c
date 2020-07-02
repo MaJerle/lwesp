@@ -64,7 +64,7 @@ esp_sys_unprotect(void) {
 uint8_t
 esp_sys_mutex_create(esp_sys_mutex_t* p) {
     const osMutexAttr_t attr = {
-            .attr_bits = osMutexRecursive
+        .attr_bits = osMutexRecursive
     };
     *p = osMutexNew(&attr);
     return *p != NULL;
@@ -130,7 +130,7 @@ esp_sys_sem_invalid(esp_sys_sem_t* p) {
 
 uint8_t
 esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
-    return (*b = osMessageQueueNew(size, sizeof(void *), NULL)) != NULL;
+    return (*b = osMessageQueueNew(size, sizeof(void*), NULL)) != NULL;
 }
 
 uint8_t
@@ -178,9 +178,9 @@ uint8_t
 esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
     esp_sys_thread_t id;
     const osThreadAttr_t thread_attr = {
-            .name = (char *)name,
-            .priority = (osPriority)prio,
-            .stack_size = stack_size > 0 ? stack_size : ESP_SYS_THREAD_SS
+        .name = (char*)name,
+        .priority = (osPriority)prio,
+        .stack_size = stack_size > 0 ? stack_size : ESP_SYS_THREAD_SS
     };
 
     id = osThreadNew(thread_func, arg, &thread_attr);

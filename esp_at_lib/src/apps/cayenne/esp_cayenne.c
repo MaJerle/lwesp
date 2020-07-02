@@ -113,7 +113,7 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     ESP_ASSERT("buf != NULL && buf->topic != NULL", buf != NULL && buf->topic != NULL);
 
     msg = &c->msg;                              /* Get message handle */
-    topic = (void *)buf->topic;                 /* Get topic data */
+    topic = (void*)buf->topic;                  /* Get topic data */
 
     ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received topic: %s\r\n", topic);
 
@@ -198,7 +198,7 @@ parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     ESP_ASSERT("buf != NULL", buf != NULL);
 
     msg = &c->msg;                              /* Get message handle */
-    payload = (void *)buf->payload;             /* Get payload data */
+    payload = (void*)buf->payload;              /* Get payload data */
 
     ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received payload\r\n");
 
@@ -207,7 +207,7 @@ parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     /* Parse topic format here */
     switch (msg->topic) {
         case ESP_CAYENNE_TOPIC_DATA: {
-            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC DATA: %*s\r\n", (int)buf->payload_len, (const char *)buf->payload);
+            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC DATA: %*s\r\n", (int)buf->payload_len, (const char*)buf->payload);
             /* Parse data with '=' separator */
             break;
         }
@@ -229,7 +229,7 @@ parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
             break;
         }
         case ESP_CAYENNE_TOPIC_ANALOG: {
-            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC ANALOG: %*s\r\n", (int)buf->payload_len, (const char *)buf->payload);
+            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC ANALOG: %*s\r\n", (int)buf->payload_len, (const char*)buf->payload);
             /* Here parse type,value */
         }
         default:
@@ -307,7 +307,7 @@ build_topic(char* topic_str, size_t topic_str_len, const char* username,
  * \param[in]       arg: Thread argument. Pointer to \ref esp_mqtt_client_cayenne_t structure
  */
 static void
-mqtt_thread(void * const arg) {
+mqtt_thread(void* const arg) {
     esp_cayenne_t* c = arg;
     esp_mqtt_conn_status_t status;
     esp_mqtt_client_api_buf_p buf;
@@ -359,8 +359,8 @@ mqtt_thread(void * const arg) {
                         if (parse_topic(c, buf) == espOK && parse_payload(c, buf) == espOK) {
                             ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic and payload parsed!\r\n");
                             ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
-                                (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value
-                            );
+                                       (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value
+                                      );
 
                             /* Send notification to user */
                             c->evt.type = ESP_CAYENNE_EVT_DATA;
@@ -425,7 +425,7 @@ esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, 
         esp_sys_sem_release(&c->sem);
         esp_sys_sem_delete(&c->sem);
         esp_sys_sem_invalid(&c->sem);
-        esp_mem_free_s((void **)&c->api_c);
+        esp_mem_free_s((void**)&c->api_c);
         c->info_c = NULL;
         return espERRMEM;
     }
@@ -455,9 +455,9 @@ esp_cayenne_subscribe(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t chan
     res = esp_mqtt_client_api_subscribe(c->api_c, topic_name, ESP_MQTT_QOS_EXACTLY_ONCE);
 
     ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, res == espOK,
-        "[CAYENNE] Subscribed to topic %s\r\n", topic_name);
+               "[CAYENNE] Subscribed to topic %s\r\n", topic_name);
     ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, res != espOK,
-        "[CAYENNE] Cannot subscribe to topic %s, error code: %d\r\n", topic_name, (int)res);
+               "[CAYENNE] Cannot subscribe to topic %s, error code: %d\r\n", topic_name, (int)res);
 
     esp_sys_mutex_unlock(&prot_mutex);
 
@@ -484,9 +484,9 @@ esp_cayenne_unsubscribe(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t ch
     res = esp_mqtt_client_api_unsubscribe(c->api_c, topic_name);
 
     ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, res == espOK,
-        "[CAYENNE] Unsubscribed from topic %s\r\n", topic_name);
+               "[CAYENNE] Unsubscribed from topic %s\r\n", topic_name);
     ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, res != espOK,
-        "[CAYENNE] Cannot unsubscribe from topic %s, error code: %d\r\n", topic_name, (int)res);
+               "[CAYENNE] Cannot unsubscribe from topic %s, error code: %d\r\n", topic_name, (int)res);
 
     esp_sys_mutex_unlock(&prot_mutex);
 
@@ -495,7 +495,7 @@ esp_cayenne_unsubscribe(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t ch
 
 espr_t
 esp_cayenne_publish_data(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel,
-                        const char* type, const char* unit, const char* data) {
+                         const char* type, const char* unit, const char* data) {
     espr_t res = espOK;
 
     esp_sys_mutex_lock(&prot_mutex);

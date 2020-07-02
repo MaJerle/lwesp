@@ -59,7 +59,7 @@ esp_cayenne_evt_type_t      esp_cayenne_evt_get_type(esp_cayenne_evt_t* evt);
  * \note            Use these functions on \ref ESP_CAYENNE_EVT_DATA event
  */
 
-esp_cayenne_msg_t *         esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt);
+esp_cayenne_msg_t*          esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt);
 
 /**
  * \}

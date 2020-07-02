@@ -12,10 +12,10 @@
  */
 static const char
 request_header[] = ""
-"GET / HTTP/1.1\r\n"
-"Host: " NETCONN_HOST "\r\n"
-"Connection: close\r\n"
-"\r\n";
+                   "GET / HTTP/1.1\r\n"
+                   "Host: " NETCONN_HOST "\r\n"
+                   "Connection: close\r\n"
+                   "\r\n";
 
 /**
  * \brief           Netconn client thread implementation
@@ -26,7 +26,7 @@ netconn_client_thread(void const* arg) {
     espr_t res;
     esp_pbuf_p pbuf;
     esp_netconn_p client;
-    esp_sys_sem_t* sem = (void *)arg;
+    esp_sys_sem_t* sem = (void*)arg;
 
     /*
      * First create a new instance of netconn

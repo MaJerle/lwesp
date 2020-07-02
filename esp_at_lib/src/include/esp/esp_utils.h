@@ -54,11 +54,11 @@ extern "C" {
  * \param[in]       c: Condition to test
  */
 #define ESP_ASSERT(msg, c)   do {   \
-    if (!(c)) {                     \
-        ESP_DEBUGF(ESP_CFG_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, (int)__LINE__, msg);\
-        return espPARERR;           \
-    }                               \
-} while (0)
+        if (!(c)) {                     \
+            ESP_DEBUGF(ESP_CFG_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, (int)__LINE__, msg);\
+            return espPARERR;           \
+        }                               \
+    } while (0)
 
 /**
  * \brief           Align `x` value to specific number of bytes, provided by \ref ESP_CFG_MEM_ALIGNMENT configuration
@@ -239,8 +239,8 @@ extern "C" {
  */
 #define esp_i8_to_str(num, out)             esp_i32_to_gen_str(ESP_I32(ESP_I8(num)), (out))
 
-char *      esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t padding);
-char *      esp_i32_to_gen_str(int32_t num, char* out);
+char*       esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t padding);
+char*       esp_i32_to_gen_str(int32_t num, char* out);
 
 /**
  * \}

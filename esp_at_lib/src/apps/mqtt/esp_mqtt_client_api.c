@@ -85,7 +85,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
             esp_mqtt_conn_status_t status = esp_mqtt_client_evt_connect_get_status(client, evt);
 
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                "[MQTT API] Connect event with status: %d\r\n", (int)status);
+                       "[MQTT API] Connect event with status: %d\r\n", (int)status);
 
             api_client->connect_resp = status;
 
@@ -120,7 +120,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
                 /* Print debug message */
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                    "[MQTT API] New publish received on topic %.*s\r\n", (int)topic_len, topic);
+                           "[MQTT API] New publish received on topic %.*s\r\n", (int)topic_len, topic);
 
                 /* Calculate memory sizes */
                 buf_size = ESP_MEM_ALIGN(sizeof(*buf));
@@ -131,8 +131,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                 buf = esp_mem_malloc(size);
                 if (buf != NULL) {
                     ESP_MEMSET(buf, 0x00, size);
-                    buf->topic = (void *)((uint8_t *)buf + buf_size);
-                    buf->payload = (void *)((uint8_t *)buf + buf_size + topic_size);
+                    buf->topic = (void*)((uint8_t*)buf + buf_size);
+                    buf->payload = (void*)((uint8_t*)buf + buf_size + topic_size);
                     buf->topic_len = topic_len;
                     buf->payload_len = payload_len;
                     buf->qos = qos;
@@ -144,13 +144,13 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                     /* Write to receive queue */
                     if (!esp_sys_mbox_putnow(&api_client->rcv_mbox, buf)) {
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                            "[MQTT API] Cannot put new received MQTT publish to queue\r\n");
-                        esp_mem_free_s((void **)&buf);
+                                   "[MQTT API] Cannot put new received MQTT publish to queue\r\n");
+                        esp_mem_free_s((void**)&buf);
                     }
                 } else {
                     ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                        "[MQTT API] Cannot allocate memory for packet buffer of size %d bytes\r\n",
-                        (int)size);
+                               "[MQTT API] Cannot allocate memory for packet buffer of size %d bytes\r\n",
+                               (int)size);
                 }
             }
             break;
@@ -160,8 +160,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
             /* Print debug message */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                "[MQTT API] Publish event with response: %d\r\n",
-                (int)api_client->sub_pub_resp);
+                       "[MQTT API] Publish event with response: %d\r\n",
+                       (int)api_client->sub_pub_resp);
 
             release_sem(api_client);            /* Release semaphore */
             break;
@@ -171,8 +171,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
             /* Print debug message */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                "[MQTT API] Subscribe event with response: %d\r\n",
-                (int)api_client->sub_pub_resp);
+                       "[MQTT API] Subscribe event with response: %d\r\n",
+                       (int)api_client->sub_pub_resp);
 
             release_sem(api_client);            /* Release semaphore */
             break;
@@ -182,8 +182,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
             /* Print debug message */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                "[MQTT API] Unsubscribe event with response: %d\r\n",
-                (int)api_client->sub_pub_resp);
+                       "[MQTT API] Unsubscribe event with response: %d\r\n",
+                       (int)api_client->sub_pub_resp);
 
             release_sem(api_client);            /* Release semaphore */
             break;
@@ -195,7 +195,7 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
             /* Print debug message */
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-                "[MQTT API] Disconnect event\r\n");
+                       "[MQTT API] Disconnect event\r\n");
 
             /* Write to receive mbox to wakeup receive thread */
             if (is_accepted && esp_sys_mbox_isvalid(&api_client->rcv_mbox)) {
@@ -205,7 +205,8 @@ mqtt_evt(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
             release_sem(api_client);            /* Release semaphore */
             break;
         }
-        default: break;
+        default:
+            break;
     }
 }
 
@@ -238,23 +239,23 @@ esp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
                         return client;
                     } else {
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                            "[MQTT API] Cannot allocate mutex\r\n");
+                                   "[MQTT API] Cannot allocate mutex\r\n");
                     }
                 } else {
                     ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                        "[MQTT API] Cannot allocate sync semaphore\r\n");
+                               "[MQTT API] Cannot allocate sync semaphore\r\n");
                 }
             } else {
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                    "[MQTT API] Cannot allocate receive queue\r\n");
+                           "[MQTT API] Cannot allocate receive queue\r\n");
             }
         } else {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                "[MQTT API] Cannot allocate MQTT client\r\n");
+                       "[MQTT API] Cannot allocate MQTT client\r\n");
         }
     } else {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-            "[MQTT API] Cannot allocate memory for client\r\n");
+                   "[MQTT API] Cannot allocate memory for client\r\n");
     }
 
     esp_mqtt_client_api_delete(client);
@@ -282,7 +283,7 @@ esp_mqtt_client_api_delete(esp_mqtt_client_api_p client) {
     if (esp_sys_mbox_isvalid(&client->rcv_mbox)) {
         void* d;
         while (esp_sys_mbox_getnow(&client->rcv_mbox, &d)) {
-            if ((uint8_t *)d != (uint8_t *)&mqtt_closed) {
+            if ((uint8_t*)d != (uint8_t*)&mqtt_closed) {
                 esp_mqtt_client_api_buf_free(d);
             }
         }
@@ -293,7 +294,7 @@ esp_mqtt_client_api_delete(esp_mqtt_client_api_p client) {
         esp_mqtt_client_delete(client->mc);
         client->mc = NULL;
     }
-    esp_mem_free_s((void **)&client);
+    esp_mem_free_s((void**)&client);
 }
 
 /**
@@ -310,7 +311,7 @@ esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host,
     if (client == NULL || host == NULL
         || !port || info == NULL) {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-            "[MQTT API] Invalid parameters in function\r\n");
+                   "[MQTT API] Invalid parameters in function\r\n");
         return ESP_MQTT_CONN_STATUS_TCP_FAILED;
     }
 
@@ -322,7 +323,7 @@ esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host,
         esp_sys_sem_wait(&client->sync_sem, 0);
     } else {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-            "[MQTT API] Cannot connect to %s\r\n", host);
+                   "[MQTT API] Cannot connect to %s\r\n", host);
     }
     client->release_sem = 0;
     esp_sys_sem_release(&client->sync_sem);
@@ -348,8 +349,8 @@ esp_mqtt_client_api_close(esp_mqtt_client_api_p client) {
         res = espOK;
         esp_sys_sem_wait(&client->sync_sem, 0);
     } else {
-         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-             "[MQTT API] Cannot close API connection\r\n");
+        ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
+                   "[MQTT API] Cannot close API connection\r\n");
     }
     client->release_sem = 0;
     esp_sys_sem_release(&client->sync_sem);
@@ -366,7 +367,7 @@ esp_mqtt_client_api_close(esp_mqtt_client_api_p client) {
  */
 espr_t
 esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic,
-                                esp_mqtt_qos_t qos) {
+                              esp_mqtt_qos_t qos) {
     espr_t res = espERR;
 
     ESP_ASSERT("client != NULL", client != NULL);
@@ -380,7 +381,7 @@ esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic,
         res = client->sub_pub_resp;
     } else {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-            "[MQTT API] Cannot subscribe to topic %s\r\n", topic);
+                   "[MQTT API] Cannot subscribe to topic %s\r\n", topic);
     }
     client->release_sem = 0;
     esp_sys_sem_release(&client->sync_sem);
@@ -410,7 +411,7 @@ esp_mqtt_client_api_unsubscribe(esp_mqtt_client_api_p client, const char* topic)
         res = client->sub_pub_resp;
     } else {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-            "[MQTT API] Cannot unsubscribe from topic %s\r\n", topic);
+                   "[MQTT API] Cannot unsubscribe from topic %s\r\n", topic);
     }
     client->release_sem = 0;
     esp_sys_sem_release(&client->sync_sem);
@@ -447,7 +448,7 @@ esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, con
         res = client->sub_pub_resp;
     } else {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-            "[MQTT API] Cannot publish new packet\r\n");
+                   "[MQTT API] Cannot publish new packet\r\n");
     }
     client->release_sem = 0;
     esp_sys_sem_release(&client->sync_sem);
@@ -495,17 +496,17 @@ esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_bu
 
     /* Get new entry from mbox */
     if (timeout == 0) {
-        if (!esp_sys_mbox_getnow(&client->rcv_mbox, (void **)p)) {
+        if (!esp_sys_mbox_getnow(&client->rcv_mbox, (void**)p)) {
             return espTIMEOUT;
         }
-    } else if (esp_sys_mbox_get(&client->rcv_mbox, (void **)p, timeout) == ESP_SYS_TIMEOUT) {
+    } else if (esp_sys_mbox_get(&client->rcv_mbox, (void**)p, timeout) == ESP_SYS_TIMEOUT) {
         return espTIMEOUT;
     }
 
     /* Check for MQTT closed event */
-    if ((uint8_t *)(*p) == (uint8_t *)&mqtt_closed) {
+    if ((uint8_t*)(*p) == (uint8_t*)&mqtt_closed) {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_API_TRACE,
-            "[MQTT API] Closed event received from queue\r\n");
+                   "[MQTT API] Closed event received from queue\r\n");
 
         *p = NULL;
         return espCLOSED;
@@ -519,5 +520,5 @@ esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_bu
  */
 void
 esp_mqtt_client_api_buf_free(esp_mqtt_client_api_buf_p p) {
-    esp_mem_free_s((void **)&p);
+    esp_mem_free_s((void**)&p);
 }

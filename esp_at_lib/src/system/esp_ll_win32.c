@@ -87,13 +87,13 @@ configure_uart(uint32_t baudrate) {
      */
     if (!initialized) {
         com_port = CreateFile(L"\\\\.\\COM4",
-            GENERIC_READ | GENERIC_WRITE,
-            0,
-            0,
-            OPEN_EXISTING,
-            0,
-            NULL
-        );
+                              GENERIC_READ | GENERIC_WRITE,
+                              0,
+                              0,
+                              OPEN_EXISTING,
+                              0,
+                              NULL
+                             );
     }
 
     /* Configure COM port parameters */

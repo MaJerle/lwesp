@@ -3,7 +3,7 @@
  * which listens for new connections and accepts them.
  *
  * When a new client is accepted by server,
- * separate thread for client is created where 
+ * separate thread for client is created where
  * data is read, processed and send back to user
  */
 #include "netconn_server.h"
@@ -16,45 +16,45 @@ static void netconn_server_processing_thread(void* const arg);
  */
 static const uint8_t
 resp_data_mainpage_top[] = ""
-"HTTP/1.1 200 OK\r\n"
-"Content-Type: text/html\r\n"
-"\r\n"
-"<html>"
-"   <head>"
-"       <link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\" />"
-"       <meta http-equiv=\"refresh\" content=\"1\" />"
-"   </head>"
-"   <body>"
-"       <p>Netconn driven website!</p>"
-"       <p>Total system up time: <b>";
+                           "HTTP/1.1 200 OK\r\n"
+                           "Content-Type: text/html\r\n"
+                           "\r\n"
+                           "<html>"
+                           "   <head>"
+                           "       <link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\" />"
+                           "       <meta http-equiv=\"refresh\" content=\"1\" />"
+                           "   </head>"
+                           "   <body>"
+                           "       <p>Netconn driven website!</p>"
+                           "       <p>Total system up time: <b>";
 
 /**
  * \brief           Bottom part of main page
  */
 static const uint8_t
 resp_data_mainpage_bottom[] = ""
-"       </b></p>"
-"   </body>"
-"</html>";
+                              "       </b></p>"
+                              "   </body>"
+                              "</html>";
 
 /**
  * \brief           Style file response
  */
 static const uint8_t
 resp_data_style[] = ""
-"HTTP/1.1 200 OK\r\n"
-"Content-Type: text/css\r\n"
-"\r\n"
-"body { color: red; font-family: Tahoma, Arial; };";
+                    "HTTP/1.1 200 OK\r\n"
+                    "Content-Type: text/css\r\n"
+                    "\r\n"
+                    "body { color: red; font-family: Tahoma, Arial; };";
 
 /**
  * \brief           404 error response
  */
 static const uint8_t
 resp_error_404[] = ""
-"HTTP/1.1 404 Not Found\r\n"
-"\r\n"
-"Error 404";
+                   "HTTP/1.1 404 Not Found\r\n"
+                   "\r\n"
+                   "Error 404";
 
 /**
  * \brief           Netconn server thread implementation
@@ -64,9 +64,9 @@ void
 netconn_server_thread(void const* arg) {
     espr_t res;
     esp_netconn_p server, client;
-                                                
+
     /*
-     * First create a new instance of netconn 
+     * First create a new instance of netconn
      * connection and initialize system message boxes
      * to accept clients and packet buffers
      */
@@ -83,12 +83,12 @@ netconn_server_thread(void const* arg) {
              * on previously binded port
              */
             res = esp_netconn_listen(server);
-            
+
             while (1) {
                 /*
                  * Wait and accept new client connection
-                 * 
-                 * Function will block thread until 
+                 *
+                 * Function will block thread until
                  * new client is connected to server
                  */
                 res = esp_netconn_accept(server, &client);
@@ -120,7 +120,7 @@ netconn_server_thread(void const* arg) {
     } else {
         printf("Cannot create server netconn\r\n");
     }
-    
+
     esp_netconn_delete(server);                 /* Delete netconn structure */
     esp_sys_thread_terminate(NULL);             /* Terminate current thread */
 }
@@ -137,9 +137,9 @@ netconn_server_processing_thread(void* const arg) {
     char strt[20];
 
     client = arg;                               /* Client handle is passed to argument */
-                                                
+
     printf("A new connection accepted!\r\n");   /* Print simple message */
-                    
+
     do {
         /*
          * Client was accepted, we are now

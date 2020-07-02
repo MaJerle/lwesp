@@ -76,7 +76,7 @@ BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size) {
 void
 BUF_PREF(buff_free)(BUF_PREF(buff_t)* buff) {
     if (BUF_IS_VALID(buff)) {
-        esp_mem_free_s((void **)&buff->buff);
+        esp_mem_free_s((void**)&buff->buff);
     }
 }
 
@@ -114,7 +114,7 @@ BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t btw) {
 
     /* Step 2: Write data to beginning of buffer (overflow part) */
     if (btw > 0) {
-        BUF_MEMCPY(buff->buff, (void *)&d[tocopy], btw);
+        BUF_MEMCPY(buff->buff, (void*)&d[tocopy], btw);
         buff->w = btw;
     }
 
@@ -135,7 +135,7 @@ BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t btw) {
 size_t
 BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t btr) {
     size_t tocopy, full;
-    uint8_t *d = data;
+    uint8_t* d = data;
 
     if (!BUF_IS_VALID(buff) || btr == 0) {
         return 0;
@@ -178,7 +178,7 @@ BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t btr) {
 size_t
 BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_t btp) {
     size_t full, tocopy, r;
-    uint8_t *d = data;
+    uint8_t* d = data;
 
     if (!BUF_IS_VALID(buff) || btp == 0) {
         return 0;
@@ -288,7 +288,7 @@ BUF_PREF(buff_reset)(BUF_PREF(buff_t)* buff) {
  * \param[in]       buff: Buffer handle
  * \return          Linear buffer start address
  */
-void *
+void*
 BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t)* buff) {
     if (!BUF_IS_VALID(buff)) {
         return NULL;
@@ -351,7 +351,7 @@ BUF_PREF(buff_skip)(BUF_PREF(buff_t)* buff, size_t len) {
  * \param[in]       buff: Buffer handle
  * \return          Linear buffer start address
  */
-void *
+void*
 BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t)* buff) {
     if (!BUF_IS_VALID(buff)) {
         return NULL;

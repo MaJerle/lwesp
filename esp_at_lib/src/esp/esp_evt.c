@@ -94,7 +94,7 @@ esp_evt_unregister(esp_evt_fn fn) {
     for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {
         if (func->fn == fn) {
             prev->next = func->next;
-            esp_mem_free_s((void **)&func);
+            esp_mem_free_s((void**)&func);
             break;
         }
     }
@@ -149,7 +149,7 @@ esp_evt_restore_get_result(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          MAC address
  */
-esp_mac_t *
+esp_mac_t*
 esp_evt_ap_ip_sta_get_mac(esp_evt_t* cc) {
     return cc->evt.ap_ip_sta.mac;
 }
@@ -159,7 +159,7 @@ esp_evt_ap_ip_sta_get_mac(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          IP address
  */
-esp_ip_t *
+esp_ip_t*
 esp_evt_ap_ip_sta_get_ip(esp_evt_t* cc) {
     return cc->evt.ap_ip_sta.ip;
 }
@@ -169,7 +169,7 @@ esp_evt_ap_ip_sta_get_ip(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          MAC address
  */
-esp_mac_t *
+esp_mac_t*
 esp_evt_ap_connected_sta_get_mac(esp_evt_t* cc) {
     return cc->evt.ap_conn_disconn_sta.mac;
 }
@@ -179,7 +179,7 @@ esp_evt_ap_connected_sta_get_mac(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          MAC address
  */
-esp_mac_t *
+esp_mac_t*
 esp_evt_ap_disconnected_sta_get_mac(esp_evt_t* cc) {
     return cc->evt.ap_conn_disconn_sta.mac;
 }
@@ -331,7 +331,7 @@ esp_evt_conn_error_get_type(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          Host name for connection
  */
-const char *
+const char*
 esp_evt_conn_error_get_host(esp_evt_t* cc) {
     return cc->evt.conn_error.host;
 }
@@ -351,7 +351,7 @@ esp_evt_conn_error_get_port(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          User argument
  */
-void *
+void*
 esp_evt_conn_error_get_arg(esp_evt_t* cc) {
     return cc->evt.conn_error.arg;
 }
@@ -373,7 +373,7 @@ esp_evt_sta_list_ap_get_result(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          Pointer to \ref esp_ap_t with first access point description
  */
-esp_ap_t *
+esp_ap_t*
 esp_evt_sta_list_ap_get_aps(esp_evt_t* cc) {
     return cc->evt.sta_list_ap.aps;
 }
@@ -403,7 +403,7 @@ esp_evt_sta_join_ap_get_result(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          AP name
  */
-const char *
+const char*
 esp_evt_sta_info_ap_get_ssid(esp_evt_t* cc) {
     return cc->evt.sta_info_ap.info->ssid;
 }
@@ -467,7 +467,7 @@ esp_evt_dns_hostbyname_get_result(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          Hostname
  */
-const char *
+const char*
 esp_evt_dns_hostbyname_get_host(esp_evt_t* cc) {
     return cc->evt.dns_hostbyname.host;
 }
@@ -477,7 +477,7 @@ esp_evt_dns_hostbyname_get_host(esp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          IP address
  */
-esp_ip_t *
+esp_ip_t*
 esp_evt_dns_hostbyname_get_ip(esp_evt_t* cc) {
     return cc->evt.dns_hostbyname.ip;
 }

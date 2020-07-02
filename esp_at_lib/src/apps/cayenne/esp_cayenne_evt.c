@@ -48,7 +48,7 @@ esp_cayenne_evt_get_type(esp_cayenne_evt_t* evt) {
  * \param[in]       evt: Cayenne event handle
  * \return          Message pointer
  */
-esp_cayenne_msg_t *
+esp_cayenne_msg_t*
 esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt) {
     return evt->evt.data.msg;
 }

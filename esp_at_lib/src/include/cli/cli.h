@@ -81,7 +81,7 @@ typedef struct {
 
 const cli_command_t*    cli_lookup_command(char* command);
 void                    cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos, bool print_options);
-bool                    cli_register_commands(const cli_command_t *commands, size_t num_of_commands);
+bool                    cli_register_commands(const cli_command_t* commands, size_t num_of_commands);
 void                    cli_init(void);
 
 /**

@@ -56,7 +56,7 @@ commands[] = {
  */
 void
 esp_cli_register_commands(void) {
-    cli_register_commands(commands, sizeof(commands)/sizeof(commands[0]));
+    cli_register_commands(commands, sizeof(commands) / sizeof(commands[0]));
 }
 
 #if ESP_CFG_MODE_STATION || __DOXYGEN__

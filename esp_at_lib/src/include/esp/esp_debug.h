@@ -95,10 +95,10 @@ extern "C" {
  * \param[in]       ...: Variable parameters for formatted string
  */
 #define ESP_DEBUGF(c, fmt, ...)         do {\
-    if (((c) & (ESP_DBG_ON)) && ((c) & (ESP_CFG_DBG_TYPES_ON)) && ((c) & ESP_DBG_LVL_MASK) >= (ESP_CFG_DBG_LVL_MIN)) {    \
-        ESP_CFG_DBG_OUT(fmt, ## __VA_ARGS__);   \
-    }                                       \
-} while (0)
+        if (((c) & (ESP_DBG_ON)) && ((c) & (ESP_CFG_DBG_TYPES_ON)) && ((c) & ESP_DBG_LVL_MASK) >= (ESP_CFG_DBG_LVL_MIN)) {    \
+            ESP_CFG_DBG_OUT(fmt, ## __VA_ARGS__);   \
+        }                                       \
+    } while (0)
 
 /**
  * \brief           Print message to the debug "window" if enabled when specific condition is met
@@ -108,10 +108,10 @@ extern "C" {
  * \param[in]       ...: Variable parameters for formatted string
  */
 #define ESP_DEBUGW(c, cond, fmt, ...)   do {\
-    if (cond) {                             \
-        ESP_DEBUGF(c, fmt, ## __VA_ARGS__); \
-    }                                       \
-} while (0)
+        if (cond) {                             \
+            ESP_DEBUGF(c, fmt, ## __VA_ARGS__); \
+        }                                       \
+    } while (0)
 #else
 #undef ESP_CFG_DBG
 #define ESP_CFG_DBG                 ESP_DBG_OFF

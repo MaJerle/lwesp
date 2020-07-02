@@ -48,7 +48,7 @@
  */
 espr_t
 esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
-                        const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                      const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("host != NULL", host != NULL);
@@ -80,7 +80,7 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
  */
 espr_t
 esp_dns_set_config(uint8_t en, const char* s1, const char* s2,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                   const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -108,7 +108,7 @@ esp_dns_set_config(uint8_t en, const char* s1, const char* s2,
  */
 espr_t
 esp_dns_get_config(esp_ip_t* s1, esp_ip_t* s2,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                   const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);

@@ -62,7 +62,7 @@ store_command_to_history(void) {
     uint32_t hist_count;
     if (strcmp(cmd_history_buffer[0], cmd_buffer)) {
         for (hist_count = CLI_CMD_HISTORY - 1; hist_count > 0; --hist_count) {
-            memcpy(cmd_history_buffer[hist_count], cmd_history_buffer[hist_count-1], CLI_MAX_CMD_LENGTH);
+            memcpy(cmd_history_buffer[hist_count], cmd_history_buffer[hist_count - 1], CLI_MAX_CMD_LENGTH);
         }
         ++cmd_history_full;
         if (cmd_history_full > CLI_CMD_HISTORY) {
@@ -190,9 +190,9 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
  * \return          `true` when command is found and parsed, else `false`
  */
 static bool
-cli_parse_and_execute_command(cli_printf cliprintf, char *input) {
-    const cli_command_t *command;
-    char * argv[CLI_MAX_NUM_OF_ARGS];
+cli_parse_and_execute_command(cli_printf cliprintf, char* input) {
+    const cli_command_t* command;
+    char* argv[CLI_MAX_NUM_OF_ARGS];
     uint32_t argc = 0;
 
     argv[argc] = strtok(input, " ");

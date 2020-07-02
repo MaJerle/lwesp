@@ -42,16 +42,16 @@
  * \hideinitializer
  */
 #define CONN_CHECK_CLOSED_IN_CLOSING(conn) do { \
-    espr_t r = espOK;                           \
-    esp_core_lock();                            \
-    if (conn->status.f.in_closing || !conn->status.f.active) {  \
-        r = espCLOSED;                          \
-    }                                           \
-    esp_core_unlock();                          \
-    if (r != espOK) {                           \
-        return r;                               \
-    }                                           \
-} while (0)
+        espr_t r = espOK;                           \
+        esp_core_lock();                            \
+        if (conn->status.f.in_closing || !conn->status.f.active) {  \
+            r = espCLOSED;                          \
+        }                                           \
+        esp_core_unlock();                          \
+        if (r != espOK) {                           \
+            return r;                               \
+        }                                           \
+    } while (0)
 
 /**
  * \brief           Timeout callback for connection
@@ -68,7 +68,7 @@ conn_timeout_cb(void* arg) {
 
         espi_conn_start_timeout(conn);          /* Schedule new timeout */
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
-            "[CONN] Poll event: %p\r\n", conn);
+                   "[CONN] Poll event: %p\r\n", conn);
     }
 
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -200,7 +200,7 @@ espi_conn_get_val_id(esp_conn_p conn) {
  */
 static espr_t
 conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data,
-            size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
+          size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("conn != NULL", conn != NULL);
@@ -249,8 +249,8 @@ flush_buff(esp_conn_p conn) {
         }
         if (res != espOK) {
             ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
-                "[CONN] Free write buffer: %p\r\n", (void *)conn->buff.buff);
-            esp_mem_free_s((void **)&conn->buff.buff);
+                       "[CONN] Free write buffer: %p\r\n", (void*)conn->buff.buff);
+            esp_mem_free_s((void**)&conn->buff.buff);
         }
         conn->buff.buff = NULL;
     }
@@ -279,7 +279,7 @@ espi_conn_init(void) {
  */
 espr_t
 esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const remote_host, esp_port_t remote_port,
-                void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking) {
+               void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("remote_host != NULL", remote_host != NULL);
@@ -311,7 +311,7 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const remote_
  */
 espr_t
 esp_conn_startex(esp_conn_p* conn, esp_conn_start_t* start_struct,
-    void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking) {
+                 void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("start_struct != NULL", start_struct != NULL);
@@ -368,7 +368,7 @@ esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
     if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
         esp_core_lock();
         ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
-            "[CONN] Connection %d set to closing state\r\n", (int)conn->num);
+                   "[CONN] Connection %d set to closing state\r\n", (int)conn->num);
         conn->status.f.in_closing = 1;          /* Connection is in closing mode but not yet closed */
         esp_core_unlock();
     }
@@ -408,7 +408,7 @@ esp_conn_sendto(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, cons
  */
 espr_t
 esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
-                const uint32_t blocking) {
+              const uint32_t blocking) {
     espr_t res;
     const uint8_t* d = data;
 
@@ -488,7 +488,7 @@ esp_conn_set_arg(esp_conn_p conn, void* const arg) {
  * \return          User argument
  * \sa              esp_conn_set_arg
  */
-void *
+void*
 esp_conn_get_arg(esp_conn_p conn) {
     void* arg;
     esp_core_lock();
@@ -617,12 +617,18 @@ esp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
 esp_conn_p
 esp_conn_get_from_evt(esp_evt_t* evt) {
     switch (evt->type) {
-        case ESP_EVT_CONN_ACTIVE: return esp_evt_conn_active_get_conn(evt);
-        case ESP_EVT_CONN_CLOSE: return esp_evt_conn_close_get_conn(evt);
-        case ESP_EVT_CONN_RECV: return esp_evt_conn_recv_get_conn(evt);
-        case ESP_EVT_CONN_SEND: return esp_evt_conn_send_get_conn(evt);
-        case ESP_EVT_CONN_POLL: return esp_evt_conn_poll_get_conn(evt);
-        default: return NULL;
+        case ESP_EVT_CONN_ACTIVE:
+            return esp_evt_conn_active_get_conn(evt);
+        case ESP_EVT_CONN_CLOSE:
+            return esp_evt_conn_close_get_conn(evt);
+        case ESP_EVT_CONN_RECV:
+            return esp_evt_conn_recv_get_conn(evt);
+        case ESP_EVT_CONN_SEND:
+            return esp_evt_conn_send_get_conn(evt);
+        case ESP_EVT_CONN_POLL:
+            return esp_evt_conn_poll_get_conn(evt);
+        default:
+            return NULL;
     }
 }
 
@@ -641,7 +647,7 @@ esp_conn_get_from_evt(esp_evt_t* evt) {
  */
 espr_t
 esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
-                size_t* const mem_available) {
+               size_t* const mem_available) {
     size_t len;
 
     const uint8_t* d = data;
@@ -675,8 +681,8 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
             /* Try to send to processing queue in non-blocking way */
             if (conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != espOK) {
                 ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
-                    "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
-                esp_mem_free_s((void **)&conn->buff.buff);
+                           "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
+                esp_mem_free_s((void**)&conn->buff.buff);
             }
             conn->buff.buff = NULL;
         }
@@ -690,8 +696,8 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
             ESP_MEMCPY(buff, d, ESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
             if (conn_send(conn, NULL, 0, buff, ESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
                 ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
-                    "[CONN] Free write buffer: %p\r\n", (void *)buff);
-                esp_mem_free_s((void **)&buff);
+                           "[CONN] Free write buffer: %p\r\n", (void*)buff);
+                esp_mem_free_s((void**)&buff);
                 return espERRMEM;
             }
         } else {
@@ -709,9 +715,9 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
         conn->buff.ptr = 0;
 
         ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff.buff != NULL,
-            "[CONN] New write buffer allocated, addr = %p\r\n", conn->buff.buff);
+                   "[CONN] New write buffer allocated, addr = %p\r\n", conn->buff.buff);
         ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff.buff == NULL,
-            "[CONN] Cannot allocate new write buffer\r\n");
+                   "[CONN] Cannot allocate new write buffer\r\n");
     }
     if (btw > 0) {
         if (conn->buff.buff != NULL) {
@@ -822,7 +828,7 @@ esp_conn_get_local_port(esp_conn_p conn) {
  */
 espr_t
 esp_conn_ssl_configure(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                       const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);

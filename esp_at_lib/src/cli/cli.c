@@ -56,7 +56,7 @@ commands[] = {
  * \param[in]       command: pointer to command string for which we are searching
  * \return          pointer of the command if we found a match, else NULL
  */
-const cli_command_t *
+const cli_command_t*
 cli_lookup_command(char* command) {
     uint32_t module_index, command_index;
     for (module_index = 0; module_index < num_of_modules; ++module_index) {
@@ -85,7 +85,7 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
 
     for (module_index = 0; module_index < num_of_modules; ++module_index) {
         for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; ++command_index) {
-            const cli_command_t *command = &cli_command_table[module_index].commands[command_index];
+            const cli_command_t* command = &cli_command_table[module_index].commands[command_index];
             if (!strncmp(cmd_buffer, cli_command_table[module_index].commands[command_index].name, *cmd_pos)) {
                 /* Found a new command which matches the string */
                 if (num_of_matched_commands == 0) {
@@ -118,9 +118,9 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
                     uint32_t last_common_command_len = common_command_len;
                     common_command_len = 0;
                     while (matched_command[common_command_len] == command->name[common_command_len]
-                            && matched_command[common_command_len] != '\0'
-                            && command->name[common_command_len] != '\0'
-                            && common_command_len < last_common_command_len) {
+                           && matched_command[common_command_len] != '\0'
+                           && command->name[common_command_len] != '\0'
+                           && common_command_len < last_common_command_len) {
                         ++common_command_len;
                     }
                 }

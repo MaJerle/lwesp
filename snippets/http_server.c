@@ -10,8 +10,8 @@ static espr_t   http_post_data_cb(http_state_t* hs, esp_pbuf_p pbuf);
 static espr_t   http_post_end_cb(http_state_t* hs);
 #endif /* HTTP_SUPPORT_POST */
 
-static char *   led_cgi_handler(http_param_t* params, size_t params_len);
-static char *   usart_cgi_handler(http_param_t* params, size_t params_len);
+static char*    led_cgi_handler(http_param_t* params, size_t params_len);
+static char*    usart_cgi_handler(http_param_t* params, size_t params_len);
 
 /**
  * \brief           List of CGI handlers
@@ -35,7 +35,7 @@ http_init = {
     .cgi = cgi_handlers,
     .cgi_count = ESP_ARRAYSIZE(cgi_handlers),
     .ssi_fn = http_ssi_cb,
-    
+
     /*
      * Use native WIN32 file system API
      */
@@ -104,7 +104,7 @@ http_post_end_cb(http_state_t* hs) {
 
 /**
  * \brief           Global SSI callback function
- *          
+ *
  *                  Called in case SSI tag was found and ready to be replaced by custom data
  *
  * \param[in]       hs: HTTP state
@@ -118,7 +118,7 @@ http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
     static uint32_t cnt;
 
     cnt++;
-    
+
     ESP_UNUSED(ssi_buffer);
     if (!strncmp(tag_name, "title", tag_len)) {
         esp_http_server_write_string(hs, "ESP8266 SSI TITLE");
@@ -131,7 +131,7 @@ http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
         ESP_UNUSED(i);
         esp_http_server_write_string(hs, "<table class=\"table\">");
         esp_http_server_write_string(hs, "<thead><tr><th>#</th><th>SSID</th><th>MAC</th><th>RSSI</th></tr></thead><tbody>");
-        
+
         //for (i = 0; i < apf; i++) {
         //    esp_http_server_write_string(hs, "<tr><td>");
         //    sprintf(ssi_buffer, "%d", (int)i);
@@ -157,7 +157,7 @@ http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
  * \param[in]       params_len: Number of parameters
  * \return          URI string to return to user
  */
-char *
+char*
 led_cgi_handler(http_param_t* params, size_t params_len) {
     printf("LED CGI HANDLER\r\n");
     while (params_len--) {
@@ -173,7 +173,7 @@ led_cgi_handler(http_param_t* params, size_t params_len) {
  * \param[in]       params_len: Number of parameters
  * \return          URI string to return to user
  */
-char *
+char*
 usart_cgi_handler(http_param_t* params, size_t params_len) {
     printf("USART CGI HANDLER!\r\n");
     while (params_len--) {

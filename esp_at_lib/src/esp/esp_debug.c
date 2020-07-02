@@ -37,7 +37,7 @@
 
 #if ESP_CFG_DBG || __DOXYGEN__
 
-const char *
+const char*
 espi_dbg_msg_to_string(esp_cmd_t cmd) {
     static char tmp_arr[100];
     if (cmd) {

@@ -15,8 +15,8 @@ sntp_gettime(void) {
         /* Get actual time and print it */
         if (esp_sntp_gettime(&dt, NULL, NULL, 1) == espOK) {
             printf("Date & time: %d.%d.%d, %d:%d:%d\r\n",
-                (int)dt.date, (int)dt.month, (int)dt.year,
-                (int)dt.hours, (int)dt.minutes, (int)dt.seconds);
+                   (int)dt.date, (int)dt.month, (int)dt.year,
+                   (int)dt.hours, (int)dt.minutes, (int)dt.seconds);
         }
     }
 }

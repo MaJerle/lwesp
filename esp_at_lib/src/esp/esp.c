@@ -91,19 +91,19 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
 
     if (!esp_sys_sem_create(&esp.sem_sync, 1)) {/* Create sync semaphore between threads */
         ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
-            "[CORE] Cannot allocate sync semaphore!\r\n");
+                   "[CORE] Cannot allocate sync semaphore!\r\n");
         goto cleanup;
     }
 
     /* Create message queues */
     if (!esp_sys_mbox_create(&esp.mbox_producer, ESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) {  /* Producer */
         ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
-            "[CORE] Cannot allocate producer mbox queue!\r\n");
+                   "[CORE] Cannot allocate producer mbox queue!\r\n");
         goto cleanup;
     }
     if (!esp_sys_mbox_create(&esp.mbox_process, ESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {  /* Process */
         ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
-            "[CORE] Cannot allocate process mbox queue!\r\n");
+                   "[CORE] Cannot allocate process mbox queue!\r\n");
         goto cleanup;
     }
 
@@ -111,14 +111,14 @@ esp_init(esp_evt_fn evt_func, const uint32_t blocking) {
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Lock semaphore */
     if (!esp_sys_thread_create(&esp.thread_produce, "esp_produce", esp_thread_produce, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
         ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
-            "[CORE] Cannot create producing thread!\r\n");
+                   "[CORE] Cannot create producing thread!\r\n");
         esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
         goto cleanup;
     }
     esp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in process thread */
     if (!esp_sys_thread_create(&esp.thread_process, "esp_process", esp_thread_process, &esp.sem_sync, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
         ESP_DEBUGF(ESP_CFG_DBG_INIT | ESP_DBG_LVL_SEVERE | ESP_DBG_TYPE_TRACE,
-            "[CORE] Cannot create processing thread!\r\n");
+                   "[CORE] Cannot create processing thread!\r\n");
         esp_sys_thread_terminate(&esp.thread_produce);  /* Delete produce thread */
         esp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
         goto cleanup;
@@ -202,7 +202,7 @@ esp_reset(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t b
  */
 espr_t
 esp_reset_with_delay(uint32_t delay,
-                        const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                     const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -245,7 +245,7 @@ esp_restore(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t
  */
 espr_t
 esp_set_wifi_mode(esp_mode_t mode,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                  const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -267,7 +267,7 @@ esp_set_wifi_mode(esp_mode_t mode,
  */
 espr_t
 esp_get_wifi_mode(esp_mode_t* mode,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                  const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -314,7 +314,7 @@ esp_set_at_baudrate(uint32_t baud,
  */
 espr_t
 esp_set_server(uint8_t en, esp_port_t port, uint16_t max_conn, uint16_t timeout, esp_evt_fn server_evt_fn,
-                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+               const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("port > 0", port > 0);
@@ -405,7 +405,7 @@ esp_core_unlock(void) {
  */
 espr_t
 esp_device_set_present(uint8_t present,
-                        const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                       const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     espr_t res = espOK;
     esp_core_lock();
     present = present ? 1 : 0;

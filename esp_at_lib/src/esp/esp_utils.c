@@ -45,7 +45,7 @@
  *                      This parameter is valid only when formatting hex numbers
  * \return          Pointer to output variable
  */
-char *
+char*
 esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
     char* tmp = out;
     uint8_t i, y;
@@ -102,7 +102,7 @@ esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
  * \param[out]      out: Output variable to save string
  * \return          Pointer to output variable
  */
-char *
+char*
 esp_i32_to_gen_str(int32_t num, char* out) {
     if (num < 0) {
         *out = '-';

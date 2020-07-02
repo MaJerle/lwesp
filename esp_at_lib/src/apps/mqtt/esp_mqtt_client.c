@@ -123,9 +123,9 @@ typedef enum {
 
 #if ESP_CFG_DBG
 
-static const char *
+static const char*
 mqtt_msg_type_to_str(mqtt_msg_type_t msg_type) {
-    static const char * strings[] = {
+    static const char* strings[] = {
         "UNKNOWN",
         "CONNECT", "CONNACK", "PUBLISH", "PUBACK", "PUBREC", "PUBREL",
         "PUBCOMP", "SUBSCRIBE", "SUBACK", "UNSUBSCRIBE", "UNSUBACK",
@@ -173,7 +173,7 @@ create_packet_id(esp_mqtt_client_p client) {
  * \param[in]       arg: User optional argument for identifying packets
  * \return          Pointer to new request ready to use or `NULL` if no available memory
  */
-static esp_mqtt_request_t *
+static esp_mqtt_request_t*
 request_create(esp_mqtt_client_p client, uint16_t packet_id, void* arg) {
     esp_mqtt_request_t* request;
     uint16_t i;
@@ -222,7 +222,7 @@ request_set_pending(esp_mqtt_client_p client, esp_mqtt_request_t* request) {
  * \param[in]       pkt_id: Packet id to get request for. Use `-1` to get first pending request
  * \return          Request on success, `NULL` otherwise
  */
-static esp_mqtt_request_t *
+static esp_mqtt_request_t*
 request_get_pending(esp_mqtt_client_p client, int32_t pkt_id) {
     /* Try to find a new request which does not have IN_USE flag set */
     for (size_t i = 0; i < ESP_CFG_MQTT_MAX_REQUESTS; ++i) {
@@ -278,7 +278,7 @@ request_send_err_callback(esp_mqtt_client_p client, uint8_t status, void* arg) {
 static void
 write_fixed_header(esp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup, esp_mqtt_qos_t qos, uint8_t retain, uint16_t rem_len) {
     uint8_t b;
-    
+
     /*
      * Fixed header flags according to:
      * http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718020
@@ -299,7 +299,7 @@ write_fixed_header(esp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup, 
     esp_buff_write(&client->tx_buff, &b, 1);    /* Write start of packet parameters */
 
     ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
-        "[MQTT] Writing packet type %s to output buffer\r\n", mqtt_msg_type_to_str(type));
+               "[MQTT] Writing packet type %s to output buffer\r\n", mqtt_msg_type_to_str(type));
 
     do {                                        /* Encode length, we must write a len byte even if 0 */
         /*
@@ -381,11 +381,11 @@ write_ack_rec_rel_resp(esp_mqtt_client_p client, mqtt_msg_type_t msg_type, uint1
         write_u16(client, pkt_id);              /* Write packet ID */
         send_data(client);                      /* Flush data to output */
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
-            "[MQTT] Response %s written to output memory\r\n", mqtt_msg_type_to_str(msg_type));
+                   "[MQTT] Response %s written to output memory\r\n", mqtt_msg_type_to_str(msg_type));
         return 1;
     } else {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
-            "[MQTT] No memory to write %s packet\r\n", mqtt_msg_type_to_str(msg_type));
+                   "[MQTT] No memory to write %s packet\r\n", mqtt_msg_type_to_str(msg_type));
     }
     return 0;
 }
@@ -424,7 +424,7 @@ send_data(esp_mqtt_client_p client) {
             client->is_sending = 1;             /* Remember active sending flag */
         } else {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING,
-                "[MQTT] Cannot send data with error: %d\r\n", (int)res);
+                       "[MQTT] Cannot send data with error: %d\r\n", (int)res);
         }
     } else {
         /*
@@ -524,7 +524,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
 
     /* Debug message */
     ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
-        "[MQTT] Processing packet type %s\r\n", mqtt_msg_type_to_str(msg_type));
+               "[MQTT] Processing packet type %s\r\n", mqtt_msg_type_to_str(msg_type));
 
     /* Check received packet type */
     switch (msg_type) {
@@ -535,7 +535,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
                     client->conn_state = ESP_MQTT_CONNECTED;
                 }
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
-                    "[MQTT] CONNACK received with result: %d\r\n", (int)err);
+                           "[MQTT] CONNACK received with result: %d\r\n", (int)err);
 
                 /* Notify user layer */
                 client->evt.type = ESP_MQTT_EVT_CONNECT;
@@ -544,13 +544,13 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
             } else {
                 /* Protocol violation here */
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
-                    "[MQTT] Protocol violation. CONNACK received when already connected!\r\n");
+                           "[MQTT] Protocol violation. CONNACK received when already connected!\r\n");
             }
             break;
         }
         case MQTT_MSG_TYPE_PUBLISH: {
             uint16_t topic_len, data_len;
-            uint8_t *topic, *data, dup;
+            uint8_t* topic, *data, dup;
 
             qos = MQTT_RCV_GET_PACKET_QOS(client->msg_hdr_byte);    /* Get QoS from received packet */
             dup = MQTT_RCV_GET_PACKET_DUP(client->msg_hdr_byte);    /* Get duplicate flag */
@@ -570,8 +570,8 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
             data_len = client->msg_rem_len - (data - client->rx_buff);  /* Calculate length of remaining data */
 
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
-                "[MQTT] Publish packet received on topic %.*s; QoS: %d; pkt_id: %d; data_len: %d\r\n",
-                (int)topic_len, (const char *)topic, (int)qos, (int)pkt_id, (int)data_len);
+                       "[MQTT] Publish packet received on topic %.*s; QoS: %d; pkt_id: %d; data_len: %d\r\n",
+                       (int)topic_len, (const char*)topic, (int)qos, (int)pkt_id, (int)data_len);
 
             /*
              * We have to send respond to command if
@@ -583,7 +583,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
             if (qos > 0) {                      /* We have to reply on QoS > 0 */
                 mqtt_msg_type_t resp_msg_type = qos == 1 ? MQTT_MSG_TYPE_PUBACK : MQTT_MSG_TYPE_PUBREC;
                 ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] Sending publish resp: %s on pkt_id: %d\r\n", \
-                            mqtt_msg_type_to_str(resp_msg_type), (int)pkt_id);
+                           mqtt_msg_type_to_str(resp_msg_type), (int)pkt_id);
 
                 write_ack_rec_rel_resp(client, resp_msg_type, pkt_id, qos);
             }
@@ -619,9 +619,9 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
             } else if (msg_type == MQTT_MSG_TYPE_PUBREL) {  /* Publish release was received */
                 write_ack_rec_rel_resp(client, MQTT_MSG_TYPE_PUBCOMP, pkt_id, (esp_mqtt_qos_t)0);   /* Send back publish complete */
             } else if (msg_type == MQTT_MSG_TYPE_SUBACK
-                    || msg_type == MQTT_MSG_TYPE_UNSUBACK
-                    || msg_type == MQTT_MSG_TYPE_PUBACK
-                    || msg_type == MQTT_MSG_TYPE_PUBCOMP) {
+                       || msg_type == MQTT_MSG_TYPE_UNSUBACK
+                       || msg_type == MQTT_MSG_TYPE_PUBACK
+                       || msg_type == MQTT_MSG_TYPE_PUBCOMP) {
                 esp_mqtt_request_t* request;
 
                 /*
@@ -640,12 +640,12 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
                         client->evt.evt.sub_unsub_scribed.res = client->rx_buff[2] < 3 ? espOK : espERR;
                         client->evt_fn(client, &client->evt);
 
-                    /*
-                     * Final acknowledge of packet received
-                     * Ack type depends on QoS level being sent to server on request
-                     */
+                        /*
+                         * Final acknowledge of packet received
+                         * Ack type depends on QoS level being sent to server on request
+                         */
                     } else if (msg_type == MQTT_MSG_TYPE_PUBCOMP
-                            || msg_type == MQTT_MSG_TYPE_PUBACK) {
+                               || msg_type == MQTT_MSG_TYPE_PUBACK) {
                         client->evt.type = ESP_MQTT_EVT_PUBLISH;
                         client->evt.evt.publish.arg = request->arg;
                         client->evt.evt.publish.res = espOK;
@@ -655,7 +655,7 @@ mqtt_process_incoming_message(esp_mqtt_client_p client) {
                 } else {
                     /* Protocol violation at this point! */
                     ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
-                        "[MQTT] Protocol violation. Received ACK without sent packet\r\n");
+                               "[MQTT] Protocol violation. Received ACK without sent packet\r\n");
                 }
             }
             break;
@@ -688,7 +688,7 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
             switch (client->parser_state) {     /* Check parser state */
                 case MQTT_PARSER_STATE_INIT: {  /* We are waiting for start byte and packet type */
                     ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
-                        "[MQTT] Parser init state, received first byte of packet 0x%02X\r\n", (unsigned)ch);
+                               "[MQTT] Parser init state, received first byte of packet 0x%02X\r\n", (unsigned)ch);
 
                     /* Save other info about message */
                     client->msg_hdr_byte = ch;  /* Save first entry */
@@ -706,7 +706,7 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
 
                     if (!(ch & 0x80)) {         /* Is this last entry? */
                         ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
-                            "[MQTT] Remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
+                                   "[MQTT] Remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
 
                         if (client->msg_rem_len > 0) {
                             /*
@@ -751,12 +751,12 @@ mqtt_parse_incoming(esp_mqtt_client_p client, esp_pbuf_p pbuf) {
                     if (client->msg_curr_pos == client->msg_rem_len) {
                         if (client->msg_curr_pos <= client->rx_buff_len) {  /* Check if it was possible to write all data to rx buffer */
                             ESP_DEBUGF(ESP_CFG_DBG_MQTT_STATE,
-                                "[MQTT] Packet parsed and ready for processing\r\n");
+                                       "[MQTT] Packet parsed and ready for processing\r\n");
 
                             mqtt_process_incoming_message(client);  /* Process incoming packet */
                         } else {
                             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING,
-                                "[MQTT] Packet too big for rx buffer. Packet discarded\r\n");
+                                       "[MQTT] Packet too big for rx buffer. Packet discarded\r\n");
                         }
                         client->parser_state = MQTT_PARSER_STATE_INIT;  /* Go to initial state and listen for next received packet */
                     }
@@ -889,7 +889,7 @@ mqtt_data_sent_cb(esp_mqtt_client_p client, size_t sent_len, uint8_t successful)
      */
     if (!successful) {
         ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE_WARNING,
-                    "[MQTT] Failed to send %d bytes. Manually closing down..\r\n", (int)sent_len);
+                   "[MQTT] Failed to send %d bytes. Manually closing down..\r\n", (int)sent_len);
 
         mqtt_close(client);
         return 0;
@@ -1061,8 +1061,8 @@ mqtt_conn_cb(esp_evt_t* evt) {
         case ESP_EVT_CONN_SEND: {
             /* Data sent callback */
             mqtt_data_sent_cb(client,
-                esp_evt_conn_send_get_length(evt),
-                esp_evt_conn_send_get_result(evt) == espOK);
+                              esp_evt_conn_send_get_length(evt),
+                              esp_evt_conn_send_get_result(evt) == espOK);
             break;
         }
 
@@ -1075,8 +1075,8 @@ mqtt_conn_cb(esp_evt_t* evt) {
         /* Connection closed */
         case ESP_EVT_CONN_CLOSE: {
             mqtt_closed_cb(client,
-                esp_evt_conn_close_get_result(evt) == espOK,
-                esp_evt_conn_close_is_forced(evt));
+                           esp_evt_conn_close_get_result(evt) == espOK,
+                           esp_evt_conn_close_is_forced(evt));
             break;
         }
         default:
@@ -1091,7 +1091,7 @@ mqtt_conn_cb(esp_evt_t* evt) {
  * \param[in]       rx_buff_len: Length of raw data input buffer
  * \return          Pointer to new allocated MQTT client structure or `NULL` on failure
  */
-esp_mqtt_client_t *
+esp_mqtt_client_t*
 esp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
     esp_mqtt_client_p client;
 
@@ -1101,14 +1101,14 @@ esp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
         client->conn_state = ESP_MQTT_CONN_DISCONNECTED;/* Set to disconnected mode */
 
         if (!esp_buff_init(&client->tx_buff, tx_buff_len)) {
-            esp_mem_free_s((void **)&client);
+            esp_mem_free_s((void**)&client);
         }
         if (client != NULL) {
             client->rx_buff_len = rx_buff_len;
             client->rx_buff = esp_mem_malloc(rx_buff_len);
             if (client->rx_buff == NULL) {
                 esp_buff_free(&client->tx_buff);
-                esp_mem_free_s((void **)&client);
+                esp_mem_free_s((void**)&client);
             }
         }
     }
@@ -1123,9 +1123,9 @@ esp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
 void
 esp_mqtt_client_delete(esp_mqtt_client_p client) {
     if (client != NULL) {
-        esp_mem_free_s((void **)&client->rx_buff);
+        esp_mem_free_s((void**)&client->rx_buff);
         esp_buff_free(&client->tx_buff);
-        esp_mem_free_s((void **)&client);
+        esp_mem_free_s((void**)&client);
     }
 }
 
@@ -1271,7 +1271,7 @@ esp_mqtt_client_publish(esp_mqtt_client_p client, const char* topic, const void*
             send_data(client);                  /* Try to send data */
 
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE,
-                "[MQTT] Pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos_u8, (int)pkt_id);
+                       "[MQTT] Pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos_u8, (int)pkt_id);
         } else {
             ESP_DEBUGF(ESP_CFG_DBG_MQTT_TRACE, "[MQTT] No free request available to publish message\r\n");
             res = espERRMEM;
@@ -1318,7 +1318,7 @@ esp_mqtt_client_set_arg(esp_mqtt_client_p client, void* arg) {
  * \param[in]       client: MQTT client handle
  * \return          User argument
  */
-void *
+void*
 esp_mqtt_client_get_arg(esp_mqtt_client_p client) {
     return client->arg;
 }

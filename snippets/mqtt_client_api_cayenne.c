@@ -3,7 +3,7 @@
  *
  * Simple example for testing purposes only.
  *
- * 
+ *
  */
 
 #include "esp/apps/esp_mqtt_client_api.h"
@@ -27,7 +27,7 @@ mqtt_client_info = {
     .keep_alive = 60,
 };
 
-static char 
+static char
 mqtt_client_str[256];
 static char
 mqtt_client_data[256];
@@ -77,8 +77,8 @@ beg:
                             safeprintf("[MQTT] Topic_Len: %d, Payload_len: %d\r\n", (int)buf->topic_len, (int)buf->payload_len);
 
                             /* Find out reason */
-                            if ((s = strstr((void *)buf->topic, "cmd/2")) != NULL) {
-                                s = strstr((void *)buf->payload, ",");
+                            if ((s = strstr((void*)buf->topic, "cmd/2")) != NULL) {
+                                s = strstr((void*)buf->payload, ",");
                                 if (s != NULL) {
                                     s++;
                                     if (*s == '0') {

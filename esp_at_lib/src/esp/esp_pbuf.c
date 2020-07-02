@@ -73,14 +73,14 @@ esp_pbuf_new(size_t len) {
 
     p = esp_mem_malloc(SIZEOF_PBUF_STRUCT + sizeof(*p->payload) * len);
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p == NULL,
-        "[PBUF] Failed to allocate %d bytes\r\n", (int)len);
+               "[PBUF] Failed to allocate %d bytes\r\n", (int)len);
     ESP_DEBUGW(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE, p != NULL,
-        "[PBUF] Allocated %d bytes on %p\r\n", (int)len, p);
+               "[PBUF] Allocated %d bytes on %p\r\n", (int)len, p);
     if (p != NULL) {
         p->next = NULL;                         /* No next element in chain */
         p->tot_len = len;                       /* Set total length of pbuf chain */
         p->len = len;                           /* Set payload length */
-        p->payload = (void *)(((char *)p) + SIZEOF_PBUF_STRUCT);/* Set pointer to payload data */
+        p->payload = (void*)(((char*)p) + SIZEOF_PBUF_STRUCT);  /* Set pointer to payload data */
         p->ref = 1;                             /* Single reference is used on this pbuf */
     }
     return p;
@@ -109,9 +109,9 @@ esp_pbuf_free(esp_pbuf_p pbuf) {
         esp_core_unlock();
         if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
-                "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
+                       "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
             pn = p->next;                       /* Save next entry */
-            esp_mem_free_s((void **)&p);        /* Free memory for pbuf */
+            esp_mem_free_s((void**)&p);         /* Free memory for pbuf */
             p = pn;                             /* Restore with next entry */
             ++cnt;                              /* Increase number of freed pbufs */
         } else {
@@ -427,7 +427,7 @@ esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t offset) {
  * \param[out]      new_len: Length of memory returned by function
  * \return          Pointer to memory on success, `NULL` otherwise
  */
-void *
+void*
 esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) {
     esp_pbuf_p p = pbuf;
 
@@ -452,7 +452,7 @@ esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len) 
  * \param[in]       pbuf: Packet buffer
  * \return          Pointer to data buffer on success, `NULL` otherwise
  */
-void *
+void*
 esp_pbuf_data(const esp_pbuf_p pbuf) {
     return pbuf != NULL ? pbuf->payload : NULL;
 }
@@ -527,7 +527,7 @@ esp_pbuf_advance(esp_pbuf_p pbuf, int len) {
         }
     } else {
         /* Is current payload + new len still higher than pbuf structure? */
-        if (((uint8_t *)pbuf + SIZEOF_PBUF_STRUCT) < (pbuf->payload + len)) {
+        if (((uint8_t*)pbuf + SIZEOF_PBUF_STRUCT) < (pbuf->payload + len)) {
             process = 1;
         }
     }
@@ -561,16 +561,16 @@ void
 esp_pbuf_dump(esp_pbuf_p p, uint8_t seq) {
     if (p != NULL) {
         ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
-            "[PBUF] Dump start: %p\r\n", p);
+                   "[PBUF] Dump start: %p\r\n", p);
         for (; p != NULL; p = p->next) {
             ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
-                "[PBUF] Dump %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n",
-                p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
+                       "[PBUF] Dump %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n",
+                       p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
             if (!seq) {
                 break;
             }
         }
         ESP_DEBUGF(ESP_CFG_DBG_PBUF | ESP_DBG_TYPE_TRACE,
-            "[PBUF] Dump end\r\n");
+                   "[PBUF] Dump end\r\n");
     }
 }

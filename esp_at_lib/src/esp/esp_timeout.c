@@ -81,7 +81,7 @@ process_next_timeout(void) {
          */
         first_timeout = first_timeout->next;    /* Set next timeout on a list as first timeout */
         to->fn(to->arg);                        /* Call user callback function */
-        esp_mem_free_s((void **)&to);
+        esp_mem_free_s((void**)&to);
     }
 }
 
@@ -197,7 +197,7 @@ esp_timeout_remove(esp_timeout_fn fn) {
 
     esp_core_lock();
     for (esp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
-            t_prev = t, t = t->next) {          /* Check all entries */
+         t_prev = t, t = t->next) {          /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
 
             /*
@@ -220,7 +220,7 @@ esp_timeout_remove(esp_timeout_fn fn) {
             } else {
                 first_timeout = t->next;
             }
-            esp_mem_free_s((void **)&t);
+            esp_mem_free_s((void**)&t);
             success = 1;
             break;
         }

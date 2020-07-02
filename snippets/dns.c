@@ -11,7 +11,7 @@
 static esp_ip_t ip;
 
 /**
- * \brief           Event callback function for API call, 
+ * \brief           Event callback function for API call,
  *                  called when API command finished with execution
  */
 static void
@@ -20,7 +20,7 @@ dns_resolve_evt(espr_t res, void* arg) {
     if (res == espOK) {
         /* DNS resolver has IP address */
         printf("DNS record for %s (from API callback): %d.%d.%d.%d\r\n",
-            (const char *)arg, (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3]);
+               (const char*)arg, (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3]);
     }
 }
 
@@ -41,7 +41,7 @@ dns_start(void) {
     /* Get IP with blocking mode */
     if (esp_dns_gethostbyname(DNS_HOST1, &ip, dns_resolve_evt, DNS_HOST1, 1) == espOK) {
         printf("DNS record for " DNS_HOST1 " (from lin code): %d.%d.%d.%d\r\n",
-            (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3]);
+               (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3]);
     } else {
         printf("Could not retrieve IP address for " DNS_HOST1 "\r\n");
     }

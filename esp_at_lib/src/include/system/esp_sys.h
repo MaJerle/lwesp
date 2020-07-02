@@ -50,7 +50,7 @@ extern "C" {
 /**
  * \brief           Thread function prototype
  */
-typedef void (*esp_sys_thread_fn)(void *);
+typedef void (*esp_sys_thread_fn)(void*);
 
 /* Include system port file from portable folder */
 #include "esp_sys_port.h"

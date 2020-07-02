@@ -278,7 +278,7 @@ configure_uart(uint32_t baudrate) {
 
     /* Create mbox and start thread */
     if (usart_ll_mbox_id == NULL) {
-        usart_ll_mbox_id = osMessageQueueNew(10, sizeof(void *), NULL);
+        usart_ll_mbox_id = osMessageQueueNew(10, sizeof(void*), NULL);
     }
     if (usart_ll_thread_id == NULL) {
         const osThreadAttr_t attr = {
@@ -380,7 +380,7 @@ ESP_USART_IRQHANDLER(void) {
     LL_USART_ClearFlag_NE(ESP_USART);
 
     if (usart_ll_mbox_id != NULL) {
-        void* d = (void *)1;
+        void* d = (void*)1;
         osMessageQueuePut(usart_ll_mbox_id, &d, 0, 0);
     }
 }
@@ -394,7 +394,7 @@ ESP_USART_DMA_RX_IRQHANDLER(void) {
     ESP_USART_DMA_RX_CLEAR_HT;
 
     if (usart_ll_mbox_id != NULL) {
-        void* d = (void *)1;
+        void* d = (void*)1;
         osMessageQueuePut(usart_ll_mbox_id, &d, 0, 0);
     }
 }

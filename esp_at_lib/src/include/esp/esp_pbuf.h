@@ -49,7 +49,7 @@ extern "C" {
 
 esp_pbuf_p      esp_pbuf_new(size_t len);
 size_t          esp_pbuf_free(esp_pbuf_p pbuf);
-void *          esp_pbuf_data(const esp_pbuf_p pbuf);
+void*           esp_pbuf_data(const esp_pbuf_p pbuf);
 size_t          esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot);
 uint8_t         esp_pbuf_set_length(esp_pbuf_p pbuf, size_t new_len);
 espr_t          esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset);
@@ -69,7 +69,7 @@ size_t          esp_pbuf_strfind(const esp_pbuf_p pbuf, const char* str, size_t 
 uint8_t         esp_pbuf_advance(esp_pbuf_p pbuf, int len);
 esp_pbuf_p      esp_pbuf_skip(esp_pbuf_p pbuf, size_t offset, size_t* new_offset);
 
-void *          esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len);
+void*           esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len);
 
 void            esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port);
 

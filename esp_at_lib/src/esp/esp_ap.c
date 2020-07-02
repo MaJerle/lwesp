@@ -49,7 +49,7 @@
  */
 espr_t
 esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm,
-                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+             const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -77,7 +77,7 @@ esp_ap_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm,
  */
 espr_t
 esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm,
-                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+             const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("ip != NULL", ip != NULL);
@@ -102,7 +102,7 @@ esp_ap_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm,
  */
 espr_t
 esp_ap_getmac(esp_mac_t* mac,
-                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+              const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
@@ -126,11 +126,11 @@ esp_ap_getmac(esp_mac_t* mac,
  */
 espr_t
 esp_ap_setmac(const esp_mac_t* mac,
-                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+              const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("mac != NULL", mac != NULL);
-    ESP_ASSERT("Bit 0 of byte 0 in AP MAC must be 0!", !(((uint8_t *)mac)[0] & 0x01));
+    ESP_ASSERT("Bit 0 of byte 0 in AP MAC must be 0!", !(((uint8_t*)mac)[0] & 0x01));
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -159,13 +159,13 @@ esp_ap_setmac(const esp_mac_t* mac,
  */
 espr_t
 esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, uint8_t max_sta, uint8_t hid,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("ssid != NULL", ssid != NULL);
     ESP_ASSERT("pwd == NULL || (pwd && strlen(pwd) <= 64)", pwd == NULL || (pwd != NULL && strlen(pwd) <= 64));
     ESP_ASSERT("ecn == open || ecn == WPA_PSK || ecn == WPA2_PSK || ecn == WPA_WPA2_PSK",
-        ecn == ESP_ECN_OPEN || ecn == ESP_ECN_WPA_PSK || ecn == ESP_ECN_WPA2_PSK || ecn == ESP_ECN_WPA_WPA2_PSK);
+               ecn == ESP_ECN_OPEN || ecn == ESP_ECN_WPA_PSK || ecn == ESP_ECN_WPA2_PSK || ecn == ESP_ECN_WPA_WPA2_PSK);
     ESP_ASSERT("ch <= 128", ch <= 128);
     ESP_ASSERT("1 <= max_sta <= 10", max_sta > 0 && max_sta <= 10);
 
@@ -192,7 +192,8 @@ esp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, esp_ecn_t ecn, u
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
  */
-espr_t esp_ap_get_config(esp_ap_conf_t* ap_conf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+espr_t
+esp_ap_get_config(esp_ap_conf_t* ap_conf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("ap_conf != NULL", ap_conf != NULL);
@@ -217,7 +218,7 @@ espr_t esp_ap_get_config(esp_ap_conf_t* ap_conf, const esp_api_cmd_evt_fn evt_fn
  */
 espr_t
 esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("sta != NULL", sta != NULL);
@@ -248,7 +249,7 @@ esp_ap_list_sta(esp_sta_t* sta, size_t stal, size_t* staf,
  */
 espr_t
 esp_ap_disconn_sta(const esp_mac_t* mac,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                   const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     ESP_MSG_VAR_DEFINE(msg);
 
     ESP_ASSERT("mac != NULL", mac != NULL);

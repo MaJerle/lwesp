@@ -184,7 +184,7 @@ typedef struct {
  * \return          Function must return a new URI which is used later
  *                  as response string, such as "/index.html" or similar
  */
-typedef char *  (*http_cgi_fn)(http_param_t* params, size_t params_len);
+typedef char*   (*http_cgi_fn)(http_param_t* params, size_t params_len);
 
 /**
  * \brief           CGI structure to register handlers on URI paths

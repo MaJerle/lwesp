@@ -55,9 +55,9 @@ extern "C" {
 #define ESP_CAYENNE_API_VERSION                 "v1"
 #endif
 
- /**
- * \brief           Cayenne host server
- */
+/**
+* \brief           Cayenne host server
+*/
 #ifndef ESP_CAYENNE_HOST
 #define ESP_CAYENNE_HOST                        "mqtt.mydevices.com"
 #endif

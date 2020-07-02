@@ -61,15 +61,15 @@ static const http_init_t* hi;
  */
 static const char
 http_data_method_not_allowed[] = ""
-    "HTTP/1.1 405 Method Not Allowed" CRLF
-    "Server: " HTTP_SERVER_NAME CRLF
-    "Allow: GET"
+                                 "HTTP/1.1 405 Method Not Allowed" CRLF
+                                 "Server: " HTTP_SERVER_NAME CRLF
+                                 "Allow: GET"
 #if HTTP_SUPPORT_POST
-    ", POST"
+                                 ", POST"
 #endif /* HTTP_SUPPORT_POST */
-    CRLF
-    CRLF
-"";
+                                 CRLF
+                                 CRLF
+                                 "";
 #endif /* HTTP_USE_METHOD_NOTALLOWED_RESP */
 
 #if HTTP_DYNAMIC_HEADERS
@@ -100,7 +100,7 @@ typedef enum {
 /**
  * \brief           Array of supported response strings
  */
-static const char * const
+static const char* const
 http_dynstrs[] = {
     /* Response code */
     "HTTP/1.1 200 OK" CRLF,
@@ -155,7 +155,7 @@ dynamic_headers_pairs[] = {
 /**
  * \brief           List of supported file names for index page
  */
-static const char *
+static const char*
 http_index_filenames[] = {
     "/index.shtml",
     "/index.shtm"
@@ -167,7 +167,7 @@ http_index_filenames[] = {
 /**
  * \brief           List of URI suffixes where SSI tags are supported
  */
-static const char *
+static const char*
 http_ssi_suffixes[] = {
     ".shtml",
     ".shtm",
@@ -177,7 +177,7 @@ http_ssi_suffixes[] = {
 /**
  * \brief           List of 404 URIs
  */
-static const char *
+static const char*
 http_404_uris[] = {
     "/404.shtml",
     "/404.shtm",
@@ -247,7 +247,7 @@ http_parse_uri(esp_pbuf_p p) {
 static size_t
 http_get_params(char* params) {
     size_t cnt = 0;
-    char *amp, *eq;
+    char* amp, *eq;
 
     if (params != NULL) {
         for (size_t i = 0; params != NULL && i < HTTP_MAX_PARAMS; ++i, ++cnt) {
@@ -282,7 +282,7 @@ http_get_params(char* params) {
  */
 static void
 prepare_dynamic_headers(http_state_t* hs, const char* uri) {
-    char *ext, *u;
+    char* ext, *u;
     size_t i;
 
     hs->dyn_hdr_idx = 0;
@@ -299,10 +299,10 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
          */
         if (hs->resp_file.is_static) {
             char* crlfcrlf;
-            crlfcrlf = strstr((const char *)hs->resp_file.data, CRLF CRLF);
+            crlfcrlf = strstr((const char*)hs->resp_file.data, CRLF CRLF);
             if (crlfcrlf != NULL) {             /* Skip header part of file */
-                hs->resp_file.size -= (const char *)crlfcrlf - (const char *)hs->resp_file.data + 4;/* Decrease file size first! */
-                hs->resp_file.data += (const char *)crlfcrlf - (const char *)hs->resp_file.data + 4;/* Advance file pointer */
+                hs->resp_file.size -= (const char*)crlfcrlf - (const char*)hs->resp_file.data + 4;  /* Decrease file size first! */
+                hs->resp_file.data += (const char*)crlfcrlf - (const char*)hs->resp_file.data + 4;  /* Advance file pointer */
             }
         }
 
@@ -553,7 +553,7 @@ read_resp_file(http_state_t* hs) {
     /* Is our memory set for some reason? */
     if (hs->buff != NULL) {                     /* Do we have already something in our buffer? */
         if (!hs->resp_file.is_static) {         /* If file is not static... */
-            esp_mem_free_s((void **)&hs->buff); /* ...free the memory... */
+            esp_mem_free_s((void**)&hs->buff);  /* ...free the memory... */
         }
         hs->buff = NULL;                        /* ...and reset pointer */
     }
@@ -567,7 +567,7 @@ read_resp_file(http_state_t* hs) {
         len = http_fs_data_read_file(hi, &hs->resp_file, NULL, 0, NULL);    /* Get number of remaining bytes to read in file */
         if (len > 0) {                              /* Is there anything to read? On static files, this should be valid only once */
             if (hs->resp_file.is_static) {      /* On static files... */
-                len = http_fs_data_read_file(hi, &hs->resp_file, (void **)&hs->buff, len, NULL);    /* ...simply set file pointer */
+                len = http_fs_data_read_file(hi, &hs->resp_file, (void**)&hs->buff, len, NULL);     /* ...simply set file pointer */
                 hs->buff_len = len;             /* Set buffer length */
                 if (len == 0) {                 /* Empty read? */
                     hs->buff = NULL;            /* Reset buffer */
@@ -579,11 +579,11 @@ read_resp_file(http_state_t* hs) {
                 hs->buff_ptr = 0;               /* Reset read pointer */
                 do {
                     hs->buff_len = len;
-                    hs->buff = (const void *)esp_mem_malloc(sizeof(*hs->buff) * hs->buff_len);
+                    hs->buff = (const void*)esp_mem_malloc(sizeof(*hs->buff) * hs->buff_len);
                     if (hs->buff != NULL) {     /* Is memory ready? */
                         /* Read file directly and stop everything */
-                        if (!http_fs_data_read_file(hi, &hs->resp_file, (void **)&hs->buff, hs->buff_len, NULL)) {
-                            esp_mem_free_s((void **)&hs->buff);
+                        if (!http_fs_data_read_file(hi, &hs->resp_file, (void**)&hs->buff, hs->buff_len, NULL)) {
+                            esp_mem_free_s((void**)&hs->buff);
                         }
                         break;
                     }
@@ -884,14 +884,14 @@ http_evt(esp_evt_t* evt) {
         /* A new connection just became active */
         case ESP_EVT_CONN_ACTIVE: {
             ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "[HTTP SERVER] Conn %d active\r\n",
-                (int)esp_conn_getnum(conn));
+                       (int)esp_conn_getnum(conn));
             hs = esp_mem_calloc(1, sizeof(*hs));
             if (hs != NULL) {
                 hs->conn = conn;                /* Save connection handle */
                 esp_conn_set_arg(conn, hs);     /* Set argument for connection */
             } else {
                 ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING,
-                    "[HTTP SERVER] Cannot allocate memory for http state\r\n");
+                           "[HTTP SERVER] Cannot allocate memory for http state\r\n");
                 close = 1;                      /* No memory, close the connection */
             }
             break;
@@ -1073,12 +1073,12 @@ http_evt(esp_evt_t* evt) {
             if (res == espOK && hs != NULL) {
                 len = esp_evt_conn_send_get_length(evt);   /* Get length */
                 ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE,
-                    "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
+                           "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
                 hs->sent_total += len;          /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
                 ESP_DEBUGW(ESP_CFG_DBG_SERVER_TRACE_DANGER, res != espOK,
-                    "[HTTP SERVER] data send error. Closing connection..\r\n");
+                           "[HTTP SERVER] data send error. Closing connection..\r\n");
                 close = 1;
             }
             break;
@@ -1105,11 +1105,11 @@ http_evt(esp_evt_t* evt) {
                     uint8_t is_static = hs->resp_file.is_static;
                     http_fs_data_close_file(hi, &hs->resp_file);    /* Close file at this point */
                     if (!is_static && hs->buff != NULL) {
-                        esp_mem_free_s((void **)&hs->buff);
+                        esp_mem_free_s((void**)&hs->buff);
                     }
                     hs->resp_file_opened = 0;   /* File is not opened anymore */
                 }
-                esp_mem_free_s((void **)&hs);
+                esp_mem_free_s((void**)&hs);
             }
             break;
         }

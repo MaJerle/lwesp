@@ -73,12 +73,12 @@ size_t      BUF_PREF(buff_get_free)(BUF_PREF(buff_t)* buff);
 size_t      BUF_PREF(buff_get_full)(BUF_PREF(buff_t)* buff);
 
 /* Read data block management */
-void *      BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t)* buff);
+void*       BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t)* buff);
 size_t      BUF_PREF(buff_get_linear_block_read_length)(BUF_PREF(buff_t)* buff);
 size_t      BUF_PREF(buff_skip)(BUF_PREF(buff_t)* buff, size_t len);
 
 /* Write data block management */
-void *      BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t)* buff);
+void*       BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t)* buff);
 size_t      BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t)* buff);
 size_t      BUF_PREF(buff_advance)(BUF_PREF(buff_t)* buff, size_t len);
 

@@ -53,7 +53,7 @@ esp_smart_configure(uint8_t en,
 
     ESP_MSG_VAR_ALLOC(msg, blocking);
     ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = en? ESP_CMD_WIFI_SMART_START: ESP_CMD_WIFI_SMART_STOP;
+    ESP_MSG_VAR_REF(msg).cmd_def = en ? ESP_CMD_WIFI_SMART_START : ESP_CMD_WIFI_SMART_STOP;
 
     return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
 }

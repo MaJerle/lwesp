@@ -229,13 +229,13 @@ extern "C" {
  */
 #define esp_mqtt_client_evt_publish_get_argument(client, evt)   ((void *)(evt)->evt.publish.arg)
 
- /**
- * \brief           Get result of publish event
- * \param[in]       client: MQTT client
- * \param[in]       evt: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
- * \hideinitializer
- */
+/**
+* \brief           Get result of publish event
+* \param[in]       client: MQTT client
+* \param[in]       evt: Event handle
+* \return          \ref espOK on success, member of \ref espr_t otherwise
+* \hideinitializer
+*/
 #define esp_mqtt_client_evt_publish_get_result(client, evt)     ((espr_t)(evt)->evt.publish.res)
 
 /**

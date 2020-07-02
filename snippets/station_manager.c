@@ -73,7 +73,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
 
                             printf("Connected to %s network!\r\n", ap_list[j].ssid);
                             printf("Station IP address: %d.%d.%d.%d; Is DHCP: %d\r\n",
-                                (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
+                                   (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
                             return espOK;
                         } else {
                             printf("Connection error: %d\r\n", (int)eres);

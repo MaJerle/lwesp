@@ -61,7 +61,7 @@ esp_thread_produce(void* const arg) {
     while (1) {
         esp_core_unlock();
         do {
-            time = esp_sys_mbox_get(&e->mbox_producer, (void **)&msg, 0);   /* Get message from queue */
+            time = esp_sys_mbox_get(&e->mbox_producer, (void**)&msg, 0);    /* Get message from queue */
         } while (time == ESP_SYS_TIMEOUT || msg == NULL);
         ESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
         esp_core_lock();
@@ -117,11 +117,11 @@ esp_thread_produce(void* const arg) {
             }
 
             ESP_DEBUGW(ESP_CFG_DBG_THREAD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE,
-                res == espTIMEOUT,
-                "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
+                       res == espTIMEOUT,
+                       "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
             ESP_DEBUGW(ESP_CFG_DBG_THREAD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE,
-                res != espOK && res != espTIMEOUT,
-                "[THREAD] Could not start execution for command %d\r\n", (int)msg->cmd);
+                       res != espOK && res != espTIMEOUT,
+                       "[THREAD] Could not start execution for command %d\r\n", (int)msg->cmd);
 
             /*
              * Manually release semaphore in all cases:
@@ -198,7 +198,7 @@ esp_thread_process(void* const arg) {
     esp_core_lock();
     while (1) {
         esp_core_unlock();
-        time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void **)&msg, 10);
+        time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 10);
         ESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
         esp_core_lock();
 
@@ -214,7 +214,7 @@ esp_thread_process(void* const arg) {
          * If there are no timeouts to process, we can wait unlimited time.
          * In case new timeout occurs, thread will wake up by writing new element to mbox process queue
          */
-        time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void **)&msg, 0);
+        time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 0);
         ESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
         ESP_UNUSED(time);
 #endif /* !ESP_CFG_INPUT_USE_PROCESS */

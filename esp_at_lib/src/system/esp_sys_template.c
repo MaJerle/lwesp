@@ -234,7 +234,7 @@ esp_sys_sem_invalid(esp_sys_sem_t* p) {
  */
 uint8_t
 esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
-    osMessageQDef(MBOX, size, void *);
+    osMessageQDef(MBOX, size, void*);
     *b = osMessageCreate(osMessageQ(MBOX), NULL);
     return *b != NULL;
 }
@@ -348,9 +348,9 @@ esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
  */
 uint8_t
 esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func,
-                          void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
+                      void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
     const osThreadDef_t thread_def = {
-        (char *)name,
+        (char*)name,
         (os_pthread)thread_func,
         (osPriority)prio,
         0,

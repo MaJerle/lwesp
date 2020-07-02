@@ -183,14 +183,14 @@ typedef struct esp_conn {
 
     union {
         struct {
-            uint8_t active:1;                   /*!< Status whether connection is active */
-            uint8_t client:1;                   /*!< Status whether connection is in client mode */
-            uint8_t data_received:1;            /*!< Status whether first data were received on connection */
-            uint8_t in_closing:1;               /*!< Status if connection is in closing mode.
+            uint8_t active: 1;                  /*!< Status whether connection is active */
+            uint8_t client: 1;                  /*!< Status whether connection is in client mode */
+            uint8_t data_received: 1;           /*!< Status whether first data were received on connection */
+            uint8_t in_closing: 1;               /*!< Status if connection is in closing mode.
                                                     When in closing mode, ignore any possible received data from function */
 #if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
-            uint8_t receive_blocked:1;          /*!< Status whether we should block manual receive for some time */
-            uint8_t receive_is_command_queued:1;/*!< Status whether manual read command is in the queue already */
+            uint8_t receive_blocked: 1;         /*!< Status whether we should block manual receive for some time */
+            uint8_t receive_is_command_queued: 1; /*!< Status whether manual read command is in the queue already */
 #endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
         } f;                                    /*!< Connection flags */
     } status;                                   /*!< Connection status union with flag bits */
@@ -237,7 +237,7 @@ typedef struct esp_msg {
     uint8_t         is_blocking;                /*!< Status if command is blocking */
     uint32_t        block_time;                 /*!< Maximal blocking time in units of milliseconds. Use 0 to for non-blocking call */
     espr_t          res;                        /*!< Result of message operation */
-    espr_t          (*fn)(struct esp_msg *);    /*!< Processing callback function to process packet */
+    espr_t          (*fn)(struct esp_msg*);     /*!< Processing callback function to process packet */
 
 #if ESP_CFG_USE_API_FUNC_EVT
     esp_api_cmd_evt_fn evt_fn;                  /*!< Command callback API function */
@@ -526,8 +526,8 @@ typedef struct {
 
     union {
         struct {
-            uint8_t     initialized:1;          /*!< Flag indicating ESP library is initialized */
-            uint8_t     dev_present:1;          /*!< Flag indicating if physical device is connected to host device */
+            uint8_t     initialized: 1;         /*!< Flag indicating ESP library is initialized */
+            uint8_t     dev_present: 1;         /*!< Flag indicating if physical device is connected to host device */
         } f;                                    /*!< Flags structure */
     } status;                                   /*!< Status structure */
 
@@ -563,29 +563,29 @@ extern esp_t esp;
 
 #define ESP_MSG_VAR_DEFINE(name)                esp_msg_t* name
 #define ESP_MSG_VAR_ALLOC(name, blocking)       do {\
-    (name) = esp_mem_malloc(sizeof(*(name)));       \
-    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) != NULL, "[MSG VAR] Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
-    ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) == NULL, "[MSG VAR] Error allocating %d bytes\r\n", sizeof(*(name))); \
-    if ((name) == NULL) {                           \
-        return espERRMEM;                           \
-    }                                               \
-    ESP_MEMSET((name), 0x00, sizeof(*(name)));      \
-    (name)->is_blocking = ESP_U8((blocking) > 0);   \
-} while (0)
+        (name) = esp_mem_malloc(sizeof(*(name)));       \
+        ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) != NULL, "[MSG VAR] Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
+        ESP_DEBUGW(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, (name) == NULL, "[MSG VAR] Error allocating %d bytes\r\n", sizeof(*(name))); \
+        if ((name) == NULL) {                           \
+            return espERRMEM;                           \
+        }                                               \
+        ESP_MEMSET((name), 0x00, sizeof(*(name)));      \
+        (name)->is_blocking = ESP_U8((blocking) > 0);   \
+    } while (0)
 #define ESP_MSG_VAR_REF(name)                   (*(name))
 #define ESP_MSG_VAR_FREE(name)                  do {\
-    ESP_DEBUGF(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, "[MSG VAR] Free memory: %p\r\n", (name)); \
-    if (esp_sys_sem_isvalid(&((name)->sem))) {      \
-        esp_sys_sem_delete(&((name)->sem));         \
-        esp_sys_sem_invalid(&((name)->sem));        \
-    }                                               \
-    esp_mem_free_s((void **)&(name));               \
-} while (0)
+        ESP_DEBUGF(ESP_CFG_DBG_VAR | ESP_DBG_TYPE_TRACE, "[MSG VAR] Free memory: %p\r\n", (name)); \
+        if (esp_sys_sem_isvalid(&((name)->sem))) {      \
+            esp_sys_sem_delete(&((name)->sem));         \
+            esp_sys_sem_invalid(&((name)->sem));        \
+        }                                               \
+        esp_mem_free_s((void **)&(name));               \
+    } while (0)
 #if ESP_CFG_USE_API_FUNC_EVT
 #define ESP_MSG_VAR_SET_EVT(name, e_fn, e_arg)  do {\
-    (name)->evt_fn = (e_fn);                        \
-    (name)->evt_arg = (e_arg);                      \
-} while (0)
+        (name)->evt_fn = (e_fn);                        \
+        (name)->evt_arg = (e_arg);                      \
+    } while (0)
 #else /* ESP_CFG_USE_API_FUNC_EVT */
 #define ESP_MSG_VAR_SET_EVT(name, e_fn, e_arg) do { ESP_UNUSED(e_fn); ESP_UNUSED(e_arg); } while (0)
 #endif /* !ESP_CFG_USE_API_FUNC_EVT */
@@ -606,7 +606,7 @@ extern esp_t esp;
 
 #define ESP_PORT2NUM(port)                  ((uint32_t)(port))
 
-const char * espi_dbg_msg_to_string(esp_cmd_t cmd);
+const char* espi_dbg_msg_to_string(esp_cmd_t cmd);
 espr_t      espi_process(const void* data, size_t len);
 espr_t      espi_process_buffer(void);
 espr_t      espi_initiate_cmd(esp_msg_t* msg);
@@ -617,7 +617,7 @@ void        espi_conn_init(void);
 void        espi_conn_start_timeout(esp_conn_p conn);
 espr_t      espi_conn_check_available_rx_data(void);
 espr_t      espi_conn_manual_tcp_try_read_data(esp_conn_p conn);
-espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t *), uint32_t max_block_time);
+espr_t      espi_send_msg_to_producer_mbox(esp_msg_t* msg, espr_t (*process_fn)(esp_msg_t*), uint32_t max_block_time);
 uint32_t    espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout);
 
 void        espi_reset_everything(uint8_t forced);

@@ -46,17 +46,17 @@
 
 #include "lwmem/lwmem.h"
 
-void *
+void*
 esp_mem_malloc(size_t size) {
     return lwmem_malloc(size);
 }
 
-void *
+void*
 esp_mem_realloc(void* ptr, size_t size) {
     return lwmem_realloc(ptr, size);
 }
 
-void *
+void*
 esp_mem_calloc(size_t num, size_t size) {
     return lwmem_calloc(num, size);
 }

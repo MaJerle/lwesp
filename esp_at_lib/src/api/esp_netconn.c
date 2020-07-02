@@ -92,11 +92,11 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
         esp_core_lock();
     }
     if (esp_sys_mbox_isvalid(&nc->mbox_receive)) {
-        while (esp_sys_mbox_getnow(&nc->mbox_receive, (void **)&pbuf)) {
+        while (esp_sys_mbox_getnow(&nc->mbox_receive, (void**)&pbuf)) {
             if (nc->mbox_receive_entries > 0) {
                 --nc->mbox_receive_entries;
             }
-            if (pbuf != NULL && (uint8_t *)pbuf != (uint8_t *)&recv_closed) {
+            if (pbuf != NULL && (uint8_t*)pbuf != (uint8_t*)&recv_closed) {
                 esp_pbuf_free(pbuf);            /* Free received data buffers */
             }
         }
@@ -104,10 +104,10 @@ flush_mboxes(esp_netconn_t* nc, uint8_t protect) {
         esp_sys_mbox_invalid(&nc->mbox_receive);/* Invalid handle */
     }
     if (esp_sys_mbox_isvalid(&nc->mbox_accept)) {
-        while (esp_sys_mbox_getnow(&nc->mbox_accept, (void **)&new_nc)) {
+        while (esp_sys_mbox_getnow(&nc->mbox_accept, (void**)&new_nc)) {
             if (new_nc != NULL
-                && (uint8_t *)new_nc != (uint8_t *)&recv_closed
-                && (uint8_t *)new_nc != (uint8_t *)&recv_not_present) {
+                && (uint8_t*)new_nc != (uint8_t*)&recv_closed
+                && (uint8_t*)new_nc != (uint8_t*)&recv_not_present) {
                 esp_netconn_close(new_nc);      /* Close netconn connection */
             }
         }
@@ -151,7 +151,7 @@ netconn_evt(esp_evt_t* evt) {
                  */
                 nc = esp_netconn_new(ESP_NETCONN_TYPE_TCP); /* Create new API */
                 ESP_DEBUGW(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING,
-                    nc == NULL, "[NETCONN] Cannot create new structure for incoming server connection!\r\n");
+                           nc == NULL, "[NETCONN] Cannot create new structure for incoming server connection!\r\n");
 
                 if (nc != NULL) {
                     nc->conn = conn;            /* Set connection handle */
@@ -170,7 +170,7 @@ netconn_evt(esp_evt_t* evt) {
                 }
             } else {
                 ESP_DEBUGW(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING, listen_api == NULL,
-                    "[NETCONN] Closing connection as there is no listening API in netconn!\r\n");
+                           "[NETCONN] Closing connection as there is no listening API in netconn!\r\n");
                 close = 1;                      /* Close the connection at this point */
             }
 
@@ -204,7 +204,7 @@ netconn_evt(esp_evt_t* evt) {
             if (nc == NULL || !esp_sys_mbox_isvalid(&nc->mbox_receive)
                 || !esp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
                 ESP_DEBUGF(ESP_CFG_DBG_NETCONN,
-                    "[NETCONN] Ignoring more data for receive!\r\n");
+                           "[NETCONN] Ignoring more data for receive!\r\n");
                 esp_pbuf_free(pbuf);            /* Free pbuf */
                 return espOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
             }
@@ -218,8 +218,8 @@ netconn_evt(esp_evt_t* evt) {
 
             ++nc->rcv_packets;                  /* Increase number of packets received */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE,
-                "[NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
-                (int)esp_pbuf_length(pbuf, 0));
+                       "[NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
+                       (int)esp_pbuf_length(pbuf, 0));
             break;
         }
 
@@ -232,7 +232,7 @@ netconn_evt(esp_evt_t* evt) {
              * simply write pointer to received variable to indicate closed state
              */
             if (nc != NULL && esp_sys_mbox_isvalid(&nc->mbox_receive)) {
-                if (esp_sys_mbox_putnow(&nc->mbox_receive, (void *)&recv_closed)) {
+                if (esp_sys_mbox_putnow(&nc->mbox_receive, (void*)&recv_closed)) {
                     ++nc->mbox_receive_entries;
                 }
             }
@@ -264,7 +264,8 @@ esp_evt(esp_evt_t* evt) {
                 esp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_not_present);
             }
         }
-        default: break;
+        default:
+            break;
     }
     return espOK;
 }
@@ -292,12 +293,12 @@ esp_netconn_new(esp_netconn_type_t type) {
         a->conn_timeout = 0;                    /* Default connection timeout */
         if (!esp_sys_mbox_create(&a->mbox_accept, ESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {  /* Allocate memory for accepting message box */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
-                "[NETCONN] Cannot create accept MBOX\r\n");
+                       "[NETCONN] Cannot create accept MBOX\r\n");
             goto free_ret;
         }
         if (!esp_sys_mbox_create(&a->mbox_receive, ESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {    /* Allocate memory for receiving message box */
             ESP_DEBUGF(ESP_CFG_DBG_NETCONN | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER,
-                "[NETCONN] Cannot create receive MBOX\r\n");
+                       "[NETCONN] Cannot create receive MBOX\r\n");
             goto free_ret;
         }
         esp_core_lock();
@@ -320,7 +321,7 @@ free_ret:
         esp_sys_mbox_invalid(&a->mbox_receive);
     }
     if (a != NULL) {
-        esp_mem_free_s((void **)&a);
+        esp_mem_free_s((void**)&a);
     }
     return NULL;
 }
@@ -352,7 +353,7 @@ esp_netconn_delete(esp_netconn_p nc) {
         esp_netconn_p tmp, prev;
         /* Find element on the list */
         for (prev = netconn_list, tmp = netconn_list->next;
-            tmp != NULL; prev = tmp, tmp = tmp->next) {
+             tmp != NULL; prev = tmp, tmp = tmp->next) {
             if (nc == tmp) {
                 prev->next = tmp->next;         /* Remove tmp from linked list */
                 break;
@@ -361,7 +362,7 @@ esp_netconn_delete(esp_netconn_p nc) {
     }
     esp_core_unlock();
 
-    esp_mem_free_s((void **)&nc);
+    esp_mem_free_s((void**)&nc);
     return espOK;
 }
 
@@ -508,8 +509,8 @@ esp_netconn_listen_with_max_conn(esp_netconn_p nc, uint16_t max_connections) {
 
     /* Enable server on port and set default netconn callback */
     if ((res = esp_set_server(1, nc->listen_port,
-        ESP_U16(ESP_MIN(max_connections, ESP_CFG_MAX_CONNS)),
-        nc->conn_timeout, netconn_evt, NULL, NULL, 1)) == espOK) {
+                              ESP_U16(ESP_MIN(max_connections, ESP_CFG_MAX_CONNS)),
+                              nc->conn_timeout, netconn_evt, NULL, NULL, 1)) == espOK) {
         esp_core_lock();
         listen_api = nc;                        /* Set current main API in listening state */
         esp_core_unlock();
@@ -534,16 +535,16 @@ esp_netconn_accept(esp_netconn_p nc, esp_netconn_p* client) {
     ESP_ASSERT("nc == listen_api", nc == listen_api);
 
     *client = NULL;
-    time = esp_sys_mbox_get(&nc->mbox_accept, (void **)&tmp, 0);
+    time = esp_sys_mbox_get(&nc->mbox_accept, (void**)&tmp, 0);
     if (time == ESP_SYS_TIMEOUT) {
         return espTIMEOUT;
     }
-    if ((uint8_t *)tmp == (uint8_t *)&recv_closed) {
+    if ((uint8_t*)tmp == (uint8_t*)&recv_closed) {
         esp_core_lock();
         listen_api = NULL;                      /* Disable listening at this point */
         esp_core_unlock();
         return espERRWIFINOTCONNECTED;          /* Wifi disconnected */
-    } else if ((uint8_t *)tmp == (uint8_t *)&recv_not_present) {
+    } else if ((uint8_t*)tmp == (uint8_t*)&recv_not_present) {
         esp_core_lock();
         listen_api = NULL;                      /* Disable listening at this point */
         esp_core_unlock();
@@ -595,7 +596,7 @@ esp_netconn_write(esp_netconn_p nc, const void* data, size_t btw) {
         if (nc->buff.ptr == nc->buff.len) {
             res = esp_conn_send(nc->conn, nc->buff.buff, nc->buff.len, &sent, 1);
 
-            esp_mem_free_s((void **)&nc->buff.buff);
+            esp_mem_free_s((void**)&nc->buff.buff);
             if (res != espOK) {
                 return res;
             }
@@ -657,7 +658,7 @@ esp_netconn_flush(esp_netconn_p nc) {
         if (nc->buff.ptr > 0) {                 /* Do we have data in current buffer? */
             esp_conn_send(nc->conn, nc->buff.buff, nc->buff.ptr, NULL, 1);  /* Send data */
         }
-        esp_mem_free_s((void **)&nc->buff.buff);
+        esp_mem_free_s((void**)&nc->buff.buff);
     }
     return espOK;
 }
@@ -719,15 +720,15 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
      * or throw error for timeout notification
      */
     if (nc->rcv_timeout == ESP_NETCONN_RECEIVE_NO_WAIT) {
-        if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void **)pbuf)) {
+        if (!esp_sys_mbox_getnow(&nc->mbox_receive, (void**)pbuf)) {
             return espTIMEOUT;
         }
-    } else if (esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, nc->rcv_timeout) == ESP_SYS_TIMEOUT) {
+    } else if (esp_sys_mbox_get(&nc->mbox_receive, (void**)pbuf, nc->rcv_timeout) == ESP_SYS_TIMEOUT) {
         return espTIMEOUT;
     }
 #else /* ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
     /* Forever wait for new receive packet */
-    esp_sys_mbox_get(&nc->mbox_receive, (void **)pbuf, 0);
+    esp_sys_mbox_get(&nc->mbox_receive, (void**)pbuf, 0);
 #endif /* !ESP_CFG_NETCONN_RECEIVE_TIMEOUT */
 
     esp_core_lock();
@@ -737,7 +738,7 @@ esp_netconn_receive(esp_netconn_p nc, esp_pbuf_p* pbuf) {
     esp_core_unlock();
 
     /* Check if connection closed */
-    if ((uint8_t *)(*pbuf) == (uint8_t *)&recv_closed) {
+    if ((uint8_t*)(*pbuf) == (uint8_t*)&recv_closed) {
         *pbuf = NULL;                           /* Reset pbuf */
         return espCLOSED;
     }

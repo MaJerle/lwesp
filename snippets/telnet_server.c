@@ -39,7 +39,7 @@ telnet_cli_exit(cli_printf cliprintf, int argc, char** argv) {
  * \param[in]       fmt: Format for the printf
  */
 static void
-telnet_cli_printf(const char *fmt, ...) {
+telnet_cli_printf(const char* fmt, ...) {
     static char tempStr[128];
     va_list argptr;
     int len = 1;
@@ -50,7 +50,7 @@ telnet_cli_printf(const char *fmt, ...) {
     va_end(argptr);
 
     if (len > 0 && len < 128) {
-        esp_netconn_write(client, (uint8_t *)tempStr, len);
+        esp_netconn_write(client, (uint8_t*)tempStr, len);
     }
 }
 
@@ -103,7 +103,7 @@ telnet_command_sequence_check(char ch) {
         command_sequence_found = true;
         telnet_command_sequence = 1;
         printf("AIC   ");
-    } else if(telnet_command_sequence == 1) {
+    } else if (telnet_command_sequence == 1) {
         command_sequence_found = true;
         telnet_command_sequence = 2;
         if (ch == 251) {
@@ -120,44 +120,117 @@ telnet_command_sequence_check(char ch) {
     } else if (telnet_command_sequence == 2) {
         command_sequence_found = true;
         telnet_command_sequence = 0;
-        switch(ch) {
-            case 0 : printf("Binary Transmission 0x%02x-%d\r\n", ch, ch); break;
-            case 1 : printf("Echo 0x%02x-%d\r\n", ch, ch); break;
-            case 2 : printf("Reconnection 0x%02x-%d\r\n", ch, ch); break;
-            case 3 : printf("Suppress Go Ahead 0x%02x-%d\r\n", ch, ch); break;
-            case 4 : printf("Approx Message Size Negotiation 0x%02x-%d\r\n", ch, ch); break;
-            case 5 : printf("Status 0x%02x-%d\r\n", ch, ch); break;
-            case 6 : printf("Timing Mark 0x%02x-%d\r\n", ch, ch); break;
-            case 7 : printf("Remote Controlled Trans and Echo 0x%02x-%d\r\n", ch, ch); break;
-            case 8 : printf("Output Line Width 0x%02x-%d\r\n", ch, ch); break;
-            case 9 : printf("Output Page Size 0x%02x-%d\r\n", ch, ch); break;
-            case 10: printf("Output Carriage-Return Disposition 0x%02x-%d\r\n", ch, ch); break;
-            case 11: printf("Output Horizontal Tab Stops 0x%02x-%d\r\n", ch, ch); break;
-            case 12: printf("Output Horizontal Tab Disposition 0x%02x-%d\r\n", ch, ch); break;
-            case 13: printf("Output Formfeed Disposition 0x%02x-%d\r\n", ch, ch); break;
-            case 14: printf("Output Vertical Tabstops 0x%02x-%d\r\n", ch, ch); break;
-            case 15: printf("Output Vertical Tab Disposition 0x%02x-%d\r\n", ch, ch); break;
-            case 16: printf("Output Linefeed Disposition 0x%02x-%d\r\n", ch, ch); break;
-            case 17: printf("Extended ASCII 0x%02x-%d\r\n", ch, ch); break;
-            case 18: printf("Logout 0x%02x-%d\r\n", ch, ch); break;
-            case 19: printf("Byte Macro 0x%02x-%d\r\n", ch, ch); break;
-            case 20: printf("Data Entry Terminal 0x%02x-%d\r\n", ch, ch); break;
-            case 21: printf("SUPDUP 0x%02x-%d\r\n", ch, ch); break;
-            case 22: printf("SUPDUP Output 0x%02x-%d\r\n", ch, ch); break;
-            case 23: printf("Send Location 0x%02x-%d\r\n", ch, ch); break;
-            case 24: printf("Terminal Type 0x%02x-%d\r\n", ch, ch); break;
-            case 25: printf("End of Record 0x%02x-%d\r\n", ch, ch); break;
-            case 26: printf("TACACS User Identification 0x%02x-%d\r\n", ch, ch); break;
-            case 27: printf("Output Marking 0x%02x-%d\r\n", ch, ch); break;
-            case 28: printf("Terminal Location Number 0x%02x-%d\r\n", ch, ch); break;
-            case 29: printf("Telnet 3270 Regime 0x%02x-%d\r\n", ch, ch); break;
-            case 30: printf("X.3 PAD 0x%02x-%d\r\n", ch, ch); break;
-            case 31: printf("Negotiate About Window Size 0x%02x-%d\r\n", ch, ch); break;
-            case 32: printf("Terminal Speed 0x%02x-%d\r\n", ch, ch); break;
-            case 33: printf("Remote Flow Control 0x%02x-%d\r\n", ch, ch); break;
-            case 34: printf("Linemode 0x%02x-%d\r\n", ch, ch); break;
-            case 35: printf("X Display Location 0x%02x-%d\r\n", ch, ch); break;
-            default: printf("UNKNOWN 0x%02x-%d \n\r", ch, ch);
+        switch (ch) {
+            case 0 :
+                printf("Binary Transmission 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 1 :
+                printf("Echo 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 2 :
+                printf("Reconnection 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 3 :
+                printf("Suppress Go Ahead 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 4 :
+                printf("Approx Message Size Negotiation 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 5 :
+                printf("Status 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 6 :
+                printf("Timing Mark 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 7 :
+                printf("Remote Controlled Trans and Echo 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 8 :
+                printf("Output Line Width 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 9 :
+                printf("Output Page Size 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 10:
+                printf("Output Carriage-Return Disposition 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 11:
+                printf("Output Horizontal Tab Stops 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 12:
+                printf("Output Horizontal Tab Disposition 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 13:
+                printf("Output Formfeed Disposition 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 14:
+                printf("Output Vertical Tabstops 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 15:
+                printf("Output Vertical Tab Disposition 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 16:
+                printf("Output Linefeed Disposition 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 17:
+                printf("Extended ASCII 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 18:
+                printf("Logout 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 19:
+                printf("Byte Macro 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 20:
+                printf("Data Entry Terminal 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 21:
+                printf("SUPDUP 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 22:
+                printf("SUPDUP Output 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 23:
+                printf("Send Location 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 24:
+                printf("Terminal Type 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 25:
+                printf("End of Record 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 26:
+                printf("TACACS User Identification 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 27:
+                printf("Output Marking 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 28:
+                printf("Terminal Location Number 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 29:
+                printf("Telnet 3270 Regime 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 30:
+                printf("X.3 PAD 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 31:
+                printf("Negotiate About Window Size 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 32:
+                printf("Terminal Speed 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 33:
+                printf("Remote Flow Control 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 34:
+                printf("Linemode 0x%02x-%d\r\n", ch, ch);
+                break;
+            case 35:
+                printf("X Display Location 0x%02x-%d\r\n", ch, ch);
+                break;
+            default:
+                printf("UNKNOWN 0x%02x-%d \n\r", ch, ch);
         }
     }
 
@@ -185,7 +258,7 @@ telnet_server_thread(void const* arg) {
         return;
     }
     printf("Server telnet created\r\n");
-    
+
     /* Bind network connection to port 23 */
     res = esp_netconn_bind(server, 23);
     if (res != espOK) {
@@ -198,7 +271,7 @@ telnet_server_thread(void const* arg) {
 
     /* Init command line interface and add telnet commands */
     cli_init();
-    cli_register_commands(telnet_commands, sizeof(telnet_commands)/sizeof(telnet_commands[0]));
+    cli_register_commands(telnet_commands, sizeof(telnet_commands) / sizeof(telnet_commands[0]));
     esp_cli_register_commands();
 
     /*

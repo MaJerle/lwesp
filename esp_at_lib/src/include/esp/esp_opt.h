@@ -747,9 +747,9 @@ void *  my_memset(void* dst, int b, size_t len);
 
 /* Operating system config */
 #if !ESP_CFG_OS
-    #if ESP_CFG_INPUT_USE_PROCESS
-    #error "ESP_CFG_INPUT_USE_PROCESS may only be enabled when OS is used!"
-    #endif /* ESP_CFG_INPUT_USE_PROCESS */
+#if ESP_CFG_INPUT_USE_PROCESS
+#error "ESP_CFG_INPUT_USE_PROCESS may only be enabled when OS is used!"
+#endif /* ESP_CFG_INPUT_USE_PROCESS */
 #endif /* !ESP_CFG_OS */
 
 /* Device config */
