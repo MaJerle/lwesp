@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>ESP_STM32F429ZI_Nucleo_Netconn_Client_RTOS</name>
+	<name>esp_stm32f429zi_nucleo_netconn_client_rtos</name>
 	<comment></comment>
 	<projects>
 	</projects>
