@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of LwESP - Lightweight ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Before you start using WIN32 implementation with USB and VCP,
  * check lwesp_ll_win32.c implementation and choose your COM port!
@@ -46,11 +46,11 @@ main(void) {
     printf("Starting ESP application!\r\n");
 
     /* Initialize ESP with default callback function */
-    printf("Initializing ESP-AT Lib\r\n");
+    printf("Initializing LwESP\r\n");
     if (lwesp_init(lwesp_callback_func, 1) != lwespOK) {
-        printf("Cannot initialize ESP-AT Lib!\r\n");
+        printf("Cannot initialize LwESP!\r\n");
     } else {
-        printf("ESP-AT Lib initialized!\r\n");
+        printf("LwESP initialized!\r\n");
     }
 
     /* Enable access point only mode */

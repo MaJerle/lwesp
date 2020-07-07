@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of LwESP - Lightweight ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
@@ -42,15 +42,15 @@
  * \brief           Custom message queue implementation for WIN32
  */
 typedef struct {
-    lwesp_sys_sem_t sem_not_empty;                /*!< Semaphore indicates not empty */
-    lwesp_sys_sem_t sem_not_full;                 /*!< Semaphore indicates not full */
-    lwesp_sys_sem_t sem;                          /*!< Semaphore to lock access */
+    lwesp_sys_sem_t sem_not_empty;              /*!< Semaphore indicates not empty */
+    lwesp_sys_sem_t sem_not_full;               /*!< Semaphore indicates not full */
+    lwesp_sys_sem_t sem;                        /*!< Semaphore to lock access */
     size_t in, out, size;
     void* entries[1];
 } win32_mbox_t;
 
 static LARGE_INTEGER freq, sys_start_time;
-static lwesp_sys_mutex_t sys_mutex;               /* Mutex ID for main protection */
+static lwesp_sys_mutex_t sys_mutex;             /* Mutex ID for main protection */
 
 /**
  * \brief           Check if message box is full
@@ -236,7 +236,7 @@ lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
     win32_mbox_t* mbox = *b;
     uint32_t time = osKernelSysTick();          /* Get start time */
 
-    lwesp_sys_sem_wait(&mbox->sem, 0);            /* Wait for access */
+    lwesp_sys_sem_wait(&mbox->sem, 0);          /* Wait for access */
 
     /*
      * Since function is blocking until ready to write something to queue,

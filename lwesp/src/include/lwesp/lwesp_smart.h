@@ -27,7 +27,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of LwESP - Lightweight ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$

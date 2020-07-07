@@ -40,7 +40,7 @@ architecture oriented. Some examples for `WIN32` and `ARM Cortex-M` are included
 System functions
 ****************
 
-System functions are bridge between operating system running on embedded system and ESP-AT Library.
+System functions are bridge between operating system running on embedded system and ESP-AT middleware.
 Functions need to provide:
 
 * Thread management

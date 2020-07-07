@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of LwESP - Lightweight ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
@@ -38,9 +38,9 @@
  * \brief           Decode single character for unicode (UTF-8 only) format
  * \param[in,out]   s: Pointer to unicode decode control structure
  * \param[in]       c: UTF-8 character sequence to test for device
- * \retval          \ref lwespOK: Function succedded, there is a valid UTF-8 sequence
- * \retval          \ref lwespINPROG: Function continues well but expects some more data to finish sequence
- * \retval          \ref lwespERR: Error in UTF-8 sequence
+ * \return          \ref lwespOK Function succedded, there is a valid UTF-8 sequence
+ * \return          \ref lwespINPROG Function continues well but expects some more data to finish sequence
+ * \return          \ref lwespERR Error in UTF-8 sequence
  */
 lwespr_t
 espi_unicode_decode(lwesp_unicode_t* s, uint8_t c) {

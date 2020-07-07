@@ -3,7 +3,7 @@
 Inter thread communication
 ==========================
 
-ESP-AT Library is only available with operating system.
+ESP-AT middleware is only available with operating system.
 For successful resources management, it uses ``2`` threads within library and allows multiple application threads to post new command to be processed.
 
 .. figure:: ../static/images/thread_communication.svg

@@ -22,7 +22,7 @@ import subprocess, os
 subprocess.call('doxygen doxyfile.doxy', shell=True)
 # -- Project information -----------------------------------------------------
 
-project = 'ESP-AT Lib'
+project = 'LwESP'
 copyright = '2020, Tilen MAJERLE'
 author = 'Tilen MAJERLE'
 
@@ -38,7 +38,7 @@ for line in res.split("\n"):
         git_branch = line[1:].strip()
 
 # Decision for display version
-try: 
+try:
     if git_branch.index('develop') >= 0:
         version = "latest-develop"
 except Exception:
@@ -89,7 +89,7 @@ html_theme_options = {
     'display_version': True,
     'prev_next_buttons_location': 'bottom',
     'style_external_links': False,
-    
+
     'logo_only': False,
 
     # Toc options

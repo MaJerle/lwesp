@@ -3,7 +3,7 @@
 Input module
 ============
 
-Input module is used to input received data from *ESP* device to *ESP-AT-Lib* middleware part.
+Input module is used to input received data from *ESP* device to *LwESP* middleware part.
 ``2`` processing options are possible:
 
 * Indirect processing with :cpp:func:`lwesp_input` (default mode)

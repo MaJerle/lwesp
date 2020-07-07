@@ -1,18 +1,18 @@
-ESP-AT Lib |version| documentation
-==================================
+LwESP |version| documentation
+=============================
 
 Welcome to the documentation for version |version|.
 
-ESP-AT Lib is generic, platform independent, library for control of *ESP8266* or *ESP32* WiFi-based microcontrollers from *Espressif systems*. 
+LwESP is generic, platform independent, ESP-AT parser library to communicate with *ESP8266* or *ESP32* WiFi-based microcontrollers from *Espressif systems* using official AT Commands set running on ESP device.
 Its objective is to run on master system, while Espressif device runs official AT commands firmware developed and maintained by *Espressif systems*.
 
 .. image:: static/images/logo.svg
-    :align: center 
+    :align: center
 
 .. rst-class:: center
 .. rst-class:: index_links
 
-	:ref:`download_library` · :ref:`getting_started` · `Open Github <https://github.com/MaJerle/esp-at-lib>`_
+	:ref:`download_library` · :ref:`getting_started` · `Open Github <https://github.com/MaJerle/lwesp>`_
 
 Features
 ^^^^^^^^

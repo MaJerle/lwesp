@@ -102,11 +102,11 @@ init_thread(void* arg) {
     uint32_t time;
 
     /* Initialize ESP with default callback function */
-    printf("Initializing ESP-AT Lib\r\n");
+    printf("Initializing LwESP\r\n");
     if (lwesp_init(lwesp_callback_func, 1) != lwespOK) {
-        printf("Cannot initialize ESP-AT Lib!\r\n");
+        printf("Cannot initialize LwESP!\r\n");
     } else {
-        printf("ESP-AT Lib initialized!\r\n");
+        printf("LwESP initialized!\r\n");
     }
 
     /* Start thread for device present */

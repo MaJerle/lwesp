@@ -8,15 +8,15 @@ Getting started
 Download library
 ^^^^^^^^^^^^^^^^
 
-Library is primarly hosted on `Github <https://github.com/MaJerle/esp-at-lib>`_.
+Library is primarly hosted on `Github <https://github.com/MaJerle/lwesp>`_.
 
-* Download latest release from `releases area <https://github.com/MaJerle/esp-at-lib/releases>`_ on Github
+* Download latest release from `releases area <https://github.com/MaJerle/lwesp/releases>`_ on Github
 * Clone `develop` branch for latest development
 
 Download from releases
 **********************
 
-All releases are available on Github `releases area <https://github.com/MaJerle/esp-at-lib/releases>`_.
+All releases are available on Github `releases area <https://github.com/MaJerle/lwesp/releases>`_.
 
 Clone from Github
 *****************
@@ -28,9 +28,9 @@ First-time clone
 * Open console and navigate to path in the system to clone repository to. Use command ``cd your_path``
 * Clone repository with one of available ``3`` options
 
-  * Run ``git clone --recurse-submodules https://github.com/MaJerle/esp-at-lib`` command to clone entire repository, including submodules
-  * Run ``git clone --recurse-submodules --branch develop https://github.com/MaJerle/esp-at-lib`` to clone `development` branch, including submodules
-  * Run ``git clone --recurse-submodules --branch master https://github.com/MaJerle/esp-at-lib`` to clone `latest stable` branch, including submodules
+  * Run ``git clone --recurse-submodules https://github.com/MaJerle/lwesp`` command to clone entire repository, including submodules
+  * Run ``git clone --recurse-submodules --branch develop https://github.com/MaJerle/lwesp`` to clone `development` branch, including submodules
+  * Run ``git clone --recurse-submodules --branch master https://github.com/MaJerle/lwesp`` to clone `latest stable` branch, including submodules
 
 * Navigate to ``examples`` directory and run favourite example
 

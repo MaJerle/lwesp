@@ -22,25 +22,25 @@ MCU handles application, such as display & graphics, runs operating systems, dri
 
 *Espressif* is not only developing *RTOS SDK* firmware, it also develops *AT Slave firmware* based on *RTOS-SDK*.
 This is a special application, which is running on *ESP* device and allows host MCU to send *AT commands* and get response for it.
-Now it is time to use *ESP-AT Lib* you are reading this manual for.
+Now it is time to use *LwESP* you are reading this manual for.
 
-*ESP-AT Lib* has been developed to allow customers to:
+*LwESP* has been developed to allow customers to:
 
 * Develop on single (host MCU) architecture at the same time and do not care about *Espressif* arch
 * Shorten time to market
 
-Customers using *ESP-AT Lib* do not need to take care about proper command for specific task,
+Customers using *LwESP* do not need to take care about proper command for specific task,
 they can call API functions, such as :cpp:func:`lwesp_sta_join` to join WiFi network instead.
 Library will take the necessary steps in order to send right command to device via low-level driver (usually UART) and
 process incoming response from device before it will notify application layer if it was successfuly or not.
 
 .. note::
-	*ESP-AT Lib* offers efficient communication between host MCU at one side and *Espressif* wifi transceiver on another side.
+	*LwESP* offers efficient communication between host MCU at one side and *Espressif* wifi transceiver on another side.
 
 To summarize:
 
 * *ESP* device runs official *AT* firmware, provided by *Espressif systems*
-* Host MCU runs custom application, together with *ESP-AT Lib* library
+* Host MCU runs custom application, together with *LwESP* library
 * Host MCU communicates with *ESP* device with UART or similar interface.
 
 .. toctree::
