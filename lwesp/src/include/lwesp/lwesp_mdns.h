@@ -1,5 +1,5 @@
 /**
- * \file            esp_mdns.h
+ * \file            lwesp_mdns.h
  * \brief           mDNS API
  */
 
@@ -26,28 +26,28 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_MDNS_H
-#define ESP_HDR_MDNS_H
+#ifndef LWESP_HDR_MDNS_H
+#define LWESP_HDR_MDNS_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_MDNS mDNS API
+ * \ingroup         LWESP
+ * \defgroup        LWESP_MDNS mDNS API
  * \brief           mDNS function
  * \{
  */
 
-espr_t      esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_mdns_configure(uint8_t en, const char* host, const char* server, lwesp_port_t port, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}
@@ -57,4 +57,4 @@ espr_t      esp_mdns_configure(uint8_t en, const char* host, const char* server,
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_MDNS_H */
+#endif /* LWESP_HDR_MDNS_H */

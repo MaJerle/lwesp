@@ -1,5 +1,5 @@
 /**
- * \file            esp_ll_win32.c
+ * \file            lwesp_ll_win32.c
  * \brief           Low-level communication with ESP device for WIN32
  */
 
@@ -26,19 +26,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "system/esp_ll.h"
-#include "esp/esp.h"
-#include "esp/esp_mem.h"
-#include "esp/esp_input.h"
+#include "system/lwesp_ll.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_input.h"
 
 #if !__DOXYGEN__
 
-volatile uint8_t esp_ll_win32_driver_ignore_data;
+volatile uint8_t lwesp_ll_win32_driver_ignore_data;
 static uint8_t initialized = 0;
 static HANDLE thread_handle;
 static volatile HANDLE com_port;                /*!< COM port handle */
@@ -53,7 +53,7 @@ static size_t
 send_data(const void* data, size_t len) {
     DWORD written;
     if (com_port != NULL) {
-#if !ESP_CFG_AT_ECHO
+#if !LWESP_CFG_AT_ECHO
         const uint8_t* d = data;
         HANDLE hConsole;
 
@@ -63,7 +63,7 @@ send_data(const void* data, size_t len) {
             printf("%c", d[i]);
         }
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-#endif /* !ESP_CFG_AT_ECHO */
+#endif /* !LWESP_CFG_AT_ECHO */
 
         WriteFile(com_port, data, len, &written, NULL);
         FlushFileBuffers(com_port);
@@ -126,7 +126,7 @@ configure_uart(uint32_t baudrate) {
 
     /* On first function call, create a thread to read data from COM port */
     if (!initialized) {
-        esp_sys_thread_create(&thread_handle, "esp_ll_thread", uart_thread, NULL, 0, 0);
+        lwesp_sys_thread_create(&thread_handle, "lwesp_ll_thread", uart_thread, NULL, 0, 0);
     }
 }
 
@@ -136,13 +136,13 @@ configure_uart(uint32_t baudrate) {
 static void
 uart_thread(void* param) {
     DWORD bytes_read;
-    esp_sys_sem_t sem;
+    lwesp_sys_sem_t sem;
     FILE* file = NULL;
 
-    esp_sys_sem_create(&sem, 0);                /* Create semaphore for delay functions */
+    lwesp_sys_sem_create(&sem, 0);                /* Create semaphore for delay functions */
 
     while (com_port == NULL) {
-        esp_sys_sem_wait(&sem, 1);              /* Add some delay with yield */
+        lwesp_sys_sem_wait(&sem, 1);              /* Add some delay with yield */
     }
 
     fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
@@ -162,17 +162,17 @@ uart_thread(void* param) {
                 }
                 SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
-                if (esp_ll_win32_driver_ignore_data) {
+                if (lwesp_ll_win32_driver_ignore_data) {
                     printf("IGNORING..\r\n");
                     continue;
                 }
 
                 /* Send received data to input processing module */
-#if ESP_CFG_INPUT_USE_PROCESS
-                esp_input_process(data_buffer, (size_t)bytes_read);
-#else /* ESP_CFG_INPUT_USE_PROCESS */
-                esp_input(data_buffer, (size_t)bytes_read);
-#endif /* !ESP_CFG_INPUT_USE_PROCESS */
+#if LWESP_CFG_INPUT_USE_PROCESS
+                lwesp_input_process(data_buffer, (size_t)bytes_read);
+#else /* LWESP_CFG_INPUT_USE_PROCESS */
+                lwesp_input(data_buffer, (size_t)bytes_read);
+#endif /* !LWESP_CFG_INPUT_USE_PROCESS */
 
                 /* Write received data to output debug file */
                 if (file != NULL) {
@@ -183,7 +183,7 @@ uart_thread(void* param) {
         } while (bytes_read == (DWORD)sizeof(data_buffer));
 
         /* Implement delay to allow other tasks processing */
-        esp_sys_sem_wait(&sem, 1);
+        lwesp_sys_sem_wait(&sem, 1);
     }
 }
 
@@ -198,9 +198,9 @@ reset_device(uint8_t state) {
 /**
  * \brief           Callback function called from initialization process
  */
-espr_t
-esp_ll_init(esp_ll_t* ll) {
-#if !ESP_CFG_MEM_CUSTOM
+lwespr_t
+lwesp_ll_init(lwesp_ll_t* ll) {
+#if !LWESP_CFG_MEM_CUSTOM
     /* Step 1: Configure memory for dynamic allocations */
     static uint8_t memory[0x10000];             /* Create memory for dynamic allocations with specific size */
 
@@ -209,13 +209,13 @@ esp_ll_init(esp_ll_t* ll) {
      * If device has internal/external memory available,
      * multiple memories may be used
      */
-    esp_mem_region_t mem_regions[] = {
+    lwesp_mem_region_t mem_regions[] = {
         { memory, sizeof(memory) }
     };
     if (!initialized) {
-        esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations to ESP library */
+        lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations to ESP library */
     }
-#endif /* !ESP_CFG_MEM_CUSTOM */
+#endif /* !LWESP_CFG_MEM_CUSTOM */
 
     /* Step 2: Set AT port send function to use when we have data to transmit */
     if (!initialized) {
@@ -232,10 +232,10 @@ esp_ll_init(esp_ll_t* ll) {
 /**
  * \brief           Callback function to de-init low-level communication part
  */
-espr_t
-esp_ll_deinit(esp_ll_t* ll) {
+lwespr_t
+lwesp_ll_deinit(lwesp_ll_t* ll) {
     if (thread_handle != NULL) {
-        esp_sys_thread_terminate(&thread_handle);
+        lwesp_sys_thread_terminate(&thread_handle);
         thread_handle = NULL;
     }
     initialized = 0;                            /* Clear initialized flag */

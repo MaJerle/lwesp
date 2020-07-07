@@ -1,5 +1,5 @@
 /**
- * \file            esp_parser.c
+ * \file            lwesp_parser.c
  * \brief           Parse incoming data from AT port
  */
 
@@ -26,14 +26,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_parser.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_parser.h"
+#include "lwesp/lwesp_mem.h"
 
 /**
  * \brief           Parse number from string
@@ -60,8 +60,8 @@ espi_parse_number(const char** str) {
         minus = 1;
         ++p;
     }
-    while (ESP_CHARISNUM(*p)) {                 /* Parse until character is valid number */
-        val = val * 10 + ESP_CHARTONUM(*p);
+    while (LWESP_CHARISNUM(*p)) {                 /* Parse until character is valid number */
+        val = val * 10 + LWESP_CHARTONUM(*p);
         ++p;
     }
     if (*p == ',') {                            /* Go to next entry if possible */
@@ -78,11 +78,11 @@ espi_parse_number(const char** str) {
  * \param[in,out]   str: Pointer to pointer to string to parse
  * \return          Parsed port number
  */
-esp_port_t
+lwesp_port_t
 espi_parse_port(const char** str) {
-    esp_port_t p;
+    lwesp_port_t p;
 
-    p = (esp_port_t)espi_parse_number(str);     /* Parse port */
+    p = (lwesp_port_t)espi_parse_number(str);     /* Parse port */
     return p;
 }
 
@@ -106,8 +106,8 @@ espi_parse_hexnumber(const char** str) {
     if (*p == '"') {                            /* Skip leading quotes */
         ++p;
     }
-    while (ESP_CHARISHEXNUM(*p)) {              /* Parse until character is valid number */
-        val = val * 16 + ESP_CHARHEXTONUM(*p);
+    while (LWESP_CHARISHEXNUM(*p)) {              /* Parse until character is valid number */
+        val = val * 16 + LWESP_CHARHEXTONUM(*p);
         ++p;
     }
     if (*p == ',') {                            /* Go to next entry if possible */
@@ -173,7 +173,7 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_ip(const char** src, esp_ip_t* ip) {
+espi_parse_ip(const char** src, lwesp_ip_t* ip) {
     const char* p = *src;
 
     if (*p == '"') {
@@ -201,7 +201,7 @@ espi_parse_ip(const char** src, esp_ip_t* ip) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_mac(const char** src, esp_mac_t* mac) {
+espi_parse_mac(const char** src, lwesp_mac_t* mac) {
     const char* p = *src;
 
     if (*p == '"') {                            /* Go to next entry if possible */
@@ -231,9 +231,9 @@ espi_parse_mac(const char** src, esp_mac_t* mac) {
 /**
  * \brief           Parse +CIPSTATUS response from ESP device
  * \param[in]       str: Input string to parse
- * \return          Member of \ref espr_t enumeration
+ * \return          Member of \ref lwespr_t enumeration
  */
-espr_t
+lwespr_t
 espi_parse_cipstatus(const char* str) {
     uint8_t cn_num = 0;
 
@@ -250,13 +250,13 @@ espi_parse_cipstatus(const char* str) {
     return espOK;
 }
 
-#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
 /**
  * \brief           Parse +CIPRECVDATA statement
  * \param[in]       str: Input string to parse
- * \return          Member of \ref espr_t enumeration
+ * \return          Member of \ref lwespr_t enumeration
  */
-espr_t
+lwespr_t
 espi_parse_ciprecvdata(const char* str) {
     size_t len;
 
@@ -266,8 +266,8 @@ espi_parse_ciprecvdata(const char* str) {
 
     /* Check data length */
     if ((len = espi_parse_number(&str)) > 0) {  /* Get number of bytes to read */
-        esp_ip_t ip;
-        esp_port_t port;
+        lwesp_ip_t ip;
+        lwesp_port_t port;
 
         esp.m.ipd.read = 1;                     /* Start reading network data */
         esp.m.ipd.tot_len = len;                /* Total number of bytes in this received packet */
@@ -275,7 +275,7 @@ espi_parse_ciprecvdata(const char* str) {
 
         espi_parse_ip(&str, &ip);
         port = espi_parse_port(&str);
-        esp_pbuf_set_ip(esp.m.ipd.buff, &ip, port);
+        lwesp_pbuf_set_ip(esp.m.ipd.buff, &ip, port);
     }
     return espOK;
 }
@@ -283,16 +283,16 @@ espi_parse_ciprecvdata(const char* str) {
 /**
  * \brief           Parse +CIPRECVLEN statement
  * \param[in]       str: Input string to parse
- * \return          Member of \ref espr_t enumeration
+ * \return          Member of \ref lwespr_t enumeration
  */
-espr_t
+lwespr_t
 espi_parse_ciprecvlen(const char* str) {
     int32_t len;
     if (*str == '+') {
         str += 12;
     }
 
-    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; ++i) {
+    for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {
         len = espi_parse_number(&str);
         if (len < 0) {
             continue;
@@ -302,18 +302,18 @@ espi_parse_ciprecvlen(const char* str) {
 
     return espOK;
 }
-#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
+#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
 
 /**
  * \brief           Parse +IPD statement
  * \param[in]       str: Input string to parse
- * \return          Member of \ref espr_t enumeration
+ * \return          Member of \ref lwespr_t enumeration
  */
-espr_t
+lwespr_t
 espi_parse_ipd(const char* str) {
     uint8_t conn, is_data_ipd;
     size_t len;
-    esp_conn_p c;
+    lwesp_conn_p c;
 
     if (*str == '+') {
         str += 5;
@@ -322,7 +322,7 @@ espi_parse_ipd(const char* str) {
     conn = espi_parse_number(&str);             /* Parse number for connection number */
     len = espi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
 
-    c = conn < ESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL;   /* Get connection handle */
+    c = conn < LWESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL;   /* Get connection handle */
     if (c == NULL) {                            /* Invalid connection number */
         return espERR;
     }
@@ -340,14 +340,14 @@ espi_parse_ipd(const char* str) {
      */
     is_data_ipd = strchr(str, ':') != NULL;     /* Check if we have ':' in string */
 
-#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     /*
      * Check if +IPD is only notification and not actual data packet
      */
     if (!is_data_ipd) {                         /* If not data packet */
         c->tcp_available_bytes = len;           /* Set new value for number of bytes available to read from device */
     } else
-#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
         /*
          * If additional information are enabled (IP and PORT),
          * parse them and save.
@@ -361,15 +361,15 @@ espi_parse_ipd(const char* str) {
             espi_parse_ip(&str, &esp.m.ipd.ip);     /* Parse incoming packet IP */
             esp.m.ipd.port = espi_parse_port(&str); /* Get port on IPD data */
 
-            ESP_MEMCPY(&esp.m.conns[conn].remote_ip, &esp.m.ipd.ip, sizeof(esp.m.ipd.ip));
-            ESP_MEMCPY(&esp.m.conns[conn].remote_port, &esp.m.ipd.port, sizeof(esp.m.ipd.port));
+            LWESP_MEMCPY(&esp.m.conns[conn].remote_ip, &esp.m.ipd.ip, sizeof(esp.m.ipd.ip));
+            LWESP_MEMCPY(&esp.m.conns[conn].remote_port, &esp.m.ipd.port, sizeof(esp.m.ipd.port));
         }
 
     /*
      * Data read procedure may only happen in case there is
      * data packet available, otherwise do nothing further about this information
      *
-     * This check should be always positive when ESP_CFG_CONN_MANUAL_TCP_RECEIVE is disabled
+     * This check should be always positive when LWESP_CFG_CONN_MANUAL_TCP_RECEIVE is disabled
      */
     esp.m.ipd.tot_len = len;                    /* Total number of bytes in this received packet or notification message */
     esp.m.ipd.conn = c;                         /* Pointer to connection we have data for or notification message */
@@ -388,7 +388,7 @@ espi_parse_ipd(const char* str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_at_sdk_version(const char* str, esp_sw_version_t* version_out) {
+espi_parse_at_sdk_version(const char* str, lwesp_sw_version_t* version_out) {
     version_out->major = ((uint8_t)espi_parse_number(&str));
     ++str;
     version_out->minor = ((uint8_t)espi_parse_number(&str));
@@ -414,11 +414,11 @@ espi_parse_link_conn(const char* str) {
     esp.m.link_conn.failed = espi_parse_number(&str);
     esp.m.link_conn.num = espi_parse_number(&str);
     if (!strncmp(str, "\"TCP\"", 5)) {
-        esp.m.link_conn.type = ESP_CONN_TYPE_TCP;
+        esp.m.link_conn.type = LWESP_CONN_TYPE_TCP;
     } else if (!strncmp(str, "\"UDP\"", 5)) {
-        esp.m.link_conn.type = ESP_CONN_TYPE_UDP;
+        esp.m.link_conn.type = LWESP_CONN_TYPE_UDP;
     } else if (!strncmp(str, "\"SSL\"", 5)) {
-        esp.m.link_conn.type = ESP_CONN_TYPE_SSL;
+        esp.m.link_conn.type = LWESP_CONN_TYPE_SSL;
     } else {
         return 0;
     }
@@ -430,7 +430,7 @@ espi_parse_link_conn(const char* str) {
     return 1;
 }
 
-#if ESP_CFG_MODE_STATION || __DOXYGEN__
+#if LWESP_CFG_MODE_STATION || __DOXYGEN__
 /**
  * \brief           Parse received message for list access points
  * \param[in]       str: Pointer to input string starting with +CWLAP
@@ -438,8 +438,8 @@ espi_parse_link_conn(const char* str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwlap(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWLAP) ||      /* Do we have valid message here and enough memory to save everything? */
+espi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWLAP) ||      /* Do we have valid message here and enough memory to save everything? */
         msg->msg.ap_list.aps == NULL || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl) {
         return 0;
     }
@@ -451,7 +451,7 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
     }
     ++str;
 
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (esp_ecn_t)espi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (lwesp_ecn_t)espi_parse_number(&str);
     espi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = espi_parse_number(&str);
     espi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
@@ -481,8 +481,8 @@ espi_parse_cwlap(const char* str, esp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwjap(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWJAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
+espi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
         return 0;
     }
     if (*str == '+') {                          /* Does string contain '+' as first character */
@@ -491,20 +491,20 @@ espi_parse_cwjap(const char* str, esp_msg_t* msg) {
     if (*str != '"') {                          /* We must start with quotation mark */
         return 0;
     }
-    espi_parse_string(&str, esp.msg->msg.sta_info_ap.info->ssid, ESP_CFG_MAX_SSID_LENGTH, 1);
+    espi_parse_string(&str, esp.msg->msg.sta_info_ap.info->ssid, LWESP_CFG_MAX_SSID_LENGTH, 1);
     espi_parse_mac(&str, &esp.msg->msg.sta_info_ap.info->mac);
     esp.msg->msg.sta_info_ap.info->ch = espi_parse_number(&str);
     esp.msg->msg.sta_info_ap.info->rssi = espi_parse_number(&str);
 
-    ESP_UNUSED(msg);
+    LWESP_UNUSED(msg);
 
     return 1;
 }
 
 
-#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#endif /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
 
-#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
+#if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
 /**
  * \brief           Parse received message for list stations
  * \param[in]       str: Pointer to input string starting with +CWLAP
@@ -512,8 +512,8 @@ espi_parse_cwjap(const char* str, esp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwlif(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWLIF)         /* Do we have valid message here and enough memory to save everything? */
+espi_parse_cwlif(const char* str, lwesp_msg_t* msg) {
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWLIF)         /* Do we have valid message here and enough memory to save everything? */
         || msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal) {
         return 0;
     }
@@ -540,12 +540,12 @@ espi_parse_cwlif(const char* str, esp_msg_t* msg) {
  */
 uint8_t
 espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
-    esp_mac_t mac;
+    lwesp_mac_t mac;
 
     espi_parse_mac(&str, &mac);                 /* Parse MAC address */
 
     esp.evt.evt.ap_conn_disconn_sta.mac = &mac;
-    espi_send_cb(is_conn ? ESP_EVT_AP_CONNECTED_STA : ESP_EVT_AP_DISCONNECTED_STA); /* Send event function */
+    espi_send_cb(is_conn ? LWESP_EVT_AP_CONNECTED_STA : LWESP_EVT_AP_DISCONNECTED_STA); /* Send event function */
     return 1;
 }
 
@@ -556,15 +556,15 @@ espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
  */
 uint8_t
 espi_parse_ap_ip_sta(const char* str) {
-    esp_mac_t mac;
-    esp_ip_t ip;
+    lwesp_mac_t mac;
+    lwesp_ip_t ip;
 
     espi_parse_mac(&str, &mac);                 /* Parse MAC address */
     espi_parse_ip(&str, &ip);                   /* Parse IP address */
 
     esp.evt.evt.ap_ip_sta.mac = &mac;
     esp.evt.evt.ap_ip_sta.ip = &ip;
-    espi_send_cb(ESP_EVT_AP_IP_STA);            /* Send event function */
+    espi_send_cb(LWESP_EVT_AP_IP_STA);            /* Send event function */
     return 1;
 }
 
@@ -575,8 +575,8 @@ espi_parse_ap_ip_sta(const char* str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwsap(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWSAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
+espi_parse_cwsap(const char* str, lwesp_msg_t* msg) {
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWSAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
         return 0;
     }
     if (*str == '+') {                          /* Does string contain '+' as first character */
@@ -585,20 +585,20 @@ espi_parse_cwsap(const char* str, esp_msg_t* msg) {
     if (*str != '"') {                          /* We must start with quotation mark */
         return 0;
     }
-    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->ssid, ESP_CFG_MAX_SSID_LENGTH, 1);
-    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->pwd, ESP_CFG_MAX_PWD_LENGTH, 1);
+    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->ssid, LWESP_CFG_MAX_SSID_LENGTH, 1);
+    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->pwd, LWESP_CFG_MAX_PWD_LENGTH, 1);
     esp.msg->msg.ap_conf_get.ap_conf->ch = espi_parse_number(&str);
     esp.msg->msg.ap_conf_get.ap_conf->ecn = espi_parse_number(&str);
     esp.msg->msg.ap_conf_get.ap_conf->max_cons = espi_parse_number(&str);
     esp.msg->msg.ap_conf_get.ap_conf->hidden = espi_parse_number(&str);
 
-    ESP_UNUSED(msg);
+    LWESP_UNUSED(msg);
 
     return 1;
 }
-#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+#endif /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 
-#if ESP_CFG_PING || __DOXYGEN__
+#if LWESP_CFG_PING || __DOXYGEN__
 
 /**
  * \brief           Parse received time for ping
@@ -607,8 +607,8 @@ espi_parse_cwsap(const char* str, esp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_ping_time(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_TCPIP_PING)) {
+espi_parse_ping_time(const char* str, lwesp_msg_t* msg) {
+    if (!CMD_IS_DEF(LWESP_CMD_TCPIP_PING)) {
         return 0;
     }
     if (*str == '+') {
@@ -621,9 +621,9 @@ espi_parse_ping_time(const char* str, esp_msg_t* msg) {
     return 1;
 }
 
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
+#endif /* LWESP_CFG_PING || __DOXYGEN__ */
 
-#if ESP_CFG_DNS || __DOXYGEN__
+#if LWESP_CFG_DNS || __DOXYGEN__
 
 /**
  * \brief           Parse received message domain DNS name
@@ -632,8 +632,8 @@ espi_parse_ping_time(const char* str, esp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_TCPIP_CIPDOMAIN)) {
+espi_parse_cipdomain(const char* str, lwesp_msg_t* msg) {
+    if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPDOMAIN)) {
         return 0;
     }
     if (*str == '+') {
@@ -643,9 +643,9 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
     return 1;
 }
 
-#endif /* ESP_CFG_DNS || __DOXYGEN__ */
+#endif /* LWESP_CFG_DNS || __DOXYGEN__ */
 
-#if ESP_CFG_SNTP || __DOXYGEN__
+#if LWESP_CFG_SNTP || __DOXYGEN__
 
 /**
  * \brief           Parse received message for SNTP time
@@ -654,8 +654,8 @@ espi_parse_cipdomain(const char* str, esp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
-    if (!CMD_IS_DEF(ESP_CMD_TCPIP_CIPSNTPTIME)) {
+espi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
+    if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPTIME)) {
         return 0;
     }
     if (*str == '+') {                              /* Check input string */
@@ -722,9 +722,9 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
     return 1;
 }
 
-#endif /* ESP_CFG_SNTP || __DOXYGEN__ */
+#endif /* LWESP_CFG_SNTP || __DOXYGEN__ */
 
-#if ESP_CFG_HOSTNAME || __DOXYGEN__
+#if LWESP_CFG_HOSTNAME || __DOXYGEN__
 
 /**
  * \brief           Parse received message for HOSTNAME
@@ -733,9 +733,9 @@ espi_parse_cipsntptime(const char* str, esp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_hostname(const char* str, esp_msg_t* msg) {
+espi_parse_hostname(const char* str, lwesp_msg_t* msg) {
     size_t i;
-    if (!CMD_IS_DEF(ESP_CMD_WIFI_CWHOSTNAME_GET)) {
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWHOSTNAME_GET)) {
         return 0;
     }
     if (*str == '+') {                              /* Check input string */
@@ -752,7 +752,7 @@ espi_parse_hostname(const char* str, esp_msg_t* msg) {
     return 1;
 }
 
-#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
+#endif /* LWESP_CFG_HOSTNAME || __DOXYGEN__ */
 
 /**
  * \brief           Parse received message for DHCP
@@ -763,7 +763,7 @@ uint8_t
 espi_parse_cwdhcp(const char* str) {
     uint8_t val;
 
-    if (!CMD_IS_CUR(ESP_CMD_WIFI_CWDHCP_GET)) {
+    if (!CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_GET)) {
         return 0;
     }
     if (*str == '+') {
@@ -772,12 +772,12 @@ espi_parse_cwdhcp(const char* str) {
 
     val = espi_parse_number(&str);
 
-#if ESP_CFG_MODE_ACCESS_POINT
+#if LWESP_CFG_MODE_ACCESS_POINT
     esp.m.ap.dhcp = (val & 0x01) == 0x01;
-#endif /* ESP_CFG_MODE_ACCESS_POINT */
-#if ESP_CFG_MODE_STATION
+#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+#if LWESP_CFG_MODE_STATION
     esp.m.sta.dhcp = (val & 0x02) == 0x02;
-#endif /* ESP_CFG_MODE_STATION */
+#endif /* LWESP_CFG_MODE_STATION */
 
     return 1;
 }

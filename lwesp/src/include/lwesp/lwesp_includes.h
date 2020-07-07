@@ -1,5 +1,5 @@
 /**
- * \file            esp_includes.h
+ * \file            lwesp_includes.h
  * \brief           All main includes
  */
 
@@ -26,53 +26,53 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_INCLUDES_H
-#define ESP_HDR_INCLUDES_H
+#ifndef LWESP_HDR_INCLUDES_H
+#define LWESP_HDR_INCLUDES_H
 
-#include "esp/esp_opt.h"
-#include "esp/esp_typedefs.h"
-#include "esp/esp_buff.h"
-#include "esp/esp_input.h"
-#include "esp/esp_evt.h"
-#include "esp/esp_debug.h"
-#include "esp/esp_utils.h"
-#include "esp/esp_pbuf.h"
-#include "esp/esp_conn.h"
-#include "system/esp_sys.h"
+#include "lwesp/lwesp_opt.h"
+#include "lwesp/lwesp_typedefs.h"
+#include "lwesp/lwesp_buff.h"
+#include "lwesp/lwesp_input.h"
+#include "lwesp/lwesp_evt.h"
+#include "lwesp/lwesp_debug.h"
+#include "lwesp/lwesp_utils.h"
+#include "lwesp/lwesp_pbuf.h"
+#include "lwesp/lwesp_conn.h"
+#include "system/lwesp_sys.h"
 
-#if ESP_CFG_MODE_STATION || __DOXYGEN__
-#include "esp/esp_sta.h"
-#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
-#if ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-#include "esp/esp_ap.h"
-#endif /* ESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
-#if ESP_CFG_NETCONN || __DOXYGEN__
-#include "esp/esp_netconn.h"
-#endif /* ESP_CFG_NETCONN || __DOXYGEN__ */
-#if ESP_CFG_PING || __DOXYGEN__
-#include "esp/esp_ping.h"
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
-#if ESP_CFG_WPS || __DOXYGEN__
-#include "esp/esp_wps.h"
-#endif /* ESP_CFG_WPS || __DOXYGEN__ */
-#if ESP_CFG_SNTP || __DOXYGEN__
-#include "esp/esp_sntp.h"
-#endif /* ESP_CFG_SNTP || __DOXYGEN__ */
-#if ESP_CFG_HOSTNAME || __DOXYGEN__
-#include "esp/esp_hostname.h"
-#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
-#if ESP_CFG_DNS || __DOXYGEN__
-#include "esp/esp_dns.h"
-#endif /* ESP_CFG_DNS || __DOXYGEN__ */
-#if ESP_CFG_SMART || __DOXYGEN__
-#include "esp/esp_smart.h"
-#endif /* ESP_CFG_SMART || __DOXYGEN__ */
-#include "esp/esp_dhcp.h"
+#if LWESP_CFG_MODE_STATION || __DOXYGEN__
+#include "lwesp/lwesp_sta.h"
+#endif /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
+#if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
+#include "lwesp/lwesp_ap.h"
+#endif /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+#if LWESP_CFG_NETCONN || __DOXYGEN__
+#include "lwesp/lwesp_netconn.h"
+#endif /* LWESP_CFG_NETCONN || __DOXYGEN__ */
+#if LWESP_CFG_PING || __DOXYGEN__
+#include "lwesp/lwesp_ping.h"
+#endif /* LWESP_CFG_PING || __DOXYGEN__ */
+#if LWESP_CFG_WPS || __DOXYGEN__
+#include "lwesp/lwesp_wps.h"
+#endif /* LWESP_CFG_WPS || __DOXYGEN__ */
+#if LWESP_CFG_SNTP || __DOXYGEN__
+#include "lwesp/lwesp_sntp.h"
+#endif /* LWESP_CFG_SNTP || __DOXYGEN__ */
+#if LWESP_CFG_HOSTNAME || __DOXYGEN__
+#include "lwesp/lwesp_hostname.h"
+#endif /* LWESP_CFG_HOSTNAME || __DOXYGEN__ */
+#if LWESP_CFG_DNS || __DOXYGEN__
+#include "lwesp/lwesp_dns.h"
+#endif /* LWESP_CFG_DNS || __DOXYGEN__ */
+#if LWESP_CFG_SMART || __DOXYGEN__
+#include "lwesp/lwesp_smart.h"
+#endif /* LWESP_CFG_SMART || __DOXYGEN__ */
+#include "lwesp/lwesp_dhcp.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,4 +84,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_INCLUDES_H */
+#endif /* LWESP_HDR_INCLUDES_H */

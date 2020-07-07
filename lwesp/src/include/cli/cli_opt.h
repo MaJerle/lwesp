@@ -29,10 +29,10 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_CLI_CONFIG_H
-#define ESP_HDR_CLI_CONFIG_H
+#ifndef LWESP_HDR_CLI_CONFIG_H
+#define LWESP_HDR_CLI_CONFIG_H
 
-#include "esp_opts.h"
+#include "lwesp_opts.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -98,4 +98,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_CLI_CONFIG_H */
+#endif /* LWESP_HDR_CLI_CONFIG_H */

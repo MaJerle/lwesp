@@ -1,5 +1,5 @@
 /**
- * \file            esp_smart.c
+ * \file            lwesp_smart.c
  * \brief           SMART API
  */
 
@@ -27,16 +27,16 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_smart.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_smart.h"
+#include "lwesp/lwesp_mem.h"
 
-#if ESP_CFG_SMART || __DOXYGEN__
+#if LWESP_CFG_SMART || __DOXYGEN__
 
 /**
  * \brief           Configure SMART function on ESP device
@@ -44,18 +44,18 @@
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_smart_configure(uint8_t en,
-                    const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_smart_configure(uint8_t en,
+                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = en ? ESP_CMD_WIFI_SMART_START : ESP_CMD_WIFI_SMART_STOP;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = en ? LWESP_CMD_WIFI_SMART_START : LWESP_CMD_WIFI_SMART_STOP;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
 }
 
-#endif /* ESP_CFG_SMART || __DOXYGEN__ */
+#endif /* LWESP_CFG_SMART || __DOXYGEN__ */

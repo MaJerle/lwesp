@@ -9,11 +9,11 @@ It can operate in client or server mode and uses operating system features, such
 
 .. note::
     Connection API does not directly allow receiving data with sequential and linear code execution.
-    All is based on connection event system. 
+    All is based on connection event system.
     Netconn adds this functionality as it is implemented on top of regular connection API.
 
 .. warning::
-    Netconn API are designed to be called from application threads ONLY. 
+    Netconn API are designed to be called from application threads ONLY.
     It is not allowed to call any of *netconn API* functions from within interrupt or callback event functions.
 
 Netconn client
@@ -25,7 +25,7 @@ Netconn client
 
     Netconn API client block diagram
 
-Above block diagram shows basic architecture of netconn client application. 
+Above block diagram shows basic architecture of netconn client application.
 There is always one application thread (in green) which calls *netconn API* functions to interact with connection API in synchronous mode.
 
 Every netconn connection uses dedicated structure to handle message queue for data received packet buffers.
@@ -49,12 +49,12 @@ When netconn is configured in server mode, it is possible to accept new clients 
 Application creates *netconn server connection*, which can only accept *clients* and cannot send/receive any data.
 It configures server on dedicated port (selected by application) and listens on it.
 
-When new client connects, *server callback function* is called with *new active connection event*. 
+When new client connects, *server callback function* is called with *new active connection event*.
 Newly accepted connection is then written to server structure netconn which is later read by application thread.
 At the same time, *netconn connection* structure (blue) is created to allow standard send/receive operation on active connection.
 
 .. note::
-    Each connected client has its own *netconn connection* structure. 
+    Each connected client has its own *netconn connection* structure.
     When multiple clients connect to server at the same time, multiple entries are written to *connection accept* message queue and are ready to be processed by application thread.
 
 From this point, program flow is the same as in case of *netconn client*.
@@ -84,7 +84,7 @@ Netconn server concurrency
 When compared to classic netconn server, concurrent netconn server mode allows multiple clients to be processed at the same time.
 This can drastically improve performance and response time on clients side, especially when many clients are connected to server at the same time.
 
-Every time *server application thread* (green block) gets new client to process, it starts a new *processing* thread instead of doing it in accept thread. 
+Every time *server application thread* (green block) gets new client to process, it starts a new *processing* thread instead of doing it in accept thread.
 
 * Server thread is only dedicated to accept clients and start threads
 * Multiple processing thread can run in parallel to send/receive data from multiple clients
@@ -104,12 +104,12 @@ dedicated for network connection processing. Because of that, by default every f
 It will wait until result is ready to be used by application.
 
 It is, however, possible to enable timeout feature for receiving data only.
-When this feature is enabled, :cpp:func:`esp_netconn_receive` will block for maximal timeout set with
-:cpp:func:`esp_netconn_set_receive_timeout` function.
+When this feature is enabled, :cpp:func:`lwesp_netconn_receive` will block for maximal timeout set with
+:cpp:func:`lwesp_netconn_set_receive_timeout` function.
 
 When enabled, if there is no received data for timeout amount of time, function will return with timeout status and application needs to process it accordingly.
 
 .. tip::
-    :c:macro:`ESP_CFG_NETCONN_RECEIVE_TIMEOUT` must be set to ``1`` to use this feature.
+    :c:macro:`LWESP_CFG_NETCONN_RECEIVE_TIMEOUT` must be set to ``1`` to use this feature.
 
-.. doxygengroup:: ESP_NETCONN
+.. doxygengroup:: LWESP_NETCONN

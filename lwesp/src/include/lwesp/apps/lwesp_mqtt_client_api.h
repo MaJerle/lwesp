@@ -1,5 +1,5 @@
 /**
- * \file            esp_mqtt_client_api.h
+ * \file            lwesp_mqtt_client_api.h
  * \brief           MQTT client API
  */
 
@@ -26,24 +26,24 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_APP_MQTT_CLIENT_API_H
-#define ESP_HDR_APP_MQTT_CLIENT_API_H
+#ifndef LWESP_HDR_APP_MQTT_CLIENT_API_H
+#define LWESP_HDR_APP_MQTT_CLIENT_API_H
 
-#include "esp/esp.h"
-#include "esp/apps/esp_mqtt_client.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/apps/lwesp_mqtt_client.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP_APPS
- * \defgroup        ESP_APP_MQTT_CLIENT_API MQTT client API
+ * \ingroup         LWESP_APPS
+ * \defgroup        LWESP_APP_MQTT_CLIENT_API MQTT client API
  * \brief           Sequential, single thread MQTT client API
  * \{
  */
@@ -51,39 +51,39 @@ extern "C" {
 /**
  * \brief           MQTT API client structure
  */
-struct esp_mqtt_client_api;
+struct lwesp_mqtt_client_api;
 
 /**
  * \brief           MQTT API RX buffer
  */
-typedef struct esp_mqtt_client_api_buf {
+typedef struct lwesp_mqtt_client_api_buf {
     char* topic;                                /*!< Topic data */
     size_t topic_len;                           /*!< Topic length */
     uint8_t* payload;                           /*!< Payload data */
     size_t payload_len;                         /*!< Payload length */
-    esp_mqtt_qos_t qos;                         /*!< Quality of service */
-} esp_mqtt_client_api_buf_t;
+    lwesp_mqtt_qos_t qos;                         /*!< Quality of service */
+} lwesp_mqtt_client_api_buf_t;
 
 /**
- * \brief           Pointer to \ref esp_mqtt_client_api structure
+ * \brief           Pointer to \ref lwesp_mqtt_client_api structure
  */
-typedef struct esp_mqtt_client_api* esp_mqtt_client_api_p;
+typedef struct lwesp_mqtt_client_api* lwesp_mqtt_client_api_p;
 
 /**
- * \brief           Pointer to \ref esp_mqtt_client_api_buf_t structure
+ * \brief           Pointer to \ref lwesp_mqtt_client_api_buf_t structure
  */
-typedef struct esp_mqtt_client_api_buf* esp_mqtt_client_api_buf_p;
+typedef struct lwesp_mqtt_client_api_buf* lwesp_mqtt_client_api_buf_p;
 
-esp_mqtt_client_api_p   esp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len);
-void                    esp_mqtt_client_api_delete(esp_mqtt_client_api_p client);
-esp_mqtt_conn_status_t  esp_mqtt_client_api_connect(esp_mqtt_client_api_p client, const char* host, esp_port_t port, const esp_mqtt_client_info_t* info);
-espr_t                  esp_mqtt_client_api_close(esp_mqtt_client_api_p client);
-espr_t                  esp_mqtt_client_api_subscribe(esp_mqtt_client_api_p client, const char* topic, esp_mqtt_qos_t qos);
-espr_t                  esp_mqtt_client_api_unsubscribe(esp_mqtt_client_api_p client, const char* topic);
-espr_t                  esp_mqtt_client_api_publish(esp_mqtt_client_api_p client, const char* topic, const void* data, size_t btw, esp_mqtt_qos_t qos, uint8_t retain);
-uint8_t                 esp_mqtt_client_api_is_connected(esp_mqtt_client_api_p client);
-espr_t                  esp_mqtt_client_api_receive(esp_mqtt_client_api_p client, esp_mqtt_client_api_buf_p* p, uint32_t timeout);
-void                    esp_mqtt_client_api_buf_free(esp_mqtt_client_api_buf_p p);
+lwesp_mqtt_client_api_p   lwesp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len);
+void                    lwesp_mqtt_client_api_delete(lwesp_mqtt_client_api_p client);
+lwesp_mqtt_conn_status_t  lwesp_mqtt_client_api_connect(lwesp_mqtt_client_api_p client, const char* host, lwesp_port_t port, const lwesp_mqtt_client_info_t* info);
+lwespr_t                  lwesp_mqtt_client_api_close(lwesp_mqtt_client_api_p client);
+lwespr_t                  lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topic, lwesp_mqtt_qos_t qos);
+lwespr_t                  lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* topic);
+lwespr_t                  lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic, const void* data, size_t btw, lwesp_mqtt_qos_t qos, uint8_t retain);
+uint8_t                 lwesp_mqtt_client_api_is_connected(lwesp_mqtt_client_api_p client);
+lwespr_t                  lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p, uint32_t timeout);
+void                    lwesp_mqtt_client_api_buf_free(lwesp_mqtt_client_api_buf_p p);
 
 /**
  * \}
@@ -93,4 +93,4 @@ void                    esp_mqtt_client_api_buf_free(esp_mqtt_client_api_buf_p p
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_APP_MQTT_CLIENT_H */
+#endif /* LWESP_HDR_APP_MQTT_CLIENT_H */

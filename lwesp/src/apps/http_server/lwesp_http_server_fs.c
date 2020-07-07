@@ -1,5 +1,5 @@
 /**
- * \file            esp_http_server_fs.c
+ * \file            lwesp_http_server_fs.c
  * \brief           HTTP server file system wrapper
  */
 
@@ -26,13 +26,13 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/apps/esp_http_server.h"
-#include "esp/esp_mem.h"
+#include "lwesp/apps/lwesp_http_server.h"
+#include "lwesp/lwesp_mem.h"
 
 /* Number of opened files in system */
 extern uint16_t http_fs_opened_files_cnt;
@@ -151,9 +151,9 @@ http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* 
     /*
      * Try to open static file if available
      */
-    for (i = 0; i < ESP_ARRAYSIZE(http_fs_static_files); ++i) {
+    for (i = 0; i < LWESP_ARRAYSIZE(http_fs_static_files); ++i) {
         if (path != NULL && !strcmp(http_fs_static_files[i].path, path)) {
-            ESP_MEMSET(file, 0x00, sizeof(*file));
+            LWESP_MEMSET(file, 0x00, sizeof(*file));
 
             file->size = http_fs_static_files[i].size;
             file->data = (uint8_t*)http_fs_static_files[i].data;
@@ -187,7 +187,7 @@ http_fs_data_read_file(const http_init_t* hi, http_fs_file_t* file, void** buff,
         return 0;                               /* No bytes to read */
     }
 
-    len = ESP_MIN(btr, len);                    /* Get number of bytes we can read */
+    len = LWESP_MIN(btr, len);                    /* Get number of bytes we can read */
     if (file->is_static) {                      /* Is file static? */
         *buff = (void*)&file->data[file->fptr]; /* Set a new address pointer only */
     } else if (hi != NULL && hi->fs_read != NULL) {

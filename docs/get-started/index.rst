@@ -55,19 +55,19 @@ At this point it is assumed that you have successfully download library, either 
 * Add port architecture ``lwesp/src/include/system/port/_arch_`` folder to *include path* of your toolchain
 * Add source files from ``lwesp/src/`` folder to toolchain build
 * Add source files from ``lwesp/src/system/`` folder to toolchain build for arch port
-* Copy ``lwesp/src/include/esp/esp_opts_template.h`` to project folder and rename it to ``esp_opts.h``
+* Copy ``lwesp/src/include/lwesp/lwesp_opts_template.h`` to project folder and rename it to ``lwesp_opts.h``
 * Build the project
 
 Configuration file
 ^^^^^^^^^^^^^^^^^^
 
 Library comes with template config file, which can be modified according to needs.
-This file shall be named ``esp_opts.h`` and its default template looks like the one below:
+This file shall be named ``lwesp_opts.h`` and its default template looks like the one below:
 
 .. tip::
-    Check :ref:`api_esp_opt` section for possible configuration settings
+    Check :ref:`api_lwesp_opt` section for possible configuration settings
 
-.. literalinclude:: ../../lwesp/src/include/esp/esp_opts_template.h
+.. literalinclude:: ../../lwesp/src/include/lwesp/lwesp_opts_template.h
     :language: c
     :linenos:
     :caption: Template options file

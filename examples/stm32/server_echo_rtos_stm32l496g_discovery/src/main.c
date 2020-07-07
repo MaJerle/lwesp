@@ -32,7 +32,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 #include "station_manager.h"
 #include "netconn_client.h"
 
@@ -42,8 +42,8 @@ static void USART_Printf_Init(void);
 
 static void init_thread(void* arg);
 
-static espr_t esp_callback_func(esp_evt_t* evt);
-static espr_t server_callback_func(esp_evt_t* evt);
+static lwespr_t lwesp_callback_func(lwesp_evt_t* evt);
+static lwespr_t server_callback_func(lwesp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -75,7 +75,7 @@ static void
 init_thread(void* arg) {
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
-    if (esp_init(esp_callback_func, 1) != espOK) {
+    if (lwesp_init(lwesp_callback_func, 1) != espOK) {
         printf("Cannot initialize ESP-AT Lib!\r\n");
     } else {
         printf("ESP-AT Lib initialized!\r\n");
@@ -83,7 +83,7 @@ init_thread(void* arg) {
 
     while (1) {
         /* Periodically check if device connected to network */
-        if (!esp_sta_is_joined()) {
+        if (!lwesp_sta_is_joined()) {
             /*
              * Connect to access point.
              *
@@ -92,7 +92,7 @@ init_thread(void* arg) {
              */
             connect_to_preferred_access_point(1);
         }
-        esp_delay(1000);
+        lwesp_delay(1000);
     }
 
 	osThreadExit();
@@ -107,41 +107,41 @@ uint8_t reply_data[20];
 /**
  * \brief           Event callback function for connection-only
  * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-server_callback_func(esp_evt_t* evt) {
-    esp_conn_p conn;
-    espr_t res;
+static lwespr_t
+server_callback_func(lwesp_evt_t* evt) {
+    lwesp_conn_p conn;
+    lwespr_t res;
 
-    conn = esp_conn_get_from_evt(evt);          /* Get connection handle from event */
+    conn = lwesp_conn_get_from_evt(evt);          /* Get connection handle from event */
     if (conn == NULL) {
         return espERR;
     }
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_CONN_ACTIVE: {             /* Connection just active */
+    switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_CONN_ACTIVE: {             /* Connection just active */
             printf("Connection active!\r\n");
             /* Do nothing, wait for remote side to send some data */
             break;
         }
-        case ESP_EVT_CONN_CLOSE: {              /* Connection closed */
-            if (esp_evt_conn_close_is_forced(evt)) {
+        case LWESP_EVT_CONN_CLOSE: {              /* Connection closed */
+            if (lwesp_evt_conn_close_is_forced(evt)) {
                 printf("Connection closed by server!\r\n");
             } else {
                 printf("Connection closed by remote side!\r\n");
             }
             break;
         }
-        case ESP_EVT_CONN_RECV: {               /* Data received from remote side */
-            esp_pbuf_p pbuf = esp_evt_conn_recv_get_buff(evt);
+        case LWESP_EVT_CONN_RECV: {               /* Data received from remote side */
+            lwesp_pbuf_p pbuf = lwesp_evt_conn_recv_get_buff(evt);
             size_t length;
-            esp_conn_recved(conn, pbuf);        /* Notify stack about received pbuf */
+            lwesp_conn_recved(conn, pbuf);        /* Notify stack about received pbuf */
 
-            length = esp_pbuf_length(pbuf, 1);  /* Get length of received packet */
+            length = lwesp_pbuf_length(pbuf, 1);  /* Get length of received packet */
             printf("Received %d bytes on connection\r\n", (int)length);
 
-            length = esp_pbuf_copy(pbuf, reply_data, ESP_MIN(length, sizeof(reply_data)), 0);   /* Copy data from pbuf to memory */
-            res = esp_conn_send(conn, reply_data, length, NULL, 0); /* Start sending data in non-blocking mode */
+            length = lwesp_pbuf_copy(pbuf, reply_data, LWESP_MIN(length, sizeof(reply_data)), 0);   /* Copy data from pbuf to memory */
+            res = lwesp_conn_send(conn, reply_data, length, NULL, 0); /* Start sending data in non-blocking mode */
             if (res == espOK) {
                 printf("Sending response back to remote side..\r\n");
             } else {
@@ -149,8 +149,8 @@ server_callback_func(esp_evt_t* evt) {
             }
             break;
         }
-        case ESP_EVT_CONN_SEND: {               /* Data send event */
-            espr_t res = esp_evt_conn_send_get_result(evt);
+        case LWESP_EVT_CONN_SEND: {               /* Data send event */
+            lwespr_t res = lwesp_evt_conn_send_get_result(evt);
             if (res == espOK) {
                 printf("Data sent successfully to client\r\n");
             } else {
@@ -166,49 +166,49 @@ server_callback_func(esp_evt_t* evt) {
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-esp_callback_func(esp_evt_t* evt) {
-    espr_t res;
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_AT_VERSION_NOT_SUPPORTED: {
-            esp_sw_version_t v_min, v_curr;
+static lwespr_t
+lwesp_callback_func(lwesp_evt_t* evt) {
+    lwespr_t res;
+    switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_AT_VERSION_NOT_SUPPORTED: {
+            lwesp_sw_version_t v_min, v_curr;
 
-            esp_get_min_at_fw_version(&v_min);
-            esp_get_current_at_fw_version(&v_curr);
+            lwesp_get_min_at_fw_version(&v_min);
+            lwesp_get_current_at_fw_version(&v_curr);
 
             printf("Current ESP8266 AT version is not supported by library!\r\n");
             printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
             printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
             break;
         }
-        case ESP_EVT_INIT_FINISH: {
+        case LWESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
             break;
         }
-        case ESP_EVT_RESET: {
+        case LWESP_EVT_RESET: {
             printf("Device reset sequence finished!\r\n");
             break;
         }
-        case ESP_EVT_RESET_DETECTED: {
+        case LWESP_EVT_RESET_DETECTED: {
             printf("Device reset detected!\r\n");
             break;
         }
-        case ESP_EVT_WIFI_CONNECTED: {
+        case LWESP_EVT_WIFI_CONNECTED: {
             /* Start server on port 80 and set callback for new connections */
             printf("Wifi connected\r\n");
-            if ((res = esp_set_server(1, 80, ESP_CFG_MAX_CONNS, 100, server_callback_func, NULL, NULL, 0)) == espOK) {
+            if ((res = lwesp_set_server(1, 80, LWESP_CFG_MAX_CONNS, 100, server_callback_func, NULL, NULL, 0)) == espOK) {
                 printf("Starting server on port 80..\r\n");
             } else {
                 printf("Cannot start server on port 80..\r\n");
             }
             break;
         }
-        case ESP_EVT_WIFI_DISCONNECTED: {
+        case LWESP_EVT_WIFI_DISCONNECTED: {
             /* Stop server on port 80, others parameters are don't care */
             printf("Wifi disconnected\r\n");
-            if ((res = esp_set_server(0, 80, ESP_CFG_MAX_CONNS, 100, server_callback_func, NULL, NULL, 0)) == espOK) {
+            if ((res = lwesp_set_server(0, 80, LWESP_CFG_MAX_CONNS, 100, server_callback_func, NULL, NULL, 0)) == espOK) {
                 printf("Disabling server on port 80..\r\n");
             } else {
                 printf("Cannot disable server on port 80..\r\n");
@@ -217,7 +217,7 @@ esp_callback_func(esp_evt_t* evt) {
         }
         default: break;
     }
-    ESP_UNUSED(res);
+    LWESP_UNUSED(res);
     return espOK;
 }
 

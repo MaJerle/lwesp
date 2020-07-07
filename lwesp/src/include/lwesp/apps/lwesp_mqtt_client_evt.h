@@ -1,5 +1,5 @@
 /**
- * \file            esp_mqtt_client_evt.h
+ * \file            lwesp_mqtt_client_evt.h
  * \brief           MQTT client event helper functions
  */
 
@@ -26,23 +26,23 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_APP_MQTT_CLIENT_EVT_H
-#define ESP_HDR_APP_MQTT_CLIENT_EVT_H
+#ifndef LWESP_HDR_APP_MQTT_CLIENT_EVT_H
+#define LWESP_HDR_APP_MQTT_CLIENT_EVT_H
 
-#include "esp/apps/esp_mqtt_client.h"
+#include "lwesp/apps/lwesp_mqtt_client.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP_APP_MQTT_CLIENT
- * \defgroup        ESP_APP_MQTT_CLIENT_EVT Event helper functions
+ * \ingroup         LWESP_APP_MQTT_CLIENT
+ * \defgroup        LWESP_APP_MQTT_CLIENT_EVT Event helper functions
  * \brief           Event helper functions
  * \{
  */
@@ -51,38 +51,38 @@ extern "C" {
  * \brief           Get MQTT event type
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          MQTT Event type, value of \ref esp_mqtt_evt_type_t enumeration
+ * \return          MQTT Event type, value of \ref lwesp_mqtt_evt_type_t enumeration
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_get_type(client, evt)                   ((esp_mqtt_evt_type_t)(evt)->type)
+#define lwesp_mqtt_client_evt_get_type(client, evt)                   ((lwesp_mqtt_evt_type_t)(evt)->type)
 
 /**
- * \anchor          ESP_APP_MQTT_CLIENT_EVT_CONNECT
+ * \anchor          LWESP_APP_MQTT_CLIENT_EVT_CONNECT
  * \name            Connect event
  * \{
  *
- * \note            Use these functions on \ref ESP_MQTT_EVT_CONNECT event
+ * \note            Use these functions on \ref LWESP_MQTT_EVT_CONNECT event
  */
 
 /**
  * \brief           Get connection status
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          Connection status. Member of \ref esp_mqtt_conn_status_t
+ * \return          Connection status. Member of \ref lwesp_mqtt_conn_status_t
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_connect_get_status(client, evt)         ((esp_mqtt_conn_status_t)(evt)->evt.connect.status)
+#define lwesp_mqtt_client_evt_connect_get_status(client, evt)         ((lwesp_mqtt_conn_status_t)(evt)->evt.connect.status)
 
 /**
  * \}
  */
 
 /**
- * \anchor          ESP_APP_MQTT_CLIENT_EVT_DISCONNECT
+ * \anchor          LWESP_APP_MQTT_CLIENT_EVT_DISCONNECT
  * \name            Disconnect event
  * \{
  *
- * \note            Use these functions on \ref ESP_MQTT_EVT_DISCONNECT event
+ * \note            Use these functions on \ref LWESP_MQTT_EVT_DISCONNECT event
  */
 
 /**
@@ -92,66 +92,66 @@ extern "C" {
  * \return          `1` on success, `0` otherwise
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_disconnect_is_accepted(client, evt)     ((esp_mqtt_conn_status_t)(evt)->evt.disconnect.is_accepted)
+#define lwesp_mqtt_client_evt_disconnect_is_accepted(client, evt)     ((lwesp_mqtt_conn_status_t)(evt)->evt.disconnect.is_accepted)
 
 /**
  * \}
  */
 
 /**
- * \anchor          ESP_APP_MQTT_CLIENT_EVT_SUB_UNSUB
+ * \anchor          LWESP_APP_MQTT_CLIENT_EVT_SUB_UNSUB
  * \name            Subscribe/unsubscribe event
  * \{
  *
- * \note            Use these functions on \ref ESP_MQTT_EVT_SUBSCRIBE or \ref ESP_MQTT_EVT_UNSUBSCRIBE events
+ * \note            Use these functions on \ref LWESP_MQTT_EVT_SUBSCRIBE or \ref LWESP_MQTT_EVT_UNSUBSCRIBE events
  */
 
 /**
- * \brief           Get user argument used on \ref esp_mqtt_client_subscribe
+ * \brief           Get user argument used on \ref lwesp_mqtt_client_subscribe
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
  * \return          User argument
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_subscribe_get_argument(client, evt)     ((void *)(evt)->evt.sub_unsub_scribed.arg)
+#define lwesp_mqtt_client_evt_subscribe_get_argument(client, evt)     ((void *)(evt)->evt.sub_unsub_scribed.arg)
 
 /**
  * \brief           Get result of subscribe event
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_subscribe_get_result(client, evt)       ((espr_t)(evt)->evt.sub_unsub_scribed.res)
+#define lwesp_mqtt_client_evt_subscribe_get_result(client, evt)       ((lwespr_t)(evt)->evt.sub_unsub_scribed.res)
 
 /**
- * \brief           Get user argument used on \ref esp_mqtt_client_unsubscribe
+ * \brief           Get user argument used on \ref lwesp_mqtt_client_unsubscribe
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
  * \return          User argument
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_unsubscribe_get_argument(client, evt)   ((void *)(evt)->evt.sub_unsub_scribed.arg)
+#define lwesp_mqtt_client_evt_unsubscribe_get_argument(client, evt)   ((void *)(evt)->evt.sub_unsub_scribed.arg)
 
 /**
  * \brief           Get result of unsubscribe event
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_unsubscribe_get_result(client, evt)     ((espr_t)(evt)->evt.sub_unsub_scribed.res)
+#define lwesp_mqtt_client_evt_unsubscribe_get_result(client, evt)     ((lwespr_t)(evt)->evt.sub_unsub_scribed.res)
 
 /**
  * \}
  */
 
 /**
- * \anchor          ESP_APP_MQTT_CLIENT_EVT_PUBLISH_RECV
+ * \anchor          LWESP_APP_MQTT_CLIENT_EVT_PUBLISH_RECV
  * \name            Publish receive event
  * \{
  *
- * \note            Use these functions on \ref ESP_MQTT_EVT_PUBLISH_RECV event
+ * \note            Use these functions on \ref LWESP_MQTT_EVT_PUBLISH_RECV event
  */
 
 /**
@@ -161,7 +161,7 @@ extern "C" {
  * \return          Topic name
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_publish_recv_get_topic(client, evt)     ((const void *)(evt)->evt.publish_recv.topic)
+#define lwesp_mqtt_client_evt_publish_recv_get_topic(client, evt)     ((const void *)(evt)->evt.publish_recv.topic)
 
 /**
  * \brief           Get topic length from received publish packet
@@ -170,7 +170,7 @@ extern "C" {
  * \return          Topic length
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_publish_recv_get_topic_len(client, evt) (ESP_SZ((evt)->evt.publish_recv.topic_len))
+#define lwesp_mqtt_client_evt_publish_recv_get_topic_len(client, evt) (LWESP_SZ((evt)->evt.publish_recv.topic_len))
 
 /**
  * \brief           Get payload from received publish packet
@@ -179,7 +179,7 @@ extern "C" {
  * \return          Packet payload
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_publish_recv_get_payload(client, evt)   ((const void *)(evt)->evt.publish_recv.payload)
+#define lwesp_mqtt_client_evt_publish_recv_get_payload(client, evt)   ((const void *)(evt)->evt.publish_recv.payload)
 
 /**
  * \brief           Get payload length from received publish packet
@@ -188,7 +188,7 @@ extern "C" {
  * \return          Payload length
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_publish_recv_get_payload_len(client, evt)   (ESP_SZ((evt)->evt.publish_recv.payload_len))
+#define lwesp_mqtt_client_evt_publish_recv_get_payload_len(client, evt)   (LWESP_SZ((evt)->evt.publish_recv.payload_len))
 
 /**
  * \brief           Check if packet is duplicated
@@ -197,46 +197,46 @@ extern "C" {
  * \return          `1` if duplicated, `0` otherwise
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_publish_recv_is_duplicate(client, evt)  (ESP_U8((evt)->evt.publish_recv.dup))
+#define lwesp_mqtt_client_evt_publish_recv_is_duplicate(client, evt)  (LWESP_U8((evt)->evt.publish_recv.dup))
 
 /**
  * \brief           Get received quality of service
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          Member of \ref esp_mqtt_qos_t enumeration
+ * \return          Member of \ref lwesp_mqtt_qos_t enumeration
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_publish_recv_get_qos(client, evt)       ((evt)->evt.publish_recv.qos)
+#define lwesp_mqtt_client_evt_publish_recv_get_qos(client, evt)       ((evt)->evt.publish_recv.qos)
 
 /**
  * \}
  */
 
 /**
- * \anchor          ESP_APP_MQTT_CLIENT_EVT_PUBLISH
+ * \anchor          LWESP_APP_MQTT_CLIENT_EVT_PUBLISH
  * \name            Publish event
  * \{
  *
- * \note            Use these functions on \ref ESP_MQTT_EVT_PUBLISH event
+ * \note            Use these functions on \ref LWESP_MQTT_EVT_PUBLISH event
  */
 
 /**
- * \brief           Get user argument used on \ref esp_mqtt_client_publish
+ * \brief           Get user argument used on \ref lwesp_mqtt_client_publish
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
  * \return          User argument
  * \hideinitializer
  */
-#define esp_mqtt_client_evt_publish_get_argument(client, evt)   ((void *)(evt)->evt.publish.arg)
+#define lwesp_mqtt_client_evt_publish_get_argument(client, evt)   ((void *)(evt)->evt.publish.arg)
 
 /**
 * \brief           Get result of publish event
 * \param[in]       client: MQTT client
 * \param[in]       evt: Event handle
-* \return          \ref espOK on success, member of \ref espr_t otherwise
+* \return          \ref espOK on success, member of \ref lwespr_t otherwise
 * \hideinitializer
 */
-#define esp_mqtt_client_evt_publish_get_result(client, evt)     ((espr_t)(evt)->evt.publish.res)
+#define lwesp_mqtt_client_evt_publish_get_result(client, evt)     ((lwespr_t)(evt)->evt.publish.res)
 
 /**
  * \}
@@ -250,4 +250,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_APP_MQTT_CLIENT_EVT_H */
+#endif /* LWESP_HDR_APP_MQTT_CLIENT_EVT_H */

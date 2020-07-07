@@ -92,5 +92,5 @@ void                    cli_init(void);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_CLI_H */
+#endif /* LWESP_HDR_CLI_H */
 

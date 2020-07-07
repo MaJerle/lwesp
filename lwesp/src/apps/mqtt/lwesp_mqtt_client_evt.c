@@ -1,5 +1,5 @@
 /**
- * \file            esp_mqtt_client_evt.c
+ * \file            lwesp_mqtt_client_evt.c
  * \brief           MQTT client event helper functions
  */
 
@@ -26,10 +26,10 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/apps/esp_mqtt_client_evt.h"
+#include "lwesp/apps/lwesp_mqtt_client_evt.h"
 

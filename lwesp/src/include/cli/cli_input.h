@@ -57,4 +57,4 @@ void cli_in_data(cli_printf cliprintf, char ch);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_CLI_INPUT_H */
+#endif /* LWESP_HDR_CLI_INPUT_H */

@@ -1,5 +1,5 @@
 /**
- * \file            esp_ll.h
+ * \file            lwesp_ll.h
  * \brief           Low-level communication implementation
  */
 
@@ -26,28 +26,28 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_LL_H
-#define ESP_HDR_LL_H
+#ifndef LWESP_HDR_LL_H
+#define LWESP_HDR_LL_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \defgroup        ESP_LL Low-level functions
+ * \defgroup        LWESP_LL Low-level functions
  * \brief           Low-level communication functions
  * \{
  */
 
-espr_t      esp_ll_init(esp_ll_t* ll);
-espr_t      esp_ll_deinit(esp_ll_t* ll);
+lwespr_t      lwesp_ll_init(lwesp_ll_t* ll);
+lwespr_t      lwesp_ll_deinit(lwesp_ll_t* ll);
 
 /**
  * \}
@@ -57,4 +57,4 @@ espr_t      esp_ll_deinit(esp_ll_t* ll);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_LL_H */
+#endif /* LWESP_HDR_LL_H */

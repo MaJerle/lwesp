@@ -1,5 +1,5 @@
 /**
- * \file            esp_buff.h
+ * \file            lwesp_buff.h
  * \brief           Ring buffer manager
  */
 
@@ -26,23 +26,23 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_BUFF_H
-#define ESP_HDR_BUFF_H
+#ifndef LWESP_HDR_BUFF_H
+#define LWESP_HDR_BUFF_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_BUFF Ring buffer
+ * \ingroup         LWESP
+ * \defgroup        LWESP_BUFF Ring buffer
  * \brief           Generic ring buffer
  * \{
  */
@@ -56,7 +56,7 @@ extern "C" {
  *
  * \note            Modification of this macro must be done in header and source file aswell
  */
-#define BUF_PREF(x)                     esp_ ## x
+#define BUF_PREF(x)                     lwesp_ ## x
 /* --- Buffer unique part ends --- */
 
 uint8_t     BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size);
@@ -92,4 +92,4 @@ size_t      BUF_PREF(buff_advance)(BUF_PREF(buff_t)* buff, size_t len);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_BUFF_H */
+#endif /* LWESP_HDR_BUFF_H */

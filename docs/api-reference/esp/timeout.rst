@@ -1,4 +1,4 @@
-.. _api_esp_timeout:
+.. _api_lwesp_timeout:
 
 Timeout manager
 ===============
@@ -15,4 +15,4 @@ When timeout elapses, ESP middleware will call timeout callback.
 
 This feature can be considered as single-shot software timer.
 
-.. doxygengroup:: ESP_TIMEOUT
+.. doxygengroup:: LWESP_TIMEOUT

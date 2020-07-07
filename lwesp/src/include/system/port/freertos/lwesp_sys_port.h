@@ -1,5 +1,5 @@
 /**
- * \file            esp_sys_port.h
+ * \file            lwesp_sys_port.h
  * \brief           FreeRTOS native port
  */
 
@@ -26,18 +26,18 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Adrian Carpenter (FreeRTOS port)
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_SYSTEM_PORT_H
-#define ESP_HDR_SYSTEM_PORT_H
+#ifndef LWESP_HDR_SYSTEM_PORT_H
+#define LWESP_HDR_SYSTEM_PORT_H
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "esp/esp_opt.h"
+#include "lwesp/lwesp_opt.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -46,25 +46,25 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#if ESP_CFG_OS && !__DOXYGEN__
+#if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef SemaphoreHandle_t           esp_sys_mutex_t;
-typedef SemaphoreHandle_t           esp_sys_sem_t;
-typedef QueueHandle_t               esp_sys_mbox_t;
-typedef TaskHandle_t                esp_sys_thread_t;
-typedef UBaseType_t                 esp_sys_thread_prio_t;
+typedef SemaphoreHandle_t           lwesp_sys_mutex_t;
+typedef SemaphoreHandle_t           lwesp_sys_sem_t;
+typedef QueueHandle_t               lwesp_sys_mbox_t;
+typedef TaskHandle_t                lwesp_sys_thread_t;
+typedef UBaseType_t                 lwesp_sys_thread_prio_t;
 
-#define ESP_SYS_MUTEX_NULL          ((SemaphoreHandle_t)0)
-#define ESP_SYS_SEM_NULL            ((SemaphoreHandle_t)0)
-#define ESP_SYS_MBOX_NULL           ((QueueHandle_t)0)
-#define ESP_SYS_TIMEOUT             ((TickType_t)portMAX_DELAY)
-#define ESP_SYS_THREAD_PRIO         (configMAX_PRIORITIES - 1)
-#define ESP_SYS_THREAD_SS           (1024)
+#define LWESP_SYS_MUTEX_NULL          ((SemaphoreHandle_t)0)
+#define LWESP_SYS_SEM_NULL            ((SemaphoreHandle_t)0)
+#define LWESP_SYS_MBOX_NULL           ((QueueHandle_t)0)
+#define LWESP_SYS_TIMEOUT             ((TickType_t)portMAX_DELAY)
+#define LWESP_SYS_THREAD_PRIO         (configMAX_PRIORITIES - 1)
+#define LWESP_SYS_THREAD_SS           (1024)
 
-#endif /* ESP_CFG_OS && !__DOXYGEN__ */
+#endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_SYSTEM_PORT_H */
+#endif /* LWESP_HDR_SYSTEM_PORT_H */

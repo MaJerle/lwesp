@@ -1,5 +1,5 @@
 /**
- * \file            esp_http_server_fs.h
+ * \file            lwesp_http_server_fs.h
  * \brief           Function declaration for file system
  */
 
@@ -26,23 +26,23 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_HTTP_SERVER_FS_H
-#define ESP_HDR_HTTP_SERVER_FS_H
+#ifndef LWESP_HDR_HTTP_SERVER_FS_H
+#define LWESP_HDR_HTTP_SERVER_FS_H
 
-#include "esp/apps/esp_http_server.h"
+#include "lwesp/apps/lwesp_http_server.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP_APP_HTTP_SERVER
- * \defgroup        ESP_APP_HTTP_SERVER_FS_FAT FAT File System
+ * \ingroup         LWESP_APP_HTTP_SERVER
+ * \defgroup        LWESP_APP_HTTP_SERVER_FS_FAT FAT File System
  * \brief           FATFS file system implementation for dynamic files
  * \{
  */
@@ -59,4 +59,4 @@ uint8_t     http_fs_close(http_fs_file_t* file);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_HTTP_SERVER_H */
+#endif /* LWESP_HDR_HTTP_SERVER_H */

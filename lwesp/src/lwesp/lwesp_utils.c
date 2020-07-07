@@ -1,5 +1,5 @@
 /**
- * \file            esp_utils.c
+ * \file            lwesp_utils.c
  * \brief           Utilities
  */
 
@@ -26,14 +26,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
 #include <stdint.h>
-#include "esp/esp_private.h"
-#include "esp/esp_utils.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_utils.h"
 
 /**
  * \brief           Convert `unsigned 32-bit` number to string
@@ -46,7 +46,7 @@
  * \return          Pointer to output variable
  */
 char*
-esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
+lwesp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
     char* tmp = out;
     uint8_t i, y;
 
@@ -103,12 +103,12 @@ esp_u32_to_gen_str(uint32_t num, char* out, uint8_t is_hex, uint8_t width) {
  * \return          Pointer to output variable
  */
 char*
-esp_i32_to_gen_str(int32_t num, char* out) {
+lwesp_i32_to_gen_str(int32_t num, char* out) {
     if (num < 0) {
         *out = '-';
         ++out;
-        return esp_u32_to_gen_str(ESP_U32(-num), out, 0, 0) - 1;
+        return lwesp_u32_to_gen_str(LWESP_U32(-num), out, 0, 0) - 1;
     } else {
-        return esp_u32_to_gen_str(ESP_U32(num), out, 0, 0);
+        return lwesp_u32_to_gen_str(LWESP_U32(num), out, 0, 0);
     }
 }

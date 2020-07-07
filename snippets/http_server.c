@@ -1,13 +1,13 @@
 #include "http_server.h"
-#include "esp/esp.h"
-#include "esp/apps/esp_http_server.h"
-#include "esp/apps/esp_http_server_fs.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/apps/lwesp_http_server.h"
+#include "lwesp/apps/lwesp_http_server_fs.h"
 
 static size_t   http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len);
 #if HTTP_SUPPORT_POST
-static espr_t   http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len);
-static espr_t   http_post_data_cb(http_state_t* hs, esp_pbuf_p pbuf);
-static espr_t   http_post_end_cb(http_state_t* hs);
+static lwespr_t   http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len);
+static lwespr_t   http_post_data_cb(http_state_t* hs, lwesp_pbuf_p pbuf);
+static lwespr_t   http_post_end_cb(http_state_t* hs);
 #endif /* HTTP_SUPPORT_POST */
 
 static char*    led_cgi_handler(http_param_t* params, size_t params_len);
@@ -33,7 +33,7 @@ http_init = {
     .post_end_fn = http_post_end_cb,
 #endif /* HTTP_SUPPORT_POST */
     .cgi = cgi_handlers,
-    .cgi_count = ESP_ARRAYSIZE(cgi_handlers),
+    .cgi_count = LWESP_ARRAYSIZE(cgi_handlers),
     .ssi_fn = http_ssi_cb,
 
     /*
@@ -48,13 +48,13 @@ http_init = {
 
 /**
  * \brief           Start HTTP server on port 80
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-espr_t
+lwespr_t
 http_server_start(void) {
-    espr_t res;
+    lwespr_t res;
     printf("Starting HTTP server on port 80...\r\n");
-    if ((res = esp_http_server_init(&http_init, 80)) == espOK) {
+    if ((res = lwesp_http_server_init(&http_init, 80)) == espOK) {
         printf("HTTP server ready!\r\n");
     } else {
         printf("Cannot start HTTP server\r\n");
@@ -69,9 +69,9 @@ http_server_start(void) {
  * \param[in]       hs: HTTP state
  * \param[in]       uri: NULL-terminated uri string for POST request
  * \param[in]       content_len: Total content length received by "Content-Length" header
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
+static lwespr_t
 http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len) {
     printf("POST started with %d length on URI: %s\r\n", (int)content_len, uri);
     return espOK;
@@ -81,20 +81,20 @@ http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len) {
  * \brief           Callback function indicating post request data received
  * \param[in]       hs: HTTP state
  * \param[in]       pbuf: New chunk of received data
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-http_post_data_cb(http_state_t* hs, esp_pbuf_p pbuf) {
-    printf("POST data received: %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
+static lwespr_t
+http_post_data_cb(http_state_t* hs, lwesp_pbuf_p pbuf) {
+    printf("POST data received: %d bytes\r\n", (int)lwesp_pbuf_length(pbuf, 1));
     return espOK;
 }
 
 /**
  * \brief           Callback function indicating post request finished
  * \param[in]       hs: HTTP state
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
+static lwespr_t
 http_post_end_cb(http_state_t* hs) {
     printf("POST finished!\r\n");
     return espOK;
@@ -119,34 +119,34 @@ http_ssi_cb(http_state_t* hs, const char* tag_name, size_t tag_len) {
 
     cnt++;
 
-    ESP_UNUSED(ssi_buffer);
+    LWESP_UNUSED(ssi_buffer);
     if (!strncmp(tag_name, "title", tag_len)) {
-        esp_http_server_write_string(hs, "ESP8266 SSI TITLE");
+        lwesp_http_server_write_string(hs, "ESP8266 SSI TITLE");
         return cnt % 3;
     } else if (!strncmp(tag_name, "led_status", tag_len)) {
-        esp_http_server_write_string(hs, "Led is on");
+        lwesp_http_server_write_string(hs, "Led is on");
     } else if (!strncmp(tag_name, "wifi_list", tag_len)) {
         size_t i = 0;
 
-        ESP_UNUSED(i);
-        esp_http_server_write_string(hs, "<table class=\"table\">");
-        esp_http_server_write_string(hs, "<thead><tr><th>#</th><th>SSID</th><th>MAC</th><th>RSSI</th></tr></thead><tbody>");
+        LWESP_UNUSED(i);
+        lwesp_http_server_write_string(hs, "<table class=\"table\">");
+        lwesp_http_server_write_string(hs, "<thead><tr><th>#</th><th>SSID</th><th>MAC</th><th>RSSI</th></tr></thead><tbody>");
 
         //for (i = 0; i < apf; i++) {
-        //    esp_http_server_write_string(hs, "<tr><td>");
+        //    lwesp_http_server_write_string(hs, "<tr><td>");
         //    sprintf(ssi_buffer, "%d", (int)i);
-        //    esp_http_server_write_string(hs, ssi_buffer);
-        //    esp_http_server_write_string(hs, "</td><td>");
-        //    esp_http_server_write_string(hs, aps[i].ssid);
-        //    esp_http_server_write_string(hs, "</td><td>");
+        //    lwesp_http_server_write_string(hs, ssi_buffer);
+        //    lwesp_http_server_write_string(hs, "</td><td>");
+        //    lwesp_http_server_write_string(hs, aps[i].ssid);
+        //    lwesp_http_server_write_string(hs, "</td><td>");
         //    sprintf(ssi_buffer, "%02X:%02X:%02X:%02X:%02X:%02X", aps[i].mac[0], aps[i].mac[1], aps[i].mac[2], aps[i].mac[3], aps[i].mac[4], aps[i].mac[5]);
-        //    esp_http_server_write_string(hs, ssi_buffer);
-        //    esp_http_server_write_string(hs, "</td><td>");
+        //    lwesp_http_server_write_string(hs, ssi_buffer);
+        //    lwesp_http_server_write_string(hs, "</td><td>");
         //    sprintf(ssi_buffer, "%d", (int)aps[i].rssi);
-        //    esp_http_server_write_string(hs, ssi_buffer);
-        //    esp_http_server_write_string(hs, "</td></tr>");
+        //    lwesp_http_server_write_string(hs, ssi_buffer);
+        //    lwesp_http_server_write_string(hs, "</td></tr>");
         //}
-        esp_http_server_write_string(hs, "</tbody></table>");
+        lwesp_http_server_write_string(hs, "</tbody></table>");
     }
     return 1;
 }

@@ -1,5 +1,5 @@
 /**
- * \file            esp_parser.h
+ * \file            lwesp_parser.h
  * \brief           Parser of AT responses
  */
 
@@ -26,44 +26,44 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_PARSER_H
-#define ESP_HDR_PARSER_H
+#ifndef LWESP_HDR_PARSER_H
+#define LWESP_HDR_PARSER_H
 
 #if defined(__cplusplus)
 extern "C" {
 #endif /* defined(__cplusplus) */
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 int32_t     espi_parse_number(const char** str);
 uint8_t     espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim);
-uint8_t     espi_parse_ip(const char** src, esp_ip_t* ip);
-uint8_t     espi_parse_mac(const char** src, esp_mac_t* mac);
+uint8_t     espi_parse_ip(const char** src, lwesp_ip_t* ip);
+uint8_t     espi_parse_mac(const char** src, lwesp_mac_t* mac);
 
-espr_t      espi_parse_cipstatus(const char* str);
-espr_t      espi_parse_ipd(const char* str);
-espr_t      espi_parse_ciprecvdata(const char* str);
-espr_t      espi_parse_ciprecvlen(const char* str);
+lwespr_t      espi_parse_cipstatus(const char* str);
+lwespr_t      espi_parse_ipd(const char* str);
+lwespr_t      espi_parse_ciprecvdata(const char* str);
+lwespr_t      espi_parse_ciprecvlen(const char* str);
 
-uint8_t     espi_parse_cwlap(const char* str, esp_msg_t* msg);
-uint8_t     espi_parse_cwjap(const char* str, esp_msg_t* msg);
-uint8_t     espi_parse_cwlif(const char* str, esp_msg_t* msg);
-uint8_t     espi_parse_cipdomain(const char* src, esp_msg_t* msg);
-uint8_t     espi_parse_cipsntptime(const char* str, esp_msg_t* msg);
-uint8_t     espi_parse_ping_time(const char* str, esp_msg_t* msg);
-uint8_t     espi_parse_hostname(const char* str, esp_msg_t* msg);
+uint8_t     espi_parse_cwlap(const char* str, lwesp_msg_t* msg);
+uint8_t     espi_parse_cwjap(const char* str, lwesp_msg_t* msg);
+uint8_t     espi_parse_cwlif(const char* str, lwesp_msg_t* msg);
+uint8_t     espi_parse_cipdomain(const char* src, lwesp_msg_t* msg);
+uint8_t     espi_parse_cipsntptime(const char* str, lwesp_msg_t* msg);
+uint8_t     espi_parse_ping_time(const char* str, lwesp_msg_t* msg);
+uint8_t     espi_parse_hostname(const char* str, lwesp_msg_t* msg);
 uint8_t     espi_parse_link_conn(const char* str);
 
-uint8_t     espi_parse_at_sdk_version(const char* str, esp_sw_version_t* version_out);
+uint8_t     espi_parse_at_sdk_version(const char* str, lwesp_sw_version_t* version_out);
 
 uint8_t     espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn);
 uint8_t     espi_parse_ap_ip_sta(const char* str);
-uint8_t     espi_parse_cwsap(const char* str, esp_msg_t* msg);
+uint8_t     espi_parse_cwsap(const char* str, lwesp_msg_t* msg);
 
 uint8_t     espi_parse_cwdhcp(const char* str);
 
@@ -71,4 +71,4 @@ uint8_t     espi_parse_cwdhcp(const char* str);
 }
 #endif /* defined(__cplusplus) */
 
-#endif /* ESP_HDR_PARSER_H */
+#endif /* LWESP_HDR_PARSER_H */

@@ -32,7 +32,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 #include "station_manager.h"
 
 static void LL_Init(void);
@@ -41,7 +41,7 @@ static void USART_Printf_Init(void);
 
 static void init_thread(void* arg);
 
-static espr_t esp_callback_func(esp_evt_t* evt);
+static lwespr_t lwesp_callback_func(lwesp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -74,7 +74,7 @@ device_present_thread(void* arg) {
     while (1) {
         /* Set device is present */
         printf("Setting device is present\r\n");
-        esp_device_set_present(1, NULL, NULL, 1);
+        lwesp_device_set_present(1, NULL, NULL, 1);
 
         /*
          * Connect to access point.
@@ -83,12 +83,12 @@ device_present_thread(void* arg) {
          * Check for station_manager.c to define preferred access points ESP should connect to
          */
         connect_to_preferred_access_point(1);
-        esp_delay(10000);
+        lwesp_delay(10000);
 
         /* Set device is not present */
         printf("Setting device is not present\r\n");
-        esp_device_set_present(0, NULL, NULL, 1);
-        esp_delay(5000);
+        lwesp_device_set_present(0, NULL, NULL, 1);
+        lwesp_delay(5000);
     }
 }
 
@@ -98,43 +98,43 @@ device_present_thread(void* arg) {
  */
 static void
 init_thread(void* arg) {
-    espr_t res;
+    lwespr_t res;
     uint32_t time;
 
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
-    if (esp_init(esp_callback_func, 1) != espOK) {
+    if (lwesp_init(lwesp_callback_func, 1) != espOK) {
         printf("Cannot initialize ESP-AT Lib!\r\n");
     } else {
         printf("ESP-AT Lib initialized!\r\n");
     }
 
     /* Start thread for device present */
-    esp_sys_thread_create(NULL, "dev_present", (esp_sys_thread_fn)device_present_thread, NULL, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "dev_present", (lwesp_sys_thread_fn)device_present_thread, NULL, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO);
     osThreadExit();
 }
 
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-esp_callback_func(esp_evt_t* evt) {
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_INIT_FINISH: {
+static lwespr_t
+lwesp_callback_func(lwesp_evt_t* evt) {
+    switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
 
             /* Set device not present on startup */
-            esp_device_set_present(0, NULL, NULL, 0);
+            lwesp_device_set_present(0, NULL, NULL, 0);
             break;
         }
-        case ESP_EVT_RESET_DETECTED: {
+        case LWESP_EVT_RESET_DETECTED: {
             printf("Device reset detected!\r\n");
             break;
         }
-        case ESP_EVT_RESET: {
-            if (esp_evt_reset_get_result(evt) == espOK) {
+        case LWESP_EVT_RESET: {
+            if (lwesp_evt_reset_get_result(evt) == espOK) {
                 printf("ESP reset sequence finished with success!\r\n");
             } else {
                 printf("ESP reset sequence error\r\n");
@@ -142,11 +142,11 @@ esp_callback_func(esp_evt_t* evt) {
             break;
         }
 
-        case ESP_EVT_WIFI_CONNECTED: {
+        case LWESP_EVT_WIFI_CONNECTED: {
             printf("Wifi connected to access point!\r\n");
             break;
         }
-        case ESP_EVT_WIFI_DISCONNECTED: {
+        case LWESP_EVT_WIFI_DISCONNECTED: {
             printf("Wifi disconnected from access point!\r\n");
             break;
         }

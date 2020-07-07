@@ -1,5 +1,5 @@
 /**
- * \file            esp_unicode.c
+ * \file            lwesp_unicode.c
  * \brief           Unicode support
  */
 
@@ -26,13 +26,13 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_unicode.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_unicode.h"
 
 /**
  * \brief           Decode single character for unicode (UTF-8 only) format
@@ -42,8 +42,8 @@
  * \retval          espINPROG: Function continues well but expects some more data to finish sequence
  * \retval          espERR: Error in UTF-8 sequence
  */
-espr_t
-espi_unicode_decode(esp_unicode_t* s, uint8_t c) {
+lwespr_t
+espi_unicode_decode(lwesp_unicode_t* s, uint8_t c) {
     if (s->r == 0) {                            /* Are we expecting a first character? */
         s->t = 0;                               /* Reset sequence */
         s->ch[0] = c;                           /* Save current character */

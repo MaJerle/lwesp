@@ -1,11 +1,11 @@
 #include "client.h"
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 /* Host parameter */
 #define CONN_HOST           "example.com"
 #define CONN_PORT           80
 
-static espr_t   conn_callback_func(esp_evt_t* evt);
+static lwespr_t   conn_callback_func(lwesp_evt_t* evt);
 
 /**
  * \brief           Request data for connection
@@ -22,64 +22,64 @@ uint8_t req_data[] = ""
  */
 void
 client_connect(void) {
-    espr_t res;
+    lwespr_t res;
 
     /* Start a new connection as client in non-blocking mode */
-    if ((res = esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "example.com", 80, NULL, conn_callback_func, 0)) == espOK) {
+    if ((res = lwesp_conn_start(NULL, LWESP_CONN_TYPE_TCP, "example.com", 80, NULL, conn_callback_func, 0)) == espOK) {
         printf("Connection to " CONN_HOST " started...\r\n");
     } else {
         printf("Cannot start connection to " CONN_HOST "!\r\n");
     }
 
     /* Start 2 more */
-    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, CONN_HOST, CONN_PORT, NULL, conn_callback_func, 0);
+    lwesp_conn_start(NULL, LWESP_CONN_TYPE_TCP, CONN_HOST, CONN_PORT, NULL, conn_callback_func, 0);
 
     /*
      * An example of connection which should fail in connecting.
-     * When this is the case, \ref ESP_EVT_CONN_ERROR event should be triggered
+     * When this is the case, \ref LWESP_EVT_CONN_ERROR event should be triggered
      * in callback function processing
      */
-    esp_conn_start(NULL, ESP_CONN_TYPE_TCP, CONN_HOST, 10, NULL, conn_callback_func, 0);
+    lwesp_conn_start(NULL, LWESP_CONN_TYPE_TCP, CONN_HOST, 10, NULL, conn_callback_func, 0);
 }
 
 /**
  * \brief           Event callback function for connection-only
  * \param[in]       evt: Event information with data
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-conn_callback_func(esp_evt_t* evt) {
-    esp_conn_p conn;
-    espr_t res;
+static lwespr_t
+conn_callback_func(lwesp_evt_t* evt) {
+    lwesp_conn_p conn;
+    lwespr_t res;
     uint8_t conn_num;
 
-    conn = esp_conn_get_from_evt(evt);          /* Get connection handle from event */
+    conn = lwesp_conn_get_from_evt(evt);          /* Get connection handle from event */
     if (conn == NULL) {
         return espERR;
     }
-    conn_num = esp_conn_getnum(conn);           /* Get connection number for identification */
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_CONN_ACTIVE: {             /* Connection just active */
+    conn_num = lwesp_conn_getnum(conn);           /* Get connection number for identification */
+    switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_CONN_ACTIVE: {             /* Connection just active */
             printf("Connection %d active!\r\n", (int)conn_num);
-            res = esp_conn_send(conn, req_data, sizeof(req_data) - 1, NULL, 0); /* Start sending data in non-blocking mode */
+            res = lwesp_conn_send(conn, req_data, sizeof(req_data) - 1, NULL, 0); /* Start sending data in non-blocking mode */
             if (res == espOK) {
                 printf("Sending request data to server...\r\n");
             } else {
                 printf("Cannot send request data to server. Closing connection manually...\r\n");
-                esp_conn_close(conn, 0);        /* Close the connection */
+                lwesp_conn_close(conn, 0);        /* Close the connection */
             }
             break;
         }
-        case ESP_EVT_CONN_CLOSE: {              /* Connection closed */
-            if (esp_evt_conn_close_is_forced(evt)) {
+        case LWESP_EVT_CONN_CLOSE: {              /* Connection closed */
+            if (lwesp_evt_conn_close_is_forced(evt)) {
                 printf("Connection %d closed by client!\r\n", (int)conn_num);
             } else {
                 printf("Connection %d closed by remote side!\r\n", (int)conn_num);
             }
             break;
         }
-        case ESP_EVT_CONN_SEND: {               /* Data send event */
-            espr_t res = esp_evt_conn_send_get_result(evt);
+        case LWESP_EVT_CONN_SEND: {               /* Data send event */
+            lwespr_t res = lwesp_evt_conn_send_get_result(evt);
             if (res == espOK) {
                 printf("Data sent successfully on connection %d...waiting to receive data from remote side...\r\n", (int)conn_num);
             } else {
@@ -87,15 +87,15 @@ conn_callback_func(esp_evt_t* evt) {
             }
             break;
         }
-        case ESP_EVT_CONN_RECV: {               /* Data received from remote side */
-            esp_pbuf_p pbuf = esp_evt_conn_recv_get_buff(evt);
-            esp_conn_recved(conn, pbuf);        /* Notify stack about received pbuf */
-            printf("Received %d bytes on connection %d..\r\n", (int)esp_pbuf_length(pbuf, 1), (int)conn_num);
+        case LWESP_EVT_CONN_RECV: {               /* Data received from remote side */
+            lwesp_pbuf_p pbuf = lwesp_evt_conn_recv_get_buff(evt);
+            lwesp_conn_recved(conn, pbuf);        /* Notify stack about received pbuf */
+            printf("Received %d bytes on connection %d..\r\n", (int)lwesp_pbuf_length(pbuf, 1), (int)conn_num);
             break;
         }
-        case ESP_EVT_CONN_ERROR: {              /* Error connecting to server */
-            const char* host = esp_evt_conn_error_get_host(evt);
-            esp_port_t port = esp_evt_conn_error_get_port(evt);
+        case LWESP_EVT_CONN_ERROR: {              /* Error connecting to server */
+            const char* host = lwesp_evt_conn_error_get_host(evt);
+            lwesp_port_t port = lwesp_evt_conn_error_get_port(evt);
             printf("Error connecting to %s:%d\r\n", host, (int)port);
             break;
         }

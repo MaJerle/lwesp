@@ -1,5 +1,5 @@
 /**
- * \file            esp_input.h
+ * \file            lwesp_input.h
  * \brief           Initialization process
  */
 
@@ -26,30 +26,30 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_INPUT_H
-#define ESP_HDR_INPUT_H
+#ifndef LWESP_HDR_INPUT_H
+#define LWESP_HDR_INPUT_H
 
 #include <string.h>
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_INPUT Input processing
+ * \ingroup         LWESP
+ * \defgroup        LWESP_INPUT Input processing
  * \brief           Input function for received data
  * \{
  */
 
-espr_t      esp_input(const void* data, size_t len);
-espr_t      esp_input_process(const void* data, size_t len);
+lwespr_t      lwesp_input(const void* data, size_t len);
+lwespr_t      lwesp_input_process(const void* data, size_t len);
 
 /**
  * \}
@@ -59,4 +59,4 @@ espr_t      esp_input_process(const void* data, size_t len);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_INPUT_H */
+#endif /* LWESP_HDR_INPUT_H */

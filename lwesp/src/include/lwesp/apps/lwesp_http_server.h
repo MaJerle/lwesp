@@ -1,5 +1,5 @@
 /**
- * \file            esp_http_server.h
+ * \file            lwesp_http_server.h
  * \brief           HTTP server with callback API
  */
 
@@ -26,29 +26,29 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_HTTP_SERVER_H
-#define ESP_HDR_HTTP_SERVER_H
+#ifndef LWESP_HDR_HTTP_SERVER_H
+#define LWESP_HDR_HTTP_SERVER_H
 
-#include "esp/apps/esp_apps.h"
+#include "lwesp/apps/lwesp_apps.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP_APPS
- * \defgroup        ESP_APP_HTTP_SERVER HTTP server
+ * \ingroup         LWESP_APPS
+ * \defgroup        LWESP_APP_HTTP_SERVER HTTP server
  * \brief           HTTP server based on callback API
  * \{
  */
 
 /**
- * \defgroup        ESP_OPT_APP_HTTP Configuration
+ * \defgroup        LWESP_OPT_APP_HTTP Configuration
  * \brief           Configuration of HTTP server app
  * \{
  */
@@ -56,8 +56,8 @@ extern "C" {
 /**
  * \brief           Server debug default setting
  */
-#ifndef ESP_CFG_DBG_SERVER
-#define ESP_CFG_DBG_SERVER                  ESP_DBG_OFF
+#ifndef LWESP_CFG_DBG_SERVER
+#define LWESP_CFG_DBG_SERVER                  LWESP_DBG_OFF
 #endif
 
 #ifndef HTTP_SSI_TAG_START
@@ -199,25 +199,25 @@ typedef struct {
  * \param[in]       hs: HTTP state
  * \param[in]       uri: POST request URI
  * \param[in]       content_length: Total content length (Content-Length HTTP parameter) in units of bytes
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-typedef espr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, uint32_t content_length);
+typedef lwespr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, uint32_t content_length);
 
 /**
  * \brief           Post data received on request function prototype
  * \note            This function may be called multiple time until content_length from \ref http_post_start_fn callback is not reached
  * \param[in]       hs: HTTP state
  * \param[in]       pbuf: Packet buffer wit reciveed data
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-typedef espr_t  (*http_post_data_fn)(struct http_state* hs, esp_pbuf_p pbuf);
+typedef lwespr_t  (*http_post_data_fn)(struct http_state* hs, lwesp_pbuf_p pbuf);
 
 /**
  * \brief           End of POST data request function prototype
  * \param[in]       hs: HTTP state
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-typedef espr_t  (*http_post_end_fn)(struct http_state* hs);
+typedef lwespr_t  (*http_post_end_fn)(struct http_state* hs);
 
 /**
  * \brief           SSI (Server Side Includes) callback function prototype
@@ -330,8 +330,8 @@ typedef struct http_fs_file {
  * \brief           HTTP state structure
  */
 typedef struct http_state {
-    esp_conn_p conn;                            /*!< Connection handle */
-    esp_pbuf_p p;                               /*!< Header received pbuf chain */
+    lwesp_conn_p conn;                            /*!< Connection handle */
+    lwesp_pbuf_p p;                               /*!< Header received pbuf chain */
 
     size_t conn_mem_available;                  /*!< Available memory in connection send queue */
     uint32_t written_total;                     /*!< Total number of bytes written into send buffer */
@@ -346,8 +346,8 @@ typedef struct http_state {
     uint32_t content_received;                  /*!< Content length received so far (POST request, without headers) */
 #endif /* HTTP_SUPPORT_POST || __DOXYGEN__ */
 
-    http_fs_file_t resp_file;                   /*!< Response file structure */
-    uint8_t resp_file_opened;                   /*!< Status if response file is opened and ready */
+    http_fs_file_t rlwesp_file;                   /*!< Response file structure */
+    uint8_t rlwesp_file_opened;                   /*!< Status if response file is opened and ready */
     const uint8_t* buff;                        /*!< Buffer pointer with data */
     uint32_t buff_len;                          /*!< Total length of buffer */
     uint32_t buff_ptr;                          /*!< Current buffer pointer */
@@ -379,12 +379,12 @@ typedef struct http_state {
  * \param[in]       hs: HTTP handle
  * \param[in]       str: String to write
  * \return          Number of bytes written to output
- * \sa              esp_http_server_write
+ * \sa              lwesp_http_server_write
  */
-#define     esp_http_server_write_string(hs, str)   esp_http_server_write(hs, str, strlen(str))
+#define     lwesp_http_server_write_string(hs, str)   lwesp_http_server_write(hs, str, strlen(str))
 
-espr_t      esp_http_server_init(const http_init_t* init, esp_port_t port);
-size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len);
+lwespr_t      lwesp_http_server_init(const http_init_t* init, lwesp_port_t port);
+size_t      lwesp_http_server_write(http_state_t* hs, const void* data, size_t len);
 
 /**
  * \}
@@ -394,4 +394,4 @@ size_t      esp_http_server_write(http_state_t* hs, const void* data, size_t len
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_HTTP_SERVER_H */
+#endif /* LWESP_HDR_HTTP_SERVER_H */

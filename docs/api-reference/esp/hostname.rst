@@ -1,6 +1,6 @@
-.. _api_esp_hostname:
+.. _api_lwesp_hostname:
 
 Hostname
 ========
 
-.. doxygengroup:: ESP_HOSTNAME
+.. doxygengroup:: LWESP_HOSTNAME

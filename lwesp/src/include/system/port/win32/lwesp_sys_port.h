@@ -1,5 +1,5 @@
 /**
- * \file            esp_sys_port.h
+ * \file            lwesp_sys_port.h
  * \brief           WIN32 based system file implementation
  */
 
@@ -26,42 +26,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_SYSTEM_PORT_H
-#define ESP_HDR_SYSTEM_PORT_H
+#ifndef LWESP_HDR_SYSTEM_PORT_H
+#define LWESP_HDR_SYSTEM_PORT_H
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "esp/esp_opt.h"
+#include "lwesp/lwesp_opt.h"
 #include "windows.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#if ESP_CFG_OS && !__DOXYGEN__
+#if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef HANDLE                      esp_sys_mutex_t;
-typedef HANDLE                      esp_sys_sem_t;
-typedef HANDLE                      esp_sys_mbox_t;
-typedef HANDLE                      esp_sys_thread_t;
-typedef int                         esp_sys_thread_prio_t;
+typedef HANDLE                      lwesp_sys_mutex_t;
+typedef HANDLE                      lwesp_sys_sem_t;
+typedef HANDLE                      lwesp_sys_mbox_t;
+typedef HANDLE                      lwesp_sys_thread_t;
+typedef int                         lwesp_sys_thread_prio_t;
 
-#define ESP_SYS_MBOX_NULL           ((HANDLE)0)
-#define ESP_SYS_SEM_NULL            ((HANDLE)0)
-#define ESP_SYS_MUTEX_NULL          ((HANDLE)0)
-#define ESP_SYS_TIMEOUT             (INFINITE)
-#define ESP_SYS_THREAD_PRIO         (0)
-#define ESP_SYS_THREAD_SS           (1024)
+#define LWESP_SYS_MBOX_NULL           ((HANDLE)0)
+#define LWESP_SYS_SEM_NULL            ((HANDLE)0)
+#define LWESP_SYS_MUTEX_NULL          ((HANDLE)0)
+#define LWESP_SYS_TIMEOUT             (INFINITE)
+#define LWESP_SYS_THREAD_PRIO         (0)
+#define LWESP_SYS_THREAD_SS           (1024)
 
-#endif /* ESP_CFG_OS && !__DOXYGEN__ */
+#endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_SYSTEM_PORT_H */
+#endif /* LWESP_HDR_SYSTEM_PORT_H */

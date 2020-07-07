@@ -1,5 +1,5 @@
 /**
- * \file            esp_ll_stm32f429zi_nucleo.c
+ * \file            lwesp_ll_stm32f429zi_nucleo.c
  * \brief           Low-level communication with ESP device for STM32F429ZI-Nucleo using DMA
  */
 
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
@@ -57,59 +57,59 @@
 #include "stm32f4xx_ll_rcc.h"
 
 /* USART */
-#define ESP_USART                           USART2
-#define ESP_USART_CLK                       LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2)
-#define ESP_USART_IRQ                       USART2_IRQn
-#define ESP_USART_IRQHANDLER                USART2_IRQHandler
-#define ESP_USART_RDR_NAME                  DR
+#define LWESP_USART                           USART2
+#define LWESP_USART_CLK                       LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2)
+#define LWESP_USART_IRQ                       USART2_IRQn
+#define LWESP_USART_IRQHANDLER                USART2_IRQHandler
+#define LWESP_USART_RDR_NAME                  DR
 
 /* DMA settings */
-#define ESP_USART_DMA                       DMA1
-#define ESP_USART_DMA_CLK                   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1)
-#define ESP_USART_DMA_RX_STREAM             LL_DMA_STREAM_5
-#define ESP_USART_DMA_RX_CH                 LL_DMA_CHANNEL_4
-#define ESP_USART_DMA_RX_IRQ                DMA1_Stream5_IRQn
-#define ESP_USART_DMA_RX_IRQHANDLER         DMA1_Stream5_IRQHandler
+#define LWESP_USART_DMA                       DMA1
+#define LWESP_USART_DMA_CLK                   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1)
+#define LWESP_USART_DMA_RX_STREAM             LL_DMA_STREAM_5
+#define LWESP_USART_DMA_RX_CH                 LL_DMA_CHANNEL_4
+#define LWESP_USART_DMA_RX_IRQ                DMA1_Stream5_IRQn
+#define LWESP_USART_DMA_RX_IRQHANDLER         DMA1_Stream5_IRQHandler
 
 /* DMA flags management */
-#define ESP_USART_DMA_RX_IS_TC              LL_DMA_IsActiveFlag_TC5(ESP_USART_DMA)
-#define ESP_USART_DMA_RX_IS_HT              LL_DMA_IsActiveFlag_HT5(ESP_USART_DMA)
-#define ESP_USART_DMA_RX_CLEAR_TC           LL_DMA_ClearFlag_TC5(ESP_USART_DMA)
-#define ESP_USART_DMA_RX_CLEAR_HT           LL_DMA_ClearFlag_HT5(ESP_USART_DMA)
+#define LWESP_USART_DMA_RX_IS_TC              LL_DMA_IsActiveFlag_TC5(LWESP_USART_DMA)
+#define LWESP_USART_DMA_RX_IS_HT              LL_DMA_IsActiveFlag_HT5(LWESP_USART_DMA)
+#define LWESP_USART_DMA_RX_CLEAR_TC           LL_DMA_ClearFlag_TC5(LWESP_USART_DMA)
+#define LWESP_USART_DMA_RX_CLEAR_HT           LL_DMA_ClearFlag_HT5(LWESP_USART_DMA)
 
 /* USART TX PIN */
-#define ESP_USART_TX_PORT_CLK               LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
-#define ESP_USART_TX_PORT                   GPIOD
-#define ESP_USART_TX_PIN                    LL_GPIO_PIN_5
-#define ESP_USART_TX_PIN_AF                 LL_GPIO_AF_7
+#define LWESP_USART_TX_PORT_CLK               LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
+#define LWESP_USART_TX_PORT                   GPIOD
+#define LWESP_USART_TX_PIN                    LL_GPIO_PIN_5
+#define LWESP_USART_TX_PIN_AF                 LL_GPIO_AF_7
 
 /* USART RX PIN */
-#define ESP_USART_RX_PORT_CLK               LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
-#define ESP_USART_RX_PORT                   GPIOD
-#define ESP_USART_RX_PIN                    LL_GPIO_PIN_6
-#define ESP_USART_RX_PIN_AF                 LL_GPIO_AF_7
+#define LWESP_USART_RX_PORT_CLK               LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
+#define LWESP_USART_RX_PORT                   GPIOD
+#define LWESP_USART_RX_PIN                    LL_GPIO_PIN_6
+#define LWESP_USART_RX_PIN_AF                 LL_GPIO_AF_7
 
 /* RESET PIN */
-#define ESP_RESET_PORT_CLK                  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
-#define ESP_RESET_PORT                      GPIOD
-#define ESP_RESET_PIN                       LL_GPIO_PIN_1
+#define LWESP_RESET_PORT_CLK                  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
+#define LWESP_RESET_PORT                      GPIOD
+#define LWESP_RESET_PIN                       LL_GPIO_PIN_1
 
 /* GPIO0 PIN */
-#define ESP_GPIO0_PORT_CLK                  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
-#define ESP_GPIO0_PORT                      GPIOD
-#define ESP_GPIO0_PIN                       LL_GPIO_PIN_4
+#define LWESP_GPIO0_PORT_CLK                  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
+#define LWESP_GPIO0_PORT                      GPIOD
+#define LWESP_GPIO0_PIN                       LL_GPIO_PIN_4
 
 /* GPIO2 PIN */
-#define ESP_GPIO2_PORT_CLK                  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
-#define ESP_GPIO2_PORT                      GPIOD
-#define ESP_GPIO2_PIN                       LL_GPIO_PIN_7
+#define LWESP_GPIO2_PORT_CLK                  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
+#define LWESP_GPIO2_PORT                      GPIOD
+#define LWESP_GPIO2_PIN                       LL_GPIO_PIN_7
 
 /* CH_PD PIN */
-#define ESP_CH_PD_PORT_CLK                  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
-#define ESP_CH_PD_PORT                      GPIOD
-#define ESP_CH_PD_PIN                       LL_GPIO_PIN_3
+#define LWESP_CH_PD_PORT_CLK                  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD)
+#define LWESP_CH_PD_PORT                      GPIOD
+#define LWESP_CH_PD_PIN                       LL_GPIO_PIN_3
 
 /* Include STM32 generic driver */
-#include "../system/esp_ll_stm32.c"
+#include "../system/lwesp_ll_stm32.c"
 
 #endif /* !__DOXYGEN__ */

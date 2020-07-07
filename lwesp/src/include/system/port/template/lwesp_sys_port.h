@@ -1,5 +1,5 @@
 /**
- * \file            esp_sys_port.h
+ * \file            lwesp_sys_port.h
  * \brief           Template file for system functions
  */
 
@@ -26,17 +26,17 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_SYSTEM_PORT_H
-#define ESP_HDR_SYSTEM_PORT_H
+#ifndef LWESP_HDR_SYSTEM_PORT_H
+#define LWESP_HDR_SYSTEM_PORT_H
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "esp/esp_opt.h"
+#include "lwesp/lwesp_opt.h"
 #include "cmsis_os.h"
 
 #ifdef __cplusplus
@@ -44,37 +44,37 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \addtogroup      ESP_SYS
+ * \addtogroup      LWESP_SYS
  * \{
  */
 
-#if ESP_CFG_OS || __DOXYGEN__
+#if LWESP_CFG_OS || __DOXYGEN__
 
 /**
  * \brief           System mutex type
  *
  * It is used by middleware as base type of mutex.
  */
-typedef osMutexId_t         esp_sys_mutex_t;
+typedef osMutexId_t         lwesp_sys_mutex_t;
 
 /**
  * \brief           System semaphore type
  *
  * It is used by middleware as base type of mutex.
  */
-typedef osSemaphoreId_t     esp_sys_sem_t;
+typedef osSemaphoreId_t     lwesp_sys_sem_t;
 
 /**
  * \brief           System message queue type
  *
  * It is used by middleware as base type of mutex.
  */
-typedef osMessageQueueId_t  esp_sys_mbox_t;
+typedef osMessageQueueId_t  lwesp_sys_mbox_t;
 
 /**
  * \brief           System thread ID type
  */
-typedef osThreadId_t        esp_sys_thread_t;
+typedef osThreadId_t        lwesp_sys_thread_t;
 
 /**
  * \brief           System thread priority type
@@ -82,28 +82,28 @@ typedef osThreadId_t        esp_sys_thread_t;
  * It is used as priority type for system function,
  * to start new threads by middleware.
  */
-typedef osPriority          esp_sys_thread_prio_t;
+typedef osPriority          lwesp_sys_thread_prio_t;
 
 /**
  * \brief           Mutex invalid value
  *
- * Value assigned to \ref esp_sys_mutex_t type when it is not valid.
+ * Value assigned to \ref lwesp_sys_mutex_t type when it is not valid.
  */
-#define ESP_SYS_MUTEX_NULL          ((esp_sys_mutex_t)0)
+#define LWESP_SYS_MUTEX_NULL          ((lwesp_sys_mutex_t)0)
 
 /**
  * \brief           Semaphore invalid value
  *
- * Value assigned to \ref esp_sys_sem_t type when it is not valid.
+ * Value assigned to \ref lwesp_sys_sem_t type when it is not valid.
  */
-#define ESP_SYS_SEM_NULL            ((esp_sys_sem_t)0)
+#define LWESP_SYS_SEM_NULL            ((lwesp_sys_sem_t)0)
 
 /**
  * \brief           Message box invalid value
  *
- * Value assigned to \ref esp_sys_mbox_t type when it is not valid.
+ * Value assigned to \ref lwesp_sys_mbox_t type when it is not valid.
  */
-#define ESP_SYS_MBOX_NULL           ((esp_sys_mbox_t)0)
+#define LWESP_SYS_MBOX_NULL           ((lwesp_sys_mbox_t)0)
 
 /**
  * \brief           OS timeout value
@@ -111,7 +111,7 @@ typedef osPriority          esp_sys_thread_prio_t;
  * Value returned by operating system functions (mutex wait, sem wait, mbox wait)
  * when it returns timeout and does not give valid value to application
  */
-#define ESP_SYS_TIMEOUT             ((uint32_t)osWaitForever)
+#define LWESP_SYS_TIMEOUT             ((uint32_t)osWaitForever)
 
 /**
  * \brief           Default thread priority value used by middleware to start built-in threads
@@ -119,16 +119,16 @@ typedef osPriority          esp_sys_thread_prio_t;
  * Threads can well operate with normal (default) priority and do not require
  * any special feature in terms of priority for prioer operation.
  */
-#define ESP_SYS_THREAD_PRIO         (osPriorityNormal)
+#define LWESP_SYS_THREAD_PRIO         (osPriorityNormal)
 
 /**
  * \brief           Stack size in units of bytes for system threads
  *
  * It is used as default stack size for all built-in threads.
  */
-#define ESP_SYS_THREAD_SS           (1024)
+#define LWESP_SYS_THREAD_SS           (1024)
 
-#endif /* ESP_CFG_OS || __DOXYGEN__ */
+#endif /* LWESP_CFG_OS || __DOXYGEN__ */
 
 /**
  * \}
@@ -138,4 +138,4 @@ typedef osPriority          esp_sys_thread_prio_t;
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_SYSTEM_PORT_H */
+#endif /* LWESP_HDR_SYSTEM_PORT_H */

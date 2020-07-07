@@ -1,5 +1,5 @@
 /**
- * \file            esp_threads.h
+ * \file            lwesp_threads.h
  * \brief           OS threads implementations
  */
 
@@ -26,25 +26,25 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_THREADS_H
-#define ESP_HDR_THREADS_H
+#ifndef LWESP_HDR_THREADS_H
+#define LWESP_HDR_THREADS_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-void    esp_thread_produce(void* const arg);
-void    esp_thread_process(void* const arg);
+void    lwesp_thread_produce(void* const arg);
+void    lwesp_thread_process(void* const arg);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_THREADS_H */
+#endif /* LWESP_HDR_THREADS_H */

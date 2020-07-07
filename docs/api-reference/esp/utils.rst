@@ -1,4 +1,4 @@
-.. _api_esp_utils:
+.. _api_lwesp_utils:
 
 Utilities
 =========
@@ -6,4 +6,4 @@ Utilities
 Utility functions for various cases.
 These function are used across entire middleware and can also be used by application.
 
-.. doxygengroup:: ESP_UTILS
+.. doxygengroup:: LWESP_UTILS

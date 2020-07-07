@@ -1,5 +1,5 @@
 /**
- * \file            esp_cayenne.c
+ * \file            lwesp_cayenne.c
  * \brief           MQTT client for Cayenne
  */
 
@@ -26,35 +26,35 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/apps/esp_cayenne.h"
-#include "esp/esp_mem.h"
-#include "esp/esp_pbuf.h"
+#include "lwesp/apps/lwesp_cayenne.h"
+#include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_pbuf.h"
 
 //#error "This driver is not ready-to-use yet and shall not be used in final product"
 
 /* Tracing debug message */
-#define ESP_CFG_DBG_CAYENNE_TRACE               (ESP_CFG_DBG_CAYENNE | ESP_DBG_TYPE_TRACE)
-#define ESP_CFG_DBG_CAYENNE_TRACE_WARNING       (ESP_CFG_DBG_CAYENNE | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING)
-#define ESP_CFG_DBG_CAYENNE_TRACE_SEVERE        (ESP_CFG_DBG_CAYENNE | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE)
+#define LWESP_CFG_DBG_CAYENNE_TRACE               (LWESP_CFG_DBG_CAYENNE | LWESP_DBG_TYPE_TRACE)
+#define LWESP_CFG_DBG_CAYENNE_TRACE_WARNING       (LWESP_CFG_DBG_CAYENNE | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING)
+#define LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE        (LWESP_CFG_DBG_CAYENNE | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE)
 
-#define ESP_CAYENNE_API_VERSION_LEN             (sizeof(ESP_CAYENNE_API_VERSION) - 1)
+#define LWESP_CAYENNE_API_VERSION_LEN             (sizeof(LWESP_CAYENNE_API_VERSION) - 1)
 
 #define CHECK_FORWARDSLASH_AND_FORWARD(str)     do { if ((str) == NULL || *(str) != '/') { return espERR; } ++(str); } while (0)
 
-#if !ESP_CFG_NETCONN || !ESP_CFG_MODE_STATION
+#if !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION
 #error "Netconn and station mode must be enabled!"
-#endif /* !ESP_CFG_NETCONN || !ESP_CFG_MODE_STATION */
+#endif /* !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION */
 
 /**
  * \brief           Topic type and string key-value pair structure
  */
 typedef struct {
-    esp_cayenne_topic_t topic;                  /*!< Topic name */
+    lwesp_cayenne_topic_t topic;                  /*!< Topic name */
     const char* str;                            /*!< Topic string */
 } topic_cmd_str_pair_t;
 
@@ -63,26 +63,26 @@ typedef struct {
  */
 const static topic_cmd_str_pair_t
 topic_cmd_str_pairs[] = {
-    { ESP_CAYENNE_TOPIC_DATA, "data" },
-    { ESP_CAYENNE_TOPIC_COMMAND, "cmd" },
-    { ESP_CAYENNE_TOPIC_CONFIG, "conf" },
-    { ESP_CAYENNE_TOPIC_RESPONSE, "response" },
-    { ESP_CAYENNE_TOPIC_SYS_MODEL, "sys/model" },
-    { ESP_CAYENNE_TOPIC_SYS_VERSION, "sys/version" },
-    { ESP_CAYENNE_TOPIC_SYS_CPU_MODEL, "sys/cpu/model" },
-    { ESP_CAYENNE_TOPIC_SYS_CPU_SPEED, "sys/cpu/speed" },
-    { ESP_CAYENNE_TOPIC_DIGITAL, "digital" },
-    { ESP_CAYENNE_TOPIC_DIGITAL_COMMAND, "digital-cmd" },
-    { ESP_CAYENNE_TOPIC_DIGITAL_CONFIG, "digital-conf" },
-    { ESP_CAYENNE_TOPIC_ANALOG, "analog" },
-    { ESP_CAYENNE_TOPIC_ANALOG_COMMAND, "analog-cmd" },
-    { ESP_CAYENNE_TOPIC_ANALOG_CONFIG, "analog-conf" }
+    { LWESP_CAYENNE_TOPIC_DATA, "data" },
+    { LWESP_CAYENNE_TOPIC_COMMAND, "cmd" },
+    { LWESP_CAYENNE_TOPIC_CONFIG, "conf" },
+    { LWESP_CAYENNE_TOPIC_RESPONSE, "response" },
+    { LWESP_CAYENNE_TOPIC_SYS_MODEL, "sys/model" },
+    { LWESP_CAYENNE_TOPIC_SYS_VERSION, "sys/version" },
+    { LWESP_CAYENNE_TOPIC_SYS_CPU_MODEL, "sys/cpu/model" },
+    { LWESP_CAYENNE_TOPIC_SYS_CPU_SPEED, "sys/cpu/speed" },
+    { LWESP_CAYENNE_TOPIC_DIGITAL, "digital" },
+    { LWESP_CAYENNE_TOPIC_DIGITAL_COMMAND, "digital-cmd" },
+    { LWESP_CAYENNE_TOPIC_DIGITAL_CONFIG, "digital-conf" },
+    { LWESP_CAYENNE_TOPIC_ANALOG, "analog" },
+    { LWESP_CAYENNE_TOPIC_ANALOG_COMMAND, "analog-cmd" },
+    { LWESP_CAYENNE_TOPIC_ANALOG_CONFIG, "analog-conf" }
 };
 
 /**
  * \brief           Protection mutex
  */
-static esp_sys_mutex_t
+static lwesp_sys_mutex_t
 prot_mutex;
 
 /**
@@ -101,27 +101,27 @@ payload_data[128];
  * \brief           Parse received topic string
  * \param[in]       c: Cayenne handle
  * \param[in]       buf: MQTT buffer with received data
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
-    esp_cayenne_msg_t* msg;
+static lwespr_t
+parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
+    lwesp_cayenne_msg_t* msg;
     const char* topic;
     size_t len, i;
 
-    ESP_ASSERT("c != NULL", c != NULL);
-    ESP_ASSERT("buf != NULL && buf->topic != NULL", buf != NULL && buf->topic != NULL);
+    LWESP_ASSERT("c != NULL", c != NULL);
+    LWESP_ASSERT("buf != NULL && buf->topic != NULL", buf != NULL && buf->topic != NULL);
 
     msg = &c->msg;                              /* Get message handle */
     topic = (void*)buf->topic;                  /* Get topic data */
 
-    ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received topic: %s\r\n", topic);
+    LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received topic: %s\r\n", topic);
 
     /* Topic starts with API version */
-    if (strncmp(topic, ESP_CAYENNE_API_VERSION, ESP_CAYENNE_API_VERSION_LEN)) {
+    if (strncmp(topic, LWESP_CAYENNE_API_VERSION, LWESP_CAYENNE_API_VERSION_LEN)) {
         return espERR;
     }
-    topic += ESP_CAYENNE_API_VERSION_LEN;
+    topic += LWESP_CAYENNE_API_VERSION_LEN;
     CHECK_FORWARDSLASH_AND_FORWARD(topic);
 
     /* Check username */
@@ -147,8 +147,8 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
     CHECK_FORWARDSLASH_AND_FORWARD(topic);
 
     /* Now parse topic string */
-    msg->topic = ESP_CAYENNE_TOPIC_END;
-    for (i = 0; i < ESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
+    msg->topic = LWESP_CAYENNE_TOPIC_END;
+    for (i = 0; i < LWESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
         len = strlen(topic_cmd_str_pairs[i].str);
         if (!strncmp(topic_cmd_str_pairs[i].str, topic, len)) {
             msg->topic = topic_cmd_str_pairs[i].topic;
@@ -157,18 +157,18 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
         }
     }
     /* This means error, no topic found */
-    if (i == ESP_ARRAYSIZE(topic_cmd_str_pairs)) {
+    if (i == LWESP_ARRAYSIZE(topic_cmd_str_pairs)) {
         return espERR;
     }
 
     /* Parse channel */
-    msg->channel = ESP_CAYENNE_NO_CHANNEL;
+    msg->channel = LWESP_CAYENNE_NO_CHANNEL;
     if (*topic == '/') {
         ++topic;
         if (*topic == '+') {
-            msg->channel = ESP_CAYENNE_ALL_CHANNELS;
+            msg->channel = LWESP_CAYENNE_ALL_CHANNELS;
         } else if (*topic == '#') {
-            msg->channel = ESP_CAYENNE_ALL_CHANNELS;
+            msg->channel = LWESP_CAYENNE_ALL_CHANNELS;
         } else if (*topic >= '0' && *topic <= '9') {
             msg->channel = 0;
             while (*topic >= '0' && *topic <= '9') {
@@ -187,33 +187,33 @@ parse_topic(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
  * \brief           Parse received data from MQTT channel
  * \param[in]       c: Cayenne handle
  * \param[in]       buf: MQTT buffer with received data
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
-    esp_cayenne_msg_t* msg;
+static lwespr_t
+parse_payload(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
+    lwesp_cayenne_msg_t* msg;
     char* payload;
 
-    ESP_ASSERT("c != NULL", c != NULL);
-    ESP_ASSERT("buf != NULL", buf != NULL);
+    LWESP_ASSERT("c != NULL", c != NULL);
+    LWESP_ASSERT("buf != NULL", buf != NULL);
 
     msg = &c->msg;                              /* Get message handle */
     payload = (void*)buf->payload;              /* Get payload data */
 
-    ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received payload\r\n");
+    LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received payload\r\n");
 
     msg->seq = NULL;                            /* Reset sequence string */
 
     /* Parse topic format here */
     switch (msg->topic) {
-        case ESP_CAYENNE_TOPIC_DATA: {
-            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC DATA: %*s\r\n", (int)buf->payload_len, (const char*)buf->payload);
+        case LWESP_CAYENNE_TOPIC_DATA: {
+            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC DATA: %*s\r\n", (int)buf->payload_len, (const char*)buf->payload);
             /* Parse data with '=' separator */
             break;
         }
-        case ESP_CAYENNE_TOPIC_COMMAND:
-        case ESP_CAYENNE_TOPIC_ANALOG_COMMAND:
-        case ESP_CAYENNE_TOPIC_DIGITAL_COMMAND: {
+        case LWESP_CAYENNE_TOPIC_COMMAND:
+        case LWESP_CAYENNE_TOPIC_ANALOG_COMMAND:
+        case LWESP_CAYENNE_TOPIC_DIGITAL_COMMAND: {
             /* Parsing "sequence,value" */
             char* comm = strchr(payload, ',');
             if (comm != NULL) {
@@ -228,8 +228,8 @@ parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
             /* Here parse sequence,value */
             break;
         }
-        case ESP_CAYENNE_TOPIC_ANALOG: {
-            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC ANALOG: %*s\r\n", (int)buf->payload_len, (const char*)buf->payload);
+        case LWESP_CAYENNE_TOPIC_ANALOG: {
+            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] TOPIC ANALOG: %*s\r\n", (int)buf->payload_len, (const char*)buf->payload);
             /* Here parse type,value */
         }
         default:
@@ -247,26 +247,26 @@ parse_payload(esp_cayenne_t* c, esp_mqtt_client_api_buf_p buf) {
  * \param[in]       client_id: MQTT client id
  * \param[in]       topic: Cayenne topic
  * \param[in]       channel: Cayenne channel
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
+static lwespr_t
 build_topic(char* topic_str, size_t topic_str_len, const char* username,
-            const char* client_id, esp_cayenne_topic_t topic, uint16_t channel) {
+            const char* client_id, lwesp_cayenne_topic_t topic, uint16_t channel) {
     size_t rem_len;
     char ch_token[6];
 
-    ESP_ASSERT("topic_str != NULL", topic_str != NULL);
-    ESP_ASSERT("username != NULL", username != NULL);
-    ESP_ASSERT("client_id != NULL", client_id != NULL);
-    ESP_ASSERT("topic < ESP_CAYENNE_TOPIC_END", topic < ESP_CAYENNE_TOPIC_END);
+    LWESP_ASSERT("topic_str != NULL", topic_str != NULL);
+    LWESP_ASSERT("username != NULL", username != NULL);
+    LWESP_ASSERT("client_id != NULL", client_id != NULL);
+    LWESP_ASSERT("topic < LWESP_CAYENNE_TOPIC_END", topic < LWESP_CAYENNE_TOPIC_END);
 
     /* Assert for basic part without topic */
-    ESP_ASSERT("topic_str_len > string_length", topic_str_len > (strlen(ESP_CAYENNE_API_VERSION) + strlen(username) + strlen(client_id) + 11));
+    LWESP_ASSERT("topic_str_len > string_length", topic_str_len > (strlen(LWESP_CAYENNE_API_VERSION) + strlen(username) + strlen(client_id) + 11));
 
     topic_str[0] = 0;
 
     /* Base part */
-    strcat(topic_str, ESP_CAYENNE_API_VERSION);
+    strcat(topic_str, LWESP_CAYENNE_API_VERSION);
     strcat(topic_str, "/");
     strcat(topic_str, username);
     strcat(topic_str, "/things/");
@@ -275,9 +275,9 @@ build_topic(char* topic_str, size_t topic_str_len, const char* username,
     rem_len = topic_str_len - strlen(topic_str) - 1;
 
     /* Topic string */
-    for (size_t i = 0; i < ESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
+    for (size_t i = 0; i < LWESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
         if (topic == topic_cmd_str_pairs[i].topic) {
-            ESP_ASSERT("strlen(topic_cmd_str_pairs[i].str) <= rem_len", strlen(topic_cmd_str_pairs[i].str) <= rem_len);
+            LWESP_ASSERT("strlen(topic_cmd_str_pairs[i].str) <= rem_len", strlen(topic_cmd_str_pairs[i].str) <= rem_len);
             strcat(topic_str, topic_cmd_str_pairs[i].str);
             break;
         }
@@ -285,95 +285,95 @@ build_topic(char* topic_str, size_t topic_str_len, const char* username,
     rem_len = topic_str_len - strlen(topic_str) - 1;
 
     /* Channel */
-    if (channel != ESP_CAYENNE_NO_CHANNEL) {
-        if (channel == ESP_CAYENNE_ALL_CHANNELS) {
-            ESP_ASSERT("rem_len >= 2", rem_len >= 2);
+    if (channel != LWESP_CAYENNE_NO_CHANNEL) {
+        if (channel == LWESP_CAYENNE_ALL_CHANNELS) {
+            LWESP_ASSERT("rem_len >= 2", rem_len >= 2);
             strcat(topic_str, "/+");
         } else {
-            esp_u16_to_str(channel, ch_token);
+            lwesp_u16_to_str(channel, ch_token);
             strcat(topic_str, "/");
-            ESP_ASSERT("strlen(ch_token) <= rem_len", strlen(ch_token) <= rem_len - 1);
+            LWESP_ASSERT("strlen(ch_token) <= rem_len", strlen(ch_token) <= rem_len - 1);
             strcat(topic_str, ch_token);
         }
     }
 
-    ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic: %s\r\n", topic_name);
+    LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic: %s\r\n", topic_name);
 
     return espOK;
 }
 
 /**
  * \brief           Cayenne thread
- * \param[in]       arg: Thread argument. Pointer to \ref esp_mqtt_client_cayenne_t structure
+ * \param[in]       arg: Thread argument. Pointer to \ref lwesp_mqtt_client_cayenne_t structure
  */
 static void
 mqtt_thread(void* const arg) {
-    esp_cayenne_t* c = arg;
-    esp_mqtt_conn_status_t status;
-    esp_mqtt_client_api_buf_p buf;
-    espr_t res;
+    lwesp_cayenne_t* c = arg;
+    lwesp_mqtt_conn_status_t status;
+    lwesp_mqtt_client_api_buf_p buf;
+    lwespr_t res;
 
     /* Create sync mutex for multiple cayenne accesses */
-    esp_core_lock();
-    if (!esp_sys_mutex_isvalid(&prot_mutex)) {
-        esp_sys_mutex_create(&prot_mutex);
+    lwesp_core_lock();
+    if (!lwesp_sys_mutex_isvalid(&prot_mutex)) {
+        lwesp_sys_mutex_create(&prot_mutex);
 
-        ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, esp_sys_mutex_isvalid(&prot_mutex), "[CAYENNE] New mutex created\r\n");
-        ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE_SEVERE, !esp_sys_mutex_isvalid(&prot_mutex), "[CAYENNE] Cannot create mutex\r\n");
+        LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, lwesp_sys_mutex_isvalid(&prot_mutex), "[CAYENNE] New mutex created\r\n");
+        LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE, !lwesp_sys_mutex_isvalid(&prot_mutex), "[CAYENNE] Cannot create mutex\r\n");
     }
-    esp_core_unlock();
+    lwesp_core_unlock();
 
     /* Release calling thread now */
-    if (esp_sys_sem_isvalid(&c->sem)) {
-        esp_sys_sem_release(&c->sem);
+    if (lwesp_sys_sem_isvalid(&c->sem)) {
+        lwesp_sys_sem_release(&c->sem);
     }
 
     while (1) {
         /* Device must be connected to access point */
-        while (!esp_sta_has_ip()) {
-            esp_delay(1000);
+        while (!lwesp_sta_has_ip()) {
+            lwesp_delay(1000);
         }
 
         /* Connect to API server */
-        status = esp_mqtt_client_api_connect(c->api_c, ESP_CAYENNE_HOST, ESP_CAYENNE_PORT, c->info_c);
-        if (status != ESP_MQTT_CONN_STATUS_ACCEPTED) {
+        status = lwesp_mqtt_client_api_connect(c->api_c, LWESP_CAYENNE_HOST, LWESP_CAYENNE_PORT, c->info_c);
+        if (status != LWESP_MQTT_CONN_STATUS_ACCEPTED) {
             /* Find out reason not to be accepted and decide accordingly */
         } else {
             /* Notify user */
-            c->evt.type = ESP_CAYENNE_EVT_CONNECT;
+            c->evt.type = LWESP_CAYENNE_EVT_CONNECT;
             c->evt_fn(c, &c->evt);
 
             /* We are connected and ready to subscribe/publish/receive packets */
-            esp_cayenne_subscribe(c, ESP_CAYENNE_TOPIC_COMMAND, ESP_CAYENNE_ALL_CHANNELS);
+            lwesp_cayenne_subscribe(c, LWESP_CAYENNE_TOPIC_COMMAND, LWESP_CAYENNE_ALL_CHANNELS);
 
             /* Unlimited loop */
             while (1) {
                 /* Wait for new received packet or connection closed */
-                res = esp_mqtt_client_api_receive(c->api_c, &buf, 0);
+                res = lwesp_mqtt_client_api_receive(c->api_c, &buf, 0);
 
                 if (res == espOK) {
                     if (buf != NULL) {
-                        ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Packet received\r\nTopic: %s\r\nData: %s\r\n\r\n", buf->topic, buf->payload);
+                        LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Packet received\r\nTopic: %s\r\nData: %s\r\n\r\n", buf->topic, buf->payload);
 
                         /* Parse received topic and payload */
                         if (parse_topic(c, buf) == espOK && parse_payload(c, buf) == espOK) {
-                            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic and payload parsed!\r\n");
-                            ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
+                            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic and payload parsed!\r\n");
+                            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
                                        (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value
                                       );
 
                             /* Send notification to user */
-                            c->evt.type = ESP_CAYENNE_EVT_DATA;
+                            c->evt.type = LWESP_CAYENNE_EVT_DATA;
                             c->evt.evt.data.msg = &c->msg;
                             c->evt_fn(c, &c->evt);
                         }
 
-                        esp_mqtt_client_api_buf_free(buf);
+                        lwesp_mqtt_client_api_buf_free(buf);
                         buf = NULL;
                     }
                 } else if (res == espCLOSED) {
                     /* Connection closed at this point */
-                    c->evt.type = ESP_CAYENNE_EVT_DISCONNECT;
+                    c->evt.type = LWESP_CAYENNE_EVT_DISCONNECT;
                     c->evt_fn(c, &c->evt);
                     break;
                 }
@@ -382,12 +382,12 @@ mqtt_thread(void* const arg) {
     }
 
     /* Clean resources */
-    if (esp_sys_sem_isvalid(&c->sem)) {
-        esp_sys_sem_delete(&c->sem);
-        esp_sys_sem_invalid(&c->sem);
+    if (lwesp_sys_sem_isvalid(&c->sem)) {
+        lwesp_sys_sem_delete(&c->sem);
+        lwesp_sys_sem_invalid(&c->sem);
     }
 
-    esp_sys_thread_terminate(NULL);             /* Terminate thread */
+    lwesp_sys_thread_terminate(NULL);             /* Terminate thread */
 }
 
 /**
@@ -397,15 +397,15 @@ mqtt_thread(void* const arg) {
  * \param[in]       c: Cayenne empty handle
  * \param[in]       client_info: MQTT client info with username, password and id
  * \param[in]       evt_fn: Event function
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-espr_t
-esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, esp_cayenne_evt_fn evt_fn) {
-    ESP_ASSERT("c != NULL", c != NULL);
-    ESP_ASSERT("client_info != NULL", client_info != NULL);
-    ESP_ASSERT("evt_fn != NULL", evt_fn != NULL);
+lwespr_t
+lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_info, lwesp_cayenne_evt_fn evt_fn) {
+    LWESP_ASSERT("c != NULL", c != NULL);
+    LWESP_ASSERT("client_info != NULL", client_info != NULL);
+    LWESP_ASSERT("evt_fn != NULL", evt_fn != NULL);
 
-    c->api_c = esp_mqtt_client_api_new(256, 256);
+    c->api_c = lwesp_mqtt_client_api_new(256, 256);
     c->info_c = client_info;
     c->evt_fn = evt_fn;
     if (c->api_c == NULL) {
@@ -413,24 +413,24 @@ esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, 
     }
 
     /* Create semaphore */
-    if (!esp_sys_sem_create(&c->sem, 1)) {
-        ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create semaphore\r\n");
+    if (!lwesp_sys_sem_create(&c->sem, 1)) {
+        LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create semaphore\r\n");
         return espERRMEM;
     }
 
     /* Create and wait for thread to start */
-    esp_sys_sem_wait(&c->sem, 0);
-    if (!esp_sys_thread_create(&c->thread, "mqtt_cayenne", mqtt_thread, c, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO)) {
-        ESP_DEBUGF(ESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create new thread\r\n");
-        esp_sys_sem_release(&c->sem);
-        esp_sys_sem_delete(&c->sem);
-        esp_sys_sem_invalid(&c->sem);
-        esp_mem_free_s((void**)&c->api_c);
+    lwesp_sys_sem_wait(&c->sem, 0);
+    if (!lwesp_sys_thread_create(&c->thread, "mqtt_cayenne", mqtt_thread, c, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
+        LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create new thread\r\n");
+        lwesp_sys_sem_release(&c->sem);
+        lwesp_sys_sem_delete(&c->sem);
+        lwesp_sys_sem_invalid(&c->sem);
+        lwesp_mem_free_s((void**)&c->api_c);
         c->info_c = NULL;
         return espERRMEM;
     }
-    esp_sys_sem_wait(&c->sem, 0);
-    esp_sys_sem_release(&c->sem);
+    lwesp_sys_sem_wait(&c->sem, 0);
+    lwesp_sys_sem_release(&c->sem);
 
     return espOK;
 }
@@ -440,26 +440,26 @@ esp_cayenne_create(esp_cayenne_t* c, const esp_mqtt_client_info_t* client_info, 
  * \param[in]       c: Cayenne handle
  * \param[in]       topic: Cayenne topic
  * \param[in]       channel: Optional channel number.
- *                      Use \ref ESP_CAYENNE_NO_CHANNEL when channel is not needed
- *                      or ESP_CAYENNE_ALL_CHANNELS to subscribe to all channels
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ *                      Use \ref LWESP_CAYENNE_NO_CHANNEL when channel is not needed
+ *                      or LWESP_CAYENNE_ALL_CHANNELS to subscribe to all channels
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-espr_t
-esp_cayenne_subscribe(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel) {
-    espr_t res;
+lwespr_t
+lwesp_cayenne_subscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel) {
+    lwespr_t res;
 
-    ESP_ASSERT("c != NULL", c != NULL);
+    LWESP_ASSERT("c != NULL", c != NULL);
 
-    esp_sys_mutex_lock(&prot_mutex);
+    lwesp_sys_mutex_lock(&prot_mutex);
     build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel);
-    res = esp_mqtt_client_api_subscribe(c->api_c, topic_name, ESP_MQTT_QOS_EXACTLY_ONCE);
+    res = lwesp_mqtt_client_api_subscribe(c->api_c, topic_name, LWESP_MQTT_QOS_EXACTLY_ONCE);
 
-    ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, res == espOK,
+    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res == espOK,
                "[CAYENNE] Subscribed to topic %s\r\n", topic_name);
-    ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, res != espOK,
+    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res != espOK,
                "[CAYENNE] Cannot subscribe to topic %s, error code: %d\r\n", topic_name, (int)res);
 
-    esp_sys_mutex_unlock(&prot_mutex);
+    lwesp_sys_mutex_unlock(&prot_mutex);
 
     return res;
 }
@@ -469,36 +469,36 @@ esp_cayenne_subscribe(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t chan
  * \param[in]       c: Cayenne handle
  * \param[in]       topic: Cayenne topic
  * \param[in]       channel: Optional channel number.
- *                      Use \ref ESP_CAYENNE_NO_CHANNEL when channel is not needed
- *                      or ESP_CAYENNE_ALL_CHANNELS to unsubscribe from all channels
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ *                      Use \ref LWESP_CAYENNE_NO_CHANNEL when channel is not needed
+ *                      or LWESP_CAYENNE_ALL_CHANNELS to unsubscribe from all channels
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-espr_t
-esp_cayenne_unsubscribe(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel) {
-    espr_t res;
+lwespr_t
+lwesp_cayenne_unsubscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel) {
+    lwespr_t res;
 
-    ESP_ASSERT("c != NULL", c != NULL);
+    LWESP_ASSERT("c != NULL", c != NULL);
 
-    esp_sys_mutex_lock(&prot_mutex);
+    lwesp_sys_mutex_lock(&prot_mutex);
     build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel);
-    res = esp_mqtt_client_api_unsubscribe(c->api_c, topic_name);
+    res = lwesp_mqtt_client_api_unsubscribe(c->api_c, topic_name);
 
-    ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, res == espOK,
+    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res == espOK,
                "[CAYENNE] Unsubscribed from topic %s\r\n", topic_name);
-    ESP_DEBUGW(ESP_CFG_DBG_CAYENNE_TRACE, res != espOK,
+    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res != espOK,
                "[CAYENNE] Cannot unsubscribe from topic %s, error code: %d\r\n", topic_name, (int)res);
 
-    esp_sys_mutex_unlock(&prot_mutex);
+    lwesp_sys_mutex_unlock(&prot_mutex);
 
     return res;
 }
 
-espr_t
-esp_cayenne_publish_data(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t channel,
+lwespr_t
+lwesp_cayenne_publish_data(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel,
                          const char* type, const char* unit, const char* data) {
-    espr_t res = espOK;
+    lwespr_t res = espOK;
 
-    esp_sys_mutex_lock(&prot_mutex);
+    lwesp_sys_mutex_lock(&prot_mutex);
     if ((res = build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel)) != espOK) {
         goto exit;
     }
@@ -517,9 +517,9 @@ esp_cayenne_publish_data(esp_cayenne_t* c, esp_cayenne_topic_t topic, uint16_t c
     }
     strcat(payload_data, data);
 
-    res = esp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), ESP_MQTT_QOS_AT_LEAST_ONCE, 1);
+    res = lwesp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 1);
 exit:
-    esp_sys_mutex_unlock(&prot_mutex);
+    lwesp_sys_mutex_unlock(&prot_mutex);
     return res;
 }
 
@@ -529,24 +529,24 @@ exit:
  * \param[in]       msg: Received message with command topic
  * \param[in]       resp: Response type, either `OK` or `ERROR`
  * \param[in]       message: Message text in case of error to be displayed to Cayenne dashboard
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-espr_t
-esp_cayenne_publish_response(esp_cayenne_t* c, esp_cayenne_msg_t* msg, esp_cayenne_resp_t resp, const char* message) {
-    espr_t res = espOK;
+lwespr_t
+lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwesp_cayenne_rlwesp_t resp, const char* message) {
+    lwespr_t res = espOK;
     size_t len, msg_len;
 
-    ESP_ASSERT("c != NULL", c != NULL);
-    ESP_ASSERT("msg != NULL && msg->seq != NULL", msg != NULL && msg->seq != NULL);
+    LWESP_ASSERT("c != NULL", c != NULL);
+    LWESP_ASSERT("msg != NULL && msg->seq != NULL", msg != NULL && msg->seq != NULL);
 
-    esp_sys_mutex_lock(&prot_mutex);
-    if ((res = build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, ESP_CAYENNE_TOPIC_RESPONSE, ESP_CAYENNE_NO_CHANNEL)) != espOK) {
+    lwesp_sys_mutex_lock(&prot_mutex);
+    if ((res = build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, LWESP_CAYENNE_TOPIC_RESPONSE, LWESP_CAYENNE_NO_CHANNEL)) != espOK) {
         goto exit;
     }
     payload_data[0] = 0;
-    strcat(payload_data, resp == ESP_CAYENNE_RESP_OK ? "ok," : "error,");
+    strcat(payload_data, resp == LWESP_CAYENNE_RLWESP_OK ? "ok," : "error,");
     strcat(payload_data, msg->seq);
-    if (resp != ESP_CAYENNE_RESP_OK) {
+    if (resp != LWESP_CAYENNE_RLWESP_OK) {
         strcat(payload_data, "=");
         len = strlen(payload_data);
         msg_len = strlen(message);
@@ -556,8 +556,8 @@ esp_cayenne_publish_response(esp_cayenne_t* c, esp_cayenne_msg_t* msg, esp_cayen
         strncpy(&payload_data[len], message, msg_len);
         payload_data[len + msg_len] = 0;
     }
-    res = esp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), ESP_MQTT_QOS_AT_LEAST_ONCE, 1);
+    res = lwesp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 1);
 exit:
-    esp_sys_mutex_unlock(&prot_mutex);
+    lwesp_sys_mutex_unlock(&prot_mutex);
     return res;
 }

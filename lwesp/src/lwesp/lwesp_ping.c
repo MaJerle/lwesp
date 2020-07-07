@@ -1,5 +1,5 @@
 /**
- * \file            esp_ping.c
+ * \file            lwesp_ping.c
  * \brief           Ping API
  */
 
@@ -26,16 +26,16 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_ping.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_ping.h"
+#include "lwesp/lwesp_mem.h"
 
-#if ESP_CFG_PING || __DOXYGEN__
+#if LWESP_CFG_PING || __DOXYGEN__
 
 /**
  * \brief           Ping server and get response time from it
@@ -44,22 +44,22 @@
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_ping(const char* host, uint32_t* time,
-         const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_ping(const char* host, uint32_t* time,
+         const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("host != NULL", host != NULL);
+    LWESP_ASSERT("host != NULL", host != NULL);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_PING;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ping.time_out = time;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_PING;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_ping.time_out = time;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 30000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 30000);
 }
 
-#endif /* ESP_CFG_PING || __DOXYGEN__ */
+#endif /* LWESP_CFG_PING || __DOXYGEN__ */

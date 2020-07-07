@@ -50,20 +50,20 @@ Functions need to provide:
 * Current time status information
 
 .. tip::
-	System function prototypes are available in :ref:`api_esp_sys` section.
+	System function prototypes are available in :ref:`api_lwesp_sys` section.
 
 Low-level implementation
 ************************
 
-Low-Level, or *ESP_LL*, is part, dedicated for communication between *ESP-AT* middleware and *ESP* physical device.
+Low-Level, or *LWESP_LL*, is part, dedicated for communication between *ESP-AT* middleware and *ESP* physical device.
 Application needs to implement output function to send necessary *AT command* instruction aswell as implement
 *input module* to send received data from *ESP* device to *ESP-AT* middleware.
 
-Application must also assure memory assignment for :ref:`api_esp_mem` when default allocation is used.
+Application must also assure memory assignment for :ref:`api_lwesp_mem` when default allocation is used.
 
 .. tip::
-	Low level, input module & memory function prototypes are available in 
-	:ref:`api_esp_ll`, :ref:`api_esp_input` and :ref:`api_esp_mem` respectfully.
+	Low level, input module & memory function prototypes are available in
+	:ref:`api_lwesp_ll`, :ref:`api_lwesp_input` and :ref:`api_lwesp_mem` respectfully.
 
 ESP physical device
 ^^^^^^^^^^^^^^^^^^^

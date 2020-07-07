@@ -1,5 +1,5 @@
 /**
- * \file            esp_ping.h
+ * \file            lwesp_ping.h
  * \brief           Ping API
  */
 
@@ -26,28 +26,28 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_PING_H
-#define ESP_HDR_PING_H
+#ifndef LWESP_HDR_PING_H
+#define LWESP_HDR_PING_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_PING PING
+ * \ingroup         LWESP
+ * \defgroup        LWESP_PING PING
  * \brief           Ping server and get response time
  * \{
  */
 
-espr_t      esp_ping(const char* host, uint32_t* time, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_ping(const char* host, uint32_t* time, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}
@@ -57,4 +57,4 @@ espr_t      esp_ping(const char* host, uint32_t* time, const esp_api_cmd_evt_fn 
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_PING_H */
+#endif /* LWESP_HDR_PING_H */

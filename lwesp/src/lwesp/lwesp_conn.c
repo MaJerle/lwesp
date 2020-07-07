@@ -1,5 +1,5 @@
 /**
- * \file            esp_conn.c
+ * \file            lwesp_conn.c
  * \brief           Connection API
  */
 
@@ -26,15 +26,15 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_conn.h"
-#include "esp/esp_mem.h"
-#include "esp/esp_timeout.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_conn.h"
+#include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_timeout.h"
 
 /**
  * \brief           Check if connection is closed or in closing state
@@ -42,12 +42,12 @@
  * \hideinitializer
  */
 #define CONN_CHECK_CLOSED_IN_CLOSING(conn) do { \
-        espr_t r = espOK;                           \
-        esp_core_lock();                            \
+        lwespr_t r = espOK;                           \
+        lwesp_core_lock();                            \
         if (conn->status.f.in_closing || !conn->status.f.active) {  \
             r = espCLOSED;                          \
         }                                           \
-        esp_core_unlock();                          \
+        lwesp_core_unlock();                          \
         if (r != espOK) {                           \
             return r;                               \
         }                                           \
@@ -59,21 +59,21 @@
  */
 static void
 conn_timeout_cb(void* arg) {
-    esp_conn_p conn = arg;                      /* Argument is actual connection */
+    lwesp_conn_p conn = arg;                      /* Argument is actual connection */
 
     if (conn->status.f.active) {                /* Handle only active connections */
-        esp.evt.type = ESP_EVT_CONN_POLL;       /* Poll connection event */
+        esp.evt.type = LWESP_EVT_CONN_POLL;       /* Poll connection event */
         esp.evt.evt.conn_poll.conn = conn;      /* Set connection pointer */
         espi_send_conn_cb(conn, NULL);          /* Send connection callback */
 
         espi_conn_start_timeout(conn);          /* Schedule new timeout */
-        ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
+        LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                    "[CONN] Poll event: %p\r\n", conn);
     }
 
-#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     espi_conn_manual_tcp_try_read_data(conn);   /* Try to read data manually */
-#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 }
 
 /**
@@ -81,11 +81,11 @@ conn_timeout_cb(void* arg) {
  * \param[in]       conn: Connection handle as user argument
  */
 void
-espi_conn_start_timeout(esp_conn_p conn) {
-    esp_timeout_add(ESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Add connection timeout */
+espi_conn_start_timeout(lwesp_conn_p conn) {
+    lwesp_timeout_add(LWESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Add connection timeout */
 }
 
-#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
 
 /**
  * \brief           Callback function when manual TCP receive finishes
@@ -93,8 +93,8 @@ espi_conn_start_timeout(esp_conn_p conn) {
  * \param[in]       arg: Custom user argument
  */
 static void
-manual_tcp_read_data_evt_fn(espr_t res, void* arg) {
-    esp_conn_p conn = arg;
+manual_tcp_read_data_evt_fn(lwespr_t res, void* arg) {
+    lwesp_conn_p conn = arg;
 
     conn->status.f.receive_is_command_queued = 0;
     espi_conn_manual_tcp_try_read_data(conn);
@@ -104,15 +104,15 @@ manual_tcp_read_data_evt_fn(espr_t res, void* arg) {
  * \brief           Manually start data read operation with desired length on specific connection
  * \param[in]       conn: Connection handle
  * \param[in]       len: Number of bytes to read
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
+lwespr_t
+espi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     uint32_t blocking = 0;
-    espr_t res = espOK;
-    ESP_MSG_VAR_DEFINE(msg);
+    lwespr_t res = espOK;
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT("conn != NULL", conn != NULL);
 
     /* Receive must not be blocked and other command must not be in queue to read data */
     if (conn->status.f.receive_blocked
@@ -126,16 +126,16 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
         return espERR;
     }
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);           /* Allocate first, will return on failure */
-    ESP_MSG_VAR_SET_EVT(msg, manual_tcp_read_data_evt_fn, conn);/* Set event callback function */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPRECVDATA;
-    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPRECVLEN;
-    ESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = 0;   /* Filled after RECVLEN received */
-    ESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = NULL;   /* Filled after RECVLEN received */
-    ESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);           /* Allocate first, will return on failure */
+    LWESP_MSG_VAR_SET_EVT(msg, manual_tcp_read_data_evt_fn, conn);/* Set event callback function */
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPRECVDATA;
+    LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPRECVLEN;
+    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = 0;   /* Filled after RECVLEN received */
+    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = NULL;   /* Filled after RECVLEN received */
+    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
 
     /* Try to start command */
-    if ((res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) == espOK) {
+    if ((res = espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) == espOK) {
         conn->status.f.receive_is_command_queued = 1;   /* Command queued */
     }
     return res;
@@ -147,28 +147,28 @@ espi_conn_manual_tcp_try_read_data(esp_conn_p conn) {
  * \param[in]       arg: Custom user argument
  */
 static void
-check_available_rx_data_evt_fn(espr_t res, void* arg) {
+check_available_rx_data_evt_fn(lwespr_t res, void* arg) {
     /* Try to read data if possible */
-    for (size_t i = 0; i < ESP_CFG_MAX_CONNS; ++i) {
+    for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {
         espi_conn_manual_tcp_try_read_data(&esp.m.conns[i]);
     }
 }
 
 /**
  * \brief           Manually check for received buffer status for connections
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-espr_t
+lwespr_t
 espi_conn_check_available_rx_data(void) {
-    ESP_MSG_VAR_DEFINE(msg);
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg, 0);                  /* Allocate first, will return on failure */
-    ESP_MSG_VAR_SET_EVT(msg, check_available_rx_data_evt_fn, NULL); /* Set event callback function */
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPRECVLEN;
+    LWESP_MSG_VAR_ALLOC(msg, 0);                  /* Allocate first, will return on failure */
+    LWESP_MSG_VAR_SET_EVT(msg, check_available_rx_data_evt_fn, NULL); /* Set event callback function */
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPRECVLEN;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
-#endif /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
 /**
  * \brief           Get connection validation ID
@@ -176,11 +176,11 @@ espi_conn_check_available_rx_data(void) {
  * \return          Connection current validation ID
  */
 uint8_t
-espi_conn_get_val_id(esp_conn_p conn) {
+espi_conn_get_val_id(lwesp_conn_p conn) {
     uint8_t val_id;
-    esp_core_lock();
+    lwesp_core_lock();
     val_id = conn->val_id;
-    esp_core_unlock();
+    lwesp_core_unlock();
 
     return val_id;
 }
@@ -196,16 +196,16 @@ espi_conn_get_val_id(esp_conn_p conn) {
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
  * \param[in]       fau: "Free After Use" flag. Set to `1` if stack should free the memory after data sent
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-static espr_t
-conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data,
+static lwespr_t
+conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, const void* data,
           size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("conn != NULL", conn != NULL);
-    ESP_ASSERT("data != NULL", data != NULL);
-    ESP_ASSERT("btw > 0", btw > 0);
+    LWESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT("data != NULL", data != NULL);
+    LWESP_ASSERT("btw > 0", btw > 0);
 
     if (bw != NULL) {
         *bw = 0;
@@ -213,30 +213,30 @@ conn_send(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void
 
     CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSEND;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSEND;
 
-    ESP_MSG_VAR_REF(msg).msg.conn_send.conn = conn;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.data = data;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.btw = btw;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.bw = bw;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
-    ESP_MSG_VAR_REF(msg).msg.conn_send.val_id = espi_conn_get_val_id(conn);
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.conn = conn;
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.data = data;
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.btw = btw;
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.bw = bw;
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.val_id = espi_conn_get_val_id(conn);
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
 }
 
 /**
  * \brief           Flush buffer on connection
  * \param[in]       conn: Connection to flush buffer on
- * \return          \ref espOK if data flushed and put to queue, member of \ref espr_t otherwise
+ * \return          \ref espOK if data flushed and put to queue, member of \ref lwespr_t otherwise
  */
-static espr_t
-flush_buff(esp_conn_p conn) {
-    espr_t res = espOK;
-    esp_core_lock();
+static lwespr_t
+flush_buff(lwesp_conn_p conn) {
+    lwespr_t res = espOK;
+    lwesp_core_lock();
     if (conn != NULL && conn->buff.buff != NULL) {  /* Do we have something ready? */
         /*
          * If there is nothing to write or if write was not successful,
@@ -248,13 +248,13 @@ flush_buff(esp_conn_p conn) {
             res = espERR;
         }
         if (res != espOK) {
-            ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
+            LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                        "[CONN] Free write buffer: %p\r\n", (void*)conn->buff.buff);
-            esp_mem_free_s((void**)&conn->buff.buff);
+            lwesp_mem_free_s((void**)&conn->buff.buff);
         }
         conn->buff.buff = NULL;
     }
-    esp_core_unlock();
+    lwesp_core_unlock();
     return res;
 }
 
@@ -269,35 +269,35 @@ espi_conn_init(void) {
 /**
  * \brief           Start a new connection of specific type
  * \param[out]      conn: Pointer to connection handle to set new connection reference in case of successfully connected
- * \param[in]       type: Connection type. This parameter can be a value of \ref esp_conn_type_t enumeration
+ * \param[in]       type: Connection type. This parameter can be a value of \ref lwesp_conn_type_t enumeration
  * \param[in]       remote_host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
  * \param[in]       remote_port: Connection port
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
  * \param[in]       conn_evt_fn: Callback function for this connection
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const remote_host, esp_port_t remote_port,
-               void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_conn_start(lwesp_conn_p* conn, lwesp_conn_type_t type, const char* const remote_host, lwesp_port_t remote_port,
+               void* const arg, lwesp_evt_fn conn_evt_fn, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("remote_host != NULL", remote_host != NULL);
-    ESP_ASSERT("remote_port > 0", remote_port > 0);
-    ESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
+    LWESP_ASSERT("remote_host != NULL", remote_host != NULL);
+    LWESP_ASSERT("remote_port > 0", remote_port > 0);
+    LWESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTART;
-    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSTATUS;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.num = ESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
-    ESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.type = type;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = remote_host;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.remote_port = remote_port;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTART;
+    LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPSTATUS;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.num = LWESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.type = type;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = remote_host;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.remote_port = remote_port;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
 }
 
 /**
@@ -307,70 +307,70 @@ esp_conn_start(esp_conn_p* conn, esp_conn_type_t type, const char* const remote_
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
  * \param[in]       conn_evt_fn: Callback function for this connection
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_startex(esp_conn_p* conn, esp_conn_start_t* start_struct,
-                 void* const arg, esp_evt_fn conn_evt_fn, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct,
+                 void* const arg, lwesp_evt_fn conn_evt_fn, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("start_struct != NULL", start_struct != NULL);
-    ESP_ASSERT("start_struct->remote_host != NULL", start_struct->remote_host != NULL);
-    ESP_ASSERT("start_struct->remote_port > 0", start_struct->remote_port > 0);
-    ESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
+    LWESP_ASSERT("start_struct != NULL", start_struct != NULL);
+    LWESP_ASSERT("start_struct->remote_host != NULL", start_struct->remote_host != NULL);
+    LWESP_ASSERT("start_struct->remote_port > 0", start_struct->remote_port > 0);
+    LWESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTART;
-    ESP_MSG_VAR_REF(msg).cmd = ESP_CMD_TCPIP_CIPSTATUS;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.num = ESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
-    ESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.type = start_struct->type;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = start_struct->remote_host;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.remote_port = start_struct->remote_port;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.local_ip = start_struct->local_ip;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
-    ESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTART;
+    LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPSTATUS;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.num = LWESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.type = start_struct->type;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = start_struct->remote_host;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.remote_port = start_struct->remote_port;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.local_ip = start_struct->local_ip;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
+    LWESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
 
     /* Add connection type specific features */
-    if (start_struct->type != ESP_CONN_TYPE_UDP) {
-        ESP_MSG_VAR_REF(msg).msg.conn_start.tcp_ssl_keep_alive = start_struct->ext.tcp_ssl.keep_alive;
+    if (start_struct->type != LWESP_CONN_TYPE_UDP) {
+        LWESP_MSG_VAR_REF(msg).msg.conn_start.tcp_ssl_keep_alive = start_struct->ext.tcp_ssl.keep_alive;
     } else {
-        ESP_MSG_VAR_REF(msg).msg.conn_start.udp_local_port = start_struct->ext.udp.local_port;
-        ESP_MSG_VAR_REF(msg).msg.conn_start.udp_mode = start_struct->ext.udp.mode;
+        LWESP_MSG_VAR_REF(msg).msg.conn_start.udp_local_port = start_struct->ext.udp.local_port;
+        LWESP_MSG_VAR_REF(msg).msg.conn_start.udp_mode = start_struct->ext.udp.mode;
     }
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
 }
 
 /**
  * \brief           Close specific or all connections
  * \param[in]       conn: Connection handle to close. Set to NULL if you want to close all connections.
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
-    espr_t res;
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
+    lwespr_t res;
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT("conn != NULL", conn != NULL);
 
     CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
 
     /* Proceed with close event at this point! */
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPCLOSE;
-    ESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
-    ESP_MSG_VAR_REF(msg).msg.conn_close.val_id = espi_conn_get_val_id(conn);
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPCLOSE;
+    LWESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
+    LWESP_MSG_VAR_REF(msg).msg.conn_close.val_id = espi_conn_get_val_id(conn);
 
     flush_buff(conn);                           /* First flush buffer */
-    res = espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    res = espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
     if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
-        esp_core_lock();
-        ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
+        lwesp_core_lock();
+        LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                    "[CONN] Connection %d set to closing state\r\n", (int)conn->num);
         conn->status.f.in_closing = 1;          /* Connection is in closing mode but not yet closed */
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return res;
 }
@@ -385,12 +385,12 @@ esp_conn_close(esp_conn_p conn, const uint32_t blocking) {
  * \param[in]       btw: Number of bytes to send
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_sendto(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, const void* data,
+lwespr_t
+lwesp_conn_sendto(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, const void* data,
                 size_t btw, size_t* bw, const uint32_t blocking) {
-    ESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT("conn != NULL", conn != NULL);
 
     flush_buff(conn);                           /* Flush currently written memory if exists */
     return conn_send(conn, ip, port, data, btw, bw, 0, blocking);
@@ -402,32 +402,32 @@ esp_conn_sendto(esp_conn_p conn, const esp_ip_t* const ip, esp_port_t port, cons
  * \param[in]       data: Data to send
  * \param[in]       btw: Number of bytes to send
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent.
- *                      Parameter value might not be accurate if you combine \ref esp_conn_write and \ref esp_conn_send functions
+ *                      Parameter value might not be accurate if you combine \ref lwesp_conn_write and \ref lwesp_conn_send functions
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
+lwespr_t
+lwesp_conn_send(lwesp_conn_p conn, const void* data, size_t btw, size_t* const bw,
               const uint32_t blocking) {
-    espr_t res;
+    lwespr_t res;
     const uint8_t* d = data;
 
-    ESP_ASSERT("conn != NULL", conn != NULL);
-    ESP_ASSERT("data != NULL", data != NULL);
-    ESP_ASSERT("btw > 0", btw > 0);
+    LWESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT("data != NULL", data != NULL);
+    LWESP_ASSERT("btw > 0", btw > 0);
 
-    esp_core_lock();
+    lwesp_core_lock();
     if (conn->buff.buff != NULL) {              /* Check if memory available */
         size_t to_copy;
-        to_copy = ESP_MIN(btw, conn->buff.len - conn->buff.ptr);
+        to_copy = LWESP_MIN(btw, conn->buff.len - conn->buff.ptr);
         if (to_copy > 0) {
-            ESP_MEMCPY(&conn->buff.buff[conn->buff.ptr], d, to_copy);
+            LWESP_MEMCPY(&conn->buff.buff[conn->buff.ptr], d, to_copy);
             conn->buff.ptr += to_copy;
             d += to_copy;
             btw -= to_copy;
         }
     }
-    esp_core_unlock();
+    lwesp_core_unlock();
     res = flush_buff(conn);                     /* Flush currently written memory if exists */
     if (btw > 0) {                              /* Check for remaining data */
         res = conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
@@ -447,23 +447,23 @@ esp_conn_send(esp_conn_p conn, const void* data, size_t btw, size_t* const bw,
  *
  * \param[in]       conn: Connection handle
  * \param[in]       pbuf: Packet buffer received on connection
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
-#if ESP_CFG_CONN_MANUAL_TCP_RECEIVE
+lwespr_t
+lwesp_conn_recved(lwesp_conn_p conn, lwesp_pbuf_p pbuf) {
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     size_t len;
-    len = esp_pbuf_length(pbuf, 1);             /* Get length of pbuf */
+    len = lwesp_pbuf_length(pbuf, 1);             /* Get length of pbuf */
     if (conn->tcp_not_ack_bytes >= len) {       /* Check length of not-acknowledged bytes */
         conn->tcp_not_ack_bytes -= len;
     } else {
         /* Warning here, de-sync happened somewhere! */
     }
     espi_conn_manual_tcp_try_read_data(conn);   /* Try to read more connection data */
-#else /* ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-    ESP_UNUSED(conn);
-    ESP_UNUSED(pbuf);
-#endif /* !ESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#else /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+    LWESP_UNUSED(conn);
+    LWESP_UNUSED(pbuf);
+#endif /* !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     return espOK;
 }
 
@@ -471,14 +471,14 @@ esp_conn_recved(esp_conn_p conn, esp_pbuf_p pbuf) {
  * \brief           Set argument variable for connection
  * \param[in]       conn: Connection handle to set argument
  * \param[in]       arg: Pointer to argument
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
- * \sa              esp_conn_get_arg
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \sa              lwesp_conn_get_arg
  */
-espr_t
-esp_conn_set_arg(esp_conn_p conn, void* const arg) {
-    esp_core_lock();
+lwespr_t
+lwesp_conn_set_arg(lwesp_conn_p conn, void* const arg) {
+    lwesp_core_lock();
     conn->arg = arg;                            /* Set argument for connection */
-    esp_core_unlock();
+    lwesp_core_unlock();
     return espOK;
 }
 
@@ -486,30 +486,30 @@ esp_conn_set_arg(esp_conn_p conn, void* const arg) {
  * \brief           Get user defined connection argument
  * \param[in]       conn: Connection handle to get argument
  * \return          User argument
- * \sa              esp_conn_set_arg
+ * \sa              lwesp_conn_set_arg
  */
 void*
-esp_conn_get_arg(esp_conn_p conn) {
+lwesp_conn_get_arg(lwesp_conn_p conn) {
     void* arg;
-    esp_core_lock();
+    lwesp_core_lock();
     arg = conn->arg;                            /* Set argument for connection */
-    esp_core_unlock();
+    lwesp_core_unlock();
     return arg;
 }
 
 /**
  * \brief           Gets connections status
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_get_conns_status(const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_get_conns_status(const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSTATUS;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTATUS;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
@@ -518,12 +518,12 @@ esp_get_conns_status(const uint32_t blocking) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-esp_conn_is_client(esp_conn_p conn) {
+lwesp_conn_is_client(lwesp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        esp_core_lock();
+        lwesp_core_lock();
         res = conn->status.f.active && conn->status.f.client;
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return res;
 }
@@ -534,12 +534,12 @@ esp_conn_is_client(esp_conn_p conn) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-esp_conn_is_server(esp_conn_p conn) {
+lwesp_conn_is_server(lwesp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        esp_core_lock();
+        lwesp_core_lock();
         res = conn->status.f.active && !conn->status.f.client;
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return res;
 }
@@ -550,12 +550,12 @@ esp_conn_is_server(esp_conn_p conn) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-esp_conn_is_active(esp_conn_p conn) {
+lwesp_conn_is_active(lwesp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        esp_core_lock();
+        lwesp_core_lock();
         res = conn->status.f.active;
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return res;
 }
@@ -566,12 +566,12 @@ esp_conn_is_active(esp_conn_p conn) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-esp_conn_is_closed(esp_conn_p conn) {
+lwesp_conn_is_closed(lwesp_conn_p conn) {
     uint8_t res = 0;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
-        esp_core_lock();
+        lwesp_core_lock();
         res = !conn->status.f.active;
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return res;
 }
@@ -582,7 +582,7 @@ esp_conn_is_closed(esp_conn_p conn) {
  * \return          Connection number in case of success or -1 on failure
  */
 int8_t
-esp_conn_getnum(esp_conn_p conn) {
+lwesp_conn_getnum(lwesp_conn_p conn) {
     int8_t res = -1;
     if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
         /* Protection not needed as every connection has always the same number */
@@ -596,17 +596,17 @@ esp_conn_getnum(esp_conn_p conn) {
  * \note            Use this function before you start first SSL connection
  * \param[in]       size: Size of buffer in units of bytes. Valid range is between 2048 and 4096 bytes
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLSIZE;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSSLSIZE;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
@@ -614,19 +614,19 @@ esp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
  * \param[in]       evt: Event which happened for connection
  * \return          Connection pointer on success, `NULL` otherwise
  */
-esp_conn_p
-esp_conn_get_from_evt(esp_evt_t* evt) {
+lwesp_conn_p
+lwesp_conn_get_from_evt(lwesp_evt_t* evt) {
     switch (evt->type) {
-        case ESP_EVT_CONN_ACTIVE:
-            return esp_evt_conn_active_get_conn(evt);
-        case ESP_EVT_CONN_CLOSE:
-            return esp_evt_conn_close_get_conn(evt);
-        case ESP_EVT_CONN_RECV:
-            return esp_evt_conn_recv_get_conn(evt);
-        case ESP_EVT_CONN_SEND:
-            return esp_evt_conn_send_get_conn(evt);
-        case ESP_EVT_CONN_POLL:
-            return esp_evt_conn_poll_get_conn(evt);
+        case LWESP_EVT_CONN_ACTIVE:
+            return lwesp_evt_conn_active_get_conn(evt);
+        case LWESP_EVT_CONN_CLOSE:
+            return lwesp_evt_conn_close_get_conn(evt);
+        case LWESP_EVT_CONN_RECV:
+            return lwesp_evt_conn_recv_get_conn(evt);
+        case LWESP_EVT_CONN_SEND:
+            return lwesp_evt_conn_send_get_conn(evt);
+        case LWESP_EVT_CONN_POLL:
+            return lwesp_evt_conn_poll_get_conn(evt);
         default:
             return NULL;
     }
@@ -643,16 +643,16 @@ esp_conn_get_from_evt(esp_evt_t* evt) {
  *                  When the buffer length is reached, current one is sent and a new one is automatically created.
  *                  If function returns \ref espOK and `*mem_available = 0`, there was a problem
  *                  allocating a new buffer for next operation
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
+lwespr_t
+lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
                size_t* const mem_available) {
     size_t len;
 
     const uint8_t* d = data;
 
-    ESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT("conn != NULL", conn != NULL);
 
     /*
      * Steps during write process:
@@ -669,8 +669,8 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
 
     /* Step 1 */
     if (conn->buff.buff != NULL) {
-        len = ESP_MIN(conn->buff.len - conn->buff.ptr, btw);
-        ESP_MEMCPY(&conn->buff.buff[conn->buff.ptr], d, len);
+        len = LWESP_MIN(conn->buff.len - conn->buff.ptr, btw);
+        LWESP_MEMCPY(&conn->buff.buff[conn->buff.ptr], d, len);
 
         d += len;
         btw -= len;
@@ -680,48 +680,48 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
         if (conn->buff.ptr == conn->buff.len || flush) {
             /* Try to send to processing queue in non-blocking way */
             if (conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != espOK) {
-                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
+                LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                            "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
-                esp_mem_free_s((void**)&conn->buff.buff);
+                lwesp_mem_free_s((void**)&conn->buff.buff);
             }
             conn->buff.buff = NULL;
         }
     }
 
     /* Step 2 */
-    while (btw >= ESP_CFG_CONN_MAX_DATA_LEN) {
+    while (btw >= LWESP_CFG_CONN_MAX_DATA_LEN) {
         uint8_t* buff;
-        buff = esp_mem_malloc(sizeof(*buff) * ESP_CFG_CONN_MAX_DATA_LEN);
+        buff = lwesp_mem_malloc(sizeof(*buff) * LWESP_CFG_CONN_MAX_DATA_LEN);
         if (buff != NULL) {
-            ESP_MEMCPY(buff, d, ESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
-            if (conn_send(conn, NULL, 0, buff, ESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
-                ESP_DEBUGF(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE,
+            LWESP_MEMCPY(buff, d, LWESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
+            if (conn_send(conn, NULL, 0, buff, LWESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
+                LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                            "[CONN] Free write buffer: %p\r\n", (void*)buff);
-                esp_mem_free_s((void**)&buff);
+                lwesp_mem_free_s((void**)&buff);
                 return espERRMEM;
             }
         } else {
             return espERRMEM;
         }
 
-        btw -= ESP_CFG_CONN_MAX_DATA_LEN;       /* Decrease remaining length */
-        d += ESP_CFG_CONN_MAX_DATA_LEN;         /* Advance data pointer */
+        btw -= LWESP_CFG_CONN_MAX_DATA_LEN;       /* Decrease remaining length */
+        d += LWESP_CFG_CONN_MAX_DATA_LEN;         /* Advance data pointer */
     }
 
     /* Step 3 */
     if (conn->buff.buff == NULL) {
-        conn->buff.buff = esp_mem_malloc(sizeof(*conn->buff.buff) * ESP_CFG_CONN_MAX_DATA_LEN);
-        conn->buff.len = ESP_CFG_CONN_MAX_DATA_LEN;
+        conn->buff.buff = lwesp_mem_malloc(sizeof(*conn->buff.buff) * LWESP_CFG_CONN_MAX_DATA_LEN);
+        conn->buff.len = LWESP_CFG_CONN_MAX_DATA_LEN;
         conn->buff.ptr = 0;
 
-        ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff.buff != NULL,
+        LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE, conn->buff.buff != NULL,
                    "[CONN] New write buffer allocated, addr = %p\r\n", conn->buff.buff);
-        ESP_DEBUGW(ESP_CFG_DBG_CONN | ESP_DBG_TYPE_TRACE, conn->buff.buff == NULL,
+        LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE, conn->buff.buff == NULL,
                    "[CONN] Cannot allocate new write buffer\r\n");
     }
     if (btw > 0) {
         if (conn->buff.buff != NULL) {
-            ESP_MEMCPY(conn->buff.buff, d, btw);    /* Copy data to memory */
+            LWESP_MEMCPY(conn->buff.buff, d, btw);    /* Copy data to memory */
             conn->buff.ptr = btw;
         } else {
             return espERRMEM;
@@ -750,13 +750,13 @@ esp_conn_write(esp_conn_p conn, const void* data, size_t btw, uint8_t flush,
  * \return          Total number of received bytes on connection
  */
 size_t
-esp_conn_get_total_recved_count(esp_conn_p conn) {
+lwesp_conn_get_total_recved_count(lwesp_conn_p conn) {
     size_t tot = 0;
 
     if (conn != NULL) {
-        esp_core_lock();
+        lwesp_core_lock();
         tot = conn->total_recved;               /* Get total received bytes */
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return tot;
 }
@@ -768,11 +768,11 @@ esp_conn_get_total_recved_count(esp_conn_p conn) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-esp_conn_get_remote_ip(esp_conn_p conn, esp_ip_t* ip) {
+lwesp_conn_get_remote_ip(lwesp_conn_p conn, lwesp_ip_t* ip) {
     if (conn != NULL && ip != NULL) {
-        esp_core_lock();
-        ESP_MEMCPY(ip, &conn->remote_ip, sizeof(*ip));  /* Copy data */
-        esp_core_unlock();
+        lwesp_core_lock();
+        LWESP_MEMCPY(ip, &conn->remote_ip, sizeof(*ip));  /* Copy data */
+        lwesp_core_unlock();
         return 1;
     }
     return 0;
@@ -783,13 +783,13 @@ esp_conn_get_remote_ip(esp_conn_p conn, esp_ip_t* ip) {
  * \param[in]       conn: Connection handle
  * \return          Port number on success, `0` otherwise
  */
-esp_port_t
-esp_conn_get_remote_port(esp_conn_p conn) {
-    esp_port_t port = 0;
+lwesp_port_t
+lwesp_conn_get_remote_port(lwesp_conn_p conn) {
+    lwesp_port_t port = 0;
     if (conn != NULL) {
-        esp_core_lock();
+        lwesp_core_lock();
         port = conn->remote_port;
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return port;
 }
@@ -799,13 +799,13 @@ esp_conn_get_remote_port(esp_conn_p conn) {
  * \param[in]       conn: Connection handle
  * \return          Port number on success, `0` otherwise
  */
-esp_port_t
-esp_conn_get_local_port(esp_conn_p conn) {
-    esp_port_t port = 0;
+lwesp_port_t
+lwesp_conn_get_local_port(lwesp_conn_p conn) {
+    lwesp_port_t port = 0;
     if (conn != NULL) {
-        esp_core_lock();
+        lwesp_core_lock();
         port = conn->local_port;
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return port;
 }
@@ -813,7 +813,7 @@ esp_conn_get_local_port(esp_conn_p conn) {
 /**
  * \brief           Configure SSL parameters
  * \param[in]       link_id: ID of the connection (0~max), for multiple connections, if the value is max, it means all connections.
- *                      By default, max is \ref ESP_CFG_MAX_CONNS.
+ *                      By default, max is \ref LWESP_CFG_MAX_CONNS.
  * \param[in]       auth_mode: Authentication mode
  *                      `0`: no authorization
  *                      `1`: load cert and private key for server authorization
@@ -824,20 +824,20 @@ esp_conn_get_local_port(esp_conn_p conn) {
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_conn_ssl_configure(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number,
-                       const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_conn_ssl_configure(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number,
+                       const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPSSLCCONF;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.link_id = ESP_MIN(link_id, ESP_CFG_MAX_CONNS);
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.auth_mode = ESP_MIN(auth_mode, 3);
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.pki_number = pki_number;
-    ESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.ca_number = ca_number;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSSLCCONF;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.link_id = LWESP_MIN(link_id, LWESP_CFG_MAX_CONNS);
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.auth_mode = LWESP_MIN(auth_mode, 3);
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.pki_number = pki_number;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.ca_number = ca_number;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }

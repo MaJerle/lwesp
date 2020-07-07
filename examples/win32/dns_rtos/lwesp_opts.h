@@ -1,5 +1,5 @@
 /**
- * \file            esp_opts.h
+ * \file            lwesp_opts.h
  * \brief           ESP application options
  */
 
@@ -26,23 +26,23 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_OPTS_H
-#define ESP_HDR_OPTS_H
+#ifndef LWESP_HDR_OPTS_H
+#define LWESP_HDR_OPTS_H
 
-/* Rename this file to "esp_opts.h" for your application */
+/* Rename this file to "lwesp_opts.h" for your application */
 
 /*
- * Open "include/esp/esp_opt.h" and
+ * Open "include/lwesp/lwesp_opt.h" and
  * copy & replace here settings you want to change values
  */
-#define ESP_CFG_AT_ECHO                     1
-#define ESP_CFG_INPUT_USE_PROCESS           1
+#define LWESP_CFG_AT_ECHO                     1
+#define LWESP_CFG_INPUT_USE_PROCESS           1
 
-#define ESP_CFG_DNS                         1
+#define LWESP_CFG_DNS                         1
 
-#endif /* ESP_HDR_OPTS_H */
+#endif /* LWESP_HDR_OPTS_H */

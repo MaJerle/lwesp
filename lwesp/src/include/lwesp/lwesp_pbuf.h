@@ -1,5 +1,5 @@
 /**
- * \file            esp_pbuf.h
+ * \file            lwesp_pbuf.h
  * \brief           Packet buffer manager
  */
 
@@ -26,54 +26,54 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_PBUF_H
-#define ESP_HDR_PBUF_H
+#ifndef LWESP_HDR_PBUF_H
+#define LWESP_HDR_PBUF_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_PBUF Packet buffer
+ * \ingroup         LWESP
+ * \defgroup        LWESP_PBUF Packet buffer
  * \brief           Packet buffer manager
  * \{
  */
 
-esp_pbuf_p      esp_pbuf_new(size_t len);
-size_t          esp_pbuf_free(esp_pbuf_p pbuf);
-void*           esp_pbuf_data(const esp_pbuf_p pbuf);
-size_t          esp_pbuf_length(const esp_pbuf_p pbuf, uint8_t tot);
-uint8_t         esp_pbuf_set_length(esp_pbuf_p pbuf, size_t new_len);
-espr_t          esp_pbuf_take(esp_pbuf_p pbuf, const void* data, size_t len, size_t offset);
-size_t          esp_pbuf_copy(esp_pbuf_p pbuf, void* data, size_t len, size_t offset);
+lwesp_pbuf_p      lwesp_pbuf_new(size_t len);
+size_t          lwesp_pbuf_free(lwesp_pbuf_p pbuf);
+void*           lwesp_pbuf_data(const lwesp_pbuf_p pbuf);
+size_t          lwesp_pbuf_length(const lwesp_pbuf_p pbuf, uint8_t tot);
+uint8_t         lwesp_pbuf_set_length(lwesp_pbuf_p pbuf, size_t new_len);
+lwespr_t          lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset);
+size_t          lwesp_pbuf_copy(lwesp_pbuf_p pbuf, void* data, size_t len, size_t offset);
 
-espr_t          esp_pbuf_cat(esp_pbuf_p head, const esp_pbuf_p tail);
-espr_t          esp_pbuf_chain(esp_pbuf_p head, esp_pbuf_p tail);
-esp_pbuf_p      esp_pbuf_unchain(esp_pbuf_p head);
-espr_t          esp_pbuf_ref(esp_pbuf_p pbuf);
+lwespr_t          lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail);
+lwespr_t          lwesp_pbuf_chain(lwesp_pbuf_p head, lwesp_pbuf_p tail);
+lwesp_pbuf_p      lwesp_pbuf_unchain(lwesp_pbuf_p head);
+lwespr_t          lwesp_pbuf_ref(lwesp_pbuf_p pbuf);
 
-uint8_t         esp_pbuf_get_at(const esp_pbuf_p pbuf, size_t pos, uint8_t* el);
-size_t          esp_pbuf_memcmp(const esp_pbuf_p pbuf, const void* data, size_t len, size_t offset);
-size_t          esp_pbuf_strcmp(const esp_pbuf_p pbuf, const char* str, size_t offset);
-size_t          esp_pbuf_memfind(const esp_pbuf_p pbuf, const void* data, size_t len, size_t off);
-size_t          esp_pbuf_strfind(const esp_pbuf_p pbuf, const char* str, size_t off);
+uint8_t         lwesp_pbuf_get_at(const lwesp_pbuf_p pbuf, size_t pos, uint8_t* el);
+size_t          lwesp_pbuf_memcmp(const lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset);
+size_t          lwesp_pbuf_strcmp(const lwesp_pbuf_p pbuf, const char* str, size_t offset);
+size_t          lwesp_pbuf_memfind(const lwesp_pbuf_p pbuf, const void* data, size_t len, size_t off);
+size_t          lwesp_pbuf_strfind(const lwesp_pbuf_p pbuf, const char* str, size_t off);
 
-uint8_t         esp_pbuf_advance(esp_pbuf_p pbuf, int len);
-esp_pbuf_p      esp_pbuf_skip(esp_pbuf_p pbuf, size_t offset, size_t* new_offset);
+uint8_t         lwesp_pbuf_advance(lwesp_pbuf_p pbuf, int len);
+lwesp_pbuf_p      lwesp_pbuf_skip(lwesp_pbuf_p pbuf, size_t offset, size_t* new_offset);
 
-void*           esp_pbuf_get_linear_addr(const esp_pbuf_p pbuf, size_t offset, size_t* new_len);
+void*           lwesp_pbuf_get_linear_addr(const lwesp_pbuf_p pbuf, size_t offset, size_t* new_len);
 
-void            esp_pbuf_set_ip(esp_pbuf_p pbuf, const esp_ip_t* ip, esp_port_t port);
+void            lwesp_pbuf_set_ip(lwesp_pbuf_p pbuf, const lwesp_ip_t* ip, lwesp_port_t port);
 
-void            esp_pbuf_dump(esp_pbuf_p p, uint8_t seq);
+void            lwesp_pbuf_dump(lwesp_pbuf_p p, uint8_t seq);
 
 /**
  * \}
@@ -83,4 +83,4 @@ void            esp_pbuf_dump(esp_pbuf_p p, uint8_t seq);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_PBUF_H */
+#endif /* LWESP_HDR_PBUF_H */

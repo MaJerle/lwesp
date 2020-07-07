@@ -1,5 +1,5 @@
 /**
- * \file            esp_buff.c
+ * \file            lwesp_buff.c
  * \brief           Ring buffer manager
  */
 
@@ -26,23 +26,23 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_buff.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_buff.h"
+#include "lwesp/lwesp_mem.h"
 
 /* --- Buffer unique part starts --- */
 /* Prefix for all buffer functions and typedefs */
-#define BUF_PREF(x)                     esp_ ## x
+#define BUF_PREF(x)                     lwesp_ ## x
 /* --- Buffer unique part ends --- */
 
 /* Buffer utility macros */
-#define BUF_MEMSET                      ESP_MEMSET
-#define BUF_MEMCPY                      ESP_MEMCPY
+#define BUF_MEMSET                      LWESP_MEMSET
+#define BUF_MEMCPY                      LWESP_MEMCPY
 #define BUF_IS_VALID(b)                 ((b) != NULL && (b)->buff != NULL && (b)->size > 0)
 #define BUF_MIN(x, y)                   ((x) < (y) ? (x) : (y))
 #define BUF_MAX(x, y)                   ((x) > (y) ? (x) : (y))
@@ -61,7 +61,7 @@ BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size) {
     BUF_MEMSET(buff, 0, sizeof(*buff));
 
     buff->size = size;                          /* Set default values */
-    buff->buff = esp_mem_malloc(sizeof(*buff->buff) * size);/* Allocate memory for buffer */
+    buff->buff = lwesp_mem_malloc(sizeof(*buff->buff) * size);/* Allocate memory for buffer */
 
     if (buff->buff == NULL) {                   /* Check allocation */
         return 0;
@@ -76,7 +76,7 @@ BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size) {
 void
 BUF_PREF(buff_free)(BUF_PREF(buff_t)* buff) {
     if (BUF_IS_VALID(buff)) {
-        esp_mem_free_s((void**)&buff->buff);
+        lwesp_mem_free_s((void**)&buff->buff);
     }
 }
 

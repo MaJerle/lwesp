@@ -1,5 +1,5 @@
 /**
- * \file            esp_cli.c
+ * \file            lwesp_cli.c
  * \brief           ESP CLI commands
  */
 
@@ -29,25 +29,24 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-
 #include <stdbool.h>
 #include <stdint.h>
-#include "esp/esp.h"
-#if ESP_CFG_MODE_STATION
-#include "esp/esp_sta.h"
-#endif /* ESP_CFG_MODE_STATION */
+#include "lwesp/lwesp.h"
+#if LWESP_CFG_MODE_STATION
+#include "lwesp/lwesp_sta.h"
+#endif /* LWESP_CFG_MODE_STATION */
 #include "cli/cli.h"
 #include "cli/cli_opt.h"
 
-#if ESP_CFG_MODE_STATION
+#if LWESP_CFG_MODE_STATION
 static void cli_station_info(cli_printf cliprintf, int argc, char** argv);
-#endif /* ESP_CFG_MODE_STATION */
+#endif /* LWESP_CFG_MODE_STATION */
 
 static const cli_command_t
 commands[] = {
-#if ESP_CFG_MODE_STATION
+#if LWESP_CFG_MODE_STATION
     { "station-info",       "Get current station info",                 cli_station_info },
-#endif /* ESP_CFG_MODE_STATION */
+#endif /* LWESP_CFG_MODE_STATION */
 
 };
 
@@ -55,11 +54,11 @@ commands[] = {
  * \brief           CLI Init function for adding basic CLI commands
  */
 void
-esp_cli_register_commands(void) {
+lwesp_cli_register_commands(void) {
     cli_register_commands(commands, sizeof(commands) / sizeof(commands[0]));
 }
 
-#if ESP_CFG_MODE_STATION || __DOXYGEN__
+#if LWESP_CFG_MODE_STATION || __DOXYGEN__
 
 /**
  * \brief           CLI command for reading current AP info
@@ -69,10 +68,10 @@ esp_cli_register_commands(void) {
  */
 static void
 cli_station_info(cli_printf cliprintf, int argc, char** argv) {
-    espr_t res;
-    esp_sta_info_ap_t info;
+    lwespr_t res;
+    lwesp_sta_info_ap_t info;
 
-    res = esp_sta_get_ap_info(&info, NULL, NULL, 1);
+    res = lwesp_sta_get_ap_info(&info, NULL, NULL, 1);
     if (res != espOK) {
         cliprintf("Error: Failed to read station info (%d)"CLI_NL, res);
         return;
@@ -83,8 +82,8 @@ cli_station_info(cli_printf cliprintf, int argc, char** argv) {
     cliprintf("  RSSI:    %d"CLI_NL, info.rssi);
     cliprintf("  Channel: %d"CLI_NL, info.ch);
 
-    ESP_UNUSED(argc);
-    ESP_UNUSED(argv);
+    LWESP_UNUSED(argc);
+    LWESP_UNUSED(argv);
 }
 
-#endif /* ESP_CFG_MODE_STATION || __DOXYGEN__ */
+#endif /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */

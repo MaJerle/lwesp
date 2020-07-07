@@ -26,42 +26,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Before you start using WIN32 implementation with USB and VCP,
- * check esp_ll_win32.c implementation and choose your COM port!
+ * check lwesp_ll_win32.c implementation and choose your COM port!
  */
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 #include "station_manager.h"
 
-static espr_t esp_callback_func(esp_evt_t* evt);
+static lwespr_t lwesp_callback_func(lwesp_evt_t* evt);
 
 /**
  * \brief           Program entry point
  */
 int
 main(void) {
-    espr_t res;
+    lwespr_t res;
 
     printf("Starting ESP application!\r\n");
 
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
-    if (esp_init(esp_callback_func, 1) != espOK) {
+    if (lwesp_init(lwesp_callback_func, 1) != espOK) {
         printf("Cannot initialize ESP-AT Lib!\r\n");
     } else {
         printf("ESP-AT Lib initialized!\r\n");
     }
 
     /* Enable access point only mode */
-    if ((res = esp_set_wifi_mode(ESP_MODE_AP, NULL, NULL, 1)) == espOK) {
+    if ((res = lwesp_set_wifi_mode(LWESP_MODE_AP, NULL, NULL, 1)) == espOK) {
         printf("ESP set to access-point-only mode\r\n");
     } else {
         printf("Problems setting ESP to access-point-only mode: %d\r\n", (int)res);
     }
 
     /* Configure access point */
-    res = esp_ap_configure("ESP_AccessPoint", "ap_password", 13, ESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
+    res = lwesp_ap_configure("LWESP_AccessPoint", "ap_password", 13, LWESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
     if (res == espOK) {
         printf("Access point configured!\r\n");
     } else {
@@ -75,7 +75,7 @@ main(void) {
      * New threads were created for ESP processing
      */
     while (1) {
-        esp_delay(1000);
+        lwesp_delay(1000);
     }
 
     return 0;
@@ -84,41 +84,41 @@ main(void) {
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-esp_callback_func(esp_evt_t* evt) {
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_AT_VERSION_NOT_SUPPORTED: {
-            esp_sw_version_t v_min, v_curr;
+static lwespr_t
+lwesp_callback_func(lwesp_evt_t* evt) {
+    switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_AT_VERSION_NOT_SUPPORTED: {
+            lwesp_sw_version_t v_min, v_curr;
 
-            esp_get_min_at_fw_version(&v_min);
-            esp_get_current_at_fw_version(&v_curr);
+            lwesp_get_min_at_fw_version(&v_min);
+            lwesp_get_current_at_fw_version(&v_curr);
 
             printf("Current ESP8266 AT version is not supported by library!\r\n");
             printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
             printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
             break;
         }
-        case ESP_EVT_INIT_FINISH: {
+        case LWESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
             break;
         }
-        case ESP_EVT_RESET_DETECTED: {
+        case LWESP_EVT_RESET_DETECTED: {
             printf("Device reset detected!\r\n");
             break;
         }
-        case ESP_EVT_AP_CONNECTED_STA: {
-            esp_mac_t* mac = esp_evt_ap_connected_sta_get_mac(evt);
+        case LWESP_EVT_AP_CONNECTED_STA: {
+            lwesp_mac_t* mac = lwesp_evt_ap_connected_sta_get_mac(evt);
             printf("New station connected to access point with MAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 (int)mac->mac[0], (int)mac->mac[1], (int)mac->mac[2],
                 (int)mac->mac[3], (int)mac->mac[4], (int)mac->mac[5]
             );
             break;
         }
-        case ESP_EVT_AP_IP_STA: {
-            esp_mac_t* mac = esp_evt_ap_ip_sta_get_mac(evt);
-            esp_ip_t* ip = esp_evt_ap_ip_sta_get_ip(evt);
+        case LWESP_EVT_AP_IP_STA: {
+            lwesp_mac_t* mac = lwesp_evt_ap_ip_sta_get_mac(evt);
+            lwesp_ip_t* ip = lwesp_evt_ap_ip_sta_get_ip(evt);
             printf("IP %d.%d.%d.%d assigned to station with MAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 (int)ip->ip[0], (int)ip->ip[1], (int)ip->ip[2], (int)ip->ip[3],
                 (int)mac->mac[0], (int)mac->mac[1], (int)mac->mac[2],
@@ -126,8 +126,8 @@ esp_callback_func(esp_evt_t* evt) {
             );
             break;
         }
-        case ESP_EVT_AP_DISCONNECTED_STA: {
-            esp_mac_t* mac = esp_evt_ap_disconnected_sta_get_mac(evt);
+        case LWESP_EVT_AP_DISCONNECTED_STA: {
+            lwesp_mac_t* mac = lwesp_evt_ap_disconnected_sta_get_mac(evt);
             printf("Station disconnected from access point with MAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 (int)mac->mac[0], (int)mac->mac[1], (int)mac->mac[2],
                 (int)mac->mac[3], (int)mac->mac[4], (int)mac->mac[5]

@@ -1,24 +1,24 @@
 const void* data;
 size_t pos, len;
-esp_pbuf_p a, b, c;
+lwesp_pbuf_p a, b, c;
 
 const char str_a[] = "This is one long";
 const char str_a[] = "string. We want to save";
 const char str_a[] = "chain of pbufs to file";
 
 /* Create pbufs to hold these strings */
-a = esp_pbuf_new(strlen(str_a));
-b = esp_pbuf_new(strlen(str_b));
-c = esp_pbuf_new(strlen(str_c));
+a = lwesp_pbuf_new(strlen(str_a));
+b = lwesp_pbuf_new(strlen(str_b));
+c = lwesp_pbuf_new(strlen(str_c));
 
 /* Write data to pbufs */
-esp_pbuf_take(a, str_a, strlen(str_a), 0);
-esp_pbuf_take(b, str_b, strlen(str_b), 0);
-esp_pbuf_take(c, str_c, strlen(str_c), 0);
+lwesp_pbuf_take(a, str_a, strlen(str_a), 0);
+lwesp_pbuf_take(b, str_b, strlen(str_b), 0);
+lwesp_pbuf_take(c, str_c, strlen(str_c), 0);
 
 /* Connect pbufs together */
-esp_pbuf_chain(a, b);
-esp_pbuf_chain(a, c);
+lwesp_pbuf_chain(a, b);
+lwesp_pbuf_chain(a, c);
 
 /*
  * pbuf a now contains chain of b and c together
@@ -33,7 +33,7 @@ esp_pbuf_chain(a, c);
  * and `len` will hold length of data block
  */
 pos = 0;
-while ((data = esp_pbuf_get_linear_addr(a, pos, &len)) != NULL) {
+while ((data = lwesp_pbuf_get_linear_addr(a, pos, &len)) != NULL) {
     /* Custom process function... */
     /* Process data with data pointer and block length */
     process_data(data, len);
@@ -44,4 +44,4 @@ while ((data = esp_pbuf_get_linear_addr(a, pos, &len)) != NULL) {
 }
 
 /* Call free only on a pbuf. Since it is chained, b and c will be freed too */
-esp_pbuf_free(a);
+lwesp_pbuf_free(a);

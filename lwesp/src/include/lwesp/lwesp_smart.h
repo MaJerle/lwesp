@@ -1,5 +1,5 @@
 /**
- * \file            esp_smart.h
+ * \file            lwesp_smart.h
  * \brief           Smart API
  */
 
@@ -27,28 +27,28 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_SMART_H
-#define ESP_HDR_SMART_H
+#ifndef LWESP_HDR_SMART_H
+#define LWESP_HDR_SMART_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_SMART
+ * \ingroup         LWESP
+ * \defgroup        LWESP_SMART
  * \brief           SMART function on ESP device
  * \{
  */
 
-espr_t      esp_smart_configure(uint8_t en, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_smart_configure(uint8_t en, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}
@@ -58,4 +58,4 @@ espr_t      esp_smart_configure(uint8_t en, const esp_api_cmd_evt_fn evt_fn, voi
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_SMART_H */
+#endif /* LWESP_HDR_SMART_H */

@@ -1,5 +1,5 @@
 /**
- * \file            esp_apps.h
+ * \file            lwesp_apps.h
  * \brief           Applications main header file
  */
 
@@ -26,22 +26,22 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_APPS_H
-#define ESP_HDR_APPS_H
+#ifndef LWESP_HDR_APPS_H
+#define LWESP_HDR_APPS_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \defgroup        ESP_APPS Applications
+ * \defgroup        LWESP_APPS Applications
  * \brief           Applications based on ESP stack
  * \{
  */
@@ -54,4 +54,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_HTTP_SERVER_H */
+#endif /* LWESP_HDR_HTTP_SERVER_H */

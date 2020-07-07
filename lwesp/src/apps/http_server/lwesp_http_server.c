@@ -1,5 +1,5 @@
 /**
- * \file            esp_http_server.c
+ * \file            lwesp_http_server.c
  * \brief           HTTP server based on callback API
  */
 
@@ -26,20 +26,20 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
 #include <ctype.h>
-#include "esp/apps/esp_http_server.h"
-#include "esp/esp_mem.h"
+#include "lwesp/apps/lwesp_http_server.h"
+#include "lwesp/lwesp_mem.h"
 
-#define ESP_CFG_DBG_SERVER_TRACE            (ESP_CFG_DBG_SERVER | ESP_DBG_TYPE_TRACE)
-#define ESP_CFG_DBG_SERVER_TRACE_WARNING    (ESP_CFG_DBG_SERVER | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_WARNING)
-#define ESP_CFG_DBG_SERVER_TRACE_DANGER     (ESP_CFG_DBG_SERVER | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_DANGER)
+#define LWESP_CFG_DBG_SERVER_TRACE            (LWESP_CFG_DBG_SERVER | LWESP_DBG_TYPE_TRACE)
+#define LWESP_CFG_DBG_SERVER_TRACE_WARNING    (LWESP_CFG_DBG_SERVER | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING)
+#define LWESP_CFG_DBG_SERVER_TRACE_DANGER     (LWESP_CFG_DBG_SERVER | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER)
 
-/* Function prototypes, declarations in esp_http_server_fs.c file */
+/* Function prototypes, declarations in lwesp_http_server_fs.c file */
 uint8_t     http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* path);
 uint32_t    http_fs_data_read_file(const http_init_t* hi, http_fs_file_t* file, void** buff, size_t btr, size_t* br);
 void        http_fs_data_close_file(const http_init_t* hi, http_fs_file_t* file);
@@ -206,22 +206,22 @@ strcmpa(const char* a, const char* b) {
 /**
  * \brief           Parse URI from HTTP request and copy it to linear memory location
  * \param[in]       p: Chain of pbufs from request
- * \return          \ref espOK if successfully parsed, member of \ref espr_t otherwise
+ * \return          \ref espOK if successfully parsed, member of \ref lwespr_t otherwise
  */
-static espr_t
-http_parse_uri(esp_pbuf_p p) {
+static lwespr_t
+http_parse_uri(lwesp_pbuf_p p) {
     size_t pos_s, pos_e, pos_crlf, uri_len;
 
-    pos_s = esp_pbuf_strfind(p, " ", 0);        /* Find first " " in request header */
-    if (pos_s == ESP_SIZET_MAX || (pos_s != 3 && pos_s != 4)) {
+    pos_s = lwesp_pbuf_strfind(p, " ", 0);        /* Find first " " in request header */
+    if (pos_s == LWESP_SIZET_MAX || (pos_s != 3 && pos_s != 4)) {
         return espERR;
     }
-    pos_crlf = esp_pbuf_strfind(p, CRLF, 0);    /* Find CRLF position */
-    if (pos_crlf == ESP_SIZET_MAX) {
+    pos_crlf = lwesp_pbuf_strfind(p, CRLF, 0);    /* Find CRLF position */
+    if (pos_crlf == LWESP_SIZET_MAX) {
         return espERR;
     }
-    pos_e = esp_pbuf_strfind(p, " ", pos_s + 1);/* Find second " " in request header */
-    if (pos_e == ESP_SIZET_MAX) {               /* If there is no second " " */
+    pos_e = lwesp_pbuf_strfind(p, " ", pos_s + 1);/* Find second " " in request header */
+    if (pos_e == LWESP_SIZET_MAX) {               /* If there is no second " " */
         /*
          * HTTP 0.9 request is "GET /\r\n" without
          * space between request URI and CRLF
@@ -233,7 +233,7 @@ http_parse_uri(esp_pbuf_p p) {
     if (uri_len > HTTP_MAX_URI_LEN) {
         return espERR;
     }
-    esp_pbuf_copy(p, http_uri, uri_len, pos_s + 1); /* Copy data from pbuf to linear memory */
+    lwesp_pbuf_copy(p, http_uri, uri_len, pos_s + 1); /* Copy data from pbuf to linear memory */
     http_uri[uri_len] = 0;                      /* Set terminating 0 */
 
     return espOK;
@@ -289,7 +289,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
     hs->dyn_hdr_pos = 0;
 
     hs->dyn_hdr_strs[1] = http_dynstrs[HTTP_HDR_SERVER];    /* Set server name */
-    if (!hs->resp_file_opened) {                /* This should never be the case as 404.html file exists as static */
+    if (!hs->rlwesp_file_opened) {                /* This should never be the case as 404.html file exists as static */
         hs->dyn_hdr_strs[0] = http_dynstrs[HTTP_HDR_404];   /* 404 Not Found */
         hs->dyn_hdr_strs[HTTP_MAX_HEADERS - 1] = http_dynstrs[HTTP_HDR_HTML];   /* Content type text/html */
     } else {
@@ -297,12 +297,12 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
          * Try to find CRLFCRLF sequence on static files and remove
          * the headers if dynamic headers are used
          */
-        if (hs->resp_file.is_static) {
+        if (hs->rlwesp_file.is_static) {
             char* crlfcrlf;
-            crlfcrlf = strstr((const char*)hs->resp_file.data, CRLF CRLF);
+            crlfcrlf = strstr((const char*)hs->rlwesp_file.data, CRLF CRLF);
             if (crlfcrlf != NULL) {             /* Skip header part of file */
-                hs->resp_file.size -= (const char*)crlfcrlf - (const char*)hs->resp_file.data + 4;  /* Decrease file size first! */
-                hs->resp_file.data += (const char*)crlfcrlf - (const char*)hs->resp_file.data + 4;  /* Advance file pointer */
+                hs->rlwesp_file.size -= (const char*)crlfcrlf - (const char*)hs->rlwesp_file.data + 4;  /* Decrease file size first! */
+                hs->rlwesp_file.data += (const char*)crlfcrlf - (const char*)hs->rlwesp_file.data + 4;  /* Advance file pointer */
             }
         }
 
@@ -317,7 +317,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
         hs->dyn_hdr_strs[2] = NULL;             /* No content length involved */
 #if HTTP_DYNAMIC_HEADERS_CONTENT_LEN
         if (!hs->is_ssi) {
-            sprintf(hs->dyn_hdr_cnt_len, "Content-Length: %d" CRLF, (int)hs->resp_file.size);
+            sprintf(hs->dyn_hdr_cnt_len, "Content-Length: %d" CRLF, (int)hs->rlwesp_file.size);
             hs->dyn_hdr_strs[2] = hs->dyn_hdr_cnt_len;
         }
 #endif /* HTTP_DYNAMIC_HEADERS_CONTENT_LEN */
@@ -353,7 +353,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
         /* Step 2: Compare extension against known pairs */
         i = 0;
         if (ext != NULL) {                      /* Do we have an extension? */
-            for (; i < ESP_ARRAYSIZE(dynamic_headers_pairs); ++i) {
+            for (; i < LWESP_ARRAYSIZE(dynamic_headers_pairs); ++i) {
                 if (!strcmpa(ext, dynamic_headers_pairs[i].ext)) {
                     break;
                 }
@@ -361,7 +361,7 @@ prepare_dynamic_headers(http_state_t* hs, const char* uri) {
         }
 
         /* Finally set the output content type header */
-        if (ext != NULL && i < ESP_ARRAYSIZE(dynamic_headers_pairs)) {
+        if (ext != NULL && i < LWESP_ARRAYSIZE(dynamic_headers_pairs)) {
             hs->dyn_hdr_strs[HTTP_MAX_HEADERS - 1] = http_dynstrs[dynamic_headers_pairs[i].index];  /* Set response from index directly */
         } else {
             hs->dyn_hdr_strs[HTTP_MAX_HEADERS - 1] = http_dynstrs[HTTP_HDR_PLAIN];  /* Plain text, unknown type */
@@ -381,7 +381,7 @@ send_dynamic_headers(http_state_t* hs) {
     }
 
     /* Get available memory in write buffer */
-    esp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);
+    lwesp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);
 
     /* Try to write as much data as possible */
     while (hs->conn_mem_available && hs->dyn_hdr_idx < HTTP_MAX_HEADERS) {
@@ -391,10 +391,10 @@ send_dynamic_headers(http_state_t* hs) {
             continue;
         }
         rem_len = strlen(&hs->dyn_hdr_strs[hs->dyn_hdr_idx][hs->dyn_hdr_pos]);  /* Get remaining length of string to write */
-        to_write = ESP_MIN(hs->conn_mem_available, rem_len);    /* Calculate remaining maximal number of bytes we can write */
+        to_write = LWESP_MIN(hs->conn_mem_available, rem_len);    /* Calculate remaining maximal number of bytes we can write */
 
         /* Write data to connection output buffer */
-        esp_conn_write(hs->conn, &hs->dyn_hdr_strs[hs->dyn_hdr_idx][hs->dyn_hdr_pos], to_write, 0, &hs->conn_mem_available);
+        lwesp_conn_write(hs->conn, &hs->dyn_hdr_strs[hs->dyn_hdr_idx][hs->dyn_hdr_pos], to_write, 0, &hs->conn_mem_available);
         hs->written_total += to_write;
 
         hs->dyn_hdr_pos += to_write;            /* Advance for written position */
@@ -408,7 +408,7 @@ send_dynamic_headers(http_state_t* hs) {
      *
      * TODO: Do not flush it now and try to write more data together with user output?
      */
-    //esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush data to output */
+    //lwesp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush data to output */
 }
 #endif
 
@@ -422,7 +422,7 @@ uint8_t
 http_get_file_from_uri(http_state_t* hs, const char* uri) {
     size_t uri_len;
 
-    ESP_MEMSET(&hs->resp_file, 0x00, sizeof(hs->resp_file));
+    LWESP_MEMSET(&hs->rlwesp_file, 0x00, sizeof(hs->rlwesp_file));
     uri_len = strlen(uri);                      /* Get URI total length */
     if ((uri_len == 1 && uri[0] == '/') ||      /* Index file only requested */
         (uri_len > 1 && uri[0] == '/' && uri[1] == '?')) {  /* Index file + parameters */
@@ -431,9 +431,9 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
          * Scan index files and check if there is one from user
          * available to return as main file
          */
-        for (i = 0; i < ESP_ARRAYSIZE(http_index_filenames); ++i) {
-            hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, http_index_filenames[i]); /* Give me a file with desired path */
-            if (hs->resp_file_opened) {         /* Do we have a file? */
+        for (i = 0; i < LWESP_ARRAYSIZE(http_index_filenames); ++i) {
+            hs->rlwesp_file_opened = http_fs_data_open_file(hi, &hs->rlwesp_file, http_index_filenames[i]); /* Give me a file with desired path */
+            if (hs->rlwesp_file_opened) {         /* Do we have a file? */
                 uri = http_index_filenames[i];  /* Set new URI for next of this func */
                 break;
             }
@@ -444,7 +444,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
      * We still don't have a file,
      * maybe there was a request for specific file and possible parameters
      */
-    if (!hs->resp_file_opened) {
+    if (!hs->rlwesp_file_opened) {
         char* req_params;
         size_t params_len;
         req_params = strchr(uri, '?');          /* Search for params delimiter */
@@ -462,18 +462,18 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
                 }
             }
         }
-        hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, uri); /* Give me a new file now */
+        hs->rlwesp_file_opened = http_fs_data_open_file(hi, &hs->rlwesp_file, uri); /* Give me a new file now */
     }
 
     /*
      * We still don't have a file!
      * Try with 404 error page if available by user
      */
-    if (!hs->resp_file_opened) {
-        for (size_t i = 0; i < ESP_ARRAYSIZE(http_404_uris); ++i) {
+    if (!hs->rlwesp_file_opened) {
+        for (size_t i = 0; i < LWESP_ARRAYSIZE(http_404_uris); ++i) {
             uri = http_404_uris[i];
-            hs->resp_file_opened = http_fs_data_open_file(hi, &hs->resp_file, uri); /* Get 404 error page */
-            if (hs->resp_file_opened) {
+            hs->rlwesp_file_opened = http_fs_data_open_file(hi, &hs->rlwesp_file, uri); /* Get 404 error page */
+            if (hs->rlwesp_file_opened) {
                 break;
             }
         }
@@ -483,12 +483,12 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
      * Check if SSI should be supported on this file
      */
     hs->is_ssi = 0;                             /* By default no SSI is supported */
-    if (hs->resp_file_opened) {
+    if (hs->rlwesp_file_opened) {
         size_t uri_len, suffix_len;
         const char* suffix;
 
         uri_len = strlen(uri);                  /* Get length of URI */
-        for (size_t i = 0; i < ESP_ARRAYSIZE(http_ssi_suffixes); ++i) {
+        for (size_t i = 0; i < LWESP_ARRAYSIZE(http_ssi_suffixes); ++i) {
             suffix = http_ssi_suffixes[i];      /* Get suffix */
             suffix_len = strlen(suffix);        /* Get length of suffix */
 
@@ -509,7 +509,7 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
     prepare_dynamic_headers(hs, uri);
 #endif /* HTTP_DYNAMIC_HEADERS */
 
-    return hs->resp_file_opened;
+    return hs->rlwesp_file_opened;
 }
 
 #if HTTP_SUPPORT_POST
@@ -520,16 +520,16 @@ http_get_file_from_uri(http_state_t* hs, const char* uri) {
  * \param[in]       offset: Offset in pbuf where to start reading the buffer
  */
 static void
-http_post_send_to_user(http_state_t* hs, esp_pbuf_p pbuf, size_t offset) {
-    esp_pbuf_p new_pbuf;
+http_post_send_to_user(http_state_t* hs, lwesp_pbuf_p pbuf, size_t offset) {
+    lwesp_pbuf_p new_pbuf;
 
     if (hi == NULL || hi->post_data_fn == NULL) {
         return;
     }
 
-    new_pbuf = esp_pbuf_skip(pbuf, offset, &offset);    /* Skip pbufs and create this one */
+    new_pbuf = lwesp_pbuf_skip(pbuf, offset, &offset);    /* Skip pbufs and create this one */
     if (new_pbuf != NULL) {
-        esp_pbuf_advance(new_pbuf, offset);     /* Advance pbuf for remaining bytes */
+        lwesp_pbuf_advance(new_pbuf, offset);     /* Advance pbuf for remaining bytes */
 
         hi->post_data_fn(hs, new_pbuf);         /* Notify user with data */
     }
@@ -541,10 +541,10 @@ http_post_send_to_user(http_state_t* hs, esp_pbuf_p pbuf, size_t offset) {
  * \param[in]       hs: HTTP state
  */
 static uint32_t
-read_resp_file(http_state_t* hs) {
+read_rlwesp_file(http_state_t* hs) {
     uint32_t len = 0;
 
-    if (!hs->resp_file_opened) {                /* File should be opened at this point! */
+    if (!hs->rlwesp_file_opened) {                /* File should be opened at this point! */
         return 0;
     }
 
@@ -552,8 +552,8 @@ read_resp_file(http_state_t* hs) {
 
     /* Is our memory set for some reason? */
     if (hs->buff != NULL) {                     /* Do we have already something in our buffer? */
-        if (!hs->resp_file.is_static) {         /* If file is not static... */
-            esp_mem_free_s((void**)&hs->buff);  /* ...free the memory... */
+        if (!hs->rlwesp_file.is_static) {         /* If file is not static... */
+            lwesp_mem_free_s((void**)&hs->buff);  /* ...free the memory... */
         }
         hs->buff = NULL;                        /* ...and reset pointer */
     }
@@ -564,26 +564,26 @@ read_resp_file(http_state_t* hs) {
      * allocate memory for dynamic file and read it
      */
     if (hs->buff == NULL) {                     /* Do we have a buffer empty? */
-        len = http_fs_data_read_file(hi, &hs->resp_file, NULL, 0, NULL);    /* Get number of remaining bytes to read in file */
+        len = http_fs_data_read_file(hi, &hs->rlwesp_file, NULL, 0, NULL);    /* Get number of remaining bytes to read in file */
         if (len > 0) {                              /* Is there anything to read? On static files, this should be valid only once */
-            if (hs->resp_file.is_static) {      /* On static files... */
-                len = http_fs_data_read_file(hi, &hs->resp_file, (void**)&hs->buff, len, NULL);     /* ...simply set file pointer */
+            if (hs->rlwesp_file.is_static) {      /* On static files... */
+                len = http_fs_data_read_file(hi, &hs->rlwesp_file, (void**)&hs->buff, len, NULL);     /* ...simply set file pointer */
                 hs->buff_len = len;             /* Set buffer length */
                 if (len == 0) {                 /* Empty read? */
                     hs->buff = NULL;            /* Reset buffer */
                 }
             } else {
-                if (len > ESP_CFG_CONN_MAX_DATA_LEN) {  /* Limit to maximal length */
-                    len = ESP_CFG_CONN_MAX_DATA_LEN;
+                if (len > LWESP_CFG_CONN_MAX_DATA_LEN) {  /* Limit to maximal length */
+                    len = LWESP_CFG_CONN_MAX_DATA_LEN;
                 }
                 hs->buff_ptr = 0;               /* Reset read pointer */
                 do {
                     hs->buff_len = len;
-                    hs->buff = (const void*)esp_mem_malloc(sizeof(*hs->buff) * hs->buff_len);
+                    hs->buff = (const void*)lwesp_mem_malloc(sizeof(*hs->buff) * hs->buff_len);
                     if (hs->buff != NULL) {     /* Is memory ready? */
                         /* Read file directly and stop everything */
-                        if (!http_fs_data_read_file(hi, &hs->resp_file, (void**)&hs->buff, hs->buff_len, NULL)) {
-                            esp_mem_free_s((void**)&hs->buff);
+                        if (!http_fs_data_read_file(hi, &hs->rlwesp_file, (void**)&hs->buff, hs->buff_len, NULL)) {
+                            lwesp_mem_free_s((void**)&hs->buff);
                         }
                         break;
                     }
@@ -604,10 +604,10 @@ send_response_ssi(http_state_t* hs) {
     uint8_t reset = 0;
     uint8_t ch;
 
-    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] processing with SSI\r\n");
+    LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] processing with SSI\r\n");
 
     /* First get available memory in output buffer */
-    esp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);  /* Get available memory and/or create a new buffer if possible */
+    lwesp_conn_write(hs->conn, NULL, 0, 0, &hs->conn_mem_available);  /* Get available memory and/or create a new buffer if possible */
 
     /*
      * Check if we have to send temporary buffer,
@@ -615,9 +615,9 @@ send_response_ssi(http_state_t* hs) {
      */
     if (hs->ssi_tag_buff_written < hs->ssi_tag_buff_ptr) {  /* Do we have to send something from SSI buffer? */
         size_t len;
-        len = ESP_MIN(hs->ssi_tag_buff_ptr - hs->ssi_tag_buff_written, hs->conn_mem_available);
+        len = LWESP_MIN(hs->ssi_tag_buff_ptr - hs->ssi_tag_buff_written, hs->conn_mem_available);
         if (len > 0) {                              /* More data to send? */
-            esp_conn_write(hs->conn, &hs->ssi_tag_buff[hs->ssi_tag_buff_written], len, 0, &hs->conn_mem_available);
+            lwesp_conn_write(hs->conn, &hs->ssi_tag_buff[hs->ssi_tag_buff_written], len, 0, &hs->conn_mem_available);
             hs->written_total += len;           /* Increase total number of written elements */
             hs->ssi_tag_buff_written += len;    /* Increase total number of written SSI buffer */
 
@@ -629,7 +629,7 @@ send_response_ssi(http_state_t* hs) {
 
     /* Are we ready to read more data? */
     if (hs->buff == NULL || hs->buff_ptr == hs->buff_len) {
-        read_resp_file(hs);                     /* Read more file at this point */
+        read_rlwesp_file(hs);                     /* Read more file at this point */
     }
 
     /*
@@ -713,8 +713,8 @@ send_response_ssi(http_state_t* hs) {
                 if (hs->ssi_tag_buff_ptr > 0) { /* Do we have to send something from temporary TAG buffer? */
                     size_t len;
 
-                    len = ESP_MIN(hs->ssi_tag_buff_ptr, hs->conn_mem_available);
-                    esp_conn_write(hs->conn, hs->ssi_tag_buff, len, 0, &hs->conn_mem_available);
+                    len = LWESP_MIN(hs->ssi_tag_buff_ptr, hs->conn_mem_available);
+                    lwesp_conn_write(hs->conn, hs->ssi_tag_buff, len, 0, &hs->conn_mem_available);
                     hs->written_total += len;   /* Increase total written length */
                     hs->ssi_tag_buff_written = len; /* Set length of number of written buffer */
                     if (len == hs->ssi_tag_buff_ptr) {
@@ -722,7 +722,7 @@ send_response_ssi(http_state_t* hs) {
                     }
                 }
                 if (hs->conn_mem_available > 0) {   /* Is there memory to write a current byte? */
-                    esp_conn_write(hs->conn, &ch, 1, 0, &hs->conn_mem_available);
+                    lwesp_conn_write(hs->conn, &ch, 1, 0, &hs->conn_mem_available);
                     ++hs->written_total;
                     ++hs->buff_ptr;
                 }
@@ -732,7 +732,7 @@ send_response_ssi(http_state_t* hs) {
             }
         }
     }
-    esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush to output if possible */
+    lwesp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);  /* Flush to output if possible */
 }
 
 /**
@@ -741,11 +741,11 @@ send_response_ssi(http_state_t* hs) {
  */
 static void
 send_response_no_ssi(http_state_t* hs) {
-    ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] processing NO SSI\r\n");
+    LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] processing NO SSI\r\n");
 
     /* Are we ready to read more? */
     if (hs->buff == NULL || hs->written_total == hs->sent_total) {
-        read_resp_file(hs);                     /* Try to read response file */
+        read_rlwesp_file(hs);                     /* Try to read response file */
     }
 
     /*
@@ -764,8 +764,8 @@ send_response_no_ssi(http_state_t* hs) {
          */
         if (hs->conn_mem_available > 0) {
             size_t to_write;
-            to_write = ESP_MIN(hs->buff_len, hs->conn_mem_available);
-            esp_conn_write(hs->conn, b, to_write, 0, &hs->conn_mem_available);
+            to_write = LWESP_MIN(hs->buff_len, hs->conn_mem_available);
+            lwesp_conn_write(hs->conn, b, to_write, 0, &hs->conn_mem_available);
             hs->written_total += to_write;
             blen -= to_write;
             b += to_write;
@@ -773,7 +773,7 @@ send_response_no_ssi(http_state_t* hs) {
 #endif /* HTTP_DYNAMIC_HEADERS */
 
         if (blen > 0) {
-            if (esp_conn_send(hs->conn, b, blen, NULL, 0) == espOK) {
+            if (lwesp_conn_send(hs->conn, b, blen, NULL, 0) == espOK) {
                 hs->written_total += blen;      /* Set written total length */
             }
         }
@@ -798,7 +798,7 @@ send_response(http_state_t* hs, uint8_t ft) {
      * Do we have a file ready to be send?
      * At this point it should be opened already if request method is valid
      */
-    if (hs->resp_file_opened) {
+    if (hs->rlwesp_file_opened) {
 #if HTTP_DYNAMIC_HEADERS
         uint8_t send_dyn_head = 0;
         /*
@@ -838,13 +838,13 @@ send_response(http_state_t* hs, uint8_t ft) {
          * Maybe response functions didn't response anything?
          */
         if (send_dyn_head) {
-            esp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);
+            lwesp_conn_write(hs->conn, NULL, 0, 1, &hs->conn_mem_available);
         }
 #endif /* HTTP_DYNAMIC_HEADERS */
     } else  {
 #if HTTP_USE_METHOD_NOTALLOWED_RESP
         if (hs->req_method == HTTP_METHOD_NOTALLOWED) {  /* Is request method not allowed? */
-            esp_conn_send(hs->conn, http_data_method_not_allowed, sizeof(http_data_method_not_allowed) - 1, NULL, 0);
+            lwesp_conn_send(hs->conn, http_data_method_not_allowed, sizeof(http_data_method_not_allowed) - 1, NULL, 0);
             /* Don't set number of bytes written to prevent recursion */
         } else
 #endif /* HTTP_USE_METHOD_NOT_ALLOWED_RESPONSE */
@@ -861,36 +861,36 @@ send_response(http_state_t* hs, uint8_t ft) {
     }
 
     if (close) {
-        esp_conn_close(hs->conn, 0);            /* Close the connection as no file opened in this case */
+        lwesp_conn_close(hs->conn, 0);            /* Close the connection as no file opened in this case */
     }
 }
 
 /**
  * \brief           Server connection callback
  * \param[in]       evt: Pointer to callback data
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-http_evt(esp_evt_t* evt) {
+static lwespr_t
+http_evt(lwesp_evt_t* evt) {
     uint8_t close = 0;
-    esp_conn_p conn;
+    lwesp_conn_p conn;
     http_state_t* hs = NULL;
 
-    conn = esp_conn_get_from_evt(evt);          /* Get connection from event */
+    conn = lwesp_conn_get_from_evt(evt);          /* Get connection from event */
     if (conn != NULL) {
-        hs = esp_conn_get_arg(conn);            /* Get connection argument */
+        hs = lwesp_conn_get_arg(conn);            /* Get connection argument */
     }
-    switch (esp_evt_get_type(evt)) {
+    switch (lwesp_evt_get_type(evt)) {
         /* A new connection just became active */
-        case ESP_EVT_CONN_ACTIVE: {
-            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING, "[HTTP SERVER] Conn %d active\r\n",
-                       (int)esp_conn_getnum(conn));
-            hs = esp_mem_calloc(1, sizeof(*hs));
+        case LWESP_EVT_CONN_ACTIVE: {
+            LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE_WARNING, "[HTTP SERVER] Conn %d active\r\n",
+                       (int)lwesp_conn_getnum(conn));
+            hs = lwesp_mem_calloc(1, sizeof(*hs));
             if (hs != NULL) {
                 hs->conn = conn;                /* Save connection handle */
-                esp_conn_set_arg(conn, hs);     /* Set argument for connection */
+                lwesp_conn_set_arg(conn, hs);     /* Set argument for connection */
             } else {
-                ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE_WARNING,
+                LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE_WARNING,
                            "[HTTP SERVER] Cannot allocate memory for http state\r\n");
                 close = 1;                      /* No memory, close the connection */
             }
@@ -898,11 +898,11 @@ http_evt(esp_evt_t* evt) {
         }
 
         /* Data received on connection */
-        case ESP_EVT_CONN_RECV: {
-            esp_pbuf_p p;
+        case LWESP_EVT_CONN_RECV: {
+            lwesp_pbuf_p p;
             size_t pos;
 
-            p = esp_evt_conn_recv_get_buff(evt);   /* Get received buffer */
+            p = lwesp_evt_conn_recv_get_buff(evt);   /* Get received buffer */
             if (hs != NULL) {                   /* Do we have a valid http state? */
                 /*
                  * Check if we have to receive headers data first
@@ -912,17 +912,17 @@ http_evt(esp_evt_t* evt) {
                     if (hs->p == NULL) {
                         hs->p = p;              /* This is a first received packet */
                     } else {
-                        esp_pbuf_cat(hs->p, p); /* Add new packet to the end of linked list of recieved data */
+                        lwesp_pbuf_cat(hs->p, p); /* Add new packet to the end of linked list of recieved data */
                     }
-                    esp_pbuf_ref(p);            /* Increase reference counter */
+                    lwesp_pbuf_ref(p);            /* Increase reference counter */
 
                     /*
                      * Check if headers are fully received.
                      * To know this, search for "\r\n\r\n" sequence in received data
                      */
-                    if ((pos = esp_pbuf_strfind(hs->p, CRLF CRLF, 0)) != ESP_SIZET_MAX) {
+                    if ((pos = lwesp_pbuf_strfind(hs->p, CRLF CRLF, 0)) != LWESP_SIZET_MAX) {
                         uint8_t http_uri_parsed;
-                        ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] HTTP headers received!\r\n");
+                        LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] HTTP headers received!\r\n");
                         hs->headers_received = 1;   /* Flag received headers */
 
                         /* Parse the URI, process request and open response file */
@@ -930,7 +930,7 @@ http_evt(esp_evt_t* evt) {
 
 #if HTTP_SUPPORT_POST
                         /* Check for request method used on this connection */
-                        if (!esp_pbuf_strcmp(hs->p, "POST ", 0)) {
+                        if (!lwesp_pbuf_strcmp(hs->p, "POST ", 0)) {
                             size_t data_pos, pbuf_total_len;
 
                             hs->req_method = HTTP_METHOD_POST;  /* Save a new value as POST method */
@@ -946,19 +946,19 @@ http_evt(esp_evt_t* evt) {
                              * search for 2 possible values "Content-Length" or "content-length" parameters
                              */
                             hs->content_length = 0;
-                            if (((pos = esp_pbuf_strfind(hs->p, "Content-Length:", 0)) != ESP_SIZET_MAX) ||
-                                (pos = esp_pbuf_strfind(hs->p, "content-length:", 0)) != ESP_SIZET_MAX) {
+                            if (((pos = lwesp_pbuf_strfind(hs->p, "Content-Length:", 0)) != LWESP_SIZET_MAX) ||
+                                (pos = lwesp_pbuf_strfind(hs->p, "content-length:", 0)) != LWESP_SIZET_MAX) {
                                 uint8_t ch;
 
                                 pos += 15;      /* Skip this part */
-                                if (esp_pbuf_get_at(hs->p, pos, &ch) && ch == ' ') {
+                                if (lwesp_pbuf_get_at(hs->p, pos, &ch) && ch == ' ') {
                                     ++pos;
                                 }
-                                esp_pbuf_get_at(hs->p, pos, &ch);
+                                lwesp_pbuf_get_at(hs->p, pos, &ch);
                                 while (ch >= '0' && ch <= '9') {
                                     hs->content_length = 10 * hs->content_length + (ch - '0');
                                     ++pos;
-                                    if (!esp_pbuf_get_at(hs->p, pos, &ch)) {
+                                    if (!lwesp_pbuf_get_at(hs->p, pos, &ch)) {
                                         break;
                                     }
                                 }
@@ -978,7 +978,7 @@ http_evt(esp_evt_t* evt) {
                                  * Check if there is anything to send already
                                  * to user from data part of request
                                  */
-                                pbuf_total_len = esp_pbuf_length(hs->p, 1); /* Get total length of current received pbuf */
+                                pbuf_total_len = lwesp_pbuf_length(hs->p, 1); /* Get total length of current received pbuf */
                                 if ((pbuf_total_len - data_pos) > 0) {
                                     hs->content_received = pbuf_total_len - data_pos;
 
@@ -1001,10 +1001,10 @@ http_evt(esp_evt_t* evt) {
                             }
                         } else
 #else /* HTTP_SUPPORT_POST */
-                        ESP_UNUSED(pos);
+                        LWESP_UNUSED(pos);
 #endif /* !HTTP_SUPPORT_POST */
                         {
-                            if (!esp_pbuf_strcmp(hs->p, "GET ", 0)) {
+                            if (!lwesp_pbuf_strcmp(hs->p, "GET ", 0)) {
                                 hs->req_method = HTTP_METHOD_GET;
                                 hs->process_resp = 1;   /* Process with response to user */
                             } else {
@@ -1032,7 +1032,7 @@ http_evt(esp_evt_t* evt) {
                         if (hs->content_received < hs->content_length) {
                             size_t tot_len;
 
-                            tot_len = esp_pbuf_length(p, 1);/* Get length of pbuf */
+                            tot_len = lwesp_pbuf_length(p, 1);/* Get length of pbuf */
                             hs->content_received += tot_len;
 
                             http_post_send_to_user(hs, p, 0);   /* Send data directly to user */
@@ -1061,23 +1061,23 @@ http_evt(esp_evt_t* evt) {
             } else {
                 close = 1;
             }
-            esp_conn_recved(conn, p);           /* Notify stack about received data */
+            lwesp_conn_recved(conn, p);           /* Notify stack about received data */
             break;
         }
 
         /* Data send event */
-        case ESP_EVT_CONN_SEND: {
+        case LWESP_EVT_CONN_SEND: {
             size_t len;
-            espr_t res;
-            res = esp_evt_conn_send_get_result(evt);
+            lwespr_t res;
+            res = lwesp_evt_conn_send_get_result(evt);
             if (res == espOK && hs != NULL) {
-                len = esp_evt_conn_send_get_length(evt);   /* Get length */
-                ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE,
+                len = lwesp_evt_conn_send_get_length(evt);   /* Get length */
+                LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE,
                            "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
                 hs->sent_total += len;          /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
-                ESP_DEBUGW(ESP_CFG_DBG_SERVER_TRACE_DANGER, res != espOK,
+                LWESP_DEBUGW(LWESP_CFG_DBG_SERVER_TRACE_DANGER, res != espOK,
                            "[HTTP SERVER] data send error. Closing connection..\r\n");
                 close = 1;
             }
@@ -1085,8 +1085,8 @@ http_evt(esp_evt_t* evt) {
         }
 
         /* Connection was just closed, either forced by user or by remote side */
-        case ESP_EVT_CONN_CLOSE: {
-            ESP_DEBUGF(ESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] connection closed\r\n");
+        case LWESP_EVT_CONN_CLOSE: {
+            LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE, "[HTTP SERVER] connection closed\r\n");
             if (hs != NULL) {
 #if HTTP_SUPPORT_POST
                 if (hs->req_method == HTTP_METHOD_POST) {
@@ -1098,24 +1098,24 @@ http_evt(esp_evt_t* evt) {
                 }
 #endif /* HTTP_SUPPORT_POST */
                 if (hs->p != NULL) {
-                    esp_pbuf_free(hs->p);       /* Free packet buffer */
+                    lwesp_pbuf_free(hs->p);       /* Free packet buffer */
                     hs->p = NULL;
                 }
-                if (hs->resp_file_opened) {     /* Is file opened? */
-                    uint8_t is_static = hs->resp_file.is_static;
-                    http_fs_data_close_file(hi, &hs->resp_file);    /* Close file at this point */
+                if (hs->rlwesp_file_opened) {     /* Is file opened? */
+                    uint8_t is_static = hs->rlwesp_file.is_static;
+                    http_fs_data_close_file(hi, &hs->rlwesp_file);    /* Close file at this point */
                     if (!is_static && hs->buff != NULL) {
-                        esp_mem_free_s((void**)&hs->buff);
+                        lwesp_mem_free_s((void**)&hs->buff);
                     }
-                    hs->resp_file_opened = 0;   /* File is not opened anymore */
+                    hs->rlwesp_file_opened = 0;   /* File is not opened anymore */
                 }
-                esp_mem_free_s((void**)&hs);
+                lwesp_mem_free_s((void**)&hs);
             }
             break;
         }
 
         /* Poll the connection */
-        case ESP_EVT_CONN_POLL: {
+        case LWESP_EVT_CONN_POLL: {
             if (hs != NULL) {
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
@@ -1128,7 +1128,7 @@ http_evt(esp_evt_t* evt) {
     }
 
     if (close) {                                /* Do we have to close a connection? */
-        esp_conn_close(conn, 0);                /* Close a connection */
+        lwesp_conn_close(conn, 0);                /* Close a connection */
     }
 
     return espOK;
@@ -1138,12 +1138,12 @@ http_evt(esp_evt_t* evt) {
  * \brief           Initialize HTTP server at specific port
  * \param[in]       init: Initialization structure for server
  * \param[in]       port: Port for HTTP server, usually 80
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
-espr_t
-esp_http_server_init(const http_init_t* init, esp_port_t port) {
-    espr_t res;
-    if ((res = esp_set_server(1, port, ESP_CFG_MAX_CONNS, 80, http_evt, NULL, NULL, 1)) == espOK) {
+lwespr_t
+lwesp_http_server_init(const http_init_t* init, lwesp_port_t port) {
+    lwespr_t res;
+    if ((res = lwesp_set_server(1, port, LWESP_CFG_MAX_CONNS, 80, http_evt, NULL, NULL, 1)) == espOK) {
         hi = init;
     }
     return res;
@@ -1158,8 +1158,8 @@ esp_http_server_init(const http_init_t* init, esp_port_t port) {
  * \return          Number of bytes written
  */
 size_t
-esp_http_server_write(http_state_t* hs, const void* data, size_t len) {
-    esp_conn_write(hs->conn, data, len, 0, &hs->conn_mem_available);
+lwesp_http_server_write(http_state_t* hs, const void* data, size_t len) {
+    lwesp_conn_write(hs->conn, data, len, 0, &hs->conn_mem_available);
     hs->written_total += len;                   /* Increase total length */
     return len;
 }

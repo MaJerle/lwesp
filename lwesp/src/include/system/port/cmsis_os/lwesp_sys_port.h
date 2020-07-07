@@ -1,5 +1,5 @@
 /**
- * \file            esp_sys_port.h
+ * \file            lwesp_sys_port.h
  * \brief           CMSIS-OS based system file
  */
 
@@ -26,42 +26,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_SYSTEM_PORT_H
-#define ESP_HDR_SYSTEM_PORT_H
+#ifndef LWESP_HDR_SYSTEM_PORT_H
+#define LWESP_HDR_SYSTEM_PORT_H
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "esp/esp_opt.h"
+#include "lwesp/lwesp_opt.h"
 #include "cmsis_os.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#if ESP_CFG_OS && !__DOXYGEN__
+#if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef osMutexId_t                 esp_sys_mutex_t;
-typedef osSemaphoreId_t             esp_sys_sem_t;
-typedef osMessageQueueId_t          esp_sys_mbox_t;
-typedef osThreadId_t                esp_sys_thread_t;
-typedef osPriority_t                esp_sys_thread_prio_t;
+typedef osMutexId_t                 lwesp_sys_mutex_t;
+typedef osSemaphoreId_t             lwesp_sys_sem_t;
+typedef osMessageQueueId_t          lwesp_sys_mbox_t;
+typedef osThreadId_t                lwesp_sys_thread_t;
+typedef osPriority_t                lwesp_sys_thread_prio_t;
 
-#define ESP_SYS_MUTEX_NULL          ((esp_sys_mutex_t)0)
-#define ESP_SYS_SEM_NULL            ((esp_sys_sem_t)0)
-#define ESP_SYS_MBOX_NULL           ((esp_sys_mbox_t)0)
-#define ESP_SYS_TIMEOUT             ((uint32_t)osWaitForever)
-#define ESP_SYS_THREAD_PRIO         (osPriorityNormal)
-#define ESP_SYS_THREAD_SS           (512)
+#define LWESP_SYS_MUTEX_NULL          ((lwesp_sys_mutex_t)0)
+#define LWESP_SYS_SEM_NULL            ((lwesp_sys_sem_t)0)
+#define LWESP_SYS_MBOX_NULL           ((lwesp_sys_mbox_t)0)
+#define LWESP_SYS_TIMEOUT             ((uint32_t)osWaitForever)
+#define LWESP_SYS_THREAD_PRIO         (osPriorityNormal)
+#define LWESP_SYS_THREAD_SS           (512)
 
-#endif /* ESP_CFG_OS && !__DOXYGEN__ */
+#endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_SYSTEM_PORT_H */
+#endif /* LWESP_HDR_SYSTEM_PORT_H */

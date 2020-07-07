@@ -1,5 +1,5 @@
 /**
- * \file            esp_hostname.c
+ * \file            lwesp_hostname.c
  * \brief           Hostname API
  */
 
@@ -26,16 +26,16 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_hostname.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_hostname.h"
+#include "lwesp/lwesp_mem.h"
 
-#if ESP_CFG_HOSTNAME || __DOXYGEN__
+#if LWESP_CFG_HOSTNAME || __DOXYGEN__
 
 /**
  * \brief           Set hostname of WiFi station
@@ -43,21 +43,21 @@
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_hostname_set(const char* hostname,
-                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_hostname_set(const char* hostname,
+                 const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("hostname != NULL", hostname != NULL);
+    LWESP_ASSERT("hostname != NULL", hostname != NULL);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_SET;
-    ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_set = hostname;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWHOSTNAME_SET;
+    LWESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_set = hostname;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
@@ -67,23 +67,23 @@ esp_hostname_set(const char* hostname,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_hostname_get(char* hostname, size_t size,
-                 const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_hostname_get(char* hostname, size_t size,
+                 const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("hostname != NULL", hostname != NULL);
-    ESP_ASSERT("size > 0", size > 0);
+    LWESP_ASSERT("hostname != NULL", hostname != NULL);
+    LWESP_ASSERT("size > 0", size > 0);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_CWHOSTNAME_GET;
-    ESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_get = hostname;
-    ESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = size;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWHOSTNAME_GET;
+    LWESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_get = hostname;
+    LWESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = size;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
-#endif /* ESP_CFG_HOSTNAME || __DOXYGEN__ */
+#endif /* LWESP_CFG_HOSTNAME || __DOXYGEN__ */

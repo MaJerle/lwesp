@@ -32,7 +32,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 #include "station_manager.h"
 #include "netconn_server.h"
 #include "telnet_server.h"
@@ -44,7 +44,7 @@ static void USART_Printf_Init(void);
 static void init_thread(void const* arg);
 osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
 
-static espr_t esp_callback_func(esp_evt_t* evt);
+static lwespr_t lwesp_callback_func(lwesp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -71,7 +71,7 @@ static void
 init_thread(void const* arg) {
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
-    if (esp_init(esp_callback_func, 1) != espOK) {
+    if (lwesp_init(lwesp_callback_func, 1) != espOK) {
         printf("Cannot initialize ESP-AT Lib!\r\n");
     } else {
         printf("ESP-AT Lib initialized!\r\n");
@@ -82,7 +82,7 @@ init_thread(void const* arg) {
      * but only in case device is not already connected
      */
     while (1) {
-        if (!esp_sta_is_joined()) {
+        if (!lwesp_sta_is_joined()) {
             /*
              * Connect to access point.
              *
@@ -98,31 +98,31 @@ init_thread(void const* arg) {
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          espOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-esp_callback_func(esp_evt_t* evt) {
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_INIT_FINISH: {
+static lwespr_t
+lwesp_callback_func(lwesp_evt_t* evt) {
+    switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
             break;
         }
-        case ESP_EVT_RESET_DETECTED: {
+        case LWESP_EVT_RESET_DETECTED: {
             printf("Device reset detected!\r\n");
             break;
         }
-        case ESP_EVT_AT_VERSION_NOT_SUPPORTED: {
-            esp_sw_version_t v_min, v_curr;
+        case LWESP_EVT_AT_VERSION_NOT_SUPPORTED: {
+            lwesp_sw_version_t v_min, v_curr;
 
-            esp_get_min_at_fw_version(&v_min);
-            esp_get_current_at_fw_version(&v_curr);
+            lwesp_get_min_at_fw_version(&v_min);
+            lwesp_get_current_at_fw_version(&v_curr);
 
             printf("Current ESP8266 AT version is not supported by library\r\n");
             printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
             printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
             break;
         }
-        case ESP_EVT_WIFI_DISCONNECTED: {       /* Wifi connection disabled */
+        case LWESP_EVT_WIFI_DISCONNECTED: {       /* Wifi connection disabled */
             /*
              * We do not need to reach on this event.
              *
@@ -130,14 +130,14 @@ esp_callback_func(esp_evt_t* evt) {
              */
             break;
         }
-        case ESP_EVT_WIFI_IP_ACQUIRED: {        /* We have IP address and we are fully ready to work */
-            if (esp_sta_is_joined()) {          /* Check if joined on any network */
+        case LWESP_EVT_WIFI_IP_ACQUIRED: {        /* We have IP address and we are fully ready to work */
+            if (lwesp_sta_is_joined()) {          /* Check if joined on any network */
                 /*
                  * Create a Telnet based server in separated thread
                  *
                  * Process all the incoming connections with separate thread
                  */
-                esp_sys_thread_create(NULL, "telnet_server", (esp_sys_thread_fn)telnet_server_thread, NULL, 512, ESP_SYS_THREAD_PRIO);
+                lwesp_sys_thread_create(NULL, "telnet_server", (lwesp_sys_thread_fn)telnet_server_thread, NULL, 512, LWESP_SYS_THREAD_PRIO);
             }
             break;
         }

@@ -1,5 +1,5 @@
 /**
- * \file            esp_sta.h
+ * \file            lwesp_sta.h
  * \brief           Station API
  */
 
@@ -26,42 +26,42 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_STA_H
-#define ESP_HDR_STA_H
+#ifndef LWESP_HDR_STA_H
+#define LWESP_HDR_STA_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_STA Station API
+ * \ingroup         LWESP
+ * \defgroup        LWESP_STA Station API
  * \brief           Station API
  * \{
  */
 
-espr_t      esp_sta_join(const char* name, const char* pass, const esp_mac_t* mac, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_quit(const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_autojoin(uint8_t en, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_getip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_setip(const esp_ip_t* ip, const esp_ip_t* gw, const esp_ip_t* nm, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_getmac(esp_mac_t* mac, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_setmac(const esp_mac_t* mac, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-uint8_t     esp_sta_has_ip(void);
-uint8_t     esp_sta_is_joined(void);
-espr_t      esp_sta_copy_ip(esp_ip_t* ip, esp_ip_t* gw, esp_ip_t* nm, uint8_t* is_dhcp);
-espr_t      esp_sta_list_ap(const char* ssid, esp_ap_t* aps, size_t apsl, size_t* apf, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sta_get_ap_info(esp_sta_info_ap_t* info, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-uint8_t     esp_sta_is_ap_802_11b(esp_ap_t* ap);
-uint8_t     esp_sta_is_ap_802_11g(esp_ap_t* ap);
-uint8_t     esp_sta_is_ap_802_11n(esp_ap_t* ap);
+lwespr_t      lwesp_sta_join(const char* name, const char* pass, const lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sta_quit(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sta_autojoin(uint8_t en, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sta_getip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sta_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sta_getmac(lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sta_setmac(const lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+uint8_t     lwesp_sta_has_ip(void);
+uint8_t     lwesp_sta_is_joined(void);
+lwespr_t      lwesp_sta_copy_ip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, uint8_t* is_dhcp);
+lwespr_t      lwesp_sta_list_ap(const char* ssid, lwesp_ap_t* aps, size_t apsl, size_t* apf, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sta_get_ap_info(lwesp_sta_info_ap_t* info, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+uint8_t     lwesp_sta_is_ap_802_11b(lwesp_ap_t* ap);
+uint8_t     lwesp_sta_is_ap_802_11g(lwesp_ap_t* ap);
+uint8_t     lwesp_sta_is_ap_802_11n(lwesp_ap_t* ap);
 
 /**
  * \}
@@ -71,4 +71,4 @@ uint8_t     esp_sta_is_ap_802_11n(esp_ap_t* ap);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_STA_H */
+#endif /* LWESP_HDR_STA_H */

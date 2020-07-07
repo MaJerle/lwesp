@@ -1,5 +1,5 @@
 /**
- * \file            esp_cayenne_evt.h
+ * \file            lwesp_cayenne_evt.h
  * \brief           Event helper functions
  */
 
@@ -26,40 +26,40 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_APP_CAYENNE_EVT_H
-#define ESP_HDR_APP_CAYENNE_EVT_H
+#ifndef LWESP_HDR_APP_CAYENNE_EVT_H
+#define LWESP_HDR_APP_CAYENNE_EVT_H
 
-#include "esp/esp.h"
-#include "esp/apps/esp_cayenne.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/apps/lwesp_cayenne.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP_APP_CAYENNE_API
- * \defgroup        ESP_APP_CAYENNE_API_EVT Event helper functions
+ * \ingroup         LWESP_APP_CAYENNE_API
+ * \defgroup        LWESP_APP_CAYENNE_API_EVT Event helper functions
  * \brief           Cayenne event helper functions
  * \{
  */
 
-esp_cayenne_evt_type_t      esp_cayenne_evt_get_type(esp_cayenne_evt_t* evt);
+lwesp_cayenne_evt_type_t      lwesp_cayenne_evt_get_type(lwesp_cayenne_evt_t* evt);
 
 
 /**
- * \anchor          ESP_APP_CAYENNE_EVT_DATA
+ * \anchor          LWESP_APP_CAYENNE_EVT_DATA
  * \name            Data event
  * \{
  *
- * \note            Use these functions on \ref ESP_CAYENNE_EVT_DATA event
+ * \note            Use these functions on \ref LWESP_CAYENNE_EVT_DATA event
  */
 
-esp_cayenne_msg_t*          esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt);
+lwesp_cayenne_msg_t*          lwesp_cayenne_evt_data_get_msg(lwesp_cayenne_evt_t* evt);
 
 /**
  * \}
@@ -73,4 +73,4 @@ esp_cayenne_msg_t*          esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt)
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_APP_CAYENNE_EVT_H */
+#endif /* LWESP_HDR_APP_CAYENNE_EVT_H */

@@ -1,5 +1,5 @@
 /**
- * \file            esp_input.c
+ * \file            lwesp_input.c
  * \brief           Wrapper for passing input data to stack
  */
 
@@ -26,72 +26,72 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp.h"
-#include "esp/esp_input.h"
-#include "esp/esp_buff.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_input.h"
+#include "lwesp/lwesp_buff.h"
 
-static uint32_t esp_recv_total_len;
-static uint32_t esp_recv_calls;
+static uint32_t lwesp_recv_total_len;
+static uint32_t lwesp_recv_calls;
 
-#if !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
+#if !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
 
 /**
  * \brief           Write data to input buffer
- * \note            \ref ESP_CFG_INPUT_USE_PROCESS must be disabled to use this function
+ * \note            \ref LWESP_CFG_INPUT_USE_PROCESS must be disabled to use this function
  * \param[in]       data: Pointer to data to write
  * \param[in]       len: Number of data elements in units of bytes
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_input(const void* data, size_t len) {
+lwespr_t
+lwesp_input(const void* data, size_t len) {
     if (!esp.status.f.initialized || esp.buff.buff == NULL) {
         return espERR;
     }
-    esp_buff_write(&esp.buff, data, len);       /* Write data to buffer */
-    esp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write empty box, don't care if write fails */
-    esp_recv_total_len += len;                  /* Update total number of received bytes */
-    ++esp_recv_calls;                           /* Update number of calls */
+    lwesp_buff_write(&esp.buff, data, len);       /* Write data to buffer */
+    lwesp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write empty box, don't care if write fails */
+    lwesp_recv_total_len += len;                  /* Update total number of received bytes */
+    ++lwesp_recv_calls;                           /* Update number of calls */
     return espOK;
 }
 
-#endif /* !ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
+#endif /* !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
 
-#if ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
+#if LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
 
 /**
  * \brief           Process input data directly without writing it to input buffer
  * \note            This function may only be used when in OS mode,
  *                  where single thread is dedicated for input read of AT receive
  *
- * \note            \ref ESP_CFG_INPUT_USE_PROCESS must be enabled to use this function
+ * \note            \ref LWESP_CFG_INPUT_USE_PROCESS must be enabled to use this function
  *
  * \param[in]       data: Pointer to received data to be processed
  * \param[in]       len: Length of data to process in units of bytes
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_input_process(const void* data, size_t len) {
-    espr_t res = espOK;
+lwespr_t
+lwesp_input_process(const void* data, size_t len) {
+    lwespr_t res = espOK;
 
     if (!esp.status.f.initialized) {
         return espERR;
     }
 
-    esp_recv_total_len += len;                  /* Update total number of received bytes */
-    ++esp_recv_calls;                           /* Update number of calls */
+    lwesp_recv_total_len += len;                  /* Update total number of received bytes */
+    ++lwesp_recv_calls;                           /* Update number of calls */
 
     if (len > 0) {
-        esp_core_lock();
+        lwesp_core_lock();
         res = espi_process(data, len);          /* Process input data */
-        esp_core_unlock();
+        lwesp_core_unlock();
     }
     return res;
 }
 
-#endif /* ESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
+#endif /* LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */

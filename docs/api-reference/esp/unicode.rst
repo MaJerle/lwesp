@@ -1,4 +1,4 @@
-.. _api_esp_unicode:
+.. _api_lwesp_unicode:
 
 Unicode
 =======
@@ -9,4 +9,4 @@ between ``1`` and ``4`` bytes long.
 .. note::
     This is simple implementation and does not support string encoding.
 
-.. doxygengroup:: ESP_UNICODE
+.. doxygengroup:: LWESP_UNICODE

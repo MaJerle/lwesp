@@ -1,5 +1,5 @@
 /**
- * \file            esp_timeout.c
+ * \file            lwesp_timeout.c
  * \brief           Timeout manager
  */
 
@@ -26,16 +26,16 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_timeout.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_timeout.h"
+#include "lwesp/lwesp_mem.h"
 
-static esp_timeout_t* first_timeout;
+static lwesp_timeout_t* first_timeout;
 static uint32_t last_timeout_time;
 
 /**
@@ -48,7 +48,7 @@ get_next_timeout_diff(void) {
     if (first_timeout == NULL) {
         return 0xFFFFFFFF;
     }
-    diff = esp_sys_now() - last_timeout_time;   /* Get difference between current time and last process time */
+    diff = lwesp_sys_now() - last_timeout_time;   /* Get difference between current time and last process time */
     if (diff >= first_timeout->time) {          /* Are we over already? */
         return 0;                               /* We have to immediately process this timeout */
     }
@@ -62,7 +62,7 @@ static void
 process_next_timeout(void) {
     uint32_t time;
 
-    time = esp_sys_now();
+    time = lwesp_sys_now();
 
     /*
      * Before calling timeout callback, update variable
@@ -72,7 +72,7 @@ process_next_timeout(void) {
     last_timeout_time = time;                   /* Reset variable when we were last processed */
 
     if (first_timeout != NULL) {
-        esp_timeout_t* to = first_timeout;
+        lwesp_timeout_t* to = first_timeout;
 
         /*
          * Before calling callback remove current timeout from list
@@ -81,7 +81,7 @@ process_next_timeout(void) {
          */
         first_timeout = first_timeout->next;    /* Set next timeout on a list as first timeout */
         to->fn(to->arg);                        /* Call user callback function */
-        esp_mem_free_s((void**)&to);
+        lwesp_mem_free_s((void**)&to);
     }
 }
 
@@ -93,17 +93,17 @@ process_next_timeout(void) {
  * \return          Time in milliseconds required for next message
  */
 uint32_t
-espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
+espi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t wait_time;
     do {
         if (first_timeout == NULL) {            /* We have no timeouts ready? */
-            return esp_sys_mbox_get(b, m, timeout); /* Get entry from message queue */
+            return lwesp_sys_mbox_get(b, m, timeout); /* Get entry from message queue */
         }
         wait_time = get_next_timeout_diff();    /* Get time to wait for next timeout execution */
-        if (wait_time == 0 || esp_sys_mbox_get(b, m, wait_time) == ESP_SYS_TIMEOUT) {
-            esp_core_lock();
+        if (wait_time == 0 || lwesp_sys_mbox_get(b, m, wait_time) == LWESP_SYS_TIMEOUT) {
+            lwesp_core_lock();
             process_next_timeout();             /* Process with next timeout */
-            esp_core_unlock();
+            lwesp_core_unlock();
         }
         break;
     } while (1);
@@ -115,22 +115,22 @@ espi_get_from_mbox_with_timeout_checks(esp_sys_mbox_t* b, void** m, uint32_t tim
  * \param[in]       time: Time in units of milliseconds for timeout execution
  * \param[in]       fn: Callback function to call when timeout expires
  * \param[in]       arg: Pointer to user specific argument to call when timeout callback function is executed
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
-    esp_timeout_t* to;
+lwespr_t
+lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
+    lwesp_timeout_t* to;
     uint32_t now;
 
-    ESP_ASSERT("fn != NULL", fn != NULL);
+    LWESP_ASSERT("fn != NULL", fn != NULL);
 
-    to = esp_mem_calloc(1, sizeof(*to));        /* Allocate memory for timeout structure */
+    to = lwesp_mem_calloc(1, sizeof(*to));        /* Allocate memory for timeout structure */
     if (to == NULL) {
         return espERR;
     }
 
-    esp_core_lock();
-    now = esp_sys_now();                        /* Get current time */
+    lwesp_core_lock();
+    now = lwesp_sys_now();                        /* Get current time */
     if (first_timeout != NULL) {
         /*
          * Since we want timeout value to start from NOW,
@@ -160,7 +160,7 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
             to->next = first_timeout;           /* Set first timeout as next of new one */
             first_timeout = to;                 /* Set new timeout as first */
         } else {                                /* Go somewhere in between current list */
-            for (esp_timeout_t* t = first_timeout; t != NULL; t = t->next) {
+            for (lwesp_timeout_t* t = first_timeout; t != NULL; t = t->next) {
                 to->time -= t->time;            /* Decrease new timeout time by time in a linked list */
                 /*
                  * Enter between 2 entries on a list in case:
@@ -181,22 +181,22 @@ esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg) {
             }
         }
     }
-    esp_core_unlock();
-    esp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write message to process queue to wakeup process thread and to start */
+    lwesp_core_unlock();
+    lwesp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write message to process queue to wakeup process thread and to start */
     return espOK;
 }
 
 /**
  * \brief           Remove callback from timeout list
  * \param[in]       fn: Callback function to identify timeout to remove
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_timeout_remove(esp_timeout_fn fn) {
+lwespr_t
+lwesp_timeout_remove(lwesp_timeout_fn fn) {
     uint8_t success = 0;
 
-    esp_core_lock();
-    for (esp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
+    lwesp_core_lock();
+    for (lwesp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
          t_prev = t, t = t->next) {          /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
 
@@ -220,11 +220,11 @@ esp_timeout_remove(esp_timeout_fn fn) {
             } else {
                 first_timeout = t->next;
             }
-            esp_mem_free_s((void**)&t);
+            lwesp_mem_free_s((void**)&t);
             success = 1;
             break;
         }
     }
-    esp_core_unlock();
+    lwesp_core_unlock();
     return success ? espOK : espERR;
 }

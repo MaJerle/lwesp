@@ -1,6 +1,6 @@
-.. _api_esp_buff:
+.. _api_lwesp_buff:
 
 Ring buffer
 ===========
 
-.. doxygengroup:: ESP_BUFF
+.. doxygengroup:: LWESP_BUFF

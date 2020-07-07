@@ -1,6 +1,6 @@
-.. _api_esp_typedefs:
+.. _api_lwesp_typedefs:
 
 Structures and enumerations
 ===========================
 
-.. doxygengroup:: ESP_TYPEDEFS
+.. doxygengroup:: LWESP_TYPEDEFS

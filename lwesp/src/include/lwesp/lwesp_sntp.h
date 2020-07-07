@@ -1,5 +1,5 @@
 /**
- * \file            esp_sntp.h
+ * \file            lwesp_sntp.h
  * \brief           SNTP API
  */
 
@@ -26,29 +26,29 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_SNTP_H
-#define ESP_HDR_SNTP_H
+#ifndef LWESP_HDR_SNTP_H
+#define LWESP_HDR_SNTP_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_SNTP Simple network time protocol
+ * \ingroup         LWESP
+ * \defgroup        LWESP_SNTP Simple network time protocol
  * \brief           Simple network time protocol supported by AT commands
  * \{
  */
 
-espr_t      esp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-espr_t      esp_sntp_gettime(esp_datetime_t* dt, const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t      lwesp_sntp_gettime(lwesp_datetime_t* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}
@@ -58,4 +58,4 @@ espr_t      esp_sntp_gettime(esp_datetime_t* dt, const esp_api_cmd_evt_fn evt_fn
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_SNTP_H */
+#endif /* LWESP_HDR_SNTP_H */

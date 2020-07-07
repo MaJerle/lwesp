@@ -1,5 +1,5 @@
 /**
- * \file            esp_mem.h
+ * \file            lwesp_mem.h
  * \brief           Memory manager
  */
 
@@ -26,28 +26,28 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_MEM_H
-#define ESP_HDR_MEM_H
+#ifndef LWESP_HDR_MEM_H
+#define LWESP_HDR_MEM_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_MEM Memory manager
+ * \ingroup         LWESP
+ * \defgroup        LWESP_MEM Memory manager
  * \brief           Dynamic memory manager
  * \{
  */
 
-#if !ESP_CFG_MEM_CUSTOM || __DOXYGEN__
+#if !LWESP_CFG_MEM_CUSTOM || __DOXYGEN__
 
 /**
  * \brief           Single memory region descriptor
@@ -55,17 +55,17 @@ extern "C" {
 typedef struct {
     void* start_addr;                           /*!< Start address of region */
     size_t size;                                /*!< Size in units of bytes of region */
-} esp_mem_region_t;
+} lwesp_mem_region_t;
 
-uint8_t esp_mem_assignmemory(const esp_mem_region_t* regions, size_t size);
+uint8_t lwesp_mem_assignmemory(const lwesp_mem_region_t* regions, size_t size);
 
-#endif /* !ESP_CFG_MEM_CUSTOM || __DOXYGEN__ */
+#endif /* !LWESP_CFG_MEM_CUSTOM || __DOXYGEN__ */
 
-void*   esp_mem_malloc(size_t size);
-void*   esp_mem_realloc(void* ptr, size_t size);
-void*   esp_mem_calloc(size_t num, size_t size);
-void    esp_mem_free(void* ptr);
-uint8_t esp_mem_free_s(void** ptr);
+void*   lwesp_mem_malloc(size_t size);
+void*   lwesp_mem_realloc(void* ptr, size_t size);
+void*   lwesp_mem_calloc(size_t num, size_t size);
+void    lwesp_mem_free(void* ptr);
+uint8_t lwesp_mem_free_s(void** ptr);
 
 /**
  * \}
@@ -75,4 +75,4 @@ uint8_t esp_mem_free_s(void** ptr);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_MEM_H */
+#endif /* LWESP_HDR_MEM_H */

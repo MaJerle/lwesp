@@ -1,5 +1,5 @@
 /**
- * \file            esp_ll_template.c
+ * \file            lwesp_ll_template.c
  * \brief           Low-level communication with ESP device template
  */
 
@@ -26,15 +26,15 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "system/esp_ll.h"
-#include "esp/esp.h"
-#include "esp/esp_mem.h"
-#include "esp/esp_input.h"
+#include "system/lwesp_ll.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_input.h"
 
 static uint8_t initialized = 0;
 
@@ -59,14 +59,14 @@ send_data(const void* data, size_t len) {
  *                  It is important that every configuration except AT baudrate is configured only once!
  *
  * \note            This function may be called from different threads in ESP stack when using OS.
- *                  When \ref ESP_CFG_INPUT_USE_PROCESS is set to `1`, this function may be called from user UART thread.
+ *                  When \ref LWESP_CFG_INPUT_USE_PROCESS is set to `1`, this function may be called from user UART thread.
  *
- * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_ll_init(esp_ll_t* ll) {
-#if !ESP_CFG_MEM_CUSTOM
+lwespr_t
+lwesp_ll_init(lwesp_ll_t* ll) {
+#if !LWESP_CFG_MEM_CUSTOM
     /* Step 1: Configure memory for dynamic allocations */
     static uint8_t memory[0x10000];             /* Create memory for dynamic allocations with specific size */
 
@@ -75,13 +75,13 @@ esp_ll_init(esp_ll_t* ll) {
      * If device has internal/external memory available,
      * multiple memories may be used
      */
-    esp_mem_region_t mem_regions[] = {
+    lwesp_mem_region_t mem_regions[] = {
         { memory, sizeof(memory) }
     };
     if (!initialized) {
-        esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations to ESP library */
+        lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations to ESP library */
     }
-#endif /* !ESP_CFG_MEM_CUSTOM */
+#endif /* !LWESP_CFG_MEM_CUSTOM */
 
     /* Step 2: Set AT port send function to use when we have data to transmit */
     if (!initialized) {
@@ -96,11 +96,11 @@ esp_ll_init(esp_ll_t* ll) {
 
 /**
  * \brief           Callback function to de-init low-level communication part
- * \param[in,out]   ll: Pointer to \ref esp_ll_t structure to fill data for communication functions
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_ll_deinit(esp_ll_t* ll) {
+lwespr_t
+lwesp_ll_deinit(lwesp_ll_t* ll) {
     initialized = 0;                            /* Clear initialized flag */
     return espOK;
 }

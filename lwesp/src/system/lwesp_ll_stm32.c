@@ -1,5 +1,5 @@
 /**
- * \file            esp_ll_stm32.c
+ * \file            lwesp_ll_stm32.c
  * \brief           Generic STM32 driver, included in various STM32 driver variants
  */
 
@@ -26,7 +26,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
@@ -35,39 +35,39 @@
 /*
  * How it works
  *
- * On first call to \ref esp_ll_init, new thread is created and processed in usart_ll_thread function.
+ * On first call to \ref lwesp_ll_init, new thread is created and processed in usart_ll_thread function.
  * USART is configured in RX DMA mode and any incoming bytes are processed inside thread function.
  * DMA and USART implement interrupt handlers to notify main thread about new data ready to send to upper layer.
  *
  * More about UART + RX DMA: https://github.com/MaJerle/stm32-usart-dma-rx-tx
  *
- * \ref ESP_CFG_INPUT_USE_PROCESS must be enabled in `esp_config.h` to use this driver.
+ * \ref LWESP_CFG_INPUT_USE_PROCESS must be enabled in `lwesp_config.h` to use this driver.
  */
-#include "esp/esp.h"
-#include "esp/esp_mem.h"
-#include "esp/esp_input.h"
-#include "system/esp_ll.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_input.h"
+#include "system/lwesp_ll.h"
 
 #if !__DOXYGEN__
 
-#if !ESP_CFG_INPUT_USE_PROCESS
-#error "ESP_CFG_INPUT_USE_PROCESS must be enabled in `esp_config.h` to use this driver."
-#endif /* ESP_CFG_INPUT_USE_PROCESS */
+#if !LWESP_CFG_INPUT_USE_PROCESS
+#error "LWESP_CFG_INPUT_USE_PROCESS must be enabled in `lwesp_config.h` to use this driver."
+#endif /* LWESP_CFG_INPUT_USE_PROCESS */
 
-#if !defined(ESP_USART_DMA_RX_BUFF_SIZE)
-#define ESP_USART_DMA_RX_BUFF_SIZE      0x1000
-#endif /* !defined(ESP_USART_DMA_RX_BUFF_SIZE) */
+#if !defined(LWESP_USART_DMA_RX_BUFF_SIZE)
+#define LWESP_USART_DMA_RX_BUFF_SIZE      0x1000
+#endif /* !defined(LWESP_USART_DMA_RX_BUFF_SIZE) */
 
-#if !defined(ESP_MEM_SIZE)
-#define ESP_MEM_SIZE                    0x1000
-#endif /* !defined(ESP_MEM_SIZE) */
+#if !defined(LWESP_MEM_SIZE)
+#define LWESP_MEM_SIZE                    0x1000
+#endif /* !defined(LWESP_MEM_SIZE) */
 
-#if !defined(ESP_USART_RDR_NAME)
-#define ESP_USART_RDR_NAME              RDR
-#endif /* !defined(ESP_USART_RDR_NAME) */
+#if !defined(LWESP_USART_RDR_NAME)
+#define LWESP_USART_RDR_NAME              RDR
+#endif /* !defined(LWESP_USART_RDR_NAME) */
 
 /* USART memory */
-static uint8_t      usart_mem[ESP_USART_DMA_RX_BUFF_SIZE];
+static uint8_t      usart_mem[LWESP_USART_DMA_RX_BUFF_SIZE];
 static uint8_t      is_running, initialized;
 static size_t       old_pos;
 
@@ -85,7 +85,7 @@ static void
 usart_ll_thread(void* arg) {
     size_t pos;
 
-    ESP_UNUSED(arg);
+    LWESP_UNUSED(arg);
 
     while (1) {
         void* d;
@@ -93,18 +93,18 @@ usart_ll_thread(void* arg) {
         osMessageQueueGet(usart_ll_mbox_id, &d, NULL, osWaitForever);
 
         /* Read data */
-#if defined(ESP_USART_DMA_RX_STREAM)
-        pos = sizeof(usart_mem) - LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
+#if defined(LWESP_USART_DMA_RX_STREAM)
+        pos = sizeof(usart_mem) - LL_DMA_GetDataLength(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
 #else
-        pos = sizeof(usart_mem) - LL_DMA_GetDataLength(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
+        pos = sizeof(usart_mem) - LL_DMA_GetDataLength(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH);
+#endif /* defined(LWESP_USART_DMA_RX_STREAM) */
         if (pos != old_pos && is_running) {
             if (pos > old_pos) {
-                esp_input_process(&usart_mem[old_pos], pos - old_pos);
+                lwesp_input_process(&usart_mem[old_pos], pos - old_pos);
             } else {
-                esp_input_process(&usart_mem[old_pos], sizeof(usart_mem) - old_pos);
+                lwesp_input_process(&usart_mem[old_pos], sizeof(usart_mem) - old_pos);
                 if (pos > 0) {
-                    esp_input_process(&usart_mem[0], pos);
+                    lwesp_input_process(&usart_mem[0], pos);
                 }
             }
             old_pos = pos;
@@ -126,26 +126,26 @@ configure_uart(uint32_t baudrate) {
 
     if (!initialized) {
         /* Enable peripheral clocks */
-        ESP_USART_CLK;
-        ESP_USART_DMA_CLK;
-        ESP_USART_TX_PORT_CLK;
-        ESP_USART_RX_PORT_CLK;
+        LWESP_USART_CLK;
+        LWESP_USART_DMA_CLK;
+        LWESP_USART_TX_PORT_CLK;
+        LWESP_USART_RX_PORT_CLK;
 
-#if defined(ESP_RESET_PIN)
-        ESP_RESET_PORT_CLK;
-#endif /* defined(ESP_RESET_PIN) */
+#if defined(LWESP_RESET_PIN)
+        LWESP_RESET_PORT_CLK;
+#endif /* defined(LWESP_RESET_PIN) */
 
-#if defined(ESP_GPIO0_PIN)
-        ESP_GPIO0_PORT_CLK;
-#endif /* defined(ESP_GPIO0_PIN) */
+#if defined(LWESP_GPIO0_PIN)
+        LWESP_GPIO0_PORT_CLK;
+#endif /* defined(LWESP_GPIO0_PIN) */
 
-#if defined(ESP_GPIO2_PIN)
-        ESP_GPIO2_PORT_CLK;
-#endif /* defined(ESP_GPIO2_PIN) */
+#if defined(LWESP_GPIO2_PIN)
+        LWESP_GPIO2_PORT_CLK;
+#endif /* defined(LWESP_GPIO2_PIN) */
 
-#if defined(ESP_CH_PD_PIN)
-        ESP_CH_PD_PORT_CLK;
-#endif /* defined(ESP_CH_PD_PIN) */
+#if defined(LWESP_CH_PD_PIN)
+        LWESP_CH_PD_PORT_CLK;
+#endif /* defined(LWESP_CH_PD_PIN) */
 
         /* Global pin configuration */
         LL_GPIO_StructInit(&gpio_init);
@@ -154,48 +154,48 @@ configure_uart(uint32_t baudrate) {
         gpio_init.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
         gpio_init.Mode = LL_GPIO_MODE_OUTPUT;
 
-#if defined(ESP_RESET_PIN)
+#if defined(LWESP_RESET_PIN)
         /* Configure RESET pin */
-        gpio_init.Pin = ESP_RESET_PIN;
-        LL_GPIO_Init(ESP_RESET_PORT, &gpio_init);
-#endif /* defined(ESP_RESET_PIN) */
+        gpio_init.Pin = LWESP_RESET_PIN;
+        LL_GPIO_Init(LWESP_RESET_PORT, &gpio_init);
+#endif /* defined(LWESP_RESET_PIN) */
 
-#if defined(ESP_GPIO0_PIN)
+#if defined(LWESP_GPIO0_PIN)
         /* Configure GPIO0 pin */
-        gpio_init.Pin = ESP_GPIO0_PIN;
-        LL_GPIO_Init(ESP_GPIO0_PORT, &gpio_init);
-        LL_GPIO_SetOutputPin(ESP_GPIO0_PORT, ESP_GPIO0_PIN);
-#endif /* defined(ESP_GPIO0_PIN) */
+        gpio_init.Pin = LWESP_GPIO0_PIN;
+        LL_GPIO_Init(LWESP_GPIO0_PORT, &gpio_init);
+        LL_GPIO_SetOutputPin(LWESP_GPIO0_PORT, LWESP_GPIO0_PIN);
+#endif /* defined(LWESP_GPIO0_PIN) */
 
-#if defined(ESP_GPIO2_PIN)
+#if defined(LWESP_GPIO2_PIN)
         /* Configure GPIO2 pin */
-        gpio_init.Pin = ESP_GPIO2_PIN;
-        LL_GPIO_Init(ESP_GPIO2_PORT, &gpio_init);
-        LL_GPIO_SetOutputPin(ESP_GPIO2_PORT, ESP_GPIO2_PIN);
-#endif /* defined(ESP_GPIO2_PIN) */
+        gpio_init.Pin = LWESP_GPIO2_PIN;
+        LL_GPIO_Init(LWESP_GPIO2_PORT, &gpio_init);
+        LL_GPIO_SetOutputPin(LWESP_GPIO2_PORT, LWESP_GPIO2_PIN);
+#endif /* defined(LWESP_GPIO2_PIN) */
 
-#if defined(ESP_CH_PD_PIN)
+#if defined(LWESP_CH_PD_PIN)
         /* Configure CH_PD pin */
-        gpio_init.Pin = ESP_CH_PD_PIN;
-        LL_GPIO_Init(ESP_CH_PD_PORT, &gpio_init);
-        LL_GPIO_SetOutputPin(ESP_CH_PD_PORT, ESP_CH_PD_PIN);
-#endif /* defined(ESP_CH_PD_PIN) */
+        gpio_init.Pin = LWESP_CH_PD_PIN;
+        LL_GPIO_Init(LWESP_CH_PD_PORT, &gpio_init);
+        LL_GPIO_SetOutputPin(LWESP_CH_PD_PORT, LWESP_CH_PD_PIN);
+#endif /* defined(LWESP_CH_PD_PIN) */
 
         /* Configure USART pins */
         gpio_init.Mode = LL_GPIO_MODE_ALTERNATE;
 
         /* TX PIN */
-        gpio_init.Alternate = ESP_USART_TX_PIN_AF;
-        gpio_init.Pin = ESP_USART_TX_PIN;
-        LL_GPIO_Init(ESP_USART_TX_PORT, &gpio_init);
+        gpio_init.Alternate = LWESP_USART_TX_PIN_AF;
+        gpio_init.Pin = LWESP_USART_TX_PIN;
+        LL_GPIO_Init(LWESP_USART_TX_PORT, &gpio_init);
 
         /* RX PIN */
-        gpio_init.Alternate = ESP_USART_RX_PIN_AF;
-        gpio_init.Pin = ESP_USART_RX_PIN;
-        LL_GPIO_Init(ESP_USART_RX_PORT, &gpio_init);
+        gpio_init.Alternate = LWESP_USART_RX_PIN_AF;
+        gpio_init.Pin = LWESP_USART_RX_PIN;
+        LL_GPIO_Init(LWESP_USART_RX_PORT, &gpio_init);
 
         /* Configure UART */
-        LL_USART_DeInit(ESP_USART);
+        LL_USART_DeInit(LWESP_USART);
         LL_USART_StructInit(&usart_init);
         usart_init.BaudRate = baudrate;
         usart_init.DataWidth = LL_USART_DATAWIDTH_8B;
@@ -204,28 +204,28 @@ configure_uart(uint32_t baudrate) {
         usart_init.Parity = LL_USART_PARITY_NONE;
         usart_init.StopBits = LL_USART_STOPBITS_1;
         usart_init.TransferDirection = LL_USART_DIRECTION_TX_RX;
-        LL_USART_Init(ESP_USART, &usart_init);
+        LL_USART_Init(LWESP_USART, &usart_init);
 
         /* Enable USART interrupts and DMA request */
-        LL_USART_EnableIT_IDLE(ESP_USART);
-        LL_USART_EnableIT_PE(ESP_USART);
-        LL_USART_EnableIT_ERROR(ESP_USART);
-        LL_USART_EnableDMAReq_RX(ESP_USART);
+        LL_USART_EnableIT_IDLE(LWESP_USART);
+        LL_USART_EnableIT_PE(LWESP_USART);
+        LL_USART_EnableIT_ERROR(LWESP_USART);
+        LL_USART_EnableDMAReq_RX(LWESP_USART);
 
         /* Enable USART interrupts */
-        NVIC_SetPriority(ESP_USART_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x07, 0x00));
-        NVIC_EnableIRQ(ESP_USART_IRQ);
+        NVIC_SetPriority(LWESP_USART_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x07, 0x00));
+        NVIC_EnableIRQ(LWESP_USART_IRQ);
 
         /* Configure DMA */
         is_running = 0;
-#if defined(ESP_USART_DMA_RX_STREAM)
-        LL_DMA_DeInit(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        dma_init.Channel = ESP_USART_DMA_RX_CH;
+#if defined(LWESP_USART_DMA_RX_STREAM)
+        LL_DMA_DeInit(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
+        dma_init.Channel = LWESP_USART_DMA_RX_CH;
 #else
-        LL_DMA_DeInit(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-        dma_init.PeriphRequest = ESP_USART_DMA_RX_REQ_NUM;
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
-        dma_init.PeriphOrM2MSrcAddress = (uint32_t)&ESP_USART->ESP_USART_RDR_NAME;
+        LL_DMA_DeInit(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH);
+        dma_init.PeriphRequest = LWESP_USART_DMA_RX_REQ_NUM;
+#endif /* defined(LWESP_USART_DMA_RX_STREAM) */
+        dma_init.PeriphOrM2MSrcAddress = (uint32_t)&LWESP_USART->LWESP_USART_RDR_NAME;
         dma_init.MemoryOrM2MDstAddress = (uint32_t)usart_mem;
         dma_init.Direction = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
         dma_init.Mode = LL_DMA_MODE_CIRCULAR;
@@ -235,45 +235,45 @@ configure_uart(uint32_t baudrate) {
         dma_init.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_BYTE;
         dma_init.NbData = sizeof(usart_mem);
         dma_init.Priority = LL_DMA_PRIORITY_MEDIUM;
-#if defined(ESP_USART_DMA_RX_STREAM)
-        LL_DMA_Init(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM, &dma_init);
+#if defined(LWESP_USART_DMA_RX_STREAM)
+        LL_DMA_Init(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM, &dma_init);
 #else
-        LL_DMA_Init(ESP_USART_DMA, ESP_USART_DMA_RX_CH, &dma_init);
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
+        LL_DMA_Init(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH, &dma_init);
+#endif /* defined(LWESP_USART_DMA_RX_STREAM) */
 
         /* Enable DMA interrupts */
-#if defined(ESP_USART_DMA_RX_STREAM)
-        LL_DMA_EnableIT_HT(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        LL_DMA_EnableIT_TC(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        LL_DMA_EnableIT_TE(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        LL_DMA_EnableIT_FE(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
-        LL_DMA_EnableIT_DME(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
+#if defined(LWESP_USART_DMA_RX_STREAM)
+        LL_DMA_EnableIT_HT(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
+        LL_DMA_EnableIT_TC(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
+        LL_DMA_EnableIT_TE(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
+        LL_DMA_EnableIT_FE(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
+        LL_DMA_EnableIT_DME(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
 #else
-        LL_DMA_EnableIT_HT(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-        LL_DMA_EnableIT_TC(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-        LL_DMA_EnableIT_TE(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
+        LL_DMA_EnableIT_HT(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH);
+        LL_DMA_EnableIT_TC(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH);
+        LL_DMA_EnableIT_TE(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH);
+#endif /* defined(LWESP_USART_DMA_RX_STREAM) */
 
         /* Enable DMA interrupts */
-        NVIC_SetPriority(ESP_USART_DMA_RX_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x07, 0x00));
-        NVIC_EnableIRQ(ESP_USART_DMA_RX_IRQ);
+        NVIC_SetPriority(LWESP_USART_DMA_RX_IRQ, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0x07, 0x00));
+        NVIC_EnableIRQ(LWESP_USART_DMA_RX_IRQ);
 
         old_pos = 0;
         is_running = 1;
 
         /* Start DMA and USART */
-#if defined(ESP_USART_DMA_RX_STREAM)
-        LL_DMA_EnableStream(ESP_USART_DMA, ESP_USART_DMA_RX_STREAM);
+#if defined(LWESP_USART_DMA_RX_STREAM)
+        LL_DMA_EnableStream(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
 #else
-        LL_DMA_EnableChannel(ESP_USART_DMA, ESP_USART_DMA_RX_CH);
-#endif /* defined(ESP_USART_DMA_RX_STREAM) */
-        LL_USART_Enable(ESP_USART);
+        LL_DMA_EnableChannel(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH);
+#endif /* defined(LWESP_USART_DMA_RX_STREAM) */
+        LL_USART_Enable(LWESP_USART);
     } else {
         osDelay(10);
-        LL_USART_Disable(ESP_USART);
+        LL_USART_Disable(LWESP_USART);
         usart_init.BaudRate = baudrate;
-        LL_USART_Init(ESP_USART, &usart_init);
-        LL_USART_Enable(ESP_USART);
+        LL_USART_Init(LWESP_USART, &usart_init);
+        LL_USART_Enable(LWESP_USART);
     }
 
     /* Create mbox and start thread */
@@ -288,20 +288,20 @@ configure_uart(uint32_t baudrate) {
     }
 }
 
-#if defined(ESP_RESET_PIN)
+#if defined(LWESP_RESET_PIN)
 /**
  * \brief           Hardware reset callback
  */
 static uint8_t
 reset_device(uint8_t state) {
     if (state) {                                /* Activate reset line */
-        LL_GPIO_ResetOutputPin(ESP_RESET_PORT, ESP_RESET_PIN);
+        LL_GPIO_ResetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
     } else {
-        LL_GPIO_SetOutputPin(ESP_RESET_PORT, ESP_RESET_PIN);
+        LL_GPIO_SetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
     }
     return 1;
 }
-#endif /* defined(ESP_RESET_PIN) */
+#endif /* defined(LWESP_RESET_PIN) */
 
 /**
  * \brief           Send data to ESP device
@@ -314,8 +314,8 @@ send_data(const void* data, size_t len) {
     const uint8_t* d = data;
 
     for (size_t i = 0; i < len; ++i, ++d) {
-        LL_USART_TransmitData8(ESP_USART, *d);
-        while (!LL_USART_IsActiveFlag_TXE(ESP_USART)) {}
+        LL_USART_TransmitData8(LWESP_USART, *d);
+        while (!LL_USART_IsActiveFlag_TXE(LWESP_USART)) {}
     }
     return len;
 }
@@ -323,24 +323,24 @@ send_data(const void* data, size_t len) {
 /**
  * \brief           Callback function called from initialization process
  */
-espr_t
-esp_ll_init(esp_ll_t* ll) {
-#if !ESP_CFG_MEM_CUSTOM
-    static uint8_t memory[ESP_MEM_SIZE];
-    esp_mem_region_t mem_regions[] = {
+lwespr_t
+lwesp_ll_init(lwesp_ll_t* ll) {
+#if !LWESP_CFG_MEM_CUSTOM
+    static uint8_t memory[LWESP_MEM_SIZE];
+    lwesp_mem_region_t mem_regions[] = {
         { memory, sizeof(memory) }
     };
 
     if (!initialized) {
-        esp_mem_assignmemory(mem_regions, ESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
+        lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
     }
-#endif /* !ESP_CFG_MEM_CUSTOM */
+#endif /* !LWESP_CFG_MEM_CUSTOM */
 
     if (!initialized) {
         ll->send_fn = send_data;                /* Set callback function to send data */
-#if defined(ESP_RESET_PIN)
+#if defined(LWESP_RESET_PIN)
         ll->reset_fn = reset_device;            /* Set callback for hardware reset */
-#endif /* defined(ESP_RESET_PIN) */
+#endif /* defined(LWESP_RESET_PIN) */
     }
 
     configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
@@ -351,8 +351,8 @@ esp_ll_init(esp_ll_t* ll) {
 /**
  * \brief           Callback function to de-init low-level communication part
  */
-espr_t
-esp_ll_deinit(esp_ll_t* ll) {
+lwespr_t
+lwesp_ll_deinit(lwesp_ll_t* ll) {
     if (usart_ll_mbox_id != NULL) {
         osMessageQueueId_t tmp = usart_ll_mbox_id;
         usart_ll_mbox_id = NULL;
@@ -364,7 +364,7 @@ esp_ll_deinit(esp_ll_t* ll) {
         osThreadTerminate(tmp);
     }
     initialized = 0;
-    ESP_UNUSED(ll);
+    LWESP_UNUSED(ll);
     return espOK;
 }
 
@@ -372,12 +372,12 @@ esp_ll_deinit(esp_ll_t* ll) {
  * \brief           UART global interrupt handler
  */
 void
-ESP_USART_IRQHANDLER(void) {
-    LL_USART_ClearFlag_IDLE(ESP_USART);
-    LL_USART_ClearFlag_PE(ESP_USART);
-    LL_USART_ClearFlag_FE(ESP_USART);
-    LL_USART_ClearFlag_ORE(ESP_USART);
-    LL_USART_ClearFlag_NE(ESP_USART);
+LWESP_USART_IRQHANDLER(void) {
+    LL_USART_ClearFlag_IDLE(LWESP_USART);
+    LL_USART_ClearFlag_PE(LWESP_USART);
+    LL_USART_ClearFlag_FE(LWESP_USART);
+    LL_USART_ClearFlag_ORE(LWESP_USART);
+    LL_USART_ClearFlag_NE(LWESP_USART);
 
     if (usart_ll_mbox_id != NULL) {
         void* d = (void*)1;
@@ -389,9 +389,9 @@ ESP_USART_IRQHANDLER(void) {
  * \brief           UART DMA stream/channel handler
  */
 void
-ESP_USART_DMA_RX_IRQHANDLER(void) {
-    ESP_USART_DMA_RX_CLEAR_TC;
-    ESP_USART_DMA_RX_CLEAR_HT;
+LWESP_USART_DMA_RX_IRQHANDLER(void) {
+    LWESP_USART_DMA_RX_CLEAR_TC;
+    LWESP_USART_DMA_RX_CLEAR_HT;
 
     if (usart_ll_mbox_id != NULL) {
         void* d = (void*)1;

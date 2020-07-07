@@ -1,5 +1,5 @@
 /**
- * \file            esp_mdns.c
+ * \file            lwesp_mdns.c
  * \brief           mDNS API
  */
 
@@ -26,16 +26,16 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_mdns.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_mdns.h"
+#include "lwesp/lwesp_mem.h"
 
-#if ESP_CFG_MDNS || __DOXYGEN__
+#if LWESP_CFG_MDNS || __DOXYGEN__
 
 /**
  * \brief           Configure mDNS parameters with hostname and server
@@ -46,28 +46,28 @@
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_mdns_configure(uint8_t en, const char* host, const char* server, esp_port_t port,
-                   const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_mdns_configure(uint8_t en, const char* host, const char* server, lwesp_port_t port,
+                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
     if (en) {
-        ESP_ASSERT("host != NULL", host != NULL);
-        ESP_ASSERT("server != NULL", server != NULL);
-        ESP_ASSERT("port > 0", port > 0);
+        LWESP_ASSERT("host != NULL", host != NULL);
+        LWESP_ASSERT("server != NULL", server != NULL);
+        LWESP_ASSERT("port > 0", port > 0);
     }
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_WIFI_MDNS;
-    ESP_MSG_VAR_REF(msg).msg.mdns.en = en;
-    ESP_MSG_VAR_REF(msg).msg.mdns.host = host;
-    ESP_MSG_VAR_REF(msg).msg.mdns.server = server;
-    ESP_MSG_VAR_REF(msg).msg.mdns.port = port;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_MDNS;
+    LWESP_MSG_VAR_REF(msg).msg.mdns.en = en;
+    LWESP_MSG_VAR_REF(msg).msg.mdns.host = host;
+    LWESP_MSG_VAR_REF(msg).msg.mdns.server = server;
+    LWESP_MSG_VAR_REF(msg).msg.mdns.port = port;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
-#endif /* ESP_CFG_MDNS || __DOXYGEN__ */
+#endif /* LWESP_CFG_MDNS || __DOXYGEN__ */

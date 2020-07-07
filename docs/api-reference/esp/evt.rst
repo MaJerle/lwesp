@@ -1,6 +1,6 @@
-.. _api_esp_evt:
+.. _api_lwesp_evt:
 
 Event management
 ================
 
-.. doxygengroup:: ESP_EVT
+.. doxygengroup:: LWESP_EVT

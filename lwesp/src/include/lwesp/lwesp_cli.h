@@ -1,5 +1,5 @@
 /**
- * \file            esp_cli.h
+ * \file            lwesp_cli.h
  * \brief           ESP CLI commands
  */
 
@@ -29,23 +29,23 @@
  * Author:          Miha CESNIK <>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_CLI_H
-#define ESP_HDR_CLI_H
+#ifndef LWESP_HDR_CLI_H
+#define LWESP_HDR_CLI_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_CLI Command line interface
+ * \ingroup         LWESP
+ * \defgroup        LWESP_CLI Command line interface
  * \brief           Command line interface
  * \{
  */
 
-void esp_cli_register_commands(void);
+void lwesp_cli_register_commands(void);
 
 /**
  * \}
@@ -55,5 +55,5 @@ void esp_cli_register_commands(void);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_CLI_H */
+#endif /* LWESP_HDR_CLI_H */
 

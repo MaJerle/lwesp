@@ -1,14 +1,14 @@
-/* Modifications of esp_opts.h file for configuration */
+/* Modifications of lwesp_opts.h file for configuration */
 
 /* Enable global debug */
-#define ESP_CFG_DBG                 ESP_DBG_ON
+#define LWESP_CFG_DBG                 LWESP_DBG_ON
 
 /*
  * Enable debug types.
  * Application may use bitwise OR | to use multiple types:
- *    ESP_DBG_TYPE_TRACE | ESP_DBG_TYPE_STATE
+ *    LWESP_DBG_TYPE_TRACE | LWESP_DBG_TYPE_STATE
  */
-#define ESP_CFG_DBG_TYPES_ON        ESP_DBG_TYPE_TRACE
+#define LWESP_CFG_DBG_TYPES_ON        LWESP_DBG_TYPE_TRACE
 
 /* Enable debug on custom module */
-#define MY_DBG_MODULE               ESP_DBG_ON
+#define MY_DBG_MODULE               LWESP_DBG_ON

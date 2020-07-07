@@ -1,6 +1,6 @@
-.. _api_esp_dns:
+.. _api_lwesp_dns:
 
 Domain Name System
 ==================
 
-.. doxygengroup:: ESP_DNS
+.. doxygengroup:: LWESP_DNS

@@ -1,5 +1,5 @@
 /**
- * \file            esp_mem.c
+ * \file            lwesp_mem.c
  * \brief           Memory manager
  */
 
@@ -26,16 +26,16 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
 #include <limits.h>
-#include "esp/esp_private.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_mem.h"
 
-#if !ESP_CFG_MEM_CUSTOM || __DOXYGEN__
+#if !LWESP_CFG_MEM_CUSTOM || __DOXYGEN__
 
 #if !__DOXYGEN__
 typedef struct mem_block {
@@ -47,9 +47,9 @@ typedef struct mem_block {
 /**
  * \brief           Memory alignment bits and absolute number
  */
-#define MEM_ALIGN_BITS              ESP_SZ(ESP_CFG_MEM_ALIGNMENT - 1)
-#define MEM_ALIGN_NUM               ESP_SZ(ESP_CFG_MEM_ALIGNMENT)
-#define MEM_ALIGN(x)                ESP_MEM_ALIGN(x)
+#define MEM_ALIGN_BITS              LWESP_SZ(LWESP_CFG_MEM_ALIGNMENT - 1)
+#define MEM_ALIGN_NUM               LWESP_SZ(LWESP_CFG_MEM_ALIGNMENT)
+#define MEM_ALIGN(x)                LWESP_MEM_ALIGN(x)
 
 #define MEMBLOCK_METASIZE           MEM_ALIGN(sizeof(mem_block_t))
 
@@ -114,7 +114,7 @@ mem_insertfreeblock(mem_block_t* nb) {
  * \param[in]       len: Number of regions to assign
  */
 static uint8_t
-mem_assignmem(const esp_mem_region_t* regions, size_t len) {
+mem_assignmem(const lwesp_mem_region_t* regions, size_t len) {
     uint8_t* mem_start_addr;
     size_t mem_size;
     mem_block_t* first_block, *prev_end_block = NULL;
@@ -143,8 +143,8 @@ mem_assignmem(const esp_mem_region_t* regions, size_t len) {
          * if necessary, decrease memory region size
          */
         mem_start_addr = (uint8_t*)regions->start_addr; /* Actual heap memory address */
-        if (ESP_SZ(mem_start_addr) & MEM_ALIGN_BITS) {  /* Check alignment boundary */
-            mem_start_addr += MEM_ALIGN_NUM - (ESP_SZ(mem_start_addr) & MEM_ALIGN_BITS);
+        if (LWESP_SZ(mem_start_addr) & MEM_ALIGN_BITS) {  /* Check alignment boundary */
+            mem_start_addr += MEM_ALIGN_NUM - (LWESP_SZ(mem_start_addr) & MEM_ALIGN_BITS);
             mem_size -= mem_start_addr - (uint8_t*)regions->start_addr;
         }
 
@@ -273,8 +273,8 @@ mem_alloc(size_t size) {
 
 /**
  * \brief           Free memory
- * \param[in]       ptr: Pointer to memory previously returned using \ref esp_mem_malloc,
- *                      \ref esp_mem_calloc or \ref esp_mem_realloc functions
+ * \param[in]       ptr: Pointer to memory previously returned using \ref lwesp_mem_malloc,
+ *                      \ref lwesp_mem_calloc or \ref lwesp_mem_realloc functions
  */
 static void
 mem_free(void* ptr) {
@@ -313,7 +313,7 @@ mem_calloc(size_t num, size_t size) {
     size_t tot_len = num * size;
 
     if ((ptr = mem_alloc(tot_len)) != NULL) {   /* Try to allocate memory */
-        ESP_MEMSET(ptr, 0x00, tot_len);         /* Reset entire memory */
+        LWESP_MEMSET(ptr, 0x00, tot_len);         /* Reset entire memory */
     }
     return ptr;
 }
@@ -322,7 +322,7 @@ mem_calloc(size_t num, size_t size) {
  * \brief           Reallocate memory to specific size
  * \note            After new memory is allocated, content of old one is copied to new memory
  * \param[in]       ptr: Pointer to current allocated memory to resize, returned using
- *                      \ref esp_mem_malloc, \ref esp_mem_calloc or \ref esp_mem_realloc functions
+ *                      \ref lwesp_mem_malloc, \ref lwesp_mem_calloc or \ref lwesp_mem_realloc functions
  * \param[in]       size: Number of bytes to allocate on new memory
  * \return          Memory address on success, `NULL` otherwise
  */
@@ -338,7 +338,7 @@ mem_realloc(void* ptr, size_t size) {
     old_size = MEM_BLOCK_USER_SIZE(ptr);        /* Get size of old pointer */
     new_ptr = mem_alloc(size);                  /* Try to allocate new memory block */
     if (new_ptr != NULL) {
-        ESP_MEMCPY(new_ptr, ptr, ESP_MIN(size, old_size));  /* Copy old data to new array */
+        LWESP_MEMCPY(new_ptr, ptr, LWESP_MIN(size, old_size));  /* Copy old data to new array */
         mem_free(ptr);                          /* Free old pointer */
     }
     return new_ptr;
@@ -348,17 +348,17 @@ mem_realloc(void* ptr, size_t size) {
  * \brief           Allocate memory of specific size
  * \param[in]       size: Number of bytes to allocate
  * \return          Memory address on success, `NULL` otherwise
- * \note            Function is not available when \ref ESP_CFG_MEM_CUSTOM is `1` and must be implemented by user
+ * \note            Function is not available when \ref LWESP_CFG_MEM_CUSTOM is `1` and must be implemented by user
  */
 void*
-esp_mem_malloc(size_t size) {
+lwesp_mem_malloc(size_t size) {
     void* ptr;
-    esp_core_lock();
+    lwesp_core_lock();
     ptr = mem_calloc(1, size);                  /* Allocate memory and return pointer */
-    esp_core_unlock();
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL,
+    lwesp_core_unlock();
+    LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL,
                "[MEM] Allocation failed: %d bytes\r\n", (int)size);
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr != NULL,
+    LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr != NULL,
                "[MEM] Allocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
     return ptr;
 }
@@ -366,20 +366,20 @@ esp_mem_malloc(size_t size) {
 /**
  * \brief           Reallocate memory to specific size
  * \note            After new memory is allocated, content of old one is copied to new memory
- * \param[in]       ptr: Pointer to current allocated memory to resize, returned using \ref esp_mem_malloc,
- *                      \ref esp_mem_calloc or \ref esp_mem_realloc functions
+ * \param[in]       ptr: Pointer to current allocated memory to resize, returned using \ref lwesp_mem_malloc,
+ *                      \ref lwesp_mem_calloc or \ref lwesp_mem_realloc functions
  * \param[in]       size: Number of bytes to allocate on new memory
  * \return          Memory address on success, `NULL` otherwise
- * \note            Function is not available when \ref ESP_CFG_MEM_CUSTOM is `1` and must be implemented by user
+ * \note            Function is not available when \ref LWESP_CFG_MEM_CUSTOM is `1` and must be implemented by user
  */
 void*
-esp_mem_realloc(void* ptr, size_t size) {
-    esp_core_lock();
+lwesp_mem_realloc(void* ptr, size_t size) {
+    lwesp_core_lock();
     ptr = mem_realloc(ptr, size);               /* Reallocate and return pointer */
-    esp_core_unlock();
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL,
+    lwesp_core_unlock();
+    LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL,
                "[MEM] Reallocation failed: %d bytes\r\n", (int)size);
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr != NULL,
+    LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr != NULL,
                "[MEM] Reallocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
     return ptr;
 }
@@ -389,38 +389,38 @@ esp_mem_realloc(void* ptr, size_t size) {
  * \param[in]       num: Number of elements to allocate
  * \param[in]       size: Size of each element
  * \return          Memory address on success, `NULL` otherwise
- * \note            Function is not available when \ref ESP_CFG_MEM_CUSTOM is `1` and must be implemented by user
+ * \note            Function is not available when \ref LWESP_CFG_MEM_CUSTOM is `1` and must be implemented by user
  */
 void*
-esp_mem_calloc(size_t num, size_t size) {
+lwesp_mem_calloc(size_t num, size_t size) {
     void* ptr;
-    esp_core_lock();
+    lwesp_core_lock();
     ptr = mem_calloc(num, size);               /* Allocate memory and clear it to 0. Then return pointer */
-    esp_core_unlock();
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr == NULL,
+    lwesp_core_unlock();
+    LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL,
                "[MEM] Callocation failed: %d bytes\r\n", (int)size * (int)num);
-    ESP_DEBUGW(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE, ptr != NULL,
+    LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr != NULL,
                "[MEM] Callocation OK: %d bytes, addr: %p\r\n", (int)size * (int)num, ptr);
     return ptr;
 }
 
 /**
  * \brief           Free memory
- * \param[in]       ptr: Pointer to memory previously returned using \ref esp_mem_malloc,
- *                      \ref esp_mem_calloc or \ref esp_mem_realloc functions
- * \note            Function is not available when \ref ESP_CFG_MEM_CUSTOM is `1` and must be implemented by user
+ * \param[in]       ptr: Pointer to memory previously returned using \ref lwesp_mem_malloc,
+ *                      \ref lwesp_mem_calloc or \ref lwesp_mem_realloc functions
+ * \note            Function is not available when \ref LWESP_CFG_MEM_CUSTOM is `1` and must be implemented by user
  */
 void
-esp_mem_free(void* ptr) {
+lwesp_mem_free(void* ptr) {
     if (ptr == NULL) {
         return;
     }
-    ESP_DEBUGF(ESP_CFG_DBG_MEM | ESP_DBG_TYPE_TRACE,
+    LWESP_DEBUGF(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE,
                "[MEM] Free size: %d, address: %p\r\n",
                (int)MEM_BLOCK_USER_SIZE(ptr), ptr);
-    esp_core_lock();
+    lwesp_core_lock();
     mem_free(ptr);
-    esp_core_unlock();
+    lwesp_core_unlock();
 }
 
 /**
@@ -429,16 +429,16 @@ esp_mem_free(void* ptr) {
  * \param[in]       regions: Pointer to list of regions to use for allocations
  * \param[in]       len: Number of regions to use
  * \return          `1` on success, `0` otherwise
- * \note            Function is not available when \ref ESP_CFG_MEM_CUSTOM is `1`
+ * \note            Function is not available when \ref LWESP_CFG_MEM_CUSTOM is `1`
  */
 uint8_t
-esp_mem_assignmemory(const esp_mem_region_t* regions, size_t len) {
+lwesp_mem_assignmemory(const lwesp_mem_region_t* regions, size_t len) {
     uint8_t ret;
     ret = mem_assignmem(regions, len);          /* Assign memory */
     return ret;
 }
 
-#endif /* !ESP_CFG_MEM_CUSTOM || __DOXYGEN__ */
+#endif /* !LWESP_CFG_MEM_CUSTOM || __DOXYGEN__ */
 
 /**
  * \brief           Free memory in safe way by invalidating pointer after freeing
@@ -446,9 +446,9 @@ esp_mem_assignmemory(const esp_mem_region_t* regions, size_t len) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-esp_mem_free_s(void** ptr) {
+lwesp_mem_free_s(void** ptr) {
     if (ptr != NULL && *ptr != NULL) {
-        esp_mem_free(*ptr);
+        lwesp_mem_free(*ptr);
         *ptr = NULL;
         return 1;
     }

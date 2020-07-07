@@ -1,5 +1,5 @@
 /**
- * \file            esp_cayenne_evt.c
+ * \file            lwesp_cayenne_evt.c
  * \brief           Event helper functions
  */
 
@@ -26,20 +26,20 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/apps/esp_cayenne_evt.h"
+#include "lwesp/apps/lwesp_cayenne_evt.h"
 
 /**
  * \brief           Get event type
  * \param[in]       evt: Cayenne event handle
  * \return          Event type
  */
-esp_cayenne_evt_type_t
-esp_cayenne_evt_get_type(esp_cayenne_evt_t* evt) {
+lwesp_cayenne_evt_type_t
+lwesp_cayenne_evt_get_type(lwesp_cayenne_evt_t* evt) {
     return evt->type;
 }
 
@@ -48,7 +48,7 @@ esp_cayenne_evt_get_type(esp_cayenne_evt_t* evt) {
  * \param[in]       evt: Cayenne event handle
  * \return          Message pointer
  */
-esp_cayenne_msg_t*
-esp_cayenne_evt_data_get_msg(esp_cayenne_evt_t* evt) {
+lwesp_cayenne_msg_t*
+lwesp_cayenne_evt_data_get_msg(lwesp_cayenne_evt_t* evt) {
     return evt->evt.data.msg;
 }

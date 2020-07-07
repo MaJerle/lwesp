@@ -1,5 +1,5 @@
 /**
- * \file            esp_threads.c
+ * \file            lwesp_threads.c
  * \brief           OS threads implementations
  */
 
@@ -26,45 +26,45 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_threads.h"
-#include "esp/esp_parser.h"
-#include "esp/esp_int.h"
-#include "esp/esp_timeout.h"
-#include "esp/esp.h"
-#include "esp/esp_mem.h"
-#include "system/esp_sys.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_threads.h"
+#include "lwesp/lwesp_parser.h"
+#include "lwesp/lwesp_int.h"
+#include "lwesp/lwesp_timeout.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_mem.h"
+#include "system/lwesp_sys.h"
 
 /**
  * \brief           User thread to process input packets from API functions
  * \param[in]       arg: User argument. Semaphore to release when thread starts
  */
 void
-esp_thread_produce(void* const arg) {
-    esp_sys_sem_t* sem = arg;
-    esp_t* e = &esp;
-    esp_msg_t* msg;
-    espr_t res;
+lwesp_thread_produce(void* const arg) {
+    lwesp_sys_sem_t* sem = arg;
+    lwesp_t* e = &esp;
+    lwesp_msg_t* msg;
+    lwespr_t res;
     uint32_t time;
 
     /* Thread is running, unlock semaphore */
-    if (esp_sys_sem_isvalid(sem)) {
-        esp_sys_sem_release(sem);               /* Release semaphore */
+    if (lwesp_sys_sem_isvalid(sem)) {
+        lwesp_sys_sem_release(sem);               /* Release semaphore */
     }
 
-    esp_core_lock();
+    lwesp_core_lock();
     while (1) {
-        esp_core_unlock();
+        lwesp_core_unlock();
         do {
-            time = esp_sys_mbox_get(&e->mbox_producer, (void**)&msg, 0);    /* Get message from queue */
-        } while (time == ESP_SYS_TIMEOUT || msg == NULL);
-        ESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
-        esp_core_lock();
+            time = lwesp_sys_mbox_get(&e->mbox_producer, (void**)&msg, 0);    /* Get message from queue */
+        } while (time == LWESP_SYS_TIMEOUT || msg == NULL);
+        LWESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
+        lwesp_core_lock();
 
         res = espOK;                            /* Start with OK */
         e->msg = msg;                           /* Set message handle */
@@ -79,9 +79,9 @@ esp_thread_produce(void* const arg) {
         }
 
         /* For reset message, we can have delay! */
-        if (res == espOK && msg->cmd_def == ESP_CMD_RESET) {
+        if (res == espOK && msg->cmd_def == LWESP_CMD_RESET) {
             if (msg->msg.reset.delay > 0) {
-                esp_delay(msg->msg.reset.delay);
+                lwesp_delay(msg->msg.reset.delay);
             }
             espi_reset_everything(1);           /* Reset stack before trying to reset */
         }
@@ -97,29 +97,29 @@ esp_thread_produce(void* const arg) {
              * If it blocks, severe problems occurred and program should
              * immediate terminate
              */
-            esp_core_unlock();
-            esp_sys_sem_wait(&e->sem_sync, 0);  /* First call */
-            esp_core_lock();
+            lwesp_core_unlock();
+            lwesp_sys_sem_wait(&e->sem_sync, 0);  /* First call */
+            lwesp_core_lock();
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
-            time = ~ESP_SYS_TIMEOUT;            /* Reset time */
+            time = ~LWESP_SYS_TIMEOUT;            /* Reset time */
             if (res == espOK) {                 /* We have valid data and data were sent */
-                esp_core_unlock();
-                time = esp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Second call; Wait for synchronization semaphore from processing thread or timeout */
-                esp_core_lock();
-                if (time == ESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
+                lwesp_core_unlock();
+                time = lwesp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Second call; Wait for synchronization semaphore from processing thread or timeout */
+                lwesp_core_lock();
+                if (time == LWESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
                     res = espTIMEOUT;           /* Timeout on command */
                 }
             }
 
             /* Notify application on command timeout */
             if (res == espTIMEOUT) {
-                espi_send_cb(ESP_EVT_CMD_TIMEOUT);
+                espi_send_cb(LWESP_EVT_CMD_TIMEOUT);
             }
 
-            ESP_DEBUGW(ESP_CFG_DBG_THREAD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE,
+            LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
                        res == espTIMEOUT,
                        "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
-            ESP_DEBUGW(ESP_CFG_DBG_THREAD | ESP_DBG_TYPE_TRACE | ESP_DBG_LVL_SEVERE,
+            LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
                        res != espOK && res != espTIMEOUT,
                        "[THREAD] Could not start execution for command %d\r\n", (int)msg->cmd);
 
@@ -139,7 +139,7 @@ esp_thread_produce(void* const arg) {
              * it would not be possible to start a new command after,
              * because semaphore would be still locked
              */
-            esp_sys_sem_release(&e->sem_sync);
+            lwesp_sys_sem_release(&e->sem_sync);
         } else {
             if (res == espOK) {
                 res = espERR;                   /* Simply set error message */
@@ -152,12 +152,12 @@ esp_thread_produce(void* const arg) {
             msg->res = res;                     /* Save response */
         }
 
-#if ESP_CFG_USE_API_FUNC_EVT
+#if LWESP_CFG_USE_API_FUNC_EVT
         /* Send event function to user */
         if (msg->evt_fn != NULL) {
             msg->evt_fn(msg->res, msg->evt_arg);/* Send event with user argument */
         }
-#endif /* ESP_CFG_USE_API_FUNC_EVT */
+#endif /* LWESP_CFG_USE_API_FUNC_EVT */
 
         /*
          * In case message is blocking,
@@ -165,9 +165,9 @@ esp_thread_produce(void* const arg) {
          * otherwise directly free memory of message structure
          */
         if (msg->is_blocking) {
-            esp_sys_sem_release(&msg->sem);
+            lwesp_sys_sem_release(&msg->sem);
         } else {
-            ESP_MSG_VAR_FREE(msg);
+            LWESP_MSG_VAR_FREE(msg);
         }
         e->msg = NULL;
     }
@@ -180,33 +180,33 @@ esp_thread_produce(void* const arg) {
  *                  in correct time order as it is never blocked by user command
  *
  * \param[in]       arg: User argument. Semaphore to release when thread starts
- * \sa              ESP_CFG_INPUT_USE_PROCESS
+ * \sa              LWESP_CFG_INPUT_USE_PROCESS
  */
 void
-esp_thread_process(void* const arg) {
-    esp_sys_sem_t* sem = arg;
-    esp_t* e = &esp;
-    esp_msg_t* msg;
+lwesp_thread_process(void* const arg) {
+    lwesp_sys_sem_t* sem = arg;
+    lwesp_t* e = &esp;
+    lwesp_msg_t* msg;
     uint32_t time;
 
     /* Thread is running, unlock semaphore */
-    if (esp_sys_sem_isvalid(sem)) {
-        esp_sys_sem_release(sem);               /* Release semaphore */
+    if (lwesp_sys_sem_isvalid(sem)) {
+        lwesp_sys_sem_release(sem);               /* Release semaphore */
     }
 
-#if !ESP_CFG_INPUT_USE_PROCESS
-    esp_core_lock();
+#if !LWESP_CFG_INPUT_USE_PROCESS
+    lwesp_core_lock();
     while (1) {
-        esp_core_unlock();
+        lwesp_core_unlock();
         time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 10);
-        ESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
-        esp_core_lock();
+        LWESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
+        lwesp_core_lock();
 
-        if (time == ESP_SYS_TIMEOUT || msg == NULL) {
-            ESP_UNUSED(time);                   /* Unused variable */
+        if (time == LWESP_SYS_TIMEOUT || msg == NULL) {
+            LWESP_UNUSED(time);                   /* Unused variable */
         }
         espi_process_buffer();                  /* Process input data */
-#else /* ESP_CFG_INPUT_USE_PROCESS */
+#else /* LWESP_CFG_INPUT_USE_PROCESS */
     while (1) {
         /*
          * Check for next timeout event only here
@@ -215,8 +215,8 @@ esp_thread_process(void* const arg) {
          * In case new timeout occurs, thread will wake up by writing new element to mbox process queue
          */
         time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 0);
-        ESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
-        ESP_UNUSED(time);
-#endif /* !ESP_CFG_INPUT_USE_PROCESS */
+        LWESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
+        LWESP_UNUSED(time);
+#endif /* !LWESP_CFG_INPUT_USE_PROCESS */
     }
 }

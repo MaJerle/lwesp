@@ -1,5 +1,5 @@
 /**
- * \file            esp_http_server_fs_fat.c
+ * \file            lwesp_http_server_fs_fat.c
  * \brief           FATFS library implementation for HTTP server file system
  */
 
@@ -26,14 +26,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/apps/esp_http_server.h"
-#include "esp/apps/esp_http_server_fs.h"
-#include "esp/esp_mem.h"
+#include "lwesp/apps/lwesp_http_server.h"
+#include "lwesp/apps/lwesp_http_server_fs.h"
+#include "lwesp/lwesp_mem.h"
 
 #if !__DOXYGEN__
 
@@ -66,7 +66,7 @@ http_fs_open(http_fs_file_t* file, const char* path) {
     sprintf(fs_path, "SD:www%s", path);
 
     /* Allocate memory for FATFS file structure */
-    fil = esp_mem_malloc(sizeof(*fil));
+    fil = lwesp_mem_malloc(sizeof(*fil));
     if (fil == NULL) {
         return 0;
     }
@@ -81,7 +81,7 @@ http_fs_open(http_fs_file_t* file, const char* path) {
         return 1;
     }
 
-    esp_mem_free(fil);                          /* We failed, free memory */
+    lwesp_mem_free(fil);                          /* We failed, free memory */
     return 0;
 }
 
@@ -143,7 +143,7 @@ http_fs_close(http_fs_file_t* file) {
     if (*file->rem_open_files == 1) {
         f_mount(NULL, "SD:", 1);
     }
-    esp_mem_free(fil);                          /* Free user argument */
+    lwesp_mem_free(fil);                          /* Free user argument */
 
     return 1;                                   /* Close was successful */
 }

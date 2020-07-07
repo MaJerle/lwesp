@@ -1,5 +1,5 @@
 /**
- * \file            esp_http_server_fs_win32.c
+ * \file            lwesp_http_server_fs_win32.c
  * \brief           WIN32 file system implementation
  */
 
@@ -26,14 +26,14 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/apps/esp_http_server.h"
-#include "esp/apps/esp_http_server_fs.h"
-#include "esp/esp_mem.h"
+#include "lwesp/apps/lwesp_http_server.h"
+#include "lwesp/apps/lwesp_http_server_fs.h"
+#include "lwesp/lwesp_mem.h"
 
 static char fs_path[256];
 

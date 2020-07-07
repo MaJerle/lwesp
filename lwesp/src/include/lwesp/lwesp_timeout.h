@@ -1,5 +1,5 @@
 /**
- * \file            esp_timeout.h
+ * \file            lwesp_timeout.h
  * \brief           Timeout manager
  */
 
@@ -26,29 +26,29 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_TIMEOUT_H
-#define ESP_HDR_TIMEOUT_H
+#ifndef LWESP_HDR_TIMEOUT_H
+#define LWESP_HDR_TIMEOUT_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_TIMEOUT Timeout manager
+ * \ingroup         LWESP
+ * \defgroup        LWESP_TIMEOUT Timeout manager
  * \brief           Timeout manager
  * \{
  */
 
-espr_t          esp_timeout_add(uint32_t time, esp_timeout_fn fn, void* arg);
-espr_t          esp_timeout_remove(esp_timeout_fn fn);
+lwespr_t          lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg);
+lwespr_t          lwesp_timeout_remove(lwesp_timeout_fn fn);
 
 /**
  * \}
@@ -58,4 +58,4 @@ espr_t          esp_timeout_remove(esp_timeout_fn fn);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_TIMEOUT_H */
+#endif /* LWESP_HDR_TIMEOUT_H */

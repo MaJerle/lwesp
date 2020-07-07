@@ -1,6 +1,6 @@
-.. _api_esp_mem:
+.. _api_lwesp_mem:
 
 Memory manager
 ==============
 
-.. doxygengroup:: ESP_MEM
+.. doxygengroup:: LWESP_MEM

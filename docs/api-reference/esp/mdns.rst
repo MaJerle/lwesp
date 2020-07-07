@@ -1,6 +1,6 @@
-.. _api_esp_:
+.. _api_lwesp_:
 
 Multicast DNS
 =============
 
-.. doxygengroup:: ESP_MDNS
+.. doxygengroup:: LWESP_MDNS

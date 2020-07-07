@@ -1,5 +1,5 @@
 /**
- * \file            esp_int.h
+ * \file            lwesp_int.h
  * \brief           Internal functions
  */
 
@@ -26,13 +26,13 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_INT_H
-#define ESP_HDR_INT_H
+#ifndef LWESP_HDR_INT_H
+#define LWESP_HDR_INT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,4 +42,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_INT_H */
+#endif /* LWESP_HDR_INT_H */

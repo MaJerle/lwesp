@@ -1,5 +1,5 @@
 /**
- * \file            esp_dns.c
+ * \file            lwesp_dns.c
  * \brief           DNS API
  */
 
@@ -26,41 +26,41 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_dns.h"
-#include "esp/esp_mem.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_dns.h"
+#include "lwesp/lwesp_mem.h"
 
-#if ESP_CFG_DNS || __DOXYGEN__
+#if LWESP_CFG_DNS || __DOXYGEN__
 
 /**
  * \brief           Get IP address from host name
  * \param[in]       host: Pointer to host name to get IP for
- * \param[out]      ip: Pointer to \ref esp_ip_t variable to save IP
+ * \param[out]      ip: Pointer to \ref lwesp_ip_t variable to save IP
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
-                      const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_dns_gethostbyname(const char* host, lwesp_ip_t* const ip,
+                      const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_ASSERT("host != NULL", host != NULL);
-    ESP_ASSERT("ip != NULL", ip != NULL);
+    LWESP_ASSERT("host != NULL", host != NULL);
+    LWESP_ASSERT("ip != NULL", ip != NULL);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDOMAIN;
-    ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
-    ESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPDOMAIN;
+    LWESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
+    LWESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 20000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 20000);
 }
 
 /**
@@ -76,21 +76,21 @@ esp_dns_gethostbyname(const char* host, esp_ip_t* const ip,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_dns_set_config(uint8_t en, const char* s1, const char* s2,
-                   const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_dns_set_config(uint8_t en, const char* s1, const char* s2,
+                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDNS_SET;
-    ESP_MSG_VAR_REF(msg).msg.dns_setconfig.en = en;
-    ESP_MSG_VAR_REF(msg).msg.dns_setconfig.s1 = s1;
-    ESP_MSG_VAR_REF(msg).msg.dns_setconfig.s2 = s2;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPDNS_SET;
+    LWESP_MSG_VAR_REF(msg).msg.dns_setconfig.en = en;
+    LWESP_MSG_VAR_REF(msg).msg.dns_setconfig.s1 = s1;
+    LWESP_MSG_VAR_REF(msg).msg.dns_setconfig.s2 = s2;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
 /**
@@ -98,26 +98,26 @@ esp_dns_set_config(uint8_t en, const char* s1, const char* s2,
  *
  * Retrive configuration saved in the NVS area of ESP device.
  *
- * \param[out]      s1: First server IP address in esp_ip_t format, set to 0.0.0.0 if not used
- * \param[out]      s2: Second server IP address in esp_ip_t format, set to to 0.0.0.0 if not used.
+ * \param[out]      s1: First server IP address in lwesp_ip_t format, set to 0.0.0.0 if not used
+ * \param[out]      s2: Second server IP address in lwesp_ip_t format, set to to 0.0.0.0 if not used.
  *                  Address `s1` cannot be the same as `s2`
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
  */
-espr_t
-esp_dns_get_config(esp_ip_t* s1, esp_ip_t* s2,
-                   const esp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    ESP_MSG_VAR_DEFINE(msg);
+lwespr_t
+lwesp_dns_get_config(lwesp_ip_t* s1, lwesp_ip_t* s2,
+                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
 
-    ESP_MSG_VAR_ALLOC(msg, blocking);
-    ESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    ESP_MSG_VAR_REF(msg).cmd_def = ESP_CMD_TCPIP_CIPDNS_GET;
-    ESP_MSG_VAR_REF(msg).msg.dns_getconf.s1 = s1;
-    ESP_MSG_VAR_REF(msg).msg.dns_getconf.s2 = s2;
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPDNS_GET;
+    LWESP_MSG_VAR_REF(msg).msg.dns_getconf.s1 = s1;
+    LWESP_MSG_VAR_REF(msg).msg.dns_getconf.s2 = s2;
 
-    return espi_send_msg_to_producer_mbox(&ESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
 }
 
-#endif /* ESP_CFG_DNS || __DOXYGEN__ */
+#endif /* LWESP_CFG_DNS || __DOXYGEN__ */

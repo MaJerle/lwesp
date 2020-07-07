@@ -1,5 +1,5 @@
 /**
- * \file            esp_unicode.h
+ * \file            lwesp_unicode.h
  * \brief           Unicode support
  */
 
@@ -26,28 +26,28 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_UNICODE_H
-#define ESP_HDR_UNICODE_H
+#ifndef LWESP_HDR_UNICODE_H
+#define LWESP_HDR_UNICODE_H
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \ingroup         ESP
- * \defgroup        ESP_UNICODE Unicode manager
+ * \ingroup         LWESP
+ * \defgroup        LWESP_UNICODE Unicode manager
  * \brief           Unicode support manager
  * \{
  */
 
-espr_t          espi_unicode_decode(esp_unicode_t* uni, uint8_t ch);
+lwespr_t          espi_unicode_decode(lwesp_unicode_t* uni, uint8_t ch);
 
 /**
  * \}
@@ -57,4 +57,4 @@ espr_t          espi_unicode_decode(esp_unicode_t* uni, uint8_t ch);
 }
 #endif /* __cplusplus */
 
-#endif /* ESP_HDR_UNICODE_H */
+#endif /* LWESP_HDR_UNICODE_H */

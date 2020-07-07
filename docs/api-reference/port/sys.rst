@@ -1,4 +1,4 @@
-.. _api_esp_sys:
+.. _api_lwesp_sys:
 
 System functions
 ================
@@ -17,4 +17,4 @@ It includes support for:
 .. tip::
 	Check :ref:`um_porting_guide` for actual implementation guidelines.
 
-.. doxygengroup:: ESP_SYS
+.. doxygengroup:: LWESP_SYS

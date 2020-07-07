@@ -1,5 +1,5 @@
 /**
- * \file            esp_sys_freertos_os.c
+ * \file            lwesp_sys_freertos_os.c
  * \brief           System dependant functions
  */
 
@@ -31,7 +31,7 @@
  * Author:          Adrian Carpenter (FreeRTOS port)
  */
 
-#include "system/esp_sys.h"
+#include "system/lwesp_sys.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -45,63 +45,63 @@ typedef struct freertos_mbox {
 } freertos_mbox;
 
 uint8_t
-esp_sys_init(void) {
+lwesp_sys_init(void) {
     sys_mutex = xSemaphoreCreateMutex();
     return sys_mutex == NULL ? 0 : 1;
 }
 
 uint32_t
-esp_sys_now(void) {
+lwesp_sys_now(void) {
     return xTaskGetTickCount();
 }
 
 uint8_t
-esp_sys_protect(void) {
-    esp_sys_mutex_lock(&sys_mutex);
+lwesp_sys_protect(void) {
+    lwesp_sys_mutex_lock(&sys_mutex);
     return 1;
 }
 
 uint8_t
-esp_sys_unprotect(void) {
-    esp_sys_mutex_unlock(&sys_mutex);
+lwesp_sys_unprotect(void) {
+    lwesp_sys_mutex_unlock(&sys_mutex);
     return 1;
 }
 
 uint8_t
-esp_sys_mutex_create(esp_sys_mutex_t* p) {
+lwesp_sys_mutex_create(lwesp_sys_mutex_t* p) {
     *p = xSemaphoreCreateRecursiveMutex();
     return *p != NULL;
 }
 
 uint8_t
-esp_sys_mutex_delete(esp_sys_mutex_t* p) {
+lwesp_sys_mutex_delete(lwesp_sys_mutex_t* p) {
     vSemaphoreDelete(*p);
     return 1;
 }
 
 uint8_t
-esp_sys_mutex_lock(esp_sys_mutex_t* p) {
+lwesp_sys_mutex_lock(lwesp_sys_mutex_t* p) {
     return xSemaphoreTakeRecursive(*p, portMAX_DELAY) == pdPASS;
 }
 
 uint8_t
-esp_sys_mutex_unlock(esp_sys_mutex_t* p) {
+lwesp_sys_mutex_unlock(lwesp_sys_mutex_t* p) {
     return xSemaphoreGiveRecursive(*p) == pdPASS;
 }
 
 uint8_t
-esp_sys_mutex_isvalid(esp_sys_mutex_t* p) {
+lwesp_sys_mutex_isvalid(lwesp_sys_mutex_t* p) {
     return p != NULL && *p != NULL;
 }
 
 uint8_t
-esp_sys_mutex_invalid(esp_sys_mutex_t* p) {
-    *p = ESP_SYS_MUTEX_NULL;
+lwesp_sys_mutex_invalid(lwesp_sys_mutex_t* p) {
+    *p = LWESP_SYS_MUTEX_NULL;
     return 1;
 }
 
 uint8_t
-esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
+lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt) {
     *p = xSemaphoreCreateBinary();
 
     if (*p != NULL && cnt) {
@@ -112,41 +112,41 @@ esp_sys_sem_create(esp_sys_sem_t* p, uint8_t cnt) {
 }
 
 uint8_t
-esp_sys_sem_delete(esp_sys_sem_t* p) {
+lwesp_sys_sem_delete(lwesp_sys_sem_t* p) {
     vSemaphoreDelete(*p);
     return 1;
 }
 
 uint32_t
-esp_sys_sem_wait(esp_sys_sem_t* p, uint32_t timeout) {
+lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
     uint32_t t = xTaskGetTickCount();
-    return xSemaphoreTake(*p, !timeout ? portMAX_DELAY : timeout) == pdPASS ? (xTaskGetTickCount() - t) : ESP_SYS_TIMEOUT;
+    return xSemaphoreTake(*p, !timeout ? portMAX_DELAY : timeout) == pdPASS ? (xTaskGetTickCount() - t) : LWESP_SYS_TIMEOUT;
 }
 
 uint8_t
-esp_sys_sem_release(esp_sys_sem_t* p) {
+lwesp_sys_sem_release(lwesp_sys_sem_t* p) {
     return xSemaphoreGive(*p) == pdPASS;
 }
 
 uint8_t
-esp_sys_sem_isvalid(esp_sys_sem_t* p) {
+lwesp_sys_sem_isvalid(lwesp_sys_sem_t* p) {
     return p != NULL && *p != NULL;
 }
 
 uint8_t
-esp_sys_sem_invalid(esp_sys_sem_t* p) {
-    *p = ESP_SYS_SEM_NULL;
+lwesp_sys_sem_invalid(lwesp_sys_sem_t* p) {
+    *p = LWESP_SYS_SEM_NULL;
     return 1;
 }
 
 uint8_t
-esp_sys_mbox_create(esp_sys_mbox_t* b, size_t size) {
+lwesp_sys_mbox_create(lwesp_sys_mbox_t* b, size_t size) {
     *b = xQueueCreate(size, sizeof(freertos_mbox));
     return *b != NULL;
 }
 
 uint8_t
-esp_sys_mbox_delete(esp_sys_mbox_t* b) {
+lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b) {
     if (uxQueueMessagesWaiting(*b)) {
         return 0;
     }
@@ -155,7 +155,7 @@ esp_sys_mbox_delete(esp_sys_mbox_t* b) {
 }
 
 uint32_t
-esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
+lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
     freertos_mbox mb;
     uint32_t t = xTaskGetTickCount();
 
@@ -165,7 +165,7 @@ esp_sys_mbox_put(esp_sys_mbox_t* b, void* m) {
 }
 
 uint32_t
-esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
+lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
     freertos_mbox mb;
     uint32_t t = xTaskGetTickCount();
 
@@ -173,11 +173,11 @@ esp_sys_mbox_get(esp_sys_mbox_t* b, void** m, uint32_t timeout) {
         *m = mb.d;
         return xTaskGetTickCount() - t;
     }
-    return ESP_SYS_TIMEOUT;
+    return LWESP_SYS_TIMEOUT;
 }
 
 uint8_t
-esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
+lwesp_sys_mbox_putnow(lwesp_sys_mbox_t* b, void* m) {
     freertos_mbox mb;
 
     mb.d = m;
@@ -185,7 +185,7 @@ esp_sys_mbox_putnow(esp_sys_mbox_t* b, void* m) {
 }
 
 uint8_t
-esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
+lwesp_sys_mbox_getnow(lwesp_sys_mbox_t* b, void** m) {
     freertos_mbox mb;
 
     if (xQueueReceive(*b, &mb, 0)) {
@@ -196,29 +196,29 @@ esp_sys_mbox_getnow(esp_sys_mbox_t* b, void** m) {
 }
 
 uint8_t
-esp_sys_mbox_isvalid(esp_sys_mbox_t* b) {
+lwesp_sys_mbox_isvalid(lwesp_sys_mbox_t* b) {
     return b != NULL && *b != NULL;
 }
 
 uint8_t
-esp_sys_mbox_invalid(esp_sys_mbox_t* b) {
-    *b = ESP_SYS_MBOX_NULL;
+lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b) {
+    *b = LWESP_SYS_MBOX_NULL;
     return 1;
 }
 
 uint8_t
-esp_sys_thread_create(esp_sys_thread_t* t, const char* name, esp_sys_thread_fn thread_func, void* const arg, size_t stack_size, esp_sys_thread_prio_t prio) {
+lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
     return xTaskCreate(thread_func, name, stack_size, arg, prio, t) == pdPASS ? 1 : 0;
 }
 
 uint8_t
-esp_sys_thread_terminate(esp_sys_thread_t* t) {
+lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
     vTaskDelete(*t);
     return 1;
 }
 
 uint8_t
-esp_sys_thread_yield(void) {
+lwesp_sys_thread_yield(void) {
     taskYIELD();
     return 1;
 }

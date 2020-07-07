@@ -1,5 +1,5 @@
 /**
- * \file            esp_debug.c
+ * \file            lwesp_debug.c
  * \brief           Debugging inside ESP stack
  */
 
@@ -26,19 +26,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#include "esp/esp_private.h"
-#include "esp/esp_debug.h"
-#include "esp/esp.h"
+#include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_debug.h"
+#include "lwesp/lwesp.h"
 
-#if ESP_CFG_DBG || __DOXYGEN__
+#if LWESP_CFG_DBG || __DOXYGEN__
 
 const char*
-espi_dbg_msg_to_string(esp_cmd_t cmd) {
+espi_dbg_msg_to_string(lwesp_cmd_t cmd) {
     static char tmp_arr[100];
     if (cmd) {
         sprintf(tmp_arr, "%d", (int)cmd);
@@ -47,4 +47,4 @@ espi_dbg_msg_to_string(esp_cmd_t cmd) {
     return "";
 }
 
-#endif /* ESP_CFG_DBG || __DOXYGEN__ */
+#endif /* LWESP_CFG_DBG || __DOXYGEN__ */

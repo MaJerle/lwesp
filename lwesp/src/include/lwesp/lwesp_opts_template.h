@@ -1,5 +1,5 @@
 /**
- * \file            esp_opts_template.h
+ * \file            lwesp_opts_template.h
  * \brief           Template config file
  */
 
@@ -26,19 +26,19 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * This file is part of ESP-AT library.
+ * This file is part of LwESP - Lightweight ESP-AT library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         $_version_$
  */
-#ifndef ESP_HDR_OPTS_H
-#define ESP_HDR_OPTS_H
+#ifndef LWESP_HDR_OPTS_H
+#define LWESP_HDR_OPTS_H
 
-/* Rename this file to "esp_opts.h" for your application */
+/* Rename this file to "lwesp_opts.h" for your application */
 
 /*
- * Open "include/esp/esp_opt.h" and
+ * Open "include/lwesp/lwesp_opt.h" and
  * copy & replace here settings you want to change values
  */
 
-#endif /* ESP_HDR_OPTS_H */
+#endif /* LWESP_HDR_OPTS_H */
