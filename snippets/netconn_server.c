@@ -76,7 +76,7 @@ netconn_server_thread(void const* arg) {
 
         /* Bind network connection to port 80 */
         res = lwesp_netconn_bind(server, 80);
-        if (res == espOK) {
+        if (res == lwespOK) {
             printf("Server netconn listens on port 80\r\n");
             /*
              * Start listening for incoming connections
@@ -92,7 +92,7 @@ netconn_server_thread(void const* arg) {
                  * new client is connected to server
                  */
                 res = lwesp_netconn_accept(server, &client);
-                if (res == espOK) {
+                if (res == lwespOK) {
                     printf("Netconn new client connected. Starting new thread...\r\n");
                     /*
                      * Start new thread for this request.
@@ -149,7 +149,7 @@ netconn_server_processing_thread(void* const arg) {
          */
         res = lwesp_netconn_receive(client, &pbuf);
 
-        if (res == espOK) {
+        if (res == lwespOK) {
             printf("Netconn data received, %d bytes\r\n", (int)lwesp_pbuf_length(pbuf, 1));
             /* Check reception of all header bytes */
             if (p == NULL) {
@@ -179,7 +179,7 @@ netconn_server_processing_thread(void* const arg) {
                 break;
             }
         }
-    } while (res == espOK);
+    } while (res == lwespOK);
 
     if (p != NULL) {                            /* Free received data */
         lwesp_pbuf_free(p);

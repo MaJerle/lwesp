@@ -252,10 +252,10 @@ request_send_err_callback(lwesp_mqtt_client_p client, uint8_t status, void* arg)
 
     if (client->evt.type == LWESP_MQTT_EVT_PUBLISH) {
         client->evt.evt.publish.arg = arg;
-        client->evt.evt.publish.res = espERR;
+        client->evt.evt.publish.res = lwespERR;
     } else {
         client->evt.evt.sub_unsub_scribed.arg = arg;
-        client->evt.evt.sub_unsub_scribed.res = espERR;
+        client->evt.evt.sub_unsub_scribed.res = lwespERR;
     }
     client->evt_fn(client, &client->evt);
 }
@@ -419,7 +419,7 @@ send_data(lwesp_mqtt_client_p client) {
     if (len > 0) {                                  /* Anything to send? */
         lwespr_t res;
         addr = lwesp_buff_get_linear_block_read_address(&client->tx_buff);/* Get address of linear memory */
-        if ((res = lwesp_conn_send(client->conn, addr, len, NULL, 0)) == espOK) {
+        if ((res = lwesp_conn_send(client->conn, addr, len, NULL, 0)) == lwespOK) {
             client->written_total += len;       /* Increase number of bytes written to queue */
             client->is_sending = 1;             /* Remember active sending flag */
         } else {
@@ -440,16 +440,16 @@ send_data(lwesp_mqtt_client_p client) {
 /**
  * \brief           Close a MQTT connection with server
  * \param[in]       client: MQTT client
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 static lwespr_t
 mqtt_close(lwesp_mqtt_client_p client) {
-    lwespr_t res = espERR;
+    lwespr_t res = lwespERR;
     if (client->conn_state != LWESP_MQTT_CONN_DISCONNECTED
         && client->conn_state != LWESP_MQTT_CONN_DISCONNECTING) {
 
         res = lwesp_conn_close(client->conn, 0);  /* Close the connection in non-blocking mode */
-        if (res == espOK) {
+        if (res == lwespOK) {
             client->conn_state = LWESP_MQTT_CONN_DISCONNECTING;
         }
     }
@@ -637,7 +637,7 @@ mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
                         || msg_type == MQTT_MSG_TYPE_UNSUBACK) {
                         client->evt.type = msg_type == MQTT_MSG_TYPE_SUBACK ? LWESP_MQTT_EVT_SUBSCRIBE : LWESP_MQTT_EVT_UNSUBSCRIBE;
                         client->evt.evt.sub_unsub_scribed.arg = request->arg;
-                        client->evt.evt.sub_unsub_scribed.res = client->rx_buff[2] < 3 ? espOK : espERR;
+                        client->evt.evt.sub_unsub_scribed.res = client->rx_buff[2] < 3 ? lwespOK : lwespERR;
                         client->evt_fn(client, &client->evt);
 
                         /*
@@ -648,7 +648,7 @@ mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
                                || msg_type == MQTT_MSG_TYPE_PUBACK) {
                         client->evt.type = LWESP_MQTT_EVT_PUBLISH;
                         client->evt.evt.publish.arg = request->arg;
-                        client->evt.evt.publish.res = espOK;
+                        client->evt.evt.publish.res = lwespOK;
                         client->evt_fn(client, &client->evt);
                     }
                     request_delete(client, request);    /* Delete request object */
@@ -911,7 +911,7 @@ mqtt_data_sent_cb(lwesp_mqtt_client_p client, size_t sent_len, uint8_t successfu
             /* Call published callback */
             client->evt.type = LWESP_MQTT_EVT_PUBLISH;
             client->evt.evt.publish.arg = arg;
-            client->evt.evt.publish.res = espOK;
+            client->evt.evt.publish.res = lwespOK;
             client->evt_fn(client, &client->evt);
         } else {
             break;
@@ -1008,7 +1008,7 @@ mqtt_closed_cb(lwesp_mqtt_client_p client, lwespr_t res, uint8_t forced) {
 /**
  * \brief           Connection callback
  * \param[in]       evt: Callback parameters
- * \result          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \result          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 static lwespr_t
 mqtt_conn_cb(lwesp_evt_t* evt) {
@@ -1020,10 +1020,10 @@ mqtt_conn_cb(lwesp_evt_t* evt) {
         client = lwesp_conn_get_arg(conn);        /* Get client structure from connection */
         if (client == NULL) {
             lwesp_conn_close(conn, 0);            /* Force connection close immediately */
-            return espERR;
+            return lwespERR;
         }
     } else if (evt->type != LWESP_EVT_CONN_ERROR) {
-        return espERR;
+        return lwespERR;
     }
 
     /* Check and process events */
@@ -1062,7 +1062,7 @@ mqtt_conn_cb(lwesp_evt_t* evt) {
             /* Data sent callback */
             mqtt_data_sent_cb(client,
                               lwesp_evt_conn_send_get_length(evt),
-                              lwesp_evt_conn_send_get_result(evt) == espOK);
+                              lwesp_evt_conn_send_get_result(evt) == lwespOK);
             break;
         }
 
@@ -1075,14 +1075,14 @@ mqtt_conn_cb(lwesp_evt_t* evt) {
         /* Connection closed */
         case LWESP_EVT_CONN_CLOSE: {
             mqtt_closed_cb(client,
-                           lwesp_evt_conn_close_get_result(evt) == espOK,
+                           lwesp_evt_conn_close_get_result(evt) == lwespOK,
                            lwesp_evt_conn_close_is_forced(evt));
             break;
         }
         default:
             break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -1137,12 +1137,12 @@ lwesp_mqtt_client_delete(lwesp_mqtt_client_p client) {
  * \param[in]       port: Host port number
  * \param[in]       evt_fn: Callback function for all events on this MQTT client
  * \param[in]       info: Information structure for connection
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_port_t port,
                         lwesp_mqtt_evt_fn evt_fn, const lwesp_mqtt_client_info_t* info) {
-    lwespr_t res = espERR;
+    lwespr_t res = lwespERR;
 
     LWESP_ASSERT("client != NULL", client != NULL);   /* t input parameters */
     LWESP_ASSERT("host != NULL", host != NULL);
@@ -1156,7 +1156,7 @@ lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_po
 
         /* Start a new connection in non-blocking mode */
         res = lwesp_conn_start(&client->conn, LWESP_CONN_TYPE_TCP, host, port, client, mqtt_conn_cb, 0);
-        if (res == espOK) {
+        if (res == lwespOK) {
             client->conn_state = LWESP_MQTT_CONN_CONNECTING;
         }
     }
@@ -1168,11 +1168,11 @@ lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_po
 /**
  * \brief           Disconnect from MQTT server
  * \param[in]       client: MQTT client
- * \return          \ref espOK if request sent to queue or member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK if request sent to queue or member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_mqtt_client_disconnect(lwesp_mqtt_client_p client) {
-    lwespr_t res = espERR;
+    lwespr_t res = lwespERR;
 
     lwesp_core_lock();
     if (client->conn_state != LWESP_MQTT_CONN_DISCONNECTED
@@ -1189,11 +1189,11 @@ lwesp_mqtt_client_disconnect(lwesp_mqtt_client_p client) {
  * \param[in]       topic: Topic name to subscribe to
  * \param[in]       qos: Quality of service. This parameter can be a value of \ref lwesp_mqtt_qos_t
  * \param[in]       arg: User custom argument used in callback
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_mqtt_client_subscribe(lwesp_mqtt_client_p client, const char* topic, lwesp_mqtt_qos_t qos, void* arg) {
-    return sub_unsub(client, topic, qos, arg, 1) == 1 ? espOK : espERR;  /* Subscribe to topic */
+    return sub_unsub(client, topic, qos, arg, 1) == 1 ? lwespOK : lwespERR;  /* Subscribe to topic */
 }
 
 /**
@@ -1201,11 +1201,11 @@ lwesp_mqtt_client_subscribe(lwesp_mqtt_client_p client, const char* topic, lwesp
  * \param[in]       client: MQTT client
  * \param[in]       topic: Topic name to unsubscribe from
  * \param[in]       arg: User custom argument used in callback
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_mqtt_client_unsubscribe(lwesp_mqtt_client_p client, const char* topic, void* arg) {
-    return sub_unsub(client, topic, (lwesp_mqtt_qos_t)0, arg, 0) == 1 ? espOK : espERR;    /* Unsubscribe from topic */
+    return sub_unsub(client, topic, (lwesp_mqtt_qos_t)0, arg, 0) == 1 ? lwespOK : lwespERR;    /* Unsubscribe from topic */
 }
 
 /**
@@ -1217,19 +1217,19 @@ lwesp_mqtt_client_unsubscribe(lwesp_mqtt_client_p client, const char* topic, voi
  * \param[in]       qos: Quality of service. This parameter can be a value of \ref lwesp_mqtt_qos_t enumeration
  * \param[in]       retain: Retian parameter value
  * \param[in]       arg: User custom argument used in callback
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const void* payload,
                         uint16_t payload_len, lwesp_mqtt_qos_t qos, uint8_t retain, void* arg) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
     lwesp_mqtt_request_t* request = NULL;
     uint32_t rem_len, raw_len;
     uint16_t len_topic, pkt_id;
     uint8_t qos_u8 = LWESP_U8(qos);
 
     if (!(len_topic = LWESP_U16(strlen(topic)))) {    /* Get length of topic */
-        return espERR;
+        return lwespERR;
     }
 
     /*
@@ -1244,7 +1244,7 @@ lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const v
 
     lwesp_core_lock();
     if (client->conn_state != LWESP_MQTT_CONNECTED) {
-        res = espCLOSED;
+        res = lwespCLOSED;
     } else if ((raw_len = output_check_enough_memory(client, rem_len)) != 0) {
         pkt_id = qos_u8 > 0 ? create_packet_id(client) : 0; /* Create new packet ID */
         request = request_create(client, pkt_id, arg);  /* Create request for packet */
@@ -1274,11 +1274,11 @@ lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const v
                        "[MQTT] Pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos_u8, (int)pkt_id);
         } else {
             LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE, "[MQTT] No free request available to publish message\r\n");
-            res = espERRMEM;
+            res = lwespERRMEM;
         }
     } else {
         LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE, "[MQTT] Not enough memory to publish message\r\n");
-        res = espERRMEM;
+        res = lwespERRMEM;
     }
     lwesp_core_unlock();
     return res;

@@ -1,6 +1,6 @@
 /**
- * \file            esp.h
- * \brief           ESP AT commands parser
+ * \file            lwesp.h
+ * \brief           LwESP
  */
 
 /*
@@ -41,28 +41,28 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \defgroup        ESP ESP-AT Lib
- * \brief           ESP stack
+ * \defgroup        LWESP Lightweight ESP-AT library
+ * \brief           Lightweight ESP-AT
  * \{
  */
 
-lwespr_t      lwesp_init(lwesp_evt_fn cb_func, const uint32_t blocking);
-lwespr_t      lwesp_reset(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t      lwesp_reset_with_delay(uint32_t delay, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_init(lwesp_evt_fn cb_func, const uint32_t blocking);
+lwespr_t    lwesp_reset(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_reset_with_delay(uint32_t delay, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
-lwespr_t      lwesp_restore(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t      lwesp_set_at_baudrate(uint32_t baud, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t      lwesp_set_wifi_mode(lwesp_mode_t mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t      lwesp_get_wifi_mode(lwesp_mode_t* mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_restore(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_set_at_baudrate(uint32_t baud, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_set_wifi_mode(lwesp_mode_t mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_get_wifi_mode(lwesp_mode_t* mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
-lwespr_t      lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint16_t timeout, lwesp_evt_fn cb, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint16_t timeout, lwesp_evt_fn cb, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
-lwespr_t      lwesp_update_sw(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_update_sw(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
-lwespr_t      lwesp_core_lock(void);
-lwespr_t      lwesp_core_unlock(void);
+lwespr_t    lwesp_core_lock(void);
+lwespr_t    lwesp_core_unlock(void);
 
-lwespr_t      lwesp_device_set_present(uint8_t present, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_device_set_present(uint8_t present, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 uint8_t     lwesp_device_is_present(void);
 
 uint8_t     lwesp_device_is_esp8266(void);

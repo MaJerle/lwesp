@@ -13,5 +13,5 @@ lwesp_callback_function(lwesp_evt_t* evt) {
         }
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }

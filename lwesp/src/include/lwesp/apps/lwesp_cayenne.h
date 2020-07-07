@@ -150,7 +150,7 @@ struct lwesp_cayenne;
  * \brief           Cayenne event callback function
  * \param[in]       c: Cayenne handle
  * \param[in]       evt: Event handle
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 typedef lwespr_t (*lwesp_cayenne_evt_fn)(struct lwesp_cayenne* c, lwesp_cayenne_evt_t* evt);
 
@@ -170,12 +170,12 @@ typedef struct lwesp_cayenne {
     lwesp_sys_sem_t sem;                          /*!< Sync semaphore handle */
 } lwesp_cayenne_t;
 
-lwespr_t      lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_info, lwesp_cayenne_evt_fn evt_fn);
-lwespr_t      lwesp_cayenne_subscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel);
-lwespr_t      lwesp_cayenne_publish_data(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, const char* data);
-lwespr_t      lwesp_cayenne_publish_float(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, float f);
+lwespr_t    lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_info, lwesp_cayenne_evt_fn evt_fn);
+lwespr_t    lwesp_cayenne_subscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel);
+lwespr_t    lwesp_cayenne_publish_data(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, const char* data);
+lwespr_t    lwesp_cayenne_publish_float(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, float f);
 
-lwespr_t      lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwesp_cayenne_rlwesp_t resp, const char* message);
+lwespr_t    lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwesp_cayenne_rlwesp_t resp, const char* message);
 
 #include "lwesp/apps/lwesp_cayenne_evt.h"
 

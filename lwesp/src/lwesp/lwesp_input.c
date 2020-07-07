@@ -46,18 +46,18 @@ static uint32_t lwesp_recv_calls;
  * \note            \ref LWESP_CFG_INPUT_USE_PROCESS must be disabled to use this function
  * \param[in]       data: Pointer to data to write
  * \param[in]       len: Number of data elements in units of bytes
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_input(const void* data, size_t len) {
     if (!esp.status.f.initialized || esp.buff.buff == NULL) {
-        return espERR;
+        return lwespERR;
     }
     lwesp_buff_write(&esp.buff, data, len);       /* Write data to buffer */
     lwesp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write empty box, don't care if write fails */
     lwesp_recv_total_len += len;                  /* Update total number of received bytes */
     ++lwesp_recv_calls;                           /* Update number of calls */
-    return espOK;
+    return lwespOK;
 }
 
 #endif /* !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
@@ -73,14 +73,14 @@ lwesp_input(const void* data, size_t len) {
  *
  * \param[in]       data: Pointer to received data to be processed
  * \param[in]       len: Length of data to process in units of bytes
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_input_process(const void* data, size_t len) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
 
     if (!esp.status.f.initialized) {
-        return espERR;
+        return lwespERR;
     }
 
     lwesp_recv_total_len += len;                  /* Update total number of received bytes */

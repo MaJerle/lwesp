@@ -406,7 +406,7 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
-    /*if (lwesp_cayenne_create(&cayenne, &cayenne_mqtt_client_info, cayenne_evt_func) != espOK) {
+    /*if (lwesp_cayenne_create(&cayenne, &cayenne_mqtt_client_info, cayenne_evt_func) != lwespOK) {
         safeprintf("Cannot create new cayenne instance!\r\n");
     } else {
 
@@ -426,17 +426,17 @@ main_thread(void* arg) {
         if (client != NULL) {
             while (1) {
                 res = lwesp_netconn_connect(client, "10.57.218.183", 123);
-                if (res == espOK) {                     /* Are we successfully connected? */
+                if (res == lwespOK) {                     /* Are we successfully connected? */
                     safeprintf("Connected to host\r\n");
                     do {
                         res = lwesp_netconn_receive(client, &pbuf);
                         safeprintf("GOT FROM BUFFER...delaying...\r\n");
                         //lwesp_delay(5000);
-                        if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
+                        if (res == lwespCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
                             safeprintf("Connection closed by remote side...\r\n");
                             break;
                         }
-                        if (res == espOK && pbuf != NULL) {
+                        if (res == lwespOK && pbuf != NULL) {
                             int len = lwesp_pbuf_length(pbuf, 1);
                             safeprintf("Received new data packet of %d bytes: %.*s\r\n",
                                 len, len,
@@ -460,7 +460,7 @@ main_thread(void* arg) {
 /**
  * \brief           Global ESP event function callback
  * \param[in]       evt: Event information
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 lwesp_evt(lwesp_evt_t* evt) {
@@ -471,7 +471,7 @@ lwesp_evt(lwesp_evt_t* evt) {
             break;
         }
         case LWESP_EVT_RESET: {
-            if (lwesp_evt_reset_get_result(evt) == espOK) {
+            if (lwesp_evt_reset_get_result(evt) == lwespOK) {
                 safeprintf("Reset sequence successful!\r\n");
             } else {
                 safeprintf("Reset sequence error!\r\n");
@@ -479,7 +479,7 @@ lwesp_evt(lwesp_evt_t* evt) {
             break;
         }
         case LWESP_EVT_RESTORE: {
-            if (lwesp_evt_restore_get_result(evt) == espOK) {
+            if (lwesp_evt_restore_get_result(evt) == lwespOK) {
                 safeprintf("Restore sequence successful!\r\n");
             } else {
                 safeprintf("Restore sequence error!\r\n");
@@ -523,7 +523,7 @@ lwesp_evt(lwesp_evt_t* evt) {
             uint8_t is_dhcp;
 
             safeprintf("WIFI IP ACQUIRED!\r\n");
-            if (lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp) == espOK) {
+            if (lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp) == lwespOK) {
                 safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
             } else {
                 safeprintf("Acquired IP is not valid\r\n");
@@ -555,7 +555,7 @@ lwesp_evt(lwesp_evt_t* evt) {
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 static lwespr_t
@@ -583,7 +583,7 @@ lwesp_conn_evt(lwesp_evt_t* evt) {
         }
         case LWESP_EVT_CONN_SEND: {
             lwespr_t res = lwesp_evt_conn_send_get_result(evt);
-            if (res == espOK) {
+            if (res == lwespOK) {
                 safeprintf("Connection data sent!\r\n");
             } else {
                 safeprintf("Connect data send error!\r\n");
@@ -611,5 +611,5 @@ lwesp_conn_evt(lwesp_evt_t* evt) {
         }
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }

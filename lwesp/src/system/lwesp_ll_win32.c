@@ -226,7 +226,7 @@ lwesp_ll_init(lwesp_ll_t* ll) {
     /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
     configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
     initialized = 1;
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -239,7 +239,7 @@ lwesp_ll_deinit(lwesp_ll_t* ll) {
         thread_handle = NULL;
     }
     initialized = 0;                            /* Clear initialized flag */
-    return espOK;
+    return lwespOK;
 }
 
 #endif /* !__DOXYGEN__ */

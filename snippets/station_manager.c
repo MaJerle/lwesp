@@ -33,7 +33,7 @@ size_t apf;
  *
  * \note            List of access points should be set by user in \ref ap_list structure
  * \param[in]       unlimited: When set to 1, function will block until SSID is found and connected
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 connect_to_preferred_access_point(uint8_t unlimited) {
@@ -47,12 +47,12 @@ connect_to_preferred_access_point(uint8_t unlimited) {
      */
     do {
         if (lwesp_sta_has_ip()) {
-            return espOK;
+            return lwespOK;
         }
 
         /* Scan for access points visible to ESP device */
         printf("Scanning access points...\r\n");
-        if ((eres = lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &apf, NULL, NULL, 1)) == espOK) {
+        if ((eres = lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &apf, NULL, NULL, 1)) == lwespOK) {
             tried = 0;
             /* Print all access points found by ESP */
             for (size_t i = 0; i < apf; i++) {
@@ -66,7 +66,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
                         tried = 1;
                         printf("Connecting to \"%s\" network...\r\n", ap_list[j].ssid);
                         /* Try to join to access point */
-                        if ((eres = lwesp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, NULL, NULL, 1)) == espOK) {
+                        if ((eres = lwesp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, NULL, NULL, 1)) == lwespOK) {
                             lwesp_ip_t ip;
                             uint8_t is_dhcp;
                             lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
@@ -74,7 +74,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
                             printf("Connected to %s network!\r\n", ap_list[j].ssid);
                             printf("Station IP address: %d.%d.%d.%d; Is DHCP: %d\r\n",
                                    (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
-                            return espOK;
+                            return lwespOK;
                         } else {
                             printf("Connection error: %d\r\n", (int)eres);
                         }
@@ -84,7 +84,7 @@ connect_to_preferred_access_point(uint8_t unlimited) {
             if (!tried) {
                 printf("No access points available with preferred SSID!\r\nPlease check station_manager.c file and edit preferred SSID access points!\r\n");
             }
-        } else if (eres == espERRNODEVICE) {
+        } else if (eres == lwespERRNODEVICE) {
             printf("Device is not present!\r\n");
             break;
         } else {
@@ -94,5 +94,5 @@ connect_to_preferred_access_point(uint8_t unlimited) {
             break;
         }
     } while (1);
-    return espERR;
+    return lwespERR;
 }

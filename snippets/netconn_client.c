@@ -42,13 +42,13 @@ netconn_client_thread(void const* arg) {
          * Function will block thread until we are successfully connected (or not) to server
          */
         res = lwesp_netconn_connect(client, NETCONN_HOST, NETCONN_PORT);
-        if (res == espOK) {                     /* Are we successfully connected? */
+        if (res == lwespOK) {                     /* Are we successfully connected? */
             printf("Connected to " NETCONN_HOST "\r\n");
             res = lwesp_netconn_write(client, request_header, sizeof(request_header) - 1);    /* Send data to server */
-            if (res == espOK) {
+            if (res == lwespOK) {
                 res = lwesp_netconn_flush(client);    /* Flush data to output */
             }
-            if (res == espOK) {                 /* Were data sent? */
+            if (res == lwespOK) {                 /* Were data sent? */
                 printf("Data were successfully sent to server\r\n");
 
                 /*
@@ -68,14 +68,14 @@ netconn_client_thread(void const* arg) {
                      * was closed too early from remote side
                      */
                     res = lwesp_netconn_receive(client, &pbuf);
-                    if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
+                    if (res == lwespCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
                         printf("Connection closed by remote side...\r\n");
                         break;
-                    } else if (res == espTIMEOUT) {
+                    } else if (res == lwespTIMEOUT) {
                         printf("Netconn timeout while receiving data. You may try multiple readings before deciding to close manually\r\n");
                     }
 
-                    if (res == espOK && pbuf != NULL) { /* Make sure we have valid packet buffer */
+                    if (res == lwespOK && pbuf != NULL) { /* Make sure we have valid packet buffer */
                         /*
                          * At this point read and manipulate
                          * with received buffer and check if you expect more data
@@ -96,7 +96,7 @@ netconn_client_thread(void const* arg) {
              * Check if connection was closed by remote server
              * and in case it wasn't, close it manually
              */
-            if (res != espCLOSED) {
+            if (res != lwespCLOSED) {
                 lwesp_netconn_close(client);
             }
         } else {

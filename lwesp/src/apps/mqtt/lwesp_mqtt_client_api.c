@@ -319,7 +319,7 @@ lwesp_mqtt_client_api_connect(lwesp_mqtt_client_api_p client, const char* host,
     client->connect_resp = LWESP_MQTT_CONN_STATUS_TCP_FAILED;
     lwesp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
-    if (lwesp_mqtt_client_connect(client->mc, host, port, mqtt_evt, info) == espOK) {
+    if (lwesp_mqtt_client_connect(client->mc, host, port, mqtt_evt, info) == lwespOK) {
         lwesp_sys_sem_wait(&client->sync_sem, 0);
     } else {
         LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
@@ -334,19 +334,19 @@ lwesp_mqtt_client_api_connect(lwesp_mqtt_client_api_p client, const char* host,
 /**
  * \brief           Close MQTT connection
  * \param[in]       client: MQTT API client handle
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_mqtt_client_api_close(lwesp_mqtt_client_api_p client) {
-    lwespr_t res = espERR;
+    lwespr_t res = lwespERR;
 
     LWESP_ASSERT("client != NULL", client != NULL);
 
     lwesp_sys_mutex_lock(&client->mutex);
     lwesp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
-    if (lwesp_mqtt_client_disconnect(client->mc) == espOK) {
-        res = espOK;
+    if (lwesp_mqtt_client_disconnect(client->mc) == lwespOK) {
+        res = lwespOK;
         lwesp_sys_sem_wait(&client->sync_sem, 0);
     } else {
         LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
@@ -363,12 +363,12 @@ lwesp_mqtt_client_api_close(lwesp_mqtt_client_api_p client) {
  * \param[in]       client: MQTT API client handle
  * \param[in]       topic: Topic to subscribe on
  * \param[in]       qos: Quality of service. This parameter can be a value of \ref lwesp_mqtt_qos_t
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topic,
                               lwesp_mqtt_qos_t qos) {
-    lwespr_t res = espERR;
+    lwespr_t res = lwespERR;
 
     LWESP_ASSERT("client != NULL", client != NULL);
     LWESP_ASSERT("topic != NULL", topic != NULL);
@@ -376,7 +376,7 @@ lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topi
     lwesp_sys_mutex_lock(&client->mutex);
     lwesp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
-    if (lwesp_mqtt_client_subscribe(client->mc, topic, qos, NULL) == espOK) {
+    if (lwesp_mqtt_client_subscribe(client->mc, topic, qos, NULL) == lwespOK) {
         lwesp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     } else {
@@ -394,11 +394,11 @@ lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topi
  * \brief           Unsubscribe from topic
  * \param[in]       client: MQTT API client handle
  * \param[in]       topic: Topic to unsubscribe from
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* topic) {
-    lwespr_t res = espERR;
+    lwespr_t res = lwespERR;
 
     LWESP_ASSERT("client != NULL", client != NULL);
     LWESP_ASSERT("topic != NULL", topic != NULL);
@@ -406,7 +406,7 @@ lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* to
     lwesp_sys_mutex_lock(&client->mutex);
     lwesp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
-    if (lwesp_mqtt_client_unsubscribe(client->mc, topic, NULL) == espOK) {
+    if (lwesp_mqtt_client_unsubscribe(client->mc, topic, NULL) == lwespOK) {
         lwesp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     } else {
@@ -428,12 +428,12 @@ lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* to
  * \param[in]       btw: Number of bytes to send for data parameter
  * \param[in]       qos: Quality of service. This parameter can be a value of \ref lwesp_mqtt_qos_t
  * \param[in]       retain: Set to `1` for retain flag, `0` otherwise
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic, const void* data,
                             size_t btw, lwesp_mqtt_qos_t qos, uint8_t retain) {
-    lwespr_t res = espERR;
+    lwespr_t res = lwespERR;
 
     LWESP_ASSERT("client != NULL", client != NULL);
     LWESP_ASSERT("topic != NULL", topic != NULL);
@@ -443,7 +443,7 @@ lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic,
     lwesp_sys_mutex_lock(&client->mutex);
     lwesp_sys_sem_wait(&client->sync_sem, 0);
     client->release_sem = 1;
-    if (lwesp_mqtt_client_publish(client->mc, topic, data, LWESP_U16(btw), qos, retain, NULL) == espOK) {
+    if (lwesp_mqtt_client_publish(client->mc, topic, data, LWESP_U16(btw), qos, retain, NULL) == lwespOK) {
         lwesp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     } else {
@@ -484,7 +484,7 @@ lwesp_mqtt_client_api_is_connected(lwesp_mqtt_client_api_p client) {
  * \param[in]       client: MQTT API client handle
  * \param[in]       p: Pointer to output buffer
  * \param[in]       timeout: Maximal time to wait before function returns timeout
- * \return          \ref espOK on success, \ref espCLOSED if MQTT is closed, \ref espTIMEOUT on timeout
+ * \return          \ref lwespOK on success, \ref lwespCLOSED if MQTT is closed, \ref lwespTIMEOUT on timeout
  */
 lwespr_t
 lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p,
@@ -497,10 +497,10 @@ lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_
     /* Get new entry from mbox */
     if (timeout == 0) {
         if (!lwesp_sys_mbox_getnow(&client->rcv_mbox, (void**)p)) {
-            return espTIMEOUT;
+            return lwespTIMEOUT;
         }
     } else if (lwesp_sys_mbox_get(&client->rcv_mbox, (void**)p, timeout) == LWESP_SYS_TIMEOUT) {
-        return espTIMEOUT;
+        return lwespTIMEOUT;
     }
 
     /* Check for MQTT closed event */
@@ -509,9 +509,9 @@ lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_
                    "[MQTT API] Closed event received from queue\r\n");
 
         *p = NULL;
-        return espCLOSED;
+        return lwespCLOSED;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**

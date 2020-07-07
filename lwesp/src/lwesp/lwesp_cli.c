@@ -72,7 +72,7 @@ cli_station_info(cli_printf cliprintf, int argc, char** argv) {
     lwesp_sta_info_ap_t info;
 
     res = lwesp_sta_get_ap_info(&info, NULL, NULL, 1);
-    if (res != espOK) {
+    if (res != lwespOK) {
         cliprintf("Error: Failed to read station info (%d)"CLI_NL, res);
         return;
     }

@@ -47,8 +47,8 @@ extern "C" {
  * \{
  */
 
-lwespr_t      lwesp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t      lwesp_sntp_gettime(lwesp_datetime_t* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_sntp_gettime(lwesp_datetime_t* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

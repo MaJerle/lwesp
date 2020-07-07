@@ -58,7 +58,7 @@ mqtt_lwesp_cb(lwesp_evt_t* evt) {
         default:
             break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -72,7 +72,7 @@ mqtt_client_thread(void const* arg) {
     lwesp_evt_register(mqtt_lwesp_cb);              /* Register new callback for general events from ESP stack */
 
     /* Get station MAC to format client ID */
-    if (lwesp_sta_getmac(&mac, NULL, NULL, 1) == espOK) {
+    if (lwesp_sta_getmac(&mac, NULL, NULL, 1) == lwespOK) {
         snprintf(mqtt_client_id, sizeof(mqtt_client_id), "%02X%02X%02X%02X%02X%02X",
                  (unsigned)mac.mac[0], (unsigned)mac.mac[1], (unsigned)mac.mac[2],
                  (unsigned)mac.mac[3], (unsigned)mac.mac[4], (unsigned)mac.mac[5]
@@ -111,7 +111,7 @@ mqtt_timeout_cb(void* arg) {
 
     if (lwesp_mqtt_client_is_connected(client)) {
         sprintf(tx_data, "R: %u, N: %u", (unsigned)retries, (unsigned)num);
-        if ((res = lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_EXACTLY_ONCE, 0, (void*)num)) == espOK) {
+        if ((res = lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_EXACTLY_ONCE, 0, (void*)num)) == lwespOK) {
             printf("Publishing %d...\r\n", (int)num);
             num++;
         } else {
@@ -166,7 +166,7 @@ mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             const char* arg = lwesp_mqtt_client_evt_subscribe_get_argument(client, evt);  /* Get user argument */
             lwespr_t res = lwesp_mqtt_client_evt_subscribe_get_result(client, evt); /* Get result of subscribe event */
 
-            if (res == espOK) {
+            if (res == lwespOK) {
                 printf("Successfully subscribed to %s topic\r\n", arg);
                 if (!strcmp(arg, "esp8266_mqtt_topic")) {   /* Check topic name we were subscribed */
                     /* Subscribed to "esp8266_mqtt_topic" topic */

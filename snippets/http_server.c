@@ -48,13 +48,13 @@ http_init = {
 
 /**
  * \brief           Start HTTP server on port 80
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 http_server_start(void) {
     lwespr_t res;
     printf("Starting HTTP server on port 80...\r\n");
-    if ((res = lwesp_http_server_init(&http_init, 80)) == espOK) {
+    if ((res = lwesp_http_server_init(&http_init, 80)) == lwespOK) {
         printf("HTTP server ready!\r\n");
     } else {
         printf("Cannot start HTTP server\r\n");
@@ -69,35 +69,35 @@ http_server_start(void) {
  * \param[in]       hs: HTTP state
  * \param[in]       uri: NULL-terminated uri string for POST request
  * \param[in]       content_len: Total content length received by "Content-Length" header
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len) {
     printf("POST started with %d length on URI: %s\r\n", (int)content_len, uri);
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Callback function indicating post request data received
  * \param[in]       hs: HTTP state
  * \param[in]       pbuf: New chunk of received data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 http_post_data_cb(http_state_t* hs, lwesp_pbuf_p pbuf) {
     printf("POST data received: %d bytes\r\n", (int)lwesp_pbuf_length(pbuf, 1));
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Callback function indicating post request finished
  * \param[in]       hs: HTTP state
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 http_post_end_cb(http_state_t* hs) {
     printf("POST finished!\r\n");
-    return espOK;
+    return lwespOK;
 }
 
 #endif /* HTTP_SUPPORT_POST */

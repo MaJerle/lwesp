@@ -44,7 +44,7 @@
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_dns_gethostbyname(const char* host, lwesp_ip_t* const ip,
@@ -76,7 +76,7 @@ lwesp_dns_gethostbyname(const char* host, lwesp_ip_t* const ip,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_dns_set_config(uint8_t en, const char* s1, const char* s2,
@@ -104,7 +104,7 @@ lwesp_dns_set_config(uint8_t en, const char* s1, const char* s2,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_dns_get_config(lwesp_ip_t* s1, lwesp_ip_t* s2,

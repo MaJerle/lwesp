@@ -42,7 +42,7 @@
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_quit(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
@@ -68,7 +68,7 @@ lwesp_sta_quit(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uin
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_join(const char* name, const char* pass, const lwesp_mac_t* mac,
@@ -95,7 +95,7 @@ lwesp_sta_join(const char* name, const char* pass, const lwesp_mac_t* mac,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_autojoin(uint8_t en,
@@ -117,7 +117,7 @@ lwesp_sta_autojoin(uint8_t en,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_get_ap_info(lwesp_sta_info_ap_t* info,
@@ -125,7 +125,7 @@ lwesp_sta_get_ap_info(lwesp_sta_info_ap_t* info,
     LWESP_MSG_VAR_DEFINE(msg);
 
     if (!lwesp_sta_is_joined()) {
-        return espERRWIFINOTCONNECTED;
+        return lwespERRWIFINOTCONNECTED;
     }
     LWESP_ASSERT("info != NULL", info != NULL);
 
@@ -145,7 +145,7 @@ lwesp_sta_get_ap_info(lwesp_sta_info_ap_t* info,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_getip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm,
@@ -181,7 +181,7 @@ lwesp_sta_getip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm,
@@ -206,7 +206,7 @@ lwesp_sta_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_getmac(lwesp_mac_t* mac,
@@ -230,7 +230,7 @@ lwesp_sta_getmac(lwesp_mac_t* mac,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_setmac(const lwesp_mac_t* mac,
@@ -276,11 +276,11 @@ lwesp_sta_is_joined(void) {
  * \param[out]      gw: Pointer to output gateway variable. Set to `NULL` if not interested in gateway address
  * \param[out]      nm: Pointer to output netmask variable. Set to `NULL` if not interested in netmask address
  * \param[out]      is_dhcp: Pointer to output DHCP status variable. Set to `NULL` if not interested
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_copy_ip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, uint8_t* is_dhcp) {
-    lwespr_t res = espERR;
+    lwespr_t res = lwespERR;
     if ((ip != NULL || gw != NULL || nm != NULL || is_dhcp != NULL)
         && lwesp_sta_has_ip()) {                  /* Do we have a valid IP address? */
         lwesp_core_lock();
@@ -296,7 +296,7 @@ lwesp_sta_copy_ip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, uint8_t* is_dh
         if (is_dhcp != NULL) {
             *is_dhcp = esp.m.sta.dhcp;
         }
-        res = espOK;
+        res = lwespOK;
         lwesp_core_unlock();
     }
     return res;
@@ -311,7 +311,7 @@ lwesp_sta_copy_ip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, uint8_t* is_dh
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_sta_list_ap(const char* ssid, lwesp_ap_t* aps, size_t apsl, size_t* apf,

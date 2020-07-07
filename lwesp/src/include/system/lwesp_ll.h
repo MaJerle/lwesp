@@ -46,8 +46,8 @@ extern "C" {
  * \{
  */
 
-lwespr_t      lwesp_ll_init(lwesp_ll_t* ll);
-lwespr_t      lwesp_ll_deinit(lwesp_ll_t* ll);
+lwespr_t    lwesp_ll_init(lwesp_ll_t* ll);
+lwespr_t    lwesp_ll_deinit(lwesp_ll_t* ll);
 
 /**
  * \}

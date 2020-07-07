@@ -38,9 +38,9 @@
  * \brief           Decode single character for unicode (UTF-8 only) format
  * \param[in,out]   s: Pointer to unicode decode control structure
  * \param[in]       c: UTF-8 character sequence to test for device
- * \retval          espOK: Function succedded, there is a valid UTF-8 sequence
- * \retval          espINPROG: Function continues well but expects some more data to finish sequence
- * \retval          espERR: Error in UTF-8 sequence
+ * \retval          \ref lwespOK: Function succedded, there is a valid UTF-8 sequence
+ * \retval          \ref lwespINPROG: Function continues well but expects some more data to finish sequence
+ * \retval          \ref lwespERR: Error in UTF-8 sequence
  */
 lwespr_t
 espi_unicode_decode(lwesp_unicode_t* s, uint8_t c) {
@@ -50,7 +50,7 @@ espi_unicode_decode(lwesp_unicode_t* s, uint8_t c) {
         if (c < 0x80) {                         /* One byte only in UTF-8 representation */
             s->r = 0;                           /* Remaining bytes */
             s->t = 1;
-            return espOK;                       /* Return OK */
+            return lwespOK;
         }
         if ((c & 0xE0) == 0xC0) {               /* 1 additional byte in a row = 110x xxxx */
             s->r = 1;
@@ -59,17 +59,17 @@ espi_unicode_decode(lwesp_unicode_t* s, uint8_t c) {
         } else if ((c & 0xF8) == 0xF0) {        /* 3 additional bytes in a row = 1111 0xxx */
             s->r = 3;
         } else {
-            return espERR;                      /* Error parsing unicode byte */
+            return lwespERR;                    /* Error parsing unicode byte */
         }
         s->t = s->r + 1;                        /* Number of bytes is 1 byte more than remaining in sequence */
-        return espINPROG;                       /* Return in progress status */
+        return lwespINPROG;                     /* Return in progress status */
     } else if ((c & 0xC0) == 0x80) {            /* Next character in sequence */
         --s->r;                                 /* Decrease character */
         s->ch[s->t - s->r - 1] = c;             /* Save character to array */
         if (s->r == 0) {                        /* Did we finish? */
-            return espOK;                       /* Return OK, we are ready to proceed */
+            return lwespOK;                     /* Return OK, we are ready to proceed */
         }
-        return espINPROG;                       /* Still in progress */
+        return lwespINPROG;                     /* Still in progress */
     }
-    return espERR;                              /* An error, unknown UTF-8 character entered */
+    return lwespERR;                            /* An error, unknown UTF-8 character entered */
 }

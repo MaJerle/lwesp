@@ -47,14 +47,14 @@ main(void) {
 
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
-    if (lwesp_init(lwesp_callback_func, 1) != espOK) {
+    if (lwesp_init(lwesp_callback_func, 1) != lwespOK) {
         printf("Cannot initialize ESP-AT Lib!\r\n");
     } else {
         printf("ESP-AT Lib initialized!\r\n");
     }
 
     /* Enable access point only mode */
-    if ((res = lwesp_set_wifi_mode(LWESP_MODE_AP, NULL, NULL, 1)) == espOK) {
+    if ((res = lwesp_set_wifi_mode(LWESP_MODE_AP, NULL, NULL, 1)) == lwespOK) {
         printf("ESP set to access-point-only mode\r\n");
     } else {
         printf("Problems setting ESP to access-point-only mode: %d\r\n", (int)res);
@@ -62,7 +62,7 @@ main(void) {
 
     /* Configure access point */
     res = lwesp_ap_configure("LWESP_AccessPoint", "ap_password", 13, LWESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
-    if (res == espOK) {
+    if (res == lwespOK) {
         printf("Access point configured!\r\n");
     } else {
         printf("Cannot configure access point!\r\n");
@@ -84,7 +84,7 @@ main(void) {
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 lwesp_callback_func(lwesp_evt_t* evt) {
@@ -136,5 +136,5 @@ lwesp_callback_func(lwesp_evt_t* evt) {
         }
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }

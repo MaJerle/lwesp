@@ -206,7 +206,7 @@ strcmpa(const char* a, const char* b) {
 /**
  * \brief           Parse URI from HTTP request and copy it to linear memory location
  * \param[in]       p: Chain of pbufs from request
- * \return          \ref espOK if successfully parsed, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK if successfully parsed, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 http_parse_uri(lwesp_pbuf_p p) {
@@ -214,11 +214,11 @@ http_parse_uri(lwesp_pbuf_p p) {
 
     pos_s = lwesp_pbuf_strfind(p, " ", 0);        /* Find first " " in request header */
     if (pos_s == LWESP_SIZET_MAX || (pos_s != 3 && pos_s != 4)) {
-        return espERR;
+        return lwespERR;
     }
     pos_crlf = lwesp_pbuf_strfind(p, CRLF, 0);    /* Find CRLF position */
     if (pos_crlf == LWESP_SIZET_MAX) {
-        return espERR;
+        return lwespERR;
     }
     pos_e = lwesp_pbuf_strfind(p, " ", pos_s + 1);/* Find second " " in request header */
     if (pos_e == LWESP_SIZET_MAX) {               /* If there is no second " " */
@@ -231,12 +231,12 @@ http_parse_uri(lwesp_pbuf_p p) {
 
     uri_len = pos_e - pos_s - 1;                /* Get length of uri */
     if (uri_len > HTTP_MAX_URI_LEN) {
-        return espERR;
+        return lwespERR;
     }
     lwesp_pbuf_copy(p, http_uri, uri_len, pos_s + 1); /* Copy data from pbuf to linear memory */
     http_uri[uri_len] = 0;                      /* Set terminating 0 */
 
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -773,7 +773,7 @@ send_response_no_ssi(http_state_t* hs) {
 #endif /* HTTP_DYNAMIC_HEADERS */
 
         if (blen > 0) {
-            if (lwesp_conn_send(hs->conn, b, blen, NULL, 0) == espOK) {
+            if (lwesp_conn_send(hs->conn, b, blen, NULL, 0) == lwespOK) {
                 hs->written_total += blen;      /* Set written total length */
             }
         }
@@ -868,7 +868,7 @@ send_response(http_state_t* hs, uint8_t ft) {
 /**
  * \brief           Server connection callback
  * \param[in]       evt: Pointer to callback data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 http_evt(lwesp_evt_t* evt) {
@@ -926,7 +926,7 @@ http_evt(lwesp_evt_t* evt) {
                         hs->headers_received = 1;   /* Flag received headers */
 
                         /* Parse the URI, process request and open response file */
-                        http_uri_parsed = http_parse_uri(hs->p) == espOK;
+                        http_uri_parsed = http_parse_uri(hs->p) == lwespOK;
 
 #if HTTP_SUPPORT_POST
                         /* Check for request method used on this connection */
@@ -1070,14 +1070,14 @@ http_evt(lwesp_evt_t* evt) {
             size_t len;
             lwespr_t res;
             res = lwesp_evt_conn_send_get_result(evt);
-            if (res == espOK && hs != NULL) {
+            if (res == lwespOK && hs != NULL) {
                 len = lwesp_evt_conn_send_get_length(evt);   /* Get length */
                 LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE,
                            "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
                 hs->sent_total += len;          /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
-                LWESP_DEBUGW(LWESP_CFG_DBG_SERVER_TRACE_DANGER, res != espOK,
+                LWESP_DEBUGW(LWESP_CFG_DBG_SERVER_TRACE_DANGER, res != lwespOK,
                            "[HTTP SERVER] data send error. Closing connection..\r\n");
                 close = 1;
             }
@@ -1131,19 +1131,19 @@ http_evt(lwesp_evt_t* evt) {
         lwesp_conn_close(conn, 0);                /* Close a connection */
     }
 
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Initialize HTTP server at specific port
  * \param[in]       init: Initialization structure for server
  * \param[in]       port: Port for HTTP server, usually 80
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_http_server_init(const http_init_t* init, lwesp_port_t port) {
     lwespr_t res;
-    if ((res = lwesp_set_server(1, port, LWESP_CFG_MAX_CONNS, 80, http_evt, NULL, NULL, 1)) == espOK) {
+    if ((res = lwesp_set_server(1, port, LWESP_CFG_MAX_CONNS, 80, http_evt, NULL, NULL, 1)) == lwespOK) {
         hi = init;
     }
     return res;

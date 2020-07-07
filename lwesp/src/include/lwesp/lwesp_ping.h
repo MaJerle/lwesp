@@ -47,7 +47,7 @@ extern "C" {
  * \{
  */
 
-lwespr_t      lwesp_ping(const char* host, uint32_t* time, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_ping(const char* host, uint32_t* time, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

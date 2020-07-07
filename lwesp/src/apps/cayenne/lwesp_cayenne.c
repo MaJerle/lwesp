@@ -44,7 +44,7 @@
 
 #define LWESP_CAYENNE_API_VERSION_LEN             (sizeof(LWESP_CAYENNE_API_VERSION) - 1)
 
-#define CHECK_FORWARDSLASH_AND_FORWARD(str)     do { if ((str) == NULL || *(str) != '/') { return espERR; } ++(str); } while (0)
+#define CHECK_FORWARDSLASH_AND_FORWARD(str)     do { if ((str) == NULL || *(str) != '/') { return lwespERR; } ++(str); } while (0)
 
 #if !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION
 #error "Netconn and station mode must be enabled!"
@@ -101,7 +101,7 @@ payload_data[128];
  * \brief           Parse received topic string
  * \param[in]       c: Cayenne handle
  * \param[in]       buf: MQTT buffer with received data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
@@ -119,7 +119,7 @@ parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
 
     /* Topic starts with API version */
     if (strncmp(topic, LWESP_CAYENNE_API_VERSION, LWESP_CAYENNE_API_VERSION_LEN)) {
-        return espERR;
+        return lwespERR;
     }
     topic += LWESP_CAYENNE_API_VERSION_LEN;
     CHECK_FORWARDSLASH_AND_FORWARD(topic);
@@ -127,21 +127,21 @@ parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
     /* Check username */
     len = strlen(c->info_c->user);
     if (strncmp(topic, c->info_c->user, len)) {
-        return espERR;
+        return lwespERR;
     }
     topic += len;
 
     /* Check for /things/ */
     len = sizeof("/things/") - 1;
     if (strncmp(topic, "/things/", len)) {
-        return espERR;
+        return lwespERR;
     }
     topic += len;
 
     /* Check client ID */
     len = strlen(c->info_c->id);
     if (strncmp(topic, c->info_c->id, len)) {
-        return espERR;
+        return lwespERR;
     }
     topic += len;
     CHECK_FORWARDSLASH_AND_FORWARD(topic);
@@ -158,7 +158,7 @@ parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
     }
     /* This means error, no topic found */
     if (i == LWESP_ARRAYSIZE(topic_cmd_str_pairs)) {
-        return espERR;
+        return lwespERR;
     }
 
     /* Parse channel */
@@ -176,18 +176,18 @@ parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
                 ++topic;
             }
         } else {
-            return espERR;
+            return lwespERR;
         }
     }
 
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Parse received data from MQTT channel
  * \param[in]       c: Cayenne handle
  * \param[in]       buf: MQTT buffer with received data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 parse_payload(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
@@ -223,7 +223,7 @@ parse_payload(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
                 msg->values[0].value = comm + 1;
                 msg->values_count = 1;
             } else {
-                return espERR;
+                return lwespERR;
             }
             /* Here parse sequence,value */
             break;
@@ -236,7 +236,7 @@ parse_payload(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
             break;
     }
 
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -247,7 +247,7 @@ parse_payload(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
  * \param[in]       client_id: MQTT client id
  * \param[in]       topic: Cayenne topic
  * \param[in]       channel: Cayenne channel
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 build_topic(char* topic_str, size_t topic_str_len, const char* username,
@@ -299,7 +299,7 @@ build_topic(char* topic_str, size_t topic_str_len, const char* username,
 
     LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic: %s\r\n", topic_name);
 
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -351,12 +351,12 @@ mqtt_thread(void* const arg) {
                 /* Wait for new received packet or connection closed */
                 res = lwesp_mqtt_client_api_receive(c->api_c, &buf, 0);
 
-                if (res == espOK) {
+                if (res == lwespOK) {
                     if (buf != NULL) {
                         LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Packet received\r\nTopic: %s\r\nData: %s\r\n\r\n", buf->topic, buf->payload);
 
                         /* Parse received topic and payload */
-                        if (parse_topic(c, buf) == espOK && parse_payload(c, buf) == espOK) {
+                        if (parse_topic(c, buf) == lwespOK && parse_payload(c, buf) == lwespOK) {
                             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic and payload parsed!\r\n");
                             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
                                        (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value
@@ -371,7 +371,7 @@ mqtt_thread(void* const arg) {
                         lwesp_mqtt_client_api_buf_free(buf);
                         buf = NULL;
                     }
-                } else if (res == espCLOSED) {
+                } else if (res == lwespCLOSED) {
                     /* Connection closed at this point */
                     c->evt.type = LWESP_CAYENNE_EVT_DISCONNECT;
                     c->evt_fn(c, &c->evt);
@@ -397,7 +397,7 @@ mqtt_thread(void* const arg) {
  * \param[in]       c: Cayenne empty handle
  * \param[in]       client_info: MQTT client info with username, password and id
  * \param[in]       evt_fn: Event function
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_info, lwesp_cayenne_evt_fn evt_fn) {
@@ -409,13 +409,13 @@ lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_
     c->info_c = client_info;
     c->evt_fn = evt_fn;
     if (c->api_c == NULL) {
-        return espERRMEM;
+        return lwespERRMEM;
     }
 
     /* Create semaphore */
     if (!lwesp_sys_sem_create(&c->sem, 1)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create semaphore\r\n");
-        return espERRMEM;
+        return lwespERRMEM;
     }
 
     /* Create and wait for thread to start */
@@ -427,12 +427,12 @@ lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_
         lwesp_sys_sem_invalid(&c->sem);
         lwesp_mem_free_s((void**)&c->api_c);
         c->info_c = NULL;
-        return espERRMEM;
+        return lwespERRMEM;
     }
     lwesp_sys_sem_wait(&c->sem, 0);
     lwesp_sys_sem_release(&c->sem);
 
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -442,7 +442,7 @@ lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_
  * \param[in]       channel: Optional channel number.
  *                      Use \ref LWESP_CAYENNE_NO_CHANNEL when channel is not needed
  *                      or LWESP_CAYENNE_ALL_CHANNELS to subscribe to all channels
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_cayenne_subscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel) {
@@ -454,9 +454,9 @@ lwesp_cayenne_subscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_
     build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel);
     res = lwesp_mqtt_client_api_subscribe(c->api_c, topic_name, LWESP_MQTT_QOS_EXACTLY_ONCE);
 
-    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res == espOK,
+    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res == lwespOK,
                "[CAYENNE] Subscribed to topic %s\r\n", topic_name);
-    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res != espOK,
+    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res != lwespOK,
                "[CAYENNE] Cannot subscribe to topic %s, error code: %d\r\n", topic_name, (int)res);
 
     lwesp_sys_mutex_unlock(&prot_mutex);
@@ -471,7 +471,7 @@ lwesp_cayenne_subscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_
  * \param[in]       channel: Optional channel number.
  *                      Use \ref LWESP_CAYENNE_NO_CHANNEL when channel is not needed
  *                      or LWESP_CAYENNE_ALL_CHANNELS to unsubscribe from all channels
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_cayenne_unsubscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel) {
@@ -483,9 +483,9 @@ lwesp_cayenne_unsubscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint1
     build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel);
     res = lwesp_mqtt_client_api_unsubscribe(c->api_c, topic_name);
 
-    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res == espOK,
+    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res == lwespOK,
                "[CAYENNE] Unsubscribed from topic %s\r\n", topic_name);
-    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res != espOK,
+    LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res != lwespOK,
                "[CAYENNE] Cannot unsubscribe from topic %s, error code: %d\r\n", topic_name, (int)res);
 
     lwesp_sys_mutex_unlock(&prot_mutex);
@@ -496,10 +496,10 @@ lwesp_cayenne_unsubscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint1
 lwespr_t
 lwesp_cayenne_publish_data(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel,
                          const char* type, const char* unit, const char* data) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
 
     lwesp_sys_mutex_lock(&prot_mutex);
-    if ((res = build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel)) != espOK) {
+    if ((res = build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel)) != lwespOK) {
         goto exit;
     }
     payload_data[0] = 0;
@@ -529,18 +529,18 @@ exit:
  * \param[in]       msg: Received message with command topic
  * \param[in]       resp: Response type, either `OK` or `ERROR`
  * \param[in]       message: Message text in case of error to be displayed to Cayenne dashboard
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwesp_cayenne_rlwesp_t resp, const char* message) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
     size_t len, msg_len;
 
     LWESP_ASSERT("c != NULL", c != NULL);
     LWESP_ASSERT("msg != NULL && msg->seq != NULL", msg != NULL && msg->seq != NULL);
 
     lwesp_sys_mutex_lock(&prot_mutex);
-    if ((res = build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, LWESP_CAYENNE_TOPIC_RESPONSE, LWESP_CAYENNE_NO_CHANNEL)) != espOK) {
+    if ((res = build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, LWESP_CAYENNE_TOPIC_RESPONSE, LWESP_CAYENNE_NO_CHANNEL)) != lwespOK) {
         goto exit;
     }
     payload_data[0] = 0;

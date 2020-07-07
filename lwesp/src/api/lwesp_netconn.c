@@ -206,7 +206,7 @@ netconn_evt(lwesp_evt_t* evt) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN,
                            "[NETCONN] Ignoring more data for receive!\r\n");
                 lwesp_pbuf_free(pbuf);            /* Free pbuf */
-                return espOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
+                return lwespOKIGNOREMORE;         /* Return OK to free the memory and ignore further data */
             }
             ++nc->mbox_receive_entries;         /* Increase number of packets in receive mbox */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -240,15 +240,15 @@ netconn_evt(lwesp_evt_t* evt) {
             break;
         }
         default:
-            return espERR;
+            return lwespERR;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Global event callback function
  * \param[in]       evt: Callback information and data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 lwesp_evt(lwesp_evt_t* evt) {
@@ -267,7 +267,7 @@ lwesp_evt(lwesp_evt_t* evt) {
         default:
             break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -329,7 +329,7 @@ free_ret:
 /**
  * \brief           Delete netconn connection
  * \param[in]       nc: Netconn handle
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_delete(lwesp_netconn_p nc) {
@@ -363,7 +363,7 @@ lwesp_netconn_delete(lwesp_netconn_p nc) {
     lwesp_core_unlock();
 
     lwesp_mem_free_s((void**)&nc);
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -371,7 +371,7 @@ lwesp_netconn_delete(lwesp_netconn_p nc) {
  * \param[in]       nc: Netconn handle
  * \param[in]       host: Pointer to host, such as domain name or IP address in string format
  * \param[in]       port: Target port to use
- * \return          \ref espOK if successfully connected, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK if successfully connected, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_netconn_connect(lwesp_netconn_p nc, const char* host, lwesp_port_t port) {
@@ -401,7 +401,7 @@ lwesp_netconn_connect(lwesp_netconn_p nc, const char* host, lwesp_port_t port) {
  * \param[in]       local_ip: Local ip in connected command
  * \param[in]       local_port: Local port address
  * \param[in]       mode: UDP mode
- * \return          \ref espOK if successfully connected, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK if successfully connected, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port, uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode) {
@@ -437,11 +437,11 @@ lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port
  * \brief           Bind a connection to specific port, can be only used for server connections
  * \param[in]       nc: Netconn handle
  * \param[in]       port: Port used to bind a connection to
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_bind(lwesp_netconn_p nc, lwesp_port_t port) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
 
     LWESP_ASSERT("nc != NULL", nc != NULL);
 
@@ -464,11 +464,11 @@ lwesp_netconn_bind(lwesp_netconn_p nc, lwesp_port_t port) {
  * \note            Call this function before you put connection to listen mode with \ref lwesp_netconn_listen
  * \param[in]       nc: Netconn handle used for listen mode
  * \param[in]       timeout: Time in units of seconds. Set to `0` to disable timeout feature
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_netconn_set_listen_conn_timeout(lwesp_netconn_p nc, uint16_t timeout) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
     LWESP_ASSERT("nc != NULL", nc != NULL);
 
     /*
@@ -486,7 +486,7 @@ lwesp_netconn_set_listen_conn_timeout(lwesp_netconn_p nc, uint16_t timeout) {
 /**
  * \brief           Listen on previously binded connection
  * \param[in]       nc: Netconn handle used to listen for new connections
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_listen(lwesp_netconn_p nc) {
@@ -498,7 +498,7 @@ lwesp_netconn_listen(lwesp_netconn_p nc) {
  * \param[in]       nc: Netconn handle used to listen for new connections
  * \param[in]       max_connections: Maximal number of connections server can accept at a time
  *                      This parameter may not be larger than \ref LWESP_CFG_MAX_CONNS
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_connections) {
@@ -510,7 +510,7 @@ lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_connections)
     /* Enable server on port and set default netconn callback */
     if ((res = lwesp_set_server(1, nc->listen_port,
                               LWESP_U16(LWESP_MIN(max_connections, LWESP_CFG_MAX_CONNS)),
-                              nc->conn_timeout, netconn_evt, NULL, NULL, 1)) == espOK) {
+                              nc->conn_timeout, netconn_evt, NULL, NULL, 1)) == lwespOK) {
         lwesp_core_lock();
         listen_api = nc;                        /* Set current main API in listening state */
         lwesp_core_unlock();
@@ -522,7 +522,7 @@ lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_connections)
  * \brief           Accept a new connection
  * \param[in]       nc: Netconn handle used as base connection to accept new clients
  * \param[out]      client: Pointer to netconn handle to save new connection to
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client) {
@@ -537,21 +537,21 @@ lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client) {
     *client = NULL;
     time = lwesp_sys_mbox_get(&nc->mbox_accept, (void**)&tmp, 0);
     if (time == LWESP_SYS_TIMEOUT) {
-        return espTIMEOUT;
+        return lwespTIMEOUT;
     }
     if ((uint8_t*)tmp == (uint8_t*)&recv_closed) {
         lwesp_core_lock();
         listen_api = NULL;                      /* Disable listening at this point */
         lwesp_core_unlock();
-        return espERRWIFINOTCONNECTED;          /* Wifi disconnected */
+        return lwespERRWIFINOTCONNECTED;          /* Wifi disconnected */
     } else if ((uint8_t*)tmp == (uint8_t*)&recv_not_present) {
         lwesp_core_lock();
         listen_api = NULL;                      /* Disable listening at this point */
         lwesp_core_unlock();
-        return espERRNODEVICE;                  /* Device not present */
+        return lwespERRNODEVICE;                  /* Device not present */
     }
     *client = tmp;                              /* Set new pointer */
-    return espOK;                               /* We have a new connection */
+    return lwespOK;                               /* We have a new connection */
 }
 
 /**
@@ -560,7 +560,7 @@ lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client) {
  * \param[in]       nc: Netconn handle used to write data to
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
@@ -597,11 +597,11 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
             res = lwesp_conn_send(nc->conn, nc->buff.buff, nc->buff.len, &sent, 1);
 
             lwesp_mem_free_s((void**)&nc->buff.buff);
-            if (res != espOK) {
+            if (res != lwespOK) {
                 return res;
             }
         } else {
-            return espOK;                       /* Buffer is not full yet */
+            return lwespOK;                       /* Buffer is not full yet */
         }
     }
 
@@ -610,7 +610,7 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
         size_t rem;
         rem = btw % LWESP_CFG_CONN_MAX_DATA_LEN;  /* Get remaining bytes for max data length */
         res = lwesp_conn_send(nc->conn, d, btw - rem, &sent, 1);  /* Write data directly */
-        if (res != espOK) {
+        if (res != lwespOK) {
             return res;
         }
         d += sent;                              /* Advance in data pointer */
@@ -618,7 +618,7 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
     }
 
     if (btw == 0) {                             /* Sent everything? */
-        return espOK;
+        return lwespOK;
     }
 
     /* Step 3 */
@@ -635,14 +635,14 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
     } else {                                    /* Still no memory available? */
         return lwesp_conn_send(nc->conn, data, btw, NULL, 1); /* Simply send directly blocking */
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Flush buffered data on netconn TCP/SSL connection
  * \note            This function may only be used on TCP/SSL connection
  * \param[in]       nc: Netconn handle to flush data
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_flush(lwesp_netconn_p nc) {
@@ -660,7 +660,7 @@ lwesp_netconn_flush(lwesp_netconn_p nc) {
         }
         lwesp_mem_free_s((void**)&nc->buff.buff);
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -668,7 +668,7 @@ lwesp_netconn_flush(lwesp_netconn_p nc) {
  * \param[in]       nc: Netconn handle used to send
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_send(lwesp_netconn_p nc, const void* data, size_t btw) {
@@ -687,7 +687,7 @@ lwesp_netconn_send(lwesp_netconn_p nc, const void* data, size_t btw) {
  * \param[in]       port: Port number used to send data
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_port_t port, const void* data, size_t btw) {
@@ -703,9 +703,9 @@ lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_port_t port
  * \param[in]       nc: Netconn handle used to receive from
  * \param[in]       pbuf: Pointer to pointer to save new receive buffer to.
  *                     When function returns, user must check for valid pbuf value `pbuf != NULL`
- * \return          \ref espOK when new data ready
- * \return          \ref espCLOSED when connection closed by remote side
- * \return          \ref espTIMEOUT when receive timeout occurs
+ * \return          \ref lwespOK when new data ready
+ * \return          \ref lwespCLOSED when connection closed by remote side
+ * \return          \ref lwespTIMEOUT when receive timeout occurs
  * \return          Any other member of \ref lwespr_t otherwise
  */
 lwespr_t
@@ -721,10 +721,10 @@ lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
      */
     if (nc->rcv_timeout == LWESP_NETCONN_RECEIVE_NO_WAIT) {
         if (!lwesp_sys_mbox_getnow(&nc->mbox_receive, (void**)pbuf)) {
-            return espTIMEOUT;
+            return lwespTIMEOUT;
         }
     } else if (lwesp_sys_mbox_get(&nc->mbox_receive, (void**)pbuf, nc->rcv_timeout) == LWESP_SYS_TIMEOUT) {
-        return espTIMEOUT;
+        return lwespTIMEOUT;
     }
 #else /* LWESP_CFG_NETCONN_RECEIVE_TIMEOUT */
     /* Forever wait for new receive packet */
@@ -740,7 +740,7 @@ lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
     /* Check if connection closed */
     if ((uint8_t*)(*pbuf) == (uint8_t*)&recv_closed) {
         *pbuf = NULL;                           /* Reset pbuf */
-        return espCLOSED;
+        return lwespCLOSED;
     }
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     else {
@@ -750,13 +750,13 @@ lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
         lwesp_core_unlock();
     }
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-    return espOK;                               /* We have data available */
+    return lwespOK;                               /* We have data available */
 }
 
 /**
  * \brief           Close a netconn connection
  * \param[in]       nc: Netconn handle to close
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_netconn_close(lwesp_netconn_p nc) {
@@ -773,7 +773,7 @@ lwesp_netconn_close(lwesp_netconn_p nc) {
     lwesp_conn_set_arg(conn, NULL);               /* Reset argument */
     lwesp_conn_close(conn, 1);                    /* Close the connection */
     flush_mboxes(nc, 1);                        /* Flush message queues */
-    return espOK;
+    return lwespOK;
 }
 
 /**

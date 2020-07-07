@@ -69,7 +69,7 @@ uint8_t     lwesp_evt_reset_detected_is_forced(lwesp_evt_t* cc);
  * \brief           Event helper functions for \ref LWESP_EVT_RESET event
  */
 
-lwespr_t      lwesp_evt_reset_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_reset_get_result(lwesp_evt_t* cc);
 
 /**
  * \}
@@ -81,7 +81,7 @@ lwespr_t      lwesp_evt_reset_get_result(lwesp_evt_t* cc);
  * \brief           Event helper functions for \ref LWESP_EVT_RESTORE event
  */
 
-lwespr_t      lwesp_evt_restore_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_restore_get_result(lwesp_evt_t* cc);
 
 /**
  * \}
@@ -145,7 +145,7 @@ lwesp_conn_p  lwesp_evt_conn_recv_get_conn(lwesp_evt_t* cc);
 
 lwesp_conn_p  lwesp_evt_conn_send_get_conn(lwesp_evt_t* cc);
 size_t      lwesp_evt_conn_send_get_length(lwesp_evt_t* cc);
-lwespr_t      lwesp_evt_conn_send_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_conn_send_get_result(lwesp_evt_t* cc);
 
 /**
  * \}
@@ -173,7 +173,7 @@ uint8_t     lwesp_evt_conn_active_is_client(lwesp_evt_t* cc);
 lwesp_conn_p  lwesp_evt_conn_close_get_conn(lwesp_evt_t* cc);
 uint8_t     lwesp_evt_conn_close_is_client(lwesp_evt_t* cc);
 uint8_t     lwesp_evt_conn_close_is_forced(lwesp_evt_t* cc);
-lwespr_t      lwesp_evt_conn_close_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_conn_close_get_result(lwesp_evt_t* cc);
 
 /**
  * \}
@@ -213,7 +213,7 @@ void*               lwesp_evt_conn_error_get_arg(lwesp_evt_t* cc);
  * \brief           Event helper functions for \ref LWESP_EVT_STA_LIST_AP event
  */
 
-lwespr_t      lwesp_evt_sta_list_ap_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_sta_list_ap_get_result(lwesp_evt_t* cc);
 lwesp_ap_t*   lwesp_evt_sta_list_ap_get_aps(lwesp_evt_t* cc);
 size_t      lwesp_evt_sta_list_ap_get_length(lwesp_evt_t* cc);
 
@@ -227,7 +227,7 @@ size_t      lwesp_evt_sta_list_ap_get_length(lwesp_evt_t* cc);
  * \brief           Event helper functions for \ref LWESP_EVT_STA_JOIN_AP event
  */
 
-lwespr_t      lwesp_evt_sta_join_ap_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_sta_join_ap_get_result(lwesp_evt_t* cc);
 
 /**
  * \}
@@ -239,7 +239,7 @@ lwespr_t      lwesp_evt_sta_join_ap_get_result(lwesp_evt_t* cc);
  * \brief           Event helper functions for \ref LWESP_EVT_STA_INFO_AP event
  */
 
-lwespr_t      lwesp_evt_sta_info_ap_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_sta_info_ap_get_result(lwesp_evt_t* cc);
 const char* lwesp_evt_sta_info_ap_get_ssid(lwesp_evt_t* cc);
 lwesp_mac_t   lwesp_evt_sta_info_ap_get_mac(lwesp_evt_t* cc);
 uint8_t     lwesp_evt_sta_info_ap_get_channel(lwesp_evt_t* cc);
@@ -255,7 +255,7 @@ int16_t     lwesp_evt_sta_info_ap_get_rssi(lwesp_evt_t* cc);
  * \brief           Event helper functions for \ref LWESP_EVT_DNS_HOSTBYNAME event
  */
 
-lwespr_t      lwesp_evt_dns_hostbyname_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_dns_hostbyname_get_result(lwesp_evt_t* cc);
 const char* lwesp_evt_dns_hostbyname_get_host(lwesp_evt_t* cc);
 lwesp_ip_t*   lwesp_evt_dns_hostbyname_get_ip(lwesp_evt_t* cc);
 
@@ -269,7 +269,7 @@ lwesp_ip_t*   lwesp_evt_dns_hostbyname_get_ip(lwesp_evt_t* cc);
  * \brief           Event helper functions for \ref LWESP_EVT_PING event
  */
 
-lwespr_t      lwesp_evt_ping_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_ping_get_result(lwesp_evt_t* cc);
 const char* lwesp_evt_ping_get_host(lwesp_evt_t* cc);
 uint32_t    lwesp_evt_ping_get_time(lwesp_evt_t* cc);
 
@@ -284,7 +284,7 @@ uint32_t    lwesp_evt_ping_get_time(lwesp_evt_t* cc);
  * \brief           Event helper functions for \ref LWESP_EVT_SERVER event
  */
 
-lwespr_t      lwesp_evt_server_get_result(lwesp_evt_t* cc);
+lwespr_t    lwesp_evt_server_get_result(lwesp_evt_t* cc);
 lwesp_port_t  lwesp_evt_server_get_port(lwesp_evt_t* cc);
 uint8_t     lwesp_evt_server_is_enable(lwesp_evt_t* cc);
 

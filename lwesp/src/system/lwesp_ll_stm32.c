@@ -345,7 +345,7 @@ lwesp_ll_init(lwesp_ll_t* ll) {
 
     configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
     initialized = 1;
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -365,7 +365,7 @@ lwesp_ll_deinit(lwesp_ll_t* ll) {
     }
     initialized = 0;
     LWESP_UNUSED(ll);
-    return espOK;
+    return lwespOK;
 }
 
 /**

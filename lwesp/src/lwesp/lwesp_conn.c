@@ -42,13 +42,13 @@
  * \hideinitializer
  */
 #define CONN_CHECK_CLOSED_IN_CLOSING(conn) do { \
-        lwespr_t r = espOK;                           \
+        lwespr_t r = lwespOK;                           \
         lwesp_core_lock();                            \
         if (conn->status.f.in_closing || !conn->status.f.active) {  \
-            r = espCLOSED;                          \
+            r = lwespCLOSED;                          \
         }                                           \
         lwesp_core_unlock();                          \
-        if (r != espOK) {                           \
+        if (r != lwespOK) {                           \
             return r;                               \
         }                                           \
     } while (0)
@@ -104,12 +104,12 @@ manual_tcp_read_data_evt_fn(lwespr_t res, void* arg) {
  * \brief           Manually start data read operation with desired length on specific connection
  * \param[in]       conn: Connection handle
  * \param[in]       len: Number of bytes to read
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 espi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     uint32_t blocking = 0;
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("conn != NULL", conn != NULL);
@@ -117,13 +117,13 @@ espi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     /* Receive must not be blocked and other command must not be in queue to read data */
     if (conn->status.f.receive_blocked
         || conn->status.f.receive_is_command_queued) {
-        return espINPROG;
+        return lwespINPROG;
     }
 
     /* Any available data to process? */
     if (conn->tcp_available_bytes == 0
         || !conn->status.f.active) {
-        return espERR;
+        return lwespERR;
     }
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);           /* Allocate first, will return on failure */
@@ -135,7 +135,7 @@ espi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
 
     /* Try to start command */
-    if ((res = espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) == espOK) {
+    if ((res = espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) == lwespOK) {
         conn->status.f.receive_is_command_queued = 1;   /* Command queued */
     }
     return res;
@@ -156,7 +156,7 @@ check_available_rx_data_evt_fn(lwespr_t res, void* arg) {
 
 /**
  * \brief           Manually check for received buffer status for connections
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
 espi_conn_check_available_rx_data(void) {
@@ -196,7 +196,7 @@ espi_conn_get_val_id(lwesp_conn_p conn) {
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
  * \param[in]       fau: "Free After Use" flag. Set to `1` if stack should free the memory after data sent
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 static lwespr_t
 conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, const void* data,
@@ -231,11 +231,11 @@ conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, cons
 /**
  * \brief           Flush buffer on connection
  * \param[in]       conn: Connection to flush buffer on
- * \return          \ref espOK if data flushed and put to queue, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK if data flushed and put to queue, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 flush_buff(lwesp_conn_p conn) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
     lwesp_core_lock();
     if (conn != NULL && conn->buff.buff != NULL) {  /* Do we have something ready? */
         /*
@@ -245,9 +245,9 @@ flush_buff(lwesp_conn_p conn) {
         if (conn->buff.ptr > 0) {               /* Anything to send at the moment? */
             res = conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0);
         } else {
-            res = espERR;
+            res = lwespERR;
         }
-        if (res != espOK) {
+        if (res != lwespOK) {
             LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                        "[CONN] Free write buffer: %p\r\n", (void*)conn->buff.buff);
             lwesp_mem_free_s((void**)&conn->buff.buff);
@@ -275,7 +275,7 @@ espi_conn_init(void) {
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
  * \param[in]       conn_evt_fn: Callback function for this connection
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_start(lwesp_conn_p* conn, lwesp_conn_type_t type, const char* const remote_host, lwesp_port_t remote_port,
@@ -307,7 +307,7 @@ lwesp_conn_start(lwesp_conn_p* conn, lwesp_conn_type_t type, const char* const r
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
  * \param[in]       conn_evt_fn: Callback function for this connection
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct,
@@ -346,7 +346,7 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct,
  * \brief           Close specific or all connections
  * \param[in]       conn: Connection handle to close. Set to NULL if you want to close all connections.
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
@@ -365,7 +365,7 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
 
     flush_buff(conn);                           /* First flush buffer */
     res = espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
-    if (res == espOK && !blocking) {            /* Function succedded in non-blocking mode */
+    if (res == lwespOK && !blocking) {            /* Function succedded in non-blocking mode */
         lwesp_core_lock();
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                    "[CONN] Connection %d set to closing state\r\n", (int)conn->num);
@@ -385,7 +385,7 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
  * \param[in]       btw: Number of bytes to send
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_sendto(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, const void* data,
@@ -404,7 +404,7 @@ lwesp_conn_sendto(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t po
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent.
  *                      Parameter value might not be accurate if you combine \ref lwesp_conn_write and \ref lwesp_conn_send functions
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_send(lwesp_conn_p conn, const void* data, size_t btw, size_t* const bw,
@@ -447,7 +447,7 @@ lwesp_conn_send(lwesp_conn_p conn, const void* data, size_t btw, size_t* const b
  *
  * \param[in]       conn: Connection handle
  * \param[in]       pbuf: Packet buffer received on connection
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_recved(lwesp_conn_p conn, lwesp_pbuf_p pbuf) {
@@ -464,14 +464,14 @@ lwesp_conn_recved(lwesp_conn_p conn, lwesp_pbuf_p pbuf) {
     LWESP_UNUSED(conn);
     LWESP_UNUSED(pbuf);
 #endif /* !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Set argument variable for connection
  * \param[in]       conn: Connection handle to set argument
  * \param[in]       arg: Pointer to argument
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  * \sa              lwesp_conn_get_arg
  */
 lwespr_t
@@ -479,7 +479,7 @@ lwesp_conn_set_arg(lwesp_conn_p conn, void* const arg) {
     lwesp_core_lock();
     conn->arg = arg;                            /* Set argument for connection */
     lwesp_core_unlock();
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -500,7 +500,7 @@ lwesp_conn_get_arg(lwesp_conn_p conn) {
 /**
  * \brief           Gets connections status
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_get_conns_status(const uint32_t blocking) {
@@ -596,7 +596,7 @@ lwesp_conn_getnum(lwesp_conn_p conn) {
  * \note            Use this function before you start first SSL connection
  * \param[in]       size: Size of buffer in units of bytes. Valid range is between 2048 and 4096 bytes
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
@@ -641,9 +641,9 @@ lwesp_conn_get_from_evt(lwesp_evt_t* evt) {
  * \param[in]       flush: Flush flag. Set to `1` if you want to send data immediately after copying
  * \param[out]      mem_available: Available memory size available in current write buffer.
  *                  When the buffer length is reached, current one is sent and a new one is automatically created.
- *                  If function returns \ref espOK and `*mem_available = 0`, there was a problem
+ *                  If function returns \ref lwespOK and `*mem_available = 0`, there was a problem
  *                  allocating a new buffer for next operation
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
@@ -679,7 +679,7 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
         /* Step 1.1 */
         if (conn->buff.ptr == conn->buff.len || flush) {
             /* Try to send to processing queue in non-blocking way */
-            if (conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != espOK) {
+            if (conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != lwespOK) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                            "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
                 lwesp_mem_free_s((void**)&conn->buff.buff);
@@ -694,14 +694,14 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
         buff = lwesp_mem_malloc(sizeof(*buff) * LWESP_CFG_CONN_MAX_DATA_LEN);
         if (buff != NULL) {
             LWESP_MEMCPY(buff, d, LWESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
-            if (conn_send(conn, NULL, 0, buff, LWESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != espOK) {
+            if (conn_send(conn, NULL, 0, buff, LWESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != lwespOK) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                            "[CONN] Free write buffer: %p\r\n", (void*)buff);
                 lwesp_mem_free_s((void**)&buff);
-                return espERRMEM;
+                return lwespERRMEM;
             }
         } else {
-            return espERRMEM;
+            return lwespERRMEM;
         }
 
         btw -= LWESP_CFG_CONN_MAX_DATA_LEN;       /* Decrease remaining length */
@@ -724,7 +724,7 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
             LWESP_MEMCPY(conn->buff.buff, d, btw);    /* Copy data to memory */
             conn->buff.ptr = btw;
         } else {
-            return espERRMEM;
+            return lwespERRMEM;
         }
     }
 
@@ -741,7 +741,7 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
             *mem_available = 0;
         }
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -824,7 +824,7 @@ lwesp_conn_get_local_port(lwesp_conn_p conn) {
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_conn_ssl_configure(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number,

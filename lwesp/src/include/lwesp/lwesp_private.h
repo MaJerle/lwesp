@@ -580,7 +580,7 @@ extern lwesp_t esp;
         LWESP_DEBUGW(LWESP_CFG_DBG_VAR | LWESP_DBG_TYPE_TRACE, (name) != NULL, "[MSG VAR] Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
         LWESP_DEBUGW(LWESP_CFG_DBG_VAR | LWESP_DBG_TYPE_TRACE, (name) == NULL, "[MSG VAR] Error allocating %d bytes\r\n", sizeof(*(name))); \
         if ((name) == NULL) {                           \
-            return espERRMEM;                           \
+            return lwespERRMEM;                           \
         }                                               \
         LWESP_MEMSET((name), 0x00, sizeof(*(name)));      \
         (name)->is_blocking = LWESP_U8((blocking) > 0);   \

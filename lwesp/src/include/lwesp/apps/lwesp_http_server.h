@@ -199,7 +199,7 @@ typedef struct {
  * \param[in]       hs: HTTP state
  * \param[in]       uri: POST request URI
  * \param[in]       content_length: Total content length (Content-Length HTTP parameter) in units of bytes
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 typedef lwespr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, uint32_t content_length);
 
@@ -208,14 +208,14 @@ typedef lwespr_t  (*http_post_start_fn)(struct http_state* hs, const char* uri, 
  * \note            This function may be called multiple time until content_length from \ref http_post_start_fn callback is not reached
  * \param[in]       hs: HTTP state
  * \param[in]       pbuf: Packet buffer wit reciveed data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 typedef lwespr_t  (*http_post_data_fn)(struct http_state* hs, lwesp_pbuf_p pbuf);
 
 /**
  * \brief           End of POST data request function prototype
  * \param[in]       hs: HTTP state
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 typedef lwespr_t  (*http_post_end_fn)(struct http_state* hs);
 
@@ -383,7 +383,7 @@ typedef struct http_state {
  */
 #define     lwesp_http_server_write_string(hs, str)   lwesp_http_server_write(hs, str, strlen(str))
 
-lwespr_t      lwesp_http_server_init(const http_init_t* init, lwesp_port_t port);
+lwespr_t    lwesp_http_server_init(const http_init_t* init, lwesp_port_t port);
 size_t      lwesp_http_server_write(http_state_t* hs, const void* data, size_t len);
 
 /**

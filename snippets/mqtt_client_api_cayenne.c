@@ -60,7 +60,7 @@ beg:
 
                 /* Subscribe to topic */
                 sprintf(mqtt_client_str, "v1/%s/things/%s/cmd/#", mqtt_client_info.user, mqtt_client_info.id);
-                if (lwesp_mqtt_client_api_subscribe(client, mqtt_client_str, LWESP_MQTT_QOS_AT_LEAST_ONCE) == espOK) {
+                if (lwesp_mqtt_client_api_subscribe(client, mqtt_client_str, LWESP_MQTT_QOS_AT_LEAST_ONCE) == lwespOK) {
                     safeprintf("[MQTT] Subscribed to topic: %s\r\n", mqtt_client_str);
                 } else {
                     safeprintf("[MQTT] Problems subscribing to topic!\r\n");
@@ -69,7 +69,7 @@ beg:
                 /* Start accepting and publishing data */
                 while (1) {
                     res = lwesp_mqtt_client_api_receive(client, &buf, 1000);
-                    if (res == espOK) {
+                    if (res == lwespOK) {
                         safeprintf("[MQTT] Receive OK\r\n");
                         if (buf != NULL) {
                             const char* s;
@@ -94,10 +94,10 @@ beg:
 
                             lwesp_mqtt_client_api_buf_free(buf);
                         }
-                    } else if (res == espCLOSED) {
+                    } else if (res == lwespCLOSED) {
                         safeprintf("[MQTT] Connection closed!\r\n");
                         goto beg;
-                    } else if (res == espTIMEOUT) {
+                    } else if (res == lwespTIMEOUT) {
                         safeprintf("[MQTT] Receive timeout!\r\n");
 
                         sprintf(mqtt_client_str, "v1/%s/things/%s/data/1", mqtt_client_info.user, mqtt_client_info.id);

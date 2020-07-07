@@ -48,7 +48,7 @@ extern "C" {
  * \{
  */
 
-lwespr_t      lwesp_smart_configure(uint8_t en, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_smart_configure(uint8_t en, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

@@ -1,6 +1,6 @@
 /**
- * \file            esp.c
- * \brief           Main ESP core file
+ * \file            lwesp.c
+ * \brief           LwESP core file
  */
 
 /*
@@ -58,7 +58,7 @@ lwesp_t esp;
 static lwespr_t
 def_callback(lwesp_evt_t* evt) {
     LWESP_UNUSED(evt);
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -72,11 +72,11 @@ def_callback(lwesp_evt_t* evt) {
  * \param[in]       evt_func: Global event callback function for all major events
  * \param[in]       blocking: Status whether command should be blocking or not.
  *                      Used when \ref LWESP_CFG_RESET_ON_INIT or \ref LWESP_CFG_RESTORE_ON_INIT are enabled.
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
 
     esp.status.f.initialized = 0;               /* Clear possible init flag */
 
@@ -177,7 +177,7 @@ cleanup:
         lwesp_sys_sem_delete(&esp.sem_sync);
         lwesp_sys_sem_invalid(&esp.sem_sync);
     }
-    return espERRMEM;
+    return lwespERRMEM;
 }
 
 /**
@@ -185,7 +185,7 @@ cleanup:
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_reset(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
@@ -198,7 +198,7 @@ lwesp_reset(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_reset_with_delay(uint32_t delay,
@@ -218,7 +218,7 @@ lwesp_reset_with_delay(uint32_t delay,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_restore(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
@@ -241,7 +241,7 @@ lwesp_restore(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_set_wifi_mode(lwesp_mode_t mode,
@@ -263,7 +263,7 @@ lwesp_set_wifi_mode(lwesp_mode_t mode,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_get_wifi_mode(lwesp_mode_t* mode,
@@ -284,7 +284,7 @@ lwesp_get_wifi_mode(lwesp_mode_t* mode,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_set_at_baudrate(uint32_t baud,
@@ -310,7 +310,7 @@ lwesp_set_at_baudrate(uint32_t baud,
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint16_t timeout, lwesp_evt_fn server_evt_fn,
@@ -342,7 +342,7 @@ lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint16_t time
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_update_sw(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
@@ -365,13 +365,13 @@ lwesp_update_sw(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const ui
  * \note            Function may be called multiple times to increase locks.
  *                  Application must take care to call \ref lwesp_core_unlock
  *                  the same amount of time to make sure lock gets back to `0`
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_core_lock(void) {
     lwesp_sys_protect();
     ++esp.locked_cnt;
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -382,13 +382,13 @@ lwesp_core_lock(void) {
  * If lock was non-zero before function call, lock is decreased.
  * When `lock == 0`, protection is disabled and other threads may access to core
  *
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_core_unlock(void) {
     --esp.locked_cnt;
     lwesp_sys_unprotect();
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -401,12 +401,12 @@ lwesp_core_unlock(void) {
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_device_set_present(uint8_t present,
                        const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
     lwesp_core_lock();
     present = present ? 1 : 0;
     if (present != esp.status.f.dev_present) {

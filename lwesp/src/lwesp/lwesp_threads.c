@@ -66,7 +66,7 @@ lwesp_thread_produce(void* const arg) {
         LWESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
         lwesp_core_lock();
 
-        res = espOK;                            /* Start with OK */
+        res = lwespOK;                            /* Start with OK */
         e->msg = msg;                           /* Set message handle */
 
         /*
@@ -75,11 +75,11 @@ lwesp_thread_produce(void* const arg) {
          * if device present flag changes
          */
         if (!e->status.f.dev_present) {
-            res = espERRNODEVICE;
+            res = lwespERRNODEVICE;
         }
 
         /* For reset message, we can have delay! */
-        if (res == espOK && msg->cmd_def == LWESP_CMD_RESET) {
+        if (res == lwespOK && msg->cmd_def == LWESP_CMD_RESET) {
             if (msg->msg.reset.delay > 0) {
                 lwesp_delay(msg->msg.reset.delay);
             }
@@ -90,7 +90,7 @@ lwesp_thread_produce(void* const arg) {
          * Try to call function to process this message
          * Usually it should be function to transmit data to AT port
          */
-        if (res == espOK && msg->fn != NULL) {  /* Check for callback processing function */
+        if (res == lwespOK && msg->fn != NULL) {  /* Check for callback processing function */
             /*
              * Obtain semaphore
              * This code should not block at any point.
@@ -102,25 +102,25 @@ lwesp_thread_produce(void* const arg) {
             lwesp_core_lock();
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
             time = ~LWESP_SYS_TIMEOUT;            /* Reset time */
-            if (res == espOK) {                 /* We have valid data and data were sent */
+            if (res == lwespOK) {                 /* We have valid data and data were sent */
                 lwesp_core_unlock();
                 time = lwesp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Second call; Wait for synchronization semaphore from processing thread or timeout */
                 lwesp_core_lock();
                 if (time == LWESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
-                    res = espTIMEOUT;           /* Timeout on command */
+                    res = lwespTIMEOUT;           /* Timeout on command */
                 }
             }
 
             /* Notify application on command timeout */
-            if (res == espTIMEOUT) {
+            if (res == lwespTIMEOUT) {
                 espi_send_cb(LWESP_EVT_CMD_TIMEOUT);
             }
 
             LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                       res == espTIMEOUT,
+                       res == lwespTIMEOUT,
                        "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
             LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                       res != espOK && res != espTIMEOUT,
+                       res != lwespOK && res != lwespTIMEOUT,
                        "[THREAD] Could not start execution for command %d\r\n", (int)msg->cmd);
 
             /*
@@ -141,11 +141,11 @@ lwesp_thread_produce(void* const arg) {
              */
             lwesp_sys_sem_release(&e->sem_sync);
         } else {
-            if (res == espOK) {
-                res = espERR;                   /* Simply set error message */
+            if (res == lwespOK) {
+                res = lwespERR;                   /* Simply set error message */
             }
         }
-        if (res != espOK) {
+        if (res != lwespOK) {
             /* Process global callbacks */
             espi_process_events_for_timeout_or_error(msg, res);
 

@@ -80,7 +80,7 @@ mqtt_client_api_thread(void const* arg) {
 
         /* Subscribe to topics */
         sprintf(mqtt_topic_str, "v1/%s/things/%s/cmd/#", mqtt_client_info.user, mqtt_client_info.id);
-        if (lwesp_mqtt_client_api_subscribe(client, mqtt_topic_str, LWESP_MQTT_QOS_AT_LEAST_ONCE) == espOK) {
+        if (lwesp_mqtt_client_api_subscribe(client, mqtt_topic_str, LWESP_MQTT_QOS_AT_LEAST_ONCE) == lwespOK) {
             printf("Subscribed to topic\r\n");
         } else {
             printf("Problem subscribing to topic!\r\n");
@@ -89,17 +89,17 @@ mqtt_client_api_thread(void const* arg) {
         while (1) {
             /* Receive MQTT packet with 1000ms timeout */
             res = lwesp_mqtt_client_api_receive(client, &buf, 5000);
-            if (res == espOK) {
+            if (res == lwespOK) {
                 if (buf != NULL) {
                     printf("Publish received!\r\n");
                     printf("Topic: %s, payload: %s\r\n", buf->topic, buf->payload);
                     lwesp_mqtt_client_api_buf_free(buf);
                     buf = NULL;
                 }
-            } else if (res == espCLOSED) {
+            } else if (res == lwespCLOSED) {
                 printf("MQTT connection closed!\r\n");
                 break;
-            } else if (res == espTIMEOUT) {
+            } else if (res == lwespTIMEOUT) {
                 printf("Timeout on MQTT receive function. Manually publishing.\r\n");
 
                 /* Publish data on channel 1 */

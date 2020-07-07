@@ -56,7 +56,7 @@ extern "C" {
 #define LWESP_ASSERT(msg, c)   do {   \
         if (!(c)) {                     \
             LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__, (int)__LINE__, msg);\
-            return espPARERR;           \
+            return lwespPARERR;           \
         }                               \
     } while (0)
 

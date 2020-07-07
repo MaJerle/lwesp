@@ -307,7 +307,7 @@ static void
 reset_connections(uint8_t forced) {
     esp.evt.type = LWESP_EVT_CONN_CLOSE;
     esp.evt.evt.conn_active_close.forced = forced;
-    esp.evt.evt.conn_active_close.res = espOK;
+    esp.evt.evt.conn_active_close.res = lwespOK;
 
     for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {/* Check all connections */
         if (esp.m.conns[i].status.f.active) {
@@ -386,7 +386,7 @@ espi_send_cb(lwesp_evt_type_t type) {
     for (lwesp_evt_func_t* link = esp.evt_func; link != NULL; link = link->next) {
         link->fn(&esp.evt);
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -399,7 +399,7 @@ espi_send_cb(lwesp_evt_type_t type) {
 lwespr_t
 espi_send_conn_cb(lwesp_conn_t* conn, lwesp_evt_fn evt) {
     if (conn->status.f.in_closing && esp.evt.type != LWESP_EVT_CONN_CLOSE) {  /* Do not continue if in closing mode */
-        /* return espOK; */
+        /* return lwespOK; */
     }
 
     if (evt != NULL) {                          /* Try with user connection */
@@ -407,7 +407,7 @@ espi_send_conn_cb(lwesp_conn_t* conn, lwesp_evt_fn evt) {
     } else if (conn != NULL && conn->evt_func != NULL) {/* Connection custom callback? */
         return conn->evt_func(&esp.evt);        /* Process callback function */
     } else if (conn == NULL) {
-        return espOK;
+        return lwespOK;
     }
 
     /*
@@ -437,8 +437,8 @@ espi_tcpip_process_send_data(void) {
         esp.msg->msg.conn_send.val_id != c->val_id  /* Did validation ID change after we set parameter? */
        ) {
         /* Send event to user about failed send event */
-        CONN_SEND_DATA_SEND_EVT(esp.msg, espCLOSED);
-        return espERR;
+        CONN_SEND_DATA_SEND_EVT(esp.msg, lwespCLOSED);
+        return lwespERR;
     }
     esp.msg->msg.conn_send.sent = LWESP_MIN(esp.msg->msg.conn_send.btw, LWESP_CFG_CONN_MAX_DATA_LEN);
 
@@ -455,7 +455,7 @@ espi_tcpip_process_send_data(void) {
         }
     }
     AT_PORT_SEND_END_AT();
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -481,7 +481,7 @@ espi_tcpip_process_data_sent(uint8_t sent) {
         }
     }
     if (esp.msg->msg.conn_send.btw > 0) {       /* Do we still have data to send? */
-        if (espi_tcpip_process_send_data() != espOK) {  /* Check if we can continue */
+        if (espi_tcpip_process_send_data() != lwespOK) {  /* Check if we can continue */
             return 1;                           /* Finish at this point */
         }
         return 0;                               /* We still have data to send */
@@ -827,17 +827,17 @@ espi_parse_received(lwesp_recv_t* rcv) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_ok = espi_tcpip_process_data_sent(1);    /* Process as data were sent */
                     if (is_ok && esp.msg->msg.conn_send.conn->status.f.active) {
-                        CONN_SEND_DATA_SEND_EVT(esp.msg, espOK);
+                        CONN_SEND_DATA_SEND_EVT(esp.msg, lwespOK);
                     }
                 } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_error = espi_tcpip_process_data_sent(0); /* Data were not sent due to SEND FAIL or command didn't even start */
                     if (is_error && esp.msg->msg.conn_send.conn->status.f.active) {
-                        CONN_SEND_DATA_SEND_EVT(esp.msg, espERR);
+                        CONN_SEND_DATA_SEND_EVT(esp.msg, lwespERR);
                     }
                 }
             } else if (is_error) {
-                CONN_SEND_DATA_SEND_EVT(esp.msg, espERR);
+                CONN_SEND_DATA_SEND_EVT(esp.msg, lwespERR);
             }
         } else if (CMD_IS_CUR(LWESP_CMD_UART)) {  /* In case of UART command */
             if (is_ok) {                        /* We have valid OK result */
@@ -867,7 +867,7 @@ espi_parse_received(lwesp_recv_t* rcv) {
                 esp.evt.evt.conn_active_close.client = conn->status.f.client;   /* Set if it is client or not */
                 /** @todo: Check if we really tried to close connection which was just closed */
                 esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(LWESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
-                esp.evt.evt.conn_active_close.client = espOK;
+                esp.evt.evt.conn_active_close.client = lwespOK;
                 espi_send_conn_cb(conn, NULL);  /* Send event */
 
                 /* Check if write buffer is set */
@@ -934,7 +934,7 @@ espi_parse_received(lwesp_recv_t* rcv) {
                 esp.evt.evt.conn_active_close.conn = conn;
                 esp.evt.evt.conn_active_close.client = conn->status.f.client;   /* Set if it is client or not */
                 esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(LWESP_CMD_TCPIP_CIPCLOSE);  /* Set if action was forced = current action = close connection */
-                esp.evt.evt.conn_active_close.res = espOK;
+                esp.evt.evt.conn_active_close.res = lwespOK;
                 espi_send_conn_cb(conn, NULL);  /* Send event */
 
                 /*
@@ -966,7 +966,7 @@ espi_parse_received(lwesp_recv_t* rcv) {
          * but new callback is not set by user
          */
         if (esp.msg->msg.conn_start.evt_func != NULL) { /* Connection must be closed */
-            espi_send_conn_error_cb(esp.msg, espERRCONNFAIL);
+            espi_send_conn_error_cb(esp.msg, lwespERRCONNFAIL);
         }
     }
 
@@ -975,12 +975,12 @@ espi_parse_received(lwesp_recv_t* rcv) {
      * and proceed with next command
      */
     if (is_ok || is_error || is_ready) {
-        lwespr_t res = espOK;
+        lwespr_t res = lwespOK;
         if (esp.msg != NULL) {                  /* Do we have active message? */
             res = espi_process_sub_cmd(esp.msg, &is_ok, &is_error, &is_ready);
-            if (res != espCONT) {               /* Shall we continue with next subcommand under this one? */
+            if (res != lwespCONT) {               /* Shall we continue with next subcommand under this one? */
                 if (is_ok || is_ready) {        /* Check ready or ok status */
-                    res = esp.msg->res = espOK;
+                    res = esp.msg->res = lwespOK;
                 } else {                        /* Or error status */
                     res = esp.msg->res = res;   /* Set the error status */
                 }
@@ -993,7 +993,7 @@ espi_parse_received(lwesp_recv_t* rcv) {
              * release synchronization semaphore
              * from user thread and start with next command
              */
-            if (res != espCONT) {               /* Do we have to continue to wait for command? */
+            if (res != lwespCONT) {               /* Do we have to continue to wait for command? */
                 lwesp_sys_sem_release(&esp.sem_sync); /* Release semaphore */
             }
         }
@@ -1003,7 +1003,7 @@ espi_parse_received(lwesp_recv_t* rcv) {
 #if !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
 /**
  * \brief           Process data from input buffer
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 espi_process_buffer(void) {
@@ -1033,7 +1033,7 @@ espi_process_buffer(void) {
             lwesp_buff_skip(&esp.buff, len);
         }
     } while (len);
-    return espOK;
+    return lwespOK;
 }
 #endif /* !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
 
@@ -1041,7 +1041,7 @@ espi_process_buffer(void) {
  * \brief           Process input data received from ESP device
  * \param[in]       data: Pointer to data to process
  * \param[in]       data_len: Length of data to process in units of bytes
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 espi_process(const void* data, size_t data_len) {
@@ -1053,7 +1053,7 @@ espi_process(const void* data, size_t data_len) {
 
     /* Check status if device is available */
     if (!esp.status.f.dev_present) {
-        return espERRNODEVICE;
+        return lwespERRNODEVICE;
     }
 
     while (d_len > 0) {                         /* Read entire set of characters from buffer */
@@ -1095,7 +1095,7 @@ espi_process(const void* data, size_t data_len) {
 
             /* Did we reach end of buffer or no more data? */
             if (esp.m.ipd.rem_len == 0 || (esp.m.ipd.buff != NULL && esp.m.ipd.buff_ptr == esp.m.ipd.buff->len)) {
-                lwespr_t res = espOK;
+                lwespr_t res = lwespOK;
 
                 /* Call user callback function with received data */
                 if (esp.m.ipd.buff != NULL) {     /* Do we have valid buffer? */
@@ -1125,7 +1125,7 @@ espi_process(const void* data, size_t data_len) {
                     lwesp_pbuf_free(esp.m.ipd.buff);  /* Free packet buffer at this point */
                     LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
                                "[IPD] Free packet buffer\r\n");
-                    if (res == espOKIGNOREMORE) {   /* We should ignore more data */
+                    if (res == lwespOKIGNOREMORE) {   /* We should ignore more data */
                         LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
                                    "[IPD] Ignoring more data from this IPD if available\r\n");
                         esp.m.ipd.buff = NULL;  /* Set to NULL to ignore more data if possibly available */
@@ -1167,19 +1167,19 @@ espi_process(const void* data, size_t data_len) {
              * Simply check for ASCII and unicode format and process data accordingly
              */
         } else {
-            lwespr_t res = espERR;
+            lwespr_t res = lwespERR;
             if (LWESP_ISVALIDASCII(ch)) {         /* Manually check if valid ASCII character */
-                res = espOK;
+                res = lwespOK;
                 unicode.t = 1;                  /* Manually set total to 1 */
                 unicode.r = 0;                  /* Reset remaining bytes */
             } else if (ch >= 0x80) {            /* Process only if more than ASCII can hold */
                 res = espi_unicode_decode(&unicode, ch);    /* Try to decode unicode format */
             }
 
-            if (res == espERR) {                /* In case of an ERROR */
+            if (res == lwespERR) {                /* In case of an ERROR */
                 unicode.r = 0;
             }
-            if (res == espOK) {                 /* Can we process the character(s) */
+            if (res == lwespOK) {                 /* Can we process the character(s) */
                 if (unicode.t == 1) {           /* Totally 1 character? */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
                     char* tmp_ptr;
@@ -1285,7 +1285,7 @@ espi_process(const void* data, size_t data_len) {
                         RECV_ADD(unicode.ch[i]);/* Add character to receive array */
                     }
                 }
-            } else if (res != espINPROG) {      /* Not in progress? */
+            } else if (res != lwespINPROG) {      /* Not in progress? */
                 RECV_RESET();                   /* Invalid character in sequence */
             }
         }
@@ -1293,7 +1293,7 @@ espi_process(const void* data, size_t data_len) {
         ch_prev2 = ch_prev1;                    /* Save previous character as previous previous */
         ch_prev1 = ch;                          /* Set current as previous */
     }
-    return espOK;
+    return lwespOK;
 }
 
 /* Temporary macros, only available for inside gsmi_process_sub_cmd function */
@@ -1401,7 +1401,7 @@ espi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
  * \param[in]       is_ok: Status whether last command result was OK
  * \param[in]       is_error: Status whether last command result was ERROR
  * \param[in]       is_ready: Status whether last command result was ready
- * \return          espCONT if you sent more data and we need to process more data, or espOK on success, or espERR on error
+ * \return          lwespCONT if you sent more data and we need to process more data, or lwespOK on success, or lwespERR on error
  */
 static lwespr_t
 espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t* is_ready) {
@@ -1409,7 +1409,7 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
     if (CMD_IS_DEF(LWESP_CMD_RESET)) {            /* Device is in reset mode */
         n_cmd = espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
         if (n_cmd == LWESP_CMD_IDLE) {            /* Last command? */
-            RESET_SEND_EVT(msg, *is_ok ? espOK : espERR);
+            RESET_SEND_EVT(msg, *is_ok ? lwespOK : lwespERR);
         }
     } else if (CMD_IS_DEF(LWESP_CMD_RESTORE)) {
         if ((CMD_IS_CUR(LWESP_CMD_RESET)) && *is_ready) {
@@ -1419,7 +1419,7 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             SET_NEW_CMD(espi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready));
         }
         if (n_cmd == LWESP_CMD_IDLE) {
-            RESTORE_SEND_EVT(msg, *is_ok ? espOK : espERR);
+            RESTORE_SEND_EVT(msg, *is_ok ? lwespOK : lwespERR);
         }
 #if LWESP_CFG_MODE_STATION
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP)) {/* Is our intention to join to access point? */
@@ -1435,19 +1435,19 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
                  */
                 switch (msg->msg.sta_join.error_num) {
                     case 1:
-                        esp.evt.evt.sta_join_ap.res = espERRCONNTIMEOUT;
+                        esp.evt.evt.sta_join_ap.res = lwespERRCONNTIMEOUT;
                         break;
                     case 2:
-                        esp.evt.evt.sta_join_ap.res = espERRPASS;
+                        esp.evt.evt.sta_join_ap.res = lwespERRPASS;
                         break;
                     case 3:
-                        esp.evt.evt.sta_join_ap.res = espERRNOAP;
+                        esp.evt.evt.sta_join_ap.res = lwespERRNOAP;
                         break;
                     case 4:
-                        esp.evt.evt.sta_join_ap.res = espERRCONNFAIL;
+                        esp.evt.evt.sta_join_ap.res = lwespERRCONNFAIL;
                         break;
                     default:
-                        esp.evt.evt.sta_join_ap.res = espERR;
+                        esp.evt.evt.sta_join_ap.res = lwespERR;
                 }
             }
         } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_GET)) {
@@ -1456,7 +1456,7 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             espi_send_cb(LWESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
             SET_NEW_CMD(LWESP_CMD_WIFI_CIPSTAMAC_GET);/* Go to next command to get MAC address */
         } else {
-            esp.evt.evt.sta_join_ap.res = espOK;/* Connected ok */
+            esp.evt.evt.sta_join_ap.res = lwespOK;/* Connected ok */
         }
 
         /* Check command finish */
@@ -1464,9 +1464,9 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             STA_JOIN_AP_SEND_EVT(msg, esp.evt.evt.sta_join_ap.res);
         }
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CWLAP)) {
-        STA_LIST_AP_SEND_EVT(msg, *is_ok ? espOK : espERR);
+        STA_LIST_AP_SEND_EVT(msg, *is_ok ? lwespOK : lwespERR);
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP_GET)) {
-        STA_INFO_AP_SEND_EVT(msg, *is_ok ? espOK : espERR);
+        STA_INFO_AP_SEND_EVT(msg, *is_ok ? lwespOK : lwespERR);
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CIPSTA_SET)) {
         if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_SET)) {
             SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET);
@@ -1499,11 +1499,11 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
 #if LWESP_CFG_DNS
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPDOMAIN)) {
-        CIPDOMAIN_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
+        CIPDOMAIN_SEND_EVT(esp.msg, *is_ok ? lwespOK : lwespERR);
 #endif /* LWESP_CFG_DNS */
 #if LWESP_CFG_PING
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_PING)) {
-        PING_SEND_EVT(esp.msg, *is_ok ? espOK : espERR);
+        PING_SEND_EVT(esp.msg, *is_ok ? lwespOK : lwespERR);
 #endif
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSTART)) {/* Is our intention to join to access point? */
         if (msg->i == 0 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS)) {   /* Was the current command status info? */
@@ -1523,7 +1523,7 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             esp.evt.type = LWESP_EVT_CONN_CLOSE;
             esp.evt.evt.conn_active_close.conn = msg->msg.conn_close.conn;
             esp.evt.evt.conn_active_close.forced = 1;
-            esp.evt.evt.conn_active_close.res = espERR;
+            esp.evt.evt.conn_active_close.res = lwespERR;
             esp.evt.evt.conn_active_close.client = msg->msg.conn_close.conn->status.f.active && msg->msg.conn_close.conn->status.f.client;
             espi_send_conn_cb(msg->msg.conn_close.conn, NULL);
         }
@@ -1620,7 +1620,7 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
             }
         }
         if (n_cmd == LWESP_CMD_IDLE) {            /* Do we still have execution? */
-            esp.evt.evt.server.res = *is_ok ? espOK : espERR;
+            esp.evt.evt.server.res = *is_ok ? lwespOK : lwespERR;
             esp.evt.evt.server.en = msg->msg.tcpip_server.en;
             esp.evt.evt.server.port = msg->msg.tcpip_server.port;
             espi_send_cb(LWESP_EVT_SERVER);       /* Send to upper layer */
@@ -1631,8 +1631,8 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
     if (n_cmd != LWESP_CMD_IDLE) {
         lwespr_t res;
         msg->cmd = n_cmd;
-        if ((res = msg->fn(msg)) == espOK) {
-            return espCONT;
+        if ((res = msg->fn(msg)) == lwespOK) {
+            return lwespCONT;
         } else {
             *is_ok = 0;
             *is_error = 1;
@@ -1641,7 +1641,7 @@ espi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_
     } else {
         msg->cmd = LWESP_CMD_IDLE;
     }
-    return *is_ok || *is_ready ? espOK : espERR;
+    return *is_ok || *is_ready ? lwespOK : lwespERR;
 }
 
 /**
@@ -2042,8 +2042,8 @@ espi_initiate_cmd(lwesp_msg_t* msg) {
 
             /* Do we have wifi connection? */
             if (!lwesp_sta_has_ip()) {
-                espi_send_conn_error_cb(msg, espERRNOIP);
-                return espERRNOIP;
+                espi_send_conn_error_cb(msg, lwespERRNOIP);
+                return lwespERRNOIP;
             }
 
             msg->msg.conn_start.num = 0;
@@ -2057,8 +2057,8 @@ espi_initiate_cmd(lwesp_msg_t* msg) {
                 }
             }
             if (c == NULL) {
-                espi_send_conn_error_cb(msg, espERRNOFREECONN);
-                return espERRNOFREECONN;        /* We don't have available connection */
+                espi_send_conn_error_cb(msg, lwespERRNOFREECONN);
+                return lwespERRNOFREECONN;        /* We don't have available connection */
             }
 
             if (msg->msg.conn_start.conn != NULL) { /* Is user interested about connection info? */
@@ -2105,7 +2105,7 @@ espi_initiate_cmd(lwesp_msg_t* msg) {
                  * for this connection is not valid anymore?
                  */
                 (!lwesp_conn_is_active(c) || c->val_id != msg->msg.conn_close.val_id)) {
-                return espERR;
+                return lwespERR;
             }
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPCLOSE=");
@@ -2263,9 +2263,9 @@ espi_initiate_cmd(lwesp_msg_t* msg) {
 #endif /* LWESP_CFG_ESP32 */
 
         default:
-            return espERR;                      /* Invalid command */
+            return lwespERR;                      /* Invalid command */
     }
-    return espOK;                               /* Valid command */
+    return lwespOK;                               /* Valid command */
 }
 
 /**
@@ -2288,24 +2288,24 @@ espi_is_valid_conn_ptr(lwesp_conn_p conn) {
  * \param[in]       msg: New message to process
  * \param[in]       process_fn: callback function used to process message
  * \param[in]       max_block_time: Maximal time command can block in units of milliseconds
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 espi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_msg_t*), uint32_t max_block_time) {
-    lwespr_t res = msg->res = espOK;
+    lwespr_t res = msg->res = lwespOK;
 
     /* Check here if stack is even enabled or shall we disable new command entry? */
     lwesp_core_lock();
     /* If locked more than 1 time, means we were called from callback or internally */
     if (esp.locked_cnt > 1 && msg->is_blocking) {
-        res = espERRBLOCKING;                   /* Blocking mode not allowed */
+        res = lwespERRBLOCKING;                   /* Blocking mode not allowed */
     }
     /* Check if device present */
-    if (res == espOK && !esp.status.f.dev_present) {
-        res = espERRNODEVICE;                   /* No device connected */
+    if (res == lwespOK && !esp.status.f.dev_present) {
+        res = lwespERRNODEVICE;                   /* No device connected */
     }
     lwesp_core_unlock();
-    if (res != espOK) {
+    if (res != lwespOK) {
         LWESP_MSG_VAR_FREE(msg);                  /* Free memory and return */
         return res;
     }
@@ -2313,7 +2313,7 @@ espi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_ms
     if (msg->is_blocking) {                     /* In case message is blocking */
         if (!lwesp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediately */
             LWESP_MSG_VAR_FREE(msg);              /* Release memory and return */
-            return espERRMEM;
+            return lwespERRMEM;
         }
     }
     if (!msg->cmd) {                            /* Set start command if not set by user */
@@ -2326,14 +2326,14 @@ espi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_ms
     } else {
         if (!lwesp_sys_mbox_putnow(&esp.mbox_producer, msg)) {    /* Write message to producer queue immediately */
             LWESP_MSG_VAR_FREE(msg);              /* Release message */
-            return espERRMEM;
+            return lwespERRMEM;
         }
     }
-    if (res == espOK && msg->is_blocking) {     /* In case we have blocking request */
+    if (res == lwespOK && msg->is_blocking) {     /* In case we have blocking request */
         uint32_t time;
         time = lwesp_sys_sem_wait(&msg->sem, 0);  /* Wait forever for semaphore */
         if (time == LWESP_SYS_TIMEOUT) {          /* If semaphore was not accessed within given time */
-            res = espTIMEOUT;                   /* Semaphore not released in time */
+            res = lwespTIMEOUT;                   /* Semaphore not released in time */
         } else {
             res = msg->res;                     /* Set response status from message response */
         }

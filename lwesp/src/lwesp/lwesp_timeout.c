@@ -115,7 +115,7 @@ espi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t t
  * \param[in]       time: Time in units of milliseconds for timeout execution
  * \param[in]       fn: Callback function to call when timeout expires
  * \param[in]       arg: Pointer to user specific argument to call when timeout callback function is executed
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
@@ -126,7 +126,7 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
 
     to = lwesp_mem_calloc(1, sizeof(*to));        /* Allocate memory for timeout structure */
     if (to == NULL) {
-        return espERR;
+        return lwespERR;
     }
 
     lwesp_core_lock();
@@ -183,13 +183,13 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
     }
     lwesp_core_unlock();
     lwesp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write message to process queue to wakeup process thread and to start */
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Remove callback from timeout list
  * \param[in]       fn: Callback function to identify timeout to remove
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_timeout_remove(lwesp_timeout_fn fn) {
@@ -226,5 +226,5 @@ lwesp_timeout_remove(lwesp_timeout_fn fn) {
         }
     }
     lwesp_core_unlock();
-    return success ? espOK : espERR;
+    return success ? lwespOK : lwespERR;
 }

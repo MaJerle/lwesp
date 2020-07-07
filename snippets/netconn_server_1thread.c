@@ -23,14 +23,14 @@ netconn_server_1thread_thread(void* arg) {
 
     /* Bind it to port 23 */
     res = lwesp_netconn_bind(server, 23);
-    if (res != espOK) {
+    if (res != lwespOK) {
         printf("Cannot bind server\r\n");
         goto out;
     }
 
     /* Start listening for incoming connections with maximal 1 client */
     res = lwesp_netconn_listen_with_max_conn(server, 1);
-    if (res != espOK) {
+    if (res != lwespOK) {
         goto out;
     }
 
@@ -38,19 +38,19 @@ netconn_server_1thread_thread(void* arg) {
     while (1) {
         /* Accept new client */
         res = lwesp_netconn_accept(server, &client);
-        if (res != espOK) {
+        if (res != lwespOK) {
             break;
         }
         printf("New client accepted!\r\n");
         while (1) {
             /* Receive data */
             res = lwesp_netconn_receive(client, &p);
-            if (res == espOK) {
+            if (res == lwespOK) {
                 printf("Data received!\r\n");
                 lwesp_pbuf_free(p);
             } else {
                 printf("Netconn receive returned: %d\r\n", (int)res);
-                if (res == espCLOSED) {
+                if (res == lwespCLOSED) {
                     printf("Connection closed by client\r\n");
                     break;
                 }

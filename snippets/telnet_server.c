@@ -57,7 +57,7 @@ telnet_cli_printf(const char* fmt, ...) {
 /**
  * \brief           Telnet client config (disable ECHO and LINEMOD)
  * \param[in]       nc: Netconn handle used to write data to
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 static lwespr_t
 telnet_client_config(lwesp_netconn_p nc) {
@@ -82,7 +82,7 @@ telnet_client_config(lwesp_netconn_p nc) {
     cfg_data[11] = 0x22;
 
     res = lwesp_netconn_write(nc, cfg_data, sizeof(cfg_data));
-    if (res != espOK) {
+    if (res != lwespOK) {
         return res;
     }
 
@@ -261,7 +261,7 @@ telnet_server_thread(void const* arg) {
 
     /* Bind network connection to port 23 */
     res = lwesp_netconn_bind(server, 23);
-    if (res != espOK) {
+    if (res != lwespOK) {
         printf("Telnet server cannot bind to port\r\n");
         lwesp_netconn_delete(server);
         return;
@@ -286,7 +286,7 @@ telnet_server_thread(void const* arg) {
          * new client is connected to server
          */
         res = lwesp_netconn_accept(server, &client);
-        if (res != espOK) {
+        if (res != lwespOK) {
             printf("Telnet connection accept error!\r\n");
             break;
         }
@@ -298,7 +298,7 @@ telnet_server_thread(void const* arg) {
          * and that we will echo for him.
          */
         res = telnet_client_config(client);
-        if (res != espOK) {
+        if (res != lwespOK) {
             break;
         }
 
@@ -307,7 +307,7 @@ telnet_server_thread(void const* arg) {
             size_t length;
 
             res = lwesp_netconn_receive(client, &pbuf);
-            if (res == espCLOSED) {
+            if (res == lwespCLOSED) {
                 break;
             }
 

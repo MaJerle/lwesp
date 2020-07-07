@@ -38,11 +38,11 @@
 /**
  * \brief           Register event function for global (non-connection based) events
  * \param[in]       fn: Callback function to call on specific event
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_evt_register(lwesp_evt_fn fn) {
-    lwespr_t res = espOK;
+    lwespr_t res = lwespOK;
     lwesp_evt_func_t* func, *newFunc;
 
     LWESP_ASSERT("fn != NULL", fn != NULL);
@@ -52,12 +52,12 @@ lwesp_evt_register(lwesp_evt_fn fn) {
     /* Check if function already exists on list */
     for (func = esp.evt_func; func != NULL; func = func->next) {
         if (func->fn == fn) {
-            res = espERR;
+            res = lwespERR;
             break;
         }
     }
 
-    if (res == espOK) {
+    if (res == lwespOK) {
         newFunc = lwesp_mem_malloc(sizeof(*newFunc));
         if (newFunc != NULL) {
             LWESP_MEMSET(newFunc, 0x00, sizeof(*newFunc));
@@ -65,13 +65,13 @@ lwesp_evt_register(lwesp_evt_fn fn) {
             for (func = esp.evt_func; func != NULL && func->next != NULL; func = func->next) {}
             if (func != NULL) {
                 func->next = newFunc;           /* Set new function as next */
-                res = espOK;
+                res = lwespOK;
             } else {
                 lwesp_mem_free_s((void**)& newFunc);
-                res = espERRMEM;
+                res = lwespERRMEM;
             }
         } else {
-            res = espERRMEM;
+            res = lwespERRMEM;
         }
     }
     lwesp_core_unlock();
@@ -82,7 +82,7 @@ lwesp_evt_register(lwesp_evt_fn fn) {
  * \brief           Unregister callback function for global (non-connection based) events
  * \note            Function must be first registered using \ref lwesp_evt_register
  * \param[in]       fn: Callback function to remove from event list
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_evt_unregister(lwesp_evt_fn fn) {
@@ -99,7 +99,7 @@ lwesp_evt_unregister(lwesp_evt_fn fn) {
         }
     }
     lwesp_core_unlock();
-    return espOK;
+    return lwespOK;
 }
 
 /**

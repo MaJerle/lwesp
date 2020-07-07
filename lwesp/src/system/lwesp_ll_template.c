@@ -62,7 +62,7 @@ send_data(const void* data, size_t len) {
  *                  When \ref LWESP_CFG_INPUT_USE_PROCESS is set to `1`, this function may be called from user UART thread.
  *
  * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_ll_init(lwesp_ll_t* ll) {
@@ -91,16 +91,16 @@ lwesp_ll_init(lwesp_ll_t* ll) {
     /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
     configure_uart(->uart.baudrate);            /* Initialize UART for communication */
     initialized = 1;
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Callback function to de-init low-level communication part
  * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_ll_deinit(lwesp_ll_t* ll) {
     initialized = 0;                            /* Clear initialized flag */
-    return espOK;
+    return lwespOK;
 }

@@ -103,7 +103,7 @@ init_thread(void* arg) {
 
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
-    if (lwesp_init(lwesp_callback_func, 1) != espOK) {
+    if (lwesp_init(lwesp_callback_func, 1) != lwespOK) {
         printf("Cannot initialize ESP-AT Lib!\r\n");
     } else {
         printf("ESP-AT Lib initialized!\r\n");
@@ -117,7 +117,7 @@ init_thread(void* arg) {
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 lwesp_callback_func(lwesp_evt_t* evt) {
@@ -134,7 +134,7 @@ lwesp_callback_func(lwesp_evt_t* evt) {
             break;
         }
         case LWESP_EVT_RESET: {
-            if (lwesp_evt_reset_get_result(evt) == espOK) {
+            if (lwesp_evt_reset_get_result(evt) == lwespOK) {
                 printf("ESP reset sequence finished with success!\r\n");
             } else {
                 printf("ESP reset sequence error\r\n");
@@ -152,7 +152,7 @@ lwesp_callback_func(lwesp_evt_t* evt) {
         }
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**

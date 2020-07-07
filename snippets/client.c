@@ -25,7 +25,7 @@ client_connect(void) {
     lwespr_t res;
 
     /* Start a new connection as client in non-blocking mode */
-    if ((res = lwesp_conn_start(NULL, LWESP_CONN_TYPE_TCP, "example.com", 80, NULL, conn_callback_func, 0)) == espOK) {
+    if ((res = lwesp_conn_start(NULL, LWESP_CONN_TYPE_TCP, "example.com", 80, NULL, conn_callback_func, 0)) == lwespOK) {
         printf("Connection to " CONN_HOST " started...\r\n");
     } else {
         printf("Cannot start connection to " CONN_HOST "!\r\n");
@@ -45,7 +45,7 @@ client_connect(void) {
 /**
  * \brief           Event callback function for connection-only
  * \param[in]       evt: Event information with data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 conn_callback_func(lwesp_evt_t* evt) {
@@ -55,14 +55,14 @@ conn_callback_func(lwesp_evt_t* evt) {
 
     conn = lwesp_conn_get_from_evt(evt);          /* Get connection handle from event */
     if (conn == NULL) {
-        return espERR;
+        return lwespERR;
     }
     conn_num = lwesp_conn_getnum(conn);           /* Get connection number for identification */
     switch (lwesp_evt_get_type(evt)) {
         case LWESP_EVT_CONN_ACTIVE: {             /* Connection just active */
             printf("Connection %d active!\r\n", (int)conn_num);
             res = lwesp_conn_send(conn, req_data, sizeof(req_data) - 1, NULL, 0); /* Start sending data in non-blocking mode */
-            if (res == espOK) {
+            if (res == lwespOK) {
                 printf("Sending request data to server...\r\n");
             } else {
                 printf("Cannot send request data to server. Closing connection manually...\r\n");
@@ -80,7 +80,7 @@ conn_callback_func(lwesp_evt_t* evt) {
         }
         case LWESP_EVT_CONN_SEND: {               /* Data send event */
             lwespr_t res = lwesp_evt_conn_send_get_result(evt);
-            if (res == espOK) {
+            if (res == lwespOK) {
                 printf("Data sent successfully on connection %d...waiting to receive data from remote side...\r\n", (int)conn_num);
             } else {
                 printf("Error while sending data on connection %d!\r\n", (int)conn_num);
@@ -102,5 +102,5 @@ conn_callback_func(lwesp_evt_t* evt) {
         default:
             break;
     }
-    return espOK;
+    return lwespOK;
 }

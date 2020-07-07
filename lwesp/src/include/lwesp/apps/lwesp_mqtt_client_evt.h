@@ -119,7 +119,7 @@ extern "C" {
  * \brief           Get result of subscribe event
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  * \hideinitializer
  */
 #define lwesp_mqtt_client_evt_subscribe_get_result(client, evt)       ((lwespr_t)(evt)->evt.sub_unsub_scribed.res)
@@ -137,7 +137,7 @@ extern "C" {
  * \brief           Get result of unsubscribe event
  * \param[in]       client: MQTT client
  * \param[in]       evt: Event handle
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  * \hideinitializer
  */
 #define lwesp_mqtt_client_evt_unsubscribe_get_result(client, evt)     ((lwespr_t)(evt)->evt.sub_unsub_scribed.res)
@@ -233,7 +233,7 @@ extern "C" {
 * \brief           Get result of publish event
 * \param[in]       client: MQTT client
 * \param[in]       evt: Event handle
-* \return          \ref espOK on success, member of \ref lwespr_t otherwise
+* \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
 * \hideinitializer
 */
 #define lwesp_mqtt_client_evt_publish_get_result(client, evt)     ((lwespr_t)(evt)->evt.publish.res)

@@ -75,7 +75,7 @@ static void
 init_thread(void* arg) {
     /* Initialize ESP with default callback function */
     printf("Initializing ESP-AT Lib\r\n");
-    if (lwesp_init(lwesp_callback_func, 1) != espOK) {
+    if (lwesp_init(lwesp_callback_func, 1) != lwespOK) {
         printf("Cannot initialize ESP-AT Lib!\r\n");
     } else {
         printf("ESP-AT Lib initialized!\r\n");
@@ -107,7 +107,7 @@ uint8_t reply_data[20];
 /**
  * \brief           Event callback function for connection-only
  * \param[in]       evt: Event information with data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 server_callback_func(lwesp_evt_t* evt) {
@@ -116,7 +116,7 @@ server_callback_func(lwesp_evt_t* evt) {
 
     conn = lwesp_conn_get_from_evt(evt);          /* Get connection handle from event */
     if (conn == NULL) {
-        return espERR;
+        return lwespERR;
     }
     switch (lwesp_evt_get_type(evt)) {
         case LWESP_EVT_CONN_ACTIVE: {             /* Connection just active */
@@ -142,7 +142,7 @@ server_callback_func(lwesp_evt_t* evt) {
 
             length = lwesp_pbuf_copy(pbuf, reply_data, LWESP_MIN(length, sizeof(reply_data)), 0);   /* Copy data from pbuf to memory */
             res = lwesp_conn_send(conn, reply_data, length, NULL, 0); /* Start sending data in non-blocking mode */
-            if (res == espOK) {
+            if (res == lwespOK) {
                 printf("Sending response back to remote side..\r\n");
             } else {
                 printf("Cannot send reply to remote side! Closing connection..\r\n");
@@ -151,7 +151,7 @@ server_callback_func(lwesp_evt_t* evt) {
         }
         case LWESP_EVT_CONN_SEND: {               /* Data send event */
             lwespr_t res = lwesp_evt_conn_send_get_result(evt);
-            if (res == espOK) {
+            if (res == lwespOK) {
                 printf("Data sent successfully to client\r\n");
             } else {
                 printf("Error while sending data!\r\n");
@@ -160,13 +160,13 @@ server_callback_func(lwesp_evt_t* evt) {
         }
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          \ref espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 lwesp_callback_func(lwesp_evt_t* evt) {
@@ -198,7 +198,7 @@ lwesp_callback_func(lwesp_evt_t* evt) {
         case LWESP_EVT_WIFI_CONNECTED: {
             /* Start server on port 80 and set callback for new connections */
             printf("Wifi connected\r\n");
-            if ((res = lwesp_set_server(1, 80, LWESP_CFG_MAX_CONNS, 100, server_callback_func, NULL, NULL, 0)) == espOK) {
+            if ((res = lwesp_set_server(1, 80, LWESP_CFG_MAX_CONNS, 100, server_callback_func, NULL, NULL, 0)) == lwespOK) {
                 printf("Starting server on port 80..\r\n");
             } else {
                 printf("Cannot start server on port 80..\r\n");
@@ -208,7 +208,7 @@ lwesp_callback_func(lwesp_evt_t* evt) {
         case LWESP_EVT_WIFI_DISCONNECTED: {
             /* Stop server on port 80, others parameters are don't care */
             printf("Wifi disconnected\r\n");
-            if ((res = lwesp_set_server(0, 80, LWESP_CFG_MAX_CONNS, 100, server_callback_func, NULL, NULL, 0)) == espOK) {
+            if ((res = lwesp_set_server(0, 80, LWESP_CFG_MAX_CONNS, 100, server_callback_func, NULL, NULL, 0)) == lwespOK) {
                 printf("Disabling server on port 80..\r\n");
             } else {
                 printf("Cannot disable server on port 80..\r\n");
@@ -218,7 +218,7 @@ lwesp_callback_func(lwesp_evt_t* evt) {
         default: break;
     }
     LWESP_UNUSED(res);
-    return espOK;
+    return lwespOK;
 }
 
 /**

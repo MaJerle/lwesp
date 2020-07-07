@@ -129,7 +129,7 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
  *                  as it might make memory undefined for `head` pbuf.
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  * \sa              lwesp_pbuf_chain
  */
 lwespr_t
@@ -147,7 +147,7 @@ lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail) {
     head->tot_len += tail->tot_len;             /* Increase total length of last packet in chain */
     head->next = tail;                          /* Set next packet buffer as next one */
 
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -157,7 +157,7 @@ lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail) {
  *                  its reference to tail pbuf and allow control to head pbuf: lwesp_pbuf_free(tail)
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  * \sa              lwesp_pbuf_cat
  */
 lwespr_t
@@ -169,7 +169,7 @@ lwesp_pbuf_chain(lwesp_pbuf_p head, lwesp_pbuf_p tail) {
      * first reference pbuf and increase counter
      */
     lwesp_pbuf_ref(tail);                         /* Reference tail pbuf by head pbuf now */
-    if ((res = lwesp_pbuf_cat(head, tail)) != espOK) {    /* Did we contencate them together successfully? */
+    if ((res = lwesp_pbuf_cat(head, tail)) != lwespOK) {    /* Did we contencate them together successfully? */
         lwesp_pbuf_free(tail);                    /* Call free to decrease reference counter */
     }
     return res;
@@ -199,14 +199,14 @@ lwesp_pbuf_unchain(lwesp_pbuf_p head) {
 /**
  * \brief           Increment reference count on pbuf
  * \param[in]       pbuf: pbuf to increase reference
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_pbuf_ref(lwesp_pbuf_p pbuf) {
     LWESP_ASSERT("pbuf != NULL", pbuf != NULL);
 
     ++pbuf->ref;                                /* Increase reference count for pbuf */
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -215,7 +215,7 @@ lwesp_pbuf_ref(lwesp_pbuf_p pbuf) {
  * \param[in]       data: Input data to copy to pbuf memory
  * \param[in]       len: Length of input data to copy
  * \param[in]       offset: Start offset in pbuf where to start copying
- * \return          \ref espOK on success, member of \ref lwespr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset) {
@@ -231,12 +231,12 @@ lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset) 
     if (offset > 0) {
         pbuf = pbuf_skip(pbuf, offset, &offset);    /* Offset and check for new length */
         if (pbuf == NULL) {
-            return espERR;
+            return lwespERR;
         }
     }
 
     if (pbuf->tot_len < (len + offset)) {
-        return espPARERR;
+        return lwespPARERR;
     }
 
     /* First only copy in case we have some offset from first pbuf */
@@ -255,7 +255,7 @@ lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset) 
         len -= copy_len;                        /* Decrease number of remaining bytes to send */
         d += copy_len;                          /* Increase data pointer */
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**

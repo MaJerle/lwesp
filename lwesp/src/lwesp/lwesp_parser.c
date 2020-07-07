@@ -247,7 +247,7 @@ espi_parse_cipstatus(const char* str) {
     esp.m.conns[cn_num].local_port = espi_parse_number(&str);
     esp.m.conns[cn_num].status.f.client = !espi_parse_number(&str);
 
-    return espOK;
+    return lwespOK;
 }
 
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
@@ -277,7 +277,7 @@ espi_parse_ciprecvdata(const char* str) {
         port = espi_parse_port(&str);
         lwesp_pbuf_set_ip(esp.m.ipd.buff, &ip, port);
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -300,7 +300,7 @@ espi_parse_ciprecvlen(const char* str) {
         esp.m.conns[i].tcp_available_bytes = len;
     }
 
-    return espOK;
+    return lwespOK;
 }
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
 
@@ -324,7 +324,7 @@ espi_parse_ipd(const char* str) {
 
     c = conn < LWESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL;   /* Get connection handle */
     if (c == NULL) {                            /* Invalid connection number */
-        return espERR;
+        return lwespERR;
     }
 
     /*
@@ -378,7 +378,7 @@ espi_parse_ipd(const char* str) {
         esp.m.ipd.rem_len = len;                /* Number of remaining bytes to read */
     }
 
-    return espOK;
+    return lwespOK;
 }
 
 /**
