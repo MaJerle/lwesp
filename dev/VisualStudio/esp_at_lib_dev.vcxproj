@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.;..\..\esp_at_lib\src\include\system\port\win32;..\..\esp_at_Lib\src\include;..\..\snippets\include;..\..\..\lwmem\lwmem\src\include;$(IncludePath)</IncludePath>
+    <IncludePath>.;..\..\lwesp\src\include\system\port\win32;..\..\lwesp\src\include;..\..\snippets\include;..\..\..\lwmem\lwmem\src\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -139,18 +139,18 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\lwmem\lwmem\src\lwmem\lwmem.c" />
     <ClCompile Include="..\..\..\lwmem\lwmem\src\system\lwmem_sys_win32.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\cayenne\esp_cayenne.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\cayenne\esp_cayenne_evt.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\mqtt\esp_mqtt_client_api.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\cli\cli.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\cli\cli_input.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_cli.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_dhcp.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_dns.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_hostname.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_ping.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_utils.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_mem_lwmem.c" />
+    <ClCompile Include="..\..\lwesp\src\apps\cayenne\esp_cayenne.c" />
+    <ClCompile Include="..\..\lwesp\src\apps\cayenne\esp_cayenne_evt.c" />
+    <ClCompile Include="..\..\lwesp\src\apps\mqtt\esp_mqtt_client_api.c" />
+    <ClCompile Include="..\..\lwesp\src\cli\cli.c" />
+    <ClCompile Include="..\..\lwesp\src\cli\cli_input.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_cli.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_dhcp.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_dns.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_hostname.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_ping.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_utils.c" />
+    <ClCompile Include="..\..\lwesp\src\system\esp_mem_lwmem.c" />
     <ClCompile Include="..\..\snippets\client.c" />
     <ClCompile Include="..\..\snippets\dns.c" />
     <ClCompile Include="..\..\snippets\http_server.c" />
@@ -162,33 +162,33 @@
     <ClCompile Include="..\..\snippets\netconn_server_1thread.c" />
     <ClCompile Include="..\..\snippets\sntp.c" />
     <ClCompile Include="..\..\snippets\station_manager.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\api\esp_netconn.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\http_server\esp_http_server.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\http_server\esp_http_server_fs.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\http_server\esp_http_server_fs_win32.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\mqtt\esp_mqtt_client.c">
+    <ClCompile Include="..\..\lwesp\src\api\esp_netconn.c" />
+    <ClCompile Include="..\..\lwesp\src\apps\http_server\esp_http_server.c" />
+    <ClCompile Include="..\..\lwesp\src\apps\http_server\esp_http_server_fs.c" />
+    <ClCompile Include="..\..\lwesp\src\apps\http_server\esp_http_server_fs_win32.c" />
+    <ClCompile Include="..\..\lwesp\src\apps\mqtt\esp_mqtt_client.c">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
     </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_ap.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_buff.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_conn.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_debug.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_evt.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_input.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_int.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_mdns.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_mem.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_parser.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_pbuf.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_sntp.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_sta.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_threads.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_timeout.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_unicode.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_wps.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_ll_win32.c" />
-    <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_sys_win32.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_ap.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_buff.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_conn.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_debug.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_evt.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_input.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_int.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_mdns.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_mem.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_parser.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_pbuf.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_sntp.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_sta.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_threads.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_timeout.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_unicode.c" />
+    <ClCompile Include="..\..\lwesp\src\esp\esp_wps.c" />
+    <ClCompile Include="..\..\lwesp\src\system\esp_ll_win32.c" />
+    <ClCompile Include="..\..\lwesp\src\system\esp_sys_win32.c" />
     <ClCompile Include="..\..\snippets\telnet_server.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>

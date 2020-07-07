@@ -57,9 +57,9 @@ An example code is provided latter section of this page for WIN32 and STM32.
 Steps to follow
 ***************
 
-* Copy ``esp_at_lib/src/system/esp_sys_template.c`` to the same folder and rename it to application port, eg. ``esp_sys_win32.c``
+* Copy ``lwesp/src/system/esp_sys_template.c`` to the same folder and rename it to application port, eg. ``esp_sys_win32.c``
 * Open newly created file and implement all system functions
-* Copy folder ``esp_at_lib/src/include/system/port/template/*`` to the same folder and rename *folder name* to application port, eg. ``cmsis_os``
+* Copy folder ``lwesp/src/include/system/port/template/*`` to the same folder and rename *folder name* to application port, eg. ``cmsis_os``
 * Open ``esp_sys_port.h`` file from newly created folder and implement all *typedefs* and *macros* for specific target
 * Add source file to compiler sources and add path to header file to include paths in compiler options
 
@@ -86,7 +86,7 @@ Notes:
 * Memory manager has been assigned to ``1`` region of ``ESP_MEM_SIZE`` size
 * It sets *send* and *reset* callback functions for *ESP-AT* library
 
-.. literalinclude:: ../../esp_at_lib/src/system/esp_ll_win32.c
+.. literalinclude:: ../../lwesp/src/system/esp_ll_win32.c
     :language: c
     :linenos:
     :caption: Actual implementation of low-level driver for WIN32
@@ -104,7 +104,7 @@ Notes:
 * Memory manager has been assigned to ``1`` region of ``ESP_MEM_SIZE`` size
 * It sets *send* and *reset* callback functions for *ESP-AT* library
 
-.. literalinclude:: ../../esp_at_lib/src/system/esp_ll_stm32.c
+.. literalinclude:: ../../lwesp/src/system/esp_ll_stm32.c
     :language: c
     :linenos:
     :caption: Actual implementation of low-level driver for STM32
@@ -112,12 +112,12 @@ Notes:
 Example: System functions for WIN32
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: ../../esp_at_lib/src/include/system/port/win32/esp_sys_port.h
+.. literalinclude:: ../../lwesp/src/include/system/port/win32/esp_sys_port.h
     :language: c
     :linenos:
     :caption: Actual header implementation of system functions for WIN32
 
-.. literalinclude:: ../../esp_at_lib/src/system/esp_sys_win32.c
+.. literalinclude:: ../../lwesp/src/system/esp_sys_win32.c
     :language: c
     :linenos:
     :caption: Actual implementation of system functions for WIN32
@@ -125,12 +125,12 @@ Example: System functions for WIN32
 Example: System functions for CMSIS-OS
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: ../../esp_at_lib/src/include/system/port/cmsis_os/esp_sys_port.h
+.. literalinclude:: ../../lwesp/src/include/system/port/cmsis_os/esp_sys_port.h
     :language: c
     :linenos:
     :caption: Actual header implementation of system functions for CMSIS-OS based operating systems
 
-.. literalinclude:: ../../esp_at_lib/src/system/esp_sys_cmsis_os.c
+.. literalinclude:: ../../lwesp/src/system/esp_sys_cmsis_os.c
     :language: c
     :linenos:
     :caption: Actual implementation of system functions for CMSIS-OS based operating systems

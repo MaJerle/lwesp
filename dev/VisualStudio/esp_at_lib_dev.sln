@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.452
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esp_at_lib_dev", "esp_at_lib_dev.vcxproj", "{5D881BA7-6232-4F33-B72F-0BB5DFF2A575}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lwesp_dev", "lwesp_dev.vcxproj", "{5D881BA7-6232-4F33-B72F-0BB5DFF2A575}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

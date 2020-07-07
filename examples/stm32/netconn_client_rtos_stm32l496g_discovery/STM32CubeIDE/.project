@@ -76,112 +76,112 @@
 		<link>
 			<name>ESP API/esp_netconn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/api/esp_netconn.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/api/esp_netconn.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_ap.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_ap.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_ap.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_buff.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_buff.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_buff.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_conn.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_conn.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_conn.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_debug.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_debug.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_debug.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_dns.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_dns.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_dns.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_evt.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_evt.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_evt.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_input.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_input.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_input.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_int.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_int.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_int.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_mem.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_mem.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_mem.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_parser.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_parser.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_parser.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_pbuf.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_pbuf.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_pbuf.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_sntp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_sntp.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_sntp.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_sta.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_sta.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_sta.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_threads.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_threads.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_threads.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_timeout.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_timeout.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_timeout.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_unicode.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_unicode.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_unicode.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_utils.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_utils.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_utils.c</locationURI>
 		</link>
 		<link>
 			<name>ESP CORE/esp_wps.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/esp/esp_wps.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/esp/esp_wps.c</locationURI>
 		</link>
 		<link>
 			<name>ESP LL/esp_ll_stm32l496g_discovery.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/system/esp_ll_stm32l496g_discovery.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/system/esp_ll_stm32l496g_discovery.c</locationURI>
 		</link>
 		<link>
 			<name>ESP LL/esp_sys_cmsis_os.c</name>
 			<type>1</type>
-			<locationURI>PARENT-4-PROJECT_LOC/esp_at_lib/src/system/esp_sys_cmsis_os.c</locationURI>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/system/esp_sys_cmsis_os.c</locationURI>
 		</link>
 		<link>
 			<name>ESP SNIPPETS/netconn_client.c</name>
