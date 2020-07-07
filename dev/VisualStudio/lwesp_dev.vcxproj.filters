@@ -31,105 +31,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_ap.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_buff.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_conn.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_debug.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_input.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_int.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_mem.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_parser.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_pbuf.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_sntp.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_sta.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_threads.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_timeout.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_unicode.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\api\esp_netconn.c">
-      <Filter>Source Files\ESP API</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_sys_win32.c">
-      <Filter>Source Files\ESP LL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\mqtt\esp_mqtt_client.c">
-      <Filter>Source Files\ESP APPS MQTT</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\http_server\esp_http_server.c">
-      <Filter>Source Files\ESP APPS HTTP SERVER</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\http_server\esp_http_server_fs.c">
-      <Filter>Source Files\ESP APPS HTTP SERVER</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_ll_win32.c">
-      <Filter>Source Files\ESP LL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\http_server\esp_http_server_fs_win32.c">
-      <Filter>Source Files\ESP APPS HTTP SERVER</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_wps.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_evt.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_mdns.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\mqtt\esp_mqtt_client_api.c">
-      <Filter>Source Files\ESP APPS MQTT</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\cli\cli.c">
-      <Filter>Source Files\ESP CLI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\cli\cli_input.c">
-      <Filter>Source Files\ESP CLI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_cli.c">
-      <Filter>Source Files\ESP CLI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_utils.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\cayenne\esp_cayenne.c">
-      <Filter>Source Files\ESP APPS MQTT</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\apps\cayenne\esp_cayenne_evt.c">
-      <Filter>Source Files\ESP APPS MQTT</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_dns.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\snippets\http_server.c">
       <Filter>Source Files\ESP SNIPPETS</Filter>
     </ClCompile>
@@ -157,18 +58,6 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\system\esp_mem_lwmem.c">
-      <Filter>Source Files\ESP LL</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_dhcp.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_hostname.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ESP_AT_Lib\src\esp\esp_ping.c">
-      <Filter>Source Files\ESP CORE</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\lwmem\lwmem\src\lwmem\lwmem.c">
       <Filter>Source Files\LWMEM</Filter>
     </ClCompile>
@@ -186,6 +75,117 @@
     </ClCompile>
     <ClCompile Include="..\..\snippets\telnet_server.c">
       <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\system\lwesp_mem_lwmem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_wps.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_utils.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_unicode.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_timeout.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_threads.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_sta.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_sntp.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_ping.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_pbuf.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_parser.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\cli\cli_input.c">
+      <Filter>Source Files\ESP CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\cli\cli.c">
+      <Filter>Source Files\ESP CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_ap.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_buff.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_cli.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_conn.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_debug.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_dhcp.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_dns.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_evt.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_hostname.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\apps\cayenne\lwesp_cayenne_evt.c">
+      <Filter>Source Files\ESP APPS MQTT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\apps\cayenne\lwesp_cayenne.c">
+      <Filter>Source Files\ESP APPS MQTT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\apps\mqtt\lwesp_mqtt_client.c">
+      <Filter>Source Files\ESP APPS MQTT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\apps\mqtt\lwesp_mqtt_client_api.c">
+      <Filter>Source Files\ESP APPS MQTT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\apps\http_server\lwesp_http_server_fs_win32.c">
+      <Filter>Source Files\ESP APPS HTTP SERVER</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\apps\http_server\lwesp_http_server.c">
+      <Filter>Source Files\ESP APPS HTTP SERVER</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\apps\http_server\lwesp_http_server_fs.c">
+      <Filter>Source Files\ESP APPS HTTP SERVER</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_input.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_int.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_mdns.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_mem.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\system\lwesp_ll_win32.c">
+      <Filter>Source Files\ESP LL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\api\lwesp_netconn.c">
+      <Filter>Source Files\ESP API</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lwesp\src\system\lwesp_sys_win32.c">
+      <Filter>Source Files\ESP LL</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
