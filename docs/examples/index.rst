@@ -23,13 +23,13 @@ WIN32
 Examples for *WIN32* are prepared as `Visual Studio Community <https://visualstudio.microsoft.com/vs/community/>`_ projects.
 You can directly open project in the IDE, compile & debug.
 
-Application opens *COM* port, set in the low-level driver. 
+Application opens *COM* port, set in the low-level driver.
 External USB to UART converter (FTDI-like device) is necessary in order to connect to *ESP* device.
 
 .. note::
 	*ESP* device is connected with *USB to UART converter* only by *RX* and *TX* pins.
 
-Device driver is located in ``/esp_at_lib/src/system/esp_ll_win32.c``
+Device driver is located in ``/lwesp/src/system/lwesp_ll_win32.c``
 
 STM32
 *****
@@ -69,7 +69,7 @@ Pins to connect with ESP device:
 * *CHPD*: `CH_PD` pin of ESP8266, connected to MCU, configured as output at MCU side
 
 .. note::
-	*GP0*, *GP2*, *CH_PD* pins are not always necessary for *ESP* device to work properly. 
+	*GP0*, *GP2*, *CH_PD* pins are not always necessary for *ESP* device to work properly.
 	When not used, these pins must be tied to fixed values as explained in *ESP* datasheet.
 
 Other pins are for your information and are used for debugging purposes on board.

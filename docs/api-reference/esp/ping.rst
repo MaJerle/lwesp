@@ -1,6 +1,6 @@
-.. _api_esp_ping:
+.. _api_lwesp_ping:
 
 Ping support
 ============
 
-.. doxygengroup:: ESP_PING
+.. doxygengroup:: LWESP_PING

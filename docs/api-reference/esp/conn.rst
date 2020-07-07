@@ -1,4 +1,4 @@
-.. _api_esp_conn:
+.. _api_lwesp_conn:
 
 Connections
 ===========
@@ -14,7 +14,7 @@ it tries to use zero-copy (when available) feature, to decrease processing time.
 * Up to ``1`` SSL connection active at a time
 
 .. note::
-    Client or server connections are available. 
+    Client or server connections are available.
     Same API function call are used to send/receive data or close connection.
 
 Architecture of the connection API is using callback event functions.
@@ -24,7 +24,7 @@ Example below shows *bare minimum* implementation to:
 
 * Start a new connection to remote host
 * Send *HTTP GET* request to remote host
-* Process received data in event and print number of received bytes 
+* Process received data in event and print number of received bytes
 
 .. literalinclude:: ../../../snippets/client.c
     :language: c
@@ -43,7 +43,7 @@ When it comes to sending data, application may decide between ``2`` options (*th
 Temporary transmit buffer
 *************************
 
-By calling :cpp:func:`esp_conn_write` on active connection, temporary buffer is allocated and input data are copied to it.
+By calling :cpp:func:`lwesp_conn_write` on active connection, temporary buffer is allocated and input data are copied to it.
 There is always up to ``1`` internal buffer active. When it is full (or if input data length is longer than maximal size),
 data are immediately send out and are not written to buffer.
 
@@ -62,8 +62,8 @@ than many of them with smaller chunks of bytes.
 Transmit packet manually
 ************************
 
-In some cases it is not possible to use temporary buffers, 
+In some cases it is not possible to use temporary buffers,
 mostly because of memory constraints.
-Application can directly start *send data* instructions on *AT* level by using :cpp:func:`esp_conn_send` or :cpp:func:`esp_conn_sendto` functions.
+Application can directly start *send data* instructions on *AT* level by using :cpp:func:`lwesp_conn_send` or :cpp:func:`lwesp_conn_sendto` functions.
 
-.. doxygengroup:: ESP_CONN
+.. doxygengroup:: LWESP_CONN

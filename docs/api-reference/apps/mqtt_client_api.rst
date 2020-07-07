@@ -10,4 +10,4 @@ MQTT Client API
     :linenos:
     :caption: MQTT API application example code
 
-.. doxygengroup:: ESP_APP_MQTT_CLIENT_API
+.. doxygengroup:: LWESP_APP_MQTT_CLIENT_API

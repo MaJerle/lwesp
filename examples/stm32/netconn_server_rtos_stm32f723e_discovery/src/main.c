@@ -32,7 +32,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 #include "station_manager.h"
 #include "netconn_server.h"
 
@@ -42,7 +42,7 @@ static void USART_Printf_Init(void);
 
 static void init_thread(void* arg);
 
-static espr_t esp_callback_func(esp_evt_t* evt);
+static lwespr_t lwesp_callback_func(lwesp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -73,11 +73,11 @@ main(void) {
 static void
 init_thread(void* arg) {
     /* Initialize ESP with default callback function */
-    printf("Initializing ESP-AT Lib\r\n");
-    if (esp_init(esp_callback_func, 1) != espOK) {
-        printf("Cannot initialize ESP-AT Lib!\r\n");
+    printf("Initializing LwESP\r\n");
+    if (lwesp_init(lwesp_callback_func, 1) != lwespOK) {
+        printf("Cannot initialize LwESP!\r\n");
     } else {
-        printf("ESP-AT Lib initialized!\r\n");
+        printf("LwESP initialized!\r\n");
     }
 
     /*
@@ -93,40 +93,40 @@ init_thread(void* arg) {
      *
      * Process all the incoming connections with separate thread
      */
-    esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 512, ESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 512, LWESP_SYS_THREAD_PRIO);
 	osThreadExit();
 }
 
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-esp_callback_func(esp_evt_t* evt) {
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_AT_VERSION_NOT_SUPPORTED: {
-            esp_sw_version_t v_min, v_curr;
+static lwespr_t
+lwesp_callback_func(lwesp_evt_t* evt) {
+    switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_AT_VERSION_NOT_SUPPORTED: {
+            lwesp_sw_version_t v_min, v_curr;
 
-            esp_get_min_at_fw_version(&v_min);
-            esp_get_current_at_fw_version(&v_curr);
+            lwesp_get_min_at_fw_version(&v_min);
+            lwesp_get_current_at_fw_version(&v_curr);
 
             printf("Current ESP8266 AT version is not supported by library!\r\n");
             printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
             printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
             break;
         }
-        case ESP_EVT_INIT_FINISH: {
+        case LWESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
             break;
         }
-        case ESP_EVT_RESET_DETECTED: {
+        case LWESP_EVT_RESET_DETECTED: {
             printf("Device reset detected!\r\n");
             break;
         }
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**

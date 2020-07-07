@@ -28,7 +28,7 @@
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu.1315268871" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu" value="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.fpu.value.fpv4-sp-d16" valueType="enumerated"/>
 							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.listfile.41772673" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.option.listfile" value="true" valueType="boolean"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.targetplatform.1930563101" isAbstract="false" osList="all" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.targetplatform"/>
-							<builder buildPath="${workspace_loc:/ESP_STM32F429ZI_Nucleo_Netconn_Client_RTOS}/Debug" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.builder.1209316178" name="Gnu Make Builder.Debug" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.builder"/>
+							<builder buildPath="${workspace_loc:/LWESP_STM32F429ZI_Nucleo_Netconn_Client_RTOS}/Debug" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.builder.1209316178" name="Gnu Make Builder.Debug" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.builder"/>
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.885326901" name="MCU GCC Assembler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler">
 								<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.option.debuglevel.372275152" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.option.debuglevel" useByScannerDiscovery="false" value="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.option.debuglevel.value.g3" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="true" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.option.otherflags.756311351" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.assembler.option.otherflags" valueType="stringList"/>
@@ -47,8 +47,8 @@
 									<listOptionValue builtIn="false" value="../../../../../third_party/embedded-libs/st_hal/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../../../../third_party/embedded-libs"/>
 									<listOptionValue builtIn="false" value="../../inc"/>
-									<listOptionValue builtIn="false" value="../../../../../esp_at_lib/src/include"/>
-									<listOptionValue builtIn="false" value="../../../../../esp_at_lib/src/include/system/port/cmsis_os"/>
+									<listOptionValue builtIn="false" value="../../../../../lwesp/src/include"/>
+									<listOptionValue builtIn="false" value="../../../../../lwesp/src/include/system/port/cmsis_os"/>
 									<listOptionValue builtIn="false" value="../../../../../third_party/embedded-libs/FreeRTOS/portable/GCC/ARM_CM4F"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.definedsymbols.1698502957" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.definedsymbols" useByScannerDiscovery="false" valueType="definedSymbols">

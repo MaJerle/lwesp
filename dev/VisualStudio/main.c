@@ -1,11 +1,11 @@
-// esp_dev_os.cpp : Defines the entry point for the console application.
+// lwesp_dev_os.cpp : Defines the entry point for the console application.
 //
 
 #include <string.h>
 #include "windows.h"
-#include "esp/esp.h"
-#include "esp/apps/esp_mqtt_client_api.h"
-#include "esp/apps/esp_cayenne.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/apps/lwesp_mqtt_client_api.h"
+#include "lwesp/apps/lwesp_cayenne.h"
 
 #include "mqtt_client.h"
 #include "mqtt_client_api.h"
@@ -14,22 +14,22 @@
 #include "netconn_client.h"
 #include "netconn_server.h"
 #include "netconn_server_1thread.h"
-#include "esp/esp_timeout.h"
+#include "lwesp/lwesp_timeout.h"
 #include "lwmem/lwmem.h"
-#include "esp/esp_opt.h"
+#include "lwesp/lwesp_opt.h"
 
 #define safeprintf              printf
 
 static void main_thread(void* arg);
 static void input_thread(void* arg);
 
-esp_ap_t aps[10];
+lwesp_ap_t aps[10];
 size_t aps_count;
 
-static espr_t esp_evt(esp_evt_t* evt);
+static lwespr_t lwesp_evt(lwesp_evt_t* evt);
 
-esp_sta_info_ap_t connected_ap_info;
-extern volatile uint8_t esp_ll_win32_driver_ignore_data;
+lwesp_sta_info_ap_t connected_ap_info;
+extern volatile uint8_t lwesp_ll_win32_driver_ignore_data;
 
 /**
  * \brief           LwMEM memory config
@@ -101,7 +101,7 @@ main() {
 
     /* Do nothing at this point but do not close the program */
     while (1) {
-        esp_delay(1000);
+        lwesp_delay(1000);
     }
 }
 
@@ -235,7 +235,7 @@ input_thread(void* arg) {
 
         /* Analyze input data */
         size_t i = 0;
-        for (i = 0; i < ESP_ARRAYSIZE(cmd_commands); ++i) {
+        for (i = 0; i < LWESP_ARRAYSIZE(cmd_commands); ++i) {
             if (cmd_commands[i].del) {
                 continue;
             }
@@ -244,7 +244,7 @@ input_thread(void* arg) {
                 break;
             }
         }
-        if (i == ESP_ARRAYSIZE(cmd_commands)) {
+        if (i == LWESP_ARRAYSIZE(cmd_commands)) {
             safeprintf("[CMD] Unknown input command\r\n");
             continue;
         }
@@ -258,45 +258,45 @@ input_thread(void* arg) {
             parse_str(&str, &ssid);
             parse_str(&str, &pass);
 
-            esp_sta_join(ssid, pass, NULL, NULL, NULL, 1);
+            lwesp_sta_join(ssid, pass, NULL, NULL, NULL, 1);
         } else if (IS_LINE("quit")) {
-            esp_sta_quit(NULL, NULL, 1);
+            lwesp_sta_quit(NULL, NULL, 1);
         } else if (IS_LINE("setip")) {
-            esp_ip_t dev_ip;
+            lwesp_ip_t dev_ip;
             dev_ip.ip[0] = 192;
             dev_ip.ip[1] = 168;
             dev_ip.ip[2] = 1;
             dev_ip.ip[3] = 150;
-            esp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
+            lwesp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
         } else if (IS_LINE("getip")) {
-            esp_sta_getip(NULL, NULL, NULL, NULL, NULL, 1);
+            lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 1);
         } else if (IS_LINE("dhcpenable")) {
-            esp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
+            lwesp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
         } else if (IS_LINE("dhcpdisable")) {
-            esp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
+            lwesp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
         } else if (IS_LINE("listap")) {
-            esp_sta_list_ap(NULL, aps, ESP_ARRAYSIZE(aps), &aps_count, NULL, NULL, 1);
+            lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &aps_count, NULL, NULL, 1);
             safeprintf("Detected %d number of access points\r\n", (int)aps_count);
         } else if (IS_LINE("getapinfo")) {
-            esp_sta_info_ap_t ap;
-            esp_sta_get_ap_info(&ap, NULL, NULL, 1);
+            lwesp_sta_info_ap_t ap;
+            lwesp_sta_get_ap_info(&ap, NULL, NULL, 1);
         } else if (IS_LINE("apenable")) {
-            esp_set_wifi_mode(ESP_MODE_STA_AP, NULL, NULL, 1);
-            esp_ap_configure("ESP8266_SSID", "its private", 13, ESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
+            lwesp_set_wifi_mode(LWESP_MODE_STA_AP, NULL, NULL, 1);
+            lwesp_ap_configure("ESP8266_SSID", "its private", 13, LWESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
         } else if (IS_LINE("apdisable")) {
-            esp_set_wifi_mode(ESP_MODE_STA, NULL, NULL, 1);
+            lwesp_set_wifi_mode(LWESP_MODE_STA, NULL, NULL, 1);
         } else if (IS_LINE("apliststa")) {
-            esp_sta_t stas[10];
+            lwesp_sta_t stas[10];
             size_t stat;
 
-            esp_ap_list_sta(stas, ESP_ARRAYSIZE(stas), &stat, NULL, NULL, 1);
+            lwesp_ap_list_sta(stas, LWESP_ARRAYSIZE(stas), &stat, NULL, NULL, 1);
             safeprintf("Number of stations: %d\r\n", (int)stat);
         } else if (IS_LINE("ping")) {
             uint32_t pingtime;
             char* host;
 
             if (parse_str(&str, &host)) {
-                esp_ping(host, &pingtime, NULL, NULL, 1);
+                lwesp_ping(host, &pingtime, NULL, NULL, 1);
                 safeprintf("Ping time: %d\r\n", (int)pingtime);
             } else {
                 safeprintf("Cannot parse host\r\n");
@@ -305,30 +305,30 @@ input_thread(void* arg) {
             char* host;
 
             if (parse_str(&str, &host)) {
-                esp_hostname_set(host, NULL, NULL, 1);
+                lwesp_hostname_set(host, NULL, NULL, 1);
             } else {
                 safeprintf("Cannot parse host\r\n");
             }
         } else if (IS_LINE("hnget")) {
             char hn[20];
-            esp_hostname_get(hn, sizeof(hn), NULL, NULL, 1);
+            lwesp_hostname_get(hn, sizeof(hn), NULL, NULL, 1);
             safeprintf("Hostname: %s\r\n", hn);
         } else if (IS_LINE("netconn_client")) {
-            esp_sys_sem_t sem;
-            esp_sys_sem_create(&sem, 0);
-            esp_sys_thread_create(NULL, "netconn_client", (esp_sys_thread_fn)netconn_client_thread, &sem, 0, ESP_SYS_THREAD_PRIO);
-            esp_sys_sem_wait(&sem, 0);
-            esp_sys_sem_delete(&sem);
+            lwesp_sys_sem_t sem;
+            lwesp_sys_sem_create(&sem, 0);
+            lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, &sem, 0, LWESP_SYS_THREAD_PRIO);
+            lwesp_sys_sem_wait(&sem, 0);
+            lwesp_sys_sem_delete(&sem);
         } else if (IS_LINE("netconn_server")) {
-            esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
+            lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
         } else if (IS_LINE("mqttthread")) {
-            esp_sys_thread_create(NULL, "mqtt_client_api", (esp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
+            lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
         } else if (IS_LINE("ignoreon")) {
             safeprintf("Ignoring data...\r\n");
-            esp_ll_win32_driver_ignore_data = 1;
+            lwesp_ll_win32_driver_ignore_data = 1;
         } else if (IS_LINE("ignoreoff")) {
             safeprintf("Not ignoring data...\r\n");
-            esp_ll_win32_driver_ignore_data = 0;
+            lwesp_ll_win32_driver_ignore_data = 0;
         } else {
             safeprintf("Unknown input!\r\n");
         }
@@ -344,18 +344,18 @@ main_thread(void* arg) {
     uint32_t ping_time;
 
     /* Init ESP library */
-    esp_init(esp_evt, 1);
+    lwesp_init(lwesp_evt, 1);
 
-    if (esp_device_is_esp32()) {
+    if (lwesp_device_is_esp32()) {
         safeprintf("Device is ESP32\r\n");
     }
-    if (esp_device_is_esp8266()) {
+    if (lwesp_device_is_esp8266()) {
         safeprintf("Device is ESP8266\r\n");
     }
     /* Start thread to toggle device present */
-    //esp_sys_thread_create(NULL, "device_present", (esp_sys_thread_fn)esp_device_present_toggle, NULL, 0, ESP_SYS_THREAD_PRIO);
-    esp_hostname_set("abc", NULL, NULL, 1);
-    esp_hostname_get(hn, sizeof(hn), NULL, NULL, 1);
+    //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    lwesp_hostname_set("abc", NULL, NULL, 1);
+    lwesp_hostname_get(hn, sizeof(hn), NULL, NULL, 1);
     safeprintf("Hostname: %s\r\n", hn);
 
     /*
@@ -365,12 +365,12 @@ main_thread(void* arg) {
      * on how to setup preferred access points for fast connection
      */
     //start_access_point_scan_and_connect_procedure();
-    //esp_sys_thread_terminate(NULL);
+    //lwesp_sys_thread_terminate(NULL);
     //connect_to_preferred_access_point(1);
-    esp_sta_autojoin(1, NULL, NULL, 1);
-    esp_sta_join("Majerle WIFI", "majerle_internet_private", NULL, NULL, NULL, 1);
+    lwesp_sta_autojoin(1, NULL, NULL, 1);
+    lwesp_sta_join("Majerle WIFI", "majerle_internet_private", NULL, NULL, NULL, 1);
 
-    esp_ping("majerle.eu", &ping_time, NULL, NULL, 1);
+    lwesp_ping("majerle.eu", &ping_time, NULL, NULL, 1);
     safeprintf("Ping time: %d\r\n", (int)ping_time);
 
     /*
@@ -378,35 +378,35 @@ main_thread(void* arg) {
      *
      * This should always pass
      */
-    //if (esp_sta_has_ip()) {
+    //if (lwesp_sta_has_ip()) {
 
-    //    esp_ip_t ip;
+    //    lwesp_ip_t ip;
     //    uint8_t is_dhcp;
 
-    //    esp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
+    //    lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
     //    safeprintf("Connected to WIFI!\r\n");
     //    safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
-    //    esp_sta_setip(&dev_ip, NULL, NULL, 0, NULL, NULL, 1);
-    //    esp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
+    //    lwesp_sta_setip(&dev_ip, NULL, NULL, 0, NULL, NULL, 1);
+    //    lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
     //    safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
-    //    esp_dhcp_configure(1, 0, 1, 1, NULL, NULL, 1);
-    //    esp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
+    //    lwesp_dhcp_configure(1, 0, 1, 1, NULL, NULL, 1);
+    //    lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
     //    safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
     //}
 
-    //esp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
-    //esp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
+    //lwesp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
+    //lwesp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
 
     /* Start server on port 80 */
     //http_server_start();
-    //esp_sys_thread_create(NULL, "netconn_client", (esp_sys_thread_fn)netconn_client_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
-    //esp_sys_thread_create(NULL, "netconn_server", (esp_sys_thread_fn)netconn_server_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
-    //esp_sys_thread_create(NULL, "netconn_server_single", (esp_sys_thread_fn)netconn_server_1thread_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
-    //esp_sys_thread_create(NULL, "mqtt_client", (esp_sys_thread_fn)mqtt_client_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
-    //esp_sys_thread_create(NULL, "mqtt_client_api", (esp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
-    //esp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (esp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, ESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "netconn_server_single", (lwesp_sys_thread_fn)netconn_server_1thread_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
-    /*if (esp_cayenne_create(&cayenne, &cayenne_mqtt_client_info, cayenne_evt_func) != espOK) {
+    /*if (lwesp_cayenne_create(&cayenne, &cayenne_mqtt_client_info, cayenne_evt_func) != lwespOK) {
         safeprintf("Cannot create new cayenne instance!\r\n");
     } else {
 
@@ -418,30 +418,30 @@ main_thread(void* arg) {
     while (1) {}
 
     {
-        espr_t res;
-        esp_pbuf_p pbuf;
-        esp_netconn_p client;
+        lwespr_t res;
+        lwesp_pbuf_p pbuf;
+        lwesp_netconn_p client;
 
-        client = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
+        client = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP);
         if (client != NULL) {
             while (1) {
-                res = esp_netconn_connect(client, "10.57.218.183", 123);
-                if (res == espOK) {                     /* Are we successfully connected? */
+                res = lwesp_netconn_connect(client, "10.57.218.183", 123);
+                if (res == lwespOK) {                     /* Are we successfully connected? */
                     safeprintf("Connected to host\r\n");
                     do {
-                        res = esp_netconn_receive(client, &pbuf);
+                        res = lwesp_netconn_receive(client, &pbuf);
                         safeprintf("GOT FROM BUFFER...delaying...\r\n");
-                        //esp_delay(5000);
-                        if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
+                        //lwesp_delay(5000);
+                        if (res == lwespCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
                             safeprintf("Connection closed by remote side...\r\n");
                             break;
                         }
-                        if (res == espOK && pbuf != NULL) {
-                            int len = esp_pbuf_length(pbuf, 1);
+                        if (res == lwespOK && pbuf != NULL) {
+                            int len = lwesp_pbuf_length(pbuf, 1);
                             safeprintf("Received new data packet of %d bytes: %.*s\r\n",
                                 len, len,
-                                (const char *)esp_pbuf_get_linear_addr(pbuf, 0, NULL));
-                            esp_pbuf_free(pbuf);
+                                (const char *)lwesp_pbuf_get_linear_addr(pbuf, 0, NULL));
+                            lwesp_pbuf_free(pbuf);
                             pbuf = NULL;
                         }
                     } while (1);
@@ -450,80 +450,80 @@ main_thread(void* arg) {
                 }
             }
         }
-        esp_netconn_delete(client);             /* Delete netconn structure */
+        lwesp_netconn_delete(client);             /* Delete netconn structure */
     }
 
     /* Terminate thread */
-    esp_sys_thread_terminate(NULL);
+    lwesp_sys_thread_terminate(NULL);
 }
 
 /**
  * \brief           Global ESP event function callback
  * \param[in]       evt: Event information
- * \return          \ref espOK on success, member of \ref espr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-esp_evt(esp_evt_t* evt) {
+static lwespr_t
+lwesp_evt(lwesp_evt_t* evt) {
     switch (evt->type) {
-        case ESP_EVT_INIT_FINISH: {
+        case LWESP_EVT_INIT_FINISH: {
             /* Device is not present on init */
-            //esp_device_set_present(0, NULL, NULL, 0);
+            //lwesp_device_set_present(0, NULL, NULL, 0);
             break;
         }
-        case ESP_EVT_RESET: {
-            if (esp_evt_reset_get_result(evt) == espOK) {
+        case LWESP_EVT_RESET: {
+            if (lwesp_evt_reset_get_result(evt) == lwespOK) {
                 safeprintf("Reset sequence successful!\r\n");
             } else {
                 safeprintf("Reset sequence error!\r\n");
             }
             break;
         }
-        case ESP_EVT_RESTORE: {
-            if (esp_evt_restore_get_result(evt) == espOK) {
+        case LWESP_EVT_RESTORE: {
+            if (lwesp_evt_restore_get_result(evt) == lwespOK) {
                 safeprintf("Restore sequence successful!\r\n");
             } else {
                 safeprintf("Restore sequence error!\r\n");
             }
             break;
         }
-        case ESP_EVT_AT_VERSION_NOT_SUPPORTED: {
-            esp_sw_version_t v_min, v_curr;
+        case LWESP_EVT_AT_VERSION_NOT_SUPPORTED: {
+            lwesp_sw_version_t v_min, v_curr;
 
-            esp_get_min_at_fw_version(&v_min);
-            esp_get_current_at_fw_version(&v_curr);
+            lwesp_get_min_at_fw_version(&v_min);
+            lwesp_get_current_at_fw_version(&v_curr);
 
             safeprintf("Current ESP8266 AT version is not supported by library\r\n");
             safeprintf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
             safeprintf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
             break;
         }
-        case ESP_EVT_WIFI_GOT_IP: {
+        case LWESP_EVT_WIFI_GOT_IP: {
             safeprintf("Wifi got an IP address.\r\n");
             break;
         }
-        case ESP_EVT_WIFI_CONNECTED: {
+        case LWESP_EVT_WIFI_CONNECTED: {
             safeprintf("Wifi just connected. Read access point information\r\n");
-            esp_sta_get_ap_info(&connected_ap_info, NULL, NULL, 0);
+            lwesp_sta_get_ap_info(&connected_ap_info, NULL, NULL, 0);
             break;
         }
-        case ESP_EVT_WIFI_DISCONNECTED: {
+        case LWESP_EVT_WIFI_DISCONNECTED: {
             safeprintf("Wifi just disconnected\r\n");
             break;
         }
-        case ESP_EVT_STA_INFO_AP: {
+        case LWESP_EVT_STA_INFO_AP: {
             safeprintf("SSID: %s, ch: %d, rssi: %d\r\n",
-                esp_evt_sta_info_ap_get_ssid(evt),
-                (int)esp_evt_sta_info_ap_get_channel(evt),
-                (int)esp_evt_sta_info_ap_get_rssi(evt)
+                lwesp_evt_sta_info_ap_get_ssid(evt),
+                (int)lwesp_evt_sta_info_ap_get_channel(evt),
+                (int)lwesp_evt_sta_info_ap_get_rssi(evt)
             );
             break;
         }
-        case ESP_EVT_WIFI_IP_ACQUIRED: {
-            esp_ip_t ip;
+        case LWESP_EVT_WIFI_IP_ACQUIRED: {
+            lwesp_ip_t ip;
             uint8_t is_dhcp;
 
             safeprintf("WIFI IP ACQUIRED!\r\n");
-            if (esp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp) == espOK) {
+            if (lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp) == lwespOK) {
                 safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
             } else {
                 safeprintf("Acquired IP is not valid\r\n");
@@ -531,85 +531,85 @@ esp_evt(esp_evt_t* evt) {
 
             break;
         }
-#if ESP_CFG_MODE_ACCESS_POINT
-        case ESP_EVT_AP_CONNECTED_STA: {
-            esp_mac_t* mac = esp_evt_ap_connected_sta_get_mac(evt);
+#if LWESP_CFG_MODE_ACCESS_POINT
+        case LWESP_EVT_AP_CONNECTED_STA: {
+            lwesp_mac_t* mac = lwesp_evt_ap_connected_sta_get_mac(evt);
             safeprintf("New station connected to ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
             break;
         }
-        case ESP_EVT_AP_DISCONNECTED_STA: {
-            esp_mac_t* mac = esp_evt_ap_disconnected_sta_get_mac(evt);
+        case LWESP_EVT_AP_DISCONNECTED_STA: {
+            lwesp_mac_t* mac = lwesp_evt_ap_disconnected_sta_get_mac(evt);
             safeprintf("Station disconnected from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
             break;
         }
-        case ESP_EVT_AP_IP_STA: {
-            esp_mac_t* mac = esp_evt_ap_ip_sta_get_mac(evt);
-            esp_ip_t* ip = esp_evt_ap_ip_sta_get_ip(evt);
+        case LWESP_EVT_AP_IP_STA: {
+            lwesp_mac_t* mac = lwesp_evt_ap_ip_sta_get_mac(evt);
+            lwesp_ip_t* ip = lwesp_evt_ap_ip_sta_get_ip(evt);
             safeprintf("Station received IP address from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X and IP: %d.%d.%d.%d\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5],
                 ip->ip[0], ip->ip[1], ip->ip[2], ip->ip[3]);
             break;
         }
-#endif /* ESP_CFG_MODE_ACCESS_POINT */
+#endif /* LWESP_CFG_MODE_ACCESS_POINT */
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }
 
-static espr_t
-esp_conn_evt(esp_evt_t* evt) {
+static lwespr_t
+lwesp_conn_evt(lwesp_evt_t* evt) {
     static char data[] = "test data string\r\n";
-    esp_conn_p conn;
+    lwesp_conn_p conn;
 
-    conn = esp_conn_get_from_evt(evt);
+    conn = lwesp_conn_get_from_evt(evt);
 
     switch (evt->type) {
-        case ESP_EVT_CONN_ACTIVE: {
+        case LWESP_EVT_CONN_ACTIVE: {
             safeprintf("Connection active!\r\n");
-            safeprintf("Send API call: %d\r\n", (int)esp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
-            safeprintf("Send API call: %d\r\n", (int)esp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
-            safeprintf("Send API call: %d\r\n", (int)esp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
-            safeprintf("Close API call: %d\r\n", (int)esp_conn_close(conn, 0));
-            safeprintf("Send API call: %d\r\n", (int)esp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
-            safeprintf("Close API call: %d\r\n", (int)esp_conn_close(conn, 0));
+            safeprintf("Send API call: %d\r\n", (int)lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
+            safeprintf("Send API call: %d\r\n", (int)lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
+            safeprintf("Send API call: %d\r\n", (int)lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
+            safeprintf("Close API call: %d\r\n", (int)lwesp_conn_close(conn, 0));
+            safeprintf("Send API call: %d\r\n", (int)lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
+            safeprintf("Close API call: %d\r\n", (int)lwesp_conn_close(conn, 0));
 
             /*
-            esp_conn_send(conn, data, sizeof(data) - 1, NULL, 0);
-            esp_conn_send(conn, data, sizeof(data) - 1, NULL, 0);
+            lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0);
+            lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0);
             */
             break;
         }
-        case ESP_EVT_CONN_SEND: {
-            espr_t res = esp_evt_conn_send_get_result(evt);
-            if (res == espOK) {
+        case LWESP_EVT_CONN_SEND: {
+            lwespr_t res = lwesp_evt_conn_send_get_result(evt);
+            if (res == lwespOK) {
                 safeprintf("Connection data sent!\r\n");
             } else {
                 safeprintf("Connect data send error!\r\n");
             }
             break;
         }
-        case ESP_EVT_CONN_RECV: {
-            esp_pbuf_p pbuf = esp_evt_conn_recv_get_buff(evt);
-            esp_conn_p conn = esp_evt_conn_recv_get_conn(evt);
+        case LWESP_EVT_CONN_RECV: {
+            lwesp_pbuf_p pbuf = lwesp_evt_conn_recv_get_buff(evt);
+            lwesp_conn_p conn = lwesp_evt_conn_recv_get_conn(evt);
             safeprintf("\r\nConnection data received: %d / %d bytes\r\n",
-                (int)esp_pbuf_length(pbuf, 1),
-                (int)esp_conn_get_total_recved_count(conn)
+                (int)lwesp_pbuf_length(pbuf, 1),
+                (int)lwesp_conn_get_total_recved_count(conn)
             );
-            esp_conn_recved(conn, pbuf);
+            lwesp_conn_recved(conn, pbuf);
             break;
         }
-        case ESP_EVT_CONN_CLOSE: {
+        case LWESP_EVT_CONN_CLOSE: {
             safeprintf("Connection closed!\r\n");
-            //esp_conn_start(NULL, ESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, esp_conn_evt, 0);
+            //lwesp_conn_start(NULL, LWESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, lwesp_conn_evt, 0);
             break;
         }
-        case ESP_EVT_CONN_ERROR: {
+        case LWESP_EVT_CONN_ERROR: {
             safeprintf("Connection error!\r\n");
             break;
         }
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }

@@ -1,6 +1,6 @@
-.. _api_esp_smart:
+.. _api_lwesp_smart:
 
 Smart config
 ============
 
-.. doxygengroup:: ESP_SMART
+.. doxygengroup:: LWESP_SMART

@@ -3,4 +3,4 @@
 Cayenne MQTT API
 ================
 
-.. doxygengroup:: ESP_APP_CAYENNE_API
+.. doxygengroup:: LWESP_APP_CAYENNE_API

@@ -1,4 +1,4 @@
-.. _api_esp_ll:
+.. _api_lwesp_ll:
 
 Low-Level functions
 ===================
@@ -9,4 +9,4 @@ and must be implemented by final application.
 .. tip::
 	Check :ref:`um_porting_guide` for actual implementation
 
-.. doxygengroup:: ESP_LL
+.. doxygengroup:: LWESP_LL

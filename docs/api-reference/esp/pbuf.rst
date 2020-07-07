@@ -1,4 +1,4 @@
-.. _api_esp_pbuf:
+.. _api_lwesp_pbuf:
 
 Packet buffer
 =============
@@ -53,7 +53,7 @@ It is used to properly handle memory free operation, especially when *pbuf* is u
 .. note::
 	If there would be no reference counter information and application would free memory while another part of library still uses its reference, application would invoke *undefined behavior* and system could crash instantly.
 
-When application tries to free pbuf chain as on first image, it would normally call :cpp:func:`esp_pbuf_free` function. That would:
+When application tries to free pbuf chain as on first image, it would normally call :cpp:func:`lwesp_pbuf_free` function. That would:
 
 * Decrease reference counter by ``1``
 * If reference counter ``== 0``, it removes it from chain list and frees packet buffer memory
@@ -83,7 +83,7 @@ while second (green) block had reference counter set to ``2``, preventing free o
 
 .. note::
     *Block 1* has been successfully freed, but since *block 2* had reference counter set to ``2`` before, it was only decreased by ``1`` to a new value ``1`` and free operation stopped instead.
-    *User variable 2* is still using *pbuf* starting at *block 2* and must manually call :cpp:func:`esp_pbuf_free` to free it.
+    *User variable 2* is still using *pbuf* starting at *block 2* and must manually call :cpp:func:`lwesp_pbuf_free` to free it.
 
 Concatenating vs chaining
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -113,7 +113,7 @@ Concat operation shall be used when ``2`` pbufs are linked together and referenc
 After concating *2 pbufs* together, reference counter of second is still set to ``1``, however we can see that ``2`` pointers point to *second pbuf*.
 
 .. note::
-    After application calls :cpp:func:`esp_pbuf_cat`, it must not use pointer which points to *second pbuf*.
+    After application calls :cpp:func:`lwesp_pbuf_cat`, it must not use pointer which points to *second pbuf*.
     This would invoke *undefined behavior* if one pointer tries to free memory while second still points to it.
 
 An example code showing proper usage of concat operation:
@@ -137,8 +137,8 @@ Chain operation shall be used when ``2`` pbufs are linked together and reference
 After chainin *2 pbufs* together, reference counter of second is increased by ``1``, which allows application to reference second *pbuf* separatelly.
 
 .. note::
-	After application calls :cpp:func:`esp_pbuf_chain`,
-	it also has to manually free its reference using :cpp:func:`esp_pbuf_free` function.
+	After application calls :cpp:func:`lwesp_pbuf_chain`,
+	it also has to manually free its reference using :cpp:func:`lwesp_pbuf_free` function.
 	Forgetting to free pbuf invokes memory leak
 
 An example code showing proper usage of chain operation:
@@ -152,7 +152,7 @@ Extract pbuf data
 *****************
 
 Each *pbuf* holds some amount of data bytes. When multiple *pbufs* are linked together (either chained or concated), blocks of raw data are not linked to contiguous memory block.
-It is necessary to process block by block manually. 
+It is necessary to process block by block manually.
 
 An example code showing proper reading of any *pbuf*:
 
@@ -161,4 +161,4 @@ An example code showing proper reading of any *pbuf*:
     :linenos:
     :caption: Packet buffer data extraction
 
-.. doxygengroup:: ESP_PBUF
+.. doxygengroup:: LWESP_PBUF

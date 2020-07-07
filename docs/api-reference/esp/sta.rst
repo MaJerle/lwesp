@@ -1,4 +1,4 @@
-.. _api_esp_sta:
+.. _api_lwesp_sta:
 
 Station API
 ===========
@@ -14,4 +14,4 @@ try to connect to AP from list of preferred one.
     :linenos:
     :caption: Station manager used with all examples
 
-.. doxygengroup:: ESP_STA
+.. doxygengroup:: LWESP_STA

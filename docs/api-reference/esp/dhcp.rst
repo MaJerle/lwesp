@@ -1,6 +1,6 @@
-.. _api_esp_dhcp:
+.. _api_lwesp_dhcp:
 
 Dynamic Host Configuration Protocol
 ===================================
 
-.. doxygengroup:: ESP_DHCP
+.. doxygengroup:: LWESP_DHCP

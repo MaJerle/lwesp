@@ -1,6 +1,6 @@
-.. _api_esp_ap:
+.. _api_lwesp_ap:
 
 Access point
 ============
 
-.. doxygengroup:: ESP_AP
+.. doxygengroup:: LWESP_AP

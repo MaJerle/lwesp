@@ -1,4 +1,4 @@
-.. _api_esp_sntp:
+.. _api_lwesp_sntp:
 
 Simple Network Time Protocol
 ============================
@@ -11,4 +11,4 @@ It is support through middleware API calls for configuring servers and reading a
     :linenos:
     :caption: Minimum SNTP example
 
-.. doxygengroup:: ESP_SNTP
+.. doxygengroup:: LWESP_SNTP

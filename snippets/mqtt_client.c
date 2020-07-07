@@ -10,15 +10,15 @@
  * test.mosquitto.org server and subscribe to publishing topic
  */
 
-#include "esp/apps/esp_mqtt_client.h"
-#include "esp/esp.h"
-#include "esp/esp_timeout.h"
+#include "lwesp/apps/lwesp_mqtt_client.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_timeout.h"
 #include "mqtt_client.h"
 
 /**
  * \brief           MQTT client structure
  */
-static esp_mqtt_client_p
+static lwesp_mqtt_client_p
 mqtt_client;
 
 /**
@@ -30,7 +30,7 @@ mqtt_client_id[13];
 /**
  * \brief           Connection information for MQTT CONNECT packet
  */
-static const esp_mqtt_client_info_t
+static const lwesp_mqtt_client_info_t
 mqtt_client_info = {
     .id = mqtt_client_id,                       /* The only required field for connection! */
 
@@ -39,26 +39,26 @@ mqtt_client_info = {
     // .pass = "test_password",
 };
 
-static void mqtt_cb(esp_mqtt_client_p client, esp_mqtt_evt_t* evt);
-static void example_do_connect(esp_mqtt_client_p client);
+static void mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt);
+static void example_do_connect(lwesp_mqtt_client_p client);
 static uint32_t retries = 0;
 
 /**
  * \brief           Custom callback function for ESP events
  */
-static espr_t
-mqtt_esp_cb(esp_evt_t* evt) {
-    switch (esp_evt_get_type(evt)) {
-#if ESP_CFG_MODE_STATION
-        case ESP_EVT_WIFI_GOT_IP: {
+static lwespr_t
+mqtt_lwesp_cb(lwesp_evt_t* evt) {
+    switch (lwesp_evt_get_type(evt)) {
+#if LWESP_CFG_MODE_STATION
+        case LWESP_EVT_WIFI_GOT_IP: {
             example_do_connect(mqtt_client);    /* Start connection after we have a connection to network client */
             break;
         }
-#endif /* ESP_CFG_MODE_STATION */
+#endif /* LWESP_CFG_MODE_STATION */
         default:
             break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -67,12 +67,12 @@ mqtt_esp_cb(esp_evt_t* evt) {
  */
 void
 mqtt_client_thread(void const* arg) {
-    esp_mac_t mac;
+    lwesp_mac_t mac;
 
-    esp_evt_register(mqtt_esp_cb);              /* Register new callback for general events from ESP stack */
+    lwesp_evt_register(mqtt_lwesp_cb);              /* Register new callback for general events from ESP stack */
 
     /* Get station MAC to format client ID */
-    if (esp_sta_getmac(&mac, NULL, NULL, 1) == espOK) {
+    if (lwesp_sta_getmac(&mac, NULL, NULL, 1) == lwespOK) {
         snprintf(mqtt_client_id, sizeof(mqtt_client_id), "%02X%02X%02X%02X%02X%02X",
                  (unsigned)mac.mac[0], (unsigned)mac.mac[1], (unsigned)mac.mac[2],
                  (unsigned)mac.mac[3], (unsigned)mac.mac[4], (unsigned)mac.mac[5]
@@ -86,14 +86,14 @@ mqtt_client_thread(void const* arg) {
      * Create a new client with 256 bytes of RAW TX data
      * and 128 bytes of RAW incoming data
      */
-    mqtt_client = esp_mqtt_client_new(256, 128);/* Create new MQTT client */
-    if (esp_sta_is_joined()) {                  /* If ESP is already joined to network */
+    mqtt_client = lwesp_mqtt_client_new(256, 128);/* Create new MQTT client */
+    if (lwesp_sta_is_joined()) {                  /* If ESP is already joined to network */
         example_do_connect(mqtt_client);        /* Start connection to MQTT server */
     }
 
     /* Make dummy delay of thread */
     while (1) {
-        esp_delay(1000);
+        lwesp_delay(1000);
     }
 }
 
@@ -104,21 +104,21 @@ mqtt_client_thread(void const* arg) {
 void
 mqtt_timeout_cb(void* arg) {
     static uint32_t num = 10;
-    esp_mqtt_client_p client = arg;
-    espr_t res;
+    lwesp_mqtt_client_p client = arg;
+    lwespr_t res;
 
     static char tx_data[20];
 
-    if (esp_mqtt_client_is_connected(client)) {
+    if (lwesp_mqtt_client_is_connected(client)) {
         sprintf(tx_data, "R: %u, N: %u", (unsigned)retries, (unsigned)num);
-        if ((res = esp_mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, ESP_U16(strlen(tx_data)), ESP_MQTT_QOS_EXACTLY_ONCE, 0, (void*)num)) == espOK) {
+        if ((res = lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_EXACTLY_ONCE, 0, (void*)num)) == lwespOK) {
             printf("Publishing %d...\r\n", (int)num);
             num++;
         } else {
             printf("Cannot publish...: %d\r\n", (int)res);
         }
     }
-    esp_timeout_add(10000, mqtt_timeout_cb, client);
+    lwesp_timeout_add(10000, mqtt_timeout_cb, client);
 }
 
 /**
@@ -127,28 +127,28 @@ mqtt_timeout_cb(void* arg) {
  * \param[in]       evt: Event type and data
  */
 static void
-mqtt_cb(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
-    switch (esp_mqtt_client_evt_get_type(client, evt)) {
+mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
+    switch (lwesp_mqtt_client_evt_get_type(client, evt)) {
         /*
          * Connect event
          * Called if user successfully connected to MQTT server
          * or even if connection failed for some reason
          */
-        case ESP_MQTT_EVT_CONNECT: {            /* MQTT connect event occurred */
-            esp_mqtt_conn_status_t status = esp_mqtt_client_evt_connect_get_status(client, evt);
+        case LWESP_MQTT_EVT_CONNECT: {            /* MQTT connect event occurred */
+            lwesp_mqtt_conn_status_t status = lwesp_mqtt_client_evt_connect_get_status(client, evt);
 
-            if (status == ESP_MQTT_CONN_STATUS_ACCEPTED) {
+            if (status == LWESP_MQTT_CONN_STATUS_ACCEPTED) {
                 printf("MQTT accepted!\r\n");
                 /*
                  * Once we are accepted by server,
                  * it is time to subscribe to different topics
-                 * We will subscrive to "mqtt_esp_example_topic" topic,
+                 * We will subscrive to "mqtt_lwesp_example_topic" topic,
                  * and will also set the same name as subscribe argument for callback later
                  */
-                esp_mqtt_client_subscribe(client, "esp8266_mqtt_topic", ESP_MQTT_QOS_EXACTLY_ONCE, "esp8266_mqtt_topic");
+                lwesp_mqtt_client_subscribe(client, "esp8266_mqtt_topic", LWESP_MQTT_QOS_EXACTLY_ONCE, "esp8266_mqtt_topic");
 
                 /* Start timeout timer after 5000ms and call mqtt_timeout_cb function */
-                esp_timeout_add(5000, mqtt_timeout_cb, client);
+                lwesp_timeout_add(5000, mqtt_timeout_cb, client);
             } else {
                 printf("MQTT server connection was not successful: %d\r\n", (int)status);
 
@@ -162,11 +162,11 @@ mqtt_cb(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
          * Subscribe event just happened.
          * Here it is time to check if it was successful or failed attempt
          */
-        case ESP_MQTT_EVT_SUBSCRIBE: {
-            const char* arg = esp_mqtt_client_evt_subscribe_get_argument(client, evt);  /* Get user argument */
-            espr_t res = esp_mqtt_client_evt_subscribe_get_result(client, evt); /* Get result of subscribe event */
+        case LWESP_MQTT_EVT_SUBSCRIBE: {
+            const char* arg = lwesp_mqtt_client_evt_subscribe_get_argument(client, evt);  /* Get user argument */
+            lwespr_t res = lwesp_mqtt_client_evt_subscribe_get_result(client, evt); /* Get result of subscribe event */
 
-            if (res == espOK) {
+            if (res == lwespOK) {
                 printf("Successfully subscribed to %s topic\r\n", arg);
                 if (!strcmp(arg, "esp8266_mqtt_topic")) {   /* Check topic name we were subscribed */
                     /* Subscribed to "esp8266_mqtt_topic" topic */
@@ -175,15 +175,15 @@ mqtt_cb(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
                      * Now publish an even on example topic
                      * and set QoS to minimal value which does not guarantee message delivery to received
                      */
-                    esp_mqtt_client_publish(client, "esp8266_mqtt_topic", "test_data", 9, ESP_MQTT_QOS_AT_MOST_ONCE, 0, (void*)1);
+                    lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", "test_data", 9, LWESP_MQTT_QOS_AT_MOST_ONCE, 0, (void*)1);
                 }
             }
             break;
         }
 
         /* Message published event occurred */
-        case ESP_MQTT_EVT_PUBLISH: {
-            uint32_t val = (uint32_t)esp_mqtt_client_evt_publish_get_argument(client, evt); /* Get user argument, which is in fact our custom number */
+        case LWESP_MQTT_EVT_PUBLISH: {
+            uint32_t val = (uint32_t)lwesp_mqtt_client_evt_publish_get_argument(client, evt); /* Get user argument, which is in fact our custom number */
 
             printf("Publish event, user argument on message was: %d\r\n", (int)val);
             break;
@@ -193,21 +193,21 @@ mqtt_cb(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
          * A new message was published to us
          * and now it is time to read the data
          */
-        case ESP_MQTT_EVT_PUBLISH_RECV: {
-            const char* topic = esp_mqtt_client_evt_publish_recv_get_topic(client, evt);
-            size_t topic_len = esp_mqtt_client_evt_publish_recv_get_topic_len(client, evt);
-            const uint8_t* payload = esp_mqtt_client_evt_publish_recv_get_payload(client, evt);
-            size_t payload_len = esp_mqtt_client_evt_publish_recv_get_payload_len(client, evt);
+        case LWESP_MQTT_EVT_PUBLISH_RECV: {
+            const char* topic = lwesp_mqtt_client_evt_publish_recv_get_topic(client, evt);
+            size_t topic_len = lwesp_mqtt_client_evt_publish_recv_get_topic_len(client, evt);
+            const uint8_t* payload = lwesp_mqtt_client_evt_publish_recv_get_payload(client, evt);
+            size_t payload_len = lwesp_mqtt_client_evt_publish_recv_get_payload_len(client, evt);
 
-            ESP_UNUSED(payload);
-            ESP_UNUSED(payload_len);
-            ESP_UNUSED(topic);
-            ESP_UNUSED(topic_len);
+            LWESP_UNUSED(payload);
+            LWESP_UNUSED(payload_len);
+            LWESP_UNUSED(topic);
+            LWESP_UNUSED(topic_len);
             break;
         }
 
         /* Client is fully disconnected from MQTT server */
-        case ESP_MQTT_EVT_DISCONNECT: {
+        case LWESP_MQTT_EVT_DISCONNECT: {
             printf("MQTT client disconnected!\r\n");
             example_do_connect(client);         /* Connect to server all over again */
             break;
@@ -220,7 +220,7 @@ mqtt_cb(esp_mqtt_client_p client, esp_mqtt_evt_t* evt) {
 
 /** Make a connection to MQTT server in non-blocking mode */
 static void
-example_do_connect(esp_mqtt_client_p client) {
+example_do_connect(lwesp_mqtt_client_p client) {
     if (client == NULL) {
         return;
     }
@@ -230,6 +230,6 @@ example_do_connect(esp_mqtt_client_p client) {
      * MQTT server on mosquitto.org
      */
     retries++;
-    esp_timeout_remove(mqtt_timeout_cb);
-    esp_mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
+    lwesp_timeout_remove(mqtt_timeout_cb);
+    lwesp_mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, mqtt_cb, &mqtt_client_info);
 }

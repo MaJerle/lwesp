@@ -7,12 +7,12 @@
 
 #include <stdbool.h>
 #include <stdarg.h> /* Required for printf */
-#include "esp/esp.h"
-#include "esp/esp_cli.h"
+#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_cli.h"
 #include "cli/cli.h"
 #include "cli/cli_input.h"
 
-static esp_netconn_p client;
+static lwesp_netconn_p client;
 static bool close_conn = false;
 
 static void telnet_cli_exit(cli_printf cliprintf, int argc, char** argv);
@@ -50,18 +50,18 @@ telnet_cli_printf(const char* fmt, ...) {
     va_end(argptr);
 
     if (len > 0 && len < 128) {
-        esp_netconn_write(client, (uint8_t*)tempStr, len);
+        lwesp_netconn_write(client, (uint8_t*)tempStr, len);
     }
 }
 
 /**
  * \brief           Telnet client config (disable ECHO and LINEMOD)
  * \param[in]       nc: Netconn handle used to write data to
- * \return          \ref espOK on success, member of \ref espr_t enumeration otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
-static espr_t
-telnet_client_config(esp_netconn_p nc) {
-    espr_t res;
+static lwespr_t
+telnet_client_config(lwesp_netconn_p nc) {
+    lwespr_t res;
     uint8_t cfg_data[12];
 
     /* do echo 'I will echo your chars' (RFC 857) */
@@ -81,12 +81,12 @@ telnet_client_config(esp_netconn_p nc) {
     cfg_data[10] = 0xFE;
     cfg_data[11] = 0x22;
 
-    res = esp_netconn_write(nc, cfg_data, sizeof(cfg_data));
-    if (res != espOK) {
+    res = lwesp_netconn_write(nc, cfg_data, sizeof(cfg_data));
+    if (res != lwespOK) {
         return res;
     }
 
-    return esp_netconn_flush(nc);
+    return lwesp_netconn_flush(nc);
 }
 
 /**
@@ -243,16 +243,16 @@ telnet_command_sequence_check(char ch) {
  */
 void
 telnet_server_thread(void const* arg) {
-    espr_t res;
-    esp_pbuf_p pbuf;
-    esp_netconn_p server;
+    lwespr_t res;
+    lwesp_pbuf_p pbuf;
+    lwesp_netconn_p server;
 
     /*
      * First create a new instance of netconn
      * connection and initialize system message boxes
      * to accept clients and packet buffers
      */
-    server = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
+    server = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP);
     if (server == NULL) {
         printf("Cannot create Telnet server\r\n");
         return;
@@ -260,25 +260,24 @@ telnet_server_thread(void const* arg) {
     printf("Server telnet created\r\n");
 
     /* Bind network connection to port 23 */
-    res = esp_netconn_bind(server, 23);
-    if (res != espOK) {
+    res = lwesp_netconn_bind(server, 23);
+    if (res != lwespOK) {
         printf("Telnet server cannot bind to port\r\n");
-        esp_netconn_delete(server);             /* Delete netconn structure */
+        lwesp_netconn_delete(server);
         return;
     }
-
     printf("Server telnet listens on port 23\r\n");
 
     /* Init command line interface and add telnet commands */
     cli_init();
-    cli_register_commands(telnet_commands, sizeof(telnet_commands) / sizeof(telnet_commands[0]));
-    esp_cli_register_commands();
+    cli_register_commands(telnet_commands, LWESP_ARRAYSIZE(telnet_commands));
+    lwesp_cli_register_commands();
 
     /*
      * Start listening for incoming connections
      * on previously binded port
      */
-    res = esp_netconn_listen_with_max_conn(server, 1);
+    res = lwesp_netconn_listen_with_max_conn(server, 1);
     while (1) {
         /*
          * Wait and accept new client connection
@@ -286,8 +285,8 @@ telnet_server_thread(void const* arg) {
          * Function will block thread until
          * new client is connected to server
          */
-        res = esp_netconn_accept(server, &client);
-        if (res != espOK) {
+        res = lwesp_netconn_accept(server, &client);
+        if (res != lwespOK) {
             printf("Telnet connection accept error!\r\n");
             break;
         }
@@ -299,7 +298,7 @@ telnet_server_thread(void const* arg) {
          * and that we will echo for him.
          */
         res = telnet_client_config(client);
-        if (res != espOK) {
+        if (res != lwespOK) {
             break;
         }
 
@@ -307,13 +306,13 @@ telnet_server_thread(void const* arg) {
             const uint8_t* in_data;
             size_t length;
 
-            res = esp_netconn_receive(client, &pbuf);
-            if (res == espCLOSED) {
+            res = lwesp_netconn_receive(client, &pbuf);
+            if (res == lwespCLOSED) {
                 break;
             }
 
-            in_data = esp_pbuf_data(pbuf);
-            length = esp_pbuf_length(pbuf, 1);  /* Get length of received packet */
+            in_data = lwesp_pbuf_data(pbuf);
+            length = lwesp_pbuf_length(pbuf, 1);  /* Get length of received packet */
 
             for (size_t i = 0; i < length; ++i) {
                 if (!telnet_command_sequence_check(in_data[i])) {
@@ -321,26 +320,26 @@ telnet_server_thread(void const* arg) {
                 }
             }
 
-            esp_pbuf_free(pbuf);
-            esp_netconn_flush(client);
+            lwesp_pbuf_free(pbuf);
+            lwesp_netconn_flush(client);
 
             if (close_conn) {
                 close_conn = false;
-                esp_netconn_close(client);      /* Close netconn connection */
+                lwesp_netconn_close(client);      /* Close netconn connection */
                 break;
             }
         }
         if (client != NULL) {
-            esp_netconn_delete(client);         /* Delete netconn connection */
+            lwesp_netconn_delete(client);         /* Delete netconn connection */
             client = NULL;
         }
     }
     if (client != NULL) {
-        esp_netconn_delete(client);             /* Delete netconn connection */
+        lwesp_netconn_delete(client);             /* Delete netconn connection */
         client = NULL;
     }
 
-    esp_netconn_delete(server);                 /* Delete netconn structure */
-    esp_sys_thread_terminate(NULL);             /* Terminate current thread */
+    lwesp_netconn_delete(server);                 /* Delete netconn structure */
+    lwesp_sys_thread_terminate(NULL);             /* Terminate current thread */
 }
 

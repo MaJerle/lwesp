@@ -1,5 +1,5 @@
 #include "netconn_client.h"
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 
 /**
  * \brief           Host and port settings
@@ -23,17 +23,17 @@ request_header[] = ""
  */
 void
 netconn_client_thread(void const* arg) {
-    espr_t res;
-    esp_pbuf_p pbuf;
-    esp_netconn_p client;
-    esp_sys_sem_t* sem = (void*)arg;
+    lwespr_t res;
+    lwesp_pbuf_p pbuf;
+    lwesp_netconn_p client;
+    lwesp_sys_sem_t* sem = (void*)arg;
 
     /*
      * First create a new instance of netconn
      * connection and initialize system message boxes
      * to accept received packet buffers
      */
-    client = esp_netconn_new(ESP_NETCONN_TYPE_TCP);
+    client = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP);
     if (client != NULL) {
         /*
          * Connect to external server as client
@@ -41,14 +41,14 @@ netconn_client_thread(void const* arg) {
          *
          * Function will block thread until we are successfully connected (or not) to server
          */
-        res = esp_netconn_connect(client, NETCONN_HOST, NETCONN_PORT);
-        if (res == espOK) {                     /* Are we successfully connected? */
+        res = lwesp_netconn_connect(client, NETCONN_HOST, NETCONN_PORT);
+        if (res == lwespOK) {                     /* Are we successfully connected? */
             printf("Connected to " NETCONN_HOST "\r\n");
-            res = esp_netconn_write(client, request_header, sizeof(request_header) - 1);    /* Send data to server */
-            if (res == espOK) {
-                res = esp_netconn_flush(client);    /* Flush data to output */
+            res = lwesp_netconn_write(client, request_header, sizeof(request_header) - 1);    /* Send data to server */
+            if (res == lwespOK) {
+                res = lwesp_netconn_flush(client);    /* Flush data to output */
             }
-            if (res == espOK) {                 /* Were data sent? */
+            if (res == lwespOK) {                 /* Were data sent? */
                 printf("Data were successfully sent to server\r\n");
 
                 /*
@@ -67,15 +67,15 @@ netconn_client_thread(void const* arg) {
                      * Returned status will give you info in case connection
                      * was closed too early from remote side
                      */
-                    res = esp_netconn_receive(client, &pbuf);
-                    if (res == espCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
+                    res = lwesp_netconn_receive(client, &pbuf);
+                    if (res == lwespCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
                         printf("Connection closed by remote side...\r\n");
                         break;
-                    } else if (res == espTIMEOUT) {
+                    } else if (res == lwespTIMEOUT) {
                         printf("Netconn timeout while receiving data. You may try multiple readings before deciding to close manually\r\n");
                     }
 
-                    if (res == espOK && pbuf != NULL) { /* Make sure we have valid packet buffer */
+                    if (res == lwespOK && pbuf != NULL) { /* Make sure we have valid packet buffer */
                         /*
                          * At this point read and manipulate
                          * with received buffer and check if you expect more data
@@ -83,8 +83,8 @@ netconn_client_thread(void const* arg) {
                          * After you are done using it, it is important
                          * you free the memory otherwise memory leaks will appear
                          */
-                        printf("Received new data packet of %d bytes\r\n", (int)esp_pbuf_length(pbuf, 1));
-                        esp_pbuf_free(pbuf);    /* Free the memory after usage */
+                        printf("Received new data packet of %d bytes\r\n", (int)lwesp_pbuf_length(pbuf, 1));
+                        lwesp_pbuf_free(pbuf);    /* Free the memory after usage */
                         pbuf = NULL;
                     }
                 } while (1);
@@ -96,17 +96,17 @@ netconn_client_thread(void const* arg) {
              * Check if connection was closed by remote server
              * and in case it wasn't, close it manually
              */
-            if (res != espCLOSED) {
-                esp_netconn_close(client);
+            if (res != lwespCLOSED) {
+                lwesp_netconn_close(client);
             }
         } else {
             printf("Cannot connect to remote host %s:%d!\r\n", NETCONN_HOST, NETCONN_PORT);
         }
-        esp_netconn_delete(client);             /* Delete netconn structure */
+        lwesp_netconn_delete(client);             /* Delete netconn structure */
     }
 
-    if (esp_sys_sem_isvalid(sem)) {
-        esp_sys_sem_release(sem);
+    if (lwesp_sys_sem_isvalid(sem)) {
+        lwesp_sys_sem_release(sem);
     }
-    esp_sys_thread_terminate(NULL);             /* Terminate current thread */
+    lwesp_sys_thread_terminate(NULL);             /* Terminate current thread */
 }

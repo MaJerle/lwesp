@@ -3,7 +3,7 @@
 Inter thread communication
 ==========================
 
-ESP-AT Library is only available with operating system. 
+ESP-AT middleware is only available with operating system.
 For successful resources management, it uses ``2`` threads within library and allows multiple application threads to post new command to be processed.
 
 .. figure:: ../static/images/thread_communication.svg
@@ -12,7 +12,7 @@ For successful resources management, it uses ``2`` threads within library and al
 
 	Inter-thread architecture block diagram
 
-*Producing* and *Processing* threads are part of library, its implementation is in ``esp_threads.c`` file.
+*Producing* and *Processing* threads are part of library, its implementation is in ``lwesp_threads.c`` file.
 
 Processing thread
 ^^^^^^^^^^^^^^^^^
@@ -54,7 +54,7 @@ When new message has been received, it sends initial *AT message* over AT port.
 Application thread
 ^^^^^^^^^^^^^^^^^^
 
-Application thread is considered any thread which calls API functions and therefore writes new messages to *producing message queue*, 
+Application thread is considered any thread which calls API functions and therefore writes new messages to *producing message queue*,
 later processed by *producing thread*.
 
 A new message memory is allocated in this thread and type of command is assigned to it, together with required input data for command.

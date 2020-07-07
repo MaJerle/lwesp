@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.;..\..\..\esp_at_lib\src\include;..\..\..\esp_at_lib\src\include\system\port\win32\;..\..\..\snippets\include;$(IncludePath)</IncludePath>
+    <IncludePath>.;..\..\..\lwesp\src\include;..\..\..\lwesp\src\include\system\port\win32\;..\..\..\snippets\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -137,30 +137,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_dns.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_utils.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_dns.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_utils.c" />
     <ClCompile Include="..\..\..\snippets\dns.c" />
     <ClCompile Include="..\..\..\snippets\station_manager.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\api\esp_netconn.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_ap.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_buff.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_conn.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_debug.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_evt.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_input.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_int.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_mem.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_parser.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_pbuf.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_sntp.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_sta.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_threads.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_timeout.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_unicode.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\esp\esp_wps.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\system\esp_ll_win32.c" />
-    <ClCompile Include="..\..\..\esp_at_lib\src\system\esp_sys_win32.c" />
+    <ClCompile Include="..\..\..\lwesp\src\api\lwesp_netconn.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_ap.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_buff.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_conn.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_debug.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_evt.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_input.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_int.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_mem.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_parser.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_pbuf.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_sntp.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_sta.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_threads.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_timeout.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_unicode.c" />
+    <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_wps.c" />
+    <ClCompile Include="..\..\..\lwesp\src\system\lwesp_ll_win32.c" />
+    <ClCompile Include="..\..\..\lwesp\src\system\lwesp_sys_win32.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

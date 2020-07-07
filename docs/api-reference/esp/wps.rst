@@ -1,6 +1,6 @@
-.. _api_esp_wps:
+.. _api_lwesp_wps:
 
 Wi-Fi Protected Setup
 =====================
 
-.. doxygengroup:: ESP_WPS
+.. doxygengroup:: LWESP_WPS
