@@ -97,7 +97,7 @@ init_thread(void const* arg) {
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref lwespr_t otherwise
+ * \return          \ref espOK on success, member of \ref lwespr_t otherwise
  */
 static lwespr_t
 lwesp_callback_func(lwesp_evt_t* evt) {
