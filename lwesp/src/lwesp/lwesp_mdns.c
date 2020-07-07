@@ -67,7 +67,7 @@ lwesp_mdns_configure(uint8_t en, const char* host, const char* server, lwesp_por
     LWESP_MSG_VAR_REF(msg).msg.mdns.server = server;
     LWESP_MSG_VAR_REF(msg).msg.mdns.port = port;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 #endif /* LWESP_CFG_MDNS || __DOXYGEN__ */

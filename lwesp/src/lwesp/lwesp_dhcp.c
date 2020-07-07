@@ -60,5 +60,5 @@ lwesp_dhcp_configure(uint8_t sta, uint8_t ap, uint8_t en,
     LWESP_MSG_VAR_REF(msg).msg.wifi_cwdhcp.ap = ap;
     LWESP_MSG_VAR_REF(msg).msg.wifi_cwdhcp.en = en;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }

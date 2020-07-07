@@ -83,7 +83,7 @@ lwesp_thread_produce(void* const arg) {
             if (msg->msg.reset.delay > 0) {
                 lwesp_delay(msg->msg.reset.delay);
             }
-            espi_reset_everything(1);           /* Reset stack before trying to reset */
+            lwespi_reset_everything(1);           /* Reset stack before trying to reset */
         }
 
         /*
@@ -113,7 +113,7 @@ lwesp_thread_produce(void* const arg) {
 
             /* Notify application on command timeout */
             if (res == lwespTIMEOUT) {
-                espi_send_cb(LWESP_EVT_CMD_TIMEOUT);
+                lwespi_send_cb(LWESP_EVT_CMD_TIMEOUT);
             }
 
             LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
@@ -147,7 +147,7 @@ lwesp_thread_produce(void* const arg) {
         }
         if (res != lwespOK) {
             /* Process global callbacks */
-            espi_process_events_for_timeout_or_error(msg, res);
+            lwespi_process_events_for_timeout_or_error(msg, res);
 
             msg->res = res;                     /* Save response */
         }
@@ -198,14 +198,14 @@ lwesp_thread_process(void* const arg) {
     lwesp_core_lock();
     while (1) {
         lwesp_core_unlock();
-        time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 10);
+        time = lwespi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 10);
         LWESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
         lwesp_core_lock();
 
         if (time == LWESP_SYS_TIMEOUT || msg == NULL) {
             LWESP_UNUSED(time);                   /* Unused variable */
         }
-        espi_process_buffer();                  /* Process input data */
+        lwespi_process_buffer();                  /* Process input data */
 #else /* LWESP_CFG_INPUT_USE_PROCESS */
     while (1) {
         /*
@@ -214,7 +214,7 @@ lwesp_thread_process(void* const arg) {
          * If there are no timeouts to process, we can wait unlimited time.
          * In case new timeout occurs, thread will wake up by writing new element to mbox process queue
          */
-        time = espi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 0);
+        time = lwespi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 0);
         LWESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
         LWESP_UNUSED(time);
 #endif /* !LWESP_CFG_INPUT_USE_PROCESS */

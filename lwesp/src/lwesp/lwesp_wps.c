@@ -55,7 +55,7 @@ lwesp_wps_configure(uint8_t en,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_WPS;
     LWESP_MSG_VAR_REF(msg).msg.wps_cfg.en = en;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 10000);
 }
 
 #endif /* LWESP_CFG_WPS || __DOXYGEN__ */

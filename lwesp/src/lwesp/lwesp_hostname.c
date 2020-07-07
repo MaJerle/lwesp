@@ -57,7 +57,7 @@ lwesp_hostname_set(const char* hostname,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWHOSTNAME_SET;
     LWESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_set = hostname;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -83,7 +83,7 @@ lwesp_hostname_get(char* hostname, size_t size,
     LWESP_MSG_VAR_REF(msg).msg.wifi_hostname.hostname_get = hostname;
     LWESP_MSG_VAR_REF(msg).msg.wifi_hostname.length = size;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 #endif /* LWESP_CFG_HOSTNAME || __DOXYGEN__ */

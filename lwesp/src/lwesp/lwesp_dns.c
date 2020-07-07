@@ -60,7 +60,7 @@ lwesp_dns_gethostbyname(const char* host, lwesp_ip_t* const ip,
     LWESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.host = host;
     LWESP_MSG_VAR_REF(msg).msg.dns_getbyhostname.ip = ip;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 20000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 20000);
 }
 
 /**
@@ -90,7 +90,7 @@ lwesp_dns_set_config(uint8_t en, const char* s1, const char* s2,
     LWESP_MSG_VAR_REF(msg).msg.dns_setconfig.s1 = s1;
     LWESP_MSG_VAR_REF(msg).msg.dns_setconfig.s2 = s2;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -117,7 +117,7 @@ lwesp_dns_get_config(lwesp_ip_t* s1, lwesp_ip_t* s2,
     LWESP_MSG_VAR_REF(msg).msg.dns_getconf.s1 = s1;
     LWESP_MSG_VAR_REF(msg).msg.dns_getconf.s2 = s2;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 #endif /* LWESP_CFG_DNS || __DOXYGEN__ */

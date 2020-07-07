@@ -38,7 +38,7 @@
 #if LWESP_CFG_DBG || __DOXYGEN__
 
 const char*
-espi_dbg_msg_to_string(lwesp_cmd_t cmd) {
+lwespi_dbg_msg_to_string(lwesp_cmd_t cmd) {
     static char tmp_arr[100];
     if (cmd) {
         sprintf(tmp_arr, "%d", (int)cmd);

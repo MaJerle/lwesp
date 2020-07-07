@@ -619,22 +619,22 @@ extern lwesp_t esp;
 
 #define LWESP_PORT2NUM(port)                  ((uint32_t)(port))
 
-const char* espi_dbg_msg_to_string(lwesp_cmd_t cmd);
-lwespr_t    espi_process(const void* data, size_t len);
-lwespr_t    espi_process_buffer(void);
-lwespr_t    espi_initiate_cmd(lwesp_msg_t* msg);
-uint8_t     espi_is_valid_conn_ptr(lwesp_conn_p conn);
-lwespr_t    espi_send_cb(lwesp_evt_type_t type);
-lwespr_t    espi_send_conn_cb(lwesp_conn_t* conn, lwesp_evt_fn cb);
-void        espi_conn_init(void);
-void        espi_conn_start_timeout(lwesp_conn_p conn);
-lwespr_t    espi_conn_check_available_rx_data(void);
-lwespr_t    espi_conn_manual_tcp_try_read_data(lwesp_conn_p conn);
-lwespr_t    espi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_msg_t*), uint32_t max_block_time);
-uint32_t    espi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t timeout);
+const char* lwespi_dbg_msg_to_string(lwesp_cmd_t cmd);
+lwespr_t    lwespi_process(const void* data, size_t len);
+lwespr_t    lwespi_process_buffer(void);
+lwespr_t    lwespi_initiate_cmd(lwesp_msg_t* msg);
+uint8_t     lwespi_is_valid_conn_ptr(lwesp_conn_p conn);
+lwespr_t    lwespi_send_cb(lwesp_evt_type_t type);
+lwespr_t    lwespi_send_conn_cb(lwesp_conn_t* conn, lwesp_evt_fn cb);
+void        lwespi_conn_init(void);
+void        lwespi_conn_start_timeout(lwesp_conn_p conn);
+lwespr_t    lwespi_conn_check_available_rx_data(void);
+lwespr_t    lwespi_conn_manual_tcp_try_read_data(lwesp_conn_p conn);
+lwespr_t    lwespi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_msg_t*), uint32_t max_block_time);
+uint32_t    lwespi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t timeout);
 
-void        espi_reset_everything(uint8_t forced);
-void        espi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err);
+void        lwespi_reset_everything(uint8_t forced);
+void        lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err);
 
 /**
  * \}

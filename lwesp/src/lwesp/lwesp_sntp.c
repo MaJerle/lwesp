@@ -63,7 +63,7 @@ lwesp_sntp_configure(uint8_t en, int8_t tz, const char* h1, const char* h2, cons
     LWESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg.h2 = h2;
     LWESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg.h3 = h3;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -84,7 +84,7 @@ lwesp_sntp_gettime(lwesp_datetime_t* dt,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSNTPTIME;
     LWESP_MSG_VAR_REF(msg).msg.tcpip_sntp_time.dt = dt;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 10000);
 }
 
 #endif /* LWESP_CFG_SNTP || __DOXYGEN__ */

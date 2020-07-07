@@ -137,13 +137,13 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     esp.status.f.initialized = 1;               /* We are initialized now */
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
 
-    espi_send_cb(LWESP_EVT_INIT_FINISH);          /* Call user callback function */
+    lwespi_send_cb(LWESP_EVT_INIT_FINISH);          /* Call user callback function */
 
     /*
      * Call reset command and call default
      * AT commands to prepare basic setup for device
      */
-    espi_conn_init();                           /* Init connection module */
+    lwespi_conn_init();                           /* Init connection module */
 
 #if LWESP_CFG_RESTORE_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
@@ -210,7 +210,7 @@ lwesp_reset_with_delay(uint32_t delay,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_RESET;
     LWESP_MSG_VAR_REF(msg).msg.reset.delay = delay;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 5000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 5000);
 }
 
 /**
@@ -229,7 +229,7 @@ lwesp_restore(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_RESTORE;
     LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_RESET;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 5000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 5000);
 }
 
 /**
@@ -253,7 +253,7 @@ lwesp_set_wifi_mode(lwesp_mode_t mode,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWMODE;
     LWESP_MSG_VAR_REF(msg).msg.wifi_mode.mode = mode;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -275,7 +275,7 @@ lwesp_get_wifi_mode(lwesp_mode_t* mode,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWMODE_GET;
     LWESP_MSG_VAR_REF(msg).msg.wifi_mode.mode_get = mode;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -296,7 +296,7 @@ lwesp_set_at_baudrate(uint32_t baud,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_UART;
     LWESP_MSG_VAR_REF(msg).msg.uart.baudrate = baud;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 2000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 2000);
 }
 
 /**
@@ -331,7 +331,7 @@ lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint16_t time
     LWESP_MSG_VAR_REF(msg).msg.tcpip_server.timeout = timeout;
     LWESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = server_evt_fn;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
@@ -352,7 +352,7 @@ lwesp_update_sw(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const ui
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIUPDATE;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 180000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 180000);
 }
 
 #endif /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
@@ -414,7 +414,7 @@ lwesp_device_set_present(uint8_t present,
 
         if (!esp.status.f.dev_present) {
             /* Manually reset stack to default device state */
-            espi_reset_everything(1);
+            lwespi_reset_everything(1);
         } else {
 #if LWESP_CFG_RESET_ON_DEVICE_PRESENT
             lwesp_core_unlock();
@@ -422,7 +422,7 @@ lwesp_device_set_present(uint8_t present,
             lwesp_core_lock();
 #endif /* LWESP_CFG_RESET_ON_DEVICE_PRESENT */
         }
-        espi_send_cb(LWESP_EVT_DEVICE_PRESENT);       /* Send present event */
+        lwespi_send_cb(LWESP_EVT_DEVICE_PRESENT);       /* Send present event */
     }
     lwesp_core_unlock();
 

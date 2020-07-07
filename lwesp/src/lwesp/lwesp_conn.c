@@ -64,15 +64,15 @@ conn_timeout_cb(void* arg) {
     if (conn->status.f.active) {                /* Handle only active connections */
         esp.evt.type = LWESP_EVT_CONN_POLL;       /* Poll connection event */
         esp.evt.evt.conn_poll.conn = conn;      /* Set connection pointer */
-        espi_send_conn_cb(conn, NULL);          /* Send connection callback */
+        lwespi_send_conn_cb(conn, NULL);          /* Send connection callback */
 
-        espi_conn_start_timeout(conn);          /* Schedule new timeout */
+        lwespi_conn_start_timeout(conn);          /* Schedule new timeout */
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                    "[CONN] Poll event: %p\r\n", conn);
     }
 
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
-    espi_conn_manual_tcp_try_read_data(conn);   /* Try to read data manually */
+    lwespi_conn_manual_tcp_try_read_data(conn);   /* Try to read data manually */
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 }
 
@@ -81,7 +81,7 @@ conn_timeout_cb(void* arg) {
  * \param[in]       conn: Connection handle as user argument
  */
 void
-espi_conn_start_timeout(lwesp_conn_p conn) {
+lwespi_conn_start_timeout(lwesp_conn_p conn) {
     lwesp_timeout_add(LWESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Add connection timeout */
 }
 
@@ -97,7 +97,7 @@ manual_tcp_read_data_evt_fn(lwespr_t res, void* arg) {
     lwesp_conn_p conn = arg;
 
     conn->status.f.receive_is_command_queued = 0;
-    espi_conn_manual_tcp_try_read_data(conn);
+    lwespi_conn_manual_tcp_try_read_data(conn);
 }
 
 /**
@@ -107,7 +107,7 @@ manual_tcp_read_data_evt_fn(lwespr_t res, void* arg) {
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-espi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
+lwespi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     uint32_t blocking = 0;
     lwespr_t res = lwespOK;
     LWESP_MSG_VAR_DEFINE(msg);
@@ -135,7 +135,7 @@ espi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
 
     /* Try to start command */
-    if ((res = espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000)) == lwespOK) {
+    if ((res = lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 60000)) == lwespOK) {
         conn->status.f.receive_is_command_queued = 1;   /* Command queued */
     }
     return res;
@@ -150,7 +150,7 @@ static void
 check_available_rx_data_evt_fn(lwespr_t res, void* arg) {
     /* Try to read data if possible */
     for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {
-        espi_conn_manual_tcp_try_read_data(&esp.m.conns[i]);
+        lwespi_conn_manual_tcp_try_read_data(&esp.m.conns[i]);
     }
 }
 
@@ -159,14 +159,14 @@ check_available_rx_data_evt_fn(lwespr_t res, void* arg) {
  * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
-espi_conn_check_available_rx_data(void) {
+lwespi_conn_check_available_rx_data(void) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, 0);                  /* Allocate first, will return on failure */
     LWESP_MSG_VAR_SET_EVT(msg, check_available_rx_data_evt_fn, NULL); /* Set event callback function */
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPRECVLEN;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
@@ -176,7 +176,7 @@ espi_conn_check_available_rx_data(void) {
  * \return          Connection current validation ID
  */
 uint8_t
-espi_conn_get_val_id(lwesp_conn_p conn) {
+lwespi_conn_get_val_id(lwesp_conn_p conn) {
     uint8_t val_id;
     lwesp_core_lock();
     val_id = conn->val_id;
@@ -223,9 +223,9 @@ conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, cons
     LWESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
     LWESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
     LWESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
-    LWESP_MSG_VAR_REF(msg).msg.conn_send.val_id = espi_conn_get_val_id(conn);
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.val_id = lwespi_conn_get_val_id(conn);
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 60000);
 }
 
 /**
@@ -262,7 +262,7 @@ flush_buff(lwesp_conn_p conn) {
  * \brief           Initialize connection module
  */
 void
-espi_conn_init(void) {
+lwespi_conn_init(void) {
 
 }
 
@@ -297,7 +297,7 @@ lwesp_conn_start(lwesp_conn_p* conn, lwesp_conn_type_t type, const char* const r
     LWESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 60000);
 }
 
 /**
@@ -339,7 +339,7 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct,
         LWESP_MSG_VAR_REF(msg).msg.conn_start.udp_mode = start_struct->ext.udp.mode;
     }
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 60000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 60000);
 }
 
 /**
@@ -361,10 +361,10 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPCLOSE;
     LWESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
-    LWESP_MSG_VAR_REF(msg).msg.conn_close.val_id = espi_conn_get_val_id(conn);
+    LWESP_MSG_VAR_REF(msg).msg.conn_close.val_id = lwespi_conn_get_val_id(conn);
 
     flush_buff(conn);                           /* First flush buffer */
-    res = espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    res = lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
     if (res == lwespOK && !blocking) {            /* Function succedded in non-blocking mode */
         lwesp_core_lock();
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
@@ -459,7 +459,7 @@ lwesp_conn_recved(lwesp_conn_p conn, lwesp_pbuf_p pbuf) {
     } else {
         /* Warning here, de-sync happened somewhere! */
     }
-    espi_conn_manual_tcp_try_read_data(conn);   /* Try to read more connection data */
+    lwespi_conn_manual_tcp_try_read_data(conn);   /* Try to read more connection data */
 #else /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     LWESP_UNUSED(conn);
     LWESP_UNUSED(pbuf);
@@ -509,7 +509,7 @@ lwesp_get_conns_status(const uint32_t blocking) {
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTATUS;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -520,7 +520,7 @@ lwesp_get_conns_status(const uint32_t blocking) {
 uint8_t
 lwesp_conn_is_client(lwesp_conn_p conn) {
     uint8_t res = 0;
-    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && lwespi_is_valid_conn_ptr(conn)) {
         lwesp_core_lock();
         res = conn->status.f.active && conn->status.f.client;
         lwesp_core_unlock();
@@ -536,7 +536,7 @@ lwesp_conn_is_client(lwesp_conn_p conn) {
 uint8_t
 lwesp_conn_is_server(lwesp_conn_p conn) {
     uint8_t res = 0;
-    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && lwespi_is_valid_conn_ptr(conn)) {
         lwesp_core_lock();
         res = conn->status.f.active && !conn->status.f.client;
         lwesp_core_unlock();
@@ -552,7 +552,7 @@ lwesp_conn_is_server(lwesp_conn_p conn) {
 uint8_t
 lwesp_conn_is_active(lwesp_conn_p conn) {
     uint8_t res = 0;
-    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && lwespi_is_valid_conn_ptr(conn)) {
         lwesp_core_lock();
         res = conn->status.f.active;
         lwesp_core_unlock();
@@ -568,7 +568,7 @@ lwesp_conn_is_active(lwesp_conn_p conn) {
 uint8_t
 lwesp_conn_is_closed(lwesp_conn_p conn) {
     uint8_t res = 0;
-    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && lwespi_is_valid_conn_ptr(conn)) {
         lwesp_core_lock();
         res = !conn->status.f.active;
         lwesp_core_unlock();
@@ -584,7 +584,7 @@ lwesp_conn_is_closed(lwesp_conn_p conn) {
 int8_t
 lwesp_conn_getnum(lwesp_conn_p conn) {
     int8_t res = -1;
-    if (conn != NULL && espi_is_valid_conn_ptr(conn)) {
+    if (conn != NULL && lwespi_is_valid_conn_ptr(conn)) {
         /* Protection not needed as every connection has always the same number */
         res = conn->num;                        /* Get number */
     }
@@ -606,7 +606,7 @@ lwesp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSSLSIZE;
     LWESP_MSG_VAR_REF(msg).msg.tcpip_sslsize.size = size;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -839,5 +839,5 @@ lwesp_conn_ssl_configure(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number,
     LWESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.pki_number = pki_number;
     LWESP_MSG_VAR_REF(msg).msg.tcpip_ssl_cfg.ca_number = ca_number;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }

@@ -59,7 +59,7 @@ lwesp_ap_getip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm,
     LWESP_MSG_VAR_REF(msg).msg.sta_ap_getip.gw = gw;
     LWESP_MSG_VAR_REF(msg).msg.sta_ap_getip.nm = nm;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -89,7 +89,7 @@ lwesp_ap_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm,
     LWESP_MEMCPY(&LWESP_MSG_VAR_REF(msg).msg.sta_ap_setip.gw, gw, sizeof(*gw));
     LWESP_MEMCPY(&LWESP_MSG_VAR_REF(msg).msg.sta_ap_setip.nm, nm, sizeof(*nm));
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -110,7 +110,7 @@ lwesp_ap_getmac(lwesp_mac_t* mac,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CIPAPMAC_GET;
     LWESP_MSG_VAR_REF(msg).msg.sta_ap_getmac.mac = mac;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -137,7 +137,7 @@ lwesp_ap_setmac(const lwesp_mac_t* mac,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CIPAPMAC_SET;
     LWESP_MEMCPY(&LWESP_MSG_VAR_REF(msg).msg.sta_ap_setmac.mac, mac, sizeof(*mac));
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -179,7 +179,7 @@ lwesp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, lwesp_ecn_t ec
     LWESP_MSG_VAR_REF(msg).msg.ap_conf.max_sta = max_sta;
     LWESP_MSG_VAR_REF(msg).msg.ap_conf.hid = hid;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 10000);
 }
 
 /**
@@ -203,7 +203,7 @@ lwesp_ap_get_config(lwesp_ap_conf_t* ap_conf, const lwesp_api_cmd_evt_fn evt_fn,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWSAP_GET;
     LWESP_MSG_VAR_REF(msg).msg.ap_conf_get.ap_conf = ap_conf;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 10000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 10000);
 }
 
 /**
@@ -235,7 +235,7 @@ lwesp_ap_list_sta(lwesp_sta_t* sta, size_t stal, size_t* staf,
     LWESP_MSG_VAR_REF(msg).msg.sta_list.stal = stal;
     LWESP_MSG_VAR_REF(msg).msg.sta_list.staf = staf;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 /**
@@ -259,7 +259,7 @@ lwesp_ap_disconn_sta(const lwesp_mac_t* mac,
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWQIF;
     LWESP_MEMCPY(&LWESP_MSG_VAR_REF(msg).msg.ap_disconn_sta.mac, mac, sizeof(*mac));
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 1000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 
 #endif /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */

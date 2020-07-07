@@ -59,7 +59,7 @@ lwesp_ping(const char* host, uint32_t* time,
     LWESP_MSG_VAR_REF(msg).msg.tcpip_ping.host = host;
     LWESP_MSG_VAR_REF(msg).msg.tcpip_ping.time_out = time;
 
-    return espi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), espi_initiate_cmd, 30000);
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 30000);
 }
 
 #endif /* LWESP_CFG_PING || __DOXYGEN__ */

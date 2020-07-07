@@ -88,7 +88,7 @@ lwesp_input_process(const void* data, size_t len) {
 
     if (len > 0) {
         lwesp_core_lock();
-        res = espi_process(data, len);          /* Process input data */
+        res = lwespi_process(data, len);          /* Process input data */
         lwesp_core_unlock();
     }
     return res;

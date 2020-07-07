@@ -42,7 +42,7 @@
  * \return          Parsed number
  */
 int32_t
-espi_parse_number(const char** str) {
+lwespi_parse_number(const char** str) {
     int32_t val = 0;
     uint8_t minus = 0;
     const char* p = *str;                       /*  */
@@ -79,10 +79,10 @@ espi_parse_number(const char** str) {
  * \return          Parsed port number
  */
 lwesp_port_t
-espi_parse_port(const char** str) {
+lwespi_parse_port(const char** str) {
     lwesp_port_t p;
 
-    p = (lwesp_port_t)espi_parse_number(str);     /* Parse port */
+    p = (lwesp_port_t)lwespi_parse_number(str);     /* Parse port */
     return p;
 }
 
@@ -93,7 +93,7 @@ espi_parse_port(const char** str) {
  * \return          Parsed number
  */
 uint32_t
-espi_parse_hexnumber(const char** str) {
+lwespi_parse_hexnumber(const char** str) {
     int32_t val = 0;
     const char* p = *str;                       /*  */
 
@@ -129,7 +129,7 @@ espi_parse_hexnumber(const char** str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
+lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
     const char* p = *src;
     size_t i;
 
@@ -173,19 +173,19 @@ espi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_ip(const char** src, lwesp_ip_t* ip) {
+lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     const char* p = *src;
 
     if (*p == '"') {
         ++p;
     }
-    ip->ip[0] = espi_parse_number(&p);
+    ip->ip[0] = lwespi_parse_number(&p);
     ++p;
-    ip->ip[1] = espi_parse_number(&p);
+    ip->ip[1] = lwespi_parse_number(&p);
     ++p;
-    ip->ip[2] = espi_parse_number(&p);
+    ip->ip[2] = lwespi_parse_number(&p);
     ++p;
-    ip->ip[3] = espi_parse_number(&p);
+    ip->ip[3] = lwespi_parse_number(&p);
     if (*p == '"') {
         ++p;
     }
@@ -201,23 +201,23 @@ espi_parse_ip(const char** src, lwesp_ip_t* ip) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_mac(const char** src, lwesp_mac_t* mac) {
+lwespi_parse_mac(const char** src, lwesp_mac_t* mac) {
     const char* p = *src;
 
     if (*p == '"') {                            /* Go to next entry if possible */
         ++p;
     }
-    mac->mac[0] = espi_parse_hexnumber(&p);
+    mac->mac[0] = lwespi_parse_hexnumber(&p);
     ++p;
-    mac->mac[1] = espi_parse_hexnumber(&p);
+    mac->mac[1] = lwespi_parse_hexnumber(&p);
     ++p;
-    mac->mac[2] = espi_parse_hexnumber(&p);
+    mac->mac[2] = lwespi_parse_hexnumber(&p);
     ++p;
-    mac->mac[3] = espi_parse_hexnumber(&p);
+    mac->mac[3] = lwespi_parse_hexnumber(&p);
     ++p;
-    mac->mac[4] = espi_parse_hexnumber(&p);
+    mac->mac[4] = lwespi_parse_hexnumber(&p);
     ++p;
-    mac->mac[5] = espi_parse_hexnumber(&p);
+    mac->mac[5] = lwespi_parse_hexnumber(&p);
     if (*p == '"') {                            /* Skip quotes if possible */
         ++p;
     }
@@ -234,18 +234,18 @@ espi_parse_mac(const char** src, lwesp_mac_t* mac) {
  * \return          Member of \ref lwespr_t enumeration
  */
 lwespr_t
-espi_parse_cipstatus(const char* str) {
+lwespi_parse_cipstatus(const char* str) {
     uint8_t cn_num = 0;
 
-    cn_num = espi_parse_number(&str);           /* Parse connection number */
+    cn_num = lwespi_parse_number(&str);           /* Parse connection number */
     esp.m.active_conns |= 1 << cn_num;          /* Set flag as active */
 
-    espi_parse_string(&str, NULL, 0, 1);        /* Parse string and ignore result */
+    lwespi_parse_string(&str, NULL, 0, 1);        /* Parse string and ignore result */
 
-    espi_parse_ip(&str, &esp.m.conns[cn_num].remote_ip);
-    esp.m.conns[cn_num].remote_port = espi_parse_number(&str);
-    esp.m.conns[cn_num].local_port = espi_parse_number(&str);
-    esp.m.conns[cn_num].status.f.client = !espi_parse_number(&str);
+    lwespi_parse_ip(&str, &esp.m.conns[cn_num].remote_ip);
+    esp.m.conns[cn_num].remote_port = lwespi_parse_number(&str);
+    esp.m.conns[cn_num].local_port = lwespi_parse_number(&str);
+    esp.m.conns[cn_num].status.f.client = !lwespi_parse_number(&str);
 
     return lwespOK;
 }
@@ -257,7 +257,7 @@ espi_parse_cipstatus(const char* str) {
  * \return          Member of \ref lwespr_t enumeration
  */
 lwespr_t
-espi_parse_ciprecvdata(const char* str) {
+lwespi_parse_ciprecvdata(const char* str) {
     size_t len;
 
     if (*str == '+') {
@@ -265,7 +265,7 @@ espi_parse_ciprecvdata(const char* str) {
     }
 
     /* Check data length */
-    if ((len = espi_parse_number(&str)) > 0) {  /* Get number of bytes to read */
+    if ((len = lwespi_parse_number(&str)) > 0) {  /* Get number of bytes to read */
         lwesp_ip_t ip;
         lwesp_port_t port;
 
@@ -273,8 +273,8 @@ espi_parse_ciprecvdata(const char* str) {
         esp.m.ipd.tot_len = len;                /* Total number of bytes in this received packet */
         esp.m.ipd.rem_len = len;                /* Number of remaining bytes to read */
 
-        espi_parse_ip(&str, &ip);
-        port = espi_parse_port(&str);
+        lwespi_parse_ip(&str, &ip);
+        port = lwespi_parse_port(&str);
         lwesp_pbuf_set_ip(esp.m.ipd.buff, &ip, port);
     }
     return lwespOK;
@@ -286,14 +286,14 @@ espi_parse_ciprecvdata(const char* str) {
  * \return          Member of \ref lwespr_t enumeration
  */
 lwespr_t
-espi_parse_ciprecvlen(const char* str) {
+lwespi_parse_ciprecvlen(const char* str) {
     int32_t len;
     if (*str == '+') {
         str += 12;
     }
 
     for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {
-        len = espi_parse_number(&str);
+        len = lwespi_parse_number(&str);
         if (len < 0) {
             continue;
         }
@@ -310,7 +310,7 @@ espi_parse_ciprecvlen(const char* str) {
  * \return          Member of \ref lwespr_t enumeration
  */
 lwespr_t
-espi_parse_ipd(const char* str) {
+lwespi_parse_ipd(const char* str) {
     uint8_t conn, is_data_ipd;
     size_t len;
     lwesp_conn_p c;
@@ -319,8 +319,8 @@ espi_parse_ipd(const char* str) {
         str += 5;
     }
 
-    conn = espi_parse_number(&str);             /* Parse number for connection number */
-    len = espi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
+    conn = lwespi_parse_number(&str);             /* Parse number for connection number */
+    len = lwespi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
 
     c = conn < LWESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL;   /* Get connection handle */
     if (c == NULL) {                            /* Invalid connection number */
@@ -358,8 +358,8 @@ espi_parse_ipd(const char* str) {
          * Check for ':' character if it is end of string and determine how to proceed
          */
         if (*str != ':') {
-            espi_parse_ip(&str, &esp.m.ipd.ip);     /* Parse incoming packet IP */
-            esp.m.ipd.port = espi_parse_port(&str); /* Get port on IPD data */
+            lwespi_parse_ip(&str, &esp.m.ipd.ip);     /* Parse incoming packet IP */
+            esp.m.ipd.port = lwespi_parse_port(&str); /* Get port on IPD data */
 
             LWESP_MEMCPY(&esp.m.conns[conn].remote_ip, &esp.m.ipd.ip, sizeof(esp.m.ipd.ip));
             LWESP_MEMCPY(&esp.m.conns[conn].remote_port, &esp.m.ipd.port, sizeof(esp.m.ipd.port));
@@ -388,12 +388,12 @@ espi_parse_ipd(const char* str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_at_sdk_version(const char* str, lwesp_sw_version_t* version_out) {
-    version_out->major = ((uint8_t)espi_parse_number(&str));
+lwespi_parse_at_sdk_version(const char* str, lwesp_sw_version_t* version_out) {
+    version_out->major = ((uint8_t)lwespi_parse_number(&str));
     ++str;
-    version_out->minor = ((uint8_t)espi_parse_number(&str));
+    version_out->minor = ((uint8_t)lwespi_parse_number(&str));
     ++str;
-    version_out->patch = ((uint8_t)espi_parse_number(&str));
+    version_out->patch = ((uint8_t)lwespi_parse_number(&str));
 
     return 1;
 }
@@ -404,15 +404,15 @@ espi_parse_at_sdk_version(const char* str, lwesp_sw_version_t* version_out) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_link_conn(const char* str) {
+lwespi_parse_link_conn(const char* str) {
     if (str == NULL) {
         return 0;
     }
     if (*str == '+') {
         str += 11;
     }
-    esp.m.link_conn.failed = espi_parse_number(&str);
-    esp.m.link_conn.num = espi_parse_number(&str);
+    esp.m.link_conn.failed = lwespi_parse_number(&str);
+    esp.m.link_conn.num = lwespi_parse_number(&str);
     if (!strncmp(str, "\"TCP\"", 5)) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_TCP;
     } else if (!strncmp(str, "\"UDP\"", 5)) {
@@ -423,10 +423,10 @@ espi_parse_link_conn(const char* str) {
         return 0;
     }
     str += 6;
-    esp.m.link_conn.is_server = espi_parse_number(&str);
-    espi_parse_ip(&str, &esp.m.link_conn.remote_ip);
-    esp.m.link_conn.remote_port = espi_parse_port(&str);
-    esp.m.link_conn.local_port = espi_parse_port(&str);
+    esp.m.link_conn.is_server = lwespi_parse_number(&str);
+    lwespi_parse_ip(&str, &esp.m.link_conn.remote_ip);
+    esp.m.link_conn.remote_port = lwespi_parse_port(&str);
+    esp.m.link_conn.local_port = lwespi_parse_port(&str);
     return 1;
 }
 
@@ -438,7 +438,7 @@ espi_parse_link_conn(const char* str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
+lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWLAP) ||      /* Do we have valid message here and enough memory to save everything? */
         msg->msg.ap_list.aps == NULL || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl) {
         return 0;
@@ -451,21 +451,21 @@ espi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
     }
     ++str;
 
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (lwesp_ecn_t)espi_parse_number(&str);
-    espi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = espi_parse_number(&str);
-    espi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = espi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (lwesp_ecn_t)lwespi_parse_number(&str);
+    lwespi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = lwespi_parse_number(&str);
+    lwespi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = lwespi_parse_number(&str);
 
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = 0;
 
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = espi_parse_number(&str);
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = espi_parse_number(&str);
+    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = lwespi_parse_number(&str);
+    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = lwespi_parse_number(&str);
 
-    //espi_parse_number(&str);                    /* Parse pwc */
-    //espi_parse_number(&str);                    /* Parse gc */
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = espi_parse_number(&str);
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = espi_parse_number(&str);
+    //lwespi_parse_number(&str);                    /* Parse pwc */
+    //lwespi_parse_number(&str);                    /* Parse gc */
+    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = lwespi_parse_number(&str);
+    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = lwespi_parse_number(&str);
 
     ++msg->msg.ap_list.apsi;                    /* Increase number of found elements */
     if (msg->msg.ap_list.apf != NULL) {         /* Set pointer if necessary */
@@ -481,7 +481,7 @@ espi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
+lwespi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
         return 0;
     }
@@ -491,10 +491,10 @@ espi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
     if (*str != '"') {                          /* We must start with quotation mark */
         return 0;
     }
-    espi_parse_string(&str, esp.msg->msg.sta_info_ap.info->ssid, LWESP_CFG_MAX_SSID_LENGTH, 1);
-    espi_parse_mac(&str, &esp.msg->msg.sta_info_ap.info->mac);
-    esp.msg->msg.sta_info_ap.info->ch = espi_parse_number(&str);
-    esp.msg->msg.sta_info_ap.info->rssi = espi_parse_number(&str);
+    lwespi_parse_string(&str, esp.msg->msg.sta_info_ap.info->ssid, LWESP_CFG_MAX_SSID_LENGTH, 1);
+    lwespi_parse_mac(&str, &esp.msg->msg.sta_info_ap.info->mac);
+    esp.msg->msg.sta_info_ap.info->ch = lwespi_parse_number(&str);
+    esp.msg->msg.sta_info_ap.info->rssi = lwespi_parse_number(&str);
 
     LWESP_UNUSED(msg);
 
@@ -512,7 +512,7 @@ espi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwlif(const char* str, lwesp_msg_t* msg) {
+lwespi_parse_cwlif(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWLIF)         /* Do we have valid message here and enough memory to save everything? */
         || msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal) {
         return 0;
@@ -522,8 +522,8 @@ espi_parse_cwlif(const char* str, lwesp_msg_t* msg) {
         str += 7;
     }
 
-    espi_parse_ip(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].ip);
-    espi_parse_mac(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].mac);
+    lwespi_parse_ip(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].ip);
+    lwespi_parse_mac(&str, &msg->msg.sta_list.stas[msg->msg.sta_list.stai].mac);
 
     ++msg->msg.sta_list.stai;                   /* Increase number of found elements */
     if (msg->msg.sta_list.staf != NULL) {       /* Set pointer if necessary */
@@ -539,13 +539,13 @@ espi_parse_cwlif(const char* str, lwesp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
+lwespi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
     lwesp_mac_t mac;
 
-    espi_parse_mac(&str, &mac);                 /* Parse MAC address */
+    lwespi_parse_mac(&str, &mac);                 /* Parse MAC address */
 
     esp.evt.evt.ap_conn_disconn_sta.mac = &mac;
-    espi_send_cb(is_conn ? LWESP_EVT_AP_CONNECTED_STA : LWESP_EVT_AP_DISCONNECTED_STA); /* Send event function */
+    lwespi_send_cb(is_conn ? LWESP_EVT_AP_CONNECTED_STA : LWESP_EVT_AP_DISCONNECTED_STA); /* Send event function */
     return 1;
 }
 
@@ -555,16 +555,16 @@ espi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_ap_ip_sta(const char* str) {
+lwespi_parse_ap_ip_sta(const char* str) {
     lwesp_mac_t mac;
     lwesp_ip_t ip;
 
-    espi_parse_mac(&str, &mac);                 /* Parse MAC address */
-    espi_parse_ip(&str, &ip);                   /* Parse IP address */
+    lwespi_parse_mac(&str, &mac);                 /* Parse MAC address */
+    lwespi_parse_ip(&str, &ip);                   /* Parse IP address */
 
     esp.evt.evt.ap_ip_sta.mac = &mac;
     esp.evt.evt.ap_ip_sta.ip = &ip;
-    espi_send_cb(LWESP_EVT_AP_IP_STA);            /* Send event function */
+    lwespi_send_cb(LWESP_EVT_AP_IP_STA);            /* Send event function */
     return 1;
 }
 
@@ -575,7 +575,7 @@ espi_parse_ap_ip_sta(const char* str) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwsap(const char* str, lwesp_msg_t* msg) {
+lwespi_parse_cwsap(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWSAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
         return 0;
     }
@@ -585,12 +585,12 @@ espi_parse_cwsap(const char* str, lwesp_msg_t* msg) {
     if (*str != '"') {                          /* We must start with quotation mark */
         return 0;
     }
-    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->ssid, LWESP_CFG_MAX_SSID_LENGTH, 1);
-    espi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->pwd, LWESP_CFG_MAX_PWD_LENGTH, 1);
-    esp.msg->msg.ap_conf_get.ap_conf->ch = espi_parse_number(&str);
-    esp.msg->msg.ap_conf_get.ap_conf->ecn = espi_parse_number(&str);
-    esp.msg->msg.ap_conf_get.ap_conf->max_cons = espi_parse_number(&str);
-    esp.msg->msg.ap_conf_get.ap_conf->hidden = espi_parse_number(&str);
+    lwespi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->ssid, LWESP_CFG_MAX_SSID_LENGTH, 1);
+    lwespi_parse_string(&str, esp.msg->msg.ap_conf_get.ap_conf->pwd, LWESP_CFG_MAX_PWD_LENGTH, 1);
+    esp.msg->msg.ap_conf_get.ap_conf->ch = lwespi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->ecn = lwespi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->max_cons = lwespi_parse_number(&str);
+    esp.msg->msg.ap_conf_get.ap_conf->hidden = lwespi_parse_number(&str);
 
     LWESP_UNUSED(msg);
 
@@ -607,14 +607,14 @@ espi_parse_cwsap(const char* str, lwesp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_ping_time(const char* str, lwesp_msg_t* msg) {
+lwespi_parse_ping_time(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_TCPIP_PING)) {
         return 0;
     }
     if (*str == '+') {
         str += 6;
     }
-    msg->msg.tcpip_ping.time = espi_parse_number(&str);
+    msg->msg.tcpip_ping.time = lwespi_parse_number(&str);
     if (msg->msg.tcpip_ping.time_out != NULL) {
         *msg->msg.tcpip_ping.time_out = msg->msg.tcpip_ping.time;
     }
@@ -632,14 +632,14 @@ espi_parse_ping_time(const char* str, lwesp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cipdomain(const char* str, lwesp_msg_t* msg) {
+lwespi_parse_cipdomain(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPDOMAIN)) {
         return 0;
     }
     if (*str == '+') {
         str += 11;
     }
-    espi_parse_ip(&str, msg->msg.dns_getbyhostname.ip); /* Parse IP address */
+    lwespi_parse_ip(&str, msg->msg.dns_getbyhostname.ip); /* Parse IP address */
     return 1;
 }
 
@@ -654,7 +654,7 @@ espi_parse_cipdomain(const char* str, lwesp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
+lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPTIME)) {
         return 0;
     }
@@ -710,15 +710,15 @@ espi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
     if (*str == ' ') {                              /* Numbers < 10 could have one more space */
         ++str;
     }
-    msg->msg.tcpip_sntp_time.dt->date = espi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->date = lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->hours = espi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->hours = lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->minutes = espi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->minutes = lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->seconds = espi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->seconds = lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->year = espi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->year = lwespi_parse_number(&str);
     return 1;
 }
 
@@ -733,7 +733,7 @@ espi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_hostname(const char* str, lwesp_msg_t* msg) {
+lwespi_parse_hostname(const char* str, lwesp_msg_t* msg) {
     size_t i;
     if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWHOSTNAME_GET)) {
         return 0;
@@ -760,7 +760,7 @@ espi_parse_hostname(const char* str, lwesp_msg_t* msg) {
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-espi_parse_cwdhcp(const char* str) {
+lwespi_parse_cwdhcp(const char* str) {
     uint8_t val;
 
     if (!CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_GET)) {
@@ -770,7 +770,7 @@ espi_parse_cwdhcp(const char* str) {
         str += 8;
     }
 
-    val = espi_parse_number(&str);
+    val = lwespi_parse_number(&str);
 
 #if LWESP_CFG_MODE_ACCESS_POINT
     esp.m.ap.dhcp = (val & 0x01) == 0x01;

@@ -43,7 +43,7 @@
  * \return          \ref lwespERR Error in UTF-8 sequence
  */
 lwespr_t
-espi_unicode_decode(lwesp_unicode_t* s, uint8_t c) {
+lwespi_unicode_decode(lwesp_unicode_t* s, uint8_t c) {
     if (s->r == 0) {                            /* Are we expecting a first character? */
         s->t = 0;                               /* Reset sequence */
         s->ch[0] = c;                           /* Save current character */

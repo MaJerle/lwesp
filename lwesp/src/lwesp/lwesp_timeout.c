@@ -93,7 +93,7 @@ process_next_timeout(void) {
  * \return          Time in milliseconds required for next message
  */
 uint32_t
-espi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
+lwespi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t wait_time;
     do {
         if (first_timeout == NULL) {            /* We have no timeouts ready? */
