@@ -42,7 +42,7 @@ extern "C" {
 
 /**
  * \defgroup        LWESP Lightweight ESP-AT parser library
- * \brief           Lightweight ESP-AT
+ * \brief           Lightweight ESP-AT parser
  * \{
  */
 
