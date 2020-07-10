@@ -360,7 +360,7 @@ lwesp_update_sw(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const ui
 /**
  * \brief           Lock stack from multi-thread access, enable atomic access to core
  *
- * If lock was `0` prior funcion call, lock is enabled and increased
+ * If lock was `0` prior function call, lock is enabled and increased
  *
  * \note            Function may be called multiple times to increase locks.
  *                  Application must take care to call \ref lwesp_core_unlock
