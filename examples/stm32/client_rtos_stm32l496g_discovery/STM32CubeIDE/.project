@@ -74,122 +74,122 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>ESP API/lwesp_netconn.c</name>
+			<name>lwesp_api/lwesp_netconn.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/api/lwesp_netconn.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp.c</name>
+			<name>lwesp/lwesp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_ap.c</name>
+			<name>lwesp/lwesp_ap.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_ap.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_buff.c</name>
+			<name>lwesp/lwesp_buff.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_buff.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_conn.c</name>
+			<name>lwesp/lwesp_conn.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_conn.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_debug.c</name>
+			<name>lwesp/lwesp_debug.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_debug.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_dns.c</name>
+			<name>lwesp/lwesp_dns.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_dns.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_evt.c</name>
+			<name>lwesp/lwesp_evt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_evt.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_input.c</name>
+			<name>lwesp/lwesp_input.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_input.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_int.c</name>
+			<name>lwesp/lwesp_int.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_int.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_mem.c</name>
+			<name>lwesp/lwesp_mem.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_mem.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_parser.c</name>
+			<name>lwesp/lwesp_parser.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_parser.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_pbuf.c</name>
+			<name>lwesp/lwesp_pbuf.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_pbuf.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_sntp.c</name>
+			<name>lwesp/lwesp_sntp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_sntp.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_sta.c</name>
+			<name>lwesp/lwesp_sta.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_sta.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_threads.c</name>
+			<name>lwesp/lwesp_threads.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_threads.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_timeout.c</name>
+			<name>lwesp/lwesp_timeout.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_timeout.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_unicode.c</name>
+			<name>lwesp/lwesp_unicode.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_unicode.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_utils.c</name>
+			<name>lwesp/lwesp_utils.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_utils.c</locationURI>
 		</link>
 		<link>
-			<name>ESP CORE/lwesp_wps.c</name>
+			<name>lwesp/lwesp_wps.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_wps.c</locationURI>
 		</link>
 		<link>
-			<name>ESP LL/lwesp_ll_stm32l496g_discovery.c</name>
+			<name>lwesp_ll/lwesp_ll_stm32l496g_discovery.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/system/lwesp_ll_stm32l496g_discovery.c</locationURI>
 		</link>
 		<link>
-			<name>ESP LL/lwesp_sys_cmsis_os.c</name>
+			<name>lwesp_ll/lwesp_sys_cmsis_os.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/system/lwesp_sys_cmsis_os.c</locationURI>
 		</link>
 		<link>
-			<name>ESP SNIPPETS/client.c</name>
+			<name>lwesp_snippets/client.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/snippets/client.c</locationURI>
 		</link>
 		<link>
-			<name>ESP SNIPPETS/station_manager.c</name>
+			<name>lwesp_snippets/station_manager.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/snippets/station_manager.c</locationURI>
 		</link>
