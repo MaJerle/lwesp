@@ -43,7 +43,7 @@
 lwespr_t
 lwesp_evt_register(lwesp_evt_fn fn) {
     lwespr_t res = lwespOK;
-    lwesp_evt_func_t* func, *newFunc;
+    lwesp_evt_func_t* func, *new_func;
 
     LWESP_ASSERT("fn != NULL", fn != NULL);
 
@@ -58,16 +58,16 @@ lwesp_evt_register(lwesp_evt_fn fn) {
     }
 
     if (res == lwespOK) {
-        newFunc = lwesp_mem_malloc(sizeof(*newFunc));
-        if (newFunc != NULL) {
-            LWESP_MEMSET(newFunc, 0x00, sizeof(*newFunc));
-            newFunc->fn = fn;                   /* Set function pointer */
+        new_func = lwesp_mem_malloc(sizeof(*new_func));
+        if (new_func != NULL) {
+            LWESP_MEMSET(new_func, 0x00, sizeof(*new_func));
+            new_func->fn = fn;                  /* Set function pointer */
             for (func = esp.evt_func; func != NULL && func->next != NULL; func = func->next) {}
             if (func != NULL) {
-                func->next = newFunc;           /* Set new function as next */
+                func->next = new_func;          /* Set new function as next */
                 res = lwespOK;
             } else {
-                lwesp_mem_free_s((void**)& newFunc);
+                lwesp_mem_free_s((void**)&new_func);
                 res = lwespERRMEM;
             }
         } else {
