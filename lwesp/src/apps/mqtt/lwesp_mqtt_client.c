@@ -39,16 +39,16 @@
  * \brief           MQTT client connection
  */
 typedef struct lwesp_mqtt_client {
-    lwesp_conn_p conn;                            /*!< Active used connection for MQTT */
-    const lwesp_mqtt_client_info_t* info;         /*!< Connection info */
-    lwesp_mqtt_state_t conn_state;                /*!< MQTT connection state */
+    lwesp_conn_p conn;                          /*!< Active used connection for MQTT */
+    const lwesp_mqtt_client_info_t* info;       /*!< Connection info */
+    lwesp_mqtt_state_t conn_state;              /*!< MQTT connection state */
 
     uint32_t poll_time;                         /*!< Poll time, increased every 500ms */
 
-    lwesp_mqtt_evt_t evt;                         /*!< MQTT event callback */
-    lwesp_mqtt_evt_fn evt_fn;                     /*!< Event callback function */
+    lwesp_mqtt_evt_t evt;                       /*!< MQTT event callback */
+    lwesp_mqtt_evt_fn evt_fn;                   /*!< Event callback function */
 
-    lwesp_buff_t tx_buff;                         /*!< Buffer for raw output data to transmit */
+    lwesp_buff_t tx_buff;                       /*!< Buffer for raw output data to transmit */
 
     uint8_t is_sending;                         /*!< Flag if we are sending data currently */
     uint32_t sent_total;                        /*!< Total number of bytes sent so far on connection */
