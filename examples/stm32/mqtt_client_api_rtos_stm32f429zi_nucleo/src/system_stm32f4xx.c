@@ -165,8 +165,7 @@ const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
   * @param  None
   * @retval None
   */
-void SystemInit(void)
-{
+void SystemInit(void) {
   /* FPU settings ------------------------------------------------------------*/
   #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
@@ -238,8 +237,7 @@ void SystemInit(void)
   * @param  None
   * @retval None
   */
-void SystemCoreClockUpdate(void)
-{
+void SystemCoreClockUpdate(void) {
   uint32_t tmp = 0, pllvco = 0, pllp = 2, pllsource = 0, pllm = 2;
   
   /* Get SYSCLK source -------------------------------------------------------*/
@@ -297,8 +295,7 @@ void SystemCoreClockUpdate(void)
   * @param  None
   * @retval None
   */
-void SystemInit_ExtMemCtl(void)
-{
+void SystemInit_ExtMemCtl(void) {
   __IO uint32_t tmp = 0x00;
 
   register uint32_t tmpreg = 0, timeout = 0xFFFF;
@@ -460,8 +457,7 @@ void SystemInit_ExtMemCtl(void)
   * @param  None
   * @retval None
   */
-void SystemInit_ExtMemCtl(void)
-{
+void SystemInit_ExtMemCtl(void) {
   __IO uint32_t tmp = 0x00;
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)\
  || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)

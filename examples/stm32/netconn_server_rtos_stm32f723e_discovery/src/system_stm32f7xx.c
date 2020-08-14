@@ -147,8 +147,7 @@
   * @param  None
   * @retval None
   */
-void SystemInit(void)
-{
+void SystemInit(void) {
   /* FPU settings ------------------------------------------------------------*/
   #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
@@ -216,8 +215,7 @@ void SystemInit(void)
   * @param  None
   * @retval None
   */
-void SystemCoreClockUpdate(void)
-{
+void SystemCoreClockUpdate(void) {
   uint32_t tmp = 0, pllvco = 0, pllp = 2, pllsource = 0, pllm = 2;
   
   /* Get SYSCLK source -------------------------------------------------------*/

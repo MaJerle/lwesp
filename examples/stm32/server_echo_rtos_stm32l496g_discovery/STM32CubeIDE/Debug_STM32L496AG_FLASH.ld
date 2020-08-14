@@ -42,8 +42,7 @@ _Min_Heap_Size = 0;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Specify the memory areas */
-MEMORY
-{
+MEMORY {
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
   RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 256K
   RAM2 (rw)       : ORIGIN = 0x10000000, LENGTH = 64K
@@ -51,8 +50,7 @@ MEMORY
 }
 
 /* Define output sections */
-SECTIONS
-{
+SECTIONS {
   /* The startup code goes first into FLASH */
   .isr_vector :
   {
