@@ -32,7 +32,7 @@
 #ifndef LWESP_HDR_CLI_CONFIG_H
 #define LWESP_HDR_CLI_CONFIG_H
 
-#include "lwesp_opts.h"
+#include "lwesp/lwesp_opt.h"
 
 #ifdef __cplusplus
 extern "C" {

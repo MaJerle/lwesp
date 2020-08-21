@@ -35,7 +35,9 @@
 #define LWESP_HDR_DEFAULT_CONFIG_H
 
 /* Include application options */
+#ifndef LWESP_IGNORE_USER_OPTS
 #include "lwesp_opts.h"
+#endif /* LWESP_IGNORE_USER_OPTS */
 
 /**
  * \defgroup        LWESP_OPT Configuration
