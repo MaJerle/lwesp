@@ -2298,21 +2298,21 @@ lwespi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_
     lwesp_core_lock();
     /* If locked more than 1 time, means we were called from callback or internally */
     if (esp.locked_cnt > 1 && msg->is_blocking) {
-        res = lwespERRBLOCKING;                   /* Blocking mode not allowed */
+        res = lwespERRBLOCKING;                 /* Blocking mode not allowed */
     }
     /* Check if device present */
     if (res == lwespOK && !esp.status.f.dev_present) {
-        res = lwespERRNODEVICE;                   /* No device connected */
+        res = lwespERRNODEVICE;                 /* No device connected */
     }
     lwesp_core_unlock();
     if (res != lwespOK) {
-        LWESP_MSG_VAR_FREE(msg);                  /* Free memory and return */
+        LWESP_MSG_VAR_FREE(msg);                /* Free memory and return */
         return res;
     }
 
     if (msg->is_blocking) {                     /* In case message is blocking */
-        if (!lwesp_sys_sem_create(&msg->sem, 0)) {/* Create semaphore and lock it immediately */
-            LWESP_MSG_VAR_FREE(msg);              /* Release memory and return */
+        if (!lwesp_sys_sem_create(&msg->sem, 0)) {  /* Create semaphore and lock it immediately */
+            LWESP_MSG_VAR_FREE(msg);            /* Release memory and return */
             return lwespERRMEM;
         }
     }
