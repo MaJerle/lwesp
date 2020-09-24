@@ -48,8 +48,8 @@ extern "C" {
  * \{
  */
 
-#define LWESP_DBG_ON                  0x80    /*!< Indicates debug is enabled */
-#define LWESP_DBG_OFF                 0       /*!< Indicates debug is disabled */
+#define LWESP_DBG_ON                  0x80      /*!< Indicates debug is enabled */
+#define LWESP_DBG_OFF                 0         /*!< Indicates debug is disabled */
 
 /**
  * \anchor          LWESP_DBG_LVL
@@ -58,11 +58,11 @@ extern "C" {
  * \{
  */
 
-#define LWESP_DBG_LVL_ALL             0x00    /*!< Print all messages of all types */
-#define LWESP_DBG_LVL_WARNING         0x01    /*!< Print warning and upper messages */
-#define LWESP_DBG_LVL_DANGER          0x02    /*!< Print danger errors */
-#define LWESP_DBG_LVL_SEVERE          0x03    /*!< Print severe problems affecting program flow */
-#define LWESP_DBG_LVL_MASK            0x03    /*!< Mask for getting debug level */
+#define LWESP_DBG_LVL_ALL             0x00      /*!< Print all messages of all types */
+#define LWESP_DBG_LVL_WARNING         0x01      /*!< Print warning and upper messages */
+#define LWESP_DBG_LVL_DANGER          0x02      /*!< Print danger errors */
+#define LWESP_DBG_LVL_SEVERE          0x03      /*!< Print severe problems affecting program flow */
+#define LWESP_DBG_LVL_MASK            0x03      /*!< Mask for getting debug level */
 
 /**
  * \}
@@ -75,9 +75,9 @@ extern "C" {
  * \{
  */
 
-#define LWESP_DBG_TYPE_TRACE          0x40    /*!< Debug trace messages for program flow */
-#define LWESP_DBG_TYPE_STATE          0x20    /*!< Debug state messages (such as state machines) */
-#define LWESP_DBG_TYPE_ALL            (LWESP_DBG_TYPE_TRACE | LWESP_DBG_TYPE_STATE)   /*!< All debug types */
+#define LWESP_DBG_TYPE_TRACE          0x40      /*!< Debug trace messages for program flow */
+#define LWESP_DBG_TYPE_STATE          0x20      /*!< Debug state messages (such as state machines) */
+#define LWESP_DBG_TYPE_ALL            (LWESP_DBG_TYPE_TRACE | LWESP_DBG_TYPE_STATE) /*!< All debug types */
 
 /**
  * \}

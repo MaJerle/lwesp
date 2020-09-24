@@ -244,16 +244,16 @@ lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
      * to process the queue before we can write new value.
      */
     while (mbox_is_full(mbox)) {
-        lwesp_sys_sem_release(&mbox->sem);        /* Release semaphore */
-        lwesp_sys_sem_wait(&mbox->sem_not_full, 0);   /* Wait for semaphore indicating not full */
-        lwesp_sys_sem_wait(&mbox->sem, 0);        /* Wait availability again */
+        lwesp_sys_sem_release(&mbox->sem);      /* Release semaphore */
+        lwesp_sys_sem_wait(&mbox->sem_not_full, 0); /* Wait for semaphore indicating not full */
+        lwesp_sys_sem_wait(&mbox->sem, 0);      /* Wait availability again */
     }
     mbox->entries[mbox->in] = m;
     if (++mbox->in >= mbox->size) {
         mbox->in = 0;
     }
-    lwesp_sys_sem_release(&mbox->sem_not_empty);  /* Signal non-empty state */
-    lwesp_sys_sem_release(&mbox->sem);            /* Release access for other threads */
+    lwesp_sys_sem_release(&mbox->sem_not_empty);/* Signal non-empty state */
+    lwesp_sys_sem_release(&mbox->sem);          /* Release access for other threads */
     return osKernelSysTick() - time;
 }
 
@@ -309,9 +309,9 @@ uint8_t
 lwesp_sys_mbox_getnow(lwesp_sys_mbox_t* b, void** m) {
     win32_mbox_t* mbox = *b;
 
-    lwesp_sys_sem_wait(&mbox->sem, 0);            /* Wait exclusive access */
+    lwesp_sys_sem_wait(&mbox->sem, 0);          /* Wait exclusive access */
     if (mbox->in == mbox->out) {
-        lwesp_sys_sem_release(&mbox->sem);        /* Release access */
+        lwesp_sys_sem_release(&mbox->sem);      /* Release access */
         return 0;
     }
 
@@ -319,8 +319,8 @@ lwesp_sys_mbox_getnow(lwesp_sys_mbox_t* b, void** m) {
     if (++mbox->out >= mbox->size) {
         mbox->out = 0;
     }
-    lwesp_sys_sem_release(&mbox->sem_not_full);   /* Queue not full anymore */
-    lwesp_sys_sem_release(&mbox->sem);            /* Release semaphore */
+    lwesp_sys_sem_release(&mbox->sem_not_full); /* Queue not full anymore */
+    lwesp_sys_sem_release(&mbox->sem);          /* Release semaphore */
     return 1;
 }
 

@@ -82,7 +82,7 @@ void*       BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t)* buff
 size_t      BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t)* buff);
 size_t      BUF_PREF(buff_advance)(BUF_PREF(buff_t)* buff, size_t len);
 
-#undef BUF_PREF         /* Prefix not needed anymore */
+#undef BUF_PREF                                 /* Prefix not needed anymore */
 
 /**
  * \}

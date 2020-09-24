@@ -44,13 +44,13 @@
  * \brief           MQTT API client structure
  */
 struct lwesp_mqtt_client_api {
-    lwesp_mqtt_client_p mc;                       /*!< MQTT client handle */
-    lwesp_sys_mbox_t rcv_mbox;                    /*!< Received data mbox */
-    lwesp_sys_sem_t sync_sem;                     /*!< Synchronization semaphore */
-    lwesp_sys_mutex_t mutex;                      /*!< Mutex handle */
+    lwesp_mqtt_client_p mc;                     /*!< MQTT client handle */
+    lwesp_sys_mbox_t rcv_mbox;                  /*!< Received data mbox */
+    lwesp_sys_sem_t sync_sem;                   /*!< Synchronization semaphore */
+    lwesp_sys_mutex_t mutex;                    /*!< Mutex handle */
     uint8_t release_sem;                        /*!< Set to `1` to release semaphore */
-    lwesp_mqtt_conn_status_t connect_resp;        /*!< Response when connecting to server */
-    lwespr_t sub_pub_resp;                        /*!< Subscribe/Unsubscribe/Publish response */
+    lwesp_mqtt_conn_status_t connect_resp;      /*!< Response when connecting to server */
+    lwespr_t sub_pub_resp;                      /*!< Subscribe/Unsubscribe/Publish response */
 } lwesp_mqtt_client_api_t;
 
 /**
@@ -221,10 +221,10 @@ lwesp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
     lwesp_mqtt_client_api_p client;
     size_t size;
 
-    size = LWESP_MEM_ALIGN(sizeof(*client));      /* Get size of client itself */
+    size = LWESP_MEM_ALIGN(sizeof(*client));    /* Get size of client itself */
 
     /* Create client APi structure */
-    client = lwesp_mem_calloc(1, size);           /* Allocate client memory */
+    client = lwesp_mem_calloc(1, size);         /* Allocate client memory */
     if (client != NULL) {
         /* Create MQTT raw client structure */
         client->mc = lwesp_mqtt_client_new(tx_buff_len, rx_buff_len);
@@ -235,7 +235,7 @@ lwesp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
                 if (lwesp_sys_sem_create(&client->sync_sem, 1)) {
                     /* Create mutex */
                     if (lwesp_sys_mutex_create(&client->mutex)) {
-                        lwesp_mqtt_client_set_arg(client->mc, client);/* Set client to mqtt client argument */
+                        lwesp_mqtt_client_set_arg(client->mc, client);  /* Set client to mqtt client argument */
                         return client;
                     } else {
                         LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE,

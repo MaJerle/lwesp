@@ -85,11 +85,11 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 
     esp.evt_server = NULL;                      /* Set default server callback function */
 
-    if (!lwesp_sys_init()) {                      /* Init low-level system */
+    if (!lwesp_sys_init()) {                    /* Init low-level system */
         goto cleanup;
     }
 
-    if (!lwesp_sys_sem_create(&esp.sem_sync, 1)) {/* Create sync semaphore between threads */
+    if (!lwesp_sys_sem_create(&esp.sem_sync, 1)) {  /* Create sync semaphore between threads */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                    "[CORE] Cannot allocate sync semaphore!\r\n");
         goto cleanup;
@@ -101,54 +101,54 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
                    "[CORE] Cannot allocate producer mbox queue!\r\n");
         goto cleanup;
     }
-    if (!lwesp_sys_mbox_create(&esp.mbox_process, LWESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {  /* Process */
+    if (!lwesp_sys_mbox_create(&esp.mbox_process, LWESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {/* Process */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                    "[CORE] Cannot allocate process mbox queue!\r\n");
         goto cleanup;
     }
 
     /* Create threads */
-    lwesp_sys_sem_wait(&esp.sem_sync, 0);         /* Lock semaphore */
+    lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Lock semaphore */
     if (!lwesp_sys_thread_create(&esp.thread_produce, "lwesp_produce", lwesp_thread_produce, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                    "[CORE] Cannot create producing thread!\r\n");
-        lwesp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
+        lwesp_sys_sem_release(&esp.sem_sync);   /* Release semaphore and return */
         goto cleanup;
     }
-    lwesp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in process thread */
+    lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Wait semaphore, should be unlocked in process thread */
     if (!lwesp_sys_thread_create(&esp.thread_process, "lwesp_process", lwesp_thread_process, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                    "[CORE] Cannot create processing thread!\r\n");
-        lwesp_sys_thread_terminate(&esp.thread_produce);  /* Delete produce thread */
-        lwesp_sys_sem_release(&esp.sem_sync);     /* Release semaphore and return */
+        lwesp_sys_thread_terminate(&esp.thread_produce);/* Delete produce thread */
+        lwesp_sys_sem_release(&esp.sem_sync);   /* Release semaphore and return */
         goto cleanup;
     }
-    lwesp_sys_sem_wait(&esp.sem_sync, 0);         /* Wait semaphore, should be unlocked in produce thread */
-    lwesp_sys_sem_release(&esp.sem_sync);         /* Release semaphore manually */
+    lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Wait semaphore, should be unlocked in produce thread */
+    lwesp_sys_sem_release(&esp.sem_sync);       /* Release semaphore manually */
 
     lwesp_core_lock();
-    esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE;/* Set default baudrate value */
-    lwesp_ll_init(&esp.ll);                       /* Init low-level communication */
+    esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE;  /* Set default baudrate value */
+    lwesp_ll_init(&esp.ll);                     /* Init low-level communication */
 
 #if !LWESP_CFG_INPUT_USE_PROCESS
-    lwesp_buff_init(&esp.buff, LWESP_CFG_RCV_BUFF_SIZE);    /* Init buffer for input data */
+    lwesp_buff_init(&esp.buff, LWESP_CFG_RCV_BUFF_SIZE);/* Init buffer for input data */
 #endif /* !LWESP_CFG_INPUT_USE_PROCESS */
 
     esp.status.f.initialized = 1;               /* We are initialized now */
     esp.status.f.dev_present = 1;               /* We assume device is present at this point */
 
-    lwespi_send_cb(LWESP_EVT_INIT_FINISH);          /* Call user callback function */
+    lwespi_send_cb(LWESP_EVT_INIT_FINISH);      /* Call user callback function */
 
     /*
      * Call reset command and call default
      * AT commands to prepare basic setup for device
      */
-    lwespi_conn_init();                           /* Init connection module */
+    lwespi_conn_init();                         /* Init connection module */
 
 #if LWESP_CFG_RESTORE_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
         lwesp_core_unlock();
-        res = lwesp_restore(NULL, NULL, blocking);/* Restore device */
+        res = lwesp_restore(NULL, NULL, blocking);  /* Restore device */
         lwesp_core_lock();
     }
 #endif /* LWESP_CFG_RESTORE_ON_INIT */
@@ -159,7 +159,7 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
         lwesp_core_lock();
     }
 #endif /* LWESP_CFG_RESET_ON_INIT */
-    LWESP_UNUSED(blocking);                       /* Prevent compiler warnings */
+    LWESP_UNUSED(blocking);                     /* Prevent compiler warnings */
     lwesp_core_unlock();
 
     return res;
@@ -422,7 +422,7 @@ lwesp_device_set_present(uint8_t present,
             lwesp_core_lock();
 #endif /* LWESP_CFG_RESET_ON_DEVICE_PRESENT */
         }
-        lwespi_send_cb(LWESP_EVT_DEVICE_PRESENT);       /* Send present event */
+        lwespi_send_cb(LWESP_EVT_DEVICE_PRESENT);   /* Send present event */
     }
     lwesp_core_unlock();
 

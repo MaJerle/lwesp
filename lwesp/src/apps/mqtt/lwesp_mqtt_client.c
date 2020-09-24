@@ -211,7 +211,7 @@ request_delete(lwesp_mqtt_client_p client, lwesp_mqtt_request_t* request) {
  */
 static void
 request_set_pending(lwesp_mqtt_client_p client, lwesp_mqtt_request_t* request) {
-    request->timeout_start_time = lwesp_sys_now();/* Set timeout start time */
+    request->timeout_start_time = lwesp_sys_now();  /* Set timeout start time */
     request->status |= MQTT_REQUEST_FLAG_PENDING;   /* Set pending flag */
     LWESP_UNUSED(client);
 }
@@ -296,7 +296,7 @@ write_fixed_header(lwesp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup
         default:
             break;
     }
-    lwesp_buff_write(&client->tx_buff, &b, 1);    /* Write start of packet parameters */
+    lwesp_buff_write(&client->tx_buff, &b, 1);  /* Write start of packet parameters */
 
     LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
                "[MQTT] Writing packet type %s to output buffer\r\n", mqtt_msg_type_to_str(type));
@@ -307,7 +307,7 @@ write_fixed_header(lwesp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup
          * where bit 7 indicates we have more data in queue for length parameter
          */
         b = LWESP_U8((rem_len & 0x7F) | (rem_len > 0x7F ? 0x80 : 0));
-        lwesp_buff_write(&client->tx_buff, &b, 1);/* Write single byte */
+        lwesp_buff_write(&client->tx_buff, &b, 1);  /* Write single byte */
         rem_len >>= 7;                          /* Go to next 127 bytes */
     } while (rem_len > 0);
 }
@@ -319,7 +319,7 @@ write_fixed_header(lwesp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t dup
  */
 static void
 write_u8(lwesp_mqtt_client_p client, uint8_t num) {
-    lwesp_buff_write(&client->tx_buff, &num, 1);  /* Write single byte */
+    lwesp_buff_write(&client->tx_buff, &num, 1);/* Write single byte */
 }
 
 /**
@@ -329,8 +329,8 @@ write_u8(lwesp_mqtt_client_p client, uint8_t num) {
  */
 static void
 write_u16(lwesp_mqtt_client_p client, uint16_t num) {
-    write_u8(client, LWESP_U8(num >> 8));         /* Write MSB first... */
-    write_u8(client, LWESP_U8(num & 0xFF));       /* ...followed by LSB */
+    write_u8(client, LWESP_U8(num >> 8));       /* Write MSB first... */
+    write_u8(client, LWESP_U8(num & 0xFF));     /* ...followed by LSB */
 }
 
 /**
@@ -341,7 +341,7 @@ write_u16(lwesp_mqtt_client_p client, uint16_t num) {
  */
 static void
 write_data(lwesp_mqtt_client_p client, const void* data, size_t len) {
-    lwesp_buff_write(&client->tx_buff, data, len);/* Write raw data to buffer */
+    lwesp_buff_write(&client->tx_buff, data, len);  /* Write raw data to buffer */
 }
 
 /**
@@ -399,7 +399,7 @@ write_ack_rec_rel_resp(lwesp_mqtt_client_p client, mqtt_msg_type_t msg_type, uin
 static void
 write_string(lwesp_mqtt_client_p client, const char* str, uint16_t len) {
     write_u16(client, len);                     /* Write string length */
-    lwesp_buff_write(&client->tx_buff, str, len); /* Write string to buffer */
+    lwesp_buff_write(&client->tx_buff, str, len);   /* Write string to buffer */
 }
 
 /**
@@ -415,10 +415,10 @@ send_data(lwesp_mqtt_client_p client) {
         return;
     }
 
-    len = lwesp_buff_get_linear_block_read_length(&client->tx_buff);  /* Get length of linear memory */
-    if (len > 0) {                                  /* Anything to send? */
+    len = lwesp_buff_get_linear_block_read_length(&client->tx_buff);/* Get length of linear memory */
+    if (len > 0) {                              /* Anything to send? */
         lwespr_t res;
-        addr = lwesp_buff_get_linear_block_read_address(&client->tx_buff);/* Get address of linear memory */
+        addr = lwesp_buff_get_linear_block_read_address(&client->tx_buff);  /* Get address of linear memory */
         if ((res = lwesp_conn_send(client->conn, addr, len, NULL, 0)) == lwespOK) {
             client->written_total += len;       /* Increase number of bytes written to queue */
             client->is_sending = 1;             /* Remember active sending flag */
@@ -448,7 +448,7 @@ mqtt_close(lwesp_mqtt_client_p client) {
     if (client->conn_state != LWESP_MQTT_CONN_DISCONNECTED
         && client->conn_state != LWESP_MQTT_CONN_DISCONNECTING) {
 
-        res = lwesp_conn_close(client->conn, 0);  /* Close the connection in non-blocking mode */
+        res = lwesp_conn_close(client->conn, 0);/* Close the connection in non-blocking mode */
         if (res == lwespOK) {
             client->conn_state = LWESP_MQTT_CONN_DISCONNECTING;
         }
@@ -552,8 +552,8 @@ mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
             uint16_t topic_len, data_len;
             uint8_t* topic, *data, dup;
 
-            qos = MQTT_RCV_GET_PACKET_QOS(client->msg_hdr_byte);    /* Get QoS from received packet */
-            dup = MQTT_RCV_GET_PACKET_DUP(client->msg_hdr_byte);    /* Get duplicate flag */
+            qos = MQTT_RCV_GET_PACKET_QOS(client->msg_hdr_byte);/* Get QoS from received packet */
+            dup = MQTT_RCV_GET_PACKET_DUP(client->msg_hdr_byte);/* Get duplicate flag */
 
             topic_len = (client->rx_buff[0] << 8) | client->rx_buff[1];
             topic = &client->rx_buff[2];        /* Start of topic */
@@ -615,9 +615,9 @@ mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
             pkt_id = client->rx_buff[0] << 8 | client->rx_buff[1];  /* Get packet ID */
 
             if (msg_type == MQTT_MSG_TYPE_PUBREC) { /* Publish record received from server */
-                write_ack_rec_rel_resp(client, MQTT_MSG_TYPE_PUBREL, pkt_id, (lwesp_mqtt_qos_t)1);    /* Send back publish release message */
+                write_ack_rec_rel_resp(client, MQTT_MSG_TYPE_PUBREL, pkt_id, (lwesp_mqtt_qos_t)1);  /* Send back publish release message */
             } else if (msg_type == MQTT_MSG_TYPE_PUBREL) {  /* Publish release was received */
-                write_ack_rec_rel_resp(client, MQTT_MSG_TYPE_PUBCOMP, pkt_id, (lwesp_mqtt_qos_t)0);   /* Send back publish complete */
+                write_ack_rec_rel_resp(client, MQTT_MSG_TYPE_PUBCOMP, pkt_id, (lwesp_mqtt_qos_t)0); /* Send back publish complete */
             } else if (msg_type == MQTT_MSG_TYPE_SUBACK
                        || msg_type == MQTT_MSG_TYPE_UNSUBACK
                        || msg_type == MQTT_MSG_TYPE_PUBACK
@@ -651,7 +651,7 @@ mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
                         client->evt.evt.publish.res = lwespOK;
                         client->evt_fn(client, &client->evt);
                     }
-                    request_delete(client, request);    /* Delete request object */
+                    request_delete(client, request);/* Delete request object */
                 } else {
                     /* Protocol violation at this point! */
                     LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
@@ -679,7 +679,7 @@ mqtt_parse_incoming(lwesp_mqtt_client_p client, lwesp_pbuf_p pbuf) {
 
     do {
         buff_offset += buff_len;                /* Calculate new offset of buffer */
-        d = lwesp_pbuf_get_linear_addr(pbuf, buff_offset, &buff_len); /* Get address pointer */
+        d = lwesp_pbuf_get_linear_addr(pbuf, buff_offset, &buff_len);   /* Get address pointer */
         if (d == NULL) {
             break;
         }
@@ -795,7 +795,7 @@ mqtt_connected_cb(lwesp_mqtt_client_p client) {
      */
     rem_len = 10;                               /* Set remaining length of fixed header */
 
-    len_id = LWESP_U16(strlen(client->info->id)); /* Get cliend ID length */
+    len_id = LWESP_U16(strlen(client->info->id));   /* Get cliend ID length */
     rem_len += len_id + 2;                      /* Add client id length including length entries */
 
     if (client->info->will_topic != NULL && client->info->will_message != NULL) {
@@ -812,14 +812,14 @@ mqtt_connected_cb(lwesp_mqtt_client_p client) {
     if (client->info->user != NULL) {           /* Check for username */
         flags |= MQTT_FLAG_CONNECT_USERNAME;    /* Username is included */
 
-        len_user = LWESP_U16(strlen(client->info->user)); /* Get username length */
+        len_user = LWESP_U16(strlen(client->info->user));   /* Get username length */
         rem_len += len_user + 2;                /* Add username length including length entries */
     }
 
     if (client->info->pass != NULL) {           /* Check for password */
         flags |= MQTT_FLAG_CONNECT_PASSWORD;    /* Password is included */
 
-        len_pass = LWESP_U16(strlen(client->info->pass)); /* Get username length */
+        len_pass = LWESP_U16(strlen(client->info->pass));   /* Get username length */
         rem_len += len_pass + 2;                /* Add password length including length entries */
     }
 
@@ -848,7 +848,7 @@ mqtt_connected_cb(lwesp_mqtt_client_p client) {
     client->parser_state = MQTT_PARSER_STATE_INIT;  /* Reset parser state */
 
     client->poll_time = 0;                      /* Reset kep alive time */
-    client->conn_state = LWESP_MQTT_CONNECTING;   /* MQTT is connecting to server */
+    client->conn_state = LWESP_MQTT_CONNECTING; /* MQTT is connecting to server */
 
     send_data(client);                          /* Flush and send the actual data */
 }
@@ -862,7 +862,7 @@ mqtt_connected_cb(lwesp_mqtt_client_p client) {
 static uint8_t
 mqtt_data_recv_cb(lwesp_mqtt_client_p client, lwesp_pbuf_p pbuf) {
     mqtt_parse_incoming(client, pbuf);          /* We need to process incoming data */
-    lwesp_conn_recved(client->conn, pbuf);        /* Notify stack about received data */
+    lwesp_conn_recved(client->conn, pbuf);      /* Notify stack about received data */
     return 1;
 }
 
@@ -894,7 +894,7 @@ mqtt_data_sent_cb(lwesp_mqtt_client_p client, size_t sent_len, uint8_t successfu
         mqtt_close(client);
         return 0;
     }
-    lwesp_buff_skip(&client->tx_buff, sent_len);  /* Skip buffer for actual sent data */
+    lwesp_buff_skip(&client->tx_buff, sent_len);/* Skip buffer for actual sent data */
 
     /*
      * Check pending publish requests without QoS because there is no confirmation received by server.
@@ -947,7 +947,7 @@ mqtt_poll_cb(lwesp_mqtt_client_p client) {
         && (client->poll_time * LWESP_CFG_CONN_POLL_INTERVAL) >= (uint32_t)(client->info->keep_alive * 1000)) {
 
         if (output_check_enough_memory(client, 0)) {/* Check if memory available in output buffer */
-            write_fixed_header(client, MQTT_MSG_TYPE_PINGREQ, 0, (lwesp_mqtt_qos_t)0, 0, 0);  /* Write PINGREQ command to output buffer */
+            write_fixed_header(client, MQTT_MSG_TYPE_PINGREQ, 0, (lwesp_mqtt_qos_t)0, 0, 0);/* Write PINGREQ command to output buffer */
             send_data(client);                  /* Force send data */
             client->poll_time = 0;              /* Reset polling time */
 
@@ -980,9 +980,9 @@ mqtt_closed_cb(lwesp_mqtt_client_p client, lwespr_t res, uint8_t forced) {
      * Call user function only if connection was closed
      * when we are connected or in disconnecting mode
      */
-    client->conn_state = LWESP_MQTT_CONN_DISCONNECTED;/* Connection is disconnected, ready to be established again */
+    client->conn_state = LWESP_MQTT_CONN_DISCONNECTED;  /* Connection is disconnected, ready to be established again */
     client->evt.evt.disconnect.is_accepted = state == LWESP_MQTT_CONNECTED || state == LWESP_MQTT_CONN_DISCONNECTING;   /* Set connection state */
-    client->evt.type = LWESP_MQTT_EVT_DISCONNECT; /* Connection disconnected from server */
+    client->evt.type = LWESP_MQTT_EVT_DISCONNECT;   /* Connection disconnected from server */
     client->evt_fn(client, &client->evt);       /* Notify upper layer about closed connection */
     client->conn = NULL;                        /* Reset connection handle */
 
@@ -998,7 +998,7 @@ mqtt_closed_cb(lwesp_mqtt_client_p client, lwespr_t res, uint8_t forced) {
 
     client->is_sending = client->sent_total = client->written_total = 0;
     client->parser_state = MQTT_PARSER_STATE_INIT;
-    lwesp_buff_reset(&client->tx_buff);           /* Reset TX buffer */
+    lwesp_buff_reset(&client->tx_buff);         /* Reset TX buffer */
 
     LWESP_UNUSED(forced);
 
@@ -1015,11 +1015,11 @@ mqtt_conn_cb(lwesp_evt_t* evt) {
     lwesp_conn_p conn;
     lwesp_mqtt_client_p client = NULL;
 
-    conn = lwesp_conn_get_from_evt(evt);          /* Get connection from event */
+    conn = lwesp_conn_get_from_evt(evt);        /* Get connection from event */
     if (conn != NULL) {
-        client = lwesp_conn_get_arg(conn);        /* Get client structure from connection */
+        client = lwesp_conn_get_arg(conn);      /* Get client structure from connection */
         if (client == NULL) {
-            lwesp_conn_close(conn, 0);            /* Force connection close immediately */
+            lwesp_conn_close(conn, 0);          /* Force connection close immediately */
             return lwespERR;
         }
     } else if (evt->type != LWESP_EVT_CONN_ERROR) {
@@ -1034,12 +1034,12 @@ mqtt_conn_cb(lwesp_evt_t* evt) {
          */
         case LWESP_EVT_CONN_ERROR: {
             lwesp_mqtt_client_p client;
-            client = lwesp_evt_conn_error_get_arg(evt);   /* Get connection argument */
+            client = lwesp_evt_conn_error_get_arg(evt); /* Get connection argument */
             if (client != NULL) {
-                client->conn_state = LWESP_MQTT_CONN_DISCONNECTED;/* Set back to disconnected state */
+                client->conn_state = LWESP_MQTT_CONN_DISCONNECTED;  /* Set back to disconnected state */
                 /* Notify user upper layer */
                 client->evt.type = LWESP_MQTT_EVT_CONNECT;
-                client->evt.evt.connect.status = LWESP_MQTT_CONN_STATUS_TCP_FAILED;   /* TCP connection failed */
+                client->evt.evt.connect.status = LWESP_MQTT_CONN_STATUS_TCP_FAILED; /* TCP connection failed */
                 client->evt_fn(client, &client->evt);   /* Notify upper layer about closed connection */
             }
             break;
@@ -1053,7 +1053,7 @@ mqtt_conn_cb(lwesp_evt_t* evt) {
 
         /* A new packet of data received on MQTT client connection */
         case LWESP_EVT_CONN_RECV: {
-            mqtt_data_recv_cb(client, lwesp_evt_conn_recv_get_buff(evt));/* Call user to process received data */
+            mqtt_data_recv_cb(client, lwesp_evt_conn_recv_get_buff(evt));   /* Call user to process received data */
             break;
         }
 
@@ -1098,7 +1098,7 @@ lwesp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len) {
     client = lwesp_mem_malloc(sizeof(*client));
     if (client != NULL) {
         LWESP_MEMSET(client, 0x00, sizeof(*client));
-        client->conn_state = LWESP_MQTT_CONN_DISCONNECTED;/* Set to disconnected mode */
+        client->conn_state = LWESP_MQTT_CONN_DISCONNECTED;  /* Set to disconnected mode */
 
         if (!lwesp_buff_init(&client->tx_buff, tx_buff_len)) {
             lwesp_mem_free_s((void**)&client);
@@ -1144,7 +1144,7 @@ lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_po
                         lwesp_mqtt_evt_fn evt_fn, const lwesp_mqtt_client_info_t* info) {
     lwespr_t res = lwespERR;
 
-    LWESP_ASSERT("client != NULL", client != NULL);   /* t input parameters */
+    LWESP_ASSERT("client != NULL", client != NULL); /* t input parameters */
     LWESP_ASSERT("host != NULL", host != NULL);
     LWESP_ASSERT("port > 0", port > 0);
     LWESP_ASSERT("info != NULL", info != NULL);
@@ -1193,7 +1193,7 @@ lwesp_mqtt_client_disconnect(lwesp_mqtt_client_p client) {
  */
 lwespr_t
 lwesp_mqtt_client_subscribe(lwesp_mqtt_client_p client, const char* topic, lwesp_mqtt_qos_t qos, void* arg) {
-    return sub_unsub(client, topic, qos, arg, 1) == 1 ? lwespOK : lwespERR;  /* Subscribe to topic */
+    return sub_unsub(client, topic, qos, arg, 1) == 1 ? lwespOK : lwespERR; /* Subscribe to topic */
 }
 
 /**
@@ -1205,7 +1205,7 @@ lwesp_mqtt_client_subscribe(lwesp_mqtt_client_p client, const char* topic, lwesp
  */
 lwespr_t
 lwesp_mqtt_client_unsubscribe(lwesp_mqtt_client_p client, const char* topic, void* arg) {
-    return sub_unsub(client, topic, (lwesp_mqtt_qos_t)0, arg, 0) == 1 ? lwespOK : lwespERR;    /* Unsubscribe from topic */
+    return sub_unsub(client, topic, (lwesp_mqtt_qos_t)0, arg, 0) == 1 ? lwespOK : lwespERR; /* Unsubscribe from topic */
 }
 
 /**
@@ -1228,7 +1228,7 @@ lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const v
     uint16_t len_topic, pkt_id;
     uint8_t qos_u8 = LWESP_U8(qos);
 
-    if (!(len_topic = LWESP_U16(strlen(topic)))) {    /* Get length of topic */
+    if (!(len_topic = LWESP_U16(strlen(topic)))) {  /* Get length of topic */
         return lwespERR;
     }
 

@@ -59,20 +59,20 @@
  */
 static void
 conn_timeout_cb(void* arg) {
-    lwesp_conn_p conn = arg;                      /* Argument is actual connection */
+    lwesp_conn_p conn = arg;                    /* Argument is actual connection */
 
     if (conn->status.f.active) {                /* Handle only active connections */
-        esp.evt.type = LWESP_EVT_CONN_POLL;       /* Poll connection event */
+        esp.evt.type = LWESP_EVT_CONN_POLL;     /* Poll connection event */
         esp.evt.evt.conn_poll.conn = conn;      /* Set connection pointer */
-        lwespi_send_conn_cb(conn, NULL);          /* Send connection callback */
+        lwespi_send_conn_cb(conn, NULL);        /* Send connection callback */
 
-        lwespi_conn_start_timeout(conn);          /* Schedule new timeout */
+        lwespi_conn_start_timeout(conn);        /* Schedule new timeout */
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                    "[CONN] Poll event: %p\r\n", conn);
     }
 
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
-    lwespi_conn_manual_tcp_try_read_data(conn);   /* Try to read data manually */
+    lwespi_conn_manual_tcp_try_read_data(conn); /* Try to read data manually */
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 }
 
@@ -126,12 +126,12 @@ lwespi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
         return lwespERR;
     }
 
-    LWESP_MSG_VAR_ALLOC(msg, blocking);           /* Allocate first, will return on failure */
-    LWESP_MSG_VAR_SET_EVT(msg, manual_tcp_read_data_evt_fn, conn);/* Set event callback function */
+    LWESP_MSG_VAR_ALLOC(msg, blocking);         /* Allocate first, will return on failure */
+    LWESP_MSG_VAR_SET_EVT(msg, manual_tcp_read_data_evt_fn, conn);  /* Set event callback function */
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPRECVDATA;
     LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPRECVLEN;
-    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = 0;   /* Filled after RECVLEN received */
-    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = NULL;   /* Filled after RECVLEN received */
+    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = 0; /* Filled after RECVLEN received */
+    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = NULL; /* Filled after RECVLEN received */
     LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
 
     /* Try to start command */
@@ -162,8 +162,8 @@ lwespr_t
 lwespi_conn_check_available_rx_data(void) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_MSG_VAR_ALLOC(msg, 0);                  /* Allocate first, will return on failure */
-    LWESP_MSG_VAR_SET_EVT(msg, check_available_rx_data_evt_fn, NULL); /* Set event callback function */
+    LWESP_MSG_VAR_ALLOC(msg, 0);                /* Allocate first, will return on failure */
+    LWESP_MSG_VAR_SET_EVT(msg, check_available_rx_data_evt_fn, NULL);   /* Set event callback function */
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPRECVLEN;
 
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
@@ -365,7 +365,7 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
 
     flush_buff(conn);                           /* First flush buffer */
     res = lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
-    if (res == lwespOK && !blocking) {            /* Function succedded in non-blocking mode */
+    if (res == lwespOK && !blocking) {          /* Function succedded in non-blocking mode */
         lwesp_core_lock();
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                    "[CONN] Connection %d set to closing state\r\n", (int)conn->num);
@@ -453,13 +453,13 @@ lwespr_t
 lwesp_conn_recved(lwesp_conn_p conn, lwesp_pbuf_p pbuf) {
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     size_t len;
-    len = lwesp_pbuf_length(pbuf, 1);             /* Get length of pbuf */
+    len = lwesp_pbuf_length(pbuf, 1);           /* Get length of pbuf */
     if (conn->tcp_not_ack_bytes >= len) {       /* Check length of not-acknowledged bytes */
         conn->tcp_not_ack_bytes -= len;
     } else {
         /* Warning here, de-sync happened somewhere! */
     }
-    lwespi_conn_manual_tcp_try_read_data(conn);   /* Try to read more connection data */
+    lwespi_conn_manual_tcp_try_read_data(conn); /* Try to read more connection data */
 #else /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     LWESP_UNUSED(conn);
     LWESP_UNUSED(pbuf);
@@ -704,8 +704,8 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
             return lwespERRMEM;
         }
 
-        btw -= LWESP_CFG_CONN_MAX_DATA_LEN;       /* Decrease remaining length */
-        d += LWESP_CFG_CONN_MAX_DATA_LEN;         /* Advance data pointer */
+        btw -= LWESP_CFG_CONN_MAX_DATA_LEN;     /* Decrease remaining length */
+        d += LWESP_CFG_CONN_MAX_DATA_LEN;       /* Advance data pointer */
     }
 
     /* Step 3 */
@@ -721,7 +721,7 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
     }
     if (btw > 0) {
         if (conn->buff.buff != NULL) {
-            LWESP_MEMCPY(conn->buff.buff, d, btw);    /* Copy data to memory */
+            LWESP_MEMCPY(conn->buff.buff, d, btw);  /* Copy data to memory */
             conn->buff.ptr = btw;
         } else {
             return lwespERRMEM;
@@ -771,7 +771,7 @@ uint8_t
 lwesp_conn_get_remote_ip(lwesp_conn_p conn, lwesp_ip_t* ip) {
     if (conn != NULL && ip != NULL) {
         lwesp_core_lock();
-        LWESP_MEMCPY(ip, &conn->remote_ip, sizeof(*ip));  /* Copy data */
+        LWESP_MEMCPY(ip, &conn->remote_ip, sizeof(*ip));/* Copy data */
         lwesp_core_unlock();
         return 1;
     }

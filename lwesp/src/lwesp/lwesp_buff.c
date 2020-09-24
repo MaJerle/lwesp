@@ -61,7 +61,7 @@ BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size) {
     BUF_MEMSET(buff, 0, sizeof(*buff));
 
     buff->size = size;                          /* Set default values */
-    buff->buff = lwesp_mem_malloc(sizeof(*buff->buff) * size);/* Allocate memory for buffer */
+    buff->buff = lwesp_mem_malloc(sizeof(*buff->buff) * size);  /* Allocate memory for buffer */
 
     if (buff->buff == NULL) {                   /* Check allocation */
         return 0;

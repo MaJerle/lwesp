@@ -282,7 +282,7 @@ lwespr_t
 lwesp_sta_copy_ip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, uint8_t* is_dhcp) {
     lwespr_t res = lwespERR;
     if ((ip != NULL || gw != NULL || nm != NULL || is_dhcp != NULL)
-        && lwesp_sta_has_ip()) {                  /* Do we have a valid IP address? */
+        && lwesp_sta_has_ip()) {                /* Do we have a valid IP address? */
         lwesp_core_lock();
         if (ip != NULL) {
             LWESP_MEMCPY(ip, &esp.m.sta.ip, sizeof(esp.m.sta.ip));
@@ -340,7 +340,7 @@ lwesp_sta_list_ap(const char* ssid, lwesp_ap_t* aps, size_t apsl, size_t* apf,
  */
 uint8_t
 lwesp_sta_is_ap_802_11b(lwesp_ap_t* ap) {
-    return LWESP_U8((ap->bgn & 0x01) == 0x01);    /* Bit 0 is for b check */
+    return LWESP_U8((ap->bgn & 0x01) == 0x01);  /* Bit 0 is for b check */
 }
 
 /**
@@ -350,7 +350,7 @@ lwesp_sta_is_ap_802_11b(lwesp_ap_t* ap) {
  */
 uint8_t
 lwesp_sta_is_ap_802_11g(lwesp_ap_t* ap) {
-    return LWESP_U8((ap->bgn & 0x02) == 0x02);    /* Bit 1 is for g check */
+    return LWESP_U8((ap->bgn & 0x02) == 0x02);  /* Bit 1 is for g check */
 }
 
 /**
@@ -360,7 +360,7 @@ lwesp_sta_is_ap_802_11g(lwesp_ap_t* ap) {
  */
 uint8_t
 lwesp_sta_is_ap_802_11n(lwesp_ap_t* ap) {
-    return LWESP_U8((ap->bgn & 0x04) == 0x04);    /* Bit 2 is for n check */
+    return LWESP_U8((ap->bgn & 0x04) == 0x04);  /* Bit 2 is for n check */
 }
 
 #endif /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */

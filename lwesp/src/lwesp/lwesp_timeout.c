@@ -48,7 +48,7 @@ get_next_timeout_diff(void) {
     if (first_timeout == NULL) {
         return 0xFFFFFFFF;
     }
-    diff = lwesp_sys_now() - last_timeout_time;   /* Get difference between current time and last process time */
+    diff = lwesp_sys_now() - last_timeout_time; /* Get difference between current time and last process time */
     if (diff >= first_timeout->time) {          /* Are we over already? */
         return 0;                               /* We have to immediately process this timeout */
     }
@@ -97,7 +97,7 @@ lwespi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t
     uint32_t wait_time;
     do {
         if (first_timeout == NULL) {            /* We have no timeouts ready? */
-            return lwesp_sys_mbox_get(b, m, timeout); /* Get entry from message queue */
+            return lwesp_sys_mbox_get(b, m, timeout);   /* Get entry from message queue */
         }
         wait_time = get_next_timeout_diff();    /* Get time to wait for next timeout execution */
         if (wait_time == 0 || lwesp_sys_mbox_get(b, m, wait_time) == LWESP_SYS_TIMEOUT) {
@@ -124,13 +124,13 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
 
     LWESP_ASSERT("fn != NULL", fn != NULL);
 
-    to = lwesp_mem_calloc(1, sizeof(*to));        /* Allocate memory for timeout structure */
+    to = lwesp_mem_calloc(1, sizeof(*to));      /* Allocate memory for timeout structure */
     if (to == NULL) {
         return lwespERR;
     }
 
     lwesp_core_lock();
-    now = lwesp_sys_now();                        /* Get current time */
+    now = lwesp_sys_now();                      /* Get current time */
     if (first_timeout != NULL) {
         /*
          * Since we want timeout value to start from NOW,
@@ -182,7 +182,7 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
         }
     }
     lwesp_core_unlock();
-    lwesp_sys_mbox_putnow(&esp.mbox_process, NULL);   /* Write message to process queue to wakeup process thread and to start */
+    lwesp_sys_mbox_putnow(&esp.mbox_process, NULL); /* Write message to process queue to wakeup process thread and to start */
     return lwespOK;
 }
 
@@ -197,7 +197,7 @@ lwesp_timeout_remove(lwesp_timeout_fn fn) {
 
     lwesp_core_lock();
     for (lwesp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
-         t_prev = t, t = t->next) {          /* Check all entries */
+         t_prev = t, t = t->next) {             /* Check all entries */
         if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
 
             /*

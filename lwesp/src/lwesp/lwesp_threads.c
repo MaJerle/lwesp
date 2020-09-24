@@ -54,19 +54,19 @@ lwesp_thread_produce(void* const arg) {
 
     /* Thread is running, unlock semaphore */
     if (lwesp_sys_sem_isvalid(sem)) {
-        lwesp_sys_sem_release(sem);               /* Release semaphore */
+        lwesp_sys_sem_release(sem);             /* Release semaphore */
     }
 
     lwesp_core_lock();
     while (1) {
         lwesp_core_unlock();
         do {
-            time = lwesp_sys_mbox_get(&e->mbox_producer, (void**)&msg, 0);    /* Get message from queue */
+            time = lwesp_sys_mbox_get(&e->mbox_producer, (void**)&msg, 0);  /* Get message from queue */
         } while (time == LWESP_SYS_TIMEOUT || msg == NULL);
-        LWESP_THREAD_PRODUCER_HOOK();             /* Execute producer thread hook */
+        LWESP_THREAD_PRODUCER_HOOK();           /* Execute producer thread hook */
         lwesp_core_lock();
 
-        res = lwespOK;                            /* Start with OK */
+        res = lwespOK;                          /* Start with OK */
         e->msg = msg;                           /* Set message handle */
 
         /*
@@ -83,14 +83,14 @@ lwesp_thread_produce(void* const arg) {
             if (msg->msg.reset.delay > 0) {
                 lwesp_delay(msg->msg.reset.delay);
             }
-            lwespi_reset_everything(1);           /* Reset stack before trying to reset */
+            lwespi_reset_everything(1);         /* Reset stack before trying to reset */
         }
 
         /*
          * Try to call function to process this message
          * Usually it should be function to transmit data to AT port
          */
-        if (res == lwespOK && msg->fn != NULL) {  /* Check for callback processing function */
+        if (res == lwespOK && msg->fn != NULL) {/* Check for callback processing function */
             /*
              * Obtain semaphore
              * This code should not block at any point.
@@ -98,16 +98,16 @@ lwesp_thread_produce(void* const arg) {
              * immediate terminate
              */
             lwesp_core_unlock();
-            lwesp_sys_sem_wait(&e->sem_sync, 0);  /* First call */
+            lwesp_sys_sem_wait(&e->sem_sync, 0);/* First call */
             lwesp_core_lock();
             res = msg->fn(msg);                 /* Process this message, check if command started at least */
-            time = ~LWESP_SYS_TIMEOUT;            /* Reset time */
-            if (res == lwespOK) {                 /* We have valid data and data were sent */
+            time = ~LWESP_SYS_TIMEOUT;          /* Reset time */
+            if (res == lwespOK) {               /* We have valid data and data were sent */
                 lwesp_core_unlock();
-                time = lwesp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Second call; Wait for synchronization semaphore from processing thread or timeout */
+                time = lwesp_sys_sem_wait(&e->sem_sync, msg->block_time);   /* Second call; Wait for synchronization semaphore from processing thread or timeout */
                 lwesp_core_lock();
-                if (time == LWESP_SYS_TIMEOUT) {  /* Sync timeout occurred? */
-                    res = lwespTIMEOUT;           /* Timeout on command */
+                if (time == LWESP_SYS_TIMEOUT) {/* Sync timeout occurred? */
+                    res = lwespTIMEOUT;         /* Timeout on command */
                 }
             }
 
@@ -142,7 +142,7 @@ lwesp_thread_produce(void* const arg) {
             lwesp_sys_sem_release(&e->sem_sync);
         } else {
             if (res == lwespOK) {
-                res = lwespERR;                   /* Simply set error message */
+                res = lwespERR;                 /* Simply set error message */
             }
         }
         if (res != lwespOK) {
@@ -191,7 +191,7 @@ lwesp_thread_process(void* const arg) {
 
     /* Thread is running, unlock semaphore */
     if (lwesp_sys_sem_isvalid(sem)) {
-        lwesp_sys_sem_release(sem);               /* Release semaphore */
+        lwesp_sys_sem_release(sem);             /* Release semaphore */
     }
 
 #if !LWESP_CFG_INPUT_USE_PROCESS
@@ -199,13 +199,13 @@ lwesp_thread_process(void* const arg) {
     while (1) {
         lwesp_core_unlock();
         time = lwespi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 10);
-        LWESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
+        LWESP_THREAD_PROCESS_HOOK();            /* Execute process thread hook */
         lwesp_core_lock();
 
         if (time == LWESP_SYS_TIMEOUT || msg == NULL) {
-            LWESP_UNUSED(time);                   /* Unused variable */
+            LWESP_UNUSED(time);                 /* Unused variable */
         }
-        lwespi_process_buffer();                  /* Process input data */
+        lwespi_process_buffer();                /* Process input data */
 #else /* LWESP_CFG_INPUT_USE_PROCESS */
     while (1) {
         /*
@@ -215,7 +215,7 @@ lwesp_thread_process(void* const arg) {
          * In case new timeout occurs, thread will wake up by writing new element to mbox process queue
          */
         time = lwespi_get_from_mbox_with_timeout_checks(&e->mbox_process, (void**)&msg, 0);
-        LWESP_THREAD_PROCESS_HOOK();              /* Execute process thread hook */
+        LWESP_THREAD_PROCESS_HOOK();            /* Execute process thread hook */
         LWESP_UNUSED(time);
 #endif /* !LWESP_CFG_INPUT_USE_PROCESS */
     }

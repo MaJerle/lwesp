@@ -126,7 +126,7 @@ mem_assignmem(const lwesp_mem_region_t* regions, size_t len) {
     /* Check if region address are linear and rising */
     mem_start_addr = (uint8_t*)0;
     for (size_t i = 0; i < len; ++i) {
-        if (mem_start_addr >= (uint8_t*)regions[i].start_addr) {    /* Check if previous greater than current */
+        if (mem_start_addr >= (uint8_t*)regions[i].start_addr) {/* Check if previous greater than current */
             return 0;                           /* Return as invalid and failed */
         }
         mem_start_addr = (uint8_t*)regions[i].start_addr;   /* Save as previous address */
@@ -143,7 +143,7 @@ mem_assignmem(const lwesp_mem_region_t* regions, size_t len) {
          * if necessary, decrease memory region size
          */
         mem_start_addr = (uint8_t*)regions->start_addr; /* Actual heap memory address */
-        if (LWESP_SZ(mem_start_addr) & MEM_ALIGN_BITS) {  /* Check alignment boundary */
+        if (LWESP_SZ(mem_start_addr) & MEM_ALIGN_BITS) {/* Check alignment boundary */
             mem_start_addr += MEM_ALIGN_NUM - (LWESP_SZ(mem_start_addr) & MEM_ALIGN_BITS);
             mem_size -= mem_start_addr - (uint8_t*)regions->start_addr;
         }
@@ -180,7 +180,7 @@ mem_assignmem(const lwesp_mem_region_t* regions, size_t len) {
          * Create first block in region
          */
         first_block = (mem_block_t*)mem_start_addr;
-        first_block->size = mem_size - MEMBLOCK_METASIZE; /* Exclude end block in chain */
+        first_block->size = mem_size - MEMBLOCK_METASIZE;   /* Exclude end block in chain */
         first_block->next = end_block;          /* Last block is next free in chain */
 
         /*
@@ -242,16 +242,16 @@ mem_alloc(size_t size) {
      * Feature may be very risky later because of fragmentation
      */
     if (curr != end_block) {                    /* We found empty block of enough memory available */
-        retval = (void*)((uint8_t*)prev->next + MEMBLOCK_METASIZE);      /* Set return value */
-        prev->next = curr->next;  /* Since block is now allocated, remove it from free chain */
+        retval = (void*)((uint8_t*)prev->next + MEMBLOCK_METASIZE); /* Set return value */
+        prev->next = curr->next;                /* Since block is now allocated, remove it from free chain */
 
         /*
          * If found free block is much bigger than required,
          * then split big block by 2 blocks (one used, second available)
          * There should be available memory for at least 2 metadata block size = 8 bytes of useful memory
          */
-        if ((curr->size - size) > (2 * MEMBLOCK_METASIZE)) {    /* There is more available memory then required = split memory to one free block */
-            next = (mem_block_t*)(((uint8_t*)curr) + size);     /* Create next memory block which is still free */
+        if ((curr->size - size) > (2 * MEMBLOCK_METASIZE)) {/* There is more available memory then required = split memory to one free block */
+            next = (mem_block_t*)(((uint8_t*)curr) + size); /* Create next memory block which is still free */
             next->size = curr->size - size;     /* Set new block size for remaining of before and used */
             curr->size = size;                  /* Set block size for used block */
 
@@ -313,7 +313,7 @@ mem_calloc(size_t num, size_t size) {
     size_t tot_len = num * size;
 
     if ((ptr = mem_alloc(tot_len)) != NULL) {   /* Try to allocate memory */
-        LWESP_MEMSET(ptr, 0x00, tot_len);         /* Reset entire memory */
+        LWESP_MEMSET(ptr, 0x00, tot_len);       /* Reset entire memory */
     }
     return ptr;
 }
@@ -395,7 +395,7 @@ void*
 lwesp_mem_calloc(size_t num, size_t size) {
     void* ptr;
     lwesp_core_lock();
-    ptr = mem_calloc(num, size);               /* Allocate memory and clear it to 0. Then return pointer */
+    ptr = mem_calloc(num, size);                /* Allocate memory and clear it to 0. Then return pointer */
     lwesp_core_unlock();
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL,
                "[MEM] Callocation failed: %d bytes\r\n", (int)size * (int)num);

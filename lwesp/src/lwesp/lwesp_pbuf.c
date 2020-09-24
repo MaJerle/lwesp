@@ -111,7 +111,7 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
             LWESP_DEBUGF(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE,
                        "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
             pn = p->next;                       /* Save next entry */
-            lwesp_mem_free_s((void**)&p);         /* Free memory for pbuf */
+            lwesp_mem_free_s((void**)&p);       /* Free memory for pbuf */
             p = pn;                             /* Restore with next entry */
             ++cnt;                              /* Increase number of freed pbufs */
         } else {
@@ -168,9 +168,9 @@ lwesp_pbuf_chain(lwesp_pbuf_p head, lwesp_pbuf_p tail) {
      * To prevent issues with multi-thread access,
      * first reference pbuf and increase counter
      */
-    lwesp_pbuf_ref(tail);                         /* Reference tail pbuf by head pbuf now */
-    if ((res = lwesp_pbuf_cat(head, tail)) != lwespOK) {    /* Did we contencate them together successfully? */
-        lwesp_pbuf_free(tail);                    /* Call free to decrease reference counter */
+    lwesp_pbuf_ref(tail);                       /* Reference tail pbuf by head pbuf now */
+    if ((res = lwesp_pbuf_cat(head, tail)) != lwespOK) {/* Did we contencate them together successfully? */
+        lwesp_pbuf_free(tail);                  /* Call free to decrease reference counter */
     }
     return res;
 }
@@ -229,7 +229,7 @@ lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset) 
 
     /* Skip if necessary and check if we are in valid range */
     if (offset > 0) {
-        pbuf = pbuf_skip(pbuf, offset, &offset);    /* Offset and check for new length */
+        pbuf = pbuf_skip(pbuf, offset, &offset);/* Offset and check for new length */
         if (pbuf == NULL) {
             return lwespERR;
         }
@@ -241,8 +241,8 @@ lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset) 
 
     /* First only copy in case we have some offset from first pbuf */
     if (offset > 0) {
-        copy_len = LWESP_MIN(pbuf->len - offset, len);    /* Get length to copy to current pbuf */
-        LWESP_MEMCPY(pbuf->payload + offset, d, copy_len);/* Copy to memory with offset */
+        copy_len = LWESP_MIN(pbuf->len - offset, len);  /* Get length to copy to current pbuf */
+        LWESP_MEMCPY(pbuf->payload + offset, d, copy_len);  /* Copy to memory with offset */
         len -= copy_len;                        /* Decrease remaining bytes to copy */
         d += copy_len;                          /* Increase data pointer */
         pbuf = pbuf->next;                      /* Go to next pbuf */
@@ -250,8 +250,8 @@ lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset) 
 
     /* Copy user memory to sequence of pbufs */
     for (; len; pbuf = pbuf->next) {
-        copy_len = LWESP_MIN(len, pbuf->len);     /* Get copy length */
-        LWESP_MEMCPY(pbuf->payload, d, copy_len); /* Copy memory to pbuf payload */
+        copy_len = LWESP_MIN(len, pbuf->len);   /* Get copy length */
+        LWESP_MEMCPY(pbuf->payload, d, copy_len);   /* Copy memory to pbuf payload */
         len -= copy_len;                        /* Decrease number of remaining bytes to send */
         d += copy_len;                          /* Increase data pointer */
     }
@@ -292,8 +292,8 @@ lwesp_pbuf_copy(lwesp_pbuf_p pbuf, void* data, size_t len, size_t offset) {
      */
     tot = 0;
     for (; pbuf != NULL && len; pbuf = pbuf->next) {
-        tc = LWESP_MIN(pbuf->len - offset, len);  /* Get length of data to copy */
-        LWESP_MEMCPY(d, pbuf->payload + offset, tc);  /* Copy data from pbuf */
+        tc = LWESP_MIN(pbuf->len - offset, len);/* Get length of data to copy */
+        LWESP_MEMCPY(d, pbuf->payload + offset, tc);/* Copy data from pbuf */
         d += tc;
         len -= tc;
         tot += tc;
@@ -340,12 +340,12 @@ lwesp_pbuf_memfind(const lwesp_pbuf_p pbuf, const void* needle, size_t len, size
          * and in case we have a match, report it
          */
         for (size_t i = off; i <= pbuf->tot_len - len; ++i) {
-            if (!lwesp_pbuf_memcmp(pbuf, needle, len, i)) {   /* Check if identical */
+            if (!lwesp_pbuf_memcmp(pbuf, needle, len, i)) { /* Check if identical */
                 return i;                       /* We have a match! */
             }
         }
     }
-    return LWESP_SIZET_MAX;                       /* Return maximal value of size_t variable to indicate error */
+    return LWESP_SIZET_MAX;                     /* Return maximal value of size_t variable to indicate error */
 }
 
 /**
@@ -379,7 +379,7 @@ lwesp_pbuf_memcmp(const lwesp_pbuf_p pbuf, const void* data, size_t len, size_t 
 
     if (pbuf == NULL || data == NULL || len == 0/* Input parameters check */
         || pbuf->tot_len < (offset + len)) {    /* Check of valid ranges */
-        return LWESP_SIZET_MAX;                   /* Invalid check here */
+        return LWESP_SIZET_MAX;                 /* Invalid check here */
     }
 
     /*
@@ -397,7 +397,7 @@ lwesp_pbuf_memcmp(const lwesp_pbuf_p pbuf, const void* data, size_t len, size_t 
      * Use byte by byte read function to inspect bytes separatelly
      */
     for (size_t i = 0; i < len; ++i) {
-        if (!lwesp_pbuf_get_at(p, offset + i, &el) || el != d[i]) {   /* Get value from pbuf at specific offset */
+        if (!lwesp_pbuf_get_at(p, offset + i, &el) || el != d[i]) { /* Get value from pbuf at specific offset */
             return offset + 1;                  /* Return value from offset where it failed */
         }
     }

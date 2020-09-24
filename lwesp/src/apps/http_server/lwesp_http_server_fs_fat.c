@@ -37,7 +37,7 @@
 
 #if !__DOXYGEN__
 
-#include "ff.h"                 /* Include FATFS file system file */
+#include "ff.h"                                 /* Include FATFS file system file */
 
 /* File system object handle */
 static FATFS fs;
@@ -81,7 +81,7 @@ http_fs_open(http_fs_file_t* file, const char* path) {
         return 1;
     }
 
-    lwesp_mem_free(fil);                          /* We failed, free memory */
+    lwesp_mem_free(fil);                        /* We failed, free memory */
     return 0;
 }
 
@@ -143,7 +143,7 @@ http_fs_close(http_fs_file_t* file) {
     if (*file->rem_open_files == 1) {
         f_mount(NULL, "SD:", 1);
     }
-    lwesp_mem_free(fil);                          /* Free user argument */
+    lwesp_mem_free(fil);                        /* Free user argument */
 
     return 1;                                   /* Close was successful */
 }

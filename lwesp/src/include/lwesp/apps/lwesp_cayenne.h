@@ -69,15 +69,15 @@ extern "C" {
 #define LWESP_CAYENNE_PORT                        1883
 #endif
 
-#define LWESP_CAYENNE_NO_CHANNEL                  0xFFFE  /*!< No channel macro */
-#define LWESP_CAYENNE_ALL_CHANNELS                0xFFFF  /*!< All channels macro */
+#define LWESP_CAYENNE_NO_CHANNEL                  0xFFFE/*!< No channel macro */
+#define LWESP_CAYENNE_ALL_CHANNELS                0xFFFF/*!< All channels macro */
 
 /**
  * \brief           List of possible cayenne topics
  */
 typedef enum {
-    LWESP_CAYENNE_TOPIC_DATA,                     /*!< Data topic */
-    LWESP_CAYENNE_TOPIC_COMMAND,                  /*!< Command topic */
+    LWESP_CAYENNE_TOPIC_DATA,                   /*!< Data topic */
+    LWESP_CAYENNE_TOPIC_COMMAND,                /*!< Command topic */
     LWESP_CAYENNE_TOPIC_CONFIG,
     LWESP_CAYENNE_TOPIC_RESPONSE,
     LWESP_CAYENNE_TOPIC_SYS_MODEL,
@@ -90,24 +90,24 @@ typedef enum {
     LWESP_CAYENNE_TOPIC_ANALOG,
     LWESP_CAYENNE_TOPIC_ANALOG_COMMAND,
     LWESP_CAYENNE_TOPIC_ANALOG_CONFIG,
-    LWESP_CAYENNE_TOPIC_END,                      /*!< Last entry */
+    LWESP_CAYENNE_TOPIC_END,                    /*!< Last entry */
 } lwesp_cayenne_topic_t;
 
 /**
  * \brief           Cayenne response types
  */
 typedef enum {
-    LWESP_CAYENNE_RLWESP_OK,                        /*!< Response OK */
-    LWESP_CAYENNE_RLWESP_ERROR,                     /*!< Response error */
+    LWESP_CAYENNE_RLWESP_OK,                    /*!< Response OK */
+    LWESP_CAYENNE_RLWESP_ERROR,                 /*!< Response error */
 } lwesp_cayenne_rlwesp_t;
 
 /**
  * \brief           Cayenne events
  */
 typedef enum {
-    LWESP_CAYENNE_EVT_CONNECT,                    /*!< Connect to Cayenne event */
-    LWESP_CAYENNE_EVT_DISCONNECT,                 /*!< Disconnect from Cayenne event */
-    LWESP_CAYENNE_EVT_DATA,                       /*!< Data received event */
+    LWESP_CAYENNE_EVT_CONNECT,                  /*!< Connect to Cayenne event */
+    LWESP_CAYENNE_EVT_DISCONNECT,               /*!< Disconnect from Cayenne event */
+    LWESP_CAYENNE_EVT_DATA,                     /*!< Data received event */
 } lwesp_cayenne_evt_type_t;
 
 /**
@@ -122,10 +122,10 @@ typedef struct {
  * \brief           Cayenne message
  */
 typedef struct {
-    lwesp_cayenne_topic_t topic;                  /*!< Message topic */
+    lwesp_cayenne_topic_t topic;                /*!< Message topic */
     uint16_t channel;                           /*!< Message channel, optional, based on topic type */
     const char* seq;                            /*!< Sequence string on command */
-    lwesp_cayenne_key_value_t values[2];          /*!< Key/Value pair of values */
+    lwesp_cayenne_key_value_t values[2];        /*!< Key/Value pair of values */
     size_t values_count;                        /*!< Count of valid pairs in values member */
 } lwesp_cayenne_msg_t;
 
@@ -133,10 +133,10 @@ typedef struct {
  * \brief           Cayenne event
  */
 typedef struct {
-    lwesp_cayenne_evt_type_t type;                /*!< Event type */
+    lwesp_cayenne_evt_type_t type;              /*!< Event type */
     union {
         struct {
-            lwesp_cayenne_msg_t* msg;             /*!< Pointer to data message */
+            lwesp_cayenne_msg_t* msg;           /*!< Pointer to data message */
         } data;                                 /*!< Data event, used with \ref LWESP_CAYENNE_EVT_DATA event */
     } evt;                                      /*!< Event union */
 } lwesp_cayenne_evt_t;
@@ -158,16 +158,16 @@ typedef lwespr_t (*lwesp_cayenne_evt_fn)(struct lwesp_cayenne* c, lwesp_cayenne_
  * \brief           Cayenne handle
  */
 typedef struct lwesp_cayenne {
-    lwesp_mqtt_client_api_p api_c;                /*!< MQTT API client */
-    const lwesp_mqtt_client_info_t* info_c;       /*!< MQTT Client info structure */
+    lwesp_mqtt_client_api_p api_c;              /*!< MQTT API client */
+    const lwesp_mqtt_client_info_t* info_c;     /*!< MQTT Client info structure */
 
-    lwesp_cayenne_msg_t msg;                      /*!< Received data message */
+    lwesp_cayenne_msg_t msg;                    /*!< Received data message */
 
-    lwesp_cayenne_evt_t evt;                      /*!< Event handle */
-    lwesp_cayenne_evt_fn evt_fn;                  /*!< Event callback function */
+    lwesp_cayenne_evt_t evt;                    /*!< Event handle */
+    lwesp_cayenne_evt_fn evt_fn;                /*!< Event callback function */
 
-    lwesp_sys_thread_t thread;                    /*!< Cayenne thread handle */
-    lwesp_sys_sem_t sem;                          /*!< Sync semaphore handle */
+    lwesp_sys_thread_t thread;                  /*!< Cayenne thread handle */
+    lwesp_sys_sem_t sem;                        /*!< Sync semaphore handle */
 } lwesp_cayenne_t;
 
 lwespr_t    lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_info, lwesp_cayenne_evt_fn evt_fn);

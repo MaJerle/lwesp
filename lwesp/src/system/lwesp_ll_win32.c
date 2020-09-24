@@ -139,10 +139,10 @@ uart_thread(void* param) {
     lwesp_sys_sem_t sem;
     FILE* file = NULL;
 
-    lwesp_sys_sem_create(&sem, 0);                /* Create semaphore for delay functions */
+    lwesp_sys_sem_create(&sem, 0);              /* Create semaphore for delay functions */
 
     while (com_port == NULL) {
-        lwesp_sys_sem_wait(&sem, 1);              /* Add some delay with yield */
+        lwesp_sys_sem_wait(&sem, 1);            /* Add some delay with yield */
     }
 
     fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
@@ -192,7 +192,7 @@ uart_thread(void* param) {
  */
 static uint8_t
 reset_device(uint8_t state) {
-    return 0;                   /* Hardware reset was not successful */
+    return 0;                                   /* Hardware reset was not successful */
 }
 
 /**

@@ -54,7 +54,7 @@
  * \brief           Topic type and string key-value pair structure
  */
 typedef struct {
-    lwesp_cayenne_topic_t topic;                  /*!< Topic name */
+    lwesp_cayenne_topic_t topic;                /*!< Topic name */
     const char* str;                            /*!< Topic string */
 } topic_cmd_str_pair_t;
 
@@ -387,7 +387,7 @@ mqtt_thread(void* const arg) {
         lwesp_sys_sem_invalid(&c->sem);
     }
 
-    lwesp_sys_thread_terminate(NULL);             /* Terminate thread */
+    lwesp_sys_thread_terminate(NULL);           /* Terminate thread */
 }
 
 /**

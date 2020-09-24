@@ -61,13 +61,13 @@ extern "C" {
 #endif
 
 #ifndef HTTP_SSI_TAG_START
-#define HTTP_SSI_TAG_START                  "<!--#"     /*!< SSI tag start string */
-#define HTTP_SSI_TAG_START_LEN              5           /*!< SSI tag start length */
+#define HTTP_SSI_TAG_START                  "<!--#" /*!< SSI tag start string */
+#define HTTP_SSI_TAG_START_LEN              5   /*!< SSI tag start length */
 #endif
 
 #ifndef HTTP_SSI_TAG_END
-#define HTTP_SSI_TAG_END                    "-->"       /*!< SSI tag end string */
-#define HTTP_SSI_TAG_END_LEN                3           /*!< SSI tag end length */
+#define HTTP_SSI_TAG_END                    "-->"   /*!< SSI tag end string */
+#define HTTP_SSI_TAG_END_LEN                3   /*!< SSI tag end length */
 #endif
 
 /**
@@ -330,8 +330,8 @@ typedef struct http_fs_file {
  * \brief           HTTP state structure
  */
 typedef struct http_state {
-    lwesp_conn_p conn;                            /*!< Connection handle */
-    lwesp_pbuf_p p;                               /*!< Header received pbuf chain */
+    lwesp_conn_p conn;                          /*!< Connection handle */
+    lwesp_pbuf_p p;                             /*!< Header received pbuf chain */
 
     size_t conn_mem_available;                  /*!< Available memory in connection send queue */
     uint32_t written_total;                     /*!< Total number of bytes written into send buffer */
@@ -346,8 +346,8 @@ typedef struct http_state {
     uint32_t content_received;                  /*!< Content length received so far (POST request, without headers) */
 #endif /* HTTP_SUPPORT_POST || __DOXYGEN__ */
 
-    http_fs_file_t rlwesp_file;                   /*!< Response file structure */
-    uint8_t rlwesp_file_opened;                   /*!< Status if response file is opened and ready */
+    http_fs_file_t rlwesp_file;                 /*!< Response file structure */
+    uint8_t rlwesp_file_opened;                 /*!< Status if response file is opened and ready */
     const uint8_t* buff;                        /*!< Buffer pointer with data */
     uint32_t buff_len;                          /*!< Total length of buffer */
     uint32_t buff_ptr;                          /*!< Current buffer pointer */
@@ -366,7 +366,7 @@ typedef struct http_state {
     /* SSI tag parsing */
     uint8_t is_ssi;                             /*!< Flag if current request is SSI enabled */
     http_ssi_state_t ssi_state;                 /*!< Current SSI state when parsing SSI tags */
-    char ssi_tag_buff[HTTP_SSI_TAG_START_LEN + HTTP_SSI_TAG_END_LEN + HTTP_SSI_TAG_MAX_LEN + 1];    /*!< Temporary buffer for SSI tag storing */
+    char ssi_tag_buff[HTTP_SSI_TAG_START_LEN + HTTP_SSI_TAG_END_LEN + HTTP_SSI_TAG_MAX_LEN + 1];/*!< Temporary buffer for SSI tag storing */
     size_t ssi_tag_buff_ptr;                    /*!< Current write pointer */
     size_t ssi_tag_buff_written;                /*!< Number of bytes written so far to output buffer in case tag is not valid */
     size_t ssi_tag_len;                         /*!< Length of SSI tag */

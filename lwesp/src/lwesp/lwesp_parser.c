@@ -60,7 +60,7 @@ lwespi_parse_number(const char** str) {
         minus = 1;
         ++p;
     }
-    while (LWESP_CHARISNUM(*p)) {                 /* Parse until character is valid number */
+    while (LWESP_CHARISNUM(*p)) {               /* Parse until character is valid number */
         val = val * 10 + LWESP_CHARTONUM(*p);
         ++p;
     }
@@ -82,7 +82,7 @@ lwesp_port_t
 lwespi_parse_port(const char** str) {
     lwesp_port_t p;
 
-    p = (lwesp_port_t)lwespi_parse_number(str);     /* Parse port */
+    p = (lwesp_port_t)lwespi_parse_number(str); /* Parse port */
     return p;
 }
 
@@ -106,7 +106,7 @@ lwespi_parse_hexnumber(const char** str) {
     if (*p == '"') {                            /* Skip leading quotes */
         ++p;
     }
-    while (LWESP_CHARISHEXNUM(*p)) {              /* Parse until character is valid number */
+    while (LWESP_CHARISHEXNUM(*p)) {            /* Parse until character is valid number */
         val = val * 16 + LWESP_CHARHEXTONUM(*p);
         ++p;
     }
@@ -237,10 +237,10 @@ lwespr_t
 lwespi_parse_cipstatus(const char* str) {
     uint8_t cn_num = 0;
 
-    cn_num = lwespi_parse_number(&str);           /* Parse connection number */
+    cn_num = lwespi_parse_number(&str);         /* Parse connection number */
     esp.m.active_conns |= 1 << cn_num;          /* Set flag as active */
 
-    lwespi_parse_string(&str, NULL, 0, 1);        /* Parse string and ignore result */
+    lwespi_parse_string(&str, NULL, 0, 1);      /* Parse string and ignore result */
 
     lwespi_parse_ip(&str, &esp.m.conns[cn_num].remote_ip);
     esp.m.conns[cn_num].remote_port = lwespi_parse_number(&str);
@@ -265,7 +265,7 @@ lwespi_parse_ciprecvdata(const char* str) {
     }
 
     /* Check data length */
-    if ((len = lwespi_parse_number(&str)) > 0) {  /* Get number of bytes to read */
+    if ((len = lwespi_parse_number(&str)) > 0) {/* Get number of bytes to read */
         lwesp_ip_t ip;
         lwesp_port_t port;
 
@@ -319,10 +319,10 @@ lwespi_parse_ipd(const char* str) {
         str += 5;
     }
 
-    conn = lwespi_parse_number(&str);             /* Parse number for connection number */
-    len = lwespi_parse_number(&str);              /* Parse number for number of available_bytes/bytes_to_read */
+    conn = lwespi_parse_number(&str);           /* Parse number for connection number */
+    len = lwespi_parse_number(&str);            /* Parse number for number of available_bytes/bytes_to_read */
 
-    c = conn < LWESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL;   /* Get connection handle */
+    c = conn < LWESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL; /* Get connection handle */
     if (c == NULL) {                            /* Invalid connection number */
         return lwespERR;
     }
@@ -358,8 +358,8 @@ lwespi_parse_ipd(const char* str) {
          * Check for ':' character if it is end of string and determine how to proceed
          */
         if (*str != ':') {
-            lwespi_parse_ip(&str, &esp.m.ipd.ip);     /* Parse incoming packet IP */
-            esp.m.ipd.port = lwespi_parse_port(&str); /* Get port on IPD data */
+            lwespi_parse_ip(&str, &esp.m.ipd.ip);   /* Parse incoming packet IP */
+            esp.m.ipd.port = lwespi_parse_port(&str);   /* Get port on IPD data */
 
             LWESP_MEMCPY(&esp.m.conns[conn].remote_ip, &esp.m.ipd.ip, sizeof(esp.m.ipd.ip));
             LWESP_MEMCPY(&esp.m.conns[conn].remote_port, &esp.m.ipd.port, sizeof(esp.m.ipd.port));
@@ -439,7 +439,7 @@ lwespi_parse_link_conn(const char* str) {
  */
 uint8_t
 lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
-    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWLAP) ||      /* Do we have valid message here and enough memory to save everything? */
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWLAP) ||    /* Do we have valid message here and enough memory to save everything? */
         msg->msg.ap_list.aps == NULL || msg->msg.ap_list.apsi >= msg->msg.ap_list.apsl) {
         return 0;
     }
@@ -462,8 +462,8 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
     //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = lwespi_parse_number(&str);
     //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = lwespi_parse_number(&str);
 
-    //lwespi_parse_number(&str);                    /* Parse pwc */
-    //lwespi_parse_number(&str);                    /* Parse gc */
+    //lwespi_parse_number(&str);                /* Parse pwc */
+    //lwespi_parse_number(&str);                /* Parse gc */
     //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = lwespi_parse_number(&str);
     //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = lwespi_parse_number(&str);
 
@@ -482,7 +482,7 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
  */
 uint8_t
 lwespi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
-    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP_GET)) {/* Do we have valid message here and enough memory to save everything? */
         return 0;
     }
     if (*str == '+') {                          /* Does string contain '+' as first character */
@@ -513,7 +513,7 @@ lwespi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
  */
 uint8_t
 lwespi_parse_cwlif(const char* str, lwesp_msg_t* msg) {
-    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWLIF)         /* Do we have valid message here and enough memory to save everything? */
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWLIF)       /* Do we have valid message here and enough memory to save everything? */
         || msg->msg.sta_list.stas == NULL || msg->msg.sta_list.stai >= msg->msg.sta_list.stal) {
         return 0;
     }
@@ -542,10 +542,10 @@ uint8_t
 lwespi_parse_ap_conn_disconn_sta(const char* str, uint8_t is_conn) {
     lwesp_mac_t mac;
 
-    lwespi_parse_mac(&str, &mac);                 /* Parse MAC address */
+    lwespi_parse_mac(&str, &mac);               /* Parse MAC address */
 
     esp.evt.evt.ap_conn_disconn_sta.mac = &mac;
-    lwespi_send_cb(is_conn ? LWESP_EVT_AP_CONNECTED_STA : LWESP_EVT_AP_DISCONNECTED_STA); /* Send event function */
+    lwespi_send_cb(is_conn ? LWESP_EVT_AP_CONNECTED_STA : LWESP_EVT_AP_DISCONNECTED_STA);   /* Send event function */
     return 1;
 }
 
@@ -559,12 +559,12 @@ lwespi_parse_ap_ip_sta(const char* str) {
     lwesp_mac_t mac;
     lwesp_ip_t ip;
 
-    lwespi_parse_mac(&str, &mac);                 /* Parse MAC address */
-    lwespi_parse_ip(&str, &ip);                   /* Parse IP address */
+    lwespi_parse_mac(&str, &mac);               /* Parse MAC address */
+    lwespi_parse_ip(&str, &ip);                 /* Parse IP address */
 
     esp.evt.evt.ap_ip_sta.mac = &mac;
     esp.evt.evt.ap_ip_sta.ip = &ip;
-    lwespi_send_cb(LWESP_EVT_AP_IP_STA);            /* Send event function */
+    lwespi_send_cb(LWESP_EVT_AP_IP_STA);        /* Send event function */
     return 1;
 }
 
@@ -576,7 +576,7 @@ lwespi_parse_ap_ip_sta(const char* str) {
  */
 uint8_t
 lwespi_parse_cwsap(const char* str, lwesp_msg_t* msg) {
-    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWSAP_GET)) {  /* Do we have valid message here and enough memory to save everything? */
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWSAP_GET)) {/* Do we have valid message here and enough memory to save everything? */
         return 0;
     }
     if (*str == '+') {                          /* Does string contain '+' as first character */
@@ -639,7 +639,7 @@ lwespi_parse_cipdomain(const char* str, lwesp_msg_t* msg) {
     if (*str == '+') {
         str += 11;
     }
-    lwespi_parse_ip(&str, msg->msg.dns_getbyhostname.ip); /* Parse IP address */
+    lwespi_parse_ip(&str, msg->msg.dns_getbyhostname.ip);   /* Parse IP address */
     return 1;
 }
 
@@ -658,7 +658,7 @@ lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPTIME)) {
         return 0;
     }
-    if (*str == '+') {                              /* Check input string */
+    if (*str == '+') {                          /* Check input string */
         str += 13;
     }
 
@@ -707,7 +707,7 @@ lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
         msg->msg.tcpip_sntp_time.dt->month = 12;
     }
     str += 4;
-    if (*str == ' ') {                              /* Numbers < 10 could have one more space */
+    if (*str == ' ') {                          /* Numbers < 10 could have one more space */
         ++str;
     }
     msg->msg.tcpip_sntp_time.dt->date = lwespi_parse_number(&str);
@@ -738,7 +738,7 @@ lwespi_parse_hostname(const char* str, lwesp_msg_t* msg) {
     if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWHOSTNAME_GET)) {
         return 0;
     }
-    if (*str == '+') {                              /* Check input string */
+    if (*str == '+') {                          /* Check input string */
         str += 12;
     }
     msg->msg.wifi_hostname.hostname_get[0] = 0;

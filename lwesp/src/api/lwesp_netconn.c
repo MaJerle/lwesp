@@ -130,7 +130,7 @@ netconn_evt(lwesp_evt_t* evt) {
     lwesp_netconn_t* nc = NULL;
     uint8_t close = 0;
 
-    conn = lwesp_conn_get_from_evt(evt);          /* Get connection from event */
+    conn = lwesp_conn_get_from_evt(evt);        /* Get connection from event */
     switch (lwesp_evt_get_type(evt)) {
         /*
          * A new connection has been active
@@ -196,7 +196,7 @@ netconn_evt(lwesp_evt_t* evt) {
             lwesp_pbuf_p pbuf;
 
             nc = lwesp_conn_get_arg(conn);      /* Get API from connection */
-            pbuf = lwesp_evt_conn_recv_get_buff(evt); /* Get received buff */
+            pbuf = lwesp_evt_conn_recv_get_buff(evt);   /* Get received buff */
 
 #if !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
             lwesp_conn_recved(conn, pbuf);      /* Notify stack about received data */
@@ -262,7 +262,7 @@ lwesp_evt(lwesp_evt_t* evt) {
             break;
         }
         case LWESP_EVT_DEVICE_PRESENT: {        /* Device present event */
-            if (listen_api != NULL && !lwesp_device_is_present()) {   /* Check if device present */
+            if (listen_api != NULL && !lwesp_device_is_present()) { /* Check if device present */
                 lwesp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_not_present);
             }
         }
@@ -298,7 +298,7 @@ lwesp_netconn_new(lwesp_netconn_type_t type) {
                        "[NETCONN] Cannot create accept MBOX\r\n");
             goto free_ret;
         }
-        if (!lwesp_sys_mbox_create(&a->mbox_receive, LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {    /* Allocate memory for receiving message box */
+        if (!lwesp_sys_mbox_create(&a->mbox_receive, LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {/* Allocate memory for receiving message box */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
                        "[NETCONN] Cannot create receive MBOX\r\n");
             goto free_ret;
@@ -545,15 +545,15 @@ lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client) {
         lwesp_core_lock();
         listen_api = NULL;                      /* Disable listening at this point */
         lwesp_core_unlock();
-        return lwespERRWIFINOTCONNECTED;          /* Wifi disconnected */
+        return lwespERRWIFINOTCONNECTED;        /* Wifi disconnected */
     } else if ((uint8_t*)tmp == (uint8_t*)&recv_not_present) {
         lwesp_core_lock();
         listen_api = NULL;                      /* Disable listening at this point */
         lwesp_core_unlock();
-        return lwespERRNODEVICE;                  /* Device not present */
+        return lwespERRNODEVICE;                /* Device not present */
     }
     *client = tmp;                              /* Set new pointer */
-    return lwespOK;                               /* We have a new connection */
+    return lwespOK;                             /* We have a new connection */
 }
 
 /**
@@ -586,9 +586,9 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
 
     /* Step 1 */
     if (nc->buff.buff != NULL) {                /* Is there a write buffer ready to accept more data? */
-        len = LWESP_MIN(nc->buff.len - nc->buff.ptr, btw);    /* Get number of bytes we can write to buffer */
+        len = LWESP_MIN(nc->buff.len - nc->buff.ptr, btw);  /* Get number of bytes we can write to buffer */
         if (len > 0) {
-            LWESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], data, len);/* Copy memory to temporary write buffer */
+            LWESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], data, len);  /* Copy memory to temporary write buffer */
             d += len;
             nc->buff.ptr += len;
             btw -= len;
@@ -603,15 +603,15 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
                 return res;
             }
         } else {
-            return lwespOK;                       /* Buffer is not full yet */
+            return lwespOK;                     /* Buffer is not full yet */
         }
     }
 
     /* Step 2 */
     if (btw >= LWESP_CFG_CONN_MAX_DATA_LEN) {
         size_t rem;
-        rem = btw % LWESP_CFG_CONN_MAX_DATA_LEN;  /* Get remaining bytes for max data length */
-        res = lwesp_conn_send(nc->conn, d, btw - rem, &sent, 1);  /* Write data directly */
+        rem = btw % LWESP_CFG_CONN_MAX_DATA_LEN;/* Get remaining bytes for max data length */
+        res = lwesp_conn_send(nc->conn, d, btw - rem, &sent, 1);/* Write data directly */
         if (res != lwespOK) {
             return res;
         }
@@ -626,16 +626,16 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
     /* Step 3 */
     if (nc->buff.buff == NULL) {                /* Check if we should allocate a new buffer */
         nc->buff.buff = lwesp_mem_malloc(sizeof(*nc->buff.buff) * LWESP_CFG_CONN_MAX_DATA_LEN);
-        nc->buff.len = LWESP_CFG_CONN_MAX_DATA_LEN;   /* Save buffer length */
+        nc->buff.len = LWESP_CFG_CONN_MAX_DATA_LEN; /* Save buffer length */
         nc->buff.ptr = 0;                       /* Save buffer pointer */
     }
 
     /* Step 4 */
     if (nc->buff.buff != NULL) {                /* Memory available? */
-        LWESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], d, btw);   /* Copy data to buffer */
+        LWESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], d, btw); /* Copy data to buffer */
         nc->buff.ptr += btw;
     } else {                                    /* Still no memory available? */
-        return lwesp_conn_send(nc->conn, data, btw, NULL, 1); /* Simply send directly blocking */
+        return lwesp_conn_send(nc->conn, data, btw, NULL, 1);   /* Simply send directly blocking */
     }
     return lwespOK;
 }
@@ -658,7 +658,7 @@ lwesp_netconn_flush(lwesp_netconn_p nc) {
      */
     if (nc->buff.buff != NULL) {                /* Check remaining data */
         if (nc->buff.ptr > 0) {                 /* Do we have data in current buffer? */
-            lwesp_conn_send(nc->conn, nc->buff.buff, nc->buff.ptr, NULL, 1);  /* Send data */
+            lwesp_conn_send(nc->conn, nc->buff.buff, nc->buff.ptr, NULL, 1);/* Send data */
         }
         lwesp_mem_free_s((void**)&nc->buff.buff);
     }
@@ -748,11 +748,11 @@ lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
     else {
         lwesp_core_lock();
         nc->conn->status.f.receive_blocked = 0; /* Resume reading more data */
-        lwesp_conn_recved(nc->conn, *pbuf);       /* Notify stack about received data */
+        lwesp_conn_recved(nc->conn, *pbuf);     /* Notify stack about received data */
         lwesp_core_unlock();
     }
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-    return lwespOK;                               /* We have data available */
+    return lwespOK;                             /* We have data available */
 }
 
 /**
@@ -768,12 +768,12 @@ lwesp_netconn_close(lwesp_netconn_p nc) {
     LWESP_ASSERT("nc->conn != NULL", nc->conn != NULL);
     LWESP_ASSERT("nc->conn must be active", lwesp_conn_is_active(nc->conn));
 
-    lwesp_netconn_flush(nc);                      /* Flush data and ignore result */
+    lwesp_netconn_flush(nc);                    /* Flush data and ignore result */
     conn = nc->conn;
     nc->conn = NULL;
 
-    lwesp_conn_set_arg(conn, NULL);               /* Reset argument */
-    lwesp_conn_close(conn, 1);                    /* Close the connection */
+    lwesp_conn_set_arg(conn, NULL);             /* Reset argument */
+    lwesp_conn_close(conn, 1);                  /* Close the connection */
     flush_mboxes(nc, 1);                        /* Flush message queues */
     return lwespOK;
 }

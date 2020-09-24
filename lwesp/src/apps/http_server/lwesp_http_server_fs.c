@@ -157,7 +157,7 @@ http_fs_data_open_file(const http_init_t* hi, http_fs_file_t* file, const char* 
 
             file->size = http_fs_static_files[i].size;
             file->data = (uint8_t*)http_fs_static_files[i].data;
-            file->is_static = 1;    /* Set to 0 for testing purposes */
+            file->is_static = 1;                /* Set to 0 for testing purposes */
             return 1;
         }
     }
@@ -187,7 +187,7 @@ http_fs_data_read_file(const http_init_t* hi, http_fs_file_t* file, void** buff,
         return 0;                               /* No bytes to read */
     }
 
-    len = LWESP_MIN(btr, len);                    /* Get number of bytes we can read */
+    len = LWESP_MIN(btr, len);                  /* Get number of bytes we can read */
     if (file->is_static) {                      /* Is file static? */
         *buff = (void*)&file->data[file->fptr]; /* Set a new address pointer only */
     } else if (hi != NULL && hi->fs_read != NULL) {
