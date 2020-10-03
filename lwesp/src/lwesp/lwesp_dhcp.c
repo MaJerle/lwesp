@@ -49,7 +49,7 @@
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_dhcp_configure(uint8_t sta, uint8_t ap, uint8_t en,
+lwesp_dhcp_set_config(uint8_t sta, uint8_t ap, uint8_t en,
                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 

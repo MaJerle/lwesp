@@ -827,7 +827,7 @@ lwesp_conn_get_local_port(lwesp_conn_p conn) {
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_conn_ssl_configure(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number,
+lwesp_conn_ssl_set_config(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number,
                        const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 

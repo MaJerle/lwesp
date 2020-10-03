@@ -61,7 +61,7 @@ main(void) {
     }
 
     /* Configure access point */
-    res = lwesp_ap_configure("LWESP_AccessPoint", "ap_password", 13, LWESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
+    res = lwesp_ap_set_config("LWESP_AccessPoint", "ap_password", 13, LWESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
     if (res == lwespOK) {
         printf("Access point configured!\r\n");
     } else {

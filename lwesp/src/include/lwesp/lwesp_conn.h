@@ -70,7 +70,7 @@ size_t      lwesp_conn_get_total_recved_count(lwesp_conn_p conn);
 uint8_t     lwesp_conn_get_remote_ip(lwesp_conn_p conn, lwesp_ip_t* ip);
 lwesp_port_t  lwesp_conn_get_remote_port(lwesp_conn_p conn);
 lwesp_port_t  lwesp_conn_get_local_port(lwesp_conn_p conn);
-lwespr_t    lwesp_conn_ssl_configure(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_conn_ssl_set_config(uint8_t link_id, uint8_t auth_mode, uint8_t pki_number, uint8_t ca_number, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 
 /**

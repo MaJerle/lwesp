@@ -279,9 +279,9 @@ input_thread(void* arg) {
         } else if (IS_LINE("getip")) {
             lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 1);
         } else if (IS_LINE("dhcpenable")) {
-            lwesp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
+            lwesp_dhcp_set_config(1, 0, 1, NULL, NULL, 1);
         } else if (IS_LINE("dhcpdisable")) {
-            lwesp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
+            lwesp_dhcp_set_config(1, 0, 1, NULL, NULL, 1);
         } else if (IS_LINE("listap")) {
             lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &aps_count, NULL, NULL, 1);
             safeprintf("Detected %d number of access points\r\n", (int)aps_count);
@@ -290,7 +290,7 @@ input_thread(void* arg) {
             lwesp_sta_get_ap_info(&ap, NULL, NULL, 1);
         } else if (IS_LINE("apenable")) {
             lwesp_set_wifi_mode(LWESP_MODE_STA_AP, NULL, NULL, 1);
-            lwesp_ap_configure("ESP8266_SSID", "its private", 13, LWESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
+            lwesp_ap_set_config("ESP8266_SSID", "its private", 13, LWESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
         } else if (IS_LINE("apdisable")) {
             lwesp_set_wifi_mode(LWESP_MODE_STA, NULL, NULL, 1);
         } else if (IS_LINE("apliststa")) {
@@ -400,13 +400,13 @@ main_thread(void* arg) {
     //    lwesp_sta_setip(&dev_ip, NULL, NULL, 0, NULL, NULL, 1);
     //    lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
     //    safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
-    //    lwesp_dhcp_configure(1, 0, 1, 1, NULL, NULL, 1);
+    //    lwesp_dhcp_set_config(1, 0, 1, 1, NULL, NULL, 1);
     //    lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
     //    safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
     //}
 
     //lwesp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
-    //lwesp_dhcp_configure(1, 0, 1, NULL, NULL, 1);
+    //lwesp_dhcp_set_config(1, 0, 1, NULL, NULL, 1);
 
     /* Start server on port 80 */
     //http_server_start();

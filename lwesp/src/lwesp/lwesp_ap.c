@@ -158,7 +158,7 @@ lwesp_ap_setmac(const lwesp_mac_t* mac,
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_ap_configure(const char* ssid, const char* pwd, uint8_t ch, lwesp_ecn_t ecn, uint8_t max_sta, uint8_t hid,
+lwesp_ap_set_config(const char* ssid, const char* pwd, uint8_t ch, lwesp_ecn_t ecn, uint8_t max_sta, uint8_t hid,
                  const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 

@@ -49,7 +49,7 @@
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_mdns_configure(uint8_t en, const char* host, const char* server, lwesp_port_t port,
+lwesp_mdns_set_config(uint8_t en, const char* host, const char* server, lwesp_port_t port,
                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
