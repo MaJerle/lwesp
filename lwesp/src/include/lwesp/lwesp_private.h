@@ -77,6 +77,7 @@ typedef enum {
     LWESP_CMD_WIFI_CWLAPOPT,                    /*!< Configure what is visible on CWLAP response */
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
     LWESP_CMD_WIFI_CWJAP,                       /*!< Connect to access point */
+    LWESP_CMD_WIFI_CWRECONNCFG,                 /*!< Setup reconnect interval and maximum tries */
     LWESP_CMD_WIFI_CWJAP_GET,                   /*!< Info of the connected access point */
     LWESP_CMD_WIFI_CWQAP,                       /*!< Disconnect from access point */
     LWESP_CMD_WIFI_CWLAP,                       /*!< List available access points */
@@ -273,6 +274,10 @@ typedef struct lwesp_msg {
             const lwesp_mac_t* mac;             /*!< Specific MAC address to use when connecting to AP */
             uint8_t error_num;                  /*!< Error number on connecting */
         } sta_join;                             /*!< Message for joining to access point */
+        struct {
+            uint16_t interval;                  /*!< Interval in units of seconds */
+            uint16_t rep_cnt;                   /*!< Repetition counter */
+        } sta_reconn_set;                       /*!< Reconnect setup */
         struct {
             uint8_t en;                         /*!< Status to enable/disable auto join feature */
         } sta_autojoin;                         /*!< Message for auto join procedure */

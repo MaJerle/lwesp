@@ -50,6 +50,7 @@ extern "C" {
 lwespr_t    lwesp_sta_join(const char* name, const char* pass, const lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t    lwesp_sta_quit(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t    lwesp_sta_autojoin(uint8_t en, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t    lwesp_sta_reconnect_set_config(uint16_t interval, uint16_t rep_cnt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t    lwesp_sta_getip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t    lwesp_sta_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t    lwesp_sta_getmac(lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);

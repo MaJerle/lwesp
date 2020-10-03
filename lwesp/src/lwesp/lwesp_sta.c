@@ -111,6 +111,31 @@ lwesp_sta_autojoin(uint8_t en,
 }
 
 /**
+ * \brief           Set reconnect interval and maximum tries when connection drops
+ * \param[in]       interval: Interval in units of seconds. Valid numbers are `1-7200` or `0` to disable reconnect feature
+ * \param[in]       rep_cnt: Repeat counter. Number of maximum tries for reconnect.
+ *                      Valid entries are `1-1000` or `0` to always try.
+ *                      This parameter is only valid if interval is not `0`
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
+lwespr_t
+lwesp_sta_reconnect_set_config(uint16_t interval, uint16_t rep_cnt,
+                            const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
+
+    LWESP_ASSERT("interval <= 7200", interval <= 7200);
+    LWESP_ASSERT("rep_cnt <= 1000", rep_cnt <= 1000);
+
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWRECONNCFG;
+    LWESP_MSG_VAR_REF(msg).msg.sta_reconn_set.interval = interval;
+    LWESP_MSG_VAR_REF(msg).msg.sta_reconn_set.rep_cnt = rep_cnt;
+
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
+}
+
+/**
  * \brief           Get current access point information (name, mac, channel, rssi)
  * \note            Access point station is currently connected to
  * \param[in]       info: Pointer to connected access point information

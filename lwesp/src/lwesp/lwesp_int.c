@@ -1736,6 +1736,16 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
+        case LWESP_CMD_WIFI_CWRECONNCFG: {      /* Set reconnect interval */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CWRECONNCFG=");
+            lwespi_send_number(msg->msg.sta_reconn_set.interval, 0, 0);
+            //if (msg->msg.sta_reconn_set.interval > 0) {
+                lwespi_send_number(msg->msg.sta_reconn_set.rep_cnt, 0, 1);
+            //}
+            AT_PORT_SEND_END_AT();
+            break;
+        }
         case LWESP_CMD_WIFI_CWJAP_GET: {        /* Get the info of the connected access point */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWJAP?");
