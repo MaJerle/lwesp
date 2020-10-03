@@ -56,6 +56,7 @@ static const cmd_t
 cmd_commands[] = {
     { 0, "help", "", "Print help for commands" },
     { 0, "join", "<ssid> [<pwd> [<mac>]]", "Join to access point" },
+    { 0, "reconn_set", "<interval> <repeat>", "Set reconnect config" },
     { 0, "quit", "", "Quit from access point" },
     { 1, "IP management" },
     { 0, "stagetip", "", "Get station IP address" },
@@ -261,6 +262,13 @@ input_thread(void* arg) {
             lwesp_sta_join(ssid, pass, NULL, NULL, NULL, 1);
         } else if (IS_LINE("quit")) {
             lwesp_sta_quit(NULL, NULL, 1);
+        } else if (IS_LINE("reconn_set")) {
+            uint32_t interval, rep_cnt = 0;
+            parse_num(&str, &interval);
+            if (interval > 0) {
+                parse_num(&str, &rep_cnt);
+            }
+            lwesp_sta_reconnect_set_config(interval, rep_cnt, NULL, NULL, 1);
         } else if (IS_LINE("setip")) {
             lwesp_ip_t dev_ip;
             dev_ip.ip[0] = 192;
@@ -364,14 +372,17 @@ main_thread(void* arg) {
      * Follow function implementation for more info
      * on how to setup preferred access points for fast connection
      */
-    //start_access_point_scan_and_connect_procedure();
-    //lwesp_sys_thread_terminate(NULL);
-    //connect_to_preferred_access_point(1);
+     //start_access_point_scan_and_connect_procedure();
+     //lwesp_sys_thread_terminate(NULL);
+     //connect_to_preferred_access_point(1);
     lwesp_sta_autojoin(1, NULL, NULL, 1);
     lwesp_sta_join("Majerle WIFI", "majerle_internet_private", NULL, NULL, NULL, 1);
 
-    lwesp_ping("majerle.eu", &ping_time, NULL, NULL, 1);
-    safeprintf("Ping time: %d\r\n", (int)ping_time);
+    if (lwesp_ping("majerle.eu", &ping_time, NULL, NULL, 1) == lwespOK) {
+        safeprintf("Ping time: %d\r\n", (int)ping_time);
+    } else {
+        safeprintf("Ping error\r\n");
+    }
 
     /*
      * Check if device has set IP address
