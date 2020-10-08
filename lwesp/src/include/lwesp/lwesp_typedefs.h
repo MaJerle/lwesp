@@ -536,7 +536,7 @@ typedef struct {
         struct {
             lwesp_port_t local_port;            /*!< Custom local port for UDP */
             uint8_t mode;                       /*!< UDP mode. Set to `0` by default. Check ESP AT commands instruction set for more info when needed */
-        } udp;                                  /*!< UPD specific features */
+        } udp;                                  /*!< UDP specific features */
     } ext;                                      /*!< Extended support union */
 } lwesp_conn_start_t;
 
