@@ -124,7 +124,7 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
 /**
  * \brief           Concatenate `2` packet buffers together to one big packet
  * \note            After `tail` pbuf has been added to `head` pbuf chain,
- *                  it must not be referenced by user anymore as it is now completelly controlled by `head` pbuf.
+ *                  it must not be referenced by user anymore as it is now completely controlled by `head` pbuf.
  *                  In simple words, when user calls this function, it should not call \ref lwesp_pbuf_free function anymore,
  *                  as it might make memory undefined for `head` pbuf.
  * \param[in]       head: Head packet buffer to append new pbuf to
@@ -154,7 +154,7 @@ lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail) {
  * \brief           Chain 2 pbufs together. Similar to \ref lwesp_pbuf_cat
  *                  but now new reference is done from head pbuf to tail pbuf.
  * \note            After this function call, user must call \ref lwesp_pbuf_free to remove
- *                  its reference to tail pbuf and allow control to head pbuf: lwesp_pbuf_free(tail)
+ *                  its reference to tail pbuf and allow control to head pbuf: `lwesp_pbuf_free(tail)`
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
@@ -169,7 +169,7 @@ lwesp_pbuf_chain(lwesp_pbuf_p head, lwesp_pbuf_p tail) {
      * first reference pbuf and increase counter
      */
     lwesp_pbuf_ref(tail);                       /* Reference tail pbuf by head pbuf now */
-    if ((res = lwesp_pbuf_cat(head, tail)) != lwespOK) {/* Did we contencate them together successfully? */
+    if ((res = lwesp_pbuf_cat(head, tail)) != lwespOK) {/* Did we concatenate them together successfully? */
         lwesp_pbuf_free(tail);                  /* Call free to decrease reference counter */
     }
     return res;
