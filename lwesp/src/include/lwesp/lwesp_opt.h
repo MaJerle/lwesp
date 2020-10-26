@@ -82,7 +82,7 @@
  * \ref lwesp_mem_calloc, \ref lwesp_mem_realloc and \ref lwesp_mem_free
  *
  * \note            Function declaration follows standard C functions `malloc, calloc, realloc, free`.
- *                  Declaration is available in `esp/lwesp_mem.h` file. Include this file to final
+ *                  Declaration is available in `lwesp/lwesp_mem.h` file. Include this file to final
  *                  implementation file
  *
  * \note            When implementing custom memory allocation, it is necessary
