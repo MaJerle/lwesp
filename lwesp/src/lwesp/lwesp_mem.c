@@ -73,6 +73,11 @@ mem_insertfreeblock(mem_block_t* nb) {
     /* Find block position to insert new block between */
     for (ptr = &start_block; ptr != NULL && ptr->next < nb; ptr = ptr->next) {}
 
+    /* Check hard error on wrongly used memory */
+    if (ptr == NULL) {
+        return;
+    }
+
     /*
      * If the new inserted block and block before create a one big block (contiguous)
      * then try to merge them together
