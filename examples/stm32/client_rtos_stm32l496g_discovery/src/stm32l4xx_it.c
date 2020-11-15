@@ -104,7 +104,8 @@ DebugMon_Handler(void) {
  */
 void
 SysTick_Handler(void) {
-    osSystickHandler();
+    extern void xPortSysTickHandler(void);
+    xPortSysTickHandler();
 }
 
 /******************************************************************************/

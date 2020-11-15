@@ -4,46 +4,44 @@
  */
 
 /*
- * Copyright (c) 2019 Tilen MAJERLE
- *  
+ * Copyright (c) 2020 Tilen MAJERLE
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without restriction,
  * including without limitation the rights to use, copy, modify, merge,
- * publish, distribute, sublicense, and/or sell copies of the Software, 
- * and to permit persons to whom the Software is furnished to do so, 
+ * publish, distribute, sublicense, and/or sell copies of the Software,
+ * and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
  * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
  * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v0.6.1
+ * Version:         v1.0.0
  */
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "esp/esp.h"
+#include "lwesp/lwesp.h"
 #include "station_manager.h"
-#include "esp_config.h"
 
 static void LL_Init(void);
 void SystemClock_Config(void);
 static void USART_Printf_Init(void);
 
-static void init_thread(void const* arg);
-osThreadDef(init_thread, init_thread, osPriorityNormal, 0, 512);
+static void init_thread(void* arg);
 
-static espr_t esp_callback_func(esp_evt_t* evt);
+static lwespr_t lwesp_callback_func(lwesp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -53,12 +51,17 @@ main(void) {
     LL_Init();                                  /* Reset of all peripherals, initializes the Flash interface and the Systick. */
     SystemClock_Config();                       /* Configure the system clock */
     USART_Printf_Init();                        /* Init USART for printf */
-    
+
     printf("Application running on STM32F429ZI-Nucleo!\r\n");
-    
-    osThreadCreate(osThread(init_thread), NULL);/* Create init thread */
-    osKernelStart();                            /* Start kernel */
-    
+
+    /* Initialize, create first thread and start kernel */
+    osKernelInitialize();
+    const osThreadAttr_t attr = {
+            .stack_size = 512
+    };
+    osThreadNew(init_thread, NULL, &attr);
+    osKernelStart();
+
     while (1) {}
 }
 
@@ -67,11 +70,11 @@ main(void) {
  * \param[in]       arg: Thread argument
  */
 static void
-device_present_thread(void const* arg) {
+device_present_thread(void* arg) {
     while (1) {
         /* Set device is present */
         printf("Setting device is present\r\n");
-        esp_device_set_present(1, NULL, NULL, 1);
+        lwesp_device_set_present(1, NULL, NULL, 1);
 
         /*
          * Connect to access point.
@@ -80,12 +83,12 @@ device_present_thread(void const* arg) {
          * Check for station_manager.c to define preferred access points ESP should connect to
          */
         connect_to_preferred_access_point(1);
-        esp_delay(10000);
+        lwesp_delay(10000);
 
         /* Set device is not present */
         printf("Setting device is not present\r\n");
-        esp_device_set_present(0, NULL, NULL, 1);
-        esp_delay(5000);
+        lwesp_device_set_present(0, NULL, NULL, 1);
+        lwesp_delay(5000);
     }
 }
 
@@ -94,44 +97,44 @@ device_present_thread(void const* arg) {
  * \param[in]       arg: Thread argument
  */
 static void
-init_thread(void const* arg) {
-    espr_t res;
+init_thread(void* arg) {
+    lwespr_t res;
     uint32_t time;
 
     /* Initialize ESP with default callback function */
-    printf("Initializing ESP-AT Lib\r\n");
-    if (esp_init(esp_callback_func, 1) != espOK) {
-        printf("Cannot initialize ESP-AT Lib!\r\n");
+    printf("Initializing LwESP\r\n");
+    if (lwesp_init(lwesp_callback_func, 1) != lwespOK) {
+        printf("Cannot initialize LwESP!\r\n");
     } else {
-        printf("ESP-AT Lib initialized!\r\n");
+        printf("LwESP initialized!\r\n");
     }
 
     /* Start thread for device present */
-    esp_sys_thread_create(NULL, "dev_present", (esp_sys_thread_fn)device_present_thread, NULL, ESP_SYS_THREAD_SS, ESP_SYS_THREAD_PRIO);
-    osThreadTerminate(NULL);                    /* Terminate current thread */
+    lwesp_sys_thread_create(NULL, "dev_present", (lwesp_sys_thread_fn)device_present_thread, NULL, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO);
+    osThreadExit();
 }
 
 /**
  * \brief           Event callback function for ESP stack
  * \param[in]       evt: Event information with data
- * \return          espOK on success, member of \ref espr_t otherwise
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
-static espr_t
-esp_callback_func(esp_evt_t* evt) {
-    switch (esp_evt_get_type(evt)) {
-        case ESP_EVT_INIT_FINISH: {
+static lwespr_t
+lwesp_callback_func(lwesp_evt_t* evt) {
+    switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_INIT_FINISH: {
             printf("Library initialized!\r\n");
 
             /* Set device not present on startup */
-            esp_device_set_present(0, NULL, NULL, 0);
+            lwesp_device_set_present(0, NULL, NULL, 0);
             break;
         }
-        case ESP_EVT_RESET_DETECTED: {
+        case LWESP_EVT_RESET_DETECTED: {
             printf("Device reset detected!\r\n");
             break;
         }
-        case ESP_EVT_RESET: {
-            if (esp_evt_reset_get_result(evt) == espOK) {
+        case LWESP_EVT_RESET: {
+            if (lwesp_evt_reset_get_result(evt) == lwespOK) {
                 printf("ESP reset sequence finished with success!\r\n");
             } else {
                 printf("ESP reset sequence error\r\n");
@@ -139,17 +142,17 @@ esp_callback_func(esp_evt_t* evt) {
             break;
         }
 
-        case ESP_EVT_WIFI_CONNECTED: {
+        case LWESP_EVT_WIFI_CONNECTED: {
             printf("Wifi connected to access point!\r\n");
             break;
         }
-        case ESP_EVT_WIFI_DISCONNECTED: {
+        case LWESP_EVT_WIFI_DISCONNECTED: {
             printf("Wifi disconnected from access point!\r\n");
             break;
         }
         default: break;
     }
-    return espOK;
+    return lwespOK;
 }
 
 /**
@@ -177,30 +180,30 @@ SystemClock_Config(void) {
     if (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_5) {
         while (1) {}
     }
-    
+
     /* Set voltage scaling */
     LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
     LL_PWR_DisableOverDriveMode();
-    
+
     /* Enable HSE */
     LL_RCC_HSE_EnableBypass();
     LL_RCC_HSE_Enable();
     while (LL_RCC_HSE_IsReady() != 1) {}
-    
+
     /* Configure PLL */
     LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_4, 168, LL_RCC_PLLP_DIV_2);
     LL_RCC_PLL_Enable();
     while (LL_RCC_PLL_IsReady() != 1) {}
-    
+
     /* Set prescalers */
     LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
     LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_4);
     LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_2);
-    
+
     /* Configure system clock */
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
     while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL) {}
-    
+
     /* Configure systick */
     LL_Init1msTick(168000000);
     LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);

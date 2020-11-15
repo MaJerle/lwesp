@@ -1,14 +1,14 @@
-#ifndef __NETCONN_CLIENT_H
-#define __NETCONN_CLIENT_H
+#ifndef SNIPPET_HDR_NETCONN_CLIENT_H
+#define SNIPPET_HDR_NETCONN_CLIENT_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 void netconn_client_thread(void const* arg);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
-#endif
+#endif /* SNIPPET_HDR_NETCONN_CLIENT_H */
