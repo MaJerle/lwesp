@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Adrian Carpenter (FreeRTOS port)
- * Version:         $_version_$
+ * Version:         v1.0.0
  */
 #ifndef LWESP_HDR_SYSTEM_PORT_H
 #define LWESP_HDR_SYSTEM_PORT_H

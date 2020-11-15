@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         $_version_$
+ * Version:         v1.0.0
  */
 #include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_ap.h"

@@ -27,7 +27,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  * Author:          Miha CESNIK <>
- * Version:         $_version_$
+ * Version:         v1.0.0
  */
 #ifndef LWESP_HDR_CLI_H
 #define LWESP_HDR_CLI_H
