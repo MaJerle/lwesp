@@ -34,6 +34,9 @@
 #ifndef LWESP_HDR_DEFAULT_CONFIG_H
 #define LWESP_HDR_DEFAULT_CONFIG_H
 
+/* Uncomment to ignore user options (or set macro in compiler flags) */
+/* #define LWESP_IGNORE_USER_OPTS */
+
 /* Include application options */
 #ifndef LWESP_IGNORE_USER_OPTS
 #include "lwesp_opts.h"
