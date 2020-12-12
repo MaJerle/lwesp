@@ -43,7 +43,7 @@ extern "C" {
 
 /**
  * \ingroup         LWESP
- * \defgroup        LWESP_SMART
+ * \defgroup        LWESP_SMART SMART function
  * \brief           SMART function on ESP device
  * \{
  */

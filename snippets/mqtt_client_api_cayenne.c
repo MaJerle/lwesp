@@ -15,7 +15,7 @@
 /**
  * \brief           MQTT client info for server
  */
-const lwesp_mqtt_client_info_t
+static const lwesp_mqtt_client_info_t
 mqtt_client_info = {
     /* Device ID */
     .id = "4066d340-11ee-11e9-810f-075d38a26cc9",

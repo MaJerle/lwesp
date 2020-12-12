@@ -61,7 +61,7 @@ extern "C" {
 typedef enum {
     lwespOK = 0,                                /*!< Function succeeded */
     lwespOKIGNOREMORE,                          /*!< Function succedded, should continue as lwespOK but ignore sending more data. This result is possible on connection data receive callback */
-    lwespERR,
+    lwespERR,                                   /*!< General error */
     lwespPARERR,                                /*!< Wrong parameters on function call */
     lwespERRMEM,                                /*!< Memory error occurred */
     lwespTIMEOUT,                               /*!< Timeout occurred on command */

@@ -14,9 +14,11 @@
 #include "netconn_client.h"
 #include "netconn_server.h"
 #include "netconn_server_1thread.h"
+#include "cayenne.h"
 #include "lwesp/lwesp_timeout.h"
 #include "lwmem/lwmem.h"
 #include "lwesp/lwesp_opt.h"
+#include "lwesp/apps/lwesp_cayenne.h"
 
 #define safeprintf              printf
 
@@ -30,6 +32,8 @@ static lwespr_t lwesp_evt(lwesp_evt_t* evt);
 
 lwesp_sta_info_ap_t connected_ap_info;
 extern volatile uint8_t lwesp_ll_win32_driver_ignore_data;
+
+lwesp_cayenne_t cayenne;
 
 /**
  * \brief           LwMEM memory config
@@ -416,17 +420,11 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /*if (lwesp_cayenne_create(&cayenne, &cayenne_mqtt_client_info, cayenne_evt_func) != lwespOK) {
-        safeprintf("Cannot create new cayenne instance!\r\n");
-    } else {
-
-    }*/
+    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Notify user */
 
-
-    while (1) {}
+    while (1) { lwesp_delay(1000); }
 
     {
         lwespr_t res;

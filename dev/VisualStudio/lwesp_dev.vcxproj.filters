@@ -187,5 +187,8 @@
     <ClCompile Include="..\..\lwesp\src\system\lwesp_sys_win32.c">
       <Filter>Source Files\ESP LL</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\snippets\cayenne.c">
+      <Filter>Source Files\ESP SNIPPETS</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

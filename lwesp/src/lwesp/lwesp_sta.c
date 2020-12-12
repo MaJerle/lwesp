@@ -116,6 +116,9 @@ lwesp_sta_autojoin(uint8_t en,
  * \param[in]       rep_cnt: Repeat counter. Number of maximum tries for reconnect.
  *                      Valid entries are `1-1000` or `0` to always try.
  *                      This parameter is only valid if interval is not `0`
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
