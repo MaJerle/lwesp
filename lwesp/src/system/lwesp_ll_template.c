@@ -53,6 +53,16 @@ send_data(const void* data, size_t len) {
 }
 
 /**
+ * \brief           Configure UART for sending and receiving
+ * \param[in]       baudrate: UART baudrate
+ */
+static void
+configure_uart(uint32_t baudrate) {
+    /* Implement UART configuration here */
+
+}
+
+/**
  * \brief           Callback function called from initialization process
  *
  * \note            This function may be called multiple times if AT baudrate is changed from application.
@@ -89,7 +99,7 @@ lwesp_ll_init(lwesp_ll_t* ll) {
     }
 
     /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
-    configure_uart(->uart.baudrate);            /* Initialize UART for communication */
+    configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
     initialized = 1;
     return lwespOK;
 }
