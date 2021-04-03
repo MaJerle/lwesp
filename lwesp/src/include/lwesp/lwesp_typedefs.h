@@ -109,6 +109,15 @@ typedef enum {
 
 /**
  * \ingroup         LWESP_TYPEDEFS
+ * \brief           IP type
+ */
+typedef enum {
+    LWESP_IPTYPE_V4 = 0x00,                     /*!< IP type is V4 */
+    LWESP_IPTYPE_V6                             /*!< IP type is V6 */
+} lwesp_iptype_t;
+
+/**
+ * \ingroup         LWESP_TYPEDEFS
  * \brief           IP structure
  */
 typedef struct {
