@@ -1960,7 +1960,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_WIFI_CWQIF: {            /* Disconnect station from soft-access point */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWQIF");
-            if (msg->msg.ap_disconn_sta.use_mac == NULL) {
+            if (msg->msg.ap_disconn_sta.use_mac) {
                 AT_PORT_SEND_CONST_STR("=");
                 lwespi_send_ip_mac(&msg->msg.ap_disconn_sta.mac, 0, 1, 0);
             }
