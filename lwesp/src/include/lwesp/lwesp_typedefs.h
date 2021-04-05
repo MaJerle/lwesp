@@ -124,7 +124,7 @@ typedef enum {
  * \brief           IPv4 address structure
  */
 typedef struct {
-    uint8_t addr[4];
+    uint8_t addr[4];                            /*!< IP address data */
 } lwesp_ip4_addr_t;
 
 /**
@@ -132,7 +132,7 @@ typedef struct {
  * \brief           IPv6 address structure
  */
 typedef struct {
-    uint16_t addr[6];                           /*!< IP address data */
+    uint16_t addr[8];                           /*!< IP address data */
 } lwesp_ip6_addr_t;
 
 /**
@@ -142,19 +142,44 @@ typedef struct {
 typedef struct {
     union {
         lwesp_ip4_addr_t ip4;                   /*!< IPv4 address */
+#if LWESP_CFG_IPV6
         lwesp_ip6_addr_t ip6;                   /*!< IPv6 address */
+#endif /* LWESP_CFG_IPV6 */
     } addr;
     lwesp_iptype_t type;                        /*!< IP type, either V4 or V6 */
 } lwesp_ip_t;
 
 /**
  * \ingroup         LWESP_UTILITIES
- * \brief           Set IP address to \ref lwesp_ip_t variable
+ * \brief           Set IPv4 address to \ref lwesp_ip_t variable
  * \param[in]       ip_str: Pointer to IP structure
- * \param[in]       ip1,ip2,ip3,ip4: IPv4 parts
- * \deprecated      Do not use it
+ * \param[in]       i1,i2,i3,i4: IPv4 parts
  */
-#define LWESP_SET_IP(ip_str, ip1, ip2, ip3, ip4)      do { (ip_str)->ip[0] = (ip1); (ip_str)->ip[1] = (ip2); (ip_str)->ip[2] = (ip3); (ip_str)->ip[3] = (ip4); } while (0)
+#define LWESP_SET_IP4(ip_str, i1, i2, i3, i4)   do {        \
+    (ip_str)->type = LWESP_IPTYPE_V4;                       \
+    (ip_str)->addr.ip4.addr[0] = (i1);                      \
+    (ip_str)->addr.ip4.addr[1] = (i2);                      \
+    (ip_str)->addr.ip4.addr[2] = (i3);                      \
+    (ip_str)->addr.ip4.addr[3] = (i4);                      \
+} while (0)
+
+/**
+ * \ingroup         LWESP_UTILITIES
+ * \brief           Set IPv6 address to \ref lwesp_ip_t variable
+ * \param[in]       ip_str: Pointer to IP structure
+ * \param[in]       i1,i2,i3,i4,i5,i6,i7,i8: IPv6 parts
+ */
+#define LWESP_SET_IP6(ip_str, i1, i2, i3, i4, i5, i6, i7, i8)   do {\
+    (ip_str)->type = LWESP_IPTYPE_V6;                       \
+    (ip_str)->addr.ip6.addr[0] = (i1);                      \
+    (ip_str)->addr.ip6.addr[1] = (i2);                      \
+    (ip_str)->addr.ip6.addr[2] = (i3);                      \
+    (ip_str)->addr.ip6.addr[3] = (i4);                      \
+    (ip_str)->addr.ip6.addr[4] = (i5);                      \
+    (ip_str)->addr.ip6.addr[5] = (i6);                      \
+    (ip_str)->addr.ip6.addr[6] = (i7);                      \
+    (ip_str)->addr.ip6.addr[7] = (i8);                      \
+} while (0)
 
 /**
  * \ingroup         LWESP_TYPEDEFS

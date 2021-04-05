@@ -260,7 +260,6 @@ lwesp_ap_disconn_sta(const lwesp_mac_t* mac,
     if (mac != NULL) {
         LWESP_MEMCPY(&LWESP_MSG_VAR_REF(msg).msg.ap_disconn_sta.mac, mac, sizeof(*mac));
     }
-
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 

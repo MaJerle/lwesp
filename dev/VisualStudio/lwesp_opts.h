@@ -41,6 +41,9 @@
  * copy & replace here settings you want to change values
  */
 #if !__DOXYGEN__
+
+#define LWESP_CFG_IPV6                        1
+
 #define LWESP_CFG_NETCONN                     1
 #define LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN   16
 

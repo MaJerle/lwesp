@@ -175,17 +175,43 @@ lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
 uint8_t
 lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     const char* p = *src;
+    uint16_t first_entry;
 
     if (*p == '"') {
         ++p;
     }
-    ip->ip[0] = lwespi_parse_number(&p);
-    ++p;
-    ip->ip[1] = lwespi_parse_number(&p);
-    ++p;
-    ip->ip[2] = lwespi_parse_number(&p);
-    ++p;
-    ip->ip[3] = lwespi_parse_number(&p);
+
+    first_entry = lwespi_parse_number(&p);
+    if (0) {
+#if LWESP_CFG_IPV6
+    } else if (*p == ':') {
+        ip->type = LWESP_IPTYPE_V6;
+
+        /*
+         * Reset structure first.
+         *
+         * IPv6 IP can have omitted zeros to the end
+         * so it is important to cleanup structure first,
+         * not to keep wrong address
+         */
+        memset(&ip->addr, 0x00, sizeof(ip->addr));
+        ip->addr.ip6.addr[0] = first_entry;
+        for (size_t i = 1; i < LWESP_ARRAYSIZE(ip->addr.ip6.addr); ++i) {
+            ++p;
+            ip->addr.ip6.addr[i] = (uint16_t)lwespi_parse_number(&p);
+            if (*p != ':') {
+                break;
+            }
+        }
+#endif /* LWESP_CFG_IPV6 */
+    } else {
+        ip->type = LWESP_IPTYPE_V4;
+        ip->addr.ip6.addr[0] = (uint8_t)first_entry;
+        for (size_t i = 1; i < LWESP_ARRAYSIZE(ip->addr.ip4.addr); ++i) {
+            ++p;
+            ip->addr.ip4.addr[i] = lwespi_parse_number(&p);
+        }
+    }
     if (*p == '"') {
         ++p;
     }
@@ -500,7 +526,6 @@ lwespi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
 
     return 1;
 }
-
 
 #endif /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
 

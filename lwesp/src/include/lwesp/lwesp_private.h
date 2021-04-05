@@ -75,6 +75,9 @@ typedef enum {
     LWESP_CMD_WIFI_CWMODE,                      /*!< Set wifi mode */
     LWESP_CMD_WIFI_CWMODE_GET,                  /*!< Get wifi mode */
     LWESP_CMD_WIFI_CWLAPOPT,                    /*!< Configure what is visible on CWLAP response */
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+    LWESP_CMD_WIFI_IPV6,                        /*!< Configure IPv6 support */
+#endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
     LWESP_CMD_WIFI_CWJAP,                       /*!< Connect to access point */
     LWESP_CMD_WIFI_CWRECONNCFG,                 /*!< Setup reconnect interval and maximum tries */
@@ -325,9 +328,9 @@ typedef struct lwesp_msg {
             lwesp_mac_t* mac;                   /*!< Pointer to MAC variable */
         } sta_ap_getmac;                        /*!< Message for reading station or access point MAC address */
         struct {
-            lwesp_ip_t ip;                      /*!< Pointer to IP variable */
-            lwesp_ip_t gw;                      /*!< Pointer to gateway variable */
-            lwesp_ip_t nm;                      /*!< Pointer to netmask variable */
+            lwesp_ip_t ip;                      /*!< IP variable */
+            lwesp_ip_t gw;                      /*!< Gateway variable */
+            lwesp_ip_t nm;                      /*!< Netmask variable */
         } sta_ap_setip;                         /*!< Message for setting station or access point IP */
         struct {
             lwesp_mac_t mac;                    /*!< Pointer to MAC variable */

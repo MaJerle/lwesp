@@ -275,10 +275,7 @@ input_thread(void* arg) {
             lwesp_sta_reconnect_set_config(interval, rep_cnt, NULL, NULL, 1);
         } else if (IS_LINE("setip")) {
             lwesp_ip_t dev_ip;
-            dev_ip.ip[0] = 192;
-            dev_ip.ip[1] = 168;
-            dev_ip.ip[2] = 1;
-            dev_ip.ip[3] = 150;
+            LWESP_SET_IP4(&dev_ip, 192, 168, 1, 150);
             lwesp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
         } else if (IS_LINE("getip")) {
             lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 1);
@@ -534,7 +531,18 @@ lwesp_evt(lwesp_evt_t* evt) {
 
             safeprintf("WIFI IP ACQUIRED!\r\n");
             if (lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp) == lwespOK) {
-                safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
+                if (0) {
+#if LWESP_CFG_IPV6
+                } else if (ip.type == LWESP_IPTYPE_V6) {
+                    safeprintf("IPv6: %04X:%04X:%04X:%04X:%04X:%04X:%04X:%04X\r\n",
+                        (unsigned)ip.addr.ip6.addr[0], (unsigned)ip.addr.ip6.addr[1], (unsigned)ip.addr.ip6.addr[2],
+                        (unsigned)ip.addr.ip6.addr[3], (unsigned)ip.addr.ip6.addr[4], (unsigned)ip.addr.ip6.addr[5],
+                        (unsigned)ip.addr.ip6.addr[6], (unsigned)ip.addr.ip6.addr[7]);
+#endif /* LWESP_CFG_IPV6 */
+                } else {
+                    safeprintf("IPv4: %d.%d.%d.%d\r\n",
+                        (int)ip.addr.ip4.addr[0], (int)ip.addr.ip4.addr[1], (int)ip.addr.ip4.addr[2], (int)ip.addr.ip4.addr[3]);
+                }
             } else {
                 safeprintf("Acquired IP is not valid\r\n");
             }
@@ -559,7 +567,7 @@ lwesp_evt(lwesp_evt_t* evt) {
             lwesp_ip_t* ip = lwesp_evt_ap_ip_sta_get_ip(evt);
             safeprintf("Station received IP address from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X and IP: %d.%d.%d.%d\r\n",
                 mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5],
-                ip->ip[0], ip->ip[1], ip->ip[2], ip->ip[3]);
+                /* ip->ip[0], ip->ip[1], ip->ip[2], ip->ip[3] */ 0, 0, 0, 0);
             break;
         }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */

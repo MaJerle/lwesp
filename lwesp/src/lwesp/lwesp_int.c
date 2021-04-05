@@ -1367,6 +1367,11 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
             break;
         case LWESP_CMD_TCPIP_CIPRECVMODE:
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#if LWESP_CFG_IPV6
+            SET_NEW_CMD(LWESP_CMD_WIFI_IPV6);
+            break;
+        case LWESP_CMD_WIFI_IPV6:
+#endif /* LWESP_CFG_IPV6 */
 #if LWESP_CFG_MODE_STATION
             SET_NEW_CMD(LWESP_CMD_WIFI_CWLAPOPT);
             break;                              /* Set visible data for CWLAP command */
@@ -1722,8 +1727,13 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             break;
         }
 
-            /* WiFi related commands */
-
+        /* WiFi related commands */
+        case LWESP_CMD_WIFI_IPV6: {             /* Enable IPv6 */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPV6=1");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_WIFI_CWJAP: {            /* Try to join to access point */
             AT_PORT_SEND_BEGIN_AT();
