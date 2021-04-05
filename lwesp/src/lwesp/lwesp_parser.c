@@ -174,17 +174,25 @@ lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
  */
 uint8_t
 lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
-    const char* p = *src;
-    uint16_t first_entry;
+    const char* p = *src, *o_p;
+    char c;
 
     if (*p == '"') {
         ++p;
     }
 
-    first_entry = lwespi_parse_number(&p);
+    /* TODO: Determine first which IP type it is */
+    o_p = p;
+
+    /* Find first separator */
+    for (size_t i = 0; i < 5 && p[i] != ':' && *p != ','; ++i) {}
+    c = *p;
+
+    /* Go to original value */
+    p = o_p;
     if (0) {
 #if LWESP_CFG_IPV6
-    } else if (*p == ':') {
+    } else if (c == ':') {
         ip->type = LWESP_IPTYPE_V6;
 
         /*
@@ -195,9 +203,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
          * not to keep wrong address
          */
         memset(&ip->addr, 0x00, sizeof(ip->addr));
-        ip->addr.ip6.addr[0] = first_entry;
-        for (size_t i = 1; i < LWESP_ARRAYSIZE(ip->addr.ip6.addr); ++i) {
-            ++p;
+        for (size_t i = 0; i < LWESP_ARRAYSIZE(ip->addr.ip6.addr); ++i, ++p) {
             ip->addr.ip6.addr[i] = (uint16_t)lwespi_parse_number(&p);
             if (*p != ':') {
                 break;
@@ -206,9 +212,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
 #endif /* LWESP_CFG_IPV6 */
     } else {
         ip->type = LWESP_IPTYPE_V4;
-        ip->addr.ip6.addr[0] = (uint8_t)first_entry;
-        for (size_t i = 1; i < LWESP_ARRAYSIZE(ip->addr.ip4.addr); ++i) {
-            ++p;
+        for (size_t i = 0; i < LWESP_ARRAYSIZE(ip->addr.ip4.addr); ++i, ++p) {
             ip->addr.ip4.addr[i] = lwespi_parse_number(&p);
         }
     }
