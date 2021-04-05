@@ -312,6 +312,7 @@ typedef struct lwesp_msg {
             size_t* staf;                       /*!< Pointer to output variable holding number of access points found */
         } sta_list;                             /*!< List for stations connected to SoftAP */
         struct {
+            uint8_t use_mac;                    /*!< Status if specific MAC is to be used */
             lwesp_mac_t mac;                    /*!< MAC address to disconnect from access point */
         } ap_disconn_sta;                       /*!< Disconnect station from access point */
 #endif /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */

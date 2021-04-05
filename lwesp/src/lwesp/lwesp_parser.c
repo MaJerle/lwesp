@@ -456,17 +456,17 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = lwespi_parse_number(&str);
     lwespi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = lwespi_parse_number(&str);
+    lwespi_parse_number(&str);                  /* Scan type */
+    lwespi_parse_number(&str);                  /* Scan time minimum */
+    lwespi_parse_number(&str);                  /* Scan time maximum */
+    lwespi_parse_number(&str);                  /* Freq offset */
+    lwespi_parse_number(&str);                  /* Freqcal value */
+    lwespi_parse_number(&str);                  /* Pairwise cipher */
+    lwespi_parse_number(&str);                  /* Group cipher */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = lwespi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = lwespi_parse_number(&str);
 
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = 0;
-
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = lwespi_parse_number(&str);
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = lwespi_parse_number(&str);
-
-    //lwespi_parse_number(&str);                /* Parse pwc */
-    //lwespi_parse_number(&str);                /* Parse gc */
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = lwespi_parse_number(&str);
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = lwespi_parse_number(&str);
-
+    /* Go to next entry */
     ++msg->msg.ap_list.apsi;                    /* Increase number of found elements */
     if (msg->msg.ap_list.apf != NULL) {         /* Set pointer if necessary */
         *msg->msg.ap_list.apf = msg->msg.ap_list.apsi;

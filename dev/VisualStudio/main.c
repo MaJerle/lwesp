@@ -379,6 +379,7 @@ main_thread(void* arg) {
      //start_access_point_scan_and_connect_procedure();
      //lwesp_sys_thread_terminate(NULL);
      //connect_to_preferred_access_point(1);
+    lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &aps_count, NULL, NULL, 1);
     lwesp_sta_autojoin(1, NULL, NULL, 1);
     lwesp_sta_join("Majerle WIFI", "majerle_internet_private", NULL, NULL, NULL, 1);
 
@@ -420,7 +421,7 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Notify user */
 

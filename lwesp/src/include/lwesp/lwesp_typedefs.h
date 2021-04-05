@@ -104,7 +104,10 @@ typedef enum {
     LWESP_ECN_WPA_PSK,                          /*!< WPA (Wifi Protected Access) encryption */
     LWESP_ECN_WPA2_PSK,                         /*!< WPA2 (Wifi Protected Access 2) encryption */
     LWESP_ECN_WPA_WPA2_PSK,                     /*!< WPA/2 (Wifi Protected Access 1/2) encryption */
-    LWESP_ECN_WPA2_Enterprise                   /*!< Enterprise encryption. \note ESP is currently not able to connect to access point of this encryption type */
+    LWESP_ECN_WPA2_Enterprise,                  /*!< Enterprise encryption. \note ESP8266 is not able to connect to such device */
+    LWESP_ECN_WPA3_PSK,                         /*!< WPA3 (Wifi Protected Access 3) encryption */
+    LWESP_ECN_WPA2_WPA3_PSK,                    /*!< WPA2/3 (Wifi Protected Access 2/3) encryption */
+    LWESP_ECN_END,
 } lwesp_ecn_t;
 
 /**
@@ -129,6 +132,7 @@ typedef struct {
  * \brief           Set IP address to \ref lwesp_ip_t variable
  * \param[in]       ip_str: Pointer to IP structure
  * \param[in]       ip1,ip2,ip3,ip4: IPv4 parts
+ * \deprecated      Do not use it
  */
 #define LWESP_SET_IP(ip_str, ip1, ip2, ip3, ip4)      do { (ip_str)->ip[0] = (ip1); (ip_str)->ip[1] = (ip2); (ip_str)->ip[2] = (ip3); (ip_str)->ip[3] = (ip4); } while (0)
 
@@ -171,7 +175,7 @@ typedef struct {
     //int8_t offset;                            /*!< Access point offset */
     //uint8_t cal;                              /*!< Calibration value */
     uint8_t bgn;                                /*!< Information about 802.11[b|g|n] support */
-    //uint8_t wps;                              /*!< Status if WPS function is supported */
+    uint8_t wps;                                /*!< Status if WPS function is supported */
 } lwesp_ap_t;
 
 /**

@@ -1717,7 +1717,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
         case LWESP_CMD_WIFI_CWLAPOPT: {         /* Set visible data on CWLAP command */
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,31");
+            AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,0x7FF");
             AT_PORT_SEND_END_AT();
             break;
         }
@@ -1801,6 +1801,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWMODE=");
             lwespi_send_number(LWESP_U32(m), 0, 0);
+            lwespi_send_number(1, 0, 1);
             AT_PORT_SEND_END_AT();
             break;
         }
@@ -1958,8 +1959,11 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
         case LWESP_CMD_WIFI_CWQIF: {            /* Disconnect station from soft-access point */
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+CWQIF=");
-            lwespi_send_ip_mac(&msg->msg.ap_disconn_sta.mac, 0, 1, 0);
+            AT_PORT_SEND_CONST_STR("+CWQIF");
+            if (msg->msg.ap_disconn_sta.use_mac == NULL) {
+                AT_PORT_SEND_CONST_STR("=");
+                lwespi_send_ip_mac(&msg->msg.ap_disconn_sta.mac, 0, 1, 0);
+            }
             AT_PORT_SEND_END_AT();
             break;
             break;

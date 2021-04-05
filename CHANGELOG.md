@@ -1,5 +1,14 @@
 # Changelog
 
+## Develop sdk v2.2
+
+- Add support for SDK v2.2
+- Extend number of information received on AP scan
+  - Add option for `WPA3` and `WPA2_WPA3_PSK` authentication modes
+  - Add bgn and wps readings
+- Add support for IPv6
+- Add option to disconnect all stations from Soft-AP
+
 ## v1.0.0
 
 - First stable release
