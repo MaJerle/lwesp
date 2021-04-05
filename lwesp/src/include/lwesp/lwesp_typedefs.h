@@ -121,10 +121,30 @@ typedef enum {
 
 /**
  * \ingroup         LWESP_TYPEDEFS
+ * \brief           IPv4 address structure
+ */
+typedef struct {
+    uint8_t addr[4];
+} lwesp_ip4_addr_t;
+
+/**
+ * \ingroup         LWESP_TYPEDEFS
+ * \brief           IPv6 address structure
+ */
+typedef struct {
+    uint16_t addr[6];                           /*!< IP address data */
+} lwesp_ip6_addr_t;
+
+/**
+ * \ingroup         LWESP_TYPEDEFS
  * \brief           IP structure
  */
 typedef struct {
-    uint8_t ip[4];                              /*!< IPv4 address */
+    union {
+        lwesp_ip4_addr_t ip4;                   /*!< IPv4 address */
+        lwesp_ip6_addr_t ip6;                   /*!< IPv6 address */
+    } addr;
+    lwesp_iptype_t type;                        /*!< IP type, either V4 or V6 */
 } lwesp_ip_t;
 
 /**
