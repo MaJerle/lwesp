@@ -323,6 +323,10 @@ typedef struct lwesp_msg {
             lwesp_ip_t* ip;                     /*!< Pointer to IP variable */
             lwesp_ip_t* gw;                     /*!< Pointer to gateway variable */
             lwesp_ip_t* nm;                     /*!< Pointer to netmask variable */
+#if LWESP_CFG_IPV6
+            lwesp_ip_t* ip6_ll;                 /*!< Pointer to IPV6 variable local address */
+            lwesp_ip_t* ip6_gl;                 /*!< Pointer to IPV6 variable global address */
+#endif /* LWESP_CFG_IPV6 */
         } sta_ap_getip;                         /*!< Message for reading station or access point IP */
         struct {
             lwesp_mac_t* mac;                   /*!< Pointer to MAC variable */
@@ -470,6 +474,10 @@ typedef struct {
     lwesp_ip_t ip;                              /*!< IP address */
     lwesp_ip_t gw;                              /*!< Gateway address */
     lwesp_ip_t nm;                              /*!< Netmask address */
+#if LWESP_CFG_IPV6
+    lwesp_ip_t ip6_ll;                          /*!< Local IPV6 address */
+    lwesp_ip_t ip6_gl;                          /*!< Global IPV6 address */
+#endif /* LWESP_CFG_IPV6 */
     lwesp_mac_t mac;                            /*!< MAC address */
     uint8_t dhcp;                               /*!< Flag indicating DHCP is enabled */
     uint8_t has_ip;                             /*!< Flag indicating ESP has IP */

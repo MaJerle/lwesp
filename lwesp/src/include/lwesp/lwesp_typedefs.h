@@ -155,7 +155,7 @@ typedef struct {
  * \param[in]       ip_str: Pointer to IP structure
  * \param[in]       i1,i2,i3,i4: IPv4 parts
  */
-#define LWESP_SET_IP4(ip_str, i1, i2, i3, i4)   do {        \
+#define lwesp_ip_set_ip4(ip_str, i1, i2, i3, i4)   do {        \
     (ip_str)->type = LWESP_IPTYPE_V4;                       \
     (ip_str)->addr.ip4.addr[0] = (i1);                      \
     (ip_str)->addr.ip4.addr[1] = (i2);                      \
@@ -169,7 +169,7 @@ typedef struct {
  * \param[in]       ip_str: Pointer to IP structure
  * \param[in]       i1,i2,i3,i4,i5,i6,i7,i8: IPv6 parts
  */
-#define LWESP_SET_IP6(ip_str, i1, i2, i3, i4, i5, i6, i7, i8)   do {\
+#define lwesp_ip_set_ip6(ip_str, i1, i2, i3, i4, i5, i6, i7, i8)   do {\
     (ip_str)->type = LWESP_IPTYPE_V6;                       \
     (ip_str)->addr.ip6.addr[0] = (i1);                      \
     (ip_str)->addr.ip6.addr[1] = (i2);                      \
@@ -180,6 +180,28 @@ typedef struct {
     (ip_str)->addr.ip6.addr[6] = (i7);                      \
     (ip_str)->addr.ip6.addr[7] = (i8);                      \
 } while (0)
+
+/**
+ * \brief           Check if input IP structure holds valid IP address
+ * \param[in]       ip: IP to check for valid address. It can be V4 or V6
+ * \return          `1` if IP valid, `0` otherwise
+ */
+static inline uint8_t
+lwesp_ip_is_valid(const lwesp_ip_t* ip) {
+    if (ip == NULL) {
+        return 0;
+    }
+
+    /* Check address validity */
+    if ((ip->type == LWESP_IPTYPE_V4 && ip->addr.ip4.addr[0] > 0)
+#if LWESP_CFG_IPV6
+            || (ip->type == LWESP_IPTYPE_V6 && ip->addr.ip6.addr[0] > 0)
+#endif /* LWESP_CF_IPV6 */
+        ) {
+        return 1;
+    }
+    return 0;
+}
 
 /**
  * \ingroup         LWESP_TYPEDEFS

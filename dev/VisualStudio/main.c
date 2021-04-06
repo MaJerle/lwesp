@@ -275,7 +275,7 @@ input_thread(void* arg) {
             lwesp_sta_reconnect_set_config(interval, rep_cnt, NULL, NULL, 1);
         } else if (IS_LINE("setip")) {
             lwesp_ip_t dev_ip;
-            LWESP_SET_IP4(&dev_ip, 192, 168, 1, 150);
+            lwesp_ip_set_ip4(&dev_ip, 192, 168, 1, 150);
             lwesp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
         } else if (IS_LINE("getip")) {
             lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 1);

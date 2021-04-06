@@ -182,33 +182,66 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
     } while (0)
 
 /**
- * \brief           Send IP or MAC address to AT port
- * \param[in]       d: Pointer to IP or MAC address
- * \param[in]       is_ip: Set to `1` when sending IP, `0` when MAC
+ * \brief           Send IP address to AT port
+ * \param[in]       mac: Pointer to IP address
  * \param[in]       q: Set to `1` to include start and ending quotes
  * \param[in]       c: Set to `1` to include comma before string
  */
 void
-lwespi_send_ip_mac(const void* d, uint8_t is_ip, uint8_t q, uint8_t c) {
-    uint8_t ch;
-    char str[4];
-    const lwesp_mac_t* mac = d;
-    const lwesp_ip_t* ip = d;
+lwespi_send_ip(const lwesp_ip_t* ip, uint8_t q, uint8_t c) {
+    uint8_t ch = '.', len = 4;
+    char str[LWESP_CFG_IPV6 ? 5 : 4];
 
     AT_PORT_SEND_COMMA_COND(c);                 /* Send comma */
-    if (d == NULL) {
+    if (ip == NULL) {
         return;
     }
     AT_PORT_SEND_QUOTE_COND(q);                 /* Send quote */
-    ch = is_ip ? '.' : ':';                     /* Get delimiter character */
-    for (uint8_t i = 0; i < (is_ip ? 4 : 6); ++i) { /* Process byte by byte */
-        if (is_ip) {                            /* In case of IP ... */
-            lwesp_u8_to_str(ip->ip[i], str);    /* ... go to decimal format ... */
-        } else {                                /* ... in case of MAC ... */
-            lwesp_u8_to_hex_str(mac->mac[i], str, 2);   /* ... go to HEX format */
+#if LWESP_CFG_IPV6
+    if (ip->type == LWESP_IPTYPE_V6) {
+        ch = ':';
+        len = 8;
+    }
+#endif /* LWESP_CFG_IPV6 */
+    for (uint8_t i = 0; i < len; ++i) {         /* Process all elements */
+        if (0) {
+#if LWESP_CFG_IPV6
+        } else if (ip->type == LWESP_IPTYPE_V6) {
+            /* Format IPV6 */
+            lwesp_u32_to_gen_str(LWESP_U32(ip->addr.ip6.addr[i]), str, 1, 4);
+#endif /* LWESP_CFG_IPV6 */
+        } else {
+            /* Format IPV4 */
+            lwesp_u8_to_str(ip->addr.ip4.addr[i], str);
         }
         AT_PORT_SEND_STR(str);                  /* Send str */
-        if (i < (is_ip ? 4 : 6) - 1) {          /* Check end if characters */
+        if (i < (len - 1)) {                    /* Check end if characters */
+            AT_PORT_SEND_CHR(&ch);              /* Send character */
+        }
+    }
+    AT_PORT_SEND_QUOTE_COND(q);                 /* Send quote */
+}
+
+/**
+ * \brief           Send MAC address to AT port
+ * \param[in]       mac: Pointer to MAC address
+ * \param[in]       q: Set to `1` to include start and ending quotes
+ * \param[in]       c: Set to `1` to include comma before string
+ */
+void
+lwespi_send_mac(const lwesp_mac_t* mac, uint8_t q, uint8_t c) {
+    const uint8_t ch = ':';
+    char str[3];
+
+    AT_PORT_SEND_COMMA_COND(c);                 /* Send comma */
+    if (mac == NULL) {
+        return;
+    }
+    AT_PORT_SEND_QUOTE_COND(q);                 /* Send quote */
+    for (uint8_t i = 0; i < 6; ++i) {           /* Process all elements */
+        lwesp_u8_to_hex_str(mac->mac[i], str, 2);   /* ... go to HEX format */
+        AT_PORT_SEND_STR(str);                  /* Send str */
+        if (i < (6 - 1)) {                      /* Check end if characters */
             AT_PORT_SEND_CHR(&ch);              /* Send character */
         }
     }
@@ -450,7 +483,7 @@ lwespi_tcpip_process_send_data(void) {
     /* On UDP connections, IP address and port may be included */
     if (c->type == LWESP_CONN_TYPE_UDP) {
         if (esp.msg->msg.conn_send.remote_ip != NULL && esp.msg->msg.conn_send.remote_port) {
-            lwespi_send_ip_mac(esp.msg->msg.conn_send.remote_ip, 1, 1, 1);  /* Send IP address including quotes */
+            lwespi_send_ip(esp.msg->msg.conn_send.remote_ip, 1, 1); /* Send IP address including quotes */
             lwespi_send_port(esp.msg->msg.conn_send.remote_port, 0, 1); /* Send length number */
         }
     }
@@ -627,7 +660,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 const char* tmp = NULL;
                 lwesp_ip_t ip, *a = NULL, *b = NULL;
                 lwesp_ip_mac_t* im;
-                uint8_t ch = 0;
+                uint8_t ch = 0, *ch_p2;
 
 #if LWESP_CFG_MODE_STATION
                 if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET)) {
@@ -644,14 +677,32 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                     /* We expect "+CIPSTA:" or "+CIPAP:" ... */
                     if (rcv->data[6] == ':') {
                         ch = rcv->data[7];
+                        ch_p2 = &rcv->data[9];
                     } else if (rcv->data[7] == ':') {
                         ch = rcv->data[8];
+                        ch_p2 = &rcv->data[10];
                     }
                     switch (ch) {
                         case 'i':
-                            tmp = &rcv->data[10];
-                            a = &im->ip;
-                            b = esp.msg->msg.sta_ap_getip.ip;
+                            if (0) {
+#if LWESP_CFG_IPV6
+                            /* Check local IPv6 address */
+                            } else if (*ch_p2 == '6' && *(ch_p2 + 1) == 'l') {
+                                tmp = &rcv->data[13];
+                                a = &im->ip6_ll;
+                                b = esp.msg->msg.sta_ap_getip.ip6_ll;
+                            /* Check global IPv6 address */
+                            } else if (*ch_p2 == '6' && *(ch_p2 + 1) == 'g') {
+                                tmp = &rcv->data[13];
+                                a = &im->ip6_gl;
+                                b = esp.msg->msg.sta_ap_getip.ip6_gl;
+#endif /* LWESP_CFG_IPV6 */
+                            } else {
+                                LWESP_UNUSED(ch_p2);
+                                tmp = &rcv->data[10];
+                                a = &im->ip;
+                                b = esp.msg->msg.sta_ap_getip.ip;
+                            }
                             break;
                         case 'g':
                             tmp = &rcv->data[15];
@@ -670,7 +721,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                             break;
                     }
                     if (tmp != NULL) {          /* Do we have temporary string? */
-                        if (*tmp == ':') {
+                        if (*tmp == ':' || *tmp == ',') {
                             ++tmp;
                         }
                         lwespi_parse_ip(&tmp, &ip); /* Parse IP address */
@@ -1728,12 +1779,14 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
 
         /* WiFi related commands */
+#if LWESP_CFG_IPV6
         case LWESP_CMD_WIFI_IPV6: {             /* Enable IPv6 */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPV6=1");
             AT_PORT_SEND_END_AT();
             break;
         }
+#endif /* LWESP_CFG_IPV6 */
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_WIFI_CWJAP: {            /* Try to join to access point */
             AT_PORT_SEND_BEGIN_AT();
@@ -1741,7 +1794,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             lwespi_send_string(msg->msg.sta_join.name, 1, 1, 0);
             lwespi_send_string(msg->msg.sta_join.pass, 1, 1, 1);
             if (msg->msg.sta_join.mac != NULL) {
-                lwespi_send_ip_mac(msg->msg.sta_join.mac, 0, 1, 1);
+                lwespi_send_mac(msg->msg.sta_join.mac, 1, 1);
             }
             AT_PORT_SEND_END_AT();
             break;
@@ -1887,11 +1940,11 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
                 AT_PORT_SEND_CONST_STR("=");
-                lwespi_send_ip_mac(&msg->msg.sta_ap_setip.ip, 1, 1, 0); /* Send IP address */
-                if (msg->msg.sta_ap_setip.gw.ip[0] > 0) {   /* Is gateway set? */
-                    lwespi_send_ip_mac(&msg->msg.sta_ap_setip.gw, 1, 1, 1); /* Send gateway address */
-                    if (msg->msg.sta_ap_setip.nm.ip[0] > 0) {   /* Is netmask set ? */
-                        lwespi_send_ip_mac(&msg->msg.sta_ap_setip.nm, 1, 1, 1); /* Send netmask address */
+                lwespi_send_ip(&msg->msg.sta_ap_setip.ip, 1, 0);/* Send IP address */
+                if (lwesp_ip_is_valid(&msg->msg.sta_ap_setip.gw) > 0) { /* Is gateway set? */
+                    lwespi_send_ip(&msg->msg.sta_ap_setip.gw, 1, 1);/* Send gateway address */
+                    if (lwesp_ip_is_valid(&msg->msg.sta_ap_setip.nm) > 0) { /* Is netmask set ? */
+                        lwespi_send_ip(&msg->msg.sta_ap_setip.nm, 1, 1);/* Send netmask address */
                     }
                 }
                 AT_PORT_SEND_END_AT();
@@ -1917,7 +1970,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
                 AT_PORT_SEND_CONST_STR("MAC=");
-                lwespi_send_ip_mac(&msg->msg.sta_ap_setmac.mac, 0, 1, 0);
+                lwespi_send_mac(&msg->msg.sta_ap_setmac.mac, 1, 0);
                 AT_PORT_SEND_END_AT();
                 break;
             }
@@ -1972,7 +2025,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_CONST_STR("+CWQIF");
             if (msg->msg.ap_disconn_sta.use_mac) {
                 AT_PORT_SEND_CONST_STR("=");
-                lwespi_send_ip_mac(&msg->msg.ap_disconn_sta.mac, 0, 1, 0);
+                lwespi_send_mac(&msg->msg.ap_disconn_sta.mac, 1, 0);
             }
             AT_PORT_SEND_END_AT();
             break;

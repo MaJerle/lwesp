@@ -174,22 +174,22 @@ lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
  */
 uint8_t
 lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
-    const char* p = *src, *o_p;
-    char c;
+    const char* p = *src;
+    char c = 0;
 
     if (*p == '"') {
         ++p;
     }
 
-    /* TODO: Determine first which IP type it is */
-    o_p = p;
-
     /* Find first separator */
-    for (size_t i = 0; i < 5 && p[i] != ':' && *p != ','; ++i) {}
-    c = *p;
+    for (size_t i = 0; i < 6; ++i) {
+        if (p[i] == ':' || p[i] == ',') {
+            c = p[i];
+            break;
+        }
+    }
 
     /* Go to original value */
-    p = o_p;
     if (0) {
 #if LWESP_CFG_IPV6
     } else if (c == ':') {
@@ -204,7 +204,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
          */
         memset(&ip->addr, 0x00, sizeof(ip->addr));
         for (size_t i = 0; i < LWESP_ARRAYSIZE(ip->addr.ip6.addr); ++i, ++p) {
-            ip->addr.ip6.addr[i] = (uint16_t)lwespi_parse_number(&p);
+            ip->addr.ip6.addr[i] = (uint16_t)lwespi_parse_hexnumber(&p);
             if (*p != ':') {
                 break;
             }
