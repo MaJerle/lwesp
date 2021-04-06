@@ -289,7 +289,6 @@ lwesp_conn_start(lwesp_conn_p* conn, lwesp_conn_type_t type, const char* const r
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTART;
     LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPSTATUS;
-    LWESP_MSG_VAR_REF(msg).msg.conn_start.num = LWESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
     LWESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.type = type;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = remote_host;
@@ -322,7 +321,6 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct,
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTART;
     LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPSTATUS;
-    LWESP_MSG_VAR_REF(msg).msg.conn_start.num = LWESP_CFG_MAX_CONNS;/* Set maximal value as invalid number */
     LWESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.type = start_struct->type;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = start_struct->remote_host;

@@ -65,6 +65,10 @@ send_data(const void* data, size_t len) {
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 #endif /* !LWESP_CFG_AT_ECHO */
 
+        if (len == 2 && strcmp(data, "AT") == 0) {
+            Sleep(100);
+        }
+
         WriteFile(com_port, data, len, &written, NULL);
         FlushFileBuffers(com_port);
         return written;

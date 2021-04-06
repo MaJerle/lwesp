@@ -449,6 +449,12 @@ lwespi_parse_link_conn(const char* str) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_UDP;
     } else if (!strncmp(str, "\"SSL\"", 5)) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_SSL;
+#if LWESP_CFG_IPV6
+    } else if (!strncmp(str, "\"TCPv6\"", 7)) {
+        esp.m.link_conn.type = LWESP_CONN_TYPE_TCPV6;
+    } else if (!strncmp(str, "\"SSLv6\"", 7)) {
+        esp.m.link_conn.type = LWESP_CONN_TYPE_SSLV6;
+#endif /* LWESP_CFG_IPV6 */
     } else {
         return 0;
     }

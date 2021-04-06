@@ -365,7 +365,6 @@ typedef struct lwesp_msg {
             lwesp_port_t udp_local_port;        /*!< UDP local port */
             void* arg;                          /*!< Connection custom argument */
             lwesp_evt_fn evt_func;              /*!< Callback function to use on connection */
-            uint8_t num;                        /*!< Connection number used for start */
             uint8_t success;                    /*!< Status if connection AT+CIPSTART succedded */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {

@@ -332,6 +332,10 @@ typedef enum {
     LWESP_CONN_TYPE_TCP,                        /*!< Connection type is TCP */
     LWESP_CONN_TYPE_UDP,                        /*!< Connection type is UDP */
     LWESP_CONN_TYPE_SSL,                        /*!< Connection type is SSL */
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+    LWESP_CONN_TYPE_TCPV6,                      /*!< Connection type is TCP over IPV6 */
+    LWESP_CONN_TYPE_SSLV6,                      /*!< Connection type is SSL over IPV6 */
+#endif /* LWESP_CFG_IPV6 */
 } lwesp_conn_type_t;
 
 /* Forward declarations */

@@ -899,14 +899,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     }
 
     /*
-     * Check if connection is just active (or closed):
+     * Check if connection is just active (or closed).
      *
-     * Since new ESP AT release, it is possible to get
-     * connection status by using +LINK_CONN message.
-     *
-     * Check LINK_CONN messages
+     * Check +LINK_CONN messages
      */
     if (rcv->len > 20 && (s = strstr(rcv->data, "+LINK_CONN:")) != NULL) {
+        /* Parse only valid connections, discard others */
         if (lwespi_parse_link_conn(s) && esp.m.link_conn.num < LWESP_CFG_MAX_CONNS) {
             uint8_t id;
             lwesp_conn_t* conn = &esp.m.conns[esp.m.link_conn.num]; /* Get connection pointer */
@@ -940,10 +938,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 conn->local_port = esp.m.link_conn.local_port;
                 conn->status.f.client = !esp.m.link_conn.is_server;
 
-                if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)
-                    && esp.m.link_conn.num == esp.msg->msg.conn_start.num
-                    && conn->status.f.client) { /* Did we start connection on our own and connection is client? */
-                    conn->status.f.client = 1;  /* Go to client mode */
+                /* Connection started as client? */
+                if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART) && conn->status.f.client ) {
+                    /* Use connection for user */
+                    if (esp.msg->msg.conn_start.conn != NULL) {
+                        *esp.msg->msg.conn_start.conn = conn;
+                    }    
                     conn->evt_func = esp.msg->msg.conn_start.evt_func;  /* Set callback function */
                     conn->arg = esp.msg->msg.conn_start.arg;/* Set argument for function */
                     esp.msg->msg.conn_start.success = 1;
@@ -2115,7 +2115,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_TCPIP_CIPSTART: {        /* Start a new connection */
-            lwesp_conn_t* c = NULL;
+            const char* conn_type_str;
 
             /* Do we have wifi connection? */
             if (!lwesp_sta_has_ip()) {
@@ -2123,35 +2123,23 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 return lwespERRNOIP;
             }
 
-            msg->msg.conn_start.num = 0;
-            for (int16_t i = LWESP_CFG_MAX_CONNS - 1; i >= 0; --i) {/* Find available connection */
-                if (!esp.m.conns[i].status.f.active
-                    || !(esp.m.active_conns & (1 << i))) {
-                    c = &esp.m.conns[i];
-                    c->num = LWESP_U8(i);
-                    msg->msg.conn_start.num = LWESP_U8(i);  /* Set connection number for message structure */
-                    break;
-                }
-            }
-            if (c == NULL) {
-                lwespi_send_conn_error_cb(msg, lwespERRNOFREECONN);
-                return lwespERRNOFREECONN;      /* We don't have available connection */
-            }
-
-            if (msg->msg.conn_start.conn != NULL) { /* Is user interested about connection info? */
-                *msg->msg.conn_start.conn = c;  /* Save connection for user */
-            }
-
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+CIPSTART=");
-            lwespi_send_number(LWESP_U32(c->num), 0, 0);
+            AT_PORT_SEND_CONST_STR("+CIPSTARTEX=");
             if (msg->msg.conn_start.type == LWESP_CONN_TYPE_SSL) {
-                lwespi_send_string("SSL", 0, 1, 1);
+                conn_type_str = "SSL";
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCP) {
-                lwespi_send_string("TCP", 0, 1, 1);
+                conn_type_str = "TCP";
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_UDP) {
-                lwespi_send_string("UDP", 0, 1, 1);
+                conn_type_str = "UDP";
+#if LWESP_CFG_IPV6
+            } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCPV6) {
+                conn_type_str = "TCPV6";
+            } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_SSLV6) {
+#endif /* LWESP_CFG_IPV6 */
+            } else {
+                conn_type_str = "unknonw";
             }
+            lwespi_send_string(conn_type_str, 0, 1, 0);
             lwespi_send_string(msg->msg.conn_start.remote_host, 0, 1, 1);
             lwespi_send_port(msg->msg.conn_start.remote_port, 0, 1);
 
