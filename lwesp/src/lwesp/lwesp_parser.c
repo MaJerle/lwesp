@@ -175,12 +175,15 @@ lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
 uint8_t
 lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     const char* p = *src;
-    char c = 0;
+#if LWESP_CFG_IPV6
+    char c;
+#endif /* LWESP_CFG_IPV6 */
 
     if (*p == '"') {
         ++p;
     }
 
+#if LWESP_CFG_IPV6
     /* Find first separator */
     for (size_t i = 0; i < 6; ++i) {
         if (p[i] == ':' || p[i] == ',') {
@@ -188,6 +191,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
             break;
         }
     }
+#endif /* LWESP_CFG_IPV6 */
 
     /* Go to original value */
     if (0) {
