@@ -794,6 +794,14 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             esp.m.sta.has_ip = 0;               /* There is no valid IP */
             lwespi_send_cb(LWESP_EVT_WIFI_DISCONNECTED);/* Call user callback function */
         } else if (!strncmp(&rcv->data[5], "GOT IP", 6)) {
+#if LWESP_CFG_IPV6
+            /* Check if IPv6 IP received */
+            if (!strncmp(&rcv->data[11], "v6 LL", 5)) {
+
+            } else if (!strncmp(&rcv->data[11], "v6 GL", 5)) 
+           
+            }
+#endif /* LWESP_CFG_IPV6 */
             esp.m.sta.has_ip = 1;               /* Wifi got IP address */
             lwespi_send_cb(LWESP_EVT_WIFI_GOT_IP);  /* Call user callback function */
             if (!CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP)) {/* In case of auto connection */
