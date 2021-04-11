@@ -185,6 +185,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
 
 #if LWESP_CFG_IPV6
     /* Find first separator */
+    c = 0;
     for (size_t i = 0; i < 6; ++i) {
         if (p[i] == ':' || p[i] == ',') {
             c = p[i];

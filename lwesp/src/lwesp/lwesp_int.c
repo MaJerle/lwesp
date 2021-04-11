@@ -371,11 +371,11 @@ lwespi_reset_everything(uint8_t forced) {
     reset_connections(forced);
 
 #if LWESP_CFG_MODE_STATION
-    esp.m.sta.has_ip = 0;
-    if (esp.m.sta.is_connected) {
+    LWESP_RESET_STA_HAS_IP();
+    if (esp.m.sta.f.is_connected) {
         lwespi_send_cb(LWESP_EVT_WIFI_DISCONNECTED);
     }
-    esp.m.sta.is_connected = 0;
+    esp.m.sta.f.is_connected = 0;
 #endif /* LWESP_CFG_MODE_STATION */
 
     /* Check if IPD active */
@@ -784,25 +784,28 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 #if LWESP_CFG_MODE_STATION
     } else if (strlen(rcv->data) > 4 && !strncmp(rcv->data, "WIFI", 4)) {
         if (!strncmp(&rcv->data[5], "CONNECTED", 9)) {
-            esp.m.sta.is_connected = 1;         /* Wifi is connected */
+            esp.m.sta.f.is_connected = 1;       /* Wifi is connected */
             lwespi_send_cb(LWESP_EVT_WIFI_CONNECTED);   /* Call user callback function */
             if (!CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP)) {/* In case of auto connection */
                 lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 0);   /* Get new IP address */
             }
         } else if (!strncmp(&rcv->data[5], "DISCONNECT", 10)) {
-            esp.m.sta.is_connected = 0;         /* Wifi is disconnected */
-            esp.m.sta.has_ip = 0;               /* There is no valid IP */
+            esp.m.sta.f.is_connected = 0;       /* Wifi is disconnected */
+            LWESP_RESET_STA_HAS_IP();           /* There is no valid IP */
             lwespi_send_cb(LWESP_EVT_WIFI_DISCONNECTED);/* Call user callback function */
         } else if (!strncmp(&rcv->data[5], "GOT IP", 6)) {
+            if (0) {
 #if LWESP_CFG_IPV6
             /* Check if IPv6 IP received */
-            if (!strncmp(&rcv->data[11], "v6 LL", 5)) {
-
-            } else if (!strncmp(&rcv->data[11], "v6 GL", 5)) 
-           
-            }
+            } else if (!strncmp(&rcv->data[11], "v6 LL", 5)) {
+                esp.m.sta.f.has_ipv6_ll = 1;
+            } else if (!strncmp(&rcv->data[11], "v6 GL", 5)) {
+                esp.m.sta.f.has_ipv6_gl = 0;
 #endif /* LWESP_CFG_IPV6 */
-            esp.m.sta.has_ip = 1;               /* Wifi got IP address */
+            } else {
+                /* IP is for V4 (\todo: Add specific status) */
+            }
+            esp.m.sta.f.has_ip = 1;             /* Wifi got IP address */
             lwespi_send_cb(LWESP_EVT_WIFI_GOT_IP);  /* Call user callback function */
             if (!CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP)) {/* In case of auto connection */
                 lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 0);   /* Get new IP address */
@@ -813,20 +816,20 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             uint8_t ok = 0, major = 0, minor = 0, patch = 0;
             lwespi_parse_at_sdk_version(&rcv->data[11], &esp.m.version_at);
 
+            if (0) {
 #if LWESP_CFG_ESP8266
-            if (esp.m.device == LWESP_DEVICE_ESP8266) {
+            } else if (esp.m.device == LWESP_DEVICE_ESP8266) {
                 major = LWESP_MIN_AT_VERSION_MAJOR_ESP8266;
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP8266;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP8266;
-            }
 #endif /* LWESP_CFG_ESP8266 */
 #if LWESP_CFG_ESP32
-            if (esp.m.device == LWESP_DEVICE_ESP32) {
+            } else if (esp.m.device == LWESP_DEVICE_ESP32) {
                 major = LWESP_MIN_AT_VERSION_MAJOR_ESP32;
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP32;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP32;
-            }
 #endif /* LWESP_CFG_ESP32 */
+            }
 
             /* TODO: Compare ESP8266 vs ESP32 separatelly */
             /* Compare versions */
@@ -1491,7 +1494,7 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
             if (*is_ok) {                       /* Did we join successfully? */
                 SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET); /* Check IP address status */
             } else {
-                esp.m.sta.is_connected = 0;     /* Force disconnected status */
+                esp.m.sta.f.is_connected = 0;   /* Force disconnected status */
                 /*
                  * Parse received error message,
                  * if final result was error, decide what type

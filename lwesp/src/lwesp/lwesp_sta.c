@@ -283,7 +283,7 @@ uint8_t
 lwesp_sta_has_ip(void) {
     uint8_t res;
     lwesp_core_lock();
-    res = LWESP_U8(esp.m.sta.has_ip);
+    res = LWESP_U8(esp.m.sta.f.has_ip);
     lwesp_core_unlock();
     return res;
 }

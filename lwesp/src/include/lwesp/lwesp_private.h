@@ -479,8 +479,14 @@ typedef struct {
 #endif /* LWESP_CFG_IPV6 */
     lwesp_mac_t mac;                            /*!< MAC address */
     uint8_t dhcp;                               /*!< Flag indicating DHCP is enabled */
-    uint8_t has_ip;                             /*!< Flag indicating ESP has IP */
-    uint8_t is_connected;                       /*!< Flag indicating ESP is connected to wifi */
+    struct {
+        uint8_t has_ip : 1;                     /*!< Flag indicating IP is available */
+#if LWESP_CFG_IPV6
+        uint8_t has_ipv6_ll : 1;                /*!< Flag indicating local IPv6 is available */
+        uint8_t has_ipv6_gl : 1;                /*!< Flag indicating global IPv6 is available */
+#endif /* LWESP_CFG_IPV6 */
+        uint8_t is_connected : 1;               /*!< Flag indicating ESP is connected to wifi */
+    } f;                                        /*!< Flags structure */
 } lwesp_ip_mac_t;
 
 /**
@@ -624,6 +630,12 @@ extern lwesp_t esp;
 #define LWESP_CHARISHEXNUM(x)                 (((x) >= '0' && (x) <= '9') || ((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F'))
 #define LWESP_CHARHEXTONUM(x)                 (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (((x) >= 'a' && (x) <= 'f') ? ((x) - 'a' + 10) : (((x) >= 'A' && (x) <= 'F') ? ((x) - 'A' + 10) : 0)))
 #define LWESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
+
+#if LWESP_CFG_IPV6
+#define LWESP_RESET_STA_HAS_IP()            do { esp.m.sta.f.has_ip = 0; esp.m.sta.f.has_ipv6_ll = 0; esp.m.sta.f.has_ipv6_gl = 0; } while (0)
+#else
+#define LWESP_RESET_STA_HAS_IP()            esp.m.sta.f.has_ip = 0
+#endif /* LWESP_CFG_IPV6 */
 
 #define CMD_IS_CUR(c)                       (esp.msg != NULL && esp.msg->cmd == (c))
 #define CMD_IS_DEF(c)                       (esp.msg != NULL && esp.msg->cmd_def == (c))
