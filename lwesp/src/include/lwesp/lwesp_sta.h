@@ -64,6 +64,14 @@ uint8_t     lwesp_sta_is_ap_802_11b(lwesp_ap_t* ap);
 uint8_t     lwesp_sta_is_ap_802_11g(lwesp_ap_t* ap);
 uint8_t     lwesp_sta_is_ap_802_11n(lwesp_ap_t* ap);
 
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+uint8_t     lwesp_sta_has_ipv6_local(void);
+uint8_t     lwesp_sta_has_ipv6_global(void);
+#else
+#define     lwesp_sta_has_ipv6_local()          0
+#define     lwesp_sta_has_ipv6_global()         0
+#endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
+
 /**
  * \}
  */

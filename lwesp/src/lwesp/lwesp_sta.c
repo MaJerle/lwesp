@@ -288,6 +288,40 @@ lwesp_sta_has_ip(void) {
     return res;
 }
 
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+
+/**
+ * \brief           Check if station has local IPV6 IP
+ * Local IP is used between station and router
+ * \note            Defined as macro with `0` constant if \ref LWESP_CFG_IPV6 is disabled
+ * \return          `1` if local IPv6 is available, `0` otherwise
+ */
+uint8_t
+lwesp_sta_has_ipv6_local(void) {
+    uint8_t res;
+    lwesp_core_lock();
+    res = LWESP_U8(esp.m.sta.f.has_ipv6_ll);
+    lwesp_core_unlock();
+    return res;
+}
+
+/**
+ * \brief           Check if station has global IPV6 IP
+ * Global IP is used router and outside network
+ * \note            Defined as macro with `0` constant if \ref LWESP_CFG_IPV6 is disabled
+ * \return          `1` if global IPv6 is available, `0` otherwise
+ */
+uint8_t
+lwesp_sta_has_ipv6_global(void) {
+    uint8_t res;
+    lwesp_core_lock();
+    res = LWESP_U8(esp.m.sta.f.has_ipv6_gl);
+    lwesp_core_unlock();
+    return res;
+}
+
+#endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
+
 /**
  * \brief           Check if station is connected to WiFi network
  * \return          `1` on success, `0` otherwise

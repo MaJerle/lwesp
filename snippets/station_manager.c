@@ -1,4 +1,5 @@
 #include "station_manager.h"
+#include "utils.h"
 #include "lwesp/lwesp.h"
 
 /*
@@ -69,22 +70,11 @@ connect_to_preferred_access_point(uint8_t unlimited) {
                         if ((eres = lwesp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, NULL, NULL, 1)) == lwespOK) {
                             lwesp_ip_t ip;
                             uint8_t is_dhcp;
-                            lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
 
                             printf("Connected to %s network!\r\n", ap_list[j].ssid);
-                            printf("Station IP address: ");
-                            if (0) {
-#if LWESP_CFG_IPV6
-                            } else if (ip.type == LWESP_IPTYPE_V6) {
-                                printf("IPv6: %04X:%04X:%04X:%04X:%04X:%04X:%04X:%04X",
-                                    (unsigned)ip.addr.ip6.addr[0], (unsigned)ip.addr.ip6.addr[1], (unsigned)ip.addr.ip6.addr[2],
-                                    (unsigned)ip.addr.ip6.addr[3], (unsigned)ip.addr.ip6.addr[4], (unsigned)ip.addr.ip6.addr[5],
-                                    (unsigned)ip.addr.ip6.addr[6], (unsigned)ip.addr.ip6.addr[7]);
-#endif /* LWESP_CFG_IPV6 */
-                            } else {
-                                printf("IPv4: %d.%d.%d.%d",
-                                    (int)ip.addr.ip4.addr[0], (int)ip.addr.ip4.addr[1], (int)ip.addr.ip4.addr[2], (int)ip.addr.ip4.addr[3]);
-                            }
+
+                            lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
+                            utils_print_ip("Station IP address: ", &ip, "\r\n");
                             printf("; Is DHCP: %d\r\n", (int)is_dhcp);
                             return lwespOK;
                         } else {

@@ -14,6 +14,7 @@
 #include "netconn_client.h"
 #include "netconn_server.h"
 #include "netconn_server_1thread.h"
+#include "utils.h"
 #include "cayenne.h"
 #include "lwesp/lwesp_timeout.h"
 #include "lwmem/lwmem.h"
@@ -305,8 +306,11 @@ input_thread(void* arg) {
             char* host;
 
             if (parse_str(&str, &host)) {
-                lwesp_ping(host, &pingtime, NULL, NULL, 1);
-                safeprintf("Ping time: %d\r\n", (int)pingtime);
+                if (lwesp_ping(host, &pingtime, NULL, NULL, 1) == lwespOK) {
+                    safeprintf("Ping time: %d\r\n", (int)pingtime);
+                } else {
+                    safeprintf("Error with ping to host \"%s\"\r\n", host);
+                }
             } else {
                 safeprintf("Cannot parse host\r\n");
             }
@@ -506,6 +510,12 @@ lwesp_evt(lwesp_evt_t* evt) {
         }
         case LWESP_EVT_WIFI_GOT_IP: {
             safeprintf("Wifi got an IP address.\r\n");
+            if (lwesp_sta_has_ipv6_local()) {
+                safeprintf("Wifi got IPv6 local IP address.\r\n");
+            }
+            if (lwesp_sta_has_ipv6_global()) {
+                safeprintf("Wifi got IPv6 global IP address.\r\n");
+            }
             break;
         }
         case LWESP_EVT_WIFI_CONNECTED: {
@@ -531,43 +541,28 @@ lwesp_evt(lwesp_evt_t* evt) {
 
             safeprintf("WIFI IP ACQUIRED!\r\n");
             if (lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp) == lwespOK) {
-                if (0) {
-#if LWESP_CFG_IPV6
-                } else if (ip.type == LWESP_IPTYPE_V6) {
-                    safeprintf("IPv6: %04X:%04X:%04X:%04X:%04X:%04X:%04X:%04X\r\n",
-                        (unsigned)ip.addr.ip6.addr[0], (unsigned)ip.addr.ip6.addr[1], (unsigned)ip.addr.ip6.addr[2],
-                        (unsigned)ip.addr.ip6.addr[3], (unsigned)ip.addr.ip6.addr[4], (unsigned)ip.addr.ip6.addr[5],
-                        (unsigned)ip.addr.ip6.addr[6], (unsigned)ip.addr.ip6.addr[7]);
-#endif /* LWESP_CFG_IPV6 */
-                } else {
-                    safeprintf("IPv4: %d.%d.%d.%d\r\n",
-                        (int)ip.addr.ip4.addr[0], (int)ip.addr.ip4.addr[1], (int)ip.addr.ip4.addr[2], (int)ip.addr.ip4.addr[3]);
-                }
+                utils_print_ip("IP: ", &ip, "\r\n");
             } else {
                 safeprintf("Acquired IP is not valid\r\n");
             }
-
             break;
         }
 #if LWESP_CFG_MODE_ACCESS_POINT
         case LWESP_EVT_AP_CONNECTED_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_connected_sta_get_mac(evt);
-            safeprintf("New station connected to ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
+            utils_print_mac("New station connected to AP with MAC: ", mac, "\r\n");
             break;
         }
         case LWESP_EVT_AP_DISCONNECTED_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_disconnected_sta_get_mac(evt);
-            safeprintf("Station disconnected from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
+            utils_print_mac("New station disconnected from AP with MAC: ", mac, "\r\n");
             break;
         }
         case LWESP_EVT_AP_IP_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_ip_sta_get_mac(evt);
             lwesp_ip_t* ip = lwesp_evt_ap_ip_sta_get_ip(evt);
-            safeprintf("Station received IP address from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X and IP: %d.%d.%d.%d\r\n",
-                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5],
-                /* ip->ip[0], ip->ip[1], ip->ip[2], ip->ip[3] */ 0, 0, 0, 0);
+            utils_print_ip("Station got IP address (from AP): ", ip, "");
+            utils_print_mac(" and MAC: ", mac, "\r\n");
             break;
         }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
