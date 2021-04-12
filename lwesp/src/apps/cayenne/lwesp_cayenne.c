@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "lwesp/apps/lwesp_cayenne.h"
 #include "lwesp/lwesp_mem.h"
@@ -358,7 +358,7 @@ prv_mqtt_thread(void* const arg) {
                         /* Parse received topic and payload */
                         if (prv_parse_topic(c, buf) == lwespOK
                             && prv_parse_payload(c, buf) == lwespOK) {
-                            
+
                             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic and payload parsed!\r\n");
                             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
                                        (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value

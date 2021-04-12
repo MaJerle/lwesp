@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp.h"
@@ -960,7 +960,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                     /* Use connection for user */
                     if (esp.msg->msg.conn_start.conn != NULL) {
                         *esp.msg->msg.conn_start.conn = conn;
-                    }    
+                    }
                     conn->evt_func = esp.msg->msg.conn_start.evt_func;  /* Set callback function */
                     conn->arg = esp.msg->msg.conn_start.arg;/* Set argument for function */
                     esp.msg->msg.conn_start.success = 1;

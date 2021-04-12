@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #ifndef LWESP_HDR_OPTS_H
 #define LWESP_HDR_OPTS_H
@@ -74,7 +74,7 @@
 #define LWESP_CFG_USE_API_FUNC_EVT              1
 
 #define LWESP_CFG_MAX_CONNS                     5
-    
+
 #define LWESP_CFG_DNS                           1
 #define LWESP_CFG_SNTP                          1
 #define LWESP_CFG_HOSTNAME                      1
