@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #ifndef LWESP_HDR_PRIV_H
 #define LWESP_HDR_PRIV_H
@@ -75,6 +75,9 @@ typedef enum {
     LWESP_CMD_WIFI_CWMODE,                      /*!< Set wifi mode */
     LWESP_CMD_WIFI_CWMODE_GET,                  /*!< Get wifi mode */
     LWESP_CMD_WIFI_CWLAPOPT,                    /*!< Configure what is visible on CWLAP response */
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+    LWESP_CMD_WIFI_IPV6,                        /*!< Configure IPv6 support */
+#endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
     LWESP_CMD_WIFI_CWJAP,                       /*!< Connect to access point */
     LWESP_CMD_WIFI_CWRECONNCFG,                 /*!< Setup reconnect interval and maximum tries */
@@ -312,6 +315,7 @@ typedef struct lwesp_msg {
             size_t* staf;                       /*!< Pointer to output variable holding number of access points found */
         } sta_list;                             /*!< List for stations connected to SoftAP */
         struct {
+            uint8_t use_mac;                    /*!< Status if specific MAC is to be used */
             lwesp_mac_t mac;                    /*!< MAC address to disconnect from access point */
         } ap_disconn_sta;                       /*!< Disconnect station from access point */
 #endif /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
@@ -319,14 +323,18 @@ typedef struct lwesp_msg {
             lwesp_ip_t* ip;                     /*!< Pointer to IP variable */
             lwesp_ip_t* gw;                     /*!< Pointer to gateway variable */
             lwesp_ip_t* nm;                     /*!< Pointer to netmask variable */
+#if LWESP_CFG_IPV6
+            lwesp_ip_t* ip6_ll;                 /*!< Pointer to IPV6 variable local address */
+            lwesp_ip_t* ip6_gl;                 /*!< Pointer to IPV6 variable global address */
+#endif /* LWESP_CFG_IPV6 */
         } sta_ap_getip;                         /*!< Message for reading station or access point IP */
         struct {
             lwesp_mac_t* mac;                   /*!< Pointer to MAC variable */
         } sta_ap_getmac;                        /*!< Message for reading station or access point MAC address */
         struct {
-            lwesp_ip_t ip;                      /*!< Pointer to IP variable */
-            lwesp_ip_t gw;                      /*!< Pointer to gateway variable */
-            lwesp_ip_t nm;                      /*!< Pointer to netmask variable */
+            lwesp_ip_t ip;                      /*!< IP variable */
+            lwesp_ip_t gw;                      /*!< Gateway variable */
+            lwesp_ip_t nm;                      /*!< Netmask variable */
         } sta_ap_setip;                         /*!< Message for setting station or access point IP */
         struct {
             lwesp_mac_t mac;                    /*!< Pointer to MAC variable */
@@ -357,7 +365,6 @@ typedef struct lwesp_msg {
             lwesp_port_t udp_local_port;        /*!< UDP local port */
             void* arg;                          /*!< Connection custom argument */
             lwesp_evt_fn evt_func;              /*!< Callback function to use on connection */
-            uint8_t num;                        /*!< Connection number used for start */
             uint8_t success;                    /*!< Status if connection AT+CIPSTART succedded */
         } conn_start;                           /*!< Structure for starting new connection */
         struct {
@@ -466,10 +473,20 @@ typedef struct {
     lwesp_ip_t ip;                              /*!< IP address */
     lwesp_ip_t gw;                              /*!< Gateway address */
     lwesp_ip_t nm;                              /*!< Netmask address */
+#if LWESP_CFG_IPV6
+    lwesp_ip_t ip6_ll;                          /*!< Local IPV6 address */
+    lwesp_ip_t ip6_gl;                          /*!< Global IPV6 address */
+#endif /* LWESP_CFG_IPV6 */
     lwesp_mac_t mac;                            /*!< MAC address */
     uint8_t dhcp;                               /*!< Flag indicating DHCP is enabled */
-    uint8_t has_ip;                             /*!< Flag indicating ESP has IP */
-    uint8_t is_connected;                       /*!< Flag indicating ESP is connected to wifi */
+    struct {
+        uint8_t has_ip : 1;                     /*!< Flag indicating IP is available */
+#if LWESP_CFG_IPV6
+        uint8_t has_ipv6_ll : 1;                /*!< Flag indicating local IPv6 is available */
+        uint8_t has_ipv6_gl : 1;                /*!< Flag indicating global IPv6 is available */
+#endif /* LWESP_CFG_IPV6 */
+        uint8_t is_connected : 1;               /*!< Flag indicating ESP is connected to wifi */
+    } f;                                        /*!< Flags structure */
 } lwesp_ip_mac_t;
 
 /**
@@ -613,6 +630,12 @@ extern lwesp_t esp;
 #define LWESP_CHARISHEXNUM(x)                 (((x) >= '0' && (x) <= '9') || ((x) >= 'a' && (x) <= 'f') || ((x) >= 'A' && (x) <= 'F'))
 #define LWESP_CHARHEXTONUM(x)                 (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (((x) >= 'a' && (x) <= 'f') ? ((x) - 'a' + 10) : (((x) >= 'A' && (x) <= 'F') ? ((x) - 'A' + 10) : 0)))
 #define LWESP_ISVALIDASCII(x)                 (((x) >= 32 && (x) <= 126) || (x) == '\r' || (x) == '\n')
+
+#if LWESP_CFG_IPV6
+#define LWESP_RESET_STA_HAS_IP()            do { esp.m.sta.f.has_ip = 0; esp.m.sta.f.has_ipv6_ll = 0; esp.m.sta.f.has_ipv6_gl = 0; } while (0)
+#else
+#define LWESP_RESET_STA_HAS_IP()            esp.m.sta.f.has_ip = 0
+#endif /* LWESP_CFG_IPV6 */
 
 #define CMD_IS_CUR(c)                       (esp.msg != NULL && esp.msg->cmd == (c))
 #define CMD_IS_DEF(c)                       (esp.msg != NULL && esp.msg->cmd_def == (c))

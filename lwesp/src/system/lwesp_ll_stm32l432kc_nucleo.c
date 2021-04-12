@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Miha CESNIK <>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 
 /*

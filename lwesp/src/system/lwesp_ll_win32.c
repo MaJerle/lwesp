@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "system/lwesp_ll.h"
 #include "lwesp/lwesp.h"
@@ -86,7 +86,7 @@ configure_uart(uint32_t baudrate) {
      * as generic read and write
      */
     if (!initialized) {
-        com_port = CreateFile(L"\\\\.\\COM4",
+        com_port = CreateFile(L"\\\\.\\COM7",
                               GENERIC_READ | GENERIC_WRITE,
                               0,
                               0,

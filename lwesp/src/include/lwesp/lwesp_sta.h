@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #ifndef LWESP_HDR_STA_H
 #define LWESP_HDR_STA_H
@@ -63,6 +63,14 @@ lwespr_t    lwesp_sta_get_ap_info(lwesp_sta_info_ap_t* info, const lwesp_api_cmd
 uint8_t     lwesp_sta_is_ap_802_11b(lwesp_ap_t* ap);
 uint8_t     lwesp_sta_is_ap_802_11g(lwesp_ap_t* ap);
 uint8_t     lwesp_sta_is_ap_802_11n(lwesp_ap_t* ap);
+
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+uint8_t     lwesp_sta_has_ipv6_local(void);
+uint8_t     lwesp_sta_has_ipv6_global(void);
+#else
+#define     lwesp_sta_has_ipv6_local()          0
+#define     lwesp_sta_has_ipv6_global()         0
+#endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 
 /**
  * \}

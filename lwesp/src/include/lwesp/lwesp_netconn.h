@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #ifndef LWESP_HDR_NETCONN_H
 #define LWESP_HDR_NETCONN_H
@@ -67,6 +67,10 @@ typedef enum {
     LWESP_NETCONN_TYPE_TCP = LWESP_CONN_TYPE_TCP,   /*!< TCP connection */
     LWESP_NETCONN_TYPE_SSL = LWESP_CONN_TYPE_SSL,   /*!< SSL connection */
     LWESP_NETCONN_TYPE_UDP = LWESP_CONN_TYPE_UDP,   /*!< UDP connection */
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+    LWESP_NETCONN_TYPE_TCPV6 = LWESP_CONN_TYPE_TCPV6,   /*!< TCP connection over IPv6 */
+    LWESP_NETCONN_TYPE_SSLV6 = LWESP_CONN_TYPE_SSLV6,   /*!< SSL connection over IPv6 */
+#endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 } lwesp_netconn_type_t;
 
 lwesp_netconn_p lwesp_netconn_new(lwesp_netconn_type_t type);

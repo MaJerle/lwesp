@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_ap.h"
@@ -242,6 +242,7 @@ lwesp_ap_list_sta(lwesp_sta_t* sta, size_t stal, size_t* staf,
  * \brief           Disconnects connected station from SoftAP access point
  * \param[in]       mac: Device MAC address to disconnect.
  *                      Application may use \ref lwesp_ap_list_sta to obtain list of connected stations to SoftAP.
+ *                      Set to `NULL` to disconnect all stations.
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
@@ -252,13 +253,13 @@ lwesp_ap_disconn_sta(const lwesp_mac_t* mac,
                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("mac != NULL", mac != NULL);
-
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WIFI_CWQIF;
-    LWESP_MEMCPY(&LWESP_MSG_VAR_REF(msg).msg.ap_disconn_sta.mac, mac, sizeof(*mac));
-
+    LWESP_MSG_VAR_REF(msg).msg.ap_disconn_sta.use_mac = mac != NULL;
+    if (mac != NULL) {
+        LWESP_MEMCPY(&LWESP_MSG_VAR_REF(msg).msg.ap_disconn_sta.mac, mac, sizeof(*mac));
+    }
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
 

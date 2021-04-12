@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #ifndef LWESP_HDR_H
 #define LWESP_HDR_H
@@ -67,6 +67,7 @@ uint8_t     lwesp_device_is_present(void);
 
 uint8_t     lwesp_device_is_esp8266(void);
 uint8_t     lwesp_device_is_esp32(void);
+uint8_t     lwesp_device_is_esp32_c3(void);
 
 uint8_t     lwesp_delay(const uint32_t ms);
 

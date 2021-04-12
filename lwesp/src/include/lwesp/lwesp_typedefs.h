@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #ifndef LWESP_HDR_DEFS_H
 #define LWESP_HDR_DEFS_H
@@ -91,6 +91,9 @@ typedef enum {
 #if LWESP_CFG_ESP32 || __DOXYGEN__
     LWESP_DEVICE_ESP32,                         /*!< Device is ESP32 */
 #endif /* LWESP_CFG_ESP32 || __DOXYGEN__ */
+#if LWESP_CFG_ESP32_C3 || __DOXYGEN__
+    LWESP_DEVICE_ESP32_C3,
+#endif /* LWESP_CFG_ESP32_C3 || __DOXYGEN__ */
     LWESP_DEVICE_UNKNOWN,                       /*!< Unknown device */
 } lwesp_device_t;
 
@@ -104,24 +107,104 @@ typedef enum {
     LWESP_ECN_WPA_PSK,                          /*!< WPA (Wifi Protected Access) encryption */
     LWESP_ECN_WPA2_PSK,                         /*!< WPA2 (Wifi Protected Access 2) encryption */
     LWESP_ECN_WPA_WPA2_PSK,                     /*!< WPA/2 (Wifi Protected Access 1/2) encryption */
-    LWESP_ECN_WPA2_Enterprise                   /*!< Enterprise encryption. \note ESP is currently not able to connect to access point of this encryption type */
+    LWESP_ECN_WPA2_Enterprise,                  /*!< Enterprise encryption. \note ESP8266 is not able to connect to such device */
+    LWESP_ECN_WPA3_PSK,                         /*!< WPA3 (Wifi Protected Access 3) encryption */
+    LWESP_ECN_WPA2_WPA3_PSK,                    /*!< WPA2/3 (Wifi Protected Access 2/3) encryption */
+    LWESP_ECN_END,
 } lwesp_ecn_t;
+
+/**
+ * \ingroup         LWESP_TYPEDEFS
+ * \brief           IP type
+ */
+typedef enum {
+    LWESP_IPTYPE_V4 = 0x00,                     /*!< IP type is V4 */
+    LWESP_IPTYPE_V6                             /*!< IP type is V6 */
+} lwesp_iptype_t;
+
+/**
+ * \ingroup         LWESP_TYPEDEFS
+ * \brief           IPv4 address structure
+ */
+typedef struct {
+    uint8_t addr[4];                            /*!< IP address data */
+} lwesp_ip4_addr_t;
+
+/**
+ * \ingroup         LWESP_TYPEDEFS
+ * \brief           IPv6 address structure
+ */
+typedef struct {
+    uint16_t addr[8];                           /*!< IP address data */
+} lwesp_ip6_addr_t;
 
 /**
  * \ingroup         LWESP_TYPEDEFS
  * \brief           IP structure
  */
 typedef struct {
-    uint8_t ip[4];                              /*!< IPv4 address */
+    union {
+        lwesp_ip4_addr_t ip4;                   /*!< IPv4 address */
+#if LWESP_CFG_IPV6
+        lwesp_ip6_addr_t ip6;                   /*!< IPv6 address */
+#endif /* LWESP_CFG_IPV6 */
+    } addr;
+    lwesp_iptype_t type;                        /*!< IP type, either V4 or V6 */
 } lwesp_ip_t;
 
 /**
  * \ingroup         LWESP_UTILITIES
- * \brief           Set IP address to \ref lwesp_ip_t variable
+ * \brief           Set IPv4 address to \ref lwesp_ip_t variable
  * \param[in]       ip_str: Pointer to IP structure
- * \param[in]       ip1,ip2,ip3,ip4: IPv4 parts
+ * \param[in]       i1,i2,i3,i4: IPv4 parts
  */
-#define LWESP_SET_IP(ip_str, ip1, ip2, ip3, ip4)      do { (ip_str)->ip[0] = (ip1); (ip_str)->ip[1] = (ip2); (ip_str)->ip[2] = (ip3); (ip_str)->ip[3] = (ip4); } while (0)
+#define lwesp_ip_set_ip4(ip_str, i1, i2, i3, i4)   do {        \
+    (ip_str)->type = LWESP_IPTYPE_V4;                       \
+    (ip_str)->addr.ip4.addr[0] = (i1);                      \
+    (ip_str)->addr.ip4.addr[1] = (i2);                      \
+    (ip_str)->addr.ip4.addr[2] = (i3);                      \
+    (ip_str)->addr.ip4.addr[3] = (i4);                      \
+} while (0)
+
+/**
+ * \ingroup         LWESP_UTILITIES
+ * \brief           Set IPv6 address to \ref lwesp_ip_t variable
+ * \param[in]       ip_str: Pointer to IP structure
+ * \param[in]       i1,i2,i3,i4,i5,i6,i7,i8: IPv6 parts
+ */
+#define lwesp_ip_set_ip6(ip_str, i1, i2, i3, i4, i5, i6, i7, i8)   do {\
+    (ip_str)->type = LWESP_IPTYPE_V6;                       \
+    (ip_str)->addr.ip6.addr[0] = (i1);                      \
+    (ip_str)->addr.ip6.addr[1] = (i2);                      \
+    (ip_str)->addr.ip6.addr[2] = (i3);                      \
+    (ip_str)->addr.ip6.addr[3] = (i4);                      \
+    (ip_str)->addr.ip6.addr[4] = (i5);                      \
+    (ip_str)->addr.ip6.addr[5] = (i6);                      \
+    (ip_str)->addr.ip6.addr[6] = (i7);                      \
+    (ip_str)->addr.ip6.addr[7] = (i8);                      \
+} while (0)
+
+/**
+ * \brief           Check if input IP structure holds valid IP address
+ * \param[in]       ip: IP to check for valid address. It can be V4 or V6
+ * \return          `1` if IP valid, `0` otherwise
+ */
+static inline uint8_t
+lwesp_ip_is_valid(const lwesp_ip_t* ip) {
+    if (ip == NULL) {
+        return 0;
+    }
+
+    /* Check address validity */
+    if ((ip->type == LWESP_IPTYPE_V4 && ip->addr.ip4.addr[0] > 0)
+#if LWESP_CFG_IPV6
+            || (ip->type == LWESP_IPTYPE_V6 && ip->addr.ip6.addr[0] > 0)
+#endif /* LWESP_CF_IPV6 */
+        ) {
+        return 1;
+    }
+    return 0;
+}
 
 /**
  * \ingroup         LWESP_TYPEDEFS
@@ -162,7 +245,7 @@ typedef struct {
     //int8_t offset;                            /*!< Access point offset */
     //uint8_t cal;                              /*!< Calibration value */
     uint8_t bgn;                                /*!< Information about 802.11[b|g|n] support */
-    //uint8_t wps;                              /*!< Status if WPS function is supported */
+    uint8_t wps;                                /*!< Status if WPS function is supported */
 } lwesp_ap_t;
 
 /**
@@ -252,6 +335,10 @@ typedef enum {
     LWESP_CONN_TYPE_TCP,                        /*!< Connection type is TCP */
     LWESP_CONN_TYPE_UDP,                        /*!< Connection type is UDP */
     LWESP_CONN_TYPE_SSL,                        /*!< Connection type is SSL */
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+    LWESP_CONN_TYPE_TCPV6,                      /*!< Connection type is TCP over IPV6 */
+    LWESP_CONN_TYPE_SSLV6,                      /*!< Connection type is SSL over IPV6 */
+#endif /* LWESP_CFG_IPV6 */
 } lwesp_conn_type_t;
 
 /* Forward declarations */

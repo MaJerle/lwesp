@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_parser.h"
@@ -175,17 +175,52 @@ lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
 uint8_t
 lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     const char* p = *src;
+#if LWESP_CFG_IPV6
+    char c;
+#endif /* LWESP_CFG_IPV6 */
 
     if (*p == '"') {
         ++p;
     }
-    ip->ip[0] = lwespi_parse_number(&p);
-    ++p;
-    ip->ip[1] = lwespi_parse_number(&p);
-    ++p;
-    ip->ip[2] = lwespi_parse_number(&p);
-    ++p;
-    ip->ip[3] = lwespi_parse_number(&p);
+
+#if LWESP_CFG_IPV6
+    /* Find first separator */
+    c = 0;
+    for (size_t i = 0; i < 6; ++i) {
+        if (p[i] == ':' || p[i] == ',') {
+            c = p[i];
+            break;
+        }
+    }
+#endif /* LWESP_CFG_IPV6 */
+
+    /* Go to original value */
+    if (0) {
+#if LWESP_CFG_IPV6
+    } else if (c == ':') {
+        ip->type = LWESP_IPTYPE_V6;
+
+        /*
+         * Reset structure first.
+         *
+         * IPv6 IP can have omitted zeros to the end
+         * so it is important to cleanup structure first,
+         * not to keep wrong address
+         */
+        memset(&ip->addr, 0x00, sizeof(ip->addr));
+        for (size_t i = 0; i < LWESP_ARRAYSIZE(ip->addr.ip6.addr); ++i, ++p) {
+            ip->addr.ip6.addr[i] = (uint16_t)lwespi_parse_hexnumber(&p);
+            if (*p != ':') {
+                break;
+            }
+        }
+#endif /* LWESP_CFG_IPV6 */
+    } else {
+        ip->type = LWESP_IPTYPE_V4;
+        for (size_t i = 0; i < LWESP_ARRAYSIZE(ip->addr.ip4.addr); ++i, ++p) {
+            ip->addr.ip4.addr[i] = lwespi_parse_number(&p);
+        }
+    }
     if (*p == '"') {
         ++p;
     }
@@ -419,6 +454,12 @@ lwespi_parse_link_conn(const char* str) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_UDP;
     } else if (!strncmp(str, "\"SSL\"", 5)) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_SSL;
+#if LWESP_CFG_IPV6
+    } else if (!strncmp(str, "\"TCPv6\"", 7)) {
+        esp.m.link_conn.type = LWESP_CONN_TYPE_TCPV6;
+    } else if (!strncmp(str, "\"SSLv6\"", 7)) {
+        esp.m.link_conn.type = LWESP_CONN_TYPE_SSLV6;
+#endif /* LWESP_CFG_IPV6 */
     } else {
         return 0;
     }
@@ -456,17 +497,17 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = lwespi_parse_number(&str);
     lwespi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = lwespi_parse_number(&str);
+    lwespi_parse_number(&str);                  /* Scan type */
+    lwespi_parse_number(&str);                  /* Scan time minimum */
+    lwespi_parse_number(&str);                  /* Scan time maximum */
+    lwespi_parse_number(&str);                  /* Freq offset */
+    lwespi_parse_number(&str);                  /* Freqcal value */
+    lwespi_parse_number(&str);                  /* Pairwise cipher */
+    lwespi_parse_number(&str);                  /* Group cipher */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = lwespi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = lwespi_parse_number(&str);
 
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = 0;
-
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].offset = lwespi_parse_number(&str);
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].cal = lwespi_parse_number(&str);
-
-    //lwespi_parse_number(&str);                /* Parse pwc */
-    //lwespi_parse_number(&str);                /* Parse gc */
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = lwespi_parse_number(&str);
-    //msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = lwespi_parse_number(&str);
-
+    /* Go to next entry */
     ++msg->msg.ap_list.apsi;                    /* Increase number of found elements */
     if (msg->msg.ap_list.apf != NULL) {         /* Set pointer if necessary */
         *msg->msg.ap_list.apf = msg->msg.ap_list.apsi;
@@ -500,7 +541,6 @@ lwespi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
 
     return 1;
 }
-
 
 #endif /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
 

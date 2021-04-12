@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_sta.h"
@@ -283,10 +283,44 @@ uint8_t
 lwesp_sta_has_ip(void) {
     uint8_t res;
     lwesp_core_lock();
-    res = LWESP_U8(esp.m.sta.has_ip);
+    res = LWESP_U8(esp.m.sta.f.has_ip);
     lwesp_core_unlock();
     return res;
 }
+
+#if LWESP_CFG_IPV6 || __DOXYGEN__
+
+/**
+ * \brief           Check if station has local IPV6 IP
+ * Local IP is used between station and router
+ * \note            Defined as macro with `0` constant if \ref LWESP_CFG_IPV6 is disabled
+ * \return          `1` if local IPv6 is available, `0` otherwise
+ */
+uint8_t
+lwesp_sta_has_ipv6_local(void) {
+    uint8_t res;
+    lwesp_core_lock();
+    res = LWESP_U8(esp.m.sta.f.has_ipv6_ll);
+    lwesp_core_unlock();
+    return res;
+}
+
+/**
+ * \brief           Check if station has global IPV6 IP
+ * Global IP is used router and outside network
+ * \note            Defined as macro with `0` constant if \ref LWESP_CFG_IPV6 is disabled
+ * \return          `1` if global IPv6 is available, `0` otherwise
+ */
+uint8_t
+lwesp_sta_has_ipv6_global(void) {
+    uint8_t res;
+    lwesp_core_lock();
+    res = LWESP_U8(esp.m.sta.f.has_ipv6_gl);
+    lwesp_core_unlock();
+    return res;
+}
+
+#endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 
 /**
  * \brief           Check if station is connected to WiFi network

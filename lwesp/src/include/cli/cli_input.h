@@ -27,7 +27,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  * Author:          Miha CESNIK <>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #ifndef CLI_HDR_CLI_INPUT_H
 #define CLI_HDR_CLI_INPUT_H

@@ -160,6 +160,7 @@
     <ClCompile Include="..\..\..\lwesp\src\lwesp\lwesp_wps.c" />
     <ClCompile Include="..\..\..\lwesp\src\system\lwesp_ll_win32.c" />
     <ClCompile Include="..\..\..\lwesp\src\system\lwesp_sys_win32.c" />
+    <ClCompile Include="..\..\..\snippets\utils.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,4 +1,5 @@
 #include "station_manager.h"
+#include "utils.h"
 #include "lwesp/lwesp.h"
 
 /*
@@ -69,11 +70,12 @@ connect_to_preferred_access_point(uint8_t unlimited) {
                         if ((eres = lwesp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, NULL, NULL, 1)) == lwespOK) {
                             lwesp_ip_t ip;
                             uint8_t is_dhcp;
-                            lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
 
                             printf("Connected to %s network!\r\n", ap_list[j].ssid);
-                            printf("Station IP address: %d.%d.%d.%d; Is DHCP: %d\r\n",
-                                   (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
+
+                            lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
+                            utils_print_ip("Station IP address: ", &ip, "\r\n");
+                            printf("; Is DHCP: %d\r\n", (int)is_dhcp);
                             return lwespOK;
                         } else {
                             printf("Connection error: %d\r\n", (int)eres);

@@ -33,6 +33,7 @@
  */
 #include "lwesp/lwesp.h"
 #include "station_manager.h"
+#include "utils.h"
 
 static lwespr_t lwesp_callback_func(lwesp_evt_t* evt);
 
@@ -110,28 +111,20 @@ lwesp_callback_func(lwesp_evt_t* evt) {
         }
         case LWESP_EVT_AP_CONNECTED_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_connected_sta_get_mac(evt);
-            printf("New station connected to access point with MAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                (int)mac->mac[0], (int)mac->mac[1], (int)mac->mac[2],
-                (int)mac->mac[3], (int)mac->mac[4], (int)mac->mac[5]
-            );
+            utils_print_mac("New station connected to access point with MAC address: ", mac, "\r\n");
             break;
         }
         case LWESP_EVT_AP_IP_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_ip_sta_get_mac(evt);
             lwesp_ip_t* ip = lwesp_evt_ap_ip_sta_get_ip(evt);
-            printf("IP %d.%d.%d.%d assigned to station with MAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                (int)ip->ip[0], (int)ip->ip[1], (int)ip->ip[2], (int)ip->ip[3],
-                (int)mac->mac[0], (int)mac->mac[1], (int)mac->mac[2],
-                (int)mac->mac[3], (int)mac->mac[4], (int)mac->mac[5]
-            );
+
+            utils_print_ip("IP ", ip, " assigned to station with MAC address: ");
+            utils_print_mac(NULL, mac, "\r\n");
             break;
         }
         case LWESP_EVT_AP_DISCONNECTED_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_disconnected_sta_get_mac(evt);
-            printf("Station disconnected from access point with MAC address: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                (int)mac->mac[0], (int)mac->mac[1], (int)mac->mac[2],
-                (int)mac->mac[3], (int)mac->mac[4], (int)mac->mac[5]
-            );
+            utils_print_mac("Station disconnected from access point with MAC address: ", mac, "\r\n");
             break;
         }
         default: break;

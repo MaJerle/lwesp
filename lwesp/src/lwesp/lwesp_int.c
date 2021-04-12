@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp.h"
@@ -182,33 +182,66 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
     } while (0)
 
 /**
- * \brief           Send IP or MAC address to AT port
- * \param[in]       d: Pointer to IP or MAC address
- * \param[in]       is_ip: Set to `1` when sending IP, `0` when MAC
+ * \brief           Send IP address to AT port
+ * \param[in]       mac: Pointer to IP address
  * \param[in]       q: Set to `1` to include start and ending quotes
  * \param[in]       c: Set to `1` to include comma before string
  */
 void
-lwespi_send_ip_mac(const void* d, uint8_t is_ip, uint8_t q, uint8_t c) {
-    uint8_t ch;
-    char str[4];
-    const lwesp_mac_t* mac = d;
-    const lwesp_ip_t* ip = d;
+lwespi_send_ip(const lwesp_ip_t* ip, uint8_t q, uint8_t c) {
+    uint8_t ch = '.', len = 4;
+    char str[LWESP_CFG_IPV6 ? 5 : 4];
 
     AT_PORT_SEND_COMMA_COND(c);                 /* Send comma */
-    if (d == NULL) {
+    if (ip == NULL) {
         return;
     }
     AT_PORT_SEND_QUOTE_COND(q);                 /* Send quote */
-    ch = is_ip ? '.' : ':';                     /* Get delimiter character */
-    for (uint8_t i = 0; i < (is_ip ? 4 : 6); ++i) { /* Process byte by byte */
-        if (is_ip) {                            /* In case of IP ... */
-            lwesp_u8_to_str(ip->ip[i], str);    /* ... go to decimal format ... */
-        } else {                                /* ... in case of MAC ... */
-            lwesp_u8_to_hex_str(mac->mac[i], str, 2);   /* ... go to HEX format */
+#if LWESP_CFG_IPV6
+    if (ip->type == LWESP_IPTYPE_V6) {
+        ch = ':';
+        len = 8;
+    }
+#endif /* LWESP_CFG_IPV6 */
+    for (uint8_t i = 0; i < len; ++i) {         /* Process all elements */
+        if (0) {
+#if LWESP_CFG_IPV6
+        } else if (ip->type == LWESP_IPTYPE_V6) {
+            /* Format IPV6 */
+            lwesp_u32_to_gen_str(LWESP_U32(ip->addr.ip6.addr[i]), str, 1, 4);
+#endif /* LWESP_CFG_IPV6 */
+        } else {
+            /* Format IPV4 */
+            lwesp_u8_to_str(ip->addr.ip4.addr[i], str);
         }
         AT_PORT_SEND_STR(str);                  /* Send str */
-        if (i < (is_ip ? 4 : 6) - 1) {          /* Check end if characters */
+        if (i < (len - 1)) {                    /* Check end if characters */
+            AT_PORT_SEND_CHR(&ch);              /* Send character */
+        }
+    }
+    AT_PORT_SEND_QUOTE_COND(q);                 /* Send quote */
+}
+
+/**
+ * \brief           Send MAC address to AT port
+ * \param[in]       mac: Pointer to MAC address
+ * \param[in]       q: Set to `1` to include start and ending quotes
+ * \param[in]       c: Set to `1` to include comma before string
+ */
+void
+lwespi_send_mac(const lwesp_mac_t* mac, uint8_t q, uint8_t c) {
+    const uint8_t ch = ':';
+    char str[3];
+
+    AT_PORT_SEND_COMMA_COND(c);                 /* Send comma */
+    if (mac == NULL) {
+        return;
+    }
+    AT_PORT_SEND_QUOTE_COND(q);                 /* Send quote */
+    for (uint8_t i = 0; i < 6; ++i) {           /* Process all elements */
+        lwesp_u8_to_hex_str(mac->mac[i], str, 2);   /* ... go to HEX format */
+        AT_PORT_SEND_STR(str);                  /* Send str */
+        if (i < (6 - 1)) {                      /* Check end if characters */
             AT_PORT_SEND_CHR(&ch);              /* Send character */
         }
     }
@@ -338,11 +371,11 @@ lwespi_reset_everything(uint8_t forced) {
     reset_connections(forced);
 
 #if LWESP_CFG_MODE_STATION
-    esp.m.sta.has_ip = 0;
-    if (esp.m.sta.is_connected) {
+    LWESP_RESET_STA_HAS_IP();
+    if (esp.m.sta.f.is_connected) {
         lwespi_send_cb(LWESP_EVT_WIFI_DISCONNECTED);
     }
-    esp.m.sta.is_connected = 0;
+    esp.m.sta.f.is_connected = 0;
 #endif /* LWESP_CFG_MODE_STATION */
 
     /* Check if IPD active */
@@ -450,7 +483,7 @@ lwespi_tcpip_process_send_data(void) {
     /* On UDP connections, IP address and port may be included */
     if (c->type == LWESP_CONN_TYPE_UDP) {
         if (esp.msg->msg.conn_send.remote_ip != NULL && esp.msg->msg.conn_send.remote_port) {
-            lwespi_send_ip_mac(esp.msg->msg.conn_send.remote_ip, 1, 1, 1);  /* Send IP address including quotes */
+            lwespi_send_ip(esp.msg->msg.conn_send.remote_ip, 1, 1); /* Send IP address including quotes */
             lwespi_send_port(esp.msg->msg.conn_send.remote_port, 0, 1); /* Send length number */
         }
     }
@@ -624,7 +657,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                        || (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET) && !strncmp(rcv->data, "+CIPAP", 6))
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
                       ) {
-                const char* tmp = NULL;
+                const char* tmp = NULL, *ch_p2;
                 lwesp_ip_t ip, *a = NULL, *b = NULL;
                 lwesp_ip_mac_t* im;
                 uint8_t ch = 0;
@@ -644,14 +677,32 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                     /* We expect "+CIPSTA:" or "+CIPAP:" ... */
                     if (rcv->data[6] == ':') {
                         ch = rcv->data[7];
+                        ch_p2 = &rcv->data[9];
                     } else if (rcv->data[7] == ':') {
                         ch = rcv->data[8];
+                        ch_p2 = &rcv->data[10];
                     }
                     switch (ch) {
                         case 'i':
-                            tmp = &rcv->data[10];
-                            a = &im->ip;
-                            b = esp.msg->msg.sta_ap_getip.ip;
+                            if (0) {
+#if LWESP_CFG_IPV6
+                            /* Check local IPv6 address */
+                            } else if (*ch_p2 == '6' && *(ch_p2 + 1) == 'l') {
+                                tmp = &rcv->data[13];
+                                a = &im->ip6_ll;
+                                b = esp.msg->msg.sta_ap_getip.ip6_ll;
+                            /* Check global IPv6 address */
+                            } else if (*ch_p2 == '6' && *(ch_p2 + 1) == 'g') {
+                                tmp = &rcv->data[13];
+                                a = &im->ip6_gl;
+                                b = esp.msg->msg.sta_ap_getip.ip6_gl;
+#endif /* LWESP_CFG_IPV6 */
+                            } else {
+                                LWESP_UNUSED(ch_p2);
+                                tmp = &rcv->data[10];
+                                a = &im->ip;
+                                b = esp.msg->msg.sta_ap_getip.ip;
+                            }
                             break;
                         case 'g':
                             tmp = &rcv->data[15];
@@ -670,7 +721,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                             break;
                     }
                     if (tmp != NULL) {          /* Do we have temporary string? */
-                        if (*tmp == ':') {
+                        if (*tmp == ':' || *tmp == ',') {
                             ++tmp;
                         }
                         lwespi_parse_ip(&tmp, &ip); /* Parse IP address */
@@ -733,17 +784,28 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 #if LWESP_CFG_MODE_STATION
     } else if (strlen(rcv->data) > 4 && !strncmp(rcv->data, "WIFI", 4)) {
         if (!strncmp(&rcv->data[5], "CONNECTED", 9)) {
-            esp.m.sta.is_connected = 1;         /* Wifi is connected */
+            esp.m.sta.f.is_connected = 1;       /* Wifi is connected */
             lwespi_send_cb(LWESP_EVT_WIFI_CONNECTED);   /* Call user callback function */
             if (!CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP)) {/* In case of auto connection */
                 lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 0);   /* Get new IP address */
             }
         } else if (!strncmp(&rcv->data[5], "DISCONNECT", 10)) {
-            esp.m.sta.is_connected = 0;         /* Wifi is disconnected */
-            esp.m.sta.has_ip = 0;               /* There is no valid IP */
+            esp.m.sta.f.is_connected = 0;       /* Wifi is disconnected */
+            LWESP_RESET_STA_HAS_IP();           /* There is no valid IP */
             lwespi_send_cb(LWESP_EVT_WIFI_DISCONNECTED);/* Call user callback function */
         } else if (!strncmp(&rcv->data[5], "GOT IP", 6)) {
-            esp.m.sta.has_ip = 1;               /* Wifi got IP address */
+            if (0) {
+#if LWESP_CFG_IPV6
+            /* Check if IPv6 IP received */
+            } else if (!strncmp(&rcv->data[11], "v6 LL", 5)) {
+                esp.m.sta.f.has_ipv6_ll = 1;
+            } else if (!strncmp(&rcv->data[11], "v6 GL", 5)) {
+                esp.m.sta.f.has_ipv6_gl = 0;
+#endif /* LWESP_CFG_IPV6 */
+            } else {
+                /* IP is for V4 (\todo: Add specific status) */
+            }
+            esp.m.sta.f.has_ip = 1;             /* Wifi got IP address */
             lwespi_send_cb(LWESP_EVT_WIFI_GOT_IP);  /* Call user callback function */
             if (!CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP)) {/* In case of auto connection */
                 lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 0);   /* Get new IP address */
@@ -754,20 +816,26 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             uint8_t ok = 0, major = 0, minor = 0, patch = 0;
             lwespi_parse_at_sdk_version(&rcv->data[11], &esp.m.version_at);
 
+            if (0) {
 #if LWESP_CFG_ESP8266
-            if (esp.m.device == LWESP_DEVICE_ESP8266) {
+            } else if (esp.m.device == LWESP_DEVICE_ESP8266) {
                 major = LWESP_MIN_AT_VERSION_MAJOR_ESP8266;
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP8266;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP8266;
-            }
 #endif /* LWESP_CFG_ESP8266 */
 #if LWESP_CFG_ESP32
-            if (esp.m.device == LWESP_DEVICE_ESP32) {
+            } else if (esp.m.device == LWESP_DEVICE_ESP32) {
                 major = LWESP_MIN_AT_VERSION_MAJOR_ESP32;
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP32;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP32;
-            }
 #endif /* LWESP_CFG_ESP32 */
+#if LWESP_CFG_ESP32
+            } else if (esp.m.device == LWESP_DEVICE_ESP32_C3) {
+                major = LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3;
+                minor = LWESP_MIN_AT_VERSION_MINOR_ESP32_C3;
+                patch = LWESP_MIN_AT_VERSION_PATCH_ESP32_C3;
+#endif /* LWESP_CFG_ESP32 */
+            }
 
             /* TODO: Compare ESP8266 vs ESP32 separatelly */
             /* Compare versions */
@@ -848,14 +916,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     }
 
     /*
-     * Check if connection is just active (or closed):
+     * Check if connection is just active (or closed).
      *
-     * Since new ESP AT release, it is possible to get
-     * connection status by using +LINK_CONN message.
-     *
-     * Check LINK_CONN messages
+     * Check +LINK_CONN messages
      */
     if (rcv->len > 20 && (s = strstr(rcv->data, "+LINK_CONN:")) != NULL) {
+        /* Parse only valid connections, discard others */
         if (lwespi_parse_link_conn(s) && esp.m.link_conn.num < LWESP_CFG_MAX_CONNS) {
             uint8_t id;
             lwesp_conn_t* conn = &esp.m.conns[esp.m.link_conn.num]; /* Get connection pointer */
@@ -889,10 +955,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 conn->local_port = esp.m.link_conn.local_port;
                 conn->status.f.client = !esp.m.link_conn.is_server;
 
-                if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)
-                    && esp.m.link_conn.num == esp.msg->msg.conn_start.num
-                    && conn->status.f.client) { /* Did we start connection on our own and connection is client? */
-                    conn->status.f.client = 1;  /* Go to client mode */
+                /* Connection started as client? */
+                if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART) && conn->status.f.client ) {
+                    /* Use connection for user */
+                    if (esp.msg->msg.conn_start.conn != NULL) {
+                        *esp.msg->msg.conn_start.conn = conn;
+                    }
                     conn->evt_func = esp.msg->msg.conn_start.evt_func;  /* Set callback function */
                     conn->arg = esp.msg->msg.conn_start.arg;/* Set argument for function */
                     esp.msg->msg.conn_start.success = 1;
@@ -1346,6 +1414,7 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
         case LWESP_CMD_BLEINIT_GET:
             if (*is_ok) {
                 esp.m.device = LWESP_DEVICE_ESP32;
+                /* TODO: Check if dev is ESP32-C3 */
             } else {
                 esp.m.device = LWESP_DEVICE_ESP8266;
             }
@@ -1367,6 +1436,11 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
             break;
         case LWESP_CMD_TCPIP_CIPRECVMODE:
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#if LWESP_CFG_IPV6
+            SET_NEW_CMD(LWESP_CMD_WIFI_IPV6);
+            break;
+        case LWESP_CMD_WIFI_IPV6:
+#endif /* LWESP_CFG_IPV6 */
 #if LWESP_CFG_MODE_STATION
             SET_NEW_CMD(LWESP_CMD_WIFI_CWLAPOPT);
             break;                              /* Set visible data for CWLAP command */
@@ -1427,7 +1501,7 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
             if (*is_ok) {                       /* Did we join successfully? */
                 SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET); /* Check IP address status */
             } else {
-                esp.m.sta.is_connected = 0;     /* Force disconnected status */
+                esp.m.sta.f.is_connected = 0;   /* Force disconnected status */
                 /*
                  * Parse received error message,
                  * if final result was error, decide what type
@@ -1717,13 +1791,20 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
         case LWESP_CMD_WIFI_CWLAPOPT: {         /* Set visible data on CWLAP command */
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,31");
+            AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,0x7FF");
             AT_PORT_SEND_END_AT();
             break;
         }
 
-            /* WiFi related commands */
-
+        /* WiFi related commands */
+#if LWESP_CFG_IPV6
+        case LWESP_CMD_WIFI_IPV6: {             /* Enable IPv6 */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPV6=1");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+#endif /* LWESP_CFG_IPV6 */
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_WIFI_CWJAP: {            /* Try to join to access point */
             AT_PORT_SEND_BEGIN_AT();
@@ -1731,7 +1812,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             lwespi_send_string(msg->msg.sta_join.name, 1, 1, 0);
             lwespi_send_string(msg->msg.sta_join.pass, 1, 1, 1);
             if (msg->msg.sta_join.mac != NULL) {
-                lwespi_send_ip_mac(msg->msg.sta_join.mac, 0, 1, 1);
+                lwespi_send_mac(msg->msg.sta_join.mac, 1, 1);
             }
             AT_PORT_SEND_END_AT();
             break;
@@ -1801,6 +1882,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWMODE=");
             lwespi_send_number(LWESP_U32(m), 0, 0);
+            lwespi_send_number(1, 0, 1);
             AT_PORT_SEND_END_AT();
             break;
         }
@@ -1816,75 +1898,75 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
 #if LWESP_CFG_MODE_ACCESS_POINT
         case LWESP_CMD_WIFI_CIPAP_GET:          /* Get access point IP address */
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
-            {
-                AT_PORT_SEND_BEGIN_AT();
-                AT_PORT_SEND_CONST_STR("+CIP");
+        {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIP");
 #if LWESP_CFG_MODE_STATION
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET)) {
-                    AT_PORT_SEND_CONST_STR("STA");
-                }
+            if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET)) {
+                AT_PORT_SEND_CONST_STR("STA");
+            }
 #endif /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET)) {
-                    AT_PORT_SEND_CONST_STR("AP");
-                }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
-                AT_PORT_SEND_CONST_STR("?");
-                AT_PORT_SEND_END_AT();
-                break;
+            if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET)) {
+                AT_PORT_SEND_CONST_STR("AP");
             }
+#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+            AT_PORT_SEND_CONST_STR("?");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_WIFI_CIPSTAMAC_GET:      /* Get station MAC address */
 #endif /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
         case LWESP_CMD_WIFI_CIPAPMAC_GET:       /* Get access point MAC address */
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
-            {
-                AT_PORT_SEND_BEGIN_AT();
-                AT_PORT_SEND_CONST_STR("+CIP");
+        {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIP");
 #if LWESP_CFG_MODE_STATION
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_GET)) {
-                    AT_PORT_SEND_CONST_STR("STA");
-                }
+            if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_GET)) {
+                AT_PORT_SEND_CONST_STR("STA");
+            }
 #endif /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_GET)) {
-                    AT_PORT_SEND_CONST_STR("AP");
-                }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
-                AT_PORT_SEND_CONST_STR("MAC?");
-                AT_PORT_SEND_END_AT();
-                break;
+            if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_GET)) {
+                AT_PORT_SEND_CONST_STR("AP");
             }
+#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+            AT_PORT_SEND_CONST_STR("MAC?");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_WIFI_CIPSTA_SET:         /* Set station IP address */
 #endif /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
         case LWESP_CMD_WIFI_CIPAP_SET:          /* Set access point IP address */
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
-            {
-                AT_PORT_SEND_BEGIN_AT();
-                AT_PORT_SEND_CONST_STR("+CIP");
+        {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIP");
 #if LWESP_CFG_MODE_STATION
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_SET)) {
-                    AT_PORT_SEND_CONST_STR("STA");
-                }
+            if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_SET)) {
+                AT_PORT_SEND_CONST_STR("STA");
+            }
 #endif /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_SET)) {
-                    AT_PORT_SEND_CONST_STR("AP");
-                }
+            if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_SET)) {
+                AT_PORT_SEND_CONST_STR("AP");
+            }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
-                AT_PORT_SEND_CONST_STR("=");
-                lwespi_send_ip_mac(&msg->msg.sta_ap_setip.ip, 1, 1, 0); /* Send IP address */
-                if (msg->msg.sta_ap_setip.gw.ip[0] > 0) {   /* Is gateway set? */
-                    lwespi_send_ip_mac(&msg->msg.sta_ap_setip.gw, 1, 1, 1); /* Send gateway address */
-                    if (msg->msg.sta_ap_setip.nm.ip[0] > 0) {   /* Is netmask set ? */
-                        lwespi_send_ip_mac(&msg->msg.sta_ap_setip.nm, 1, 1, 1); /* Send netmask address */
-                    }
+            AT_PORT_SEND_CONST_STR("=");
+            lwespi_send_ip(&msg->msg.sta_ap_setip.ip, 1, 0);/* Send IP address */
+            if (lwesp_ip_is_valid(&msg->msg.sta_ap_setip.gw) > 0) { /* Is gateway set? */
+                lwespi_send_ip(&msg->msg.sta_ap_setip.gw, 1, 1);/* Send gateway address */
+                if (lwesp_ip_is_valid(&msg->msg.sta_ap_setip.nm) > 0) { /* Is netmask set ? */
+                    lwespi_send_ip(&msg->msg.sta_ap_setip.nm, 1, 1);/* Send netmask address */
                 }
-                AT_PORT_SEND_END_AT();
-                break;
+            }
+            AT_PORT_SEND_END_AT();
+            break;
             }
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_WIFI_CIPSTAMAC_SET:      /* Set station MAC address */
@@ -1892,24 +1974,24 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
 #if LWESP_CFG_MODE_ACCESS_POINT
         case LWESP_CMD_WIFI_CIPAPMAC_SET:       /* Set access point MAC address */
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
-            {
-                AT_PORT_SEND_BEGIN_AT();
-                AT_PORT_SEND_CONST_STR("+CIP");
+        {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIP");
 #if LWESP_CFG_MODE_STATION
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_SET)) {
-                    AT_PORT_SEND_CONST_STR("STA");
-                }
+            if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_SET)) {
+                AT_PORT_SEND_CONST_STR("STA");
+            }
 #endif /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_SET)) {
-                    AT_PORT_SEND_CONST_STR("AP");
-                }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
-                AT_PORT_SEND_CONST_STR("MAC=");
-                lwespi_send_ip_mac(&msg->msg.sta_ap_setmac.mac, 0, 1, 0);
-                AT_PORT_SEND_END_AT();
-                break;
+            if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_SET)) {
+                AT_PORT_SEND_CONST_STR("AP");
             }
+#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+            AT_PORT_SEND_CONST_STR("MAC=");
+            lwespi_send_mac(&msg->msg.sta_ap_setmac.mac, 1, 0);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
         case LWESP_CMD_WIFI_CWDHCP_GET: {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWDHCP?");
@@ -1930,7 +2012,6 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-
 #if LWESP_CFG_MODE_ACCESS_POINT
         case LWESP_CMD_WIFI_CWSAP_SET: {        /* Set soft-access point parameters */
             AT_PORT_SEND_BEGIN_AT();
@@ -1958,10 +2039,12 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
         case LWESP_CMD_WIFI_CWQIF: {            /* Disconnect station from soft-access point */
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+CWQIF=");
-            lwespi_send_ip_mac(&msg->msg.ap_disconn_sta.mac, 0, 1, 0);
+            AT_PORT_SEND_CONST_STR("+CWQIF");
+            if (msg->msg.ap_disconn_sta.use_mac) {
+                AT_PORT_SEND_CONST_STR("=");
+                lwespi_send_mac(&msg->msg.ap_disconn_sta.mac, 1, 0);
+            }
             AT_PORT_SEND_END_AT();
-            break;
             break;
         }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
@@ -2007,7 +2090,6 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
 #endif /* LWESP_CFG_MDNS */
 
         /* TCP/IP related commands */
-
         case LWESP_CMD_TCPIP_CIPSERVER: {       /* Enable or disable server */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSERVER=");
@@ -2048,7 +2130,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_TCPIP_CIPSTART: {        /* Start a new connection */
-            lwesp_conn_t* c = NULL;
+            const char* conn_type_str;
 
             /* Do we have wifi connection? */
             if (!lwesp_sta_has_ip()) {
@@ -2056,35 +2138,23 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 return lwespERRNOIP;
             }
 
-            msg->msg.conn_start.num = 0;
-            for (int16_t i = LWESP_CFG_MAX_CONNS - 1; i >= 0; --i) {/* Find available connection */
-                if (!esp.m.conns[i].status.f.active
-                    || !(esp.m.active_conns & (1 << i))) {
-                    c = &esp.m.conns[i];
-                    c->num = LWESP_U8(i);
-                    msg->msg.conn_start.num = LWESP_U8(i);  /* Set connection number for message structure */
-                    break;
-                }
-            }
-            if (c == NULL) {
-                lwespi_send_conn_error_cb(msg, lwespERRNOFREECONN);
-                return lwespERRNOFREECONN;      /* We don't have available connection */
-            }
-
-            if (msg->msg.conn_start.conn != NULL) { /* Is user interested about connection info? */
-                *msg->msg.conn_start.conn = c;  /* Save connection for user */
-            }
-
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+CIPSTART=");
-            lwespi_send_number(LWESP_U32(c->num), 0, 0);
+            AT_PORT_SEND_CONST_STR("+CIPSTARTEX=");
             if (msg->msg.conn_start.type == LWESP_CONN_TYPE_SSL) {
-                lwespi_send_string("SSL", 0, 1, 1);
+                conn_type_str = "SSL";
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCP) {
-                lwespi_send_string("TCP", 0, 1, 1);
+                conn_type_str = "TCP";
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_UDP) {
-                lwespi_send_string("UDP", 0, 1, 1);
+                conn_type_str = "UDP";
+#if LWESP_CFG_IPV6
+            } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCPV6) {
+                conn_type_str = "TCPV6";
+            } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_SSLV6) {
+#endif /* LWESP_CFG_IPV6 */
+            } else {
+                conn_type_str = "unknonw";
             }
+            lwespi_send_string(conn_type_str, 0, 1, 0);
             lwespi_send_string(msg->msg.conn_start.remote_host, 0, 1, 1);
             lwespi_send_port(msg->msg.conn_start.remote_port, 0, 1);
 
@@ -2106,7 +2176,6 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             break;
         }
 #endif /* LWESP_CFG_MODE_STATION */
-
         case LWESP_CMD_TCPIP_CIPCLOSE: {        /* Close the connection */
             lwesp_conn_p c = msg->msg.conn_close.conn;
             if (c != NULL &&

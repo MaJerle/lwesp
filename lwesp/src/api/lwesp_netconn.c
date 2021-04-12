@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "lwesp/lwesp_netconn.h"
 #include "lwesp/lwesp_private.h"
@@ -46,6 +46,15 @@
 #if LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN < 2
 #error "LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN must be greater or equal to 2"
 #endif /* LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN < 2 */
+
+/* Check for IP status */
+#if LWESP_CFG_IPV6
+#define NETCONN_IS_TCP(nc)          (nc->type == LWESP_NETCONN_TYPE_TCP || nc->type == LWESP_NETCONN_TYPE_TCPV6)
+#define NETCONN_IS_SSL(nc)          (nc->type == LWESP_NETCONN_TYPE_SSL || nc->type == LWESP_NETCONN_TYPE_SSLV6)
+#else
+#define NETCONN_IS_TCP(nc)          (nc->type == LWESP_NETCONN_TYPE_TCP)
+#define NETCONN_IS_SSL(nc)          (nc->type == LWESP_NETCONN_TYPE_SSL)
+#endif /* LWESP_CFG_IPV6 */
 
 /**
  * \brief           Sequential API structure
@@ -406,7 +415,8 @@ lwesp_netconn_connect(lwesp_netconn_p nc, const char* host, lwesp_port_t port) {
  * \return          \ref lwespOK if successfully connected, member of \ref lwespr_t otherwise
  */
 lwespr_t
-lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port, uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode) {
+lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port,
+                        uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode) {
     lwesp_conn_start_t cs = {0};
     lwespr_t res;
 
@@ -425,7 +435,7 @@ lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port
     cs.remote_host = host;
     cs.remote_port = port;
     cs.local_ip = local_ip;
-    if (nc->type == LWESP_NETCONN_TYPE_TCP || nc->type == LWESP_NETCONN_TYPE_SSL) {
+    if (NETCONN_IS_TCP(nc) || NETCONN_IS_SSL(nc)) {
         cs.ext.tcp_ssl.keep_alive = keep_alive;
     } else {
         cs.ext.udp.local_port = local_port;
@@ -507,7 +517,7 @@ lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_connections)
     lwespr_t res;
 
     LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->type must be TCP", nc->type == LWESP_NETCONN_TYPE_TCP);
+    LWESP_ASSERT("nc->type must be TCP", NETCONN_IS_TCP(nc));
 
     /* Enable server on port and set default netconn callback */
     if ((res = lwesp_set_server(1, nc->listen_port,
@@ -533,7 +543,7 @@ lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client) {
 
     LWESP_ASSERT("nc != NULL", nc != NULL);
     LWESP_ASSERT("client != NULL", client != NULL);
-    LWESP_ASSERT("nc->type must be TCP", nc->type == LWESP_NETCONN_TYPE_TCP);
+    LWESP_ASSERT("nc->type must be TCP", NETCONN_IS_TCP(nc));
     LWESP_ASSERT("nc == listen_api", nc == listen_api);
 
     *client = NULL;
@@ -571,7 +581,7 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
     lwespr_t res;
 
     LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->type must be TCP or SSL", nc->type == LWESP_NETCONN_TYPE_TCP || nc->type == LWESP_NETCONN_TYPE_SSL);
+    LWESP_ASSERT("nc->type must be TCP or SSL", NETCONN_IS_TCP(nc) || NETCONN_IS_SSL(nc));
     LWESP_ASSERT("nc->conn must be active", lwesp_conn_is_active(nc->conn));
 
     /*
@@ -649,7 +659,7 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
 lwespr_t
 lwesp_netconn_flush(lwesp_netconn_p nc) {
     LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->type must be TCP or SSL", nc->type == LWESP_NETCONN_TYPE_TCP || nc->type == LWESP_NETCONN_TYPE_SSL);
+    LWESP_ASSERT("nc->type must be TCP or SSL", NETCONN_IS_TCP(nc) || NETCONN_IS_SSL(nc));
     LWESP_ASSERT("nc->conn must be active", lwesp_conn_is_active(nc->conn));
 
     /*

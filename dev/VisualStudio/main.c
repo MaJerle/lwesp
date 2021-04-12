@@ -14,6 +14,7 @@
 #include "netconn_client.h"
 #include "netconn_server.h"
 #include "netconn_server_1thread.h"
+#include "utils.h"
 #include "cayenne.h"
 #include "lwesp/lwesp_timeout.h"
 #include "lwmem/lwmem.h"
@@ -275,10 +276,7 @@ input_thread(void* arg) {
             lwesp_sta_reconnect_set_config(interval, rep_cnt, NULL, NULL, 1);
         } else if (IS_LINE("setip")) {
             lwesp_ip_t dev_ip;
-            dev_ip.ip[0] = 192;
-            dev_ip.ip[1] = 168;
-            dev_ip.ip[2] = 1;
-            dev_ip.ip[3] = 150;
+            lwesp_ip_set_ip4(&dev_ip, 192, 168, 1, 150);
             lwesp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
         } else if (IS_LINE("getip")) {
             lwesp_sta_getip(NULL, NULL, NULL, NULL, NULL, 1);
@@ -308,8 +306,11 @@ input_thread(void* arg) {
             char* host;
 
             if (parse_str(&str, &host)) {
-                lwesp_ping(host, &pingtime, NULL, NULL, 1);
-                safeprintf("Ping time: %d\r\n", (int)pingtime);
+                if (lwesp_ping(host, &pingtime, NULL, NULL, 1) == lwespOK) {
+                    safeprintf("Ping time: %d\r\n", (int)pingtime);
+                } else {
+                    safeprintf("Error with ping to host \"%s\"\r\n", host);
+                }
             } else {
                 safeprintf("Cannot parse host\r\n");
             }
@@ -364,6 +365,9 @@ main_thread(void* arg) {
     if (lwesp_device_is_esp8266()) {
         safeprintf("Device is ESP8266\r\n");
     }
+    if (lwesp_device_is_esp32_c3()) {
+        safeprintf("Device is ESP32-C3\r\n");
+    }
     /* Start thread to toggle device present */
     //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
     lwesp_hostname_set("abc", NULL, NULL, 1);
@@ -379,6 +383,7 @@ main_thread(void* arg) {
      //start_access_point_scan_and_connect_procedure();
      //lwesp_sys_thread_terminate(NULL);
      //connect_to_preferred_access_point(1);
+    lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &aps_count, NULL, NULL, 1);
     lwesp_sta_autojoin(1, NULL, NULL, 1);
     lwesp_sta_join("Majerle WIFI", "majerle_internet_private", NULL, NULL, NULL, 1);
 
@@ -415,12 +420,12 @@ main_thread(void* arg) {
     /* Start server on port 80 */
     //http_server_start();
     //lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    //lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "netconn_server_single", (lwesp_sys_thread_fn)netconn_server_1thread_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Notify user */
 
@@ -508,6 +513,12 @@ lwesp_evt(lwesp_evt_t* evt) {
         }
         case LWESP_EVT_WIFI_GOT_IP: {
             safeprintf("Wifi got an IP address.\r\n");
+            if (lwesp_sta_has_ipv6_local()) {
+                safeprintf("Wifi got IPv6 local IP address.\r\n");
+            }
+            if (lwesp_sta_has_ipv6_global()) {
+                safeprintf("Wifi got IPv6 global IP address.\r\n");
+            }
             break;
         }
         case LWESP_EVT_WIFI_CONNECTED: {
@@ -533,32 +544,28 @@ lwesp_evt(lwesp_evt_t* evt) {
 
             safeprintf("WIFI IP ACQUIRED!\r\n");
             if (lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp) == lwespOK) {
-                safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
+                utils_print_ip("IP: ", &ip, "\r\n");
             } else {
                 safeprintf("Acquired IP is not valid\r\n");
             }
-
             break;
         }
 #if LWESP_CFG_MODE_ACCESS_POINT
         case LWESP_EVT_AP_CONNECTED_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_connected_sta_get_mac(evt);
-            safeprintf("New station connected to ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
+            utils_print_mac("New station connected to AP with MAC: ", mac, "\r\n");
             break;
         }
         case LWESP_EVT_AP_DISCONNECTED_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_disconnected_sta_get_mac(evt);
-            safeprintf("Station disconnected from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X\r\n",
-                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5]);
+            utils_print_mac("New station disconnected from AP with MAC: ", mac, "\r\n");
             break;
         }
         case LWESP_EVT_AP_IP_STA: {
             lwesp_mac_t* mac = lwesp_evt_ap_ip_sta_get_mac(evt);
             lwesp_ip_t* ip = lwesp_evt_ap_ip_sta_get_ip(evt);
-            safeprintf("Station received IP address from ESP's AP with MAC: %02X:%02X:%02X:%02X:%02X:%02X and IP: %d.%d.%d.%d\r\n",
-                mac->mac[0], mac->mac[1], mac->mac[2], mac->mac[3], mac->mac[4], mac->mac[5],
-                ip->ip[0], ip->ip[1], ip->ip[2], ip->ip[3]);
+            utils_print_ip("Station got IP address (from AP): ", ip, "");
+            utils_print_mac(" and MAC: ", mac, "\r\n");
             break;
         }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
