@@ -183,7 +183,7 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
 
 /**
  * \brief           Send IP address to AT port
- * \param[in]       mac: Pointer to IP address
+ * \param[in]       ip: Pointer to IP address
  * \param[in]       q: Set to `1` to include start and ending quotes
  * \param[in]       c: Set to `1` to include comma before string
  */

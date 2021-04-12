@@ -145,10 +145,10 @@ typedef struct {
 typedef struct {
     union {
         lwesp_ip4_addr_t ip4;                   /*!< IPv4 address */
-#if LWESP_CFG_IPV6
+#if LWESP_CFG_IPV6 || __DOXGEN__
         lwesp_ip6_addr_t ip6;                   /*!< IPv6 address */
-#endif /* LWESP_CFG_IPV6 */
-    } addr;
+#endif /* LWESP_CFG_IPV6  || __DOXGEN__ */
+    } addr;                                     /*!< Actual IP address */
     lwesp_iptype_t type;                        /*!< IP type, either V4 or V6 */
 } lwesp_ip_t;
 
@@ -338,7 +338,7 @@ typedef enum {
 #if LWESP_CFG_IPV6 || __DOXYGEN__
     LWESP_CONN_TYPE_TCPV6,                      /*!< Connection type is TCP over IPV6 */
     LWESP_CONN_TYPE_SSLV6,                      /*!< Connection type is SSL over IPV6 */
-#endif /* LWESP_CFG_IPV6 */
+#endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 } lwesp_conn_type_t;
 
 /* Forward declarations */
