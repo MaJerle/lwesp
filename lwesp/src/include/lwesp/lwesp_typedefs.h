@@ -91,6 +91,9 @@ typedef enum {
 #if LWESP_CFG_ESP32 || __DOXYGEN__
     LWESP_DEVICE_ESP32,                         /*!< Device is ESP32 */
 #endif /* LWESP_CFG_ESP32 || __DOXYGEN__ */
+#if LWESP_CFG_ESP32_C3 || __DOXYGEN__
+    LWESP_DEVICE_ESP32_C3,
+#endif /* LWESP_CFG_ESP32_C3 || __DOXYGEN__ */
     LWESP_DEVICE_UNKNOWN,                       /*!< Unknown device */
 } lwesp_device_t;
 

@@ -365,6 +365,9 @@ main_thread(void* arg) {
     if (lwesp_device_is_esp8266()) {
         safeprintf("Device is ESP8266\r\n");
     }
+    if (lwesp_device_is_esp32_c3()) {
+        safeprintf("Device is ESP32-C3\r\n");
+    }
     /* Start thread to toggle device present */
     //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
     lwesp_hostname_set("abc", NULL, NULL, 1);

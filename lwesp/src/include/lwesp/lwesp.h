@@ -67,6 +67,7 @@ uint8_t     lwesp_device_is_present(void);
 
 uint8_t     lwesp_device_is_esp8266(void);
 uint8_t     lwesp_device_is_esp32(void);
+uint8_t     lwesp_device_is_esp32_c3(void);
 
 uint8_t     lwesp_delay(const uint32_t ms);
 

@@ -829,6 +829,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP32;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP32;
 #endif /* LWESP_CFG_ESP32 */
+#if LWESP_CFG_ESP32
+            } else if (esp.m.device == LWESP_DEVICE_ESP32_C3) {
+                major = LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3;
+                minor = LWESP_MIN_AT_VERSION_MINOR_ESP32_C3;
+                patch = LWESP_MIN_AT_VERSION_PATCH_ESP32_C3;
+#endif /* LWESP_CFG_ESP32 */
             }
 
             /* TODO: Compare ESP8266 vs ESP32 separatelly */
@@ -1408,6 +1414,7 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
         case LWESP_CMD_BLEINIT_GET:
             if (*is_ok) {
                 esp.m.device = LWESP_DEVICE_ESP32;
+                /* TODO: Check if dev is ESP32-C3 */
             } else {
                 esp.m.device = LWESP_DEVICE_ESP8266;
             }

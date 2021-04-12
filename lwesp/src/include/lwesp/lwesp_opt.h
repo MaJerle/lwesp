@@ -66,6 +66,14 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` support for ESP32-C3 AT commands
+ *
+ */
+#ifndef LWESP_CFG_ESP32_C3
+#define LWESP_CFG_ESP32_C3                      0
+#endif
+
+/**
  * \brief           Enables `1` or disables `0` operating system support for ESP library
  *
  * \note            Value must be set to `1` in the current revision
@@ -738,11 +746,14 @@ void *  my_memset(void* dst, int b, size_t len);
  */
 
 #define LWESP_MIN_AT_VERSION_MAJOR_ESP8266      2   /*!< Minimal major version for ESP8266 */
-#define LWESP_MIN_AT_VERSION_MINOR_ESP8266      1   /*!< Minimal minor version for ESP8266 */
+#define LWESP_MIN_AT_VERSION_MINOR_ESP8266      2   /*!< Minimal minor version for ESP8266 */
 #define LWESP_MIN_AT_VERSION_PATCH_ESP8266      0   /*!< Minimal patch version for ESP8266 */
 #define LWESP_MIN_AT_VERSION_MAJOR_ESP32        2   /*!< Minimal major version for ESP32 */
-#define LWESP_MIN_AT_VERSION_MINOR_ESP32        1   /*!< Minimal minor version for ESP32 */
+#define LWESP_MIN_AT_VERSION_MINOR_ESP32        2   /*!< Minimal minor version for ESP32 */
 #define LWESP_MIN_AT_VERSION_PATCH_ESP32        0   /*!< Minimal patch version for ESP32 */
+#define LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3     2   /*!< Minimal major version for ESP32-C3 */
+#define LWESP_MIN_AT_VERSION_MINOR_ESP32_C3     2   /*!< Minimal minor version for ESP32-C3 */
+#define LWESP_MIN_AT_VERSION_PATCH_ESP32_C3     0   /*!< Minimal patch version for ESP32-C3 */
 
 /**
  * \}
@@ -766,8 +777,8 @@ void *  my_memset(void* dst, int b, size_t len);
 #endif /* !LWESP_CFG_OS */
 
 /* Device config */
-#if !LWESP_CFG_ESP8266 && !LWESP_CFG_ESP32
-#error "At least one of LWESP_CFG_ESP8266 or LWESP_CFG_ESP32 must be set to 1!"
+#if !LWESP_CFG_ESP8266 && !LWESP_CFG_ESP32 && !LWESP_CFG_ESP32_C3
+#error "At least one of LWESP_CFG_ESP8266 or LWESP_CFG_ESP32 or LWESP_CFG_ESP32_C3 must be set to 1!"
 #endif /* !LWESP_CFG_ESP8266 && !LWESP_CFG_ESP32 */
 
 /* WPS config */

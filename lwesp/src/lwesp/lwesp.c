@@ -480,6 +480,23 @@ lwesp_device_is_esp32(void) {
 
 #endif /* LWESP_CFG_ESP32 || __DOXYGEN__ */
 
+#if LWESP_CFG_ESP32_C3 || __DOXYGEN__
+
+/**
+ * \brief           Check if modem device is ESP32
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+lwesp_device_is_esp32_c3(void) {
+    uint8_t res;
+    lwesp_core_lock();
+    res = esp.status.f.dev_present && esp.m.device == LWESP_DEVICE_ESP32_C3;
+    lwesp_core_unlock();
+    return res;
+}
+
+#endif /* LWESP_CFG_ESP32_C3 || __DOXYGEN__ */
+
 /**
  * \brief           Get current AT firmware version of connected device
  * \param[out]      version: Output version variable
