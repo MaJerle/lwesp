@@ -35,7 +35,7 @@ Response has to be processed in event callback function.
 
 .. warning::
 	Due to internal architecture, it is only allowed to call API functions in *non-blocking mode* from events or callbacks.
-	Any attempt to do so will result in function returning error.
+	Any attempt not to do so will result in function returning error.
 
 Example code:
 
