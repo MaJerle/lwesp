@@ -500,6 +500,18 @@ exit:
     return res;
 }
 
+/**
+ * \brief           Publish data to cayenne cloud
+ * \param[in]       c: Cayenne handle
+ * \param[in]       topic: Cayenne specific topic to publish on
+ * \param[in]       channel: Device channel to publish on
+ * \param[in]       type: Data type, string format, for example `temp` for temperature.
+ *                      Set to `NULL` if not used
+ * \param[in]       unit: Data unit, string format, for example `c` for celcius.
+ *                      Set to `NULL` if not used
+ * \param[in]       data: Actual data, for example `127` for `127` degrees
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
+ */
 lwespr_t
 lwesp_cayenne_publish_data(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel,
                          const char* type, const char* unit, const char* data) {
@@ -551,9 +563,8 @@ lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwe
         goto exit;
     }
     payload_data[0] = 0;
-    strcat(payload_data, resp == LWESP_CAYENNE_RLWESP_OK ? "ok," : "error,");
-    strcat(payload_data, msg->seq);
-    if (resp != LWESP_CAYENNE_RLWESP_OK) {
+    sprintf(payload_data, "%s,%s", resp == LWESP_CAYENNE_RESP_OK ? "ok" : "error", msg->seq);
+    if (resp != LWESP_CAYENNE_RESP_OK) {
         strcat(payload_data, "=");
         len = strlen(payload_data);
         msg_len = strlen(message);

@@ -40,6 +40,11 @@ cayenne_evt(lwesp_cayenne_t* c, lwesp_cayenne_evt_t* evt) {
     switch (lwesp_cayenne_evt_get_type(evt)) {
         case LWESP_CAYENNE_EVT_CONNECT: {
             /* We are connected, build schema */
+            safeprintf("[CAYENNE APP] Just now connected...sending up default (or up-to-date) data\r\n");
+
+            /* Send device description */
+            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_SYS_MODEL, LWESP_CAYENNE_NO_CHANNEL, NULL, NULL, "My custom model");
+            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_SYS_CPU_SPEED, LWESP_CAYENNE_NO_CHANNEL, NULL, NULL, "550000000");
 
             /* Sensors.. */
             lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_DATA, 0, "temp", "c", "20.7");
@@ -49,13 +54,13 @@ cayenne_evt(lwesp_cayenne_t* c, lwesp_cayenne_evt_t* evt) {
             /* Actuators.. */
             lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_COMMAND, 10, "temp", "c", "23.7");
             lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_COMMAND, 11, "temp", "c", "26.7");
-
             break;
         }
         case LWESP_CAYENNE_EVT_DATA: {
             /* Reply with the same */
-            safeprintf("DATA: %s\r\n", evt->evt.data.msg->values[0].value);
-            lwesp_cayenne_publish_response(c, evt->evt.data.msg, LWESP_CAYENNE_RLWESP_OK, "0");
+            safeprintf("[CAYENNE APP] data received: %s\r\n", evt->evt.data.msg->values[0].value);
+            lwesp_cayenne_publish_response(c, evt->evt.data.msg, LWESP_CAYENNE_RESP_OK, "0");
+            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_DIGITAL, evt->evt.data.msg->channel, NULL, NULL, evt->evt.data.msg->values[0].value);
             //evt->evt.data.msg->channel
             break;
         }
@@ -88,7 +93,7 @@ cayenne_thread(void const* arg) {
             lwesp_cayenne_publish_data(&cayenne, LWESP_CAYENNE_TOPIC_DATA, 2, "temp", "c", s);
             temp += 0.34f;
         }
-        lwesp_delay(1000);
+        lwesp_delay(10000);
     }
 
     lwesp_sys_thread_terminate(NULL);

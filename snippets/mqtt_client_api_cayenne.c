@@ -18,7 +18,7 @@
 static const lwesp_mqtt_client_info_t
 mqtt_client_info = {
     /* Device ID */
-    .id = "4066d340-11ee-11e9-810f-075d38a26cc9",
+    .id = "869f5a20-af9c-11e9-b01f-db5cf74e7fb7",
 
     /* User credentials */
     .user = "8a215f70-a644-11e8-ac49-e932ed599553",
@@ -98,10 +98,11 @@ beg:
                         safeprintf("[MQTT] Connection closed!\r\n");
                         goto beg;
                     } else if (res == lwespTIMEOUT) {
+                        static uint32_t temp;
                         safeprintf("[MQTT] Receive timeout!\r\n");
 
                         sprintf(mqtt_client_str, "v1/%s/things/%s/data/1", mqtt_client_info.user, mqtt_client_info.id);
-                        sprintf(mqtt_client_data, "temp,c=31");
+                        sprintf(mqtt_client_data, "temp,c=%u", (unsigned)temp++);
                         safeprintf("[MQTT] CLIENT DATA: %s, length: %d\r\n", mqtt_client_data, (int)strlen(mqtt_client_data));
                         lwesp_mqtt_client_api_publish(client, mqtt_client_str, mqtt_client_data, strlen(mqtt_client_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0);
                     }

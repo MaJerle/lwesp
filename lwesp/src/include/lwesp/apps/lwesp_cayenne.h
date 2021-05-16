@@ -97,8 +97,8 @@ typedef enum {
  * \brief           Cayenne response types
  */
 typedef enum {
-    LWESP_CAYENNE_RLWESP_OK,                    /*!< Response OK */
-    LWESP_CAYENNE_RLWESP_ERROR,                 /*!< Response error */
+    LWESP_CAYENNE_RESP_OK,                      /*!< Response OK */
+    LWESP_CAYENNE_RESP_ERROR,                   /*!< Response error */
 } lwesp_cayenne_rlwesp_t;
 
 /**

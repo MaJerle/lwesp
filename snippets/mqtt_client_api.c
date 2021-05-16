@@ -30,10 +30,16 @@ mqtt_client_info = {
 };
 
 /**
- * \brief           Memory for temporary topic
+ * \brief           Memory for topic
  */
 static char
 mqtt_topic_str[256];
+
+/**
+ * \brief           Memory for data
+ */
+static char
+mqtt_topic_data[256];
 
 /**
  * \brief           Generate random number and write it to string
@@ -105,7 +111,8 @@ mqtt_client_api_thread(void const* arg) {
                 /* Publish data on channel 1 */
                 generate_random(random_str);
                 sprintf(mqtt_topic_str, "v1/%s/things/%s/data/1", mqtt_client_info.user, mqtt_client_info.id);
-                lwesp_mqtt_client_api_publish(client, mqtt_topic_str, random_str, strlen(random_str), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0);
+                sprintf(mqtt_topic_data, "temp,c=%s", random_str);
+                lwesp_mqtt_client_api_publish(client, mqtt_topic_str, mqtt_topic_data, strlen(mqtt_topic_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0);
             }
         }
         //goto terminate;
