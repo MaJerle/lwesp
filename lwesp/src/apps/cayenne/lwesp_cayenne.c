@@ -345,6 +345,7 @@ prv_mqtt_thread(void* const arg) {
 
             /* We are connected and ready to subscribe/publish/receive packets */
             lwesp_cayenne_subscribe(c, LWESP_CAYENNE_TOPIC_COMMAND, LWESP_CAYENNE_ALL_CHANNELS);
+            lwesp_cayenne_subscribe(c, LWESP_CAYENNE_TOPIC_CONFIG, LWESP_CAYENNE_ALL_CHANNELS);
 
             /* Unlimited loop */
             while (1) {

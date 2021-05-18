@@ -52,15 +52,15 @@ cayenne_evt(lwesp_cayenne_t* c, lwesp_cayenne_evt_t* evt) {
             lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_DATA, 2, "temp", "c", "26.7");
 
             /* Actuators.. */
-            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_COMMAND, 10, "temp", "c", "23.7");
-            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_COMMAND, 11, "temp", "c", "26.7");
+            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_DATA, 10, "temp", "c", "23.7");
+            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_DATA, 11, "temp", "c", "26.7");
             break;
         }
         case LWESP_CAYENNE_EVT_DATA: {
             /* Reply with the same */
             safeprintf("[CAYENNE APP] data received: %s\r\n", evt->evt.data.msg->values[0].value);
             lwesp_cayenne_publish_response(c, evt->evt.data.msg, LWESP_CAYENNE_RESP_OK, "0");
-            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_DIGITAL, evt->evt.data.msg->channel, NULL, NULL, evt->evt.data.msg->values[0].value);
+            lwesp_cayenne_publish_data(c, LWESP_CAYENNE_TOPIC_DATA, evt->evt.data.msg->channel, NULL, NULL, evt->evt.data.msg->values[0].value);
             //evt->evt.data.msg->channel
             break;
         }
