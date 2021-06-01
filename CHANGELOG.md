@@ -10,6 +10,7 @@
 - Add option to disconnect all stations from Soft-AP
 - TODO: Add DNS for IPv6 support (Optional)
 - TODO: Add support for WIFI GOT IP to parse IPv6
+- Update CMSIS OS driver to support FreeRTOS aware kernel
 
 ## v1.0.0
 
