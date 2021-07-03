@@ -2354,10 +2354,15 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
  */
 uint8_t
 lwespi_is_valid_conn_ptr(lwesp_conn_p conn) {
-    for (size_t i = 0; i < LWESP_ARRAYSIZE(esp.m.conns); ++i) {
-        if (conn == &esp.m.conns[i]) {
-            return 1;
-        }
+    static lwesp_conn_p conn_addr_begin = &esp.m.conns[0];
+    static lwesp_conn_p conn_addr_end = &esp.m.conns[LWESP_CFG_MAX_CONNS];
+    if ((uintptr_t)conn % sizeof(void*) == 0 && conn >= conn_addr_begin && conn < conn_addr_end) {
+        /*
+         * Check if connection pointer is
+         * - legal pointer address(aligned)
+         * - within correct range
+         */
+        return 1;
     }
     return 0;
 }
