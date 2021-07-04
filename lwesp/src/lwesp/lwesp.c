@@ -300,6 +300,27 @@ lwesp_set_at_baudrate(uint32_t baud,
 }
 
 /**
+ * \brief           Sets AT sleep mode
+ * \param[in]       mode: AT sleep mode. 0 to disable sleep mode and 1 to enable sleep mode
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
+lwespr_t
+lwesp_set_sleep_mode(uint32_t mode,
+                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
+
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_SLEEP;
+    LWESP_MSG_VAR_REF(msg).msg.sleep.mode = !!mode;
+
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 2000);
+}
+
+/**
  * \brief           Enables or disables server mode
  * \param[in]       en: Set to `1` to enable server, `0` otherwise
  * \param[in]       port: Port number used to listen on. Must also be used when disabling server mode

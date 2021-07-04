@@ -267,6 +267,9 @@ typedef struct lwesp_msg {
             uint32_t baudrate;                  /*!< Baudrate for AT port */
         } uart;                                 /*!< UART configuration */
         struct {
+            uint32_t mode;                      /*!< Sleep mode */
+        } sleep;                                /*!< Sleep configuration */
+        struct {
             lwesp_mode_t mode;                  /*!< Mode of operation */
             lwesp_mode_t* mode_get;             /*!< Get mode */
         } wifi_mode;                            /*!< When message type \ref LWESP_CMD_WIFI_CWMODE is used */

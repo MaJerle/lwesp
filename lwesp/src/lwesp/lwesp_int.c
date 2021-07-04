@@ -1789,6 +1789,13 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
+        case LWESP_CMD_SLEEP: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SLEEP=");
+            lwespi_send_number(LWESP_U32(msg->msg.sleep.mode), 0, 0);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
         case LWESP_CMD_WIFI_CWLAPOPT: {         /* Set visible data on CWLAP command */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,0x7FF");
