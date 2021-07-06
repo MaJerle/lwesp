@@ -786,6 +786,11 @@ void *  my_memset(void* dst, int b, size_t len);
 #error "WPS function may only be used when station mode is enabled!"
 #endif /* LWESP_CFG_WPS && !LWESP_CFG_MODE_STATION */
 
+/* WPS config */
+#if LWESP_CFG_WPS && LWESP_CFG_MODE_STATION_ACCESS_POINT
+#error "WPS function may only be used with station mode enabled only!"
+#endif /* LWESP_CFG_WPS && LWESP_CFG_MODE_STATION_ACCESS_POINT */
+
 #endif /* !__DOXYGEN__ */
 
 #include "lwesp/lwesp_debug.h"
