@@ -452,7 +452,7 @@ lwesp_mem_assignmemory(const lwesp_mem_region_t* regions, size_t len) {
  */
 uint8_t
 lwesp_mem_free_s(void** ptr) {
-    if (ptr != NULL && *ptr != NULL) {
+    if (ptr != NULL) {
         lwesp_mem_free(*ptr);
         *ptr = NULL;
         return 1;
