@@ -46,7 +46,25 @@ extern "C" {
  * \{
  */
 
+/**
+ * \brief           Callback function called from initialization process
+ *
+ * \note            This function may be called multiple times if AT baudrate is changed from application.
+ *                  It is important that every configuration except AT baudrate is configured only once!
+ *
+ * \note            This function may be called from different threads in ESP stack when using OS.
+ *                  When \ref LWESP_CFG_INPUT_USE_PROCESS is set to `1`, this function may be called from user UART thread.
+ *
+ * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
 lwespr_t    lwesp_ll_init(lwesp_ll_t* ll);
+
+/**
+ * \brief           Callback function to de-init low-level communication part
+ * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
 lwespr_t    lwesp_ll_deinit(lwesp_ll_t* ll);
 
 /**
