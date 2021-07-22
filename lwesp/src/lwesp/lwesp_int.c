@@ -829,12 +829,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP32;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP32;
 #endif /* LWESP_CFG_ESP32 */
-#if LWESP_CFG_ESP32
+#if LWESP_CFG_ESP32_C3
             } else if (esp.m.device == LWESP_DEVICE_ESP32_C3) {
                 major = LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3;
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP32_C3;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP32_C3;
-#endif /* LWESP_CFG_ESP32 */
+#endif /* LWESP_CFG_ESP32_C3 */
             }
 
             /* TODO: Compare ESP8266 vs ESP32 separatelly */
