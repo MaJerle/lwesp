@@ -30,7 +30,6 @@
  * Version:         v1.1.0-dev
  * Author:          Adrian Carpenter (FreeRTOS port)
  */
-
 #include "system/lwesp_sys.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -52,7 +51,7 @@ lwesp_sys_init(void) {
 
 uint32_t
 lwesp_sys_now(void) {
-    return xTaskGetTickCount();
+    return xTaskGetTickCount() * portTICK_PERIOD_MS;
 }
 
 uint8_t
