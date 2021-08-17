@@ -1,6 +1,6 @@
 /**
- * \file            lwesp_sys_freertos_os.c
- * \brief           System dependant functions
+ * \file            lwesp_sys_freertos.c
+ * \brief           System dependant functions for FreeRTOS
  */
 
 /*
@@ -27,8 +27,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.1.0-dev
  * Author:          Adrian Carpenter (FreeRTOS port)
+ * Version:         v1.1.0-dev
  */
 #include "system/lwesp_sys.h"
 #include "FreeRTOS.h"
@@ -36,12 +36,13 @@
 #include "semphr.h"
 
 #if !__DOXYGEN__
+
 /* Mutex ID for main protection */
 static SemaphoreHandle_t sys_mutex;
 
-typedef struct freertos_mbox {
+typedef struct {
     void* d;
-} freertos_mbox;
+} freertos_mbox_t;
 
 uint8_t
 lwesp_sys_init(void) {
@@ -106,7 +107,6 @@ lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt) {
     if (*p != NULL && cnt) {
         xSemaphoreGive(*p);
     }
-
     return *p != NULL;
 }
 
@@ -140,7 +140,7 @@ lwesp_sys_sem_invalid(lwesp_sys_sem_t* p) {
 
 uint8_t
 lwesp_sys_mbox_create(lwesp_sys_mbox_t* b, size_t size) {
-    *b = xQueueCreate(size, sizeof(freertos_mbox));
+    *b = xQueueCreate(size, sizeof(freertos_mbox_t));
     return *b != NULL;
 }
 
@@ -155,7 +155,7 @@ lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b) {
 
 uint32_t
 lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
-    freertos_mbox mb;
+    freertos_mbox_t mb;
     uint32_t t = xTaskGetTickCount();
 
     mb.d = m;
@@ -165,7 +165,7 @@ lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
 
 uint32_t
 lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
-    freertos_mbox mb;
+    freertos_mbox_t mb;
     uint32_t t = xTaskGetTickCount();
 
     if (xQueueReceive(*b, &mb, !timeout ? portMAX_DELAY : pdMS_TO_TICKS(timeout))) {
@@ -177,7 +177,7 @@ lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
 
 uint8_t
 lwesp_sys_mbox_putnow(lwesp_sys_mbox_t* b, void* m) {
-    freertos_mbox mb;
+    freertos_mbox_t mb;
 
     mb.d = m;
     return xQueueSendFromISR(*b, &mb, 0) == pdPASS;
@@ -185,7 +185,7 @@ lwesp_sys_mbox_putnow(lwesp_sys_mbox_t* b, void* m) {
 
 uint8_t
 lwesp_sys_mbox_getnow(lwesp_sys_mbox_t* b, void** m) {
-    freertos_mbox mb;
+    freertos_mbox_t mb;
 
     if (xQueueReceive(*b, &mb, 0)) {
         *m = mb.d;
@@ -207,7 +207,7 @@ lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b) {
 
 uint8_t
 lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
-    return xTaskCreate(thread_func, name, stack_size, arg, prio, t) == pdPASS ? 1 : 0;
+    return xTaskCreate(thread_func, name, stack_size / sizeof(portSTACK_TYPE), arg, prio, t) == pdPASS ? 1 : 0;
 }
 
 uint8_t
