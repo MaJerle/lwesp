@@ -119,7 +119,7 @@ lwesp_sys_sem_delete(lwesp_sys_sem_t* p) {
 uint32_t
 lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
     uint32_t t = xTaskGetTickCount();
-    return xSemaphoreTake(*p, !timeout ? portMAX_DELAY : timeout) == pdPASS ? (xTaskGetTickCount() - t) : LWESP_SYS_TIMEOUT;
+    return xSemaphoreTake(*p, !timeout ? portMAX_DELAY : pdMS_TO_TICKS(timeout)) == pdPASS ? ((xTaskGetTickCount() - t) * portTICK_PERIOD_MS): LWESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -168,9 +168,9 @@ lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
     freertos_mbox mb;
     uint32_t t = xTaskGetTickCount();
 
-    if (xQueueReceive(*b, &mb, !timeout ? portMAX_DELAY : timeout)) {
+    if (xQueueReceive(*b, &mb, !timeout ? portMAX_DELAY : pdMS_TO_TICKS(timeout))) {
         *m = mb.d;
-        return xTaskGetTickCount() - t;
+        return (xTaskGetTickCount() - t) * portTICK_PERIOD_MS;
     }
     return LWESP_SYS_TIMEOUT;
 }
