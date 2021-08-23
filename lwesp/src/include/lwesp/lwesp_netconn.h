@@ -73,31 +73,32 @@ typedef enum {
 #endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 } lwesp_netconn_type_t;
 
-lwesp_netconn_p lwesp_netconn_new(lwesp_netconn_type_t type);
-lwespr_t        lwesp_netconn_delete(lwesp_netconn_p nc);
-lwespr_t        lwesp_netconn_bind(lwesp_netconn_p nc, lwesp_port_t port);
-lwespr_t        lwesp_netconn_connect(lwesp_netconn_p nc, const char* host, lwesp_port_t port);
-lwespr_t        lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf);
-lwespr_t        lwesp_netconn_close(lwesp_netconn_p nc);
-int8_t          lwesp_netconn_get_connnum(lwesp_netconn_p nc);
-lwesp_conn_p    lwesp_netconn_get_conn(lwesp_netconn_p nc);
-void            lwesp_netconn_set_receive_timeout(lwesp_netconn_p nc, uint32_t timeout);
-uint32_t        lwesp_netconn_get_receive_timeout(lwesp_netconn_p nc);
+lwesp_netconn_p      lwesp_netconn_new(lwesp_netconn_type_t type);
+lwespr_t             lwesp_netconn_delete(lwesp_netconn_p nc);
+lwespr_t             lwesp_netconn_bind(lwesp_netconn_p nc, lwesp_port_t port);
+lwespr_t             lwesp_netconn_connect(lwesp_netconn_p nc, const char* host, lwesp_port_t port);
+lwespr_t             lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf);
+lwespr_t             lwesp_netconn_close(lwesp_netconn_p nc);
+int8_t               lwesp_netconn_get_connnum(lwesp_netconn_p nc);
+lwesp_conn_p         lwesp_netconn_get_conn(lwesp_netconn_p nc);
+lwesp_netconn_type_t lwesp_netconn_get_type(lwesp_netconn_p nc);
+void                 lwesp_netconn_set_receive_timeout(lwesp_netconn_p nc, uint32_t timeout);
+uint32_t             lwesp_netconn_get_receive_timeout(lwesp_netconn_p nc);
 
-lwespr_t        lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port,
-                                       uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode);
+lwespr_t             lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port,
+                                            uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode);
 
 /* TCP only */
-lwespr_t        lwesp_netconn_listen(lwesp_netconn_p nc);
-lwespr_t        lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_connections);
-lwespr_t        lwesp_netconn_set_listen_conn_timeout(lwesp_netconn_p nc, uint16_t timeout);
-lwespr_t        lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client);
-lwespr_t        lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw);
-lwespr_t        lwesp_netconn_flush(lwesp_netconn_p nc);
+lwespr_t             lwesp_netconn_listen(lwesp_netconn_p nc);
+lwespr_t             lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_connections);
+lwespr_t             lwesp_netconn_set_listen_conn_timeout(lwesp_netconn_p nc, uint16_t timeout);
+lwespr_t             lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client);
+lwespr_t             lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw);
+lwespr_t             lwesp_netconn_flush(lwesp_netconn_p nc);
 
 /* UDP only */
-lwespr_t        lwesp_netconn_send(lwesp_netconn_p nc, const void* data, size_t btw);
-lwespr_t        lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_port_t port, const void* data, size_t btw);
+lwespr_t             lwesp_netconn_send(lwesp_netconn_p nc, const void* data, size_t btw);
+lwespr_t             lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_port_t port, const void* data, size_t btw);
 
 /**
  * \}
