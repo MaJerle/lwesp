@@ -843,4 +843,14 @@ lwesp_netconn_get_conn(lwesp_netconn_p nc) {
     return nc->conn;
 }
 
+/**
+ * \brief           Get netconn connection type
+ * \param[in]       nc: Netconn handle
+ * \return          ESP connection type
+ */
+lwesp_netconn_type_t
+lwesp_netconn_get_type(lwesp_netconn_p nc) {
+    return nc->type;
+}
+
 #endif /* LWESP_CFG_NETCONN || __DOXYGEN__ */
