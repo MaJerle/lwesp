@@ -2337,14 +2337,14 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
 #endif /* LWESP_CFG_SMART */
 #if LWESP_CFG_WEBSERVER
-        case LWESP_CMD_WEBSERVER: {             /* Start smart config */
+        case LWESP_CMD_WEBSERVER: {             /* Start Web Server */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+WEBSERVER=");
             if (msg->msg.web_server.en) {
                 AT_PORT_SEND_CONST_STR("1");
                 lwespi_send_port(msg->msg.web_server.port, 0, 1);
                 lwespi_send_number(msg->msg.web_server.timeout, 0, 1);
-            } else {                            /* Disable server */
+            } else {                            /* Stop Web server */
                 AT_PORT_SEND_CONST_STR("0");
             }
             AT_PORT_SEND_END_AT();
