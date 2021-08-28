@@ -273,6 +273,14 @@ lwespr_t    lwesp_evt_ping_get_result(lwesp_evt_t* cc);
 const char* lwesp_evt_ping_get_host(lwesp_evt_t* cc);
 uint32_t    lwesp_evt_ping_get_time(lwesp_evt_t* cc);
 
+/**
+ * \anchor          LWESP_EVT_WEBSERVER
+ * \name            Web Server
+ * \brief           Event helper functions for \ref LWESP_EVT_WEBSERVER event
+ */
+
+uint8_t    lwesp_evt_webserver_get_status(lwesp_evt_t* cc);
+
 
 /**
  * \}

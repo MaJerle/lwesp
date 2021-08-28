@@ -151,6 +151,9 @@ typedef enum {
     LWESP_CMD_WIFI_SMART_START,                 /*!< Start smart config */
     LWESP_CMD_WIFI_SMART_STOP,                  /*!< Stop smart config */
 #endif /* LWESP_CFG_SMART || __DOXYGEN__ */
+#if LWESP_CFG_WEBSERVER || __DOXYGEN__
+    LWESP_CMD_WEBSERVER,                        /*!< Start or Stop Web Server */
+#endif /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
 
     /* BLE commands, ESP32 only */
 #if LWESP_CFG_ESP32 || __DOXYGEN__
@@ -457,6 +460,13 @@ typedef struct lwesp_msg {
             lwesp_port_t port;                  /*!< mDNS server port */
         } mdns;                                 /*!< mDNS configuration */
 #endif /* LWESP_CFG_MDNS || __DOXYGEN__ */
+#if LWESP_CFG_WEBSERVER || __DOXYGEN__
+        struct {
+            uint8_t en;                         /*!< Enable/Disable web server status */
+            lwesp_port_t port;                  /*!< Server port number */
+            uint8_t timeout;                    /*!< Connection timeout */
+        } web_server;                           /*!< Web Server configuration */
+#endif /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
         struct {
             uint8_t link_id;                    /*!< Link ID of connection to set SSL configuration for */
             uint8_t auth_mode;                  /*!< Timezone setup */

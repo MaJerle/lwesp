@@ -419,6 +419,9 @@ typedef enum lwesp_evt_type_t {
 #if LWESP_CFG_PING || __DOXYGEN__
     LWESP_EVT_PING,                             /*!< PING service finished */
 #endif /* LWESP_CFG_PING || __DOXYGEN__ */
+#if LWESP_CFG_WEBSERVER || __DOXYGEN__
+    LWESP_EVT_WEBSERVER, 
+#endif /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
 } lwesp_evt_type_t;
 
 /**
@@ -518,6 +521,11 @@ typedef struct lwesp_evt {
             uint32_t time;                      /*!< Time required for ping. Valid only if operation succedded */
         } ping;                                 /*!< Ping finished. Use with \ref LWESP_EVT_PING event */
 #endif /* LWESP_CFG_PING || __DOXYGEN__ */
+#if LWESP_CFG_WEBSERVER || __DOXYGEN__
+        struct {
+            uint8_t code;                       /*!< Result of command */
+        } ws_status;                            /*!< Ping finished. Use with \ref LWESP_EVT_PING event */
+#endif /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
     } evt;                                      /*!< Callback event union */
 } lwesp_evt_t;
 

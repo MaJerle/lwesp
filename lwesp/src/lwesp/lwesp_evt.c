@@ -518,6 +518,20 @@ lwesp_evt_ping_get_time(lwesp_evt_t* cc) {
 
 #endif /* LWESP_CFG_PING || __DOXYGEN__ */
 
+#if LWESP_CFG_WEBSERVER || __DOXYGEN__
+
+/**
+ * \brief           Get web server status
+ * \param[in]       cc: Event handle
+ * \return          Web server status code
+ */
+uint8_t
+lwesp_evt_webserver_get_status(lwesp_evt_t* cc) {
+    return cc->evt.ws_status.code;
+}
+
+#endif /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
+
 
 /**
  * \brief           Get server command result

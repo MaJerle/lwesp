@@ -821,3 +821,20 @@ lwespi_parse_cwdhcp(const char* str) {
 
     return 1;
 }
+
+#if LWESP_CFG_WEBSERVER || __DOXYGEN__
+
+/**
+ * \brief           Parse +WEBSERVER response from ESP device
+ * \param[in]       str: Input string to parse
+ * \return          Member of \ref lwespr_t enumeration
+ */
+uint8_t
+lwespi_parse_webserver(const char* str) {
+    
+    esp.evt.evt.ws_status.code = lwespi_parse_number(&str);
+    lwespi_send_cb(LWESP_EVT_WEBSERVER);        /* Send event function */
+    return 1;
+}
+
+#endif /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
