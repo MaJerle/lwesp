@@ -40,11 +40,9 @@
 
 /**
  * \brief           Enables or disables Web Server
- * \param[in]       en: Set to `1` to enable server, `0` otherwise
- * \param[in]       port: Port number used to listen on. 
- * \param[in]       max_conn: Number of maximal connections populated by server
- * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
- *                      Set to `0` to disable timeout feature (not recommended)
+ * \param[in]       en: Set to `1` to enable web server, `0` to disable web server.
+ * \param[in]       port: The web server port number. 
+ * \param[in]       timeout: The timeout for the every connection. Unit: second. Range:[21,60].
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
@@ -56,6 +54,12 @@ lwesp_set_webserver(uint8_t en, lwesp_port_t port, uint16_t timeout, const lwesp
 
     LWESP_ASSERT("port > 0", port > 0);
 
+    if (timeout < 21) {
+        timeout = 21;
+    } else if (timeout > 60) {
+        timeout = 60;
+    }
+    
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_WEBSERVER;

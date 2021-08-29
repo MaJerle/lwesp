@@ -665,7 +665,6 @@
 /**
  * \brief           Enables `1` or disables `0` support for Web Server feature
  *
- * By default, Web Server is not included in ESP-AT binary, refer to ESP-AT user guide for how to enable it. 
  */
 #ifndef LWESP_CFG_WEBSERVER
 #define LWESP_CFG_WEBSERVER                     0
