@@ -617,6 +617,10 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         } else if (!strncmp(rcv->data, "+DIST_STA_IP", 12)) {
             lwespi_parse_ap_ip_sta(&rcv->data[13]); /* Parse string and send to user layer */
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
+#if LWESP_CFG_WEBSERVER
+        } else if (!strncmp(rcv->data, "+WEBSERVERRSP", 13)) {
+            lwespi_parse_webserver(&rcv->data[14]);/* Parse string and send to user layer */
+#endif /* LWESP_CFG_WEBSERVER */
         } else if (esp.msg != NULL) {
             if (0
 #if LWESP_CFG_MODE_STATION
@@ -2332,6 +2336,21 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             break;
         }
 #endif /* LWESP_CFG_SMART */
+#if LWESP_CFG_WEBSERVER
+        case LWESP_CMD_WEBSERVER: {             /* Start Web Server */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+WEBSERVER=");
+            if (msg->msg.web_server.en) {
+                AT_PORT_SEND_CONST_STR("1");
+                lwespi_send_port(msg->msg.web_server.port, 0, 1);
+                lwespi_send_number(msg->msg.web_server.timeout, 0, 1);
+            } else {                            /* Stop Web server */
+                AT_PORT_SEND_CONST_STR("0");
+            }
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+#endif /* LWESP_CFG_WEBSERVER */
 #if LWESP_CFG_ESP32
         case LWESP_CMD_BLEINIT_GET: {
             AT_PORT_SEND_BEGIN_AT();

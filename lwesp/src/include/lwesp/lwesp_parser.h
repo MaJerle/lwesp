@@ -67,6 +67,8 @@ uint8_t     lwespi_parse_cwsap(const char* str, lwesp_msg_t* msg);
 
 uint8_t     lwespi_parse_cwdhcp(const char* str);
 
+uint8_t     lwespi_parse_webserver(const char* str);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -663,6 +663,14 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` support for Web Server feature
+ *
+ */
+#ifndef LWESP_CFG_WEBSERVER
+#define LWESP_CFG_WEBSERVER                     0
+#endif
+
+/**
  * \}
  */
 
