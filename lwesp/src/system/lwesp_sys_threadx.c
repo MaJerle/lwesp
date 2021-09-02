@@ -220,16 +220,28 @@ typedef VOID (*threadx_entry_t)(ULONG);
 
 uint8_t
 lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
+    uint8_t rt = 0;
+    
+    /*  t == NULL means temrinate itself. 
+        Here termination of a thread requires deleting thread (free RCB) and releasing stack memory
+        ThreadX does not support deleting itself, so I left this feature not supported (when t == NULL) */
 
-    (VOID)tx_thread_delete(t);
-    lwesp_mem_free(t->tx_thread_stack_start);
-    return 1;
+    if ((t != NULL) && (t != tx_thread_identify())) {
+        if (tx_thread_terminate(t) == TX_SUCCESS) {
+            if (tx_thread_delete(t) == TX_SUCCESS) {
+                lwesp_mem_free(t->tx_thread_stack_start);
+                rt = 1;
+            }
+        }
+    }
+
+    return rt;
 }
 
 uint8_t
 lwesp_sys_thread_yield(void) {
     /* Not supported by ThreadX, also this is not used by LWESP */
-    return 1;
+    return 0;
 }
 
 #endif /* !__DOXYGEN__ */
