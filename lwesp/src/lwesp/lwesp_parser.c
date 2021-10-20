@@ -219,6 +219,9 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
         ip->type = LWESP_IPTYPE_V4;
         for (size_t i = 0; i < LWESP_ARRAYSIZE(ip->addr.ip4.addr); ++i, ++p) {
             ip->addr.ip4.addr[i] = lwespi_parse_number(&p);
+            if (*p != '.') {
+                break;
+            }
         }
     }
     if (*p == '"') {
