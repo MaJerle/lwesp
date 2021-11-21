@@ -73,14 +73,14 @@ configure_uart(uint32_t baudrate) {
         }
     }
 
-    // Set UART parameters here.
+    /* Set UART parameters here. */
     struct termios tio;
     if(tcgetattr(uart_fd, &tio) != 0) {
         fprintf(stderr, "Get serial attr failed.\n");
         return;
     }
 
-    // Only common baud rates are added.
+    /* Only common baud rates are added. */
     int tio_baudrate;
     switch(baudrate) {
         case 9600:
@@ -119,8 +119,8 @@ configure_uart(uint32_t baudrate) {
     tio.c_cflag &= ~(PARENB | PARODD);
     tio.c_cflag &= ~CSTOPB;
 
-    tio.c_cflag &= ~CRTSCTS;    /* Without flow control: */
-    // tio.c_cflag |= CRTSCTS;  /* With flow control: */
+    tio.c_cflag &= ~CRTSCTS;                    /* Without hardware flow control */
+    /* tio.c_cflag |= CRTSCTS; */               /* With hardware flow control */
  
     cfmakeraw(&tio);
  
@@ -139,7 +139,7 @@ configure_uart(uint32_t baudrate) {
 
 static void
 uart_thread(void *param) {
-    int read_bytes = 0;
+    size_t read_bytes = 0;
     for(;;) {
         read_bytes += read(uart_fd, &data_buffer[read_bytes], 1);
         if(read_bytes > 0 && data_buffer[read_bytes - 1] == '\n') {
@@ -149,8 +149,8 @@ uart_thread(void *param) {
 #if LWESP_CFG_INPUT_USE_PROCESS
             lwesp_input_process(data_buffer, read_bytes);
 #else /* LWESP_CFG_INPUT_USE_PROCESS */
-            lwesp_input(data_buffer, (size_t)bytes_read);
-#endif /* !LWESP_CFG_INPUT_USE_PROCESS */
+            lwesp_input(data_buffer, read_bytes);
+#endif /* LWESP_CFG_INPUT_USE_PROCESS */
             read_bytes = 0;
         }
     }

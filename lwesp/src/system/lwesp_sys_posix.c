@@ -85,15 +85,15 @@ mbox_is_empty(posix_mbox_t* m) {
 
 uint8_t
 lwesp_sys_init(void) {
-    // pthread_mutex_init return 0 on success
-    if(pthread_mutex_init(&sys_mutex, NULL) != 0) return 0;
+    /* pthread_mutex_init return 0 on success */
+    if (pthread_mutex_init(&sys_mutex, NULL) != 0) return 0;
     return 1;
 }
 
 uint32_t
 lwesp_sys_now(void) {
     struct timespec tp;
-    if(clock_gettime(CLOCK_MONOTONIC, &tp) != 0) return 0;
+    if (clock_gettime(CLOCK_MONOTONIC, &tp) != 0) return 0;
     uint32_t msec = (tp.tv_sec * 1000 + tp.tv_nsec / 1000000) \
                     & 0xFFFFFFFFU;
 
@@ -117,9 +117,9 @@ lwesp_sys_unprotect(void) {
 uint8_t
 lwesp_sys_mutex_create(lwesp_sys_mutex_t* p) {
     *p = malloc(sizeof(pthread_mutex_t));
-    if(*p == NULL) return 0;
+    if (*p == NULL) return 0;
 
-    if(pthread_mutex_init(*p, NULL) != 0) {
+    if (pthread_mutex_init(*p, NULL) != 0) {
         free(*p);
         return 0;
     }
@@ -127,7 +127,7 @@ lwesp_sys_mutex_create(lwesp_sys_mutex_t* p) {
 }
 
 uint8_t lwesp_sys_mutex_delete(lwesp_sys_mutex_t* p) {
-    if(pthread_mutex_destroy(*p) != 0) return 0;
+    if (pthread_mutex_destroy(*p) != 0) return 0;
 
     free(*p);
 
@@ -136,19 +136,19 @@ uint8_t lwesp_sys_mutex_delete(lwesp_sys_mutex_t* p) {
 
 uint8_t
 lwesp_sys_mutex_lock(lwesp_sys_mutex_t* p) {
-    if(pthread_mutex_lock(*p) != 0) return 0;
+    if (pthread_mutex_lock(*p) != 0) return 0;
     return 1;
 }
 
 uint8_t
 lwesp_sys_mutex_unlock(lwesp_sys_mutex_t* p) {
-    if(pthread_mutex_unlock(*p) != 0) return 0;
+    if (pthread_mutex_unlock(*p) != 0) return 0;
     return 1;
 }
 
 uint8_t
 lwesp_sys_mutex_isvalid(lwesp_sys_mutex_t* p) {
-    if(p == NULL || *p == NULL) return 0;
+    if (p == NULL || *p == NULL) return 0;
     return 1;
 }
 
@@ -161,13 +161,13 @@ lwesp_sys_mutex_invalid(lwesp_sys_mutex_t* p) {
 uint8_t
 lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt) {
     *p = malloc(sizeof(sem_t));
-    if(*p == NULL) return 0;
+    if (*p == NULL) return 0;
 
     /* sem_init returns 0 on success
     * This function assumes a binary semaphore
     * should be created in some ports.
     */
-    if(sem_init(*p, 0, !!cnt) != 0) {
+    if (sem_init(*p, 0, !!cnt) != 0) {
         free(*p);
         return 0;
     }
@@ -176,7 +176,7 @@ lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt) {
 
 uint8_t
 lwesp_sys_sem_delete(lwesp_sys_sem_t* p) {
-    if(sem_destroy(*p) != 0) return 0;
+    if (sem_destroy(*p) != 0) return 0;
 
     free(*p);
 
@@ -190,18 +190,18 @@ lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
 
     uint32_t t_start = lwesp_sys_now();
 
-    // Note that timedwait requires CLOCK_REALTIME, not CLOCK_MONOTONIC.
-    if(clock_gettime(CLOCK_REALTIME, &ts) != 0) return 0;
+    /* Note that timedwait requires CLOCK_REALTIME, not CLOCK_MONOTONIC. */
+    if (clock_gettime(CLOCK_REALTIME, &ts) != 0) return 0;
 
-    if(timeout == 0) {
+    if (timeout == 0) {
         ret = sem_wait(*p);
     } else {
-        // Calculate new timespec values based on timeout.
+        /* Calculate new timespec values based on timeout. */
         time_t timeout_sec = timeout / 1000;
-        time_t timeout_nsec = (timeout % 1000) * 1000000; // 1E6
+        time_t timeout_nsec = (timeout % 1000) * 1000000; /* 1E6 */
         ts.tv_sec += timeout_sec;
         ts.tv_nsec += timeout_nsec;
-        if(ts.tv_nsec > 1000000000) { // 1E9
+        if (ts.tv_nsec > 1000000000) { /* 1E9 */
             ts.tv_sec += 1;
             ts.tv_nsec -= 1000000000;
         }
@@ -209,19 +209,19 @@ lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
         ret = sem_timedwait(*p, &ts);
     }
 
-    if(ret != 0) return LWESP_SYS_TIMEOUT;
+    if (ret != 0) return LWESP_SYS_TIMEOUT;
     return lwesp_sys_now() - t_start;
 }
 
 uint8_t
 lwesp_sys_sem_release(lwesp_sys_sem_t* p) {
-    if(sem_post(*p) != 0) return 0;
+    if (sem_post(*p) != 0) return 0;
     return 1;
 }
 
 uint8_t
 lwesp_sys_sem_isvalid(lwesp_sys_sem_t* p) {
-    if(p == NULL || *p == NULL) return 0;
+    if (p == NULL || *p == NULL) return 0;
     return 1;
 }
 
@@ -263,7 +263,7 @@ lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b) {
 uint32_t
 lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
     posix_mbox_t* mbox = *b;
-    uint32_t time = lwesp_sys_now();          /* Get start time */
+    uint32_t time = lwesp_sys_now();            /* Get start time */
 
     lwesp_sys_sem_wait(&mbox->sem, 0);          /* Wait for access */
 
@@ -370,16 +370,16 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name,
                         size_t stack_size, lwesp_sys_thread_prio_t prio) {
 
     *t = malloc(sizeof(pthread_t));
-    if(*t == NULL) return 0;
+    if (*t == NULL) return 0;
 
-    if(pthread_create(*t, NULL, (lwesp_sys_posix_thread_fn)thread_func, arg) != 0) return 0;
+    if (pthread_create(*t, NULL, (lwesp_sys_posix_thread_fn)thread_func, arg) != 0) return 0;
 
     return 1;
 }
 
 uint8_t
 lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
-    if(pthread_cancel(**t) != 0) return 0;
+    if (pthread_cancel(**t) != 0) return 0;
 
     free(*t);
     return 1;
