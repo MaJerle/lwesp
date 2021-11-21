@@ -372,7 +372,10 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name,
     *t = malloc(sizeof(pthread_t));
     if (*t == NULL) return 0;
 
-    if (pthread_create(*t, NULL, (lwesp_sys_posix_thread_fn)thread_func, arg) != 0) return 0;
+    if (pthread_create(*t, NULL, (lwesp_sys_posix_thread_fn)thread_func, arg) != 0) {
+        free(*t);
+        return 0;
+    };
 
     return 1;
 }
