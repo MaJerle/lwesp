@@ -3,6 +3,8 @@
 Examples are split into different CPU architectures. Currently you can find examples for:
 
 - `Visual Studio`: All examples will be always released for Visual studio, due to the fact that library is developed in it. You can run examples with NodeMCU hardware or any other hardware, if you connect it to USB and run with AT commands
+- `POSIX`: Some examples will be added for Linux (or other POSIX compliant platforms). You can run examples with ESP devices
+connected to USB-TTL adapters or single board computers (e.g. Raspberry Pi).
 - `STM32-Discovery`: Small amount of examples are available for STM32 based Discovery boards which come with socket for ESP-01 device. Examples are written in *Atollic TrueSTUDIO (GCC compiler)*, *Keil uVision (MDK-ARM compiler)* and *IAR*.
 
 ### ESP requirements
@@ -41,6 +43,32 @@ Communication with NodeMCU hardware is using virtual files for COM ports.
 Implementation of low-level part (together with memory allocation for library) is available in [esp_ll_win32.c](/src/system/esp_ll_win32.c) file.
 
 > In order to start using this port, user must set the appropriate COM port name when opening a virtual file. Please check implementation file for details.
+
+## POSIX Examples
+All POSIX examples are using CMake build system and can be built either native or cross-compile with the following instructions:
+```bash
+cd ${EXAMPLE_PROJECT_DIRECTORY}
+mkdir build && cd build # Create a build directory
+cmake .. && make -j$(nproc)
+```
+
+### System functions for POSIX
+This port utilized pthread library:
+1. Mutexes
+2. Semaphores
+3. Threads
+
+as well as `<time.h>` for:
+1. SysTick
+2. Timed Semaphores
+
+POSIX message queue are too powerful for this, so the same implementation as Windows is used.
+
+### Communication with POSIX system
+Communication with NodeMCU hardware is done by using POSIX APIs through `/dev/ttyXYZ` character device. 
+Implementation of low-level part (together with memory allocation for library) is available in [esp_ll_posix.c](/src/system/esp_ll_posix.c) file.
+
+> The communication serial port may also needs to be altered if necessary, just like Windows port does.
 
 ## STM32F769I-Discovery
 
