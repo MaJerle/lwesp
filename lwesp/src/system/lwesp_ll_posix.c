@@ -142,7 +142,8 @@ uart_thread(void *param) {
     size_t read_bytes = 0;
     for(;;) {
         read_bytes += read(uart_fd, &data_buffer[read_bytes], 1);
-        if(read_bytes > 0 && data_buffer[read_bytes - 1] == '\n') {
+        /* If a newline is received or receive buffer full, pass data to the library */
+        if((read_bytes >= sizeof(data_buffer) - 1) || (read_bytes > 0 && data_buffer[read_bytes - 1] == '\n')) {
             data_buffer[read_bytes] = '\0';
             fprintf(stderr, "[AT <]: \e[32m%s\e[0m", data_buffer);
             /* Send received data to input processing module */
