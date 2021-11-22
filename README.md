@@ -16,7 +16,7 @@ Follow documentation for more information on implementation and details.
 - Supports latest ESP32 & ESP8266 RTOS-SDK based AT commands firmware
 - Platform independent and very easy to port
 - Development of library under Win32 platform
-- Available examples for ARM Cortex-M or Win32 platforms
+- Available examples for ARM Cortex-M, Win32 or POSIX (mostly Linux) platforms
 - Written in C language (C99)
 - Allows different configurations to optimize user requirements
 - Supports implementation with operating systems with advanced inter-thread communications
