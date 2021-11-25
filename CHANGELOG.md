@@ -1,6 +1,8 @@
 # Changelog
 
-## Develop sdk v2.2
+## Develop
+
+## v1.1.0-dev
 
 - Add support for SDK v2.2
 - Extend number of information received on AP scan

@@ -1,0 +1,24 @@
+{
+	"name": "LwESP",
+	"version": "v1.1.0-dev",
+	"description": "Lightweight Espressif ESP32 and ESP8266 AT commands parser for embedded systems",
+	"keywords": "lwesp, lightweiight, ESP32, ESP8266, AT, AT Commands",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/MaJerle/lwesp.git"
+	},
+	"authors": [
+		{
+		  "name": "Tilen Majerle",
+		  "email": "tilen@majerle.eu",
+		  "url": "https://majerle.eu"
+		}
+	],
+	"license": "MIT",
+	"homepage": "https://github.com/MaJerle/lwesp",
+	"dependencies": {
+
+	},
+	"frameworks": "*",
+	"platforms": "*"
+}
