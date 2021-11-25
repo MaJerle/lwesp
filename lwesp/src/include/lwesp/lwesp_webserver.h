@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Neo Xiong <xiongyu0523@gmail.com>
- * Version:         v1.1.0-dev
+ * Version:         v1.1.1-dev
  */
 #ifndef LWESP_HDR_WEBSERVER_H
 #define LWESP_HDR_WEBSERVER_H

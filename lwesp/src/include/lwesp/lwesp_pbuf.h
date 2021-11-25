@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.1.0-dev
+ * Version:         v1.1.1-dev
  */
 #ifndef LWESP_HDR_PBUF_H
 #define LWESP_HDR_PBUF_H

@@ -2,6 +2,10 @@
 
 ## Develop
 
+## v1.1.1-dev
+
+- Update to support library.json for Platform.IO
+
 ## v1.1.0-dev
 
 - Add support for SDK v2.2

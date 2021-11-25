@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Neo Xiong <xiongyu0523@gmail.com>
- * Version:         v1.1.0-dev
+ * Version:         v1.1.1-dev
  */
 #include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_webserver.h"

@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          imi415 <imi415.public@gmail.com>
- * Version:         v1.1.0-dev
+ * Version:         v1.1.1-dev
  */
 #ifndef LWESP_HDR_SYSTEM_PORT_H
 #define LWESP_HDR_SYSTEM_PORT_H

@@ -28,7 +28,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Adrian Carpenter (FreeRTOS port)
- * Version:         v1.1.0-dev
+ * Version:         v1.1.1-dev
  */
 #include "system/lwesp_sys.h"
 #include "FreeRTOS.h"
