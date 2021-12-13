@@ -92,7 +92,7 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
     }
 
     /* Read the file and return read length */
-    br = (uint32_t)fread_s(buff, btr, 1, btr, fil);
+    br = (uint32_t)fread(buff, 1, btr, fil);
     return br;
 }
 
