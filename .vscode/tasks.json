@@ -30,6 +30,22 @@
         },
         {
             "type": "shell",
+            "label": "Rebuild project",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "\"build\"",
+                "--clean-first"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+        },
+        {
+            "type": "shell",
             "label": "Clean project",
             "command": "cmake",
             "args": [
@@ -46,7 +62,7 @@
         {
             "type": "shell",
             "label": "Run application",
-            "command": "${workspaceFolder}\\build\\LwESP.exe",
+            "command": "${workspaceFolder}\\build\\LwLibPROJECT.exe",
             "args": [],
             "problemMatcher": [],
         },
