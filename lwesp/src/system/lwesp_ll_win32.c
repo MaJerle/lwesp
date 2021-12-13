@@ -75,7 +75,7 @@ send_data(const void* data, size_t len) {
 /**
  * \brief           Configure UART (USB to UART)
  */
-static void
+static uint8_t
 configure_uart(uint32_t baudrate) {
     DCB dcb = { 0 };
     dcb.DCBlength = sizeof(dcb);
@@ -107,6 +107,7 @@ configure_uart(uint32_t baudrate) {
 
         if (!SetCommState(com_port, &dcb)) {
             printf("Cannot set COM PORT info\r\n");
+            return 0;
         }
         if (GetCommTimeouts(com_port, &timeouts)) {
             /* Set timeout to return immediately from ReadFile function */
@@ -119,15 +120,18 @@ configure_uart(uint32_t baudrate) {
             GetCommTimeouts(com_port, &timeouts);
         } else {
             printf("Cannot get COM PORT timeouts\r\n");
+            return 0;
         }
     } else {
         printf("Cannot get COM PORT info\r\n");
+        return 0;
     }
 
     /* On first function call, create a thread to read data from COM port */
     if (!initialized) {
         lwesp_sys_thread_create(&thread_handle, "lwesp_ll_thread", uart_thread, NULL, 0, 0);
     }
+    return 1;
 }
 
 /**
@@ -224,7 +228,9 @@ lwesp_ll_init(lwesp_ll_t* ll) {
     }
 
     /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
-    configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
+    if (!configure_uart(ll->uart.baudrate)) {   /* Initialize UART for communication */
+        return lwespERR;
+    }
     initialized = 1;
     return lwespOK;
 }
