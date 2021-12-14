@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Add POSIX-compliant low-level driver
+
 ## v1.1.1-dev
 
 - Update to support library.json for Platform.IO
