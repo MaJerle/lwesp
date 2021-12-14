@@ -56,6 +56,7 @@ typedef struct {
 
 /* Mutex ID for main protection */
 static pthread_mutex_t sys_mutex;
+static pthread_mutexattr_t sys_mutex_attr;
 
 /**
  * \brief           Check if message box is full
@@ -85,8 +86,19 @@ mbox_is_empty(posix_mbox_t* m) {
 
 uint8_t
 lwesp_sys_init(void) {
+    if (pthread_mutexattr_init(&sys_mutex_attr) != 0) {
+        return 0;
+    }
+
+    if (pthread_mutexattr_settype(&sys_mutex_attr, PTHREAD_MUTEX_RECURSIVE) != 0) {
+        return 0;
+    }
+
     /* pthread_mutex_init return 0 on success */
-    if (pthread_mutex_init(&sys_mutex, NULL) != 0) return 0;
+    if (pthread_mutex_init(&sys_mutex, &sys_mutex_attr) != 0) {
+        return 0;
+    }
+
     return 1;
 }
 
