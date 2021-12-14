@@ -41,7 +41,7 @@
 
 #if !__DOXYGEN__
 
-typedef void *(*lwesp_sys_posix_thread_fn) (void *);
+typedef void* (*lwesp_sys_posix_thread_fn) (void*);
 
 /**
  * \brief           Custom message queue implementation for WIN32
@@ -105,7 +105,9 @@ lwesp_sys_init(void) {
 uint32_t
 lwesp_sys_now(void) {
     struct timespec tp;
-    if (clock_gettime(CLOCK_MONOTONIC, &tp) != 0) return 0;
+    if (clock_gettime(CLOCK_MONOTONIC, &tp) != 0) {
+        return 0;
+    }
     uint32_t msec = (tp.tv_sec * 1000 + tp.tv_nsec / 1000000) \
                     & 0xFFFFFFFFU;
 
@@ -129,7 +131,9 @@ lwesp_sys_unprotect(void) {
 uint8_t
 lwesp_sys_mutex_create(lwesp_sys_mutex_t* p) {
     *p = malloc(sizeof(pthread_mutex_t));
-    if (*p == NULL) return 0;
+    if (*p == NULL) {
+        return 0;
+    }
 
     if (pthread_mutex_init(*p, NULL) != 0) {
         free(*p);
@@ -138,8 +142,11 @@ lwesp_sys_mutex_create(lwesp_sys_mutex_t* p) {
     return 1;
 }
 
-uint8_t lwesp_sys_mutex_delete(lwesp_sys_mutex_t* p) {
-    if (pthread_mutex_destroy(*p) != 0) return 0;
+uint8_t
+lwesp_sys_mutex_delete(lwesp_sys_mutex_t* p) {
+    if (pthread_mutex_destroy(*p) != 0) {
+        return 0;
+    }
 
     free(*p);
 
@@ -148,19 +155,25 @@ uint8_t lwesp_sys_mutex_delete(lwesp_sys_mutex_t* p) {
 
 uint8_t
 lwesp_sys_mutex_lock(lwesp_sys_mutex_t* p) {
-    if (pthread_mutex_lock(*p) != 0) return 0;
+    if (pthread_mutex_lock(*p) != 0) {
+        return 0;
+    }
     return 1;
 }
 
 uint8_t
 lwesp_sys_mutex_unlock(lwesp_sys_mutex_t* p) {
-    if (pthread_mutex_unlock(*p) != 0) return 0;
+    if (pthread_mutex_unlock(*p) != 0) {
+        return 0;
+    }
     return 1;
 }
 
 uint8_t
 lwesp_sys_mutex_isvalid(lwesp_sys_mutex_t* p) {
-    if (p == NULL || *p == NULL) return 0;
+    if (p == NULL || *p == NULL) {
+        return 0;
+    }
     return 1;
 }
 
@@ -173,7 +186,9 @@ lwesp_sys_mutex_invalid(lwesp_sys_mutex_t* p) {
 uint8_t
 lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt) {
     *p = malloc(sizeof(sem_t));
-    if (*p == NULL) return 0;
+    if (*p == NULL) {
+        return 0;
+    }
 
     /* sem_init returns 0 on success
     * This function assumes a binary semaphore
@@ -188,7 +203,9 @@ lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt) {
 
 uint8_t
 lwesp_sys_sem_delete(lwesp_sys_sem_t* p) {
-    if (sem_destroy(*p) != 0) return 0;
+    if (sem_destroy(*p) != 0) {
+        return 0;
+    }
 
     free(*p);
 
@@ -203,7 +220,9 @@ lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
     uint32_t t_start = lwesp_sys_now();
 
     /* Note that timedwait requires CLOCK_REALTIME, not CLOCK_MONOTONIC. */
-    if (clock_gettime(CLOCK_REALTIME, &ts) != 0) return 0;
+    if (clock_gettime(CLOCK_REALTIME, &ts) != 0) {
+        return 0;
+    }
 
     if (timeout == 0) {
         ret = sem_wait(*p);
@@ -221,19 +240,25 @@ lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
         ret = sem_timedwait(*p, &ts);
     }
 
-    if (ret != 0) return LWESP_SYS_TIMEOUT;
+    if (ret != 0) {
+        return LWESP_SYS_TIMEOUT;
+    }
     return lwesp_sys_now() - t_start;
 }
 
 uint8_t
 lwesp_sys_sem_release(lwesp_sys_sem_t* p) {
-    if (sem_post(*p) != 0) return 0;
+    if (sem_post(*p) != 0) {
+        return 0;
+    }
     return 1;
 }
 
 uint8_t
 lwesp_sys_sem_isvalid(lwesp_sys_sem_t* p) {
-    if (p == NULL || *p == NULL) return 0;
+    if (p == NULL || *p == NULL) {
+        return 0;
+    }
     return 1;
 }
 
@@ -382,7 +407,9 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name,
                         size_t stack_size, lwesp_sys_thread_prio_t prio) {
 
     *t = malloc(sizeof(pthread_t));
-    if (*t == NULL) return 0;
+    if (*t == NULL) {
+        return 0;
+    }
 
     if (pthread_create(*t, NULL, (lwesp_sys_posix_thread_fn)thread_func, arg) != 0) {
         free(*t);
@@ -394,7 +421,9 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name,
 
 uint8_t
 lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
-    if (pthread_cancel(**t) != 0) return 0;
+    if (pthread_cancel(**t) != 0) {
+        return 0;
+    }
 
     free(*t);
     return 1;
