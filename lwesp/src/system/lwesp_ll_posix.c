@@ -48,7 +48,11 @@
 static uint8_t initialized = 0;
 
 static int uart_fd;
-static uint8_t data_buffer[0x1000];
+
+#define LOG_BUFFER_LEN 4096
+
+static uint32_t data_buffer_ptr = 0;
+static uint8_t data_buffer[LOG_BUFFER_LEN];
 
 static lwesp_sys_thread_t uart_thread_handle;
 
@@ -140,21 +144,33 @@ configure_uart(uint32_t baudrate) {
 }
 
 static void
+log_command(uint8_t new_byte) {
+    /* Log buffer not full */
+    if (data_buffer_ptr < LOG_BUFFER_LEN - 1) {
+        data_buffer[data_buffer_ptr] = new_byte;
+        data_buffer_ptr++;
+    }
+
+    if (data_buffer_ptr > 0 && data_buffer[data_buffer_ptr - 1] == '\n') {
+        data_buffer[data_buffer_ptr] = '\0';
+
+        fprintf(stderr, "[AT <]: \e[32m%s\e[0m", data_buffer);
+        data_buffer_ptr = 0;
+    }
+}
+
+static void
 uart_thread(void* param) {
-    size_t read_bytes = 0;
+    uint8_t data_byte;
     for (;;) {
-        read_bytes += read(uart_fd, &data_buffer[read_bytes], 1);
-        /* If a newline is received or receive buffer full, pass data to the library */
-        if ((read_bytes >= sizeof(data_buffer) - 1) || (read_bytes > 0 && data_buffer[read_bytes - 1] == '\n')) {
-            data_buffer[read_bytes] = '\0';
-            fprintf(stderr, "[AT <]: \e[32m%s\e[0m", data_buffer);
+        if (read(uart_fd, &data_byte, 1) > 0) {
+            log_command(data_byte);
             /* Send received data to input processing module */
 #if LWESP_CFG_INPUT_USE_PROCESS
-            lwesp_input_process(data_buffer, read_bytes);
-#else /* LWESP_CFG_INPUT_USE_PROCESS */
-            lwesp_input(data_buffer, read_bytes);
+            lwesp_input_process(&data_byte, 1);
+#else  /* LWESP_CFG_INPUT_USE_PROCESS */
+            lwesp_input(data_byte, 1);
 #endif /* LWESP_CFG_INPUT_USE_PROCESS */
-            read_bytes = 0;
         }
     }
 }

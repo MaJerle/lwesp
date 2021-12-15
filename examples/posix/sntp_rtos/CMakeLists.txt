@@ -26,6 +26,7 @@ set(C_SOURCES
     "../../../lwesp/src/lwesp/lwesp_utils.c"
     "../../../lwesp/src/lwesp/lwesp.c"
     "../../../lwesp/src/system/lwesp_ll_posix.c"
+    "../../../lwesp/src/system/lwesp_mem_posix.c"
     "../../../lwesp/src/system/lwesp_sys_posix.c"
     "main.c"
 )
@@ -43,6 +44,6 @@ set(C_LIBRARIES
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
 
-add_executable(${CMAKE_PROJECT_NAME} ${C_SOURCES})
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${C_INCLUDES})
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${C_LIBRARIES})
+add_executable(${PROJECT_NAME} ${C_SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE ${C_INCLUDES})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${C_LIBRARIES})
