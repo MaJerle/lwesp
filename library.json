@@ -23,10 +23,12 @@
 	"platforms": "*",
 	"export": {
 		"exclude": [
+			".github",
+			"dev"
 			"docs",
 			"**/.vs",
 			"**/Debug",
-			"third_party/embedded-libs/st_hal/CMSIS/Lib/ARM"
+			"build",
 		]
 	}
 }
