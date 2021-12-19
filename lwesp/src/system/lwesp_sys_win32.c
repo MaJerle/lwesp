@@ -348,14 +348,12 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_threa
 
 uint8_t
 lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
-    HANDLE h = NULL;
-
     if (t == NULL) {                            /* Shall we terminate ourself? */
-        h = GetCurrentThread();                 /* Get current thread handle */
-    } else {                                    /* We have known thread, find handle by looking at ID */
-        h = *t;
+        ExitThread(0);
+    } else {
+        /* We have known thread, find handle by looking at ID */
+        TerminateThread(*t, 0);
     }
-    TerminateThread(h, 0);
     return 1;
 }
 
