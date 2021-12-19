@@ -24,11 +24,11 @@
 	"export": {
 		"exclude": [
 			".github",
-			"dev"
+			"dev",
 			"docs",
 			"**/.vs",
 			"**/Debug",
-			"build",
+			"build"
 		]
 	}
 }
