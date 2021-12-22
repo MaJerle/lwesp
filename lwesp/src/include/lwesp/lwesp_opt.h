@@ -129,28 +129,6 @@
 #endif
 
 /**
- * \brief           Maximal number of connections AT software can support on ESP device
- * \note            In case of official AT software, leave this on default value (`5`)
- */
-#ifndef LWESP_CFG_MAX_CONNS
-#define LWESP_CFG_MAX_CONNS                     5
-#endif
-
-/**
- * \brief           Maximal number of bytes we can send at single command to ESP
- * \note            Value can not exceed `2048` bytes or no data will be send at all (ESP8266 AT SW limitation)
- *
- * When manual TCP read mode is enabled, this parameter defines number of bytes to be read at a time
- *
- * \note            This is limitation of ESP AT commands and on systems where RAM
- *                  is not an issue, it should be set to maximal value (`2048`)
- *                  to optimize data transfer speed performance
- */
-#ifndef LWESP_CFG_CONN_MAX_DATA_LEN
-#define LWESP_CFG_CONN_MAX_DATA_LEN             2048
-#endif
-
-/**
  * \brief           Set number of retries for send data command.
  *
  * Sometimes it may happen that `AT+SEND` command fails due to different problems.
@@ -158,15 +136,6 @@
  */
 #ifndef LWESP_CFG_MAX_SEND_RETRIES
 #define LWESP_CFG_MAX_SEND_RETRIES              3
-#endif
-
-/**
- * \brief           Maximum single buffer size for network receive data on active connection
- *
- * \note            When ESP sends buffer bigger than maximal, multiple buffers are created
- */
-#ifndef LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE
-#define LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE       1460
 #endif
 
 /**
@@ -197,12 +166,69 @@
 #endif
 
 /**
+ * \defgroup        LWESP_OPT_CONN Connection settings
+ * \brief           Operating system dependant configuration
+ * \{
+ */
+
+/**
  * \brief           Enables `1` or disables `0` support for IPv6
  *
  */
 #ifndef LWESP_CFG_IPV6
 #define LWESP_CFG_IPV6                          0
 #endif
+
+/**
+ * \brief           Maximum single buffer size for network receive data on active connection
+ *
+ * \note            When ESP sends buffer bigger than maximal, multiple buffers are created.
+ *                  Exception is UDP connection type, which can be controlled,
+ *                  with option \ref LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND
+ */
+#ifndef LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE
+#define LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE       1460
+#endif
+
+/**
+ * \brief           Enables `1` or disables `0` support for fragmented send of UDP packets.
+ * 
+ * When connection type is UDP and packet length longer than maximal transmission unit,
+ * it can be split into multiple packets and sent over the network.
+ * 
+ * When this feature is disabled, max length of UDP packet is defined with
+ * \ref LWESP_CFG_CONN_MAX_DATA_LEN option
+ */
+#ifndef LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND
+#define LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND    0
+#endif
+
+/**
+ * \brief           Maximal number of connections AT software can support on ESP device
+ * 
+ * \note            In case of official ESP-AT software, leave this on default value (`5`)
+ */
+#ifndef LWESP_CFG_MAX_CONNS
+#define LWESP_CFG_MAX_CONNS                     5
+#endif
+
+/**
+ * \brief           Maximal number of bytes we can send at single command to ESP
+ * \note            Value can not exceed `2048` bytes or no data will be send at all (ESP8266 AT SW limitation)
+ *
+ * When manual TCP read mode is enabled, this parameter defines number of bytes to be read at a time
+ *
+ * \note            This is limitation of ESP AT commands and on systems where RAM
+ *                  is not an issue, it should be set to maximal value (`2048`)
+ *                  to optimize data transfer speed performance
+ */
+#ifndef LWESP_CFG_CONN_MAX_DATA_LEN
+#define LWESP_CFG_CONN_MAX_DATA_LEN             2048
+#endif
+
+/**
+ * \}
+ */
 
 /**
  * \brief           Buffer size for received data waiting to be processed

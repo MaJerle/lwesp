@@ -207,11 +207,22 @@ conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, cons
     LWESP_ASSERT("data != NULL", data != NULL);
     LWESP_ASSERT("btw > 0", btw > 0);
 
+    CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
+
+#if !LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND
+    /*
+     * For UDP connections, do not allow fragmented data send.
+     *
+     * Limit up to maximum buffer allowed by ESP
+     */
+    if (conn->type == LWESP_CONN_TYPE_UDP) {
+        LWESP_ASSERT("USD: len < max_len", btw <= LWESP_CFG_CONN_MAX_DATA_LEN);
+    }
+#endif /* !LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND */
+
     if (bw != NULL) {
         *bw = 0;
     }
-
-    CONN_CHECK_CLOSED_IN_CLOSING(conn);         /* Check if we can continue */
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSEND;

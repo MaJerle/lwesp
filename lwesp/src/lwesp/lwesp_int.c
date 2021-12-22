@@ -473,6 +473,13 @@ lwespi_tcpip_process_send_data(void) {
         CONN_SEND_DATA_SEND_EVT(esp.msg, lwespCLOSED);
         return lwespERR;
     }
+
+    /*
+     * Get maximal length of data to transmit in single run
+     * 
+     * For UDP packets, fragmentation may not be allowed.
+     * Check for UDP is done before starting command to send data, in LWESP_CONN module
+     */
     esp.msg->msg.conn_send.sent = LWESP_MIN(esp.msg->msg.conn_send.btw, LWESP_CFG_CONN_MAX_DATA_LEN);
 
     AT_PORT_SEND_BEGIN_AT();
@@ -481,11 +488,10 @@ lwespi_tcpip_process_send_data(void) {
     lwespi_send_number(LWESP_U32(esp.msg->msg.conn_send.sent), 0, 1);   /* Send length number */
 
     /* On UDP connections, IP address and port may be included */
-    if (c->type == LWESP_CONN_TYPE_UDP) {
-        if (esp.msg->msg.conn_send.remote_ip != NULL && esp.msg->msg.conn_send.remote_port) {
-            lwespi_send_ip(esp.msg->msg.conn_send.remote_ip, 1, 1); /* Send IP address including quotes */
-            lwespi_send_port(esp.msg->msg.conn_send.remote_port, 0, 1); /* Send length number */
-        }
+    if (c->type == LWESP_CONN_TYPE_UDP
+        && esp.msg->msg.conn_send.remote_ip != NULL && esp.msg->msg.conn_send.remote_port) {
+        lwespi_send_ip(esp.msg->msg.conn_send.remote_ip, 1, 1); /* Send IP address including quotes */
+        lwespi_send_port(esp.msg->msg.conn_send.remote_port, 0, 1); /* Send length number */
     }
     AT_PORT_SEND_END_AT();
     return lwespOK;
