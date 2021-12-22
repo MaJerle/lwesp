@@ -2160,6 +2160,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCPV6) {
                 conn_type_str = "TCPV6";
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_SSLV6) {
+                conn_type_str = "SSLV6";
 #endif /* LWESP_CFG_IPV6 */
             } else {
                 conn_type_str = "unknonw";
