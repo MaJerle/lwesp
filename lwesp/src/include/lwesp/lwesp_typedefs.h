@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "lwesp/lwesp_opt.h"
 
 #ifdef __cplusplus
 extern "C" {

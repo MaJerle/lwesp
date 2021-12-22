@@ -3,6 +3,7 @@
 ## Develop
 
 - Add POSIX-compliant low-level driver
+- By default prohibit transmission of too long UDP packets -> configured with options
 
 ## v1.1.1-dev
 

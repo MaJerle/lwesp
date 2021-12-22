@@ -35,7 +35,6 @@
 #define LWESP_HDR_PRIV_H
 
 #include "lwesp/lwesp.h"
-#include "lwesp/lwesp_typedefs.h"
 #include "lwesp/lwesp_debug.h"
 
 #ifdef __cplusplus
