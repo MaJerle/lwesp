@@ -111,7 +111,7 @@ mqtt_timeout_cb(void* arg) {
 
     if (lwesp_mqtt_client_is_connected(client)) {
         sprintf(tx_data, "R: %u, N: %u", (unsigned)retries, (unsigned)num);
-        if ((res = lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_EXACTLY_ONCE, 0, (void*)num)) == lwespOK) {
+        if ((res = lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_EXACTLY_ONCE, 0, (void*)((uintptr_t)num))) == lwespOK) {
             printf("Publishing %d...\r\n", (int)num);
             num++;
         } else {
@@ -183,7 +183,7 @@ mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
 
         /* Message published event occurred */
         case LWESP_MQTT_EVT_PUBLISH: {
-            uint32_t val = (uint32_t)lwesp_mqtt_client_evt_publish_get_argument(client, evt); /* Get user argument, which is in fact our custom number */
+            uint32_t val = (uint32_t)(uintptr_t)lwesp_mqtt_client_evt_publish_get_argument(client, evt);/* Get user argument, which is in fact our custom number */
 
             printf("Publish event, user argument on message was: %d\r\n", (int)val);
             break;

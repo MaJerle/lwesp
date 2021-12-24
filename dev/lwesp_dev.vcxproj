@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.;..\..\lwesp\src\include\system\port\win32;..\..\lwesp\src\include;..\..\snippets\include;..\..\..\lwmem\lwmem\src\include;$(IncludePath)</IncludePath>
+    <IncludePath>.;..\lwesp\src\include\system\port\win32;..\lwesp\src\include;..\snippets\include;..\..\lwmem\lwmem\src\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -137,61 +137,61 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\lwmem\lwmem\src\lwmem\lwmem.c" />
-    <ClCompile Include="..\..\..\lwmem\lwmem\src\system\lwmem_sys_win32.c" />
-    <ClCompile Include="..\..\lwesp\src\apps\cayenne\lwesp_cayenne.c" />
-    <ClCompile Include="..\..\lwesp\src\apps\cayenne\lwesp_cayenne_evt.c" />
-    <ClCompile Include="..\..\lwesp\src\apps\mqtt\lwesp_mqtt_client_api.c" />
-    <ClCompile Include="..\..\lwesp\src\cli\cli.c" />
-    <ClCompile Include="..\..\lwesp\src\cli\cli_input.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_cli.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_dhcp.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_dns.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_hostname.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_ping.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_utils.c" />
-    <ClCompile Include="..\..\lwesp\src\system\lwesp_mem_lwmem.c" />
-    <ClCompile Include="..\..\snippets\cayenne.c" />
-    <ClCompile Include="..\..\snippets\client.c" />
-    <ClCompile Include="..\..\snippets\dns.c" />
-    <ClCompile Include="..\..\snippets\http_server.c" />
-    <ClCompile Include="..\..\snippets\mqtt_client.c" />
-    <ClCompile Include="..\..\snippets\mqtt_client_api.c" />
-    <ClCompile Include="..\..\snippets\mqtt_client_api_cayenne.c" />
-    <ClCompile Include="..\..\snippets\netconn_client.c" />
-    <ClCompile Include="..\..\snippets\netconn_server.c" />
-    <ClCompile Include="..\..\snippets\netconn_server_1thread.c" />
-    <ClCompile Include="..\..\snippets\sntp.c" />
-    <ClCompile Include="..\..\snippets\station_manager.c" />
-    <ClCompile Include="..\..\lwesp\src\api\lwesp_netconn.c" />
-    <ClCompile Include="..\..\lwesp\src\apps\http_server\lwesp_http_server.c" />
-    <ClCompile Include="..\..\lwesp\src\apps\http_server\lwesp_http_server_fs.c" />
-    <ClCompile Include="..\..\lwesp\src\apps\http_server\lwesp_http_server_fs_win32.c" />
-    <ClCompile Include="..\..\lwesp\src\apps\mqtt\lwesp_mqtt_client.c">
+    <ClCompile Include="..\..\lwmem\lwmem\src\lwmem\lwmem.c" />
+    <ClCompile Include="..\..\lwmem\lwmem\src\system\lwmem_sys_win32.c" />
+    <ClCompile Include="..\lwesp\src\apps\cayenne\lwesp_cayenne.c" />
+    <ClCompile Include="..\lwesp\src\apps\cayenne\lwesp_cayenne_evt.c" />
+    <ClCompile Include="..\lwesp\src\apps\mqtt\lwesp_mqtt_client_api.c" />
+    <ClCompile Include="..\lwesp\src\cli\cli.c" />
+    <ClCompile Include="..\lwesp\src\cli\cli_input.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_cli.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_dhcp.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_dns.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_hostname.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_ping.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_utils.c" />
+    <ClCompile Include="..\lwesp\src\system\lwesp_mem_lwmem.c" />
+    <ClCompile Include="..\snippets\cayenne.c" />
+    <ClCompile Include="..\snippets\client.c" />
+    <ClCompile Include="..\snippets\dns.c" />
+    <ClCompile Include="..\snippets\http_server.c" />
+    <ClCompile Include="..\snippets\mqtt_client.c" />
+    <ClCompile Include="..\snippets\mqtt_client_api.c" />
+    <ClCompile Include="..\snippets\mqtt_client_api_cayenne.c" />
+    <ClCompile Include="..\snippets\netconn_client.c" />
+    <ClCompile Include="..\snippets\netconn_server.c" />
+    <ClCompile Include="..\snippets\netconn_server_1thread.c" />
+    <ClCompile Include="..\snippets\sntp.c" />
+    <ClCompile Include="..\snippets\station_manager.c" />
+    <ClCompile Include="..\lwesp\src\api\lwesp_netconn.c" />
+    <ClCompile Include="..\lwesp\src\apps\http_server\lwesp_http_server.c" />
+    <ClCompile Include="..\lwesp\src\apps\http_server\lwesp_http_server_fs.c" />
+    <ClCompile Include="..\lwesp\src\apps\http_server\lwesp_http_server_fs_win32.c" />
+    <ClCompile Include="..\lwesp\src\apps\mqtt\lwesp_mqtt_client.c">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
     </ClCompile>
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_ap.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_buff.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_conn.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_debug.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_evt.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_input.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_int.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_mdns.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_mem.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_parser.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_pbuf.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_sntp.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_sta.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_threads.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_timeout.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_unicode.c" />
-    <ClCompile Include="..\..\lwesp\src\lwesp\lwesp_wps.c" />
-    <ClCompile Include="..\..\lwesp\src\system\lwesp_ll_win32.c" />
-    <ClCompile Include="..\..\lwesp\src\system\lwesp_sys_win32.c" />
-    <ClCompile Include="..\..\snippets\telnet_server.c" />
-    <ClCompile Include="..\..\snippets\utils.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_ap.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_buff.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_conn.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_debug.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_evt.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_input.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_int.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_mdns.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_mem.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_parser.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_pbuf.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_sntp.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_sta.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_threads.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_timeout.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_unicode.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_wps.c" />
+    <ClCompile Include="..\lwesp\src\system\lwesp_ll_win32.c" />
+    <ClCompile Include="..\lwesp\src\system\lwesp_sys_win32.c" />
+    <ClCompile Include="..\snippets\telnet_server.c" />
+    <ClCompile Include="..\snippets\utils.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
