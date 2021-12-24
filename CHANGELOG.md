@@ -3,7 +3,8 @@
 ## Develop
 
 - Add POSIX-compliant low-level driver
-- By default prohibit transmission of too long UDP packets -> configured with options
+- Prohibit transmission of too long UDP packets (default), with conditional compilation
+- Split CMakeLists.txt files between library and executable
 
 ## v1.1.1-dev
 
