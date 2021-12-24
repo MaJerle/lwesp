@@ -1,87 +1,63 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(LwLibPROJECT VERSION 0.1.0)
 
-include(CTest)
-enable_testing()
+# Setup project
+project(LwLibPROJECT)
 
-add_executable(${PROJECT_NAME}
-    lwesp/src/lwesp/lwesp_cli.c
-    lwesp/src/lwesp/lwesp_dhcp.c
-    lwesp/src/lwesp/lwesp_dns.c
-    lwesp/src/lwesp/lwesp_hostname.c
-    lwesp/src/lwesp/lwesp_ping.c
-    lwesp/src/lwesp/lwesp_utils.c
-    lwesp/src/lwesp/lwesp.c
-    lwesp/src/lwesp/lwesp_ap.c
-    lwesp/src/lwesp/lwesp_buff.c
-    lwesp/src/lwesp/lwesp_conn.c
-    lwesp/src/lwesp/lwesp_debug.c
-    lwesp/src/lwesp/lwesp_evt.c
-    lwesp/src/lwesp/lwesp_input.c
-    lwesp/src/lwesp/lwesp_int.c
-    lwesp/src/lwesp/lwesp_mdns.c
-    lwesp/src/lwesp/lwesp_mem.c
-    lwesp/src/lwesp/lwesp_parser.c
-    lwesp/src/lwesp/lwesp_pbuf.c
-    lwesp/src/lwesp/lwesp_sntp.c
-    lwesp/src/lwesp/lwesp_sta.c
-    lwesp/src/lwesp/lwesp_threads.c
-    lwesp/src/lwesp/lwesp_timeout.c
-    lwesp/src/lwesp/lwesp_unicode.c
-    lwesp/src/lwesp/lwesp_wps.c
+# -------------------------------------------------
+# This CMakeLists.txt is used only if it is a top-level file.
+# Purpose of it is to be able to compile project in standalone way only
+#
+# When library sources are to be included in another project
+# user shall use /lwesp/CMakeLists.txt instead
+if (NOT PROJECT_IS_TOP_LEVEL)
+    message(FATAL_ERROR "This CMakeLists.txt can only be used as top-level. Use /lwesp/CMakeLists.txt for library include purpose")
+endif()
 
-    lwesp/src/system/lwesp_ll_win32.c
-    lwesp/src/system/lwesp_sys_win32.c
-    lwesp/src/system/lwesp_mem_lwmem.c
+# Set as executable
+add_executable(${PROJECT_NAME})
 
-    lwesp/src/api/lwesp_netconn.c
-    
-    lwesp/src/apps/http_server/lwesp_http_server.c
-    lwesp/src/apps/http_server/lwesp_http_server_fs.c
-    lwesp/src/apps/http_server/lwesp_http_server_fs_win32.c
-    lwesp/src/apps/mqtt/lwesp_mqtt_client.c
-    lwesp/src/apps/cayenne/lwesp_cayenne.c
-    lwesp/src/apps/cayenne/lwesp_cayenne_evt.c
-    lwesp/src/apps/mqtt/lwesp_mqtt_client_api.c
-    lwesp/src/cli/cli.c
-    lwesp/src/cli/cli_input.c
+# Add key executable block
+target_sources(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/dev/VisualStudio/main.c
 
-    ../lwmem/lwmem/src/lwmem/lwmem.c
-    ../lwmem/lwmem/src/system/lwmem_sys_win32.c
+    # Snippets
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/telnet_server.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/utils.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/cayenne.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/client.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/dns.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/http_server.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/mqtt_client.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/mqtt_client_api.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/mqtt_client_api_cayenne.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/netconn_client.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/netconn_server.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/netconn_server_1thread.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/sntp.c
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/station_manager.c
 
-    snippets/telnet_server.c
-    snippets/utils.c
-    snippets/cayenne.c
-    snippets/client.c
-    snippets/dns.c
-    snippets/http_server.c
-    snippets/mqtt_client.c
-    snippets/mqtt_client_api.c
-    snippets/mqtt_client_api_cayenne.c
-    snippets/netconn_client.c
-    snippets/netconn_server.c
-    snippets/netconn_server_1thread.c
-    snippets/sntp.c
-    snippets/station_manager.c
-
-    dev/VisualStudio/main.c
+    # Development additional files
+    ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/system/lwesp_mem_lwmem.c
+    ${CMAKE_CURRENT_LIST_DIR}/../lwmem/lwmem/src/lwmem/lwmem.c
+    ${CMAKE_CURRENT_LIST_DIR}/../lwmem/lwmem/src/system/lwmem_sys_win32.c
     )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    dev/VisualStudio
-    lwesp/src/include
-    lwesp/src/include/system/port/win32
-    snippets/include
-    ../lwmem/lwmem/src/include
+# Add key include paths
+target_include_directories(${PROJECT_NAME} PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/dev/VisualStudio
+    ${CMAKE_CURRENT_LIST_DIR}/snippets/include
+    ${CMAKE_CURRENT_LIST_DIR}/../lwmem/lwmem/src/include
     )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
+# Compilation definition information
+target_compile_definitions(${PROJECT_NAME} PUBLIC
     WIN32
     _DEBUG
     CONSOLE
     LWESP_DEV
     )
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
+# Add subdir with lwesp and link to the project
+add_subdirectory("lwesp")
+target_link_libraries(${PROJECT_NAME} lwesp)
