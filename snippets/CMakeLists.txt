@@ -3,11 +3,9 @@ cmake_minimum_required(VERSION 3.13)
 # Debug message
 message("Entering ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
 
-# Register library to the system
-add_library(lwesp_snippets INTERFACE)
 
 # Setup generic source files
-target_sources(lwesp_snippets PUBLIC
+set(lwesp_snippets_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/telnet_server.c
     ${CMAKE_CURRENT_LIST_DIR}/utils.c
     ${CMAKE_CURRENT_LIST_DIR}/cayenne.c
@@ -25,9 +23,14 @@ target_sources(lwesp_snippets PUBLIC
     )
 
 # Setup include directories
-target_include_directories(lwesp_snippets INTERFACE
+set(lwesp_snippets_include_DIRS   
     ${CMAKE_CURRENT_LIST_DIR}/include
     )
+
+# Register library to the system
+add_library(lwesp_snippets INTERFACE)
+target_sources(lwesp_snippets PUBLIC ${lwesp_snippets_SRCS})
+target_include_directories(lwesp_snippets INTERFACE ${lwesp_snippets_include_DIRS})
 
 # Debug message
 message("Exiting ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
