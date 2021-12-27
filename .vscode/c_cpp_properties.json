@@ -4,7 +4,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}\\dev\\VisualStudio\\",
+                "${workspaceFolder}\\dev\\",
                 "${workspaceFolder}\\lwesp\\src\\include\\",
                 "${workspaceFolder}\\lwesp\\src\\include\\system\\port\\win32",
                 "${workspaceFolder}\\snippets\\include",

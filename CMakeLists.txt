@@ -20,34 +20,27 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/dev/main.c
 
-    # Snippets
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/telnet_server.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/utils.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/cayenne.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/client.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/dns.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/http_server.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/mqtt_client.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/mqtt_client_api.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/mqtt_client_api_cayenne.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/netconn_client.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/netconn_server.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/netconn_server_1thread.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/sntp.c
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/station_manager.c
-
     # Development additional files
     ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/system/lwesp_mem_lwmem.c
     ${CMAKE_CURRENT_LIST_DIR}/../lwmem/lwmem/src/lwmem/lwmem.c
     ${CMAKE_CURRENT_LIST_DIR}/../lwmem/lwmem/src/system/lwmem_sys_win32.c
+
+    # Http server file system
+    ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/apps/http_server/lwesp_http_server_fs_win32.c
+
+    # Port specific
+    ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/system/lwesp_sys_win32.c
+    ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/system/lwesp_ll_win32.c
     )
 
 # Add key include paths
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/dev
-    ${CMAKE_CURRENT_LIST_DIR}/snippets/include
     ${CMAKE_CURRENT_LIST_DIR}/../lwmem/lwmem/src/include
+
+    # Port specifics
+    ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/include/system/port/win32
     )
 
 # Compilation definition information
@@ -61,3 +54,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 # Add subdir with lwesp and link to the project
 add_subdirectory("lwesp")
 target_link_libraries(${PROJECT_NAME} lwesp)
+target_link_libraries(${PROJECT_NAME} lwesp_api)
+target_link_libraries(${PROJECT_NAME} lwesp_apps)
+add_subdirectory("snippets")
+target_link_libraries(${PROJECT_NAME} lwesp_snippets)

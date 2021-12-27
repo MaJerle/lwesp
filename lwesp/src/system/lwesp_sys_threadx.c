@@ -234,7 +234,6 @@ lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
             }
         }
     }
-
     return rt;
 }
 

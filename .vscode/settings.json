@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "lwesp_conn.h": "c",
+        "lwesp_mem.h": "c",
+        "lwesp_private.h": "c",
+        "lwesp_typedefs.h": "c",
+        "lwesp.h": "c",
+        "lwesp_includes.h": "c",
+        "lwesp_opt.h": "c",
+        "lwesp_debug.h": "c"
+    }
+}
