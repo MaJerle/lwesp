@@ -386,7 +386,7 @@ main_thread(void* arg) {
      //connect_to_preferred_access_point(1);
     lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &aps_count, NULL, NULL, 1);
     lwesp_sta_autojoin(1, NULL, NULL, 1);
-    while (lwesp_sta_join("Majerle WIFI", "majerle_internet_private", NULL, NULL, NULL, 1) != lwespOK) {}
+    while (lwesp_sta_join("Kaja", "ginkaja2021", NULL, NULL, NULL, 1) != lwespOK) {}
 
     if (lwesp_ping("majerle.eu", &ping_time, NULL, NULL, 1) == lwespOK) {
         safeprintf("Ping time: %d\r\n", (int)ping_time);
