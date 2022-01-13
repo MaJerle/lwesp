@@ -833,11 +833,11 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 esp.m.device = LWESP_DEVICE_ESP8266;
 #endif /* LWESP_CFG_ESP8266 */
 #if LWESP_CFG_ESP32
-            } else if (strstr(rcv->data, "- ESP32 -") != NULL || strstr(rcv->data, "ESP32")) {
+            } else if (strstr(rcv->data, "- ESP32 -") != NULL) {
                 esp.m.device = LWESP_DEVICE_ESP32;
 #endif /* LWESP_CFG_ESP32 */
 #if LWESP_CFG_ESP32_C3
-            } else if (strstr(rcv->data, "- ESP32C3 -") != NULL || strstr(rcv->data, "- ESP32-C3 -")) {
+            } else if (strstr(rcv->data, "- ESP32C3 -") != NULL || strstr(rcv->data, "- ESP32-C3 -") != NULL) {
                 esp.m.device = LWESP_DEVICE_ESP32_C3;
 #endif /* LWESP_CFG_ESP32_C3 */
             } else {
