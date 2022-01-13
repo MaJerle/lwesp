@@ -1,0 +1,52 @@
+{
+    "write_flash_args" : [ "--flash_mode", "dio",
+                           "--flash_size", "detect",
+                           "--flash_freq", "40m" ],
+    "flash_settings" : {
+        "flash_mode": "dio",
+        "flash_size": "detect",
+        "flash_freq": "40m"
+    },
+    "flash_files" : {
+        "0x8000" : "partition_table/partition-table.bin",
+        "0x10000" : "ota_data_initial.bin",
+        "0xf000" : "phy_init_data.bin",
+        "0x1000" : "bootloader/bootloader.bin",
+        "0x100000" : "esp-at.bin",
+        "0x20000" : "at_customize.bin",
+        "0x24000" : "customized_partitions/server_cert.bin",
+        "0x39000" : "customized_partitions/mqtt_key.bin",
+        "0x26000" : "customized_partitions/server_key.bin",
+        "0x28000" : "customized_partitions/server_ca.bin",
+        "0x2e000" : "customized_partitions/client_ca.bin",
+        "0x30000" : "customized_partitions/factory_param.bin",
+        "0x21000" : "customized_partitions/ble_data.bin",
+        "0x3B000" : "customized_partitions/mqtt_ca.bin",
+        "0x37000" : "customized_partitions/mqtt_cert.bin",
+        "0x2a000" : "customized_partitions/client_cert.bin",
+        "0x2c000" : "customized_partitions/client_key.bin"
+    },
+    "partition_table" : { "offset" : "0x8000", "file" : "partition_table/partition-table.bin" },
+    "otadata" : { "offset" : "0x10000", "file" : "ota_data_initial.bin" },
+    "phy" : { "offset" : "0xf000", "file" : "phy_init_data.bin" },
+    "bootloader" : { "offset" : "0x1000", "file" : "bootloader/bootloader.bin" },
+    "app" : { "offset" : "0x100000", "file" : "esp-at.bin" },
+    "at_customize" : { "offset" : "0x20000", "file" : "at_customize.bin" },
+    "server_cert" : { "offset" : "0x24000", "file" : "customized_partitions/server_cert.bin" },
+    "mqtt_key" : { "offset" : "0x39000", "file" : "customized_partitions/mqtt_key.bin" },
+    "server_key" : { "offset" : "0x26000", "file" : "customized_partitions/server_key.bin" },
+    "server_ca" : { "offset" : "0x28000", "file" : "customized_partitions/server_ca.bin" },
+    "client_ca" : { "offset" : "0x2e000", "file" : "customized_partitions/client_ca.bin" },
+    "factory_param" : { "offset" : "0x30000", "file" : "customized_partitions/factory_param.bin" },
+    "ble_data" : { "offset" : "0x21000", "file" : "customized_partitions/ble_data.bin" },
+    "mqtt_ca" : { "offset" : "0x3B000", "file" : "customized_partitions/mqtt_ca.bin" },
+    "mqtt_cert" : { "offset" : "0x37000", "file" : "customized_partitions/mqtt_cert.bin" },
+    "client_cert" : { "offset" : "0x2a000", "file" : "customized_partitions/client_cert.bin" },
+    "client_key" : { "offset" : "0x2c000", "file" : "customized_partitions/client_key.bin" },
+    "extra_esptool_args" : {
+        "after"  : "hard_reset",
+        "before" : "default_reset",
+        "stub"   : true,
+        "chip"   : "esp32"
+    }
+}

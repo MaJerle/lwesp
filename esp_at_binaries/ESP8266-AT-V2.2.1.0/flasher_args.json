@@ -1,0 +1,40 @@
+{
+    "write_flash_args" : [ "--flash_mode", "dio",
+                           "--flash_size", "2MB",
+                           "--flash_freq", "80m" ],
+    "flash_settings" : {
+        "flash_mode": "dio",
+        "flash_size": "2MB",
+        "flash_freq": "80m"
+    },
+    "flash_files" : {
+        "0x8000" : "partition_table/partition-table.bin",
+        "0x9000" : "ota_data_initial.bin",
+        "0x0" : "bootloader/bootloader.bin",
+        "0x10000" : "esp-at.bin",
+        "0xF0000" : "at_customize.bin",
+        "0xFC000" : "customized_partitions/client_ca.bin",
+        "0x106000" : "customized_partitions/mqtt_key.bin",
+        "0x104000" : "customized_partitions/mqtt_cert.bin",
+        "0x108000" : "customized_partitions/mqtt_ca.bin",
+        "0xF1000" : "customized_partitions/factory_param.bin",
+        "0xF8000" : "customized_partitions/client_cert.bin",
+        "0xFA000" : "customized_partitions/client_key.bin"
+    },
+    "partition_table" : { "offset" : "0x8000", "file" : "partition_table/partition-table.bin" },
+    "otadata" : { "offset" : "0x9000", "file" : "ota_data_initial.bin" },
+    "bootloader" : { "offset" : "0x0", "file" : "bootloader/bootloader.bin" },
+    "app" : { "offset" : "0x10000", "file" : "esp-at.bin" },
+    "at_customize" : { "offset" : "0xF0000", "file" : "at_customize.bin" },
+    "client_ca" : { "offset" : "0xFC000", "file" : "customized_partitions/client_ca.bin" },
+    "mqtt_key" : { "offset" : "0x106000", "file" : "customized_partitions/mqtt_key.bin" },
+    "mqtt_cert" : { "offset" : "0x104000", "file" : "customized_partitions/mqtt_cert.bin" },
+    "mqtt_ca" : { "offset" : "0x108000", "file" : "customized_partitions/mqtt_ca.bin" },
+    "factory_param" : { "offset" : "0xF1000", "file" : "customized_partitions/factory_param.bin" },
+    "client_cert" : { "offset" : "0xF8000", "file" : "customized_partitions/client_cert.bin" },
+    "client_key" : { "offset" : "0xFA000", "file" : "customized_partitions/client_key.bin" },
+    "extra_esptool_args" : {
+        "after"  : "hard_reset",
+        "before" : "default_reset"
+    }
+}
