@@ -51,10 +51,17 @@ lwesp_thread_produce(void* const arg) {
     lwesp_msg_t* msg;
     lwespr_t res;
     uint32_t time;
+    
+    LWESP_DEBUGF(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE,
+                "[THREAD] Producer thread started\r\n");
 
-    /* Thread is running, unlock semaphore */
+    /*
+     * Thread parameter is semaphore handle object
+     *
+     * Semaphore must be released, indicating thread successful startup
+     */
     if (lwesp_sys_sem_isvalid(sem)) {
-        lwesp_sys_sem_release(sem);             /* Release semaphore */
+        lwesp_sys_sem_release(sem);
     }
 
     lwesp_core_lock();
@@ -189,9 +196,16 @@ lwesp_thread_process(void* const arg) {
     lwesp_msg_t* msg;
     uint32_t time;
 
-    /* Thread is running, unlock semaphore */
+    LWESP_DEBUGF(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE,
+                "[THREAD] Process thread started\r\n");
+
+    /*
+     * Thread parameter is semaphore handle object
+     *
+     * Semaphore must be released, indicating thread successful startup
+     */
     if (lwesp_sys_sem_isvalid(sem)) {
-        lwesp_sys_sem_release(sem);             /* Release semaphore */
+        lwesp_sys_sem_release(sem);
     }
 
 #if !LWESP_CFG_INPUT_USE_PROCESS

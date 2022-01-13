@@ -23,6 +23,7 @@ set(lwesp_core_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_mem.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_parser.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_pbuf.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_server.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_sntp.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_sta.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_threads.c

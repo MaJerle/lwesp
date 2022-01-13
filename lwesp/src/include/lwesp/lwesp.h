@@ -55,8 +55,6 @@ lwespr_t    lwesp_set_at_baudrate(uint32_t baud, const lwesp_api_cmd_evt_fn evt_
 lwespr_t    lwesp_set_wifi_mode(lwesp_mode_t mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t    lwesp_get_wifi_mode(lwesp_mode_t* mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
-lwespr_t    lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint16_t timeout, lwesp_evt_fn cb, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-
 lwespr_t    lwesp_update_sw(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 lwespr_t    lwesp_core_lock(void);
@@ -86,6 +84,7 @@ uint8_t     lwesp_get_current_at_fw_version(lwesp_sw_version_t* const version);
 /**
  * \brief           Get minimal AT version supported by library
  * \param[out]      v: Version output, pointer to \ref lwesp_sw_version_t structure
+ * \todo            Convert to function and take care of different Espressif devices
  * \hideinitializer
  */
 #define     lwesp_get_min_at_fw_version(v)   lwesp_set_fw_version(v, LWESP_MIN_AT_VERSION_MAJOR_ESP8266, LWESP_MIN_AT_VERSION_MINOR_ESP8266, LWESP_MIN_AT_VERSION_PATCH_ESP8266)

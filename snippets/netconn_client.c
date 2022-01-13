@@ -105,6 +105,7 @@ netconn_client_thread(void const* arg) {
         lwesp_netconn_delete(client);             /* Delete netconn structure */
     }
 
+    printf("Terminating thread\r\n");
     if (lwesp_sys_sem_isvalid(sem)) {
         lwesp_sys_sem_release(sem);
     }

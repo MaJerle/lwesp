@@ -79,51 +79,59 @@ static uint8_t
 configure_uart(uint32_t baudrate) {
     DCB dcb = { 0 };
     dcb.DCBlength = sizeof(dcb);
+    size_t i;
 
-    /*
-     * On first call,
-     * create virtual file on selected COM port and open it
-     * as generic read and write
-     */
-    if (!initialized) {
-        com_port = CreateFile("\\\\.\\COM4",
-                              GENERIC_READ | GENERIC_WRITE,
-                              0,
-                              0,
-                              OPEN_EXISTING,
-                              0,
-                              NULL
-                             );
-    }
+    /* List of COM ports to probe */
+    static const char* com_port_names[] = {
+        "\\\\.\\COM16",
+        "\\\\.\\COM4"
+    };
 
-    /* Configure COM port parameters */
-    if (GetCommState(com_port, &dcb)) {
-        COMMTIMEOUTS timeouts;
+    /* TODO: Needs proper work to run for loop only if not initialized */
 
-        dcb.BaudRate = baudrate;
-        dcb.ByteSize = 8;
-        dcb.Parity = NOPARITY;
-        dcb.StopBits = ONESTOPBIT;
-
-        if (!SetCommState(com_port, &dcb)) {
-            printf("Cannot set COM PORT info\r\n");
-            return 0;
+    for (i = 0; i < LWESP_ARRAYSIZE(com_port_names); ++i) {
+        /*
+         * On first call,
+         * create virtual file on selected COM port and open it
+         * as generic read and write
+         */
+        if (!initialized) {
+            printf("Probing COM port %s\r\n", com_port_names[i]);
+            com_port = CreateFile(com_port_names[i], GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, NULL);
         }
-        if (GetCommTimeouts(com_port, &timeouts)) {
-            /* Set timeout to return immediately from ReadFile function */
-            timeouts.ReadIntervalTimeout = MAXDWORD;
-            timeouts.ReadTotalTimeoutConstant = 0;
-            timeouts.ReadTotalTimeoutMultiplier = 0;
-            if (!SetCommTimeouts(com_port, &timeouts)) {
-                printf("Cannot set COM PORT timeouts\r\n");
+
+        /* Configure COM port parameters */
+        if (GetCommState(com_port, &dcb)) {
+            COMMTIMEOUTS timeouts;
+
+            dcb.BaudRate = baudrate;
+            dcb.ByteSize = 8;
+            dcb.Parity = NOPARITY;
+            dcb.StopBits = ONESTOPBIT;
+
+            if (!SetCommState(com_port, &dcb)) {
+                printf("Cannot set COM PORT info for port: %s\r\n", com_port_names[i]);
+                continue;
             }
-            GetCommTimeouts(com_port, &timeouts);
+            if (GetCommTimeouts(com_port, &timeouts)) {
+                /* Set timeout to return immediately from ReadFile function */
+                timeouts.ReadIntervalTimeout = MAXDWORD;
+                timeouts.ReadTotalTimeoutConstant = 0;
+                timeouts.ReadTotalTimeoutMultiplier = 0;
+                if (!SetCommTimeouts(com_port, &timeouts)) {
+                    printf("Cannot set COM PORT timeouts: %s\r\n", com_port_names[i]);
+                }
+                GetCommTimeouts(com_port, &timeouts);
+                break;
+            } else {
+                printf("Cannot get COM PORT timeouts: %s\r\n", com_port_names[i]);
+            }
         } else {
-            printf("Cannot get COM PORT timeouts\r\n");
-            return 0;
+            printf("Cannot get COM PORT info: %s\r\n", com_port_names[i]);
         }
-    } else {
-        printf("Cannot get COM PORT info\r\n");
+    }
+    if (i == LWESP_ARRAYSIZE(com_port_names)) {
+        printf("Failed to open any COM port\r\n");
         return 0;
     }
 

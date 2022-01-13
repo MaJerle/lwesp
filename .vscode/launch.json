@@ -11,10 +11,10 @@
             "program": "${workspaceFolder}\\build\\LwLibPROJECT.exe",
             "miDebuggerPath": "c:\\msys64\\mingw64\\bin\\gdb.exe",
             "args": [],
-            "stopAtEntry": false,
+            "stopAtEntry": true,
             "cwd": "${fileDirname}",
             "environment": [],
-            "console": "integratedTerminal"
+            "console": "externalTerminal"
         }
     ]
 }

@@ -43,6 +43,7 @@
 #include "lwesp/lwesp_utils.h"
 #include "lwesp/lwesp_pbuf.h"
 #include "lwesp/lwesp_conn.h"
+#include "lwesp/lwesp_server.h"
 #include "system/lwesp_sys.h"
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__

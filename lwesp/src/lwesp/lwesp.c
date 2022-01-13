@@ -79,10 +79,8 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     lwespr_t res = lwespOK;
 
     esp.status.f.initialized = 0;               /* Clear possible init flag */
-
     def_evt_link.fn = evt_func != NULL ? evt_func : def_callback;
     esp.evt_func = &def_evt_link;               /* Set callback function */
-
     esp.evt_server = NULL;                      /* Set default server callback function */
 
     if (!lwesp_sys_init()) {                    /* Init low-level system */
@@ -91,23 +89,28 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 
     if (!lwesp_sys_sem_create(&esp.sem_sync, 1)) {  /* Create sync semaphore between threads */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                   "[CORE] Cannot allocate sync semaphore!\r\n");
+                   "[CORE] Cannot create sync semaphore!\r\n");
         goto cleanup;
     }
 
     /* Create message queues */
     if (!lwesp_sys_mbox_create(&esp.mbox_producer, LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) {  /* Producer */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                   "[CORE] Cannot allocate producer mbox queue!\r\n");
+                   "[CORE] Cannot create producer mbox queue!\r\n");
         goto cleanup;
     }
     if (!lwesp_sys_mbox_create(&esp.mbox_process, LWESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {/* Process */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                   "[CORE] Cannot allocate process mbox queue!\r\n");
+                   "[CORE] Cannot create process mbox queue!\r\n");
         goto cleanup;
     }
 
-    /* Create threads */
+    /*
+     * Create threads
+     * 
+     * Each thread receives handle of semaphore that must be released inside the thread.
+     * This is to make sure threads start immediately after they are created
+     */
     lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Lock semaphore */
     if (!lwesp_sys_thread_create(&esp.thread_produce, "lwesp_produce", lwesp_thread_produce, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
@@ -299,41 +302,6 @@ lwesp_set_at_baudrate(uint32_t baud,
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 2000);
 }
 
-/**
- * \brief           Enables or disables server mode
- * \param[in]       en: Set to `1` to enable server, `0` otherwise
- * \param[in]       port: Port number used to listen on. Must also be used when disabling server mode
- * \param[in]       max_conn: Number of maximal connections populated by server
- * \param[in]       timeout: Time used to automatically close the connection in units of seconds.
- *                      Set to `0` to disable timeout feature (not recommended)
- * \param[in]       server_evt_fn: Connection callback function for new connections started as server
- * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
- * \param[in]       evt_arg: Custom argument for event callback function
- * \param[in]       blocking: Status whether command should be blocking or not
- * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
- */
-lwespr_t
-lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint16_t timeout, lwesp_evt_fn server_evt_fn,
-               const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
-    LWESP_MSG_VAR_DEFINE(msg);
-
-    LWESP_ASSERT("port > 0", port > 0);
-
-    LWESP_MSG_VAR_ALLOC(msg, blocking);
-    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
-    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSERVER;
-    if (en) {
-        LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPSERVERMAXCONN;  /* First command is to set maximal number of connections for server */
-    }
-    LWESP_MSG_VAR_REF(msg).msg.tcpip_server.en = en;
-    LWESP_MSG_VAR_REF(msg).msg.tcpip_server.port = port;
-    LWESP_MSG_VAR_REF(msg).msg.tcpip_server.max_conn = max_conn;
-    LWESP_MSG_VAR_REF(msg).msg.tcpip_server.timeout = timeout;
-    LWESP_MSG_VAR_REF(msg).msg.tcpip_server.cb = server_evt_fn;
-
-    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
-}
-
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
 
 /**
@@ -483,7 +451,7 @@ lwesp_device_is_esp32(void) {
 #if LWESP_CFG_ESP32_C3 || __DOXYGEN__
 
 /**
- * \brief           Check if modem device is ESP32
+ * \brief           Check if modem device is ESP32-C3
  * \return          `1` on success, `0` otherwise
  */
 uint8_t

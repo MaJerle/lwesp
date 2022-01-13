@@ -11,7 +11,7 @@ Follow documentation for more information on implementation and details.
 
 ## Features
 
-- Supports latest ESP32 & ESP8266 RTOS-SDK based AT commands firmware
+- Supports latest ESP32, ESP32-C3 & ESP8266 AT software from Espressif system
 - Platform independent and very easy to port
 - Development of library under Win32 platform
 - Available examples for ARM Cortex-M, Win32 or POSIX (mostly Linux) platforms

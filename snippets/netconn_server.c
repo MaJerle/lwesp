@@ -121,6 +121,7 @@ netconn_server_thread(void const* arg) {
         printf("Cannot create server netconn\r\n");
     }
 
+    printf("Terminating thread\r\n");
     lwesp_netconn_delete(server);                 /* Delete netconn structure */
     lwesp_sys_thread_terminate(NULL);             /* Terminate current thread */
 }

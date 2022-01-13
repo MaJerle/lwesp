@@ -388,13 +388,7 @@ lwespi_reset_everything(uint8_t forced) {
     LWESP_MEMSET(&esp.m, 0x00, sizeof(esp.m));
 
     /* Set default device */
-#if LWESP_CFG_ESP8266 && !LWESP_CFG_ESP32
-    esp.m.device = LWESP_DEVICE_ESP8266;
-#elif !LWESP_CFG_ESP8266 && LWESP_CFG_ESP32
-    esp.m.device = LWESP_DEVICE_ESP32;
-#else
     esp.m.device = LWESP_DEVICE_UNKNOWN;
-#endif  /* LWESP_CFG_ESP8266 && !LWESP_CFG_ESP32 */
 
     /* Reset baudrate to default */
     esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE;
@@ -606,7 +600,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             lwespi_parse_ipd(rcv->data);        /* Parse IPD statement and start receiving network data */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
             if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPRECVDATA) && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN)) {
-                esp.msg->msg.ciprecvdata.ipd_recv = 1;  /* Command repeat, try again */
+                esp.msg->msg.ciprecvdata.ipd_recv = 1;  /* Command repeat, try again later */
             }
             /* IPD message notification? */
             lwespi_conn_manual_tcp_try_read_data(esp.m.ipd.conn);
@@ -826,6 +820,31 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             uint8_t ok = 0, major = 0, minor = 0, patch = 0;
             lwespi_parse_at_sdk_version(&rcv->data[11], &esp.m.version_at);
 
+            /* 
+             * AT version example string looks like:
+             *
+             * ESP8266: "AT version:2.2.1.0(46d6c26 - ESP8266 - Aug  6 2021 06:50:15)"
+             * ESP32C3: "AT version:2.3.0.0(e98993f - ESP32C3 - Dec 23 2021 09:03:35)""
+             * ESP32: "AT version:2.2.0.0(c6fa6bf - ESP32 - Jul  2 2021 06:44:05)
+             */
+            if (0) {
+#if LWESP_CFG_ESP8266
+            } else if (strstr(rcv->data, "- ESP8266 -") != NULL) {
+                esp.m.device = LWESP_DEVICE_ESP8266;
+#endif /* LWESP_CFG_ESP8266 */
+#if LWESP_CFG_ESP32
+            } else if (strstr(rcv->data, "- ESP32 -") != NULL || strstr(rcv->data, "ESP32")) {
+                esp.m.device = LWESP_DEVICE_ESP32;
+#endif /* LWESP_CFG_ESP32 */
+#if LWESP_CFG_ESP32_C3
+            } else if (strstr(rcv->data, "- ESP32C3 -") != NULL || strstr(rcv->data, "- ESP32-C3 -")) {
+                esp.m.device = LWESP_DEVICE_ESP32_C3;
+#endif /* LWESP_CFG_ESP32_C3 */
+            } else {
+                LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
+                            "[GMR] Could not detect connected Espressif device: %.*s\r\n", (int)rcv->len, rcv->data);
+            }
+
             if (0) {
 #if LWESP_CFG_ESP8266
             } else if (esp.m.device == LWESP_DEVICE_ESP8266) {
@@ -884,18 +903,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 }
             }
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
-            /*
-             * \todo: Request Espressif for numerical response instead of random messages
-             */
-            /*
-            if (!strncmp(rcv->data, "DNS Fail", 8)) {
 
-            } else if (!strncmp(rcv->data, "ID ERROR", 8)) {
-
-            } else if (!strncmp(rcv->data, "Link type ERROR", 15)) {
-
-            }
-            */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSEND)) {
             if (is_ok) {                        /* Check for OK and clear as we have to check for "> " statement after OK */
                 is_ok = 0;                      /* Do not reach on OK */
@@ -1289,9 +1297,10 @@ lwespi_process(const void* data, size_t data_len) {
                      * Check if "+CIPRECVDATA" statement is in array and now we received colon,
                      * indicating end of +CIPRECVDATA statement and start of actual data
                      *
-                     * Final conclustion for +CIPRECVDATA is:
+                     * Final conclusion for +CIPRECVDATA is:
                      * +CIPRECVDATA:<len>,<IP>,<port>,data...
-                     *
+                     * 
+                     * We must wait for 3 colon characters, before conclusion of valid data
                      */
                     if (ch == ',' && RECV_LEN() > 13 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)
                         && (tmp_ptr = strchr(recv_buff.data, ',')) != NULL  /* Search for first comma */
@@ -1300,8 +1309,8 @@ lwespi_process(const void* data, size_t data_len) {
                         lwespi_parse_received(&recv_buff);  /* Parse received string */
                         if (esp.m.ipd.read) {   /* Shall we start read procedure? */
                             /*
-                             * We should have already allocated pbuf memory at this stage
-                             * in current message from actual command handle
+                             * We should have already allocated pbuf memory at this stage.
+                             * For manual receive, it is done prior command gets executed to be sure storage is ready to accept stream of data
                              *
                              * Pbuf length should not be bigger than number of received bytes
                              */
@@ -1309,6 +1318,9 @@ lwespi_process(const void* data, size_t data_len) {
                             esp.m.ipd.conn = esp.msg->msg.ciprecvdata.conn;
                             lwesp_pbuf_set_length(esp.m.ipd.buff, esp.m.ipd.tot_len);   /* Set new length of buffer */
                             esp.msg->msg.ciprecvdata.buff = NULL;   /* Clear reference for this pbuf */
+                            LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
+                                        "[IPD] Data on connection %d with total size %d byte(s)\r\n",
+                                        (int)esp.m.ipd.conn->num, (int)esp.m.ipd.tot_len);
                         } else {
                             /* ERROR handling */
                         }
@@ -1412,6 +1424,9 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
             break;
         case LWESP_CMD_ATE0:
         case LWESP_CMD_ATE1:
+            SET_NEW_CMD(LWESP_CMD_GMR);
+            break;
+        case LWESP_CMD_GMR:
             SET_NEW_CMD(LWESP_CMD_SYSMSG);
             break;
         case LWESP_CMD_SYSMSG:
@@ -1422,16 +1437,16 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
             SET_NEW_CMD(LWESP_CMD_BLEINIT_GET);
             break;
         case LWESP_CMD_BLEINIT_GET:
-            if (*is_ok) {
-                esp.m.device = LWESP_DEVICE_ESP32;
-                /* TODO: Check if dev is ESP32-C3 */
-            } else {
-                esp.m.device = LWESP_DEVICE_ESP8266;
+            if (esp.m.device == LWESP_DEVICE_UNKNOWN) {
+                /* TODO: Set device the right way, not old-fashioned mode */
+                if (*is_ok) {
+                    esp.m.device = LWESP_DEVICE_ESP32;
+                    /* TODO: Check if dev is ESP32-C3 */
+                } else {
+                    esp.m.device = LWESP_DEVICE_ESP8266;
+                }
             }
 #endif /* LWESP_CFG_ESP32 */
-            SET_NEW_CMD(LWESP_CMD_GMR);
-            break;
-        case LWESP_CMD_GMR:
             SET_NEW_CMD(LWESP_CMD_WIFI_CWMODE);
             break;
         case LWESP_CMD_WIFI_CWMODE:
@@ -2399,19 +2414,20 @@ lwespr_t
 lwespi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_msg_t*), uint32_t max_block_time) {
     lwespr_t res = msg->res = lwespOK;
 
-    /* Check here if stack is even enabled or shall we disable new command entry? */
     lwesp_core_lock();
-    /* If locked more than 1 time, means we were called from callback or internally */
+
+    /* 
+     * If locked more than 1 time, means we were called from callback or internally.
+     * It is not allowed to call command in blocking mode from stack itself (would end up in dead-lock)
+     */
     if (esp.locked_cnt > 1 && msg->is_blocking) {
         res = lwespERRBLOCKING;                 /* Blocking mode not allowed */
-    }
-    /* Check if device present */
-    if (res == lwespOK && !esp.status.f.dev_present) {
+    } else if (!esp.status.f.dev_present) {     /* Check device present */
         res = lwespERRNODEVICE;                 /* No device connected */
     }
     lwesp_core_unlock();
     if (res != lwespOK) {
-        LWESP_MSG_VAR_FREE(msg);                /* Free memory and return */
+        LWESP_MSG_VAR_FREE(msg);
         return res;
     }
 

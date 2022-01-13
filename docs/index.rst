@@ -17,7 +17,7 @@ Its objective is to run on master system, while Espressif device runs official A
 Features
 ^^^^^^^^
 
-* Supports latest ESP8266 and ESP32 RTOS-SDK AT commands firmware
+* Supports latest ESP32, ESP32-C3 & ESP8266 AT software from Espressif system
 * Platform independent and easy to port, written in C99
 
   * Library is developed under Win32 platform

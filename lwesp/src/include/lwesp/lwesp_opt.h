@@ -779,15 +779,25 @@ void *  my_memset(void* dst, int b, size_t len);
  * \}
  */
 
+/**
+ * \defgroup        LWESP_OPT_MIN_AT_VERSIONS Minimum AT versions
+ * \brief           Minimum AT versions needed for Espressif devices to run properly with LwESP
+ * \{
+ */
+
 #define LWESP_MIN_AT_VERSION_MAJOR_ESP8266      2   /*!< Minimal major version for ESP8266 */
 #define LWESP_MIN_AT_VERSION_MINOR_ESP8266      2   /*!< Minimal minor version for ESP8266 */
-#define LWESP_MIN_AT_VERSION_PATCH_ESP8266      0   /*!< Minimal patch version for ESP8266 */
+#define LWESP_MIN_AT_VERSION_PATCH_ESP8266      1   /*!< Minimal patch version for ESP8266 */
 #define LWESP_MIN_AT_VERSION_MAJOR_ESP32        2   /*!< Minimal major version for ESP32 */
-#define LWESP_MIN_AT_VERSION_MINOR_ESP32        2   /*!< Minimal minor version for ESP32 */
+#define LWESP_MIN_AT_VERSION_MINOR_ESP32        3   /*!< Minimal minor version for ESP32 */
 #define LWESP_MIN_AT_VERSION_PATCH_ESP32        0   /*!< Minimal patch version for ESP32 */
 #define LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3     2   /*!< Minimal major version for ESP32-C3 */
-#define LWESP_MIN_AT_VERSION_MINOR_ESP32_C3     2   /*!< Minimal minor version for ESP32-C3 */
+#define LWESP_MIN_AT_VERSION_MINOR_ESP32_C3     3   /*!< Minimal minor version for ESP32-C3 */
 #define LWESP_MIN_AT_VERSION_PATCH_ESP32_C3     0   /*!< Minimal patch version for ESP32-C3 */
+
+/**
+ * \}
+ */
 
 /**
  * \}

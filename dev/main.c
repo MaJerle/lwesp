@@ -88,6 +88,7 @@ cmd_commands[] = {
     { 0, "netconn_client", "", "Start netconn client thread"},
     { 0, "netconn_server", "", "Start netconn server thread"},
     { 0, "mqtt_client_api", "", "Start mqtt client API thread"},
+    { 0, "ciupdate", "", "Run ciupdate command"},
 };
 
 /**
@@ -97,12 +98,13 @@ int
 main() {
     safeprintf("App start!\r\n");
 
+    /* Setup regions for memory as a start */
     if (!lwmem_assignmem(lwmem_regions)) {
         safeprintf("Could not assign memory for LwMEM!\r\n");
         return -1;
     }
 
-    /* Create main thread */
+    /* Create main threads */
     CreateThread(0, 0, (LPTHREAD_START_ROUTINE)main_thread, NULL, 0, NULL);
     CreateThread(0, 0, (LPTHREAD_START_ROUTINE)input_thread, NULL, 0, NULL);
 
@@ -343,6 +345,8 @@ input_thread(void* arg) {
         } else if (IS_LINE("ignoreoff")) {
             safeprintf("Not ignoring data...\r\n");
             lwesp_ll_win32_driver_ignore_data = 0;
+        } else if (IS_LINE("ciupdate")) {
+            lwesp_update_sw(NULL, NULL, 1);
         } else {
             safeprintf("Unknown input!\r\n");
         }
@@ -362,13 +366,14 @@ main_thread(void* arg) {
 
     if (lwesp_device_is_esp32()) {
         safeprintf("Device is ESP32\r\n");
-    }
-    if (lwesp_device_is_esp8266()) {
+    } else if (lwesp_device_is_esp8266()) {
         safeprintf("Device is ESP8266\r\n");
-    }
-    if (lwesp_device_is_esp32_c3()) {
+    } else if (lwesp_device_is_esp32_c3()) {
         safeprintf("Device is ESP32-C3\r\n");
+    } else {
+        safeprintf("Unknown device...\r\n");
     }
+    //while (1) { lwesp_delay(100); }
     /* Start thread to toggle device present */
     //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
     lwesp_hostname_set("abc", NULL, NULL, 1);
@@ -388,6 +393,7 @@ main_thread(void* arg) {
     lwesp_sta_autojoin(1, NULL, NULL, 1);
     while (lwesp_sta_join("Kaja", "ginkaja2021", NULL, NULL, NULL, 1) != lwespOK) {}
 
+    /* Try to ping */
     if (lwesp_ping("majerle.eu", &ping_time, NULL, NULL, 1) == lwespOK) {
         safeprintf("Ping time: %d\r\n", (int)ping_time);
     } else {
@@ -426,7 +432,7 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Notify user */
 
