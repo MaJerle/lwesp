@@ -1462,20 +1462,6 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
             SET_NEW_CMD(LWESP_CMD_SYSLOG);
             break;
         case LWESP_CMD_SYSLOG:
-#if LWESP_CFG_ESP32 && LWESP_CFG_ESP8266
-            SET_NEW_CMD(LWESP_CMD_BLEINIT_GET);
-            break;
-        case LWESP_CMD_BLEINIT_GET:
-            if (esp.m.device == LWESP_DEVICE_UNKNOWN) {
-                /* TODO: Set device the right way, not old-fashioned mode */
-                if (*is_ok) {
-                    esp.m.device = LWESP_DEVICE_ESP32;
-                    /* TODO: Check if dev is ESP32-C3 */
-                } else {
-                    esp.m.device = LWESP_DEVICE_ESP8266;
-                }
-            }
-#endif /* LWESP_CFG_ESP32 */
             SET_NEW_CMD(LWESP_CMD_WIFI_CWMODE);
             break;
         case LWESP_CMD_WIFI_CWMODE:
