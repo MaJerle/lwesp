@@ -97,7 +97,7 @@ configure_uart(uint32_t baudrate) {
          */
         if (!initialized) {
             printf("Probing COM port %s\r\n", com_port_names[i]);
-            com_port = CreateFile(com_port_names[i], GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, NULL);
+            com_port = CreateFileA(com_port_names[i], GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, NULL);
         }
 
         /* Configure COM port parameters */

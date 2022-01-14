@@ -7,6 +7,11 @@
         "lwesp.h": "c",
         "lwesp_includes.h": "c",
         "lwesp_opt.h": "c",
-        "lwesp_debug.h": "c"
+        "lwesp_debug.h": "c",
+        "lwesp_parser.h": "c",
+        "lwesp_int.h": "c",
+        "lwesp_opts.h": "c",
+        "station_manager.h": "c",
+        "lwesp_ll.h": "c"
     }
 }

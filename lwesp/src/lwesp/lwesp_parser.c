@@ -473,7 +473,7 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
     lwespi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = (uint8_t)lwespi_parse_number(&str);
 #if LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_type = (uint16_t)lwespi_parse_number(&str);    /* Scan type */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_type = (uint8_t)lwespi_parse_number(&str);     /* Scan type */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_min = (uint16_t)lwespi_parse_number(&str);/* Scan time minimum */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_max = (uint16_t)lwespi_parse_number(&str);/* Scan time maximum */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_offset = (int16_t)lwespi_parse_number(&str);   /* Freq offset */

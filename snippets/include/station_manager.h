@@ -16,8 +16,11 @@ typedef struct {
     const char* pass;
 } ap_entry_t;
 
-lwespr_t      connect_to_preferred_access_point(uint8_t unlimited);
-void        start_access_point_scan_and_connect_procedure(void);
+/* Connect to preferred access point blocking mode */
+lwespr_t    connect_to_preferred_access_point(uint8_t unlimited);
+
+/* Initialize asynchronous connection mode in background */
+lwespr_t    station_manager_connect_to_access_point_async_init(void);
 
 #ifdef __cplusplus
 }

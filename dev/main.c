@@ -363,22 +363,25 @@ main_thread(void* arg) {
 
     /* Init ESP library */
     lwesp_init(lwesp_evt, 1);
-
-    if (lwesp_device_is_esp32()) {
+    if (0) {
+#if LWESP_CFG_ESP32
+    } else if (lwesp_device_is_esp32()) {
         safeprintf("Device is ESP32\r\n");
+#endif
+#if LWESP_CFG_ESP8266
     } else if (lwesp_device_is_esp8266()) {
         safeprintf("Device is ESP8266\r\n");
+#endif
+#if LWESP_CFG_ESP32_C3
     } else if (lwesp_device_is_esp32_c3()) {
         safeprintf("Device is ESP32-C3\r\n");
+#endif
     } else {
         safeprintf("Unknown device...\r\n");
     }
-    //while (1) { lwesp_delay(100); }
+    
     /* Start thread to toggle device present */
     //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    lwesp_hostname_set("abc", NULL, NULL, 1);
-    lwesp_hostname_get(hn, sizeof(hn), NULL, NULL, 1);
-    safeprintf("Hostname: %s\r\n", hn);
 
     /*
      * Try to connect to preferred access point
@@ -386,7 +389,10 @@ main_thread(void* arg) {
      * Follow function implementation for more info
      * on how to setup preferred access points for fast connection
      */
-    lwesp_sta_autojoin(1, NULL, NULL, 1);
+    lwesp_sta_autojoin(0, NULL, NULL, 1);
+
+    /* Initialize and start asynchronous connection to preferred acces point */
+    station_manager_connect_to_access_point_async_init();
 
     /* Start server on port 80 */
     //http_server_start();
@@ -396,17 +402,12 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /* Notify user */
-    while (1) {
-        if (!lwesp_sta_has_ip()) {
-            connect_to_preferred_access_point(1);
-        }
-        lwesp_delay(1000);
-    }
+    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Terminate thread */
+    while (1) {
+        lwesp_delay(1000);
+    }
     lwesp_sys_thread_terminate(NULL);
 }
 
