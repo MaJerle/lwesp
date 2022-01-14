@@ -619,6 +619,14 @@
 #endif
 
 /**
+ * \brief           Size of MQTT API message queue for received messages
+ *
+ */
+#ifndef LWESP_CFG_MQTT_API_MBOX_SIZE
+#define LWESP_CFG_MQTT_API_MBOX_SIZE            8
+#endif
+
+/**
  * \brief           Set debug level for MQTT client module
  *
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
@@ -645,6 +653,22 @@
  * \brief           Configuration of Cayenne MQTT client
  * \{
  */
+
+/**
+ * \brief           Size of Cayenne messages size TX buffer in units of bytes
+ * 
+ */
+#ifndef LWESP_CFG_CAYENNE_TX_BUFF_SIZE
+#define LWESP_CFG_CAYENNE_TX_BUFF_SIZE          256
+#endif
+
+/**
+ * \brief           Size of Cayenne RX buffer size in units of bytes
+ * 
+ */
+#ifndef LWESP_CFG_CAYENNE_RX_BUFF_SIZE
+#define LWESP_CFG_CAYENNE_RX_BUFF_SIZE          256
+#endif
 
 /**
  * \brief           Set debug level for Cayenne MQTT client module

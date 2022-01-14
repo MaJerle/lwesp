@@ -402,7 +402,7 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Terminate thread */
     while (1) {

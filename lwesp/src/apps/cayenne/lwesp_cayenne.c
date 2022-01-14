@@ -408,8 +408,7 @@ lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_
 
     c->info_c = client_info;
     c->evt_fn = evt_fn;
-    c->api_c = lwesp_mqtt_client_api_new(256, 256);
-    if (c->api_c == NULL) {
+    if ((c->api_c = lwesp_mqtt_client_api_new(LWESP_CFG_CAYENNE_TX_BUFF_SIZE, LWESP_CFG_CAYENNE_RX_BUFF_SIZE)) == NULL) {
         return lwespERRMEM;
     }
 
@@ -535,7 +534,6 @@ lwesp_cayenne_publish_data(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint
         strcat(payload_data, "=");
     }
     strcat(payload_data, data);
-
     res = lwesp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 1);
 exit:
     lwesp_sys_mutex_unlock(&prot_mutex);

@@ -3,6 +3,7 @@
 ## Develop
 
 - Change license year to 2022
+- Improve MQTT module implementation
 
 ## 1.1.2-dev
 

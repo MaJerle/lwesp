@@ -36,7 +36,7 @@ static lwesp_cayenne_t cayenne;
  * \param[in]       evt: Event function
  */
 static lwespr_t
-cayenne_evt(lwesp_cayenne_t* c, lwesp_cayenne_evt_t* evt) {
+prv_cayenne_evt(lwesp_cayenne_t* c, lwesp_cayenne_evt_t* evt) {
     switch (lwesp_cayenne_evt_get_type(evt)) {
         case LWESP_CAYENNE_EVT_CONNECT: {
             /* We are connected, build schema */
@@ -80,7 +80,7 @@ cayenne_thread(void const* arg) {
     float temp = 0.1f;
 
     /* Start cayenne instance */
-    if (lwesp_cayenne_create(&cayenne, &mqtt_client_info, cayenne_evt) != lwespOK) {
+    if (lwesp_cayenne_create(&cayenne, &mqtt_client_info, prv_cayenne_evt) != lwespOK) {
         safeprintf("[CAYENNE] Cannot create cayenne instance..\r\n");
     }
 
@@ -94,7 +94,7 @@ cayenne_thread(void const* arg) {
             lwesp_cayenne_publish_data(&cayenne, LWESP_CAYENNE_TOPIC_DATA, 2, "temp", "c", s);
             temp += 0.34f;
         }
-        lwesp_delay(1000);
+        lwesp_delay(10000);
     }
     lwesp_sys_thread_terminate(NULL);
 }
