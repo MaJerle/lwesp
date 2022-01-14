@@ -904,9 +904,11 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             is_ok = 0;                          /* We must wait for "ready", not only "OK" */
             esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE;  /* Save user baudrate */
             lwesp_ll_init(&esp.ll);             /* Set new baudrate */
-        } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS)) {
-            if (!strncmp(rcv->data, "+CIPSTATUS", 10)) {
-                lwespi_parse_cipstatus(rcv->data + 11); /* Parse CIPSTATUS response */
+        } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS) || CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATE)) {
+            size_t offset = 0;
+            if ((!strncmp(rcv->data, "+CIPSTATUS", 10) && (offset = 11) > 0)   /* This is to check string and get offset in one shot */
+                || (!strncmp(rcv->data, "+CIPSTATE", 9) && (offset = 10) > 0)) {
+                lwespi_parse_cipstatus_cipstate(rcv->data + offset);/* Parse +CIPSTATUS or +CIPSTATE response */
             } else if (is_ok) {
                 for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {  /* Set current connection statuses */
                     esp.m.conns[i].status.f.active = !!(esp.m.active_conns & (1 << i));
@@ -1483,6 +1485,9 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATUS);
             break;                              /* Get connection status */
         case LWESP_CMD_TCPIP_CIPSTATUS:
+            SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATE);
+            break;                              /* Get connection status */
+        case LWESP_CMD_TCPIP_CIPSTATE:
 #endif /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
             SET_NEW_CMD(LWESP_CMD_WIFI_CIPAP_GET);
@@ -2236,6 +2241,14 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             esp.m.active_conns = 0;             /* Reset new status before parsing starts */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSTATUS");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_TCPIP_CIPSTATE: {        /* Get status of all connections */
+            esp.m.active_conns_last = esp.m.active_conns;   /* Save as last status */
+            esp.m.active_conns = 0;             /* Reset new status before parsing starts */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPSTATE?");
             AT_PORT_SEND_END_AT();
             break;
         }

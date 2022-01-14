@@ -267,19 +267,18 @@ lwespi_parse_mac(const char** src, lwesp_mac_t* mac) {
 }
 
 /**
- * \brief           Parse +CIPSTATUS response from ESP device
+ * \brief           Parse +CIPSTATUS or +CIPSTATE response from ESP device
  * \param[in]       str: Input string to parse
  * \return          Member of \ref lwespr_t enumeration
  */
 lwespr_t
-lwespi_parse_cipstatus(const char* str) {
+lwespi_parse_cipstatus_cipstate(const char* str) {
     uint8_t cn_num = 0;
 
     cn_num = lwespi_parse_number(&str);         /* Parse connection number */
     esp.m.active_conns |= 1 << cn_num;          /* Set flag as active */
 
     lwespi_parse_string(&str, NULL, 0, 1);      /* Parse string and ignore result */
-
     lwespi_parse_ip(&str, &esp.m.conns[cn_num].remote_ip);
     esp.m.conns[cn_num].remote_port = lwespi_parse_number(&str);
     esp.m.conns[cn_num].local_port = lwespi_parse_number(&str);

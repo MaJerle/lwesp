@@ -45,7 +45,7 @@ uint8_t     lwespi_parse_string(const char** src, char* dst, size_t dst_len, uin
 uint8_t     lwespi_parse_ip(const char** src, lwesp_ip_t* ip);
 uint8_t     lwespi_parse_mac(const char** src, lwesp_mac_t* mac);
 
-lwespr_t    lwespi_parse_cipstatus(const char* str);
+lwespr_t    lwespi_parse_cipstatus_cipstate(const char* str);
 lwespr_t    lwespi_parse_ipd(const char* str);
 lwespr_t    lwespi_parse_ciprecvdata(const char* str);
 lwespr_t    lwespi_parse_ciprecvlen(const char* str);
