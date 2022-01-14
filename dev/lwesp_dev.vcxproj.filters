@@ -100,6 +100,9 @@
     <ClCompile Include="..\lwesp\src\lwesp\lwesp_sntp.c">
       <Filter>Source Files\ESP CORE</Filter>
     </ClCompile>
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_server.c">
+      <Filter>Source Files\ESP CORE</Filter>
+    </ClCompile>
     <ClCompile Include="..\lwesp\src\lwesp\lwesp_ping.c">
       <Filter>Source Files\ESP CORE</Filter>
     </ClCompile>

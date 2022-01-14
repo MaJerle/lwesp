@@ -234,6 +234,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_pbuf.c</locationURI>
 		</link>
 		<link>
+			<name>lwesp/lwesp_server.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_server.c</locationURI>
+		</link>
+		<link>
 			<name>lwesp/lwesp_sntp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/lwesp/lwesp_sntp.c</locationURI>

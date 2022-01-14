@@ -182,6 +182,7 @@
     <ClCompile Include="..\lwesp\src\lwesp\lwesp_mem.c" />
     <ClCompile Include="..\lwesp\src\lwesp\lwesp_parser.c" />
     <ClCompile Include="..\lwesp\src\lwesp\lwesp_pbuf.c" />
+    <ClCompile Include="..\lwesp\src\lwesp\lwesp_server.c" />
     <ClCompile Include="..\lwesp\src\lwesp\lwesp_sntp.c" />
     <ClCompile Include="..\lwesp\src\lwesp\lwesp_sta.c" />
     <ClCompile Include="..\lwesp\src\lwesp\lwesp_threads.c" />
