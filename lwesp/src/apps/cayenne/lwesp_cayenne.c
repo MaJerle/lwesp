@@ -388,7 +388,6 @@ prv_mqtt_thread(void* const arg) {
         lwesp_sys_sem_delete(&c->sem);
         lwesp_sys_sem_invalid(&c->sem);
     }
-
     lwesp_sys_thread_terminate(NULL);           /* Terminate thread */
 }
 

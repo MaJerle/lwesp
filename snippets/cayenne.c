@@ -71,7 +71,8 @@ cayenne_evt(lwesp_cayenne_t* c, lwesp_cayenne_evt_t* evt) {
 }
 
 /**
- * \brief           MQTT thread
+ * \brief           MQTT cayenne thread
+ * \param[in]       arg: User argument
  */
 void
 cayenne_thread(void const* arg) {
@@ -93,8 +94,7 @@ cayenne_thread(void const* arg) {
             lwesp_cayenne_publish_data(&cayenne, LWESP_CAYENNE_TOPIC_DATA, 2, "temp", "c", s);
             temp += 0.34f;
         }
-        lwesp_delay(10000);
+        lwesp_delay(1000);
     }
-
     lwesp_sys_thread_terminate(NULL);
 }
