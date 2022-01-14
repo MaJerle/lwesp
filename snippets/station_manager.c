@@ -2,6 +2,16 @@
 #include "utils.h"
 #include "lwesp/lwesp.h"
 
+/**
+ * \brief           Private access-point and station management system
+ * 
+ * This is used for asynchronous connection to access point
+ */
+typedef struct {
+    size_t index_preferred_list;                /*!< Current index position of preferred array */
+    size_t index_found_list;                    /*!< Current index position in array of found APs */
+} prv_ap_data_t;
+
 /*
  * List of preferred access points for ESP device
  * SSID and password
@@ -9,30 +19,94 @@
  * ESP will try to scan for access points
  * and then compare them with the one on the list below
  */
-ap_entry_t
-ap_list[] = {
+static const ap_entry_t preferred_ap_list[] = {
     //{ "SSID name", "SSID password" },
-    { "TilenM_ST", "its private" },
-    { "Majerle WIFI", "majerle_internet_private" },
-    { "Majerle AMIS", "majerle_internet_private" },
-    { "Kaja", "kajagin2021" },
+    { .ssid = "TilenM_ST", .pass = "its private" },
+    { .ssid = "Kaja", .pass = "kajagin2021" },
+    { .ssid = "Majerle WIFI", .pass = "majerle_internet_private" },
+    { .ssid = "Majerle AMIS", .pass = "majerle_internet_private" },
 };
+static lwesp_ap_t aps[100];                     /* Array of found access points */
+static size_t apf = 0;                          /* Number of found access points */
+static prv_ap_data_t ap_async_data;             /* Asynchronous data structure */
 
 /**
- * \brief           List of access points found by ESP device
+ * \brief           Private event function for asynchronous scanning
+ * \param[in]       evt: Event information
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
-static
-lwesp_ap_t aps[100];
+static lwespr_t
+prv_evt_fn(lwesp_evt_t* evt) {
+    switch (evt->type) {
+        case LWESP_EVT_WIFI_GOT_IP: {
+            if (lwesp_sta_has_ipv6_local()) {
+                
+            }
+            if (lwesp_sta_has_ipv6_global()) {
+                
+            }
+            break;
+        }
+        case LWESP_EVT_RESET: {
+            break;
+        }
+        case LWESP_EVT_WIFI_CONNECTED: {
+            break;
+        }
+        case LWESP_EVT_WIFI_DISCONNECTED: {
+            /* Start scan mode in non-blocking mode */
+            lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &apf, NULL, NULL, 0);
+            break;
+        }
+        case LWESP_EVT_STA_LIST_AP: {
+            /* Network scanning has completed */
+            if (lwesp_evt_sta_list_ap_get_result(evt) == lwespOK) {
+                const lwesp_ap_t *aps_found =  lwesp_evt_sta_list_ap_get_aps(evt);
+                size_t aps_found_len = lwesp_evt_sta_list_ap_get_length(evt);
+            
+                /* Process complete list and try to find suitable match */
+                for (size_t j = 0; j < LWESP_ARRAYSIZE(preferred_ap_list); j++) {
+                    for (size_t i = 0; i < aps_found_len; i++) {
+                        if (strncmp(aps_found[i].ssid, preferred_ap_list[j].ssid, strlen(preferred_ap_list[j].ssid)) == 0) {
+                            /* Try to connect to the network */
+                            lwesp_sta_join(preferred_ap_list[j].ssid, preferred_ap_list[j].pass, NULL, NULL, NULL, 0);
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        case LWESP_EVT_STA_INFO_AP: {
+            break;
+        }
+        case LWESP_EVT_WIFI_IP_ACQUIRED: {
+            break;
+        }
+        default: break;
+    }
+    return lwespOK;
+}
 
 /**
- * \brief           Number of valid access points in \ref aps array
+ * \brief           Initialize asynchronous mode to connect to preferred station
+ * 
+ * Function relies on LwESP callback to notify "disconnected wifi mode",
+ * triggering the system to scan for access point and connection to appropriate one
  */
-static
-size_t apf;
+lwespr_t
+station_manager_connect_to_access_point_async_init(void) {
+    /* Register new function */
+    lwesp_evt_register(prv_evt_fn);
+
+    /* Start scanning process in non-blocking mode */
+    return lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &apf, NULL, NULL, 0);
+}
 
 /**
- * \brief           Connect to preferred access point
- *
+ * \brief           Connect to preferred access point in blocking mode
+ * 
+ * This functionality can only be used if non-blocking approach is not used
+ * 
  * \note            List of access points should be set by user in \ref ap_list structure
  * \param[in]       unlimited: When set to 1, function will block until SSID is found and connected
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
@@ -62,17 +136,18 @@ connect_to_preferred_access_point(uint8_t unlimited) {
             }
 
             /* Process array of preferred access points with array of found points */
-            for (size_t j = 0; j < LWESP_ARRAYSIZE(ap_list); j++) {
+            for (size_t j = 0; j < LWESP_ARRAYSIZE(preferred_ap_list); j++) {
                 for (size_t i = 0; i < apf; i++) {
-                    if (!strcmp(aps[i].ssid, ap_list[j].ssid)) {
+                    if (strncmp(aps[i].ssid, preferred_ap_list[j].ssid, strlen(aps[i].ssid)) == 0) {
                         tried = 1;
-                        printf("Connecting to \"%s\" network...\r\n", ap_list[j].ssid);
+                        printf("Connecting to \"%s\" network...\r\n", preferred_ap_list[j].ssid);
+
                         /* Try to join to access point */
-                        if ((eres = lwesp_sta_join(ap_list[j].ssid, ap_list[j].pass, NULL, NULL, NULL, 1)) == lwespOK) {
+                        if ((eres = lwesp_sta_join(preferred_ap_list[j].ssid, preferred_ap_list[j].pass, NULL, NULL, NULL, 1)) == lwespOK) {
                             lwesp_ip_t ip;
                             uint8_t is_dhcp;
 
-                            printf("Connected to %s network!\r\n", ap_list[j].ssid);
+                            printf("Connected to %s network!\r\n", preferred_ap_list[j].ssid);
 
                             lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
                             utils_print_ip("Station IP address: ", &ip, "\r\n");

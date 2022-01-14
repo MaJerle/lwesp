@@ -386,43 +386,7 @@ main_thread(void* arg) {
      * Follow function implementation for more info
      * on how to setup preferred access points for fast connection
      */
-     //start_access_point_scan_and_connect_procedure();
-     //lwesp_sys_thread_terminate(NULL);
-     //connect_to_preferred_access_point(1);
-    lwesp_sta_list_ap(NULL, aps, LWESP_ARRAYSIZE(aps), &aps_count, NULL, NULL, 1);
     lwesp_sta_autojoin(1, NULL, NULL, 1);
-    while (lwesp_sta_join("Kaja", "ginkaja2021", NULL, NULL, NULL, 1) != lwespOK) {}
-
-    /* Try to ping */
-    if (lwesp_ping("majerle.eu", &ping_time, NULL, NULL, 1) == lwespOK) {
-        safeprintf("Ping time: %d\r\n", (int)ping_time);
-    } else {
-        safeprintf("Ping error\r\n");
-    }
-
-    /*
-     * Check if device has set IP address
-     *
-     * This should always pass
-     */
-    //if (lwesp_sta_has_ip()) {
-
-    //    lwesp_ip_t ip;
-    //    uint8_t is_dhcp;
-
-    //    lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
-    //    safeprintf("Connected to WIFI!\r\n");
-    //    safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
-    //    lwesp_sta_setip(&dev_ip, NULL, NULL, 0, NULL, NULL, 1);
-    //    lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
-    //    safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
-    //    lwesp_dhcp_set_config(1, 0, 1, 1, NULL, NULL, 1);
-    //    lwesp_sta_copy_ip(&ip, NULL, NULL, &is_dhcp);
-    //    safeprintf("Device IP: %d.%d.%d.%d; is DHCP: %d\r\n", (int)ip.ip[0], (int)ip.ip[1], (int)ip.ip[2], (int)ip.ip[3], (int)is_dhcp);
-    //}
-
-    //lwesp_sta_setip(&dev_ip, NULL, NULL, NULL, NULL, 1);
-    //lwesp_dhcp_set_config(1, 0, 1, NULL, NULL, 1);
 
     /* Start server on port 80 */
     //http_server_start();
@@ -432,46 +396,14 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Notify user */
-
-    while (1) { lwesp_delay(1000); }
-
-    {
-        lwespr_t res;
-        lwesp_pbuf_p pbuf;
-        lwesp_netconn_p client;
-
-        client = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP);
-        if (client != NULL) {
-            while (1) {
-                res = lwesp_netconn_connect(client, "10.57.218.183", 123);
-                if (res == lwespOK) {                     /* Are we successfully connected? */
-                    safeprintf("Connected to host\r\n");
-                    do {
-                        res = lwesp_netconn_receive(client, &pbuf);
-                        safeprintf("GOT FROM BUFFER...delaying...\r\n");
-                        //lwesp_delay(5000);
-                        if (res == lwespCLOSED) {     /* Was the connection closed? This can be checked by return status of receive function */
-                            safeprintf("Connection closed by remote side...\r\n");
-                            break;
-                        }
-                        if (res == lwespOK && pbuf != NULL) {
-                            int len = lwesp_pbuf_length(pbuf, 1);
-                            safeprintf("Received new data packet of %d bytes: %.*s\r\n",
-                                len, len,
-                                (const char *)lwesp_pbuf_get_linear_addr(pbuf, 0, NULL));
-                            lwesp_pbuf_free(pbuf);
-                            pbuf = NULL;
-                        }
-                    } while (1);
-                } else {
-                    safeprintf("Cannot connect to remote host!\r\n");
-                }
-            }
+    while (1) {
+        if (!lwesp_sta_has_ip()) {
+            connect_to_preferred_access_point(1);
         }
-        lwesp_netconn_delete(client);             /* Delete netconn structure */
+        lwesp_delay(1000);
     }
 
     /* Terminate thread */
