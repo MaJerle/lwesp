@@ -12,6 +12,10 @@
         "lwesp_int.h": "c",
         "lwesp_opts.h": "c",
         "station_manager.h": "c",
-        "lwesp_ll.h": "c"
+        "lwesp_ll.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "utility": "c"
     }
 }
