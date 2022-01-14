@@ -33,6 +33,7 @@
  */
 #include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_timeout.h"
 #include "lwesp/lwesp_threads.h"
 #include "system/lwesp_ll.h"
 
@@ -45,9 +46,9 @@
 //#error LWESP_CFG_CONN_MANUAL_TCP_RECEIVE must be set to 0 in current revision!
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
-static lwespr_t           def_callback(lwesp_evt_t* evt);
 static lwesp_evt_func_t   def_evt_link;
 
+/* Global ESP structure */
 lwesp_t esp;
 
 /**
@@ -56,10 +57,27 @@ lwesp_t esp;
  * \return          Member of \ref lwespr_t enumeration
  */
 static lwespr_t
-def_callback(lwesp_evt_t* evt) {
+prv_def_callback(lwesp_evt_t* evt) {
     LWESP_UNUSED(evt);
     return lwespOK;
 }
+
+#if LWESP_CFG_KEEP_ALIVE
+
+/**
+ * \brief           Keep-alive timeout callback function
+ * \param[in]       arg: Custom user argument 
+ */
+static void
+prv_keep_alive_timeout_fn(void* arg) {
+    /* Dispatch keep-alive events */
+    lwespi_send_cb(LWESP_EVT_KEEP_ALIVE);
+
+    /* Start new timeout */
+    lwesp_timeout_add(LWESP_CFG_KEEP_ALIVE_TIMEOUT, prv_keep_alive_timeout_fn, arg);
+}
+
+#endif /* LWESP_CFG_KEEP_ALIVE */
 
 /**
  * \brief           Init and prepare ESP stack for device operation
@@ -78,8 +96,9 @@ lwespr_t
 lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     lwespr_t res = lwespOK;
 
+    memset(&esp, 0x00, sizeof(esp));            /* Reset structure to all zeros */
     esp.status.f.initialized = 0;               /* Clear possible init flag */
-    def_evt_link.fn = evt_func != NULL ? evt_func : def_callback;
+    def_evt_link.fn = evt_func != NULL ? evt_func : prv_def_callback;
     esp.evt_func = &def_evt_link;               /* Set callback function */
     esp.evt_server = NULL;                      /* Set default server callback function */
 
@@ -165,8 +184,12 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     LWESP_UNUSED(blocking);                     /* Prevent compiler warnings */
     lwesp_core_unlock();
 
-    return res;
+#if LWESP_CFG_KEEP_ALIVE
+    /* Register keep-alive events */
+    lwesp_timeout_add(LWESP_CFG_KEEP_ALIVE_TIMEOUT, prv_keep_alive_timeout_fn, NULL);
+#endif /* LWESP_CFG_KEEP_ALIVE */
 
+    return res;
 cleanup:
     if (lwesp_sys_mbox_isvalid(&esp.mbox_producer)) {
         lwesp_sys_mbox_delete(&esp.mbox_producer);

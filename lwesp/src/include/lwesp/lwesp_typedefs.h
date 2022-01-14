@@ -408,6 +408,9 @@ typedef enum lwesp_evt_type_t {
     LWESP_EVT_CONN_POLL,                        /*!< Poll for connection if there are any changes */
 
     LWESP_EVT_SERVER,                           /*!< Server status changed */
+    
+    LWESP_EVT_KEEP_ALIVE,                       /*!< Generic keep-alive event type, used as periodic timeout.
+                                                    Optionally enabled with \ref LWESP_CFG_KEEP_ALIVE */
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
     LWESP_EVT_WIFI_CONNECTED,                   /*!< Station just connected to AP */
@@ -435,7 +438,7 @@ typedef enum lwesp_evt_type_t {
     LWESP_EVT_PING,                             /*!< PING service finished */
 #endif /* LWESP_CFG_PING || __DOXYGEN__ */
 #if LWESP_CFG_WEBSERVER || __DOXYGEN__
-    LWESP_EVT_WEBSERVER, 
+    LWESP_EVT_WEBSERVER,                        /*!< Web server events */
 #endif /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
 } lwesp_evt_type_t;
 

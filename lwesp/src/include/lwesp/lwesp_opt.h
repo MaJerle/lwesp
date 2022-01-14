@@ -176,6 +176,23 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` periodic keep-alive events to registered callbacks
+ * 
+ */
+#ifndef LWESP_CFG_KEEP_ALIVE
+#define LWESP_CFG_KEEP_ALIVE                    1
+#endif
+
+/**
+ * \brief           Timeout periodic time to trigger keep alive events to registered callbacks
+ * 
+ * Feature must be enabled with \ref LWESP_CFG_KEEP_ALIVE
+ */
+#ifndef LWESP_CFG_KEEP_ALIVE_TIMEOUT
+#define LWESP_CFG_KEEP_ALIVE_TIMEOUT            1000
+#endif
+
+/**
  * \defgroup        LWESP_OPT_CONN Connection settings
  * \brief           Operating system dependant configuration
  * \{
