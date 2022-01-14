@@ -469,16 +469,27 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
 
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ecn = (lwesp_ecn_t)lwespi_parse_number(&str);
     lwespi_parse_string(&str, msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid, sizeof(msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ssid), 1);
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = lwespi_parse_number(&str);
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].rssi = (int16_t)lwespi_parse_number(&str);
     lwespi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = lwespi_parse_number(&str);
-    lwespi_parse_number(&str);                  /* Scan type */
-    lwespi_parse_number(&str);                  /* Scan time minimum */
-    lwespi_parse_number(&str);                  /* Scan time maximum */
-    lwespi_parse_number(&str);                  /* Freq offset */
-    lwespi_parse_number(&str);                  /* Freqcal value */
-    lwespi_parse_number(&str);                  /* Pairwise cipher */
-    lwespi_parse_number(&str);                  /* Group cipher */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = (uint8_t)lwespi_parse_number(&str);
+#if LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_type = (uint16_t)lwespi_parse_number(&str);    /* Scan type */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_min = (uint16_t)lwespi_parse_number(&str);/* Scan time minimum */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_max = (uint16_t)lwespi_parse_number(&str);/* Scan time maximum */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_offset = (int16_t)lwespi_parse_number(&str);   /* Freq offset */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_cal = (int16_t)lwespi_parse_number(&str);      /* Freqcal value */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].pairwise_cipher = (lwesp_ap_cipher_t)lwespi_parse_number(&str); /* Pairwise cipher */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].group_cipher = (lwesp_ap_cipher_t)lwespi_parse_number(&str);    /* Group cipher */
+#else
+    /* Read and ignore values */
+    lwespi_parse_number(&str);                  
+    lwespi_parse_number(&str);                  
+    lwespi_parse_number(&str);                  
+    lwespi_parse_number(&str);                  
+    lwespi_parse_number(&str);                  
+    lwespi_parse_number(&str);                  
+    lwespi_parse_number(&str);                  
+#endif /* !LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = lwespi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = lwespi_parse_number(&str);
 

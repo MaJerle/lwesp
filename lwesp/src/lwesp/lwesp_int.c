@@ -1851,6 +1851,10 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
         case LWESP_CMD_WIFI_CWLAPOPT: {         /* Set visible data on CWLAP command */
             AT_PORT_SEND_BEGIN_AT();
+            /*
+             * Ignore remaining parameters, use default value
+             * providing us maximum result possible
+             */
             AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,0x7FF");
             AT_PORT_SEND_END_AT();
             break;

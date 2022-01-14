@@ -104,9 +104,23 @@ typedef enum {
     LWESP_ECN_WPA_WPA2_PSK,                     /*!< WPA/2 (Wifi Protected Access 1/2) encryption */
     LWESP_ECN_WPA2_Enterprise,                  /*!< Enterprise encryption. \note ESP8266 is not able to connect to such device */
     LWESP_ECN_WPA3_PSK,                         /*!< WPA3 (Wifi Protected Access 3) encryption */
-    LWESP_ECN_WPA2_WPA3_PSK,                    /*!< WPA2/3 (Wifi Protected Access 2/3) encryption */
+    LWESP_ECN_WPA2_WPA3_PSK,                    /*!< WPA2/3 (Wifi Protected Access 2/3) encryption, ESP32-C3 only mode */
     LWESP_ECN_END,
 } lwesp_ecn_t;
+
+/**
+ * \brief           Access point cipher modes, used for access point scan data
+ */
+typedef enum {
+    LWESP_AP_CIPHER_NONE = 0x00,                /*!< None value */
+    LWESP_AP_CIPHER_WEP40,                      /*!< WEP40 mode */
+    LWESP_AP_CIPHER_WEP104,                     /*!< WEB104 */
+    LWESP_AP_CIPHER_TKIP,                       /*!< TKIP */
+    LWESP_AP_CIPHER_CCMP,                       /*!< CCMP */
+    LWESP_AP_CIPHER_TKIP_CCMP,                  /*!< TKIP and CCMP */
+    LWESP_AP_CIPHER_AES_CMAC_128,               /*!< AES-CMAC-128 */
+    LWESP_AP_CIPHER_UNKNOWN,                    /*!< Unknown value */
+} lwesp_ap_cipher_t;
 
 /**
  * \ingroup         LWESP_TYPEDEFS
@@ -236,9 +250,15 @@ typedef struct {
     lwesp_mac_t mac;                            /*!< MAC physical address */
     uint8_t ch;                                 /*!< WiFi channel used on access point */
 
-    /* Not support for now */
-    //int8_t offset;                            /*!< Access point offset */
-    //uint8_t cal;                              /*!< Calibration value */
+#if LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS || __DOXYGEN__
+    uint8_t scan_type;                          /*!< Scan type, 0 = active, 1 = passive */
+    uint16_t scan_time_min;                     /*!< Minimum active scan time per channel in units of milliseconds */
+    uint16_t scan_time_max;                     /*!< maximum active scan time per channel in units of milliseconds */
+    int16_t freq_offset;                        /*!< Frequency offset */
+    int16_t freq_cal;                           /*!< Frequency calibration */
+    lwesp_ap_cipher_t pairwise_cipher;          /*!< Pairwise cipher mode */
+    lwesp_ap_cipher_t group_cipher;             /*!< Group cipher mode */
+#endif /* LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS || __DOXYGEN__ */
     uint8_t bgn;                                /*!< Information about 802.11[b|g|n] support */
     uint8_t wps;                                /*!< Status if WPS function is supported */
 } lwesp_ap_t;

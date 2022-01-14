@@ -8,6 +8,8 @@
 - Move `esp_set_server` function to separate file
 - Run `AT+GMR` command just after reset/restore to determine ESP device connected
 - Min required AT binaries are now `2.3.0` for `ESP32/ESP32C3` and `2.2.1` for `ESP8266`
+- Connection status is acquired with `AT+CIPSTATE` or `AT+CIPSTATUS`, depends on Espressif connected device
+- Add optional advanced fields for access point scan with `LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS` config option
 
 ## v1.1.1-dev
 

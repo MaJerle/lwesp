@@ -166,6 +166,16 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` full data info in \ref lwesp_ap_t structure.
+ * 
+ * When enabled, advanced information is stored, and as a consequence, structure size is increased.
+ * Information such as scan type, min scan time, max scan time, frequency offset, frequency calibration are added
+ */
+#ifndef LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS
+#define LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS   0
+#endif
+
+/**
  * \defgroup        LWESP_OPT_CONN Connection settings
  * \brief           Operating system dependant configuration
  * \{
