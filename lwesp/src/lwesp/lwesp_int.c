@@ -923,8 +923,13 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             lwesp_ll_init(&esp.ll);             /* Set new baudrate */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS) || CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATE)) {
             size_t offset = 0;
-            if ((!strncmp(rcv->data, "+CIPSTATUS", 10) && (offset = 11) > 0)   /* This is to check string and get offset in one shot */
-                || (!strncmp(rcv->data, "+CIPSTATE", 9) && (offset = 10) > 0)) {
+            
+            if (0
+#if LWESP_CFG_ESP8266
+                || (!strncmp(rcv->data, "+CIPSTATUS", 10) && (offset = 11) > 0)   /* This is to check string and get offset in one shot */
+#endif /* LWESP_CFG_ESP8266 */
+                || (!strncmp(rcv->data, "+CIPSTATE", 9) && (offset = 10) > 0)
+            ) {
                 lwespi_parse_cipstatus_cipstate(rcv->data + offset);/* Parse +CIPSTATUS or +CIPSTATE response */
             } else if (is_ok) {
                 for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {  /* Set current connection statuses */
