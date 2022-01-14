@@ -77,62 +77,64 @@ send_data(const void* data, size_t len) {
  */
 static uint8_t
 configure_uart(uint32_t baudrate) {
-    DCB dcb = { 0 };
-    dcb.DCBlength = sizeof(dcb);
     size_t i;
+    DCB dcb = { 0 };
 
-    /* List of COM ports to probe */
+    dcb.DCBlength = sizeof(dcb);
+
+    /*
+     * List of COM ports to probe for ESP devices
+     * This may be different on your computer
+     */
     static const char* com_port_names[] = {
         "\\\\.\\COM16",
         "\\\\.\\COM4"
     };
 
-    /* TODO: Needs proper work to run for loop only if not initialized */
-
-    for (i = 0; i < LWESP_ARRAYSIZE(com_port_names); ++i) {
-        /*
-         * On first call,
-         * create virtual file on selected COM port and open it
-         * as generic read and write
-         */
-        if (!initialized) {
-            printf("Probing COM port %s\r\n", com_port_names[i]);
+    /* Try to open one of listed COM ports */
+    if (!initialized) {
+        printf("Initializing COM port first time\r\n");
+        for (i = 0; i < LWESP_ARRAYSIZE(com_port_names); ++i) {
+            printf("Trying to open COM port %s\r\n", com_port_names[i]);
             com_port = CreateFileA(com_port_names[i], GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, NULL);
-        }
-
-        /* Configure COM port parameters */
-        if (GetCommState(com_port, &dcb)) {
-            COMMTIMEOUTS timeouts;
-
-            dcb.BaudRate = baudrate;
-            dcb.ByteSize = 8;
-            dcb.Parity = NOPARITY;
-            dcb.StopBits = ONESTOPBIT;
-
-            if (!SetCommState(com_port, &dcb)) {
-                printf("Cannot set COM PORT info for port: %s\r\n", com_port_names[i]);
-                continue;
+            if (GetCommState(com_port, &dcb)) {
+                printf("Successfully received info for COM port %s. Using this one..\r\n", com_port_names[i]);
+                break;
+            } else {
+                printf("Could not get info for COM port %s\r\n", com_port_names[i]);
             }
+        }
+    }
+
+    /* Configure COM port parameters */
+    if (GetCommState(com_port, &dcb)) {
+        COMMTIMEOUTS timeouts;
+
+        /* Set port config */
+        dcb.BaudRate = baudrate;
+        dcb.ByteSize = 8;
+        dcb.Parity = NOPARITY;
+        dcb.StopBits = ONESTOPBIT;
+        if (SetCommState(com_port, &dcb)) {
+            /* Set timeouts config */
             if (GetCommTimeouts(com_port, &timeouts)) {
                 /* Set timeout to return immediately from ReadFile function */
                 timeouts.ReadIntervalTimeout = MAXDWORD;
                 timeouts.ReadTotalTimeoutConstant = 0;
                 timeouts.ReadTotalTimeoutMultiplier = 0;
-                if (!SetCommTimeouts(com_port, &timeouts)) {
-                    printf("Cannot set COM PORT timeouts: %s\r\n", com_port_names[i]);
+                if (SetCommTimeouts(com_port, &timeouts)) {
+                    GetCommTimeouts(com_port, &timeouts);
+                } else {
+                    printf("[LL] Could not set port timeout config\r\n");
                 }
-                GetCommTimeouts(com_port, &timeouts);
-                break;
             } else {
-                printf("Cannot get COM PORT timeouts: %s\r\n", com_port_names[i]);
+                printf("[LL] Could not get port timeout config\r\n");
             }
         } else {
-            printf("Cannot get COM PORT info: %s\r\n", com_port_names[i]);
+            printf("[LL] Could not set port config\r\n");
         }
-    }
-    if (i == LWESP_ARRAYSIZE(com_port_names)) {
-        printf("Failed to open any COM port\r\n");
-        return 0;
+    } else {
+        printf("[LL] Could not get port info\r\n");
     }
 
     /* On first function call, create a thread to read data from COM port */
@@ -152,13 +154,16 @@ uart_thread(void* param) {
     FILE* file = NULL;
 
     lwesp_sys_sem_create(&sem, 0);              /* Create semaphore for delay functions */
-
     while (com_port == NULL) {
         lwesp_sys_sem_wait(&sem, 1);            /* Add some delay with yield */
     }
 
     fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
     while (1) {
+        while (com_port == NULL) {
+            lwesp_sys_sem_wait(&sem, 1);
+        }
+        
         /*
          * Try to read data from COM port
          * and send it to upper layer for processing
