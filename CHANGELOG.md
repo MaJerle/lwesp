@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Change license year to 2022
+
 ## 1.1.2-dev
 
 - Add POSIX-compliant low-level driver (thanks to community to implement it)
