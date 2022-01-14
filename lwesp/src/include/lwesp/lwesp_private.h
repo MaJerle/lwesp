@@ -120,7 +120,7 @@ typedef enum {
     LWESP_CMD_TCPIP_CIPDNS_SET,                 /*!< Configure user specific DNS servers */
     LWESP_CMD_TCPIP_CIPDNS_GET,                 /*!< Get DNS configuration */
 #endif /* LWESP_CFG_DNS || __DOXYGEN__ */
-    LWESP_CMD_TCPIP_CIPSTATUS,                  /*!< Get status of connections (deprecated) */
+    LWESP_CMD_TCPIP_CIPSTATUS,                  /*!< Get status of connections (deprecated, used on ESP8266 devices) */
     LWESP_CMD_TCPIP_CIPSTATE,                   /*!< Obtain connection state and information */
     LWESP_CMD_TCPIP_CIPSTART,                   /*!< Start client connection */
     LWESP_CMD_TCPIP_CIPSEND,                    /*!< Send network data */
@@ -673,6 +673,8 @@ uint32_t    lwespi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void**
 
 void        lwespi_reset_everything(uint8_t forced);
 void        lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err);
+
+lwesp_cmd_t lwespi_get_cipstatus_or_cipstate_cmd(void);
 
 /**
  * \}

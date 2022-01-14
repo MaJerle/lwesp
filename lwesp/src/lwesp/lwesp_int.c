@@ -182,6 +182,23 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
     } while (0)
 
 /**
+ * \brief           Get command name based on used Espressif device,
+ *                  used to obtain current connection status information
+ * \return          Cip status or state command type
+ */
+lwesp_cmd_t
+lwespi_get_cipstatus_or_cipstate_cmd(void) {
+    lwesp_cmd_t cmd;
+#if LWESP_CFG_ESP8266
+    /* Set command based on connected device */
+    cmd = esp.m.device == LWESP_DEVICE_ESP8266 ? LWESP_CMD_TCPIP_CIPSTATUS : LWESP_CMD_TCPIP_CIPSTATE;
+#else
+    cmd = LWESP_CMD_TCPIP_CIPSTATE;             /* Set fixed command */
+#endif /* LWESP_CFG_ESP8266 */
+    return cmd;
+}
+
+/**
  * \brief           Send IP address to AT port
  * \param[in]       ip: Pointer to IP address
  * \param[in]       q: Set to `1` to include start and ending quotes
@@ -1620,11 +1637,23 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
         PING_SEND_EVT(esp.msg, *is_ok ? lwespOK : lwespERR);
 #endif
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSTART)) {  /* Is our intention to join to access point? */
-        if (msg->i == 0 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS)) { /* Was the current command status info? */
+        uint8_t is_status_check;
+
+        /*
+         * Check if current command is to get device connection status information.
+         *
+         * ESP8266 must use CIPSTATUS command
+         * ESP32 has CIPSTATE already implemented (CIPSTATUS is deprecated)
+         */
+        is_status_check = 0
+                || (esp.m.device == LWESP_DEVICE_ESP8266 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS))
+                || (esp.m.device != LWESP_DEVICE_ESP8266 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATE));
+
+        if (msg->i == 0 && is_status_check) { /* Was the current command status info? */
             SET_NEW_CMD_COND(LWESP_CMD_TCPIP_CIPSTART, *is_ok); /* Now actually start connection */
         } else if (msg->i == 1 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
-            SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATUS); /* Go to status mode */
-        } else if (msg->i == 2 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS)) {
+            SET_NEW_CMD(lwespi_get_cipstatus_or_cipstate_cmd());
+        } else if (msg->i == 2 && is_status_check) {
             /* Check if connect actually succeeded */
             if (!msg->msg.conn_start.success) {
                 *is_ok = 0;

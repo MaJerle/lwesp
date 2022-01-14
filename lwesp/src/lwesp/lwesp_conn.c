@@ -299,7 +299,7 @@ lwesp_conn_start(lwesp_conn_p* conn, lwesp_conn_type_t type, const char* const r
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTART;
-    LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPSTATUS;
+    LWESP_MSG_VAR_REF(msg).cmd = lwespi_get_cipstatus_or_cipstate_cmd();
     LWESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.type = type;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = remote_host;
@@ -331,7 +331,7 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct,
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTART;
-    LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPSTATUS;
+    LWESP_MSG_VAR_REF(msg).cmd = lwespi_get_cipstatus_or_cipstate_cmd();
     LWESP_MSG_VAR_REF(msg).msg.conn_start.conn = conn;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.type = start_struct->type;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.remote_host = start_struct->remote_host;
@@ -347,7 +347,6 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct,
         LWESP_MSG_VAR_REF(msg).msg.conn_start.udp_local_port = start_struct->ext.udp.local_port;
         LWESP_MSG_VAR_REF(msg).msg.conn_start.udp_mode = start_struct->ext.udp.mode;
     }
-
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 60000);
 }
 

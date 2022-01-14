@@ -86,15 +86,9 @@ typedef enum {
  * \brief           List of support ESP devices by firmware
  */
 typedef enum {
-#if LWESP_CFG_ESP8266 || __DOXYGEN__
     LWESP_DEVICE_ESP8266,                       /*!< Device is ESP8266 */
-#endif /* LWESP_CFG_ESP8266 || __DOXYGEN__ */
-#if LWESP_CFG_ESP32 || __DOXYGEN__
     LWESP_DEVICE_ESP32,                         /*!< Device is ESP32 */
-#endif /* LWESP_CFG_ESP32 || __DOXYGEN__ */
-#if LWESP_CFG_ESP32_C3 || __DOXYGEN__
-    LWESP_DEVICE_ESP32_C3,
-#endif /* LWESP_CFG_ESP32_C3 || __DOXYGEN__ */
+    LWESP_DEVICE_ESP32_C3,                      /*!< Device is ESP32-C3 */
     LWESP_DEVICE_UNKNOWN,                       /*!< Unknown device */
 } lwesp_device_t;
 
