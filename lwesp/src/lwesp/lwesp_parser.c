@@ -35,6 +35,9 @@
 #include "lwesp/lwesp_parser.h"
 #include "lwesp/lwesp_mem.h"
 
+/* Increase pointer if matches character value */
+#define INC_IF_CHAR_EQUAL(p, ch)            if (*(p) == (ch)) { ++(p); }
+
 /**
  * \brief           Parse number from string
  * \note            Input string pointer is changed and number is skipped
@@ -47,15 +50,9 @@ lwespi_parse_number(const char** str) {
     uint8_t minus = 0;
     const char* p = *str;                       /*  */
 
-    if (*p == '"') {                            /* Skip leading quotes */
-        ++p;
-    }
-    if (*p == ',') {                            /* Skip leading comma */
-        ++p;
-    }
-    if (*p == '"') {                            /* Skip leading quotes */
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip leading quotes */
+    INC_IF_CHAR_EQUAL(p, ',');                  /* Skip leading comma */
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip leading quotes */
     if (*p == '-') {                            /* Check negative number */
         minus = 1;
         ++p;
@@ -64,9 +61,7 @@ lwespi_parse_number(const char** str) {
         val = val * 10 + LWESP_CHARTONUM(*p);
         ++p;
     }
-    if (*p == ',') {                            /* Go to next entry if possible */
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, ',');                  /* Go to next entry if possible */
     *str = p;                                   /* Save new pointer with new offset */
 
     return minus ? -val : val;
@@ -97,22 +92,14 @@ lwespi_parse_hexnumber(const char** str) {
     int32_t val = 0;
     const char* p = *str;                       /*  */
 
-    if (*p == '"') {                            /* Skip leading quotes */
-        ++p;
-    }
-    if (*p == ',') {                            /* Skip leading comma */
-        ++p;
-    }
-    if (*p == '"') {                            /* Skip leading quotes */
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip leading quotes */
+    INC_IF_CHAR_EQUAL(p, ',');                  /* Skip leading comma */
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip leading quotes */
     while (LWESP_CHARISHEXNUM(*p)) {            /* Parse until character is valid number */
         val = val * 16 + LWESP_CHARHEXTONUM(*p);
         ++p;
     }
-    if (*p == ',') {                            /* Go to next entry if possible */
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, ',');                  /* Go to next entry if possible */
     *str = p;                                   /* Save new pointer with new offset */
     return val;
 }
@@ -133,12 +120,8 @@ lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
     const char* p = *src;
     size_t i;
 
-    if (*p == ',') {
-        ++p;
-    }
-    if (*p == '"') {
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, ',');                  /* Skip leading comma */
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip leading quotes */
     i = 0;
     if (dst_len > 0) {
         --dst_len;
@@ -179,9 +162,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     char c;
 #endif /* LWESP_CFG_IPV6 */
 
-    if (*p == '"') {
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip leading quotes */
 
 #if LWESP_CFG_IPV6
     /* Find first separator */
@@ -224,9 +205,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
             }
         }
     }
-    if (*p == '"') {
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip trailing quotes */
 
     *src = p;                                   /* Set new pointer */
     return 1;
@@ -242,9 +221,7 @@ uint8_t
 lwespi_parse_mac(const char** src, lwesp_mac_t* mac) {
     const char* p = *src;
 
-    if (*p == '"') {                            /* Go to next entry if possible */
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip leading quotes */
     mac->mac[0] = lwespi_parse_hexnumber(&p);
     ++p;
     mac->mac[1] = lwespi_parse_hexnumber(&p);
@@ -256,12 +233,8 @@ lwespi_parse_mac(const char** src, lwesp_mac_t* mac) {
     mac->mac[4] = lwespi_parse_hexnumber(&p);
     ++p;
     mac->mac[5] = lwespi_parse_hexnumber(&p);
-    if (*p == '"') {                            /* Skip quotes if possible */
-        ++p;
-    }
-    if (*p == ',') {                            /* Go to next entry if possible */
-        ++p;
-    }
+    INC_IF_CHAR_EQUAL(p, '"');                  /* Skip trailing quotes */
+    INC_IF_CHAR_EQUAL(p, ',');                  /* Go to next entry if possible */
     *src = p;                                   /* Set new pointer */
     return 1;
 }
