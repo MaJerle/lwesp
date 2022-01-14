@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          Neo Xiong <xiongyu0523@gmail.com>
- * Version:         v1.1.1-dev
+ * Version:         v1.1.2-dev
  */
 #ifndef LWESP_HDR_SYSTEM_PORT_H
 #define LWESP_HDR_SYSTEM_PORT_H

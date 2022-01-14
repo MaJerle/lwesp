@@ -2,15 +2,17 @@
 
 ## Develop
 
-- Add POSIX-compliant low-level driver
-- Prohibit transmission of too long UDP packets (default), with conditional compilation
+## 1.1.2-dev
+
+- Add POSIX-compliant low-level driver (thanks to community to implement it)
+- Prohibit transmission of too long UDP packets (default), can be disabled with configuration option
 - Split CMakeLists.txt files between library and executable
-- Move `esp_set_server` function to separate file
-- Run `AT+GMR` command just after reset/restore to determine ESP device connected
-- Min required AT binaries are now `2.3.0` for `ESP32/ESP32C3` and `2.2.1` for `ESP8266`
+- Move `esp_set_server` function to separate file `lwesp_server.c`
+- Use `AT+GMR` command just after reset/restore to determine ESP device being connected on AT port
+- Minimum required AT binaries are now `2.3.0` for `ESP32/ESP32C3` and `2.2.1` for `ESP8266`
 - Connection status is acquired with `AT+CIPSTATE` or `AT+CIPSTATUS`, depends on Espressif connected device
-- Add optional advanced fields for access point scan with `LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS` config option
-- Add optional keep-alive periodic timeout
+- Add optional full fields for access point scan with `LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS` config option
+- Add optional keep-alive periodic timeout to system event callback functions. Can be used to act as generic timeout event
 - Improve station manager snippet with asynchronous mode
 
 ## v1.1.1-dev

@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.1.1-dev
+ * Version:         v1.1.2-dev
  */
 #include "lwesp/apps/lwesp_mqtt_client_evt.h"
 

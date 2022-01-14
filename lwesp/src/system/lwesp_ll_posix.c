@@ -30,7 +30,7 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          imi415 <imi415.public@gmail.com>
- * Version:         v1.1.1-dev
+ * Version:         v1.1.2-dev
  */
 
 #include <unistd.h>

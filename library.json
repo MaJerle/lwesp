@@ -1,6 +1,6 @@
 {
 	"name": "LwESP",
-	"version": "1.1.1-dev",
+	"version": "1.1.2-dev",
 	"description": "Lightweight Espressif ESP32 and ESP8266 AT commands parser for embedded systems",
 	"keywords": "lwesp, lightweiight, ESP32, ESP8266, AT, AT Commands",
 	"repository": {
