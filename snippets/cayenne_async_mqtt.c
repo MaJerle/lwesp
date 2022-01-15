@@ -94,24 +94,14 @@ prv_try_send(void) {
         /* Now try to publish message */
         if (lwesp_mqtt_client_is_connected(mqtt_client)) {
             if ((res = lwesp_mqtt_client_publish(mqtt_client, topic, tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0, NULL)) == lwespOK) {
-                debug_printf("Publishing...\r\n");
+                debug_printf("[MQTT Cayenne] Publishing\r\n");
                 lwesp_buff_skip(&cayenne_async_data_buff, sizeof(*dptr));
                 try_next = 1;
             } else {
-                debug_printf("Cannot publish...: %d\r\n", (int)res);
+                debug_printf("[MQTT Cayenne] Cannot publish. Error code: %d\r\n", (int)res);
             }
         }
     }
-}
-
-/**
- * \brief           Timeout callback for MQTT events
- * \param[in]       arg: User argument
- */
-void
-prv_mqtt_timeout_cb(void* arg) {
-    prv_try_send();
-    lwesp_timeout_add(1000, prv_mqtt_timeout_cb, arg);
 }
 
 /**
@@ -133,9 +123,7 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             if (status == LWESP_MQTT_CONN_STATUS_ACCEPTED) {
                 debug_printf("[MQTT Cayenne] Connection accepted, starting transmitting\r\n");
                 /* Subscribe here if necessary */
-
-                /* Start sending data */
-                prv_try_send();
+                prv_try_send();                 /* Start sending data */
             } else {
                 debug_printf("[MQTT Cayenne] Not accepted, trying again..\r\n");
                 prv_try_connect();
@@ -186,7 +174,6 @@ prv_try_connect(void) {
     debug_printf("[MQTT Cayenne] Trying to connect to server\r\n");
 
     /* Start a simple connection to open source */
-    lwesp_timeout_remove(prv_mqtt_timeout_cb);
     lwesp_mqtt_client_connect(mqtt_client, LWESP_CAYENNE_HOST, LWESP_CAYENNE_PORT, prv_mqtt_cb, &mqtt_client_info);
 }
 
@@ -198,6 +185,10 @@ prv_try_connect(void) {
 static lwespr_t
 prv_evt_fn(lwesp_evt_t* evt) {
     switch (lwesp_evt_get_type(evt)) {
+        case LWESP_EVT_KEEP_ALIVE: {
+            prv_try_send();                     /* Try to send data */
+            break;
+        }
         case LWESP_EVT_WIFI_GOT_IP: {
             debug_printf("[MQTT Cayenne] Wifi got IP, let's gooo\r\n");
             prv_try_connect();                  /* Start connection after we have a connection to network client */

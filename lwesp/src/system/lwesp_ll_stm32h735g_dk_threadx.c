@@ -104,7 +104,7 @@ static size_t       old_pos = 0;
 /* USART thread */
 static void prv_read_thread_entry(ULONG arg);
 static TX_THREAD read_thread;
-static UCHAR read_thread_stack[LWESP_SYS_THREAD_SS];
+static UCHAR read_thread_stack[4 * LWESP_SYS_THREAD_SS];
 
 /* Message queue */
 #define LL_QUEUE_NUM_OF_ENTRY               10
