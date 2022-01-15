@@ -23,9 +23,11 @@ set(CMAKE_CXX_EXTENSIONS            ON)
 #
 set(CPU_PARAMETERS
     -mthumb
+    # Other parameters
+    # -mcpu, -mfloat, -mfloat-abi, ...
     -mcpu=cortex-m4
-    -mfpu=fpv4-sp-d16
-    -mfloat-abi=hard
+	-mfpu=fpv4-sp-d16
+	-mfloat-abi=hard
 )
 
 # Set linker script
@@ -35,8 +37,8 @@ set(EXECUTABLE                      ${CMAKE_PROJECT_NAME})
 #
 # Source files
 #
-set(linked_SRCS
-    ${PROJ_PATH}/../../lib/FreeRTOS/CMSIS_RTOS_V2/cmsis_os2.c
+set(src_freertos_SRCS 
+	${PROJ_PATH}/../../lib/FreeRTOS/CMSIS_RTOS_V2/cmsis_os2.c
 	${PROJ_PATH}/../../lib/FreeRTOS/croutine.c
 	${PROJ_PATH}/../../lib/FreeRTOS/event_groups.c
 	${PROJ_PATH}/../../lib/FreeRTOS/portable/MemMang/heap_4.c
@@ -44,18 +46,24 @@ set(linked_SRCS
 	${PROJ_PATH}/../../lib/FreeRTOS/portable/GCC/ARM_CM4F/port.c
 	${PROJ_PATH}/../../lib/FreeRTOS/queue.c
 	${PROJ_PATH}/../../lib/FreeRTOS/tasks.c
-	${PROJ_PATH}/../../lib/FreeRTOS/timers.c
+	${PROJ_PATH}/../../lib/FreeRTOS/timers.c)
+
+set(src_stm32f4xx_hal_driver_SRCS 
 	${PROJ_PATH}/../../lib/st/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_dma.c
 	${PROJ_PATH}/../../lib/st/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_exti.c
 	${PROJ_PATH}/../../lib/st/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_gpio.c
 	${PROJ_PATH}/../../lib/st/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_pwr.c
 	${PROJ_PATH}/../../lib/st/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_rcc.c
 	${PROJ_PATH}/../../lib/st/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usart.c
-	${PROJ_PATH}/../../lib/st/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_utils.c
+	${PROJ_PATH}/../../lib/st/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_utils.c)
+
+set(src_user_SRCS 
 	${PROJ_PATH}/src/main.c
 	${PROJ_PATH}/src/stm32f4xx_it.c
 	${PROJ_PATH}/src/syscalls.c
-	${PROJ_PATH}/src/system_stm32f4xx.c
+	${PROJ_PATH}/src/system_stm32f4xx.c)
+
+set(src_lwesp_SRCS 
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_ap.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_buff.c
@@ -68,54 +76,34 @@ set(linked_SRCS
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_mem.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_parser.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_pbuf.c
+	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_server.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_sntp.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_sta.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_threads.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_timeout.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_unicode.c
 	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_utils.c
-	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_wps.c
-	${PROJ_PATH}/../../../lwesp/src/api/lwesp_netconn.c
+	${PROJ_PATH}/../../../lwesp/src/lwesp/lwesp_wps.c)
+
+set(src_lwesp_api_SRCS 
+	${PROJ_PATH}/../../../lwesp/src/api/lwesp_netconn.c)
+
+set(src_lwesp_apps_SRCS 
 	${PROJ_PATH}/../../../lwesp/src/apps/mqtt/lwesp_mqtt_client.c
 	${PROJ_PATH}/../../../lwesp/src/apps/mqtt/lwesp_mqtt_client_api.c
-	${PROJ_PATH}/../../../lwesp/src/apps/mqtt/lwesp_mqtt_client_evt.c
+	${PROJ_PATH}/../../../lwesp/src/apps/mqtt/lwesp_mqtt_client_evt.c)
+
+set(src_lwesp_ll_SRCS 
 	${PROJ_PATH}/../../../lwesp/src/system/lwesp_ll_stm32f429zi_nucleo.c
-	${PROJ_PATH}/../../../lwesp/src/system/lwesp_sys_cmsis_os.c
+	${PROJ_PATH}/../../../lwesp/src/system/lwesp_sys_cmsis_os.c)
+
+set(src_lwesp_snippets_SRCS 
 	${PROJ_PATH}/../../../snippets/mqtt_client_api_cayenne.c
 	${PROJ_PATH}/../../../snippets/station_manager.c
-	${PROJ_PATH}/../../../snippets/utils.c
-)
-set(source_folder_lwesp_api_SRCS 
-	)
+	${PROJ_PATH}/../../../snippets/utils.c)
 
-set(source_folder_lwesp_SRCS 
-	)
-
-set(source_folder_lwesp_ll_SRCS 
-	)
-
-set(source_folder_lwesp_apps_SRCS 
-	)
-
-set(source_folder_lwesp_snippets_SRCS 
-	)
-
-set(source_folder_FreeRTOS_SRCS 
-	)
-
-set(source_folder_STM32F4xx_HAL_Driver_SRCS 
-	)
-
-set(source_folder_User_SRCS 
-	)
-
-set(source_folder_startup_SRCS 
+set(src_startup_SRCS 
 	${PROJ_PATH}/STM32CubeIDE/startup/startup_stm32f429xx.s)
-
-# Source files in the same path as ".cproject/.project" but nowhere included in file descriptions
-set(all_project_dir_SRCS
-    
-)
 
 #
 # Include directories
@@ -169,18 +157,16 @@ link_directories(${EXECUTABLE} ${link_DIRS})
 #
 # Executable files
 #
-add_executable(${EXECUTABLE}
-    ${linked_SRCS}
-    ${all_project_dir_SRCS} 
-	${source_folder_lwesp_api_SRCS}
-	${source_folder_lwesp_SRCS}
-	${source_folder_lwesp_ll_SRCS}
-	${source_folder_lwesp_apps_SRCS}
-	${source_folder_lwesp_snippets_SRCS}
-	${source_folder_FreeRTOS_SRCS}
-	${source_folder_STM32F4xx_HAL_Driver_SRCS}
-	${source_folder_User_SRCS}
-	${source_folder_startup_SRCS})
+add_executable(${EXECUTABLE} 
+	${src_freertos_SRCS}
+	${src_stm32f4xx_hal_driver_SRCS}
+	${src_user_SRCS}
+	${src_lwesp_SRCS}
+	${src_lwesp_api_SRCS}
+	${src_lwesp_apps_SRCS}
+	${src_lwesp_ll_SRCS}
+	${src_lwesp_snippets_SRCS}
+	${src_startup_SRCS})
 
 #
 # Add linked libraries for linker
@@ -237,7 +223,9 @@ target_compile_options(${EXECUTABLE} PRIVATE
         #-Wsuggest-override
     >
     $<$<COMPILE_LANGUAGE:ASM>:
-
+        -x assembler-with-cpp
+        -MMD
+        -MP
     >
     $<$<CONFIG:Debug>:
         -Og -g3 -ggdb
