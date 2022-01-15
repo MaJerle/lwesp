@@ -61,7 +61,7 @@ typedef struct {
 /**
  * \brief           List of key-value pairs for topic type and string
  */
-const static topic_cmd_str_pair_t
+static const topic_cmd_str_pair_t
 topic_cmd_str_pairs[] = {
     { LWESP_CAYENNE_TOPIC_DATA, "data" },
     { LWESP_CAYENNE_TOPIC_COMMAND, "cmd" },

@@ -34,12 +34,13 @@
 #include "lwesp/lwesp.h"
 #include "tx_api.h"
 
-extern TX_BYTE_POOL lwesp_byte_tool;
+/* Byte pool is fixed defined externally */
+extern TX_BYTE_POOL* lwesp_threadx_byte_pool;
 
 void*
 lwesp_mem_malloc(size_t size) {
     void *pointer;
-    return tx_byte_allocate(&lwesp_byte_tool, &pointer, size, TX_NO_WAIT) == TX_SUCCESS ? pointer : NULL;
+    return tx_byte_allocate(lwesp_threadx_byte_pool, &pointer, size, TX_NO_WAIT) == TX_SUCCESS ? pointer : NULL;
 }
 
 void*
