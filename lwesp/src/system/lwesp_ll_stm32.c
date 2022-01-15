@@ -108,9 +108,6 @@ usart_ll_thread(void* arg) {
                 }
             }
             old_pos = pos;
-            if (old_pos == sizeof(usart_mem)) {
-                old_pos = 0;
-            }
         }
     }
 }
@@ -119,7 +116,7 @@ usart_ll_thread(void* arg) {
  * \brief           Configure UART using DMA for receive in double buffer mode and IDLE line detection
  */
 static void
-configure_uart(uint32_t baudrate) {
+prv_configure_uart(uint32_t baudrate) {
     static LL_USART_InitTypeDef usart_init;
     static LL_DMA_InitTypeDef dma_init;
     LL_GPIO_InitTypeDef gpio_init;
@@ -293,7 +290,7 @@ configure_uart(uint32_t baudrate) {
  * \brief           Hardware reset callback
  */
 static uint8_t
-reset_device(uint8_t state) {
+prv_reset_device(uint8_t state) {
     if (state) {                                /* Activate reset line */
         LL_GPIO_ResetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
     } else {
@@ -310,7 +307,7 @@ reset_device(uint8_t state) {
  * \return          Number of bytes sent
  */
 static size_t
-send_data(const void* data, size_t len) {
+prv_send_data(const void* data, size_t len) {
     const uint8_t* d = data;
 
     for (size_t i = 0; i < len; ++i, ++d) {
@@ -327,8 +324,9 @@ lwespr_t
 lwesp_ll_init(lwesp_ll_t* ll) {
 #if !LWESP_CFG_MEM_CUSTOM
     static uint8_t memory[LWESP_MEM_SIZE];
-    lwesp_mem_region_t mem_regions[] = {
+    const lwesp_mem_region_t mem_regions[] = {
         { memory, sizeof(memory) }
+        { NULL, 0 }
     };
 
     if (!initialized) {
@@ -337,13 +335,13 @@ lwesp_ll_init(lwesp_ll_t* ll) {
 #endif /* !LWESP_CFG_MEM_CUSTOM */
 
     if (!initialized) {
-        ll->send_fn = send_data;                /* Set callback function to send data */
+        ll->send_fn = prv_send_data;            /* Set callback function to send data */
 #if defined(LWESP_RESET_PIN)
-        ll->reset_fn = reset_device;            /* Set callback for hardware reset */
+        ll->reset_fn = prv_reset_device;        /* Set callback for hardware reset */
 #endif /* defined(LWESP_RESET_PIN) */
     }
 
-    configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
+    prv_configure_uart(ll->uart.baudrate);      /* Initialize UART for communication */
     initialized = 1;
     return lwespOK;
 }
