@@ -6,6 +6,14 @@
 #include "lwesp/apps/lwesp_mqtt_client.h"
 #include "lwesp/apps/lwesp_cayenne.h"
 #include "lwesp/lwesp_timeout.h"
+#include "lwc/lwc.h"
+
+/* For STM32H7xx project, include "debug.h" file which implements debug_printf debugging messages.. */
+#if defined(STM32H7xx)
+#include "debug.h"
+#else
+#define debug_printf                    printf
+#endif /* defined(STM32H7xx) */
 
 /**
  * \brief           MQTT client info for server
@@ -13,7 +21,11 @@
 static const lwesp_mqtt_client_info_t
 mqtt_client_info = {
     /* Device ID */
+#if defined(STM32H7xx)
+    .id = "a6537950-7637-11ec-8da3-474359af83d7",
+#else
     .id = "869f5a20-af9c-11e9-b01f-db5cf74e7fb7",
+#endif /* defined(STM32H7xx) */
 
     /* User credentials */
     .user = "8a215f70-a644-11e8-ac49-e932ed599553",
@@ -70,11 +82,11 @@ prv_try_send(void) {
         try_next = 0;
 
         /* Build topic */
-        sprintf(topic, "%s/%s/things/%s/data/%d", LWESP_CAYENNE_API_VERSION, mqtt_client_info.user, mqtt_client_info.id, dptr->channel);
+        sprintf(topic, "%s/%s/things/%s/data/%d", LWESP_CAYENNE_API_VERSION, mqtt_client_info.user, mqtt_client_info.id, (int)dptr->channel);
 
         /* Build data */
         if (dptr->type == CAYENNE_DATA_TYPE_TEMP) {
-            sprintf(tx_data, "temp,c=%f", dptr->data.flt);
+            sprintf(tx_data, "temp,c=%d.%03d", (int)(dptr->data.flt), (int)((dptr->data.flt - (float)((int)dptr->data.flt)) * 1000));
         } else if (dptr->type == CAYENNE_DATA_TYPE_OUTPUT_STATUS) {
             sprintf(tx_data, "digital=%d", (int)dptr->data.u32);
         }
@@ -82,11 +94,11 @@ prv_try_send(void) {
         /* Now try to publish message */
         if (lwesp_mqtt_client_is_connected(mqtt_client)) {
             if ((res = lwesp_mqtt_client_publish(mqtt_client, topic, tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0, NULL)) == lwespOK) {
-                printf("Publishing...\r\n");
+                debug_printf("Publishing...\r\n");
                 lwesp_buff_skip(&cayenne_async_data_buff, sizeof(*dptr));
                 try_next = 1;
             } else {
-                printf("Cannot publish...: %d\r\n", (int)res);
+                debug_printf("Cannot publish...: %d\r\n", (int)res);
             }
         }
     }
@@ -119,50 +131,25 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             lwesp_mqtt_conn_status_t status = lwesp_mqtt_client_evt_connect_get_status(client, evt);
 
             if (status == LWESP_MQTT_CONN_STATUS_ACCEPTED) {
-                printf("Connection accepted, starting timeout for publishing\r\n");
+                debug_printf("[MQTT Cayenne] Connection accepted, starting transmitting\r\n");
                 /* Subscribe here if necessary */
-                //lwesp_mqtt_client_subscribe(client, "esp8266_mqtt_topic", LWESP_MQTT_QOS_EXACTLY_ONCE, "esp8266_mqtt_topic");
-                lwesp_timeout_add(1000, prv_mqtt_timeout_cb, client);
+
+                /* Start sending data */
+                prv_try_send();
             } else {
-                printf("Not accepted, trying again..\r\n");
+                debug_printf("[MQTT Cayenne] Not accepted, trying again..\r\n");
                 prv_try_connect();
-            }
-            break;
-        }
-
-        /*
-         * Subscribe event just happened.
-         * Here it is time to check if it was successful or failed attempt
-         */
-        case LWESP_MQTT_EVT_SUBSCRIBE: {
-            const char* arg = lwesp_mqtt_client_evt_subscribe_get_argument(client, evt);  /* Get user argument */
-            lwespr_t res = lwesp_mqtt_client_evt_subscribe_get_result(client, evt); /* Get result of subscribe event */
-
-            if (res == lwespOK) {
-                printf("Successfully subscribed to %s topic\r\n", arg);
-                if (!strcmp(arg, "esp8266_mqtt_topic")) {   /* Check topic name we were subscribed */
-                    /* Subscribed to "esp8266_mqtt_topic" topic */
-
-                    /*
-                     * Now publish an even on example topic
-                     * and set QoS to minimal value which does not guarantee message delivery to received
-                     */
-                    lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", "test_data", 9, LWESP_MQTT_QOS_AT_MOST_ONCE, 0, NULL);
-                }
             }
             break;
         }
 
         /* Message published event occurred */
         case LWESP_MQTT_EVT_PUBLISH: {
-            printf("Publish event\r\n");
+            prv_try_send();
             break;
         }
 
-        /*
-         * A new message was published to us
-         * and now it is time to read the data
-         */
+        /* Message received = we don't care for it */
         case LWESP_MQTT_EVT_PUBLISH_RECV: {
             const char* topic = lwesp_mqtt_client_evt_publish_recv_get_topic(client, evt);
             size_t topic_len = lwesp_mqtt_client_evt_publish_recv_get_topic_len(client, evt);
@@ -178,7 +165,7 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
 
         /* Client is fully disconnected from MQTT server */
         case LWESP_MQTT_EVT_DISCONNECT: {
-            printf("MQTT client disconnected!\r\n");
+            debug_printf("[MQTT Cayenne] MQTT client disconnected!\r\n");
             prv_try_connect();
             break;
         }
@@ -196,6 +183,8 @@ prv_try_connect(void) {
         return;
     }
 
+    debug_printf("[MQTT Cayenne] Trying to connect to server\r\n");
+
     /* Start a simple connection to open source */
     lwesp_timeout_remove(prv_mqtt_timeout_cb);
     lwesp_mqtt_client_connect(mqtt_client, LWESP_CAYENNE_HOST, LWESP_CAYENNE_PORT, prv_mqtt_cb, &mqtt_client_info);
@@ -210,6 +199,7 @@ static lwespr_t
 prv_evt_fn(lwesp_evt_t* evt) {
     switch (lwesp_evt_get_type(evt)) {
         case LWESP_EVT_WIFI_GOT_IP: {
+            debug_printf("[MQTT Cayenne] Wifi got IP, let's gooo\r\n");
             prv_try_connect();                  /* Start connection after we have a connection to network client */
             break;
         }

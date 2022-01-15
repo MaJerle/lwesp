@@ -795,7 +795,7 @@
  * \note            This feature is only available for `TCP` connections.
  */
 #ifndef LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
-#define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE       0
+#define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE       1
 #endif
 
 /**

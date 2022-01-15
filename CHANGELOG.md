@@ -4,6 +4,9 @@
 
 - Change license year to 2022
 - Improve MQTT module implementation
+- Improve ThreadX port
+- Enable manual TCP receive by default, to improve system stability
+- Add MQTT cayenne async demo, publish-mode only through ring buffer
 
 ## 1.1.2-dev
 
