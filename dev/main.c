@@ -20,6 +20,7 @@
 #include "lwmem/lwmem.h"
 #include "lwesp/lwesp_opt.h"
 #include "lwesp/apps/lwesp_cayenne.h"
+#include "cayenne_async_mqtt.h"
 
 #define safeprintf              printf
 
@@ -402,7 +403,30 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    //cayenne_async_mqtt_init();
+
+    /* Demo to fill cayenne async data */
+    while (1) {
+        static cayenne_async_data_t data;
+        static float temp = 0.03;
+        static uint32_t channel = 103;
+
+        /* Setup value */
+        data.type = CAYENNE_DATA_TYPE_TEMP;
+        data.channel = channel;
+        data.data.flt = temp;
+        if (lwesp_buff_get_free(&cayenne_async_data_buff) > sizeof(data)) {
+            lwesp_buff_write(&cayenne_async_data_buff, &data, sizeof(data));
+        }
+
+        /* Set new value for next round */
+        if (channel++ > 113) {
+            channel = 103;
+        }
+        temp *= 1.01;
+        lwesp_delay(100);
+    }
 
     /* Terminate thread */
     while (1) {

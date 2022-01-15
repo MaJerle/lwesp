@@ -102,7 +102,6 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
                 || status == LWESP_MQTT_CONN_STATUS_ACCEPTED) {
                 prv_release_sem(api_client);        /* Release semaphore */
             }
-
             break;
         }
         case LWESP_MQTT_EVT_PUBLISH_RECV: {
@@ -436,7 +435,6 @@ lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic,
     client->release_sem = 0;
     lwesp_sys_sem_release(&client->sync_sem);
     lwesp_sys_mutex_unlock(&client->mutex);
-
     return res;
 }
 

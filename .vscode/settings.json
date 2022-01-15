@@ -16,6 +16,11 @@
         "array": "c",
         "string_view": "c",
         "initializer_list": "c",
-        "utility": "c"
+        "utility": "c",
+        "cayenne_async_mqtt.h": "c",
+        "lwesp_mqtt_client_api.h": "c",
+        "lwesp_timeout.h": "c",
+        "lwesp_mqtt_client.h": "c",
+        "lwesp_cayenne.h": "c"
     }
 }

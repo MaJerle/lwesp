@@ -1235,8 +1235,8 @@ lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const v
         res = lwespCLOSED;
     } else if ((raw_len = prv_output_check_enough_memory(client, rem_len)) != 0) {
         pkt_id = qos_u8 > 0 ? prv_create_packet_id(client) : 0; /* Create new packet ID */
-        request = prv_request_create(client, pkt_id, arg);  /* Create request for packet */
-        if (request != NULL) {
+        /* Create request for packet */
+        if ((request = prv_request_create(client, pkt_id, arg)) != NULL) {
             /*
              * Set expected number of bytes we should send before
              * we can say that this packet was sent.

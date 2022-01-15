@@ -325,7 +325,7 @@ lwesp_ll_init(lwesp_ll_t* ll) {
 #if !LWESP_CFG_MEM_CUSTOM
     static uint8_t memory[LWESP_MEM_SIZE];
     const lwesp_mem_region_t mem_regions[] = {
-        { memory, sizeof(memory) }
+        { memory, sizeof(memory) },
         { NULL, 0 }
     };
 
