@@ -50,12 +50,12 @@ cayenne_async_mqtt_init(void) {
     lwesp_evt_register(prv_evt_fn);             /* Register event function to receive system messages */
 
     /* Create buffer */
-    if (!lwesp_buff_init(&cayenne_async_data_buff, 16 * sizeof(cayenne_async_data_t))) {
+    if (!lwesp_buff_init(&cayenne_async_data_buff, 128 * sizeof(cayenne_async_data_t))) {
         return 0;
     }
 
     /* Create object and try to connect */
-    if ((mqtt_client = lwesp_mqtt_client_new(1024, 256)) == NULL) {
+    if ((mqtt_client = lwesp_mqtt_client_new(2048, 256)) == NULL) {
         lwesp_buff_free(&cayenne_async_data_buff);
         return 0;
     }
@@ -82,13 +82,15 @@ prv_try_send(void) {
         try_next = 0;
 
         /* Build topic */
-        sprintf(topic, "%s/%s/things/%s/data/%d", LWESP_CAYENNE_API_VERSION, mqtt_client_info.user, mqtt_client_info.id, (int)dptr->channel);
+        sprintf(topic, "%s/%s/things/%s/data/%d", LWESP_CAYENNE_API_VERSION, mqtt_client_info.user, mqtt_client_info.id, (int)(dptr->channel));
 
         /* Build data */
         if (dptr->type == CAYENNE_DATA_TYPE_TEMP) {
             sprintf(tx_data, "temp,c=%d.%03d", (int)(dptr->data.flt), (int)((dptr->data.flt - (float)((int)dptr->data.flt)) * 1000));
-        } else if (dptr->type == CAYENNE_DATA_TYPE_OUTPUT_STATUS) {
-            sprintf(tx_data, "digital=%d", (int)dptr->data.u32);
+        } else if (dptr->type == CAYENNE_DATA_TYPE_OUTPUT_STATUS_DIGITAL) {
+            sprintf(tx_data, "digital_sensor=%d", (int)dptr->data.u32);
+        } else if (dptr->type == CAYENNE_DATA_TYPE_OUTPUT_STATUS_ANALOG) {
+            sprintf(tx_data, "analog_sensor=%d.%03d", (int)(dptr->data.flt), (int)((dptr->data.flt - (float)((int)dptr->data.flt)) * 1000));
         }
 
         /* Now try to publish message */
@@ -98,7 +100,7 @@ prv_try_send(void) {
                 lwesp_buff_skip(&cayenne_async_data_buff, sizeof(*dptr));
                 try_next = 1;
             } else {
-                debug_printf("[MQTT Cayenne] Cannot publish. Error code: %d\r\n", (int)res);
+                debug_printf("[MQTT Cayenne] Cannot publish now, will try later. Error code: %d\r\n", (int)res);
             }
         }
     }
