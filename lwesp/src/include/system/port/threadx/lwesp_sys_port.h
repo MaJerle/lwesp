@@ -58,6 +58,8 @@ typedef UINT                        lwesp_sys_thread_prio_t;
 
 #endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 
+void    lwesp_sys_preinit_threadx_set_bytepool_handle(TX_BYTE_POOL* bp);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
