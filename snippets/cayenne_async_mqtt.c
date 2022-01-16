@@ -96,7 +96,7 @@ prv_try_send(void) {
         /* Now try to publish message */
         if (lwesp_mqtt_client_is_connected(mqtt_client)) {
             if ((res = lwesp_mqtt_client_publish(mqtt_client, topic, tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0, NULL)) == lwespOK) {
-                debug_printf("[MQTT Cayenne] Publishing\r\n");
+                debug_printf("[MQTT Cayenne] Publishing: Channel: %d, data: %s\r\n", (int)dptr->channel, tx_data);
                 lwesp_buff_skip(&cayenne_async_data_buff, sizeof(*dptr));
                 try_next = 1;
             } else {
