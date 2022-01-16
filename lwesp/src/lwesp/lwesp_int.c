@@ -941,7 +941,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 }
             }
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
-
+            /* Do nothing, it is either OK or not OK */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSEND)) {
             if (is_ok) {                        /* Check for OK and clear as we have to check for "> " statement after OK */
                 is_ok = 0;                      /* Do not reach on OK */
