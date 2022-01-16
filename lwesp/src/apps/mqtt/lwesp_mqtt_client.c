@@ -29,7 +29,7 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #include "lwesp/apps/lwesp_mqtt_client.h"
 #include "lwesp/lwesp_mem.h"
@@ -1155,7 +1155,12 @@ lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_po
         client->evt_fn = evt_fn != NULL ? evt_fn : mqtt_evt_fn_default;
 
         /* Start a new connection in non-blocking mode */
-        res = lwesp_conn_start(&client->conn, LWESP_CONN_TYPE_TCP, host, port, client, mqtt_conn_cb, 0);
+        if (info->ssl){
+			res = lwesp_conn_start(&client->conn, LWESP_CONN_TYPE_SSL, host, port, client, mqtt_conn_cb, 0);
+		}
+		else {
+			res = lwesp_conn_start(&client->conn, LWESP_CONN_TYPE_TCP, host, port, client, mqtt_conn_cb, 0);
+		}
         if (res == lwespOK) {
             client->conn_state = LWESP_MQTT_CONN_CONNECTING;
         }

@@ -29,13 +29,14 @@
  * This file is part of LwESP - Lightweight ESP-AT parser library.
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
- * Version:         v1.0.0
+ * Version:         v1.1.0-dev
  */
 #ifndef LWESP_HDR_APP_MQTT_CLIENT_H
 #define LWESP_HDR_APP_MQTT_CLIENT_H
 
 #include "lwesp/lwesp.h"
 #include "lwesp/apps/lwesp_mqtt_client_evt.h"
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -90,6 +91,7 @@ typedef struct {
     const char* will_topic;                     /*!< Will topic */
     const char* will_message;                   /*!< Will message */
     lwesp_mqtt_qos_t will_qos;                  /*!< Will topic quality of service */
+    bool ssl;									/*!< SSL Connection */
 } lwesp_mqtt_client_info_t;
 
 /**
