@@ -834,7 +834,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         }
     } else if (CMD_IS_CUR(LWESP_CMD_GMR)) {
         if (!strncmp(rcv->data, "AT version", 10)) {
-            uint8_t ok = 0, major = 0, minor = 0, patch = 0;
+            uint8_t ok = 1, major = 99, minor = 99, patch = 99;
             lwespi_parse_at_sdk_version(&rcv->data[11], &esp.m.version_at);
 
             /* 
@@ -875,6 +875,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             } else {
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
                             "[GMR] Could not detect connected Espressif device: %.*s\r\n", (int)rcv->len, rcv->data);
+                ok = 0;
             }
             LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
                         "[GMR] AT version minimum required: %d.%d.%d\r\n",
@@ -883,26 +884,29 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                         "[GMR] AT version detected on device: %d.%d.%d\r\n",
                         (int)esp.m.version_at.major, (int)esp.m.version_at.minor, (int)esp.m.version_at.patch);
 
-            /* Compare versions */
-            if (esp.m.version_at.major > major) {
-                ok = 1;
-            } else if (esp.m.version_at.major == major) {
-                if (esp.m.version_at.minor > minor) {
+            /* Compare versions, but only if device is well detected */
+            if (ok) { 
+                ok = 0;
+                if (esp.m.version_at.major > major) {
                     ok = 1;
-                } else if (esp.m.version_at.minor == minor) {
-                    if ((int8_t)esp.m.version_at.patch >= (int8_t)patch) {
+                } else if (esp.m.version_at.major == major) {
+                    if (esp.m.version_at.minor > minor) {
                         ok = 1;
+                    } else if (esp.m.version_at.minor == minor) {
+                        if ((int8_t)esp.m.version_at.patch >= (int8_t)patch) {
+                            ok = 1;
+                        } else {
+                            LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
+                                        "[GMR] AT version comparison failed with patch version\r\n");
+                        }
                     } else {
                         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                    "[GMR] AT version comparison failed with patch version\r\n");
+                                    "[GMR] AT version comparison failed with minor version\r\n");
                     }
                 } else {
                     LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                "[GMR] AT version comparison failed with minor version\r\n");
+                                "[GMR] AT version comparison failed with major version\r\n");
                 }
-            } else {
-                LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                            "[GMR] AT version comparison failed with major version\r\n");
             }
 
             /* Send out version not supported information to system */

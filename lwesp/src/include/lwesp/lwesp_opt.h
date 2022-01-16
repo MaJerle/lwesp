@@ -62,7 +62,7 @@
  *
  */
 #ifndef LWESP_CFG_ESP32
-#define LWESP_CFG_ESP32                         0
+#define LWESP_CFG_ESP32                         1
 #endif
 
 /**
@@ -70,7 +70,7 @@
  *
  */
 #ifndef LWESP_CFG_ESP32_C3
-#define LWESP_CFG_ESP32_C3                      0
+#define LWESP_CFG_ESP32_C3                      1
 #endif
 
 /**
