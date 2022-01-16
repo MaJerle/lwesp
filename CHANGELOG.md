@@ -8,6 +8,7 @@
 - Enable manual TCP receive by default, to improve system stability
 - Add MQTT cayenne async demo, publish-mode only through ring buffer
 - Timeout module returns ERRMEM if no memory to allocate block
+- Add esp_at_binaries from Espressif, used for library verification (official AT firmware)
 
 ## 1.1.2-dev
 

@@ -78,3 +78,4 @@ Table of contents
     user-manual/index
     api-reference/index
     examples/index
+    firmware-update/index
