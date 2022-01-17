@@ -57,6 +57,7 @@ typedef enum {
     LWESP_CMD_ATE0,                             /*!< Disable ECHO mode on AT commands */
     LWESP_CMD_ATE1,                             /*!< Enable ECHO mode on AT commands */
     LWESP_CMD_GMR,                              /*!< Get AT commands version */
+    LWESP_CMD_CMD,                              /*!< List support AT commands */
     LWESP_CMD_GSLP,                             /*!< Set ESP to sleep mode */
     LWESP_CMD_RESTORE,                          /*!< Restore ESP internal settings to default values */
     LWESP_CMD_UART,

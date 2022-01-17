@@ -1465,6 +1465,11 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
             SET_NEW_CMD(LWESP_CMD_GMR);
             break;
         case LWESP_CMD_GMR:
+#if LWESP_CFG_LIST_CMD
+            SET_NEW_CMD(LWESP_CMD_CMD);
+            break;
+        case LWESP_CMD_CMD:
+#endif /* LWESP_CFG_LIST_CMD */
             SET_NEW_CMD(LWESP_CMD_SYSMSG);
             break;
         case LWESP_CMD_SYSMSG:
@@ -1833,6 +1838,14 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
+#if LWESP_CFG_LIST_CMD
+        case LWESP_CMD_CMD: {                   /* Get CMD list */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CMD?");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+#endif /* LWESP_CFG_LIST_CMD */
         case LWESP_CMD_SYSMSG: {                /* Enable system messages */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+SYSMSG=3");
@@ -1889,9 +1902,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWRECONNCFG=");
             lwespi_send_number(msg->msg.sta_reconn_set.interval, 0, 0);
-            //if (msg->msg.sta_reconn_set.interval > 0) {
-                lwespi_send_number(msg->msg.sta_reconn_set.rep_cnt, 0, 1);
-            //}
+            lwespi_send_number(msg->msg.sta_reconn_set.rep_cnt, 0, 1);
             AT_PORT_SEND_END_AT();
             break;
         }

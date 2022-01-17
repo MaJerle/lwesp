@@ -6,7 +6,6 @@
 #include "lwesp/apps/lwesp_mqtt_client.h"
 #include "lwesp/apps/lwesp_cayenne.h"
 #include "lwesp/lwesp_timeout.h"
-#include "lwc/lwc.h"
 
 /* For STM32H7xx project, include "debug.h" file which implements debug_printf debugging messages.. */
 #if defined(STM32H7xx)

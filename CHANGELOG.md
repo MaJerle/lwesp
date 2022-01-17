@@ -9,6 +9,7 @@
 - Add MQTT cayenne async demo, publish-mode only through ring buffer
 - Timeout module returns ERRMEM if no memory to allocate block
 - Add esp_at_binaries from Espressif, used for library verification (official AT firmware)
+- Add optional `AT+CMD?` command at reset/restore process, for debug purpose for the moment, only
 
 ## 1.1.2-dev
 

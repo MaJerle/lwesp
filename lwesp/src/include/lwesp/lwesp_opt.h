@@ -329,6 +329,14 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` listing all available CMDs during reset/restore operation
+ * 
+ */
+#ifndef LWESP_CFG_LIST_CMD
+#define LWESP_CFG_LIST_CMD                      0
+#endif
+
+/**
  * \defgroup        LWESP_OPT_DBG Debugging
  * \brief           Debugging configurations
  * \{
