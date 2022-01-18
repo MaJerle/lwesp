@@ -1,5 +1,6 @@
 /*
- * MQTT client API example with ESP device.
+ * MQTT client API example with ESP device to test server.
+ * It utilizes sequential mode without callbacks in one user thread
  *
  * Once device is connected to network,
  * it will try to connect to mosquitto test server and start the MQTT.
@@ -29,24 +30,16 @@ mqtt_client_info = {
     .id = "869f5a20-af9c-11e9-b01f-db5cf74e7fb7",
 };
 
-/**
- * \brief           Memory for topic
- */
-static char
-mqtt_topic_str[256];
-
-/**
- * \brief           Memory for data
- */
-static char
-mqtt_topic_data[256];
+static char mqtt_topic_str[256];                /*!< Topic string */
+static char mqtt_topic_data[256];               /*!< Data string */
 
 /**
  * \brief           Generate random number and write it to string
+ * It utilizes simple pseudo random generator, super simple one
  * \param[out]      str: Output string with new number
  */
 void
-generate_random(char* str) {
+prv_generate_random(char* str) {
     static uint32_t random_beg = 0x8916;
     random_beg = random_beg * 0x00123455 + 0x85654321;
     sprintf(str, "%u", (unsigned)((random_beg >> 8) & 0xFFFF));
@@ -54,6 +47,7 @@ generate_random(char* str) {
 
 /**
  * \brief           MQTT client API thread
+ * \param[in]       arg: User argument
  */
 void
 mqtt_client_api_thread(void const* arg) {
@@ -64,8 +58,7 @@ mqtt_client_api_thread(void const* arg) {
     char random_str[10];
 
     /* Create new MQTT API */
-    client = lwesp_mqtt_client_api_new(256, 128);
-    if (client == NULL) {
+    if ((client = lwesp_mqtt_client_api_new(256, 128)) == NULL) {
         goto terminate;
     }
 
@@ -94,8 +87,7 @@ mqtt_client_api_thread(void const* arg) {
 
         while (1) {
             /* Receive MQTT packet with 1000ms timeout */
-            res = lwesp_mqtt_client_api_receive(client, &buf, 5000);
-            if (res == lwespOK) {
+            if ((res = lwesp_mqtt_client_api_receive(client, &buf, 5000)) == lwespOK) {
                 if (buf != NULL) {
                     printf("Publish received!\r\n");
                     printf("Topic: %s, payload: %s\r\n", buf->topic, buf->payload);
@@ -109,7 +101,7 @@ mqtt_client_api_thread(void const* arg) {
                 printf("Timeout on MQTT receive function. Manually publishing.\r\n");
 
                 /* Publish data on channel 1 */
-                generate_random(random_str);
+                prv_generate_random(random_str);
                 sprintf(mqtt_topic_str, "v1/%s/things/%s/data/1", mqtt_client_info.user, mqtt_client_info.id);
                 sprintf(mqtt_topic_data, "temp,c=%s", random_str);
                 lwesp_mqtt_client_api_publish(client, mqtt_topic_str, mqtt_topic_data, strlen(mqtt_topic_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0);

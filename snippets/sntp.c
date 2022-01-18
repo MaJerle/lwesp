@@ -1,3 +1,7 @@
+/*
+ * A simple example to get current time using SNTP protocol
+ * thanks to AT commands being supported by Espressif
+ */
 #include "sntp.h"
 #include "lwesp/lwesp.h"
 

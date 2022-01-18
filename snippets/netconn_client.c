@@ -1,3 +1,12 @@
+/*
+ * Netconn client demonstrates how to connect as a client to server
+ * using sequential API from separate thread.
+ * 
+ * it does not use callbacks to obtain connection status.
+ * 
+ * Demo connects to NETCONN_HOST at NETCONN_PORT and sends GET request header,
+ * then waits for respond and expects server to close the connection accordingly.
+ */
 #include "netconn_client.h"
 #include "lwesp/lwesp.h"
 

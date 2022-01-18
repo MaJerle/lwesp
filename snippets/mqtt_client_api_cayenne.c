@@ -1,9 +1,8 @@
 /*
- * MQTT client API example for Cayenne MQTT API
+ * Example to connect to Cayenne cloud using MQTT API module.
  *
- * Simple example for testing purposes only.
- *
- *
+ * Connection is implemented from separate thread in sequential mode.
+ * No callbacks are being used in such mode
  */
 
 #include "lwesp/apps/lwesp_mqtt_client_api.h"

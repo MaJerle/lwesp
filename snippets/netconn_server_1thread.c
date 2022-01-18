@@ -1,6 +1,11 @@
 /*
  * Netconn server example is based on single thread
- * and it listens for single client only on port 23
+ * and it listens for single client only on port 23.
+ * 
+ * When new client connects, application processes client in the same thread.
+ * When multiple clients get connected at the same time, 
+ * each of them waits all previous to be processed first, hence it may
+ * introduce latency, in some cases even clearly visible in (for example) user browser 
  */
 #include "netconn_server_1thread.h"
 #include "lwesp/lwesp.h"

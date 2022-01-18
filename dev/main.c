@@ -392,19 +392,42 @@ main_thread(void* arg) {
      */
     lwesp_sta_autojoin(0, NULL, NULL, 1);
 
-    /* Initialize and start asynchronous connection to preferred acces point */
+    /*
+     * Initialize and start asynchronous connection to preferred acces point
+     *
+     * Will immediately return and will not block the application.
+     * All events are done asynchronously
+     */
     station_manager_connect_to_access_point_async_init();
 
-    /* Start server on port 80 */
+    /* Different types of snippets to execute */
+
+    /* HTTP server application example */
     //http_server_start();
+    
+    /* Netconn client in separate thread */
     //lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    
+    /* Netconn server with multiple threads */
     //lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    
+    /* Netconn server with single thread */
     //lwesp_sys_thread_create(NULL, "netconn_server_single", (lwesp_sys_thread_fn)netconn_server_1thread_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    
+    /* MQTT client with asynchronous events */
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    
+    /* MQTT client with API sequential mode, test application */
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    
+    /* MQTT API client with connectivity to Cayenne */
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+    /* LwESP built-in Cayenne protocol implementation thread demo */
     //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    //cayenne_async_mqtt_init();
+
+    /* Asynchronous push-only cayenne demo with buffer used to fill the data */
+    cayenne_async_mqtt_init();
 
     /* Demo to fill cayenne async data */
     while (1) {
@@ -428,16 +451,10 @@ main_thread(void* arg) {
         lwesp_delay(100);
     }
 
-    /* Terminate thread */
-    while (1) {
+    /* While loop with delay to prevent main thread termination in development environment */
+    while (1) { 
         lwesp_delay(1000);
     }
-    lwesp_sys_thread_terminate(NULL);
-}
-
-void
-prv_sntp_callback(lwespr_t res, void* arg) {
-    printf("SNTP Callback result: %d\r\n", (int)res);
 }
 
 /**
@@ -517,8 +534,6 @@ lwesp_evt(lwesp_evt_t* evt) {
             } else {
                 safeprintf("Acquired IP is not valid\r\n");
             }
-            lwesp_sntp_set_config(1, 1, NULL, NULL, NULL, NULL, NULL, 0);
-            lwesp_sntp_set_interval(20, prv_sntp_callback, NULL, 0);
             break;
         }
 #if LWESP_CFG_MODE_ACCESS_POINT

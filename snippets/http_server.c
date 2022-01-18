@@ -1,3 +1,11 @@
+/*
+ * HTTP server example implementation
+ *
+ * It shows how to define user-specific http paths and respond to different
+ * HTTP GET or POST command and populate CGI tags with actual data.
+ * 
+ * This is very lightweight example, and is not necessarly full working at the moment
+ */
 #include "http_server.h"
 #include "lwesp/lwesp.h"
 #include "lwesp/apps/lwesp_http_server.h"
@@ -15,6 +23,9 @@ static char*    usart_cgi_handler(http_param_t* params, size_t params_len);
 
 /**
  * \brief           List of CGI handlers
+ * 
+ * Defines HTTP path and callback function,
+ * called when specific path matches in HTTP request
  */
 const http_cgi_t
 cgi_handlers[] = {
@@ -24,6 +35,8 @@ cgi_handlers[] = {
 
 /**
  * \brief           HTTP init structure
+ * 
+ * Structure between HTTP LwESP module and application specific part
  */
 const http_init_t
 http_init = {
@@ -36,10 +49,10 @@ http_init = {
     .cgi_count = LWESP_ARRAYSIZE(cgi_handlers),
     .ssi_fn = http_ssi_cb,
 
+#if WIN32
     /*
      * Use native WIN32 file system API
      */
-#if WIN32
     .fs_open = http_fs_open,
     .fs_read = http_fs_read,
     .fs_close = http_fs_close,

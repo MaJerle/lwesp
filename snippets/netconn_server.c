@@ -3,8 +3,12 @@
  * which listens for new connections and accepts them.
  *
  * When a new client is accepted by server,
- * separate thread for client is created where
- * data is read, processed and send back to user
+ * a new thread gets spawned and processes client request 
+ * separately. When multiple users are connected,
+ * they can be processed simultaneously, hence no such latency as in single thread mode.
+ * 
+ * As a drawback, more memory is consumed for multiple parallel threads being potentially
+ * used at the same period of time.
  */
 #include "netconn_server.h"
 #include "lwesp/lwesp.h"
@@ -132,12 +136,10 @@ netconn_server_thread(void const* arg) {
  */
 static void
 netconn_server_processing_thread(void* const arg) {
-    lwesp_netconn_p client;
+    lwesp_netconn_p client = arg;
     lwesp_pbuf_p pbuf, p = NULL;
     lwespr_t res;
     char strt[20];
-
-    client = arg;                               /* Client handle is passed to argument */
 
     printf("A new connection accepted!\r\n");   /* Print simple message */
 
@@ -156,13 +158,17 @@ netconn_server_processing_thread(void* const arg) {
             if (p == NULL) {
                 p = pbuf;                       /* Set as first buffer */
             } else {
-                lwesp_pbuf_cat(p, pbuf);          /* Concatenate buffers together */
+                lwesp_pbuf_cat(p, pbuf);        /* Concatenate buffers together */
             }
+            /*
+             * Search for end of request section, that is supposed
+             * to end with line, followed by another fully empty line.
+             */
             if (lwesp_pbuf_strfind(pbuf, "\r\n\r\n", 0) != LWESP_SIZET_MAX) {
                 if (lwesp_pbuf_strfind(pbuf, "GET / ", 0) != LWESP_SIZET_MAX) {
                     uint32_t now;
                     printf("Main page request\r\n");
-                    now = lwesp_sys_now();        /* Get current time */
+                    now = lwesp_sys_now();      /* Get current time */
                     sprintf(strt, "%u ms; %d s", (unsigned)now, (unsigned)(now / 1000));
                     lwesp_netconn_write(client, rlwesp_data_mainpage_top, sizeof(rlwesp_data_mainpage_top) - 1);
                     lwesp_netconn_write(client, strt, strlen(strt));
@@ -174,8 +180,8 @@ netconn_server_processing_thread(void* const arg) {
                     printf("404 error not found\r\n");
                     lwesp_netconn_write(client, rlwesp_error_404, sizeof(rlwesp_error_404) - 1);
                 }
-                lwesp_netconn_close(client);      /* Close netconn connection */
-                lwesp_pbuf_free(p);               /* Do not forget to free memory after usage! */
+                lwesp_netconn_close(client);    /* Close netconn connection */
+                lwesp_pbuf_free(p);             /* Do not forget to free memory after usage! */
                 p = NULL;
                 break;
             }
@@ -185,7 +191,7 @@ netconn_server_processing_thread(void* const arg) {
     if (p != NULL) {                            /* Free received data */
         lwesp_pbuf_free(p);
         p = NULL;
-    }
-    lwesp_netconn_delete(client);                 /* Destroy client memory */
-    lwesp_sys_thread_terminate(NULL);             /* Terminate this thread */
+    }                                           
+    lwesp_netconn_delete(client);               /* Destroy client memory */
+    lwesp_sys_thread_terminate(NULL);           /* Terminate this thread */
 }

@@ -1,3 +1,27 @@
+/*
+ * Station manager to connect station to access point.
+ *
+ * It is consider as a utility module, simple set of helper functions
+ * to quickly connect to access point.
+ * 
+ * It utilizes 2 different modes, sequential or asynchronous.
+ * 
+ * Sequential:
+ * ==========
+ * Call connect_to_preferred_access_point function to connect to access point
+ * in blocking mode until being ready to move forward.
+ * 
+ * Asynchronous:
+ * ============
+ * Call station_manager_connect_to_access_point_async_init to initialize
+ * asynchronous connect mode and activity will react upon received LwESP events to application.
+ * 
+ * Define list of access points:
+ * ============================
+ * Have a look at "ap_list_preferred" variable and define
+ * list of preferred access point's SSID and password.
+ * Ordered by "most preferred" at the lower array index.
+ */
 #include "station_manager.h"
 #include "utils.h"
 #include "lwesp/lwesp.h"
@@ -44,7 +68,6 @@ static prv_ap_data_t ap_async_data;             /* Asynchronous data structure *
 #define prv_scan_ap_command_ex(blocking)        lwesp_sta_list_ap(NULL, ap_list_scanned, LWESP_ARRAYSIZE(ap_list_scanned), &ap_list_scanned_len, NULL, NULL, (blocking))
 #define prv_scan_ap_command()                   do {\
     if (!ap_async_data.command_is_running) {    \
-        printf("Starting scan command on line %d\r\n", __LINE__);\
         ap_async_data.command_is_running = lwesp_sta_list_ap(NULL, ap_list_scanned, LWESP_ARRAYSIZE(ap_list_scanned), &ap_list_scanned_len, prv_cmd_event_fn, ARG_SCAN, 0) == lwespOK;   \
     }       \
 } while (0)

@@ -1,3 +1,7 @@
+/*
+ * This snippet shows how to use ESP's DNS module to 
+ * obtain IP address from domain name
+ */
 #include "dns.h"
 #include "lwesp/lwesp.h"
 
