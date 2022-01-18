@@ -188,14 +188,10 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
  */
 lwesp_cmd_t
 lwespi_get_cipstatus_or_cipstate_cmd(void) {
-    lwesp_cmd_t cmd;
-#if LWESP_CFG_ESP8266
-    /* Set command based on connected device */
-    cmd = esp.m.device == LWESP_DEVICE_ESP8266 ? LWESP_CMD_TCPIP_CIPSTATUS : LWESP_CMD_TCPIP_CIPSTATE;
-#else
-    cmd = LWESP_CMD_TCPIP_CIPSTATE;             /* Set fixed command */
-#endif /* LWESP_CFG_ESP8266 */
-    return cmd;
+    if (esp.m.device == LWESP_DEVICE_ESP8266 || esp.m.device == LWESP_DEVICE_ESP32) {
+        return LWESP_CMD_TCPIP_CIPSTATUS;
+    }
+    return LWESP_CMD_TCPIP_CIPSTATE;
 }
 
 /**
@@ -935,9 +931,9 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             size_t offset = 0;
             
             if (0
-#if LWESP_CFG_ESP8266
+#if LWESP_CFG_ESP8266 || LWESP_CFG_ESP32
                 || (!strncmp(rcv->data, "+CIPSTATUS", 10) && (offset = 11) > 0)   /* This is to check string and get offset in one shot */
-#endif /* LWESP_CFG_ESP8266 */
+#endif /* LWESP_CFG_ESP8266 || LWESP_CFG_ESP32 */
                 || (!strncmp(rcv->data, "+CIPSTATE", 9) && (offset = 10) > 0)
             ) {
                 lwespi_parse_cipstatus_cipstate(rcv->data + offset);/* Parse +CIPSTATUS or +CIPSTATE response */
@@ -1648,12 +1644,10 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
         /*
          * Check if current command is to get device connection status information.
          *
-         * ESP8266 must use CIPSTATUS command
-         * ESP32 has CIPSTATE already implemented (CIPSTATUS is deprecated)
+         * ESP8266 & ESP32 uses CIPSTATUS command
+         * ESP32-C3 has CIPSTATE already implemented (CIPSTATUS is deprecated)
          */
-        is_status_check = 0
-                || (esp.m.device == LWESP_DEVICE_ESP8266 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS))
-                || (esp.m.device != LWESP_DEVICE_ESP8266 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATE));
+        is_status_check = CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS) || CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATE);
 
         if (msg->i == 0 && is_status_check) { /* Was the current command status info? */
             SET_NEW_CMD_COND(LWESP_CMD_TCPIP_CIPSTART, *is_ok); /* Now actually start connection */
