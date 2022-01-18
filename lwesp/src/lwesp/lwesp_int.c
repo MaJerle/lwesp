@@ -921,7 +921,13 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 
     /* Start processing received data */
     if (esp.msg != NULL) {                      /* Do we have valid message? */
-        if ((CMD_IS_CUR(LWESP_CMD_RESET) || CMD_IS_CUR(LWESP_CMD_RESTORE)) && is_ok) {  /* Check for reset/restore command */
+        /* Start with received error code */
+        if (strncmp(rcv->data, "ERR CODE:", 9) == 0) {
+            /* Check for command not supported message */
+            if (strncmp(&rcv->data[9], "0x01090000", 10) == 0) {
+                esp.msg->res_err_code = lwespERRCMDNOTSUPPORTED;
+            }
+        } else if ((CMD_IS_CUR(LWESP_CMD_RESET) || CMD_IS_CUR(LWESP_CMD_RESTORE)) && is_ok) {  /* Check for reset/restore command */
             is_ok = 0;                          /* We must wait for "ready", not only "OK" */
             esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE;  /* Save user baudrate */
             lwesp_ll_init(&esp.ll);             /* Set new baudrate */
@@ -1784,7 +1790,7 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
     } else {
         msg->cmd = LWESP_CMD_IDLE;
     }
-    return *is_ok || *is_ready ? lwespOK : lwespERR;
+    return *is_ok || *is_ready ? lwespOK : (msg->res_err_code != lwespOK ? msg->res_err_code : lwespERR);
 }
 
 /**
@@ -2405,6 +2411,13 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
+        case LWESP_CMD_TCPIP_CIPSNTPINTV: {     /* Set SNTP sync interval */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPSNTPINTV=");
+            lwespi_send_number(LWESP_U32(msg->msg.tcpip_sntp_intv.interval), 0, 0);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
 #endif /* LWESP_CFG_SNTP */
 #if LWESP_CFG_SMART
         case LWESP_CMD_WIFI_SMART_START: {      /* Start smart config */
@@ -2474,7 +2487,7 @@ lwespi_is_valid_conn_ptr(lwesp_conn_p conn) {
  */
 lwespr_t
 lwespi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_msg_t*), uint32_t max_block_time) {
-    lwespr_t res = msg->res = lwespOK;
+    lwespr_t res = msg->res = msg->res_err_code = lwespOK;
 
     lwesp_core_lock();
 

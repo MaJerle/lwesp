@@ -32,7 +32,7 @@ static void prv_try_next_access_point(void);
 static const ap_entry_t ap_list_preferred[] = {
     //{ .ssid = "SSID name", .pass = "SSID password" },
     { .ssid = "TilenM_ST", .pass = "its private" },
-    { .ssid = "Kaja", .pass = "kajagin2021" },
+    { .ssid = "Kaja", .pass = "ginkaja2021" },
     { .ssid = "Majerle WIFI", .pass = "majerle_internet_private" },
     { .ssid = "Majerle AMIS", .pass = "majerle_internet_private" },
 };

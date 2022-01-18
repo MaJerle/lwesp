@@ -435,6 +435,11 @@ main_thread(void* arg) {
     lwesp_sys_thread_terminate(NULL);
 }
 
+void
+prv_sntp_callback(lwespr_t res, void* arg) {
+    printf("SNTP Callback result: %d\r\n", (int)res);
+}
+
 /**
  * \brief           Global ESP event function callback
  * \param[in]       evt: Event information
@@ -512,6 +517,8 @@ lwesp_evt(lwesp_evt_t* evt) {
             } else {
                 safeprintf("Acquired IP is not valid\r\n");
             }
+            lwesp_sntp_set_config(1, 1, NULL, NULL, NULL, NULL, NULL, 0);
+            lwesp_sntp_set_interval(20, prv_sntp_callback, NULL, 0);
             break;
         }
 #if LWESP_CFG_MODE_ACCESS_POINT

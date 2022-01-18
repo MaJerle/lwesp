@@ -22,6 +22,8 @@
         "lwesp_timeout.h": "c",
         "lwesp_mqtt_client.h": "c",
         "lwesp_cayenne.h": "c",
-        "lwesp_unicode.h": "c"
+        "lwesp_unicode.h": "c",
+        "lwesp_buff.h": "c",
+        "windows.h": "c"
     }
 }

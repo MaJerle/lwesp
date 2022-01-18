@@ -79,6 +79,7 @@ typedef enum {
     lwespERRWIFINOTCONNECTED,                   /*!< Wifi not connected to access point */
     lwespERRNODEVICE,                           /*!< Device is not present */
     lwespERRBLOCKING,                           /*!< Blocking mode command is not allowed */
+    lwespERRCMDNOTSUPPORTED,                    /*!< Command is not supported error received by device */
 } lwespr_t;
 
 /**
@@ -121,6 +122,7 @@ typedef enum {
     LWESP_AP_CIPHER_TKIP_CCMP,                  /*!< TKIP and CCMP */
     LWESP_AP_CIPHER_AES_CMAC_128,               /*!< AES-CMAC-128 */
     LWESP_AP_CIPHER_UNKNOWN,                    /*!< Unknown value */
+    LWESP_AP_CIPHER_END,
 } lwesp_ap_cipher_t;
 
 /**
@@ -341,6 +343,7 @@ typedef enum {
     LWESP_HTTP_METHOD_OPTIONS,                  /*!< HTTP method OPTIONS */
     LWESP_HTTP_METHOD_TRACE,                    /*!< HTTP method TRACE */
     LWESP_HTTP_METHOD_PATCH,                    /*!< HTTP method PATCH */
+    LWESP_HTTP_METHOD_END,
 } lwesp_http_method_t;
 
 /**
@@ -441,6 +444,7 @@ typedef enum lwesp_evt_type_t {
 #if LWESP_CFG_WEBSERVER || __DOXYGEN__
     LWESP_EVT_WEBSERVER,                        /*!< Web server events */
 #endif /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
+    LWESP_CFG_END,
 } lwesp_evt_type_t;
 
 /**

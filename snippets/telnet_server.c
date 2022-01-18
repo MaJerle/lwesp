@@ -51,6 +51,7 @@ telnet_cli_printf(const char* fmt, ...) {
 
     if (len > 0 && len < 128) {
         lwesp_netconn_write(client, (uint8_t*)tempStr, len);
+        lwesp_netconn_flush(client);
     }
 }
 
@@ -81,11 +82,9 @@ telnet_client_config(lwesp_netconn_p nc) {
     cfg_data[10] = 0xFE;
     cfg_data[11] = 0x22;
 
-    res = lwesp_netconn_write(nc, cfg_data, sizeof(cfg_data));
-    if (res != lwespOK) {
+    if ((res = lwesp_netconn_write(nc, cfg_data, sizeof(cfg_data))) != lwespOK) {
         return res;
     }
-
     return lwesp_netconn_flush(nc);
 }
 
@@ -252,16 +251,14 @@ telnet_server_thread(void const* arg) {
      * connection and initialize system message boxes
      * to accept clients and packet buffers
      */
-    server = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP);
-    if (server == NULL) {
+    if ((server = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP)) == NULL) {
         printf("Cannot create Telnet server\r\n");
         return;
     }
     printf("Server telnet created\r\n");
 
     /* Bind network connection to port 23 */
-    res = lwesp_netconn_bind(server, 23);
-    if (res != lwespOK) {
+    if ((res = lwesp_netconn_bind(server, 23)) != lwespOK) {
         printf("Telnet server cannot bind to port\r\n");
         lwesp_netconn_delete(server);
         return;
@@ -285,8 +282,7 @@ telnet_server_thread(void const* arg) {
          * Function will block thread until
          * new client is connected to server
          */
-        res = lwesp_netconn_accept(server, &client);
-        if (res != lwespOK) {
+        if ((res = lwesp_netconn_accept(server, &client)) != lwespOK) {
             printf("Telnet connection accept error!\r\n");
             break;
         }
@@ -297,8 +293,7 @@ telnet_server_thread(void const* arg) {
          * Inform telnet client that it should disable LINEMODE
          * and that we will echo for him.
          */
-        res = telnet_client_config(client);
-        if (res != lwespOK) {
+        if ((res = telnet_client_config(client)) != lwespOK) {
             break;
         }
 
@@ -306,14 +301,12 @@ telnet_server_thread(void const* arg) {
             const uint8_t* in_data;
             size_t length;
 
-            res = lwesp_netconn_receive(client, &pbuf);
-            if (res == lwespCLOSED) {
+            if ((res = lwesp_netconn_receive(client, &pbuf)) == lwespCLOSED) {
                 break;
             }
 
             in_data = lwesp_pbuf_data(pbuf);
             length = lwesp_pbuf_length(pbuf, 1);  /* Get length of received packet */
-
             for (size_t i = 0; i < length; ++i) {
                 if (!telnet_command_sequence_check(in_data[i])) {
                     cli_in_data(telnet_cli_printf, in_data[i]);

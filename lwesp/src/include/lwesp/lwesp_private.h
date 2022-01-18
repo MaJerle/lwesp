@@ -143,6 +143,7 @@ typedef enum {
 #if LWESP_CFG_SNTP || __DOXYGEN__
     LWESP_CMD_TCPIP_CIPSNTPCFG,                 /*!< Configure SNTP servers */
     LWESP_CMD_TCPIP_CIPSNTPTIME,                /*!< Get current time using SNTP */
+    LWESP_CMD_TCPIP_CIPSNTPINTV,                /*!< Query/Set the SNTP time synchronization interval */
 #endif /* LWESP_SNT || __DOXYGEN__ */
     LWESP_CMD_TCPIP_CIPDINFO,                   /*!< Configure what data are received on +IPD statement */
 #if LWESP_CFG_PING || __DOXYGEN__
@@ -256,6 +257,7 @@ typedef struct lwesp_msg {
     uint32_t          block_time;               /*!< Maximal blocking time in units of milliseconds.
                                                         Use `0` to for non-blocking call */
     lwespr_t          res;                      /*!< Result of message operation */
+    lwespr_t          res_err_code;             /*!< Result from "ERR CODE" received by AT command execution */
     lwespr_t          (*fn)(struct lwesp_msg*); /*!< Processing callback function to process packet */
 
 #if LWESP_CFG_USE_API_FUNC_EVT
@@ -445,6 +447,9 @@ typedef struct lwesp_msg {
             const char* h3;                     /*!< Optional server 3 */
         } tcpip_sntp_cfg;                       /*!< SNTP configuration */
         struct {
+            uint32_t interval;                  /*!< Time in units of seconds */
+        } tcpip_sntp_intv;                      /*!< SNTP interval configuration */
+        struct {
             lwesp_datetime_t* dt;               /*!< Pointer to datetime structure */
         } tcpip_sntp_time;                      /*!< SNTP get time */
 #endif /* LWESP_CFG_SNTP || __DOXYGEN__ */
@@ -525,23 +530,22 @@ typedef struct lwesp_evt_func {
  * \brief           ESP modules structure
  */
 typedef struct {
-    lwesp_device_t        device;               /*!< ESP device type */
-
-    lwesp_sw_version_t    version_at;           /*!< Version of AT command software on ESP device */
-    lwesp_sw_version_t    version_sdk;          /*!< Version of SDK used to build AT software */
+    lwesp_device_t      device;                 /*!< ESP device type */
+    lwesp_sw_version_t  version_at;             /*!< Version of AT command software on ESP device */
+    lwesp_sw_version_t  version_sdk;            /*!< Version of SDK used to build AT software */
 
     uint32_t            active_conns;           /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
     uint32_t            active_conns_last;      /*!< The same as previous but status before last check */
 
-    lwesp_link_conn_t     link_conn;            /*!< Link connection handle */
-    lwesp_ipd_t           ipd;                  /*!< Connection incoming data structure */
-    lwesp_conn_t          conns[LWESP_CFG_MAX_CONNS];   /*!< Array of all connection structures */
+    lwesp_link_conn_t   link_conn;              /*!< Link connection handle */
+    lwesp_ipd_t         ipd;                    /*!< Connection incoming data structure */
+    lwesp_conn_t        conns[LWESP_CFG_MAX_CONNS]; /*!< Array of all connection structures */
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
-    lwesp_ip_mac_t        sta;                  /*!< Station IP and MAC addressed */
+    lwesp_ip_mac_t      sta;                    /*!< Station IP and MAC addressed */
 #endif /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-    lwesp_ip_mac_t        ap;                   /*!< Access point IP and MAC addressed */
+    lwesp_ip_mac_t      ap;                     /*!< Access point IP and MAC addressed */
 #endif /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 } lwesp_modules_t;
 

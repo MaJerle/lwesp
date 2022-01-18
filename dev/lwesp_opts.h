@@ -87,10 +87,7 @@
 #define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE       1
 
 #define LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS   1
-
-#if defined(WIN32)
-#define LWESP_CFG_SYS_PORT					    LWESP_SYS_PORT_WIN32
-#endif
+#define LWESP_CFG_LIST_CMD                      1
 
 #endif /* !__DOXYGEN__ */
 
