@@ -2385,8 +2385,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_TCPIP_CIPSNTPCFG: {      /* Configure SNTP */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSNTPCFG=");
-            lwespi_send_number(LWESP_U32(!!msg->msg.tcpip_sntp_cfg.en), 0, 0);
-            lwespi_send_signed_number(LWESP_U32(msg->msg.tcpip_sntp_cfg.tz), 0, 1);
+            lwespi_send_number(LWESP_U32(msg->msg.tcpip_sntp_cfg.en > 0 ? 1 : 0), 0, 0);
+            lwespi_send_signed_number(LWESP_I32(msg->msg.tcpip_sntp_cfg.tz), 0, 1);
             if (msg->msg.tcpip_sntp_cfg.h1 != NULL && strlen(msg->msg.tcpip_sntp_cfg.h1)) {
                 lwespi_send_string(msg->msg.tcpip_sntp_cfg.h1, 0, 1, 1);
             }

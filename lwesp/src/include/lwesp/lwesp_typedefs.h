@@ -86,10 +86,11 @@ typedef enum {
  * \brief           List of support ESP devices by firmware
  */
 typedef enum {
+    LWESP_DEVICE_UNKNOWN = 0x00,                /*!< Device is unknown by default */
     LWESP_DEVICE_ESP8266,                       /*!< Device is ESP8266 */
     LWESP_DEVICE_ESP32,                         /*!< Device is ESP32 */
     LWESP_DEVICE_ESP32_C3,                      /*!< Device is ESP32-C3 */
-    LWESP_DEVICE_UNKNOWN,                       /*!< Unknown device */
+    LWESP_DEVICE_END,                           /*!< End of the list */
 } lwesp_device_t;
 
 /**

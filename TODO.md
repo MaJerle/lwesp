@@ -9,5 +9,6 @@
 - Add DNS for IPv6 support (Optional)
 - Add support for WIFI GOT IP to parse IPv6
 - Add `AT+CWJEAP` for WPA2 connections
+- Implement SNTP synchronization interval
 
 - Create asynchronous station connection manager as part of core LwESP library

@@ -441,6 +441,7 @@ lwesp_device_is_present(void) {
 
 /**
  * \brief           Check if modem device is ESP8266
+ * \note            Function is only available if \ref LWESP_CFG_ESP8266 is enabled, otherwise it is defined as macro and evaluated to `0`
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
@@ -458,6 +459,7 @@ lwesp_device_is_esp8266(void) {
 
 /**
  * \brief           Check if modem device is ESP32
+ * \note            Function is only available if \ref LWESP_CFG_ESP32 is enabled, otherwise it is defined as macro and evaluated to `0`
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
@@ -475,6 +477,7 @@ lwesp_device_is_esp32(void) {
 
 /**
  * \brief           Check if modem device is ESP32-C3
+ * \note            Function is only available if \ref LWESP_CFG_ESP32_C3 is enabled, otherwise it is defined as macro and evaluated to `0`
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
@@ -489,14 +492,64 @@ lwesp_device_is_esp32_c3(void) {
 #endif /* LWESP_CFG_ESP32_C3 || __DOXYGEN__ */
 
 /**
- * \brief           Get current AT firmware version of connected device
+ * \brief           Get currently connected Espressif device to AT port
+ * \return          Member of \ref lwesp_device_t enumeration
+ */
+lwesp_device_t
+lwesp_device_get_device(void) {
+    lwesp_device_t dev;
+    lwesp_core_lock();
+    dev = esp.m.device;
+    lwesp_core_unlock();
+    return dev;
+}
+
+/**
+ * \brief           Get current AT firmware version of connected Espressif device.
+ *                  It copies version from internal buffer to user variable,
+ *                  and is valid only if reset/restore operation is successful.
  * \param[out]      version: Output version variable
  * \return          `1` on success, `0` otherwise
  */
-uint8_t
+lwespr_t
 lwesp_get_current_at_fw_version(lwesp_sw_version_t* const version) {
+    LWESP_ASSERT("version != NULL", version != NULL);
+    lwesp_core_lock();
     LWESP_MEMCPY(version, &esp.m.version_at, sizeof(*version));
-    return 1;
+    lwesp_core_unlock();
+    return lwespOK;
+}
+
+/**
+ * \brief           Get minimal AT version required to run on Espressif device, to be well supported by LwESP library
+ *                  and to ensure proper compatibility and correct operation
+ * \param[out]      v: Version output, pointer to \ref lwesp_sw_version_t structure
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
+ */
+lwespr_t
+lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version) {
+    uint8_t res = lwespOK;
+    LWESP_ASSERT("version != NULL", version != NULL);
+
+    lwesp_core_lock();
+    if (0) {
+#if LWESP_CFG_ESP8266
+    } else if (esp.m.device == LWESP_DEVICE_ESP8266) {
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP8266, LWESP_MIN_AT_VERSION_MINOR_ESP8266, LWESP_MIN_AT_VERSION_PATCH_ESP8266);
+#endif /* LWESP_CFG_ESP8266 */
+#if LWESP_CFG_ESP32
+    } else if (esp.m.device == LWESP_DEVICE_ESP32) {
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP8266, LWESP_MIN_AT_VERSION_MINOR_ESP32, LWESP_MIN_AT_VERSION_PATCH_ESP32);
+#endif /* LWESP_CFG_ESP32 */
+#if LWESP_CFG_ESP32_C3
+    } else if (esp.m.device == LWESP_DEVICE_ESP32_C3) {
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3, LWESP_MIN_AT_VERSION_MINOR_ESP32_C3, LWESP_MIN_AT_VERSION_PATCH_ESP32_C3);
+#endif /* LWESP_CFG_ESP32_C3 */
+    } else {
+        res = lwespERR;
+    }
+    lwesp_core_unlock();
+    return res;
 }
 
 /**

@@ -10,6 +10,9 @@
 - Timeout module returns ERRMEM if no memory to allocate block
 - Add esp_at_binaries from Espressif, used for library verification (official AT firmware)
 - Add optional `AT+CMD?` command at reset/restore process, for debug purpose for the moment, only
+- Add function to get ESP device used for AT command communication
+- Fix `lwesp_get_min_at_fw_version` to return min AT version for detected ESP device
+- Improve SNTP module comments, change timezone variable to `int16_t`
 
 ## 1.1.2-dev
 

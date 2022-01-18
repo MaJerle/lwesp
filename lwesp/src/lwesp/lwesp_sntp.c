@@ -38,9 +38,11 @@
 #if LWESP_CFG_SNTP || __DOXYGEN__
 
 /**
- * \brief           Configure SNTP mode parameters
+ * \brief           Configure SNTP mode parameters.
+ * It must be called prior any \ref lwesp_sntp_gettime can be used,
+ * otherwise wrong data will be received back
  * \param[in]       en: Status whether SNTP mode is enabled or disabled on ESP device
- * \param[in]       tz: Timezone to use when SNTP acquires time, between `-11` and `13`
+ * \param[in]       tz: Timezone to use when SNTP acquires time, between `-12` and `14`
  * \param[in]       h1: Optional first SNTP server for time. Set to `NULL` if not used
  * \param[in]       h2: Optional second SNTP server for time. Set to `NULL` if not used
  * \param[in]       h3: Optional third SNTP server for time. Set to `NULL` if not used
@@ -50,7 +52,7 @@
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_sntp_set_config(uint8_t en, int8_t tz, const char* h1, const char* h2, const char* h3,
+lwesp_sntp_set_config(uint8_t en, int16_t tz, const char* h1, const char* h2, const char* h3,
                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
