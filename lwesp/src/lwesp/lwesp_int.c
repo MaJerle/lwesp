@@ -159,6 +159,17 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
     } while (0)
 
 /**
+ * \brief           Send SNTP time event to user
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref lwespr_t
+ */
+#define SNTP_TIME_SEND_EVT(m, err) do {           \
+        esp.evt.evt.cip_sntp_time.res = err;              \
+        esp.evt.evt.cip_sntp_time.dt = (m)->msg.tcpip_sntp_time.dt;   \
+        lwespi_send_cb(LWESP_EVT_SNTP_TIME);              \
+    } while (0)
+
+/**
  * \brief           Send list AP event to user
  * \param[in]       m: Command message
  * \param[in]       err: Error of type \ref lwespr_t
@@ -188,7 +199,14 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
  */
 lwesp_cmd_t
 lwespi_get_cipstatus_or_cipstate_cmd(void) {
-    if (esp.m.device == LWESP_DEVICE_ESP8266 || esp.m.device == LWESP_DEVICE_ESP32) {
+    if (0
+#if LWESP_CFG_ESP8266
+        || esp.m.device == LWESP_DEVICE_ESP8266
+#endif /* LWESP_CFG_ESP8266 */
+#if LWESP_CFG_ESP32
+        || esp.m.device == LWESP_DEVICE_ESP32
+#endif /* LWESP_CFG_ESP32 */
+    ) {
         return LWESP_CMD_TCPIP_CIPSTATUS;
     }
     return LWESP_CMD_TCPIP_CIPSTATE;
@@ -1637,7 +1655,11 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
 #if LWESP_CFG_PING
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_PING)) {
         PING_SEND_EVT(esp.msg, *is_ok ? lwespOK : lwespERR);
-#endif
+#endif /* LWESP_CFG_PING */
+#if LWESP_CFG_SNTP
+    } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPTIME)) {
+        SNTP_TIME_SEND_EVT(esp.msg, *is_ok ? lwespOK : lwespERR);
+#endif /* LWESP_CFG_SNTP */
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSTART)) {  /* Is our intention to join to access point? */
         uint8_t is_status_check;
 
@@ -2605,6 +2627,14 @@ lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err) {
             break;
         }
 #endif /* LWESP_CFG_DNS */
+
+#if LWESP_CFG_SNTP
+        case LWESP_CMD_TCPIP_CIPSNTPTIME: {
+            /* SNTP error */
+            SNTP_TIME_SEND_EVT(msg, err);
+            break;
+        }
+#endif /* LWESP_CFG_SNTP */
 
         default:
             break;

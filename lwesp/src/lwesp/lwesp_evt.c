@@ -518,6 +518,30 @@ lwesp_evt_ping_get_time(lwesp_evt_t* cc) {
 
 #endif /* LWESP_CFG_PING || __DOXYGEN__ */
 
+#if LWESP_CFG_SNTP || __DOXYGEN__
+
+/**
+ * \brief           Get command success result
+ * \param[in]       cc: Event handle
+ * \return          Member of \ref lwespr_t enumeration
+ */
+lwespr_t
+lwesp_evt_sntp_time_get_result(lwesp_evt_t* cc) {
+    return cc->evt.cip_sntp_time.res;
+}
+
+/**
+ * \brief           Get date time pointer with data
+ * \param[in]       cc: Event handle
+ * \return          pointer to read-only structure with datetime
+ */
+const lwesp_datetime_t *
+lwesp_evt_sntp_time_get_datetime(lwesp_evt_t* cc) {
+    return cc->evt.cip_sntp_time.dt;
+}
+
+#endif /* LWESP_CFG_SNTP || __DOXYGEN__ */
+
 #if LWESP_CFG_WEBSERVER || __DOXYGEN__
 
 /**

@@ -13,6 +13,7 @@
 - Add function to get ESP device used for AT command communication
 - Fix `lwesp_get_min_at_fw_version` to return min AT version for detected ESP device
 - Improve SNTP module comments, change timezone variable to `int16_t`
+- Implement global SNTP callback when command is to obtain current time
 - Add option to get response to `ERR CODE:` message if command doesn't exist and put it to result of command execution
 
 ## 1.1.2-dev
