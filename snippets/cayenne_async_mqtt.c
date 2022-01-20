@@ -70,7 +70,7 @@ cayenne_async_mqtt_init(void) {
 static void
 prv_try_send(void) {
     static char topic[256];
-    static char tx_data[20];
+    static char tx_data[64];
     lwespr_t res;
     const cayenne_async_data_t* dptr;
     uint8_t try_next = 1;
