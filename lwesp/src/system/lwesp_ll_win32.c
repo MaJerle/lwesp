@@ -89,7 +89,8 @@ configure_uart(uint32_t baudrate) {
     static const char* com_port_names[] = {
         "\\\\.\\COM16",
         "\\\\.\\COM4",
-        "\\\\.\\COM9"
+        "\\\\.\\COM9",
+        "\\\\.\\COM10"
     };
 
     /* Try to open one of listed COM ports */

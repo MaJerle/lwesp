@@ -171,7 +171,6 @@ prv_try_connect(void) {
     if (mqtt_client == NULL) {
         return;
     }
-
     debug_printf("[MQTT Cayenne] Trying to connect to server\r\n");
 
     /* Start a simple connection to open source */
