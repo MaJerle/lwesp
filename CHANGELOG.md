@@ -3,19 +3,20 @@
 ## Develop
 
 - Change license year to 2022
-- Improve MQTT module implementation
-- Improve ThreadX port
-- Enable manual TCP receive by default, to improve system stability
-- Add MQTT cayenne async demo, publish-mode only through ring buffer
-- Timeout module returns ERRMEM if no memory to allocate block
+- MQTT: Improve module implementation
+- MQTT: Add optional SSL connection type
+- Port: Improve ThreadX port
+- CONN: Enable manual TCP receive by default, to improve system stability
+- MQTT: Add cayenne async demo, publish-mode only through ring buffer
+- Timeout: module returns ERRMEM if no memory to allocate block
 - Add esp_at_binaries from Espressif, used for library verification (official AT firmware)
 - Add optional `AT+CMD?` command at reset/restore process, for debug purpose for the moment, only
 - Add function to get ESP device used for AT command communication
 - Fix `lwesp_get_min_at_fw_version` to return min AT version for detected ESP device
-- Improve SNTP module comments, change timezone variable to `int16_t`
-- Implement global SNTP callback when command is to obtain current time
-- Add SNTP synchronization interval config, available with ESP AT `2.3.0` or later (ESP32-C3 only for the moment)
-- Add option to get response to `ERR CODE:` message if command doesn't exist and put it to result of command execution
+- SNTP: Improve module comments, change timezone variable to `int16_t`
+- SNTP: Implement global callback when command is to obtain current time
+- SNTP: Add synchronization interval config, available with ESP AT `2.3.0` or later (ESP32-C3 only for the moment)
+- ERR: Add option to get response to `ERR CODE:` message if command doesn't exist and put it to result of command execution
 - Fix min at version for ESP32 to `2.2.0`
 
 ## 1.1.2-dev

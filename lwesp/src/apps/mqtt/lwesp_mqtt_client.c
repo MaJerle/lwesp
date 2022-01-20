@@ -1129,7 +1129,9 @@ lwesp_mqtt_client_delete(lwesp_mqtt_client_p client) {
  * \param[in]       host: Host address for server
  * \param[in]       port: Host port number
  * \param[in]       evt_fn: Callback function for all events on this MQTT client
- * \param[in]       info: Information structure for connection
+ * \param[in]       info: Information structure for connection.
+ *                      It is used after connection is successfully established.
+ *                      Variable must not be a local or changes will be lost with potential faulty operation 
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
@@ -1148,7 +1150,7 @@ lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_po
         client->evt_fn = evt_fn != NULL ? evt_fn : prv_mqtt_evt_fn_default;
 
         /* Start a new connection in non-blocking mode */
-        if ((res = lwesp_conn_start(&client->conn, LWESP_CONN_TYPE_TCP, host, port, client, prv_mqtt_conn_cb, 0)) == lwespOK) {
+        if ((res = lwesp_conn_start(&client->conn, info->use_ssl ? LWESP_CONN_TYPE_SSL : LWESP_CONN_TYPE_TCP, host, port, client, prv_mqtt_conn_cb, 0)) == lwespOK) {
             client->conn_state = LWESP_MQTT_CONN_CONNECTING;
         }
     }

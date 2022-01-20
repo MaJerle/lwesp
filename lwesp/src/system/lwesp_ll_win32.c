@@ -74,13 +74,12 @@ send_data(const void* data, size_t len) {
 
 /**
  * \brief           Configure UART (USB to UART)
+ * \return          `1` if initialized, `0` otherwise
  */
 static uint8_t
 configure_uart(uint32_t baudrate) {
     size_t i;
-    DCB dcb = { 0 };
-
-    dcb.DCBlength = sizeof(dcb);
+    DCB dcb = { .DCBlength = sizeof(dcb) };
 
     /*
      * List of COM ports to probe for ESP devices
@@ -104,6 +103,12 @@ configure_uart(uint32_t baudrate) {
                 break;
             } else {
                 printf("Could not get info for COM port %s\r\n", com_port_names[i]);
+            }
+        }
+        if (i == LWESP_ARRAYSIZE(com_port_names)) {
+            printf("Could not get info for any COM port. Entering while loop\r\n");
+            while (1) {
+                Sleep(1000);
             }
         }
     }

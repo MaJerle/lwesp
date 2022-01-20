@@ -90,6 +90,8 @@ typedef struct {
     const char* will_topic;                     /*!< Will topic */
     const char* will_message;                   /*!< Will message */
     lwesp_mqtt_qos_t will_qos;                  /*!< Will topic quality of service */
+
+    uint8_t use_ssl;                            /*!< Connect to server using SSL connection with AT commands */
 } lwesp_mqtt_client_info_t;
 
 /**
