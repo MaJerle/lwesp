@@ -417,11 +417,18 @@ typedef enum lwesp_evt_type_t {
                                                     Optionally enabled with \ref LWESP_CFG_KEEP_ALIVE */
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
-    LWESP_EVT_WIFI_CONNECTED,                   /*!< Station just connected to AP */
+    LWESP_EVT_WIFI_CONNECTED,                   /*!< Station just connected to access point.
+                                                    When received, station may not have yet valid IP hence new connections
+                                                    cannot be started in this mode */
     LWESP_EVT_WIFI_GOT_IP,                      /*!< Station has valid IP.
-                                                    When this event is received to application, no IP has been read from device.
-                                                    Stack will proceed with IP read from device and will later send \ref LWESP_EVT_WIFI_IP_ACQUIRED event */
-    LWESP_EVT_WIFI_DISCONNECTED,                /*!< Station just disconnected from AP */
+                                                    When this event is received to application, ESP has got IP from access point,
+                                                    but no IP has been read from device and at this moment it is still being unknown to application.
+                                                    Stack will proceed with IP read from device and will later send \ref LWESP_EVT_WIFI_IP_ACQUIRED event.
+
+                                                    Note: When IPv6 is enabled, this event may be called multiple times during single connection to access point,
+                                                    as device may report "got IP" several times.
+                                                    Application must take care when starting new conection from this event, not to start it multiple times */
+    LWESP_EVT_WIFI_DISCONNECTED,                /*!< Station just disconnected from access point */
     LWESP_EVT_WIFI_IP_ACQUIRED,                 /*!< Station IP address acquired.
                                                     At this point, valid IP address has been received from device.
                                                     Application may use \ref lwesp_sta_copy_ip function to read it */
