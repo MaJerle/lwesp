@@ -16,7 +16,7 @@
 static const lwesp_mqtt_client_info_t
 mqtt_client_info = {
     /* Device ID */
-    .id = "869f5a20-af9c-11e9-b01f-db5cf74e7fb7",
+    .id = "4a5802e0-7a35-11ec-9f5b-45181495093e",
 
     /* User credentials */
     .user = "8a215f70-a644-11e8-ac49-e932ed599553",
@@ -94,7 +94,7 @@ cayenne_thread(void const* arg) {
             lwesp_cayenne_publish_data(&cayenne, LWESP_CAYENNE_TOPIC_DATA, 2, "temp", "c", s);
             temp += 0.34f;
         }
-        lwesp_delay(1000);
+        lwesp_delay(5000);
     }
     lwesp_sys_thread_terminate(NULL);
 }

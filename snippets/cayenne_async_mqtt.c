@@ -31,19 +31,24 @@ mqtt_client_info = {
     .pass = "26aa943f702e5e780f015cd048a91e8fb54cca28",
 
     .keep_alive = 60,
+
+    /* Use SSL connection */
+    .use_ssl = 0,
 };
-
-/* Client object */
-static lwesp_mqtt_client_p mqtt_client;
-
-/* Data buffer */
-lwesp_buff_t cayenne_async_data_buff;
+static lwesp_mqtt_client_p mqtt_client;         /*!< Client object */
+lwesp_buff_t cayenne_async_data_buff;           /*!< Data ring buffer */
+static char mqtt_topic[256];                    /*!< Topic string buffer */
+static char mqtt_tx_data[64];                   /*!< TX data buffer */
 
 /* Private functions */
 static lwespr_t prv_evt_fn(lwesp_evt_t* evt);
 static void prv_try_connect(void);
 
-/* Entry function mode */
+/**
+ * \brief           Cayenne initialization entry point
+ * It configures necessary callbacks to start cayenne in async mode
+ * \return          `1` if ready, `0` otherwise
+ */
 uint8_t
 cayenne_async_mqtt_init(void) {
     lwesp_evt_register(prv_evt_fn);             /* Register event function to receive system messages */
@@ -69,8 +74,6 @@ cayenne_async_mqtt_init(void) {
  */
 static void
 prv_try_send(void) {
-    static char topic[256];
-    static char tx_data[64];
     lwespr_t res;
     const cayenne_async_data_t* dptr;
     uint8_t try_next = 1;
@@ -81,21 +84,21 @@ prv_try_send(void) {
         try_next = 0;
 
         /* Build topic */
-        sprintf(topic, "%s/%s/things/%s/data/%d", LWESP_CAYENNE_API_VERSION, mqtt_client_info.user, mqtt_client_info.id, (int)(dptr->channel));
+        sprintf(mqtt_topic, "%s/%s/things/%s/data/%d", LWESP_CAYENNE_API_VERSION, mqtt_client_info.user, mqtt_client_info.id, (int)(dptr->channel));
 
         /* Build data */
         if (dptr->type == CAYENNE_DATA_TYPE_TEMP) {
-            sprintf(tx_data, "temp,c=%d.%03d", (int)(dptr->data.flt), (int)((dptr->data.flt - (float)((int)dptr->data.flt)) * 1000));
+            sprintf(mqtt_tx_data, "temp,c=%d.%03d", (int)(dptr->data.flt), (int)((dptr->data.flt - (float)((int)dptr->data.flt)) * 1000));
         } else if (dptr->type == CAYENNE_DATA_TYPE_OUTPUT_STATUS_DIGITAL) {
-            sprintf(tx_data, "digital_sensor=%d", (int)dptr->data.u32);
+            sprintf(mqtt_tx_data, "digital_sensor=%d", (int)dptr->data.u32);
         } else if (dptr->type == CAYENNE_DATA_TYPE_OUTPUT_STATUS_ANALOG) {
-            sprintf(tx_data, "analog_sensor=%d.%03d", (int)(dptr->data.flt), (int)((dptr->data.flt - (float)((int)dptr->data.flt)) * 1000));
+            sprintf(mqtt_tx_data, "analog_sensor=%d.%03d", (int)(dptr->data.flt), (int)((dptr->data.flt - (float)((int)dptr->data.flt)) * 1000));
         }
 
         /* Now try to publish message */
         if (lwesp_mqtt_client_is_connected(mqtt_client)) {
-            if ((res = lwesp_mqtt_client_publish(mqtt_client, topic, tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0, NULL)) == lwespOK) {
-                debug_printf("[MQTT Cayenne] Publishing: Channel: %d, data: %s\r\n", (int)dptr->channel, tx_data);
+            if ((res = lwesp_mqtt_client_publish(mqtt_client, mqtt_topic, mqtt_tx_data, LWESP_U16(strlen(mqtt_tx_data)), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0, NULL)) == lwespOK) {
+                debug_printf("[MQTT Cayenne] Publishing: Channel: %d, data: %s\r\n", (int)dptr->channel, mqtt_tx_data);
                 lwesp_buff_skip(&cayenne_async_data_buff, sizeof(*dptr));
                 try_next = 1;
             } else {
@@ -123,7 +126,11 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
 
             if (status == LWESP_MQTT_CONN_STATUS_ACCEPTED) {
                 debug_printf("[MQTT Cayenne] Connection accepted, starting transmitting\r\n");
-                /* Subscribe here if necessary */
+                /* Subscribe to commands from server */
+                sprintf(mqtt_topic, "%s/%s/things/%s/cmd/+", LWESP_CAYENNE_API_VERSION, mqtt_client_info.user, mqtt_client_info.id);
+                lwesp_mqtt_client_subscribe(client, mqtt_topic, LWESP_MQTT_QOS_EXACTLY_ONCE, NULL);
+
+                /* Send first message */
                 prv_try_send();                 /* Start sending data */
             } else {
                 debug_printf("[MQTT Cayenne] Not accepted, trying again..\r\n");
@@ -138,12 +145,22 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             break;
         }
 
-        /* Message received = we don't care for it */
+        /* Subscribe event */
+        case LWESP_MQTT_EVT_SUBSCRIBE: {
+            debug_printf("[MQTT Cayenne] Subscribe event\r\n");
+            break;
+        }
+
+        /* Message received to us */
         case LWESP_MQTT_EVT_PUBLISH_RECV: {
             const char* topic = lwesp_mqtt_client_evt_publish_recv_get_topic(client, evt);
             size_t topic_len = lwesp_mqtt_client_evt_publish_recv_get_topic_len(client, evt);
             const uint8_t* payload = lwesp_mqtt_client_evt_publish_recv_get_payload(client, evt);
             size_t payload_len = lwesp_mqtt_client_evt_publish_recv_get_payload_len(client, evt);
+            
+            debug_printf("[MQTT Cayenne] Publish rcved\r\n");
+            debug_printf("[MQTT Cayenne] Publish rcv topic: %.*s\r\n", (int)topic_len, topic);
+            debug_printf("[MQTT Cayenne] Publish rcv data : %.*s\r\n", (int)payload_len, payload);
 
             LWESP_UNUSED(payload);
             LWESP_UNUSED(payload_len);
@@ -168,7 +185,8 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
  */
 static void
 prv_try_connect(void) {
-    if (mqtt_client == NULL) {
+    if (mqtt_client == NULL
+        || lwesp_mqtt_client_is_connected(mqtt_client)) {
         return;
     }
     debug_printf("[MQTT Cayenne] Trying to connect to server\r\n");

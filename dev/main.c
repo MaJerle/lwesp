@@ -424,8 +424,9 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* LwESP built-in Cayenne protocol implementation thread demo */
-    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
+#if 0
     /* Asynchronous push-only cayenne demo with buffer used to fill the data */
     cayenne_async_mqtt_init();
 
@@ -448,8 +449,9 @@ main_thread(void* arg) {
             channel = 103;
         }
         temp *= 1.01;
-        lwesp_delay(100);
+        lwesp_delay(3000);
     }
+#endif
 
     /* While loop with delay to prevent main thread termination in development environment */
     while (1) { 

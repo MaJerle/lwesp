@@ -2,13 +2,11 @@
 
 - Implement `AT+CWSTATE` to query Wi-Fi state
 - Implement `AT+CIPSENDL` and `AT+CIPSENDLCFG` for long data send
-- Add option to configure SNTP interval with `AT+CIPSNTPINTV`
 - Implement `AT+CIPTCPOPT` to configure TCP connection
-- Improve
 - Implement BLE feature
 - Add DNS for IPv6 support (Optional)
 - Add support for WIFI GOT IP to parse IPv6
 - Add `AT+CWJEAP` for WPA2 connections
-- Implement SNTP synchronization interval
-
-- Create asynchronous station connection manager as part of core LwESP library
+- Implement single callback when station is connected and IP is received (so far STA_GOT_IP may be called several times in a row, when IP v4 and v6 are received)
+   - Implement new type of event instead, that is called only once per connection
+- Check supported commands to determine `AT+CIPSTATUS` or `AT+CIPSTATE` command to obtain connection status

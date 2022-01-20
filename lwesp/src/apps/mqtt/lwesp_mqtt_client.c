@@ -486,10 +486,7 @@ prv_sub_unsub(lwesp_mqtt_client_p client, const char* topic, lwesp_mqtt_qos_t qo
      *
      * rem_len = 2 (topic_len) + topic_len + 2 (pkt_id) + qos (if sub)
      */
-    rem_len = 2 + len_topic + 2;
-    if (sub) {
-        ++rem_len;
-    }
+    rem_len = 2 + len_topic + 2 + (sub ? 1 : 0);
 
     lwesp_core_lock();
     if (client->conn_state == LWESP_MQTT_CONNECTED

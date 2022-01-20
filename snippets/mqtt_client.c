@@ -4,7 +4,7 @@
  * Once device is connected to network,
  * it will try to connect to mosquitto test server and start the MQTT.
  *
- * If successfully connected, it will publish data to "esp8266_mqtt_topic" topic every x seconds.
+ * If successfully connected, it will publish data to "lwesp_topic" topic every x seconds.
  *
  * To check if data are sent, you can use mqtt-spy PC software to inspect
  * test.mosquitto.org server and subscribe to publishing topic
@@ -60,7 +60,8 @@ void
 mqtt_client_thread(void const* arg) {
     lwesp_mac_t mac;
 
-    lwesp_evt_register(prv_mqtt_lwesp_cb);          /* Register new callback for general events from ESP stack */
+    /* Register new callback for general events from ESP stack */
+    lwesp_evt_register(prv_mqtt_lwesp_cb);
 
     /* Get station MAC to format client ID */
     if (lwesp_sta_getmac(&mac, NULL, NULL, 1) == lwespOK) {
@@ -97,23 +98,22 @@ mqtt_client_thread(void const* arg) {
  * \param[in]       arg: User argument
  */
 void
-mqtt_timeout_cb(void* arg) {
+prv_mqtt_timeout_cb(void* arg) {
+    static char tx_data[20];
     static uint32_t num = 10;
     lwesp_mqtt_client_p client = arg;
     lwespr_t res;
-
-    static char tx_data[20];
-
+    
     if (lwesp_mqtt_client_is_connected(client)) {
         sprintf(tx_data, "R: %u, N: %u", (unsigned)retries, (unsigned)num);
-        if ((res = lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_EXACTLY_ONCE, 0, (void*)((uintptr_t)num))) == lwespOK) {
+        if ((res = lwesp_mqtt_client_publish(client, "lwesp_topic", tx_data, LWESP_U16(strlen(tx_data)), LWESP_MQTT_QOS_EXACTLY_ONCE, 0, (void*)((uintptr_t)num))) == lwespOK) {
             printf("Publishing %d...\r\n", (int)num);
             num++;
         } else {
             printf("Cannot publish...: %d\r\n", (int)res);
         }
     }
-    lwesp_timeout_add(10000, mqtt_timeout_cb, client);
+    lwesp_timeout_add(10000, prv_mqtt_timeout_cb, arg);
 }
 
 /**
@@ -140,10 +140,10 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
                  * We will subscrive to "mqtt_lwesp_example_topic" topic,
                  * and will also set the same name as subscribe argument for callback later
                  */
-                lwesp_mqtt_client_subscribe(client, "esp8266_mqtt_topic", LWESP_MQTT_QOS_EXACTLY_ONCE, "esp8266_mqtt_topic");
+                lwesp_mqtt_client_subscribe(client, "lwesp_topic", LWESP_MQTT_QOS_EXACTLY_ONCE, "lwesp_topic");
 
                 /* Start timeout timer after 5000ms and call mqtt_timeout_cb function */
-                lwesp_timeout_add(5000, mqtt_timeout_cb, client);
+                lwesp_timeout_add(5000, prv_mqtt_timeout_cb, client);
             } else {
                 printf("MQTT server connection was not successful: %d\r\n", (int)status);
 
@@ -163,14 +163,14 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
 
             if (res == lwespOK) {
                 printf("Successfully subscribed to %s topic\r\n", arg);
-                if (!strcmp(arg, "esp8266_mqtt_topic")) {   /* Check topic name we were subscribed */
-                    /* Subscribed to "esp8266_mqtt_topic" topic */
+                if (!strcmp(arg, "lwesp_topic")) {   /* Check topic name we were subscribed */
+                    /* Subscribed to "lwesp_topic" topic */
 
                     /*
                      * Now publish an even on example topic
                      * and set QoS to minimal value which does not guarantee message delivery to received
                      */
-                    lwesp_mqtt_client_publish(client, "esp8266_mqtt_topic", "test_data", 9, LWESP_MQTT_QOS_AT_MOST_ONCE, 0, (void*)1);
+                    lwesp_mqtt_client_publish(client, "lwesp_topic", "test_data", 9, LWESP_MQTT_QOS_AT_MOST_ONCE, 0, (void*)1);
                 }
             }
             break;
@@ -213,18 +213,23 @@ prv_mqtt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
     }
 }
 
-/** Make a connection to MQTT server in non-blocking mode */
+/**
+ * \brief           Make a connection to MQTT server in non-blocking mode
+ * Act only if client ready to connect and not already connected 
+ */
 static void
 prv_example_do_connect(lwesp_mqtt_client_p client) {
-    if (client == NULL) {
+    if (client == NULL
+        || lwesp_mqtt_client_is_connected(client)) {
         return;
     }
+    printf("Trying to connect to MQTT server\r\n");
 
     /*
      * Start a simple connection to open source
      * MQTT server on mosquitto.org
      */
     retries++;
-    lwesp_timeout_remove(mqtt_timeout_cb);
+    lwesp_timeout_remove(prv_mqtt_timeout_cb);
     lwesp_mqtt_client_connect(mqtt_client, "test.mosquitto.org", 1883, prv_mqtt_cb, &mqtt_client_info);
 }

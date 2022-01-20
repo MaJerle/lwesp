@@ -199,6 +199,13 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
  */
 lwesp_cmd_t
 lwespi_get_cipstatus_or_cipstate_cmd(void) {
+    /*
+     * With the current minimum AT versions,
+     * ESP8266 and ESP32 both require to use AT+CIPSTATUS,
+     * to get connection status.
+     * 
+     * All other new devices utilize new command AT+CIPSTATE
+     */
     if (0
 #if LWESP_CFG_ESP8266
         || esp.m.device == LWESP_DEVICE_ESP8266
