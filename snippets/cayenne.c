@@ -6,6 +6,7 @@
  *
  */
 #include "lwesp/apps/lwesp_cayenne.h"
+#include "lwesp/apps/lwesp_cayenne_evt.h"
 
 /* Override safeprintf function */
 #define safeprintf          printf
@@ -33,7 +34,7 @@ static lwesp_cayenne_t cayenne;
 /**
  * \brief           Cayenne event function
  * \param[in]       c: Cayenne instance
- * \param[in]       evt: Event function
+ * \param[in]       evt: Event data
  */
 static lwespr_t
 prv_cayenne_evt(lwesp_cayenne_t* c, lwesp_cayenne_evt_t* evt) {

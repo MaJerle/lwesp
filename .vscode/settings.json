@@ -25,6 +25,7 @@
         "lwesp_unicode.h": "c",
         "lwesp_buff.h": "c",
         "windows.h": "c",
-        "mqtt_client_api.h": "c"
+        "mqtt_client_api.h": "c",
+        "lwesp_cayenne_evt.h": "c"
     }
 }

@@ -32,10 +32,13 @@
  * Version:         v1.1.2-dev
  */
 #include "lwesp/apps/lwesp_cayenne.h"
+#include "lwesp/apps/lwesp_cayenne_evt.h"
 #include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_pbuf.h"
 
-//#error "This driver is not ready-to-use yet and shall not be used in final product"
+#if !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION
+#error "Netconn and station mode must be enabled!"
+#endif /* !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION */
 
 /* Tracing debug message */
 #define LWESP_CFG_DBG_CAYENNE_TRACE             (LWESP_CFG_DBG_CAYENNE | LWESP_DBG_TYPE_TRACE)
@@ -43,12 +46,7 @@
 #define LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE      (LWESP_CFG_DBG_CAYENNE | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE)
 
 #define LWESP_CAYENNE_API_VERSION_LEN           (sizeof(LWESP_CAYENNE_API_VERSION) - 1)
-
 #define CHECK_FORWARDSLASH_AND_FORWARD(str)     do { if ((str) == NULL || *(str) != '/') { return lwespERR; } ++(str); } while (0)
-
-#if !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION
-#error "Netconn and station mode must be enabled!"
-#endif /* !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION */
 
 /**
  * \brief           Topic type and string key-value pair structure
@@ -79,23 +77,9 @@ topic_cmd_str_pairs[] = {
     { LWESP_CAYENNE_TOPIC_ANALOG_CONFIG, "analog-conf" }
 };
 
-/**
- * \brief           Protection mutex
- */
-static lwesp_sys_mutex_t
-prot_mutex;
-
-/**
- * \brief           Topic name for publish/subscribe
- */
-static char
-topic_name[256];
-
-/**
- * \brief           Payload data
- */
-static char
-payload_data[128];
+static lwesp_sys_mutex_t prot_mutex;            /*!< Protection mutex */
+static char topic_name[256];                    /*!< Topic name for publish/subscribe */
+static char payload_data[128];                  /*!< Payload data */
 
 /**
  * \brief           Parse received topic string
@@ -107,18 +91,18 @@ static lwespr_t
 prv_parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
     lwesp_cayenne_msg_t* msg;
     const char* topic;
-    size_t len, i;
+    size_t len;
 
     LWESP_ASSERT("c != NULL", c != NULL);
     LWESP_ASSERT("buf != NULL && buf->topic != NULL", buf != NULL && buf->topic != NULL);
 
     msg = &c->msg;                              /* Get message handle */
-    topic = (void*)buf->topic;                  /* Get topic data */
+    topic = buf->topic;                         /* Get topic data */
 
     LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Parsing received topic: %s\r\n", topic);
 
     /* Topic starts with API version */
-    if (strncmp(topic, LWESP_CAYENNE_API_VERSION, LWESP_CAYENNE_API_VERSION_LEN)) {
+    if (strncmp(topic, LWESP_CAYENNE_API_VERSION, LWESP_CAYENNE_API_VERSION_LEN) != 0) {
         return lwespERR;
     }
     topic += LWESP_CAYENNE_API_VERSION_LEN;
@@ -148,7 +132,7 @@ prv_parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
 
     /* Now parse topic string */
     msg->topic = LWESP_CAYENNE_TOPIC_END;
-    for (i = 0; i < LWESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
+    for (size_t i = 0; i < LWESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
         len = strlen(topic_cmd_str_pairs[i].str);
         if (strncmp(topic_cmd_str_pairs[i].str, topic, len) == 0) {
             msg->topic = topic_cmd_str_pairs[i].topic;
@@ -156,8 +140,9 @@ prv_parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
             break;
         }
     }
+
     /* This means error, no topic found */
-    if (i == LWESP_ARRAYSIZE(topic_cmd_str_pairs)) {
+    if (msg->topic == LWESP_CAYENNE_TOPIC_END) {
         return lwespERR;
     }
 
@@ -172,7 +157,7 @@ prv_parse_topic(lwesp_cayenne_t* c, lwesp_mqtt_client_api_buf_p buf) {
         } else if (*topic >= '0' && *topic <= '9') {
             msg->channel = 0;
             while (*topic >= '0' && *topic <= '9') {
-                msg->channel = 10 * msg->channel + *topic - '0';
+                msg->channel = (10 * msg->channel) + (*topic - '0');
                 ++topic;
             }
         } else {
@@ -312,7 +297,7 @@ prv_mqtt_thread(void* const arg) {
     lwesp_mqtt_client_api_buf_p buf;
     lwespr_t res;
 
-    /* Create sync mutex for multiple cayenne accesses */
+    /* Create mutex for multiple cayenne accesses */
     lwesp_core_lock();
     if (!lwesp_sys_mutex_isvalid(&prot_mutex)) {
         lwesp_sys_mutex_create(&prot_mutex);
@@ -321,11 +306,6 @@ prv_mqtt_thread(void* const arg) {
         LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE, !lwesp_sys_mutex_isvalid(&prot_mutex), "[CAYENNE] Cannot create mutex\r\n");
     }
     lwesp_core_unlock();
-
-    /* Release calling thread now */
-    if (lwesp_sys_sem_isvalid(&c->sem)) {
-        lwesp_sys_sem_release(&c->sem);
-    }
 
     while (1) {
         /* Device must be connected to access point */
@@ -349,11 +329,10 @@ prv_mqtt_thread(void* const arg) {
             /* Unlimited loop */
             while (1) {
                 /* Wait for new received packet or connection closed */
-                res = lwesp_mqtt_client_api_receive(c->api_c, &buf, 0);
-
-                if (res == lwespOK) {
+                if ((res = lwesp_mqtt_client_api_receive(c->api_c, &buf, 0)) == lwespOK) {
                     if (buf != NULL) {
-                        LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Packet received; Topic: %s; Data: %s\r\n\r\n", buf->topic, buf->payload);
+                        LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE,
+                                    "[CAYENNE] Packet received; Topic: %s; Data: %s\r\n\r\n", buf->topic, buf->payload);
 
                         /* Parse received topic and payload */
                         if (prv_parse_topic(c, buf) == lwespOK
@@ -361,8 +340,7 @@ prv_mqtt_thread(void* const arg) {
 
                             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic and payload parsed\r\n");
                             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
-                                       (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value
-                                      );
+                                        (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value);
 
                             /* Send notification to user */
                             c->evt.type = LWESP_CAYENNE_EVT_DATA;
@@ -381,12 +359,6 @@ prv_mqtt_thread(void* const arg) {
                 }
             }
         }
-    }
-
-    /* Clean resources */
-    if (lwesp_sys_sem_isvalid(&c->sem)) {
-        lwesp_sys_sem_delete(&c->sem);
-        lwesp_sys_sem_invalid(&c->sem);
     }
     lwesp_sys_thread_terminate(NULL);           /* Terminate thread */
 }
@@ -409,30 +381,17 @@ lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_
     c->info_c = client_info;
     c->evt_fn = evt_fn;
     if ((c->api_c = lwesp_mqtt_client_api_new(LWESP_CFG_CAYENNE_TX_BUFF_SIZE, LWESP_CFG_CAYENNE_RX_BUFF_SIZE)) == NULL) {
-        return lwespERRMEM;
-    }
-
-    /* Create semaphore */
-    if (!lwesp_sys_sem_create(&c->sem, 1)) {
-        LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create semaphore\r\n");
-        lwesp_mem_free_s((void**)&c->api_c);
+        LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create new API client handle\r\n");
         return lwespERRMEM;
     }
 
     /* Create and wait for thread to start */
-    lwesp_sys_sem_wait(&c->sem, 0);
     if (!lwesp_sys_thread_create(&c->thread, "mqtt_cayenne", prv_mqtt_thread, c, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE_SEVERE, "[CAYENNE] Cannot create new thread\r\n");
-        lwesp_sys_sem_release(&c->sem);
-        lwesp_sys_sem_delete(&c->sem);
-        lwesp_sys_sem_invalid(&c->sem);
         lwesp_mem_free_s((void**)&c->api_c);
         c->info_c = NULL;
         return lwespERRMEM;
     }
-    lwesp_sys_sem_wait(&c->sem, 0);
-    lwesp_sys_sem_release(&c->sem);
-
     return lwespOK;
 }
 
@@ -513,28 +472,29 @@ lwesp_cayenne_unsubscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint1
 lwespr_t
 lwesp_cayenne_publish_data(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel,
                          const char* type, const char* unit, const char* data) {
-    lwespr_t res = lwespOK;
+    lwespr_t res;
 
     lwesp_sys_mutex_lock(&prot_mutex);
-    if ((res = prv_build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel)) != lwespOK) {
-        goto exit;
+    if ((res = prv_build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, topic, channel)) == lwespOK) {
+        payload_data[0] = 0;
+        if (type != NULL) {
+            strcat(payload_data, type);
+        }
+        if (type != NULL && unit != NULL) {
+            strcat(payload_data, ",");
+        }
+        if (unit != NULL) {
+            strcat(payload_data, unit);
+        }
+        if (strlen(payload_data) > 0) {
+            strcat(payload_data, "=");
+        }
+        strcat(payload_data, data);
+        res = lwesp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 1);
+    } else {
+        LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE_WARNING, res != lwespOK,
+                "[CAYENNE] Failed to build topic to publish data, error code: %d\r\n", (int)res);
     }
-    payload_data[0] = 0;
-    if (type != NULL) {
-        strcat(payload_data, type);
-    }
-    if (type != NULL && unit != NULL) {
-        strcat(payload_data, ",");
-    }
-    if (unit != NULL) {
-        strcat(payload_data, unit);
-    }
-    if (strlen(payload_data)) {
-        strcat(payload_data, "=");
-    }
-    strcat(payload_data, data);
-    res = lwesp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 1);
-exit:
     lwesp_sys_mutex_unlock(&prot_mutex);
     return res;
 }
@@ -548,31 +508,33 @@ exit:
  * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
-lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwesp_cayenne_rlwesp_t resp, const char* message) {
-    lwespr_t res = lwespOK;
-    size_t len, msg_len;
+lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwesp_cayenne_resp_t resp, const char* message) {
+    lwespr_t res;
 
     LWESP_ASSERT("c != NULL", c != NULL);
     LWESP_ASSERT("msg != NULL && msg->seq != NULL", msg != NULL && msg->seq != NULL);
 
     lwesp_sys_mutex_lock(&prot_mutex);
-    if ((res = prv_build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, LWESP_CAYENNE_TOPIC_RESPONSE, LWESP_CAYENNE_NO_CHANNEL)) != lwespOK) {
-        goto exit;
-    }
-    payload_data[0] = 0;
-    sprintf(payload_data, "%s,%s", resp == LWESP_CAYENNE_RESP_OK ? "ok" : "error", msg->seq);
-    if (resp != LWESP_CAYENNE_RESP_OK) {
-        strcat(payload_data, "=");
-        len = strlen(payload_data);
-        msg_len = strlen(message);
-        if (msg_len > (sizeof(payload_data) - 1 - len)) {
-            msg_len = sizeof(payload_data) - 1 - len;
+    if ((res = prv_build_topic(topic_name, sizeof(topic_name), c->info_c->user, c->info_c->id, LWESP_CAYENNE_TOPIC_RESPONSE, LWESP_CAYENNE_NO_CHANNEL)) == lwespOK) {  
+        size_t len, msg_len;
+
+        payload_data[0] = 0;
+        sprintf(payload_data, "%s,%s", resp == LWESP_CAYENNE_RESP_OK ? "ok" : "error", msg->seq);
+        if (resp != LWESP_CAYENNE_RESP_OK) {
+            strcat(payload_data, "=");
+            len = strlen(payload_data);
+            msg_len = strlen(message);
+            if (msg_len > (sizeof(payload_data) - 1 - len)) {
+                msg_len = sizeof(payload_data) - 1 - len;
+            }
+            strncpy(&payload_data[len], message, msg_len);
+            payload_data[len + msg_len] = 0;
         }
-        strncpy(&payload_data[len], message, msg_len);
-        payload_data[len + msg_len] = 0;
+        res = lwesp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 1);
+    } else {
+        LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE_WARNING, res != lwespOK,
+                "[CAYENNE] Failed to build topic to publish response, error code: %d\r\n", (int)res);
     }
-    res = lwesp_mqtt_client_api_publish(c->api_c, topic_name, payload_data, strlen(payload_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 1);
-exit:
     lwesp_sys_mutex_unlock(&prot_mutex);
     return res;
 }

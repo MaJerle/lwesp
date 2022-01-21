@@ -48,7 +48,7 @@ extern "C" {
  * \{
  */
 
-lwesp_cayenne_evt_type_t      lwesp_cayenne_evt_get_type(lwesp_cayenne_evt_t* evt);
+lwesp_cayenne_evt_type_t    lwesp_cayenne_evt_get_type(lwesp_cayenne_evt_t* evt);
 
 
 /**
@@ -59,7 +59,7 @@ lwesp_cayenne_evt_type_t      lwesp_cayenne_evt_get_type(lwesp_cayenne_evt_t* ev
  * \note            Use these functions on \ref LWESP_CAYENNE_EVT_DATA event
  */
 
-lwesp_cayenne_msg_t*          lwesp_cayenne_evt_data_get_msg(lwesp_cayenne_evt_t* evt);
+lwesp_cayenne_msg_t*        lwesp_cayenne_evt_data_get_msg(lwesp_cayenne_evt_t* evt);
 
 /**
  * \}

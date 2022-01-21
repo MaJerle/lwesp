@@ -99,7 +99,7 @@ typedef enum {
 typedef enum {
     LWESP_CAYENNE_RESP_OK,                      /*!< Response OK */
     LWESP_CAYENNE_RESP_ERROR,                   /*!< Response error */
-} lwesp_cayenne_rlwesp_t;
+} lwesp_cayenne_resp_t;
 
 /**
  * \brief           Cayenne events
@@ -167,7 +167,6 @@ typedef struct lwesp_cayenne {
     lwesp_cayenne_evt_fn evt_fn;                /*!< Event callback function */
 
     lwesp_sys_thread_t thread;                  /*!< Cayenne thread handle */
-    lwesp_sys_sem_t sem;                        /*!< Sync semaphore handle */
 } lwesp_cayenne_t;
 
 lwespr_t    lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_info, lwesp_cayenne_evt_fn evt_fn);
@@ -175,9 +174,7 @@ lwespr_t    lwesp_cayenne_subscribe(lwesp_cayenne_t* c, lwesp_cayenne_topic_t to
 lwespr_t    lwesp_cayenne_publish_data(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, const char* data);
 lwespr_t    lwesp_cayenne_publish_float(lwesp_cayenne_t* c, lwesp_cayenne_topic_t topic, uint16_t channel, const char* type, const char* unit, float f);
 
-lwespr_t    lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwesp_cayenne_rlwesp_t resp, const char* message);
-
-#include "lwesp/apps/lwesp_cayenne_evt.h"
+lwespr_t    lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwesp_cayenne_resp_t resp, const char* message);
 
 /**
  * \}
