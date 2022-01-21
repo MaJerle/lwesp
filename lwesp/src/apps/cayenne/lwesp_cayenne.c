@@ -36,6 +36,10 @@
 #include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_pbuf.h"
 
+#if !defined(LWESP_DEV)
+#error "This app is under development and shall not be used in real application. Its API may change in the future"
+#endif /* !defined(LWESP_DEV) */
+
 #if !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION
 #error "Netconn and station mode must be enabled!"
 #endif /* !LWESP_CFG_NETCONN || !LWESP_CFG_MODE_STATION */

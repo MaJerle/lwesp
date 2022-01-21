@@ -4,6 +4,7 @@
 - Implement `AT+CIPSENDL` and `AT+CIPSENDLCFG` for long data send
 - Implement `AT+CIPTCPOPT` to configure TCP connection
 - Implement BLE feature
+- Transfer Cayenne MQTT app to be based on non-blocking API instead
 - Add DNS for IPv6 support (Optional)
 - Add support for WIFI GOT IP to parse IPv6
 - Add `AT+CWJEAP` for WPA2 connections
