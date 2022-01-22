@@ -952,6 +952,10 @@ prv_mqtt_poll_cb(lwesp_mqtt_client_p client) {
         }
     }
 
+    /* Propagate connection poll event to */
+    client->evt.type = LWESP_MQTT_EVT_CONN_POLL;
+    client->evt_fn(client, &client->evt);
+
     /*
      * Process all active packets and
      * check for timeout if there was no reply from MQTT server
