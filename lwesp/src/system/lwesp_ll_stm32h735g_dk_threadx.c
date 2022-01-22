@@ -40,6 +40,7 @@
 #include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_input.h"
 #include "system/lwesp_ll.h"
+#include "lwrb/lwrb.h"
 #include "tx_api.h"
 #include "mcu.h"
 
@@ -71,6 +72,10 @@
 #define LWESP_USART_DMA_TX_CLK_EN                   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1)
 #define LWESP_USART_DMA_TX_IRQ                      DMA1_Stream5_IRQn
 #define LWESP_USART_DMA_TX_IRQ_HANDLER              DMA1_Stream5_IRQHandler
+#define LWESP_USART_DMA_TX_IS_TC                    LL_DMA_IsActiveFlag_TC5(LWESP_USART_DMA_TX)
+#define LWESP_USART_DMA_TX_CLEAR_TC                 LL_DMA_ClearFlag_TC5(LWESP_USART_DMA_TX)
+#define LWESP_USART_DMA_TX_CLEAR_HT                 LL_DMA_ClearFlag_HT5(LWESP_USART_DMA_TX)
+#define LWESP_USART_DMA_TX_CLEAR_TE                 LL_DMA_ClearFlag_TE5(LWESP_USART_DMA_TX)
 
 /* RX DMA */
 #define LWESP_USART_DMA_RX                          DMA1
@@ -100,6 +105,11 @@
 ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) usart_rx_dma_buffer[0x100]);
 static uint8_t      is_running, initialized = 0;
 static size_t       old_pos = 0;
+
+/* TX data buffers, must be 32-bytes aligned (cache) and in dma buffer section to make sure DMA has access to the memory region */
+ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) tx_rb_data[4096]);
+static lwrb_t tx_rb;
+volatile size_t tx_len;
 
 /* USART thread */
 static void prv_read_thread_entry(ULONG arg);
@@ -142,6 +152,41 @@ prv_read_thread_entry(ULONG arg) {
             old_pos = pos;
         }
     }
+}
+
+/**
+ * \brief           Try to send more data with DMA
+ */
+static void
+prv_start_tx_transfer(void) {
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+    if (tx_len == 0
+        && (tx_len = lwrb_get_linear_block_read_length(&tx_rb)) > 0) {
+        const void* d = lwrb_get_linear_block_read_address(&tx_rb);
+
+        /* Limit tx len up to some size to optimize buffer reading process */
+        tx_len = LWESP_MIN(tx_len, 64);
+
+        /* Cleanup cache first to make sure we have latest data in memory */
+        SCB_CleanDCache_by_Addr((void *)d, tx_len);
+
+        /* Disable channel if enabled */
+        LL_DMA_DisableStream(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM);
+
+        /* Clean flags */
+        LWESP_USART_DMA_TX_CLEAR_TC;
+        LWESP_USART_DMA_TX_CLEAR_HT;
+        LWESP_USART_DMA_TX_CLEAR_TE;
+
+        /* Configure DMA */
+        LL_DMA_SetMemoryAddress(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, (uint32_t)d);
+        LL_DMA_SetDataLength(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, tx_len);
+
+        /* Enable instances */
+        LL_DMA_EnableStream(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM);
+    }
+    __set_PRIMASK(primask);
 }
 
 /**
@@ -229,8 +274,6 @@ prv_configure_uart(uint32_t baudrate) {
         /* Enable DMA interrupts */
         LL_DMA_EnableIT_TC(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM);
         LL_DMA_EnableIT_TE(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM);
-        LL_DMA_EnableIT_FE(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM);
-        LL_DMA_EnableIT_DME(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM);
 
         /*******************/
         /***    UART     ***/
@@ -256,6 +299,7 @@ prv_configure_uart(uint32_t baudrate) {
         LL_USART_EnableIT_IDLE(LWESP_USART);
         LL_USART_EnableIT_ERROR(LWESP_USART);
         LL_USART_EnableDMAReq_RX(LWESP_USART);
+        LL_USART_EnableDMAReq_TX(LWESP_USART);
 
         /* Reset DMA position */
         old_pos = 0;
@@ -304,7 +348,7 @@ prv_reset_device(uint8_t state) {
 #endif /* defined(LWESP_RX_PIN) */
 
 /**
- * \brief           Send data to ESP device
+ * \brief           Send data to ESP device over UART
  * \param[in]       data: Pointer to data to send
  * \param[in]       len: Number of bytes to send
  * \return          Number of bytes sent
@@ -312,10 +356,41 @@ prv_reset_device(uint8_t state) {
 static size_t
 prv_send_data(const void* data, size_t len) {
     const uint8_t* d = data;
+    uint8_t use_dma = 1;
 
-    for (size_t i = 0; i < len; ++i, ++d) {
-        LL_USART_TransmitData8(LWESP_USART, *d);
-        while (!LL_USART_IsActiveFlag_TXE(LWESP_USART)) {}
+    /*
+     * When in DMA TX mode, application writes 
+     * TX data to ring buffer for which DMA certainly has access to.
+     * 
+     * As it is a non-blocking TX (we don't wait for finish),
+     * writing to buffer is faster than writing over UART hence
+     * we need to find a mechanism to be able to still write as much as fast,
+     * if such event happens.
+     * 
+     * Writes to buffer are checked, and when no memory is available to write full data:
+     * - Try to force transfer (if not already on-going)
+     * - Yield thread and wait for next-time run
+     * 
+     * In the meantime, DMA will trigger TC complete interrupt
+     * and clean-up used memory, ready for next transfers.
+     * 
+     * To avoid such complications, allocate > 1kB memory for buffer
+     */
+    if (use_dma) {
+        size_t written = 0;
+        do {
+            written += lwrb_write(&tx_rb, &d[written], len - written);
+            if (written < len) {
+                prv_start_tx_transfer();
+                tx_thread_relinquish();
+            }
+        } while (written < len);
+        prv_start_tx_transfer();
+    } else {   
+        for (size_t i = 0; i < len; ++i, ++d) {
+            LL_USART_TransmitData8(LWESP_USART, *d);
+            while (!LL_USART_IsActiveFlag_TXE(LWESP_USART)) {}
+        }
     }
     return len;
 }
@@ -330,6 +405,10 @@ lwesp_ll_init(lwesp_ll_t* ll) {
 #if defined(LWESP_RX_PIN)
         ll->reset_fn = prv_reset_device;        /* Set callback for hardware reset */
 #endif /* defined(LWESP_RX_PIN) */
+
+        /* Initialize buffer for TX */
+        tx_len = 0;
+        lwrb_init(&tx_rb, tx_rb_data, sizeof(tx_rb_data));
     }
     prv_configure_uart(ll->uart.baudrate);      /* Initialize UART for communication */
     initialized = 1;
@@ -390,7 +469,14 @@ LWESP_USART_DMA_RX_IRQ_HANDLER(void) {
  */
 void
 LWESP_USART_DMA_TX_IRQ_HANDLER(void) {
+    /* React on TC event only */
+    if (LL_DMA_IsEnabledIT_TC(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM) && LWESP_USART_DMA_TX_IS_TC) {
+        LWESP_USART_DMA_TX_CLEAR_TC;
 
+        lwrb_skip(&tx_rb, tx_len);
+        tx_len = 0;
+        prv_start_tx_transfer();
+    }
 }
 
 #endif /* !__DOXYGEN__ */
