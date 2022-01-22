@@ -9,7 +9,6 @@ set(lwesp_snippets_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/telnet_server.c
     ${CMAKE_CURRENT_LIST_DIR}/utils.c
     ${CMAKE_CURRENT_LIST_DIR}/cayenne.c
-    ${CMAKE_CURRENT_LIST_DIR}/cayenne_async_mqtt.c
     ${CMAKE_CURRENT_LIST_DIR}/client.c
     ${CMAKE_CURRENT_LIST_DIR}/dns.c
     ${CMAKE_CURRENT_LIST_DIR}/http_server.c

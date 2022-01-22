@@ -97,7 +97,7 @@ mqtt_client_thread(void const* arg) {
  * \brief           Timeout callback for MQTT events
  * \param[in]       arg: User argument
  */
-void
+static void
 prv_mqtt_timeout_cb(void* arg) {
     static char tx_data[20];
     static uint32_t num = 10;

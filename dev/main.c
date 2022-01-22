@@ -20,7 +20,6 @@
 #include "lwmem/lwmem.h"
 #include "lwesp/lwesp_opt.h"
 #include "lwesp/apps/lwesp_cayenne.h"
-#include "cayenne_async_mqtt.h"
 
 #define safeprintf              printf
 
