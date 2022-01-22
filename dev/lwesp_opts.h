@@ -56,6 +56,7 @@
 #define LWESP_CFG_DBG_PBUF                      LWESP_DBG_OFF
 #define LWESP_CFG_DBG_CONN                      LWESP_DBG_OFF
 #define LWESP_CFG_DBG_VAR                       LWESP_DBG_OFF
+#define LWESP_CFG_DBG_CAYENNE                   LWESP_DBG_ON
 #define LWESP_CFG_RCV_BUFF_SIZE                 0x1000
 
 #define LWESP_CFG_MEM_CUSTOM                    1

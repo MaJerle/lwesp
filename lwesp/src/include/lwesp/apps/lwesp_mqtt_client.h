@@ -121,7 +121,12 @@ typedef enum {
                                                             thus do not rely on this event for packet with `qos = LWESP_MQTT_QOS_AT_MOST_ONCE` */
     LWESP_MQTT_EVT_PUBLISH_RECV,                /*!< MQTT client received a publish message from server */
     LWESP_MQTT_EVT_DISCONNECT,                  /*!< MQTT client disconnected from MQTT server */
-    LWESP_MQTT_EVT_KEEP_ALIVE,                  /*!< MQTT keep-alive sent to server and reply received */
+    LWESP_MQTT_EVT_KEEP_ALIVE,                  /*!< MQTT keep-alive event.
+                                                    It gets invoked after client and server exchange successful "keep-alive message",
+                                                    defined by MQTT protocol */
+    LWESP_MQTT_EVT_CONN_POLL,                   /*!< Local ESP connection poll event.
+                                                    When connection is active, stack periodically sends polling events to user.
+                                                    This event is propagated to user MQTT space */
 } lwesp_mqtt_evt_type_t;
 
 /**
@@ -175,17 +180,17 @@ typedef struct {
  */
 typedef void        (*lwesp_mqtt_evt_fn)(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt);
 
-lwesp_mqtt_client_p   lwesp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
+lwesp_mqtt_client_p lwesp_mqtt_client_new(size_t tx_buff_len, size_t rx_buff_len);
 void                lwesp_mqtt_client_delete(lwesp_mqtt_client_p client);
 
-lwespr_t              lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_port_t port, lwesp_mqtt_evt_fn evt_fn, const lwesp_mqtt_client_info_t* info);
-lwespr_t              lwesp_mqtt_client_disconnect(lwesp_mqtt_client_p client);
+lwespr_t            lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_port_t port, lwesp_mqtt_evt_fn evt_fn, const lwesp_mqtt_client_info_t* info);
+lwespr_t            lwesp_mqtt_client_disconnect(lwesp_mqtt_client_p client);
 uint8_t             lwesp_mqtt_client_is_connected(lwesp_mqtt_client_p client);
 
-lwespr_t              lwesp_mqtt_client_subscribe(lwesp_mqtt_client_p client, const char* topic, lwesp_mqtt_qos_t qos, void* arg);
-lwespr_t              lwesp_mqtt_client_unsubscribe(lwesp_mqtt_client_p client, const char* topic, void* arg);
+lwespr_t            lwesp_mqtt_client_subscribe(lwesp_mqtt_client_p client, const char* topic, lwesp_mqtt_qos_t qos, void* arg);
+lwespr_t            lwesp_mqtt_client_unsubscribe(lwesp_mqtt_client_p client, const char* topic, void* arg);
 
-lwespr_t              lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const void* payload, uint16_t len, lwesp_mqtt_qos_t qos, uint8_t retain, void* arg);
+lwespr_t            lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const void* payload, uint16_t len, lwesp_mqtt_qos_t qos, uint8_t retain, void* arg);
 
 void*               lwesp_mqtt_client_get_arg(lwesp_mqtt_client_p client);
 void                lwesp_mqtt_client_set_arg(lwesp_mqtt_client_p client, void* arg);

@@ -18,6 +18,8 @@
 - SNTP: Add synchronization interval config, available with ESP AT `2.3.0` or later (ESP32-C3 only for the moment)
 - ERR: Add option to get response to `ERR CODE:` message if command doesn't exist and put it to result of command execution
 - Fix min at version for ESP32 to `2.2.0`
+- MQTT CAYENNE: Completely reworked with asynchronous MQTT instead. Improves performance to transmit more data in one shot
+- MQTT client: Add poll periodic event for event callback
 
 ## 1.1.2-dev
 
