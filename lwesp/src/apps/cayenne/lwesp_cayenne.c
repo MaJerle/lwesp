@@ -68,7 +68,7 @@ typedef struct {
 /**
  * \brief           Data type and unit descriptor array
  */
-const static cayenne_data_type_unit_desc_t data_type_unit_descs[] = {
+static const cayenne_data_type_unit_desc_t data_type_unit_descs[] = {
 #define LWESP_CAYENNE_DATA_TYPE_DEFINE(tname, tconst, tvalue, uname, uconst, uvalue)    {tname, tvalue, uname, uvalue},
 #include "lwesp/apps/lwesp_cayenne_macros.h"
 };
@@ -228,7 +228,7 @@ lwesp_cayenne_parse_payload(lwesp_cayenne_t* c, const char* payload, size_t payl
                 msg->values[0].key = NULL;
                 msg->values[0].key_len = 0;
                 msg->values[0].value = comm + 1;
-                msg->values[0].value_len = payload_len - (comm - payload - 1);
+                msg->values[0].value_len = payload_len - (comm - payload + 1);
                 msg->values_count = 1;
             } else {
                 return lwespERR;
@@ -313,6 +313,8 @@ lwesp_cayenne_build_topic(lwesp_cayenne_t* c, char* topic_str, size_t topic_str_
     return lwespOK;
 }
 
+#include "debug.h"
+
 /**
  * \brief           Try to send TX data to Cayenne cloud.
  * Take the data from internal TX message buffer, build topic and go to cloud
@@ -363,7 +365,7 @@ prv_try_send_data(lwesp_cayenne_t* c) {
             }
 
             /* Format data to string */
-            switch (msg->data_type) {
+            switch (msg->data_format) {
                 case LWESP_CAYENNE_DATA_FORMAT_UINT32: {
                     sprintf(&payload_data[len], "%lu", (unsigned long)msg->data.u32);
                     break;
@@ -377,11 +379,16 @@ prv_try_send_data(lwesp_cayenne_t* c) {
                     sprintf(&payload_data[len], "%.5f", msg->data.flt);
                     break;
                 }
+                case LWESP_CAYENNE_DATA_FORMAT_STRING: {
+                    sprintf(&payload_data[len], "%s", msg->data.str);
+                    break;
+                }
                 default: {
                     strcpy(payload_data, "unknown");
                     break;
                 }
             }
+            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Trying to publish. Topic: %s, payload: %s\r\n", topic_name, payload_data);
 
             /* Start protocol transmission */
             if ((res = lwesp_mqtt_client_publish(c->mqtt_client, topic_name, payload_data, strlen(payload_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0, NULL)) == lwespOK) {
@@ -395,7 +402,7 @@ prv_try_send_data(lwesp_cayenne_t* c) {
                 should_skip = 1;
             }
             LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE, res == lwespOK,
-                            "[CAYENNE] Publishing to Cayenne started\r\n");
+                            "[CAYENNE] Publishing to Cayenne started successfully\r\n");
             LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE_WARNING, res != lwespOK,
                             "[CAYENNE] Failed to start data publish, error code: %d\r\n", (int)res);
         } else {
@@ -499,12 +506,12 @@ prv_mqtt_client_evt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             size_t payload_len = lwesp_mqtt_client_evt_publish_recv_get_payload_len(client, evt);
             
             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Publish rcved\r\n");
-            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Publish rcv topic: %.*s\r\n", (int)topic_len, topic);
-            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Publish rcv data : %.*s\r\n", (int)payload_len, payload);
+            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Publish rcv topic: %.*s\r\n", (int)topic_len, (const void *)topic);
+            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Publish rcv data : %.*s\r\n", (int)payload_len, (const void *)payload);
 
             /* Try to parse received topic and respective payload */
             if (lwesp_cayenne_parse_topic(c, topic, topic_len) == lwespOK
-                && lwesp_cayenne_parse_payload(c, payload, payload_len) == lwespOK) {
+                && lwesp_cayenne_parse_payload(c, (const void*)payload, payload_len) == lwespOK) {
 
                 LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[CAYENNE] Topic and payload parsed. Channel: %d, Sequence: %s, Key: %s, Value: %s\r\n",
                             (int)c->msg.channel, c->msg.seq, c->msg.values[0].key, c->msg.values[0].value);
@@ -563,6 +570,7 @@ prv_global_evt_cb(lwesp_evt_t* evt) {
         default:
             break;
     }
+    return lwespOK;
 }
 
 /**
@@ -677,9 +685,9 @@ lwesp_cayenne_publish_ex(lwesp_cayenne_t* c, const lwesp_cayenne_tx_msg_t* tx_ms
     } else {
         res = lwespERRMEM;
     }
+    lwesp_sys_unprotect();
     LWESP_DEBUGW(LWESP_CFG_DBG_CAYENNE_TRACE_WARNING, res != lwespOK,
                 "[CAYENNE] Failed to write message to TX buffer, error code: %d\r\n", (int)res);
-    lwesp_sys_unprotect();
     return res;
 }
 

@@ -476,6 +476,8 @@ prv_sub_unsub(lwesp_mqtt_client_p client, const char* topic, lwesp_mqtt_qos_t qo
     uint32_t rem_len;
     uint16_t len_topic, pkt_id;
     uint8_t ret = 0;
+    
+    LWESP_ASSERT("client != NULL", client != NULL);
 
     if ((len_topic = LWESP_U16(strlen(topic))) == 0) {
         return 0;
@@ -1222,6 +1224,7 @@ lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const v
     uint16_t len_topic, pkt_id;
     uint8_t qos_u8 = LWESP_U8(qos);
 
+    LWESP_ASSERT("client != NULL", client != NULL);
     if ((len_topic = LWESP_U16(strlen(topic))) == 0) {  /* Topic length */
         return lwespERR;
     }
@@ -1281,10 +1284,12 @@ lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const v
  */
 uint8_t
 lwesp_mqtt_client_is_connected(lwesp_mqtt_client_p client) {
-    uint8_t res;
-    lwesp_core_lock();
-    res = LWESP_U8(client->conn_state == LWESP_MQTT_CONNECTED);
-    lwesp_core_unlock();
+    uint8_t res = lwespERR;
+    if (client != NULL) {
+        lwesp_core_lock();
+        res = LWESP_U8(client->conn_state == LWESP_MQTT_CONNECTED);
+        lwesp_core_unlock();
+    }
     return res;
 }
 
@@ -1295,9 +1300,11 @@ lwesp_mqtt_client_is_connected(lwesp_mqtt_client_p client) {
  */
 void
 lwesp_mqtt_client_set_arg(lwesp_mqtt_client_p client, void* arg) {
-    lwesp_core_lock();
-    client->arg = arg;
-    lwesp_core_unlock();
+    if (client != NULL) {
+        lwesp_core_lock();
+        client->arg = arg;
+        lwesp_core_unlock();
+    }
 }
 
 /**
@@ -1307,5 +1314,5 @@ lwesp_mqtt_client_set_arg(lwesp_mqtt_client_p client, void* arg) {
  */
 void*
 lwesp_mqtt_client_get_arg(lwesp_mqtt_client_p client) {
-    return client->arg;
+    return client != NULL ? client->arg : NULL;
 }

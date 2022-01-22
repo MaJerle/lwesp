@@ -172,7 +172,7 @@ typedef struct {
                                                         and its respective value type (celsius, percentage, ...).
                                                         This is used to automatically detect widget type on Cayenne dashboard.
                                                         Set it to \ref LWESP_CAYENNE_DATA_TYPE_END_UNIT_END to send plain text from `data` field */
-    lwesp_cayenne_data_format_t data_type;      /*!< Data format used for union data storage.
+    lwesp_cayenne_data_format_t data_format;    /*!< Data format used for union data storage.
                                                     It is used for library internal-purpose only and defines
                                                     used `data` union member to use as valid data unit */
     union {
