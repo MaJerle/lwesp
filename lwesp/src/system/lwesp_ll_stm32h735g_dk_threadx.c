@@ -107,7 +107,7 @@ static lwrb_t       lwesp_tx_rb;
 volatile size_t     lwesp_tx_len;
 
 /* Raw DMA memory for UART received data */
-ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) lwesp_usart_rx_dma_buffer[128]);
+ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) lwesp_usart_rx_dma_buffer[256]);
 
 /* USART thread for read and data processing */
 static void prv_lwesp_read_thread_entry(ULONG arg);
