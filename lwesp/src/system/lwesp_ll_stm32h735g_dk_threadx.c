@@ -102,24 +102,26 @@
 #define LWESP_USART_RX_PIN_AF                       LL_GPIO_AF_4
 
 /* TX data buffers, must be 32-bytes aligned (cache) and in dma buffer section to make sure DMA has access to the memory region */
-ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) lwesp_tx_rb_data[4096]);
+ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) lwesp_tx_rb_data[2048]);
 static lwrb_t       lwesp_tx_rb;
 volatile size_t     lwesp_tx_len;
 
-/* USART thread */
+/* Raw DMA memory for UART received data */
+ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) lwesp_usart_rx_dma_buffer[128]);
+
+/* USART thread for read and data processing */
 static void prv_lwesp_read_thread_entry(ULONG arg);
-static TX_THREAD    lwesp_read_thread;
-static UCHAR        lwesp_read_thread_stack[4 * LWESP_SYS_THREAD_SS];
+static TX_THREAD        lwesp_read_thread;
+static UCHAR            lwesp_read_thread_stack[4 * LWESP_SYS_THREAD_SS];
+static volatile size_t  lwesp_read_old_pos = 0;
+static TX_EVENT_FLAGS_GROUP lwesp_ll_event_group;
 
-/* Message queue */
-#define LL_QUEUE_NUM_OF_ENTRY               10
-static UCHAR        lwesp_usart_ll_mbox_mem[LL_QUEUE_NUM_OF_ENTRY * sizeof(ULONG)];
-static TX_QUEUE     lwesp_usart_ll_mbox;
+/* List of flags for read */
+#define LWESP_LL_FLAG_DATA                  ((ULONG)0x000000001)
 
-/* USART memory */
-ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) usart_rx_dma_buffer[0x100]);
-static uint8_t      lwesp_is_running, lwesp_initialized = 0;
-static size_t       lwesp_old_pos = 0;
+/* Status variables */
+static uint8_t          lwesp_is_running = 0;
+static uint8_t          lwesp_initialized = 0;
 
 /**
  * \brief           USART data processing thread
@@ -133,23 +135,24 @@ prv_lwesp_read_thread_entry(ULONG arg) {
     LWESP_UNUSED(arg);
 
     while (1) {
-        void* d;
-        /* Wait for the event message from DMA or USART */
-        tx_queue_receive(&lwesp_usart_ll_mbox, &d, TX_WAIT_FOREVER);
+        ULONG flags;
+
+        /* Wait for any flag from either DMA or UART interrupts */
+        tx_event_flags_get(&lwesp_ll_event_group, (ULONG)-1, TX_OR_CLEAR, &flags, TX_WAIT_FOREVER);
 
         /* Read data */
-        pos = sizeof(usart_rx_dma_buffer) - LL_DMA_GetDataLength(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM);
-        if (pos != lwesp_old_pos && lwesp_is_running) {
-            SCB_InvalidateDCache_by_Addr(usart_rx_dma_buffer, sizeof(usart_rx_dma_buffer));
-            if (pos > lwesp_old_pos) {
-                lwesp_input_process(&usart_rx_dma_buffer[lwesp_old_pos], pos - lwesp_old_pos);
+        pos = sizeof(lwesp_usart_rx_dma_buffer) - LL_DMA_GetDataLength(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM);
+        if (pos != lwesp_read_old_pos && lwesp_is_running) {
+            SCB_InvalidateDCache_by_Addr(lwesp_usart_rx_dma_buffer, sizeof(lwesp_usart_rx_dma_buffer));
+            if (pos > lwesp_read_old_pos) {
+                lwesp_input_process(&lwesp_usart_rx_dma_buffer[lwesp_read_old_pos], pos - lwesp_read_old_pos);
             } else {
-                lwesp_input_process(&usart_rx_dma_buffer[lwesp_old_pos], sizeof(usart_rx_dma_buffer) - lwesp_old_pos);
+                lwesp_input_process(&lwesp_usart_rx_dma_buffer[lwesp_read_old_pos], sizeof(lwesp_usart_rx_dma_buffer) - lwesp_read_old_pos);
                 if (pos > 0) {
-                    lwesp_input_process(&usart_rx_dma_buffer[0], pos);
+                    lwesp_input_process(&lwesp_usart_rx_dma_buffer[0], pos);
                 }
             }
-            lwesp_old_pos = pos;
+            lwesp_read_old_pos = pos;
         }
     }
 }
@@ -241,8 +244,8 @@ prv_configure_uart(uint32_t baudrate) {
         LL_DMA_SetMemorySize(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_DMA_MDATAALIGN_BYTE);
         LL_DMA_DisableFifoMode(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM);
         LL_DMA_SetPeriphAddress(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_USART_DMA_GetRegAddr(LWESP_USART, LL_USART_DMA_REG_DATA_RECEIVE));
-        LL_DMA_SetMemoryAddress(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, (uint32_t)usart_rx_dma_buffer);
-        LL_DMA_SetDataLength(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, sizeof(usart_rx_dma_buffer));
+        LL_DMA_SetMemoryAddress(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, (uint32_t)lwesp_usart_rx_dma_buffer);
+        LL_DMA_SetDataLength(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, sizeof(lwesp_usart_rx_dma_buffer));
 
         /* Enable DMA interrupts */
         LL_DMA_EnableIT_HT(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM);
@@ -302,11 +305,18 @@ prv_configure_uart(uint32_t baudrate) {
         LL_USART_EnableDMAReq_TX(LWESP_USART);
 
         /* Reset DMA position */
-        lwesp_old_pos = 0;
+        lwesp_read_old_pos = 0;
 
         /* Start DMA and USART */
         LL_DMA_EnableStream(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM);
         LL_USART_Enable(LWESP_USART);
+
+        /* Create mbox and read threads */
+        tx_event_flags_create(&lwesp_ll_event_group, "lwesp_ll_group");
+        tx_thread_create(&lwesp_read_thread, "lwesp_read_thread", prv_lwesp_read_thread_entry, 0,
+                        lwesp_read_thread_stack, sizeof(lwesp_read_thread_stack),
+                        TX_MAX_PRIORITIES / 2 - 1, TX_MAX_PRIORITIES / 2 - 1,
+                        TX_NO_TIME_SLICE, TX_AUTO_START);
 
         lwesp_is_running = 1;
     } else {
@@ -315,17 +325,6 @@ prv_configure_uart(uint32_t baudrate) {
         //usart_init.BaudRate = baudrate;
         //LL_USART_Init(LWESP_USART, &usart_init);
         //LL_USART_Enable(LWESP_USART);
-    }
-
-    /* Create mbox and threads */
-    if (lwesp_usart_ll_mbox.tx_queue_id == TX_CLEAR_ID) {
-        tx_queue_create(&lwesp_usart_ll_mbox, "lwesp_ll_queue", sizeof(void *) / sizeof(ULONG), lwesp_usart_ll_mbox_mem, sizeof(lwesp_usart_ll_mbox_mem));
-    }
-    if (lwesp_read_thread.tx_thread_id == TX_CLEAR_ID) {
-        tx_thread_create(&lwesp_read_thread, "lwesp_lwesp_read_thread", prv_lwesp_read_thread_entry, 0,
-                lwesp_read_thread_stack, sizeof(lwesp_read_thread_stack),
-                TX_MAX_PRIORITIES / 2 - 1, TX_MAX_PRIORITIES / 2 - 1,
-                TX_NO_TIME_SLICE, TX_AUTO_START);
     }
 }
 
@@ -421,7 +420,7 @@ lwesp_ll_init(lwesp_ll_t* ll) {
 lwespr_t
 lwesp_ll_deinit(lwesp_ll_t* ll) {
     LL_USART_Disable(LWESP_USART);
-    tx_queue_delete(&lwesp_usart_ll_mbox);
+    tx_event_flags_delete(&lwesp_ll_event_group);
     tx_thread_delete(&lwesp_read_thread);
 
     lwesp_initialized = 0;
@@ -441,10 +440,9 @@ LWESP_USART_IRQ_HANDLER(void) {
     LL_USART_ClearFlag_ORE(LWESP_USART);
     LL_USART_ClearFlag_NE(LWESP_USART);
 
-    /* Write message to thread to wake-it up */
-    if (lwesp_usart_ll_mbox.tx_queue_id != TX_CLEAR_ID) {
-        void* d = (void*)1;
-        tx_queue_send(&lwesp_usart_ll_mbox, &d, TX_NO_WAIT);
+    /* Set flag to wakeup thread */
+    if (lwesp_ll_event_group.tx_event_flags_group_id != TX_CLEAR_ID) {
+        tx_event_flags_set(&lwesp_ll_event_group, LWESP_LL_FLAG_DATA, TX_OR);
     }
 }
 
@@ -457,10 +455,9 @@ LWESP_USART_DMA_RX_IRQ_HANDLER(void) {
     LWESP_USART_DMA_RX_CLEAR_HT;
     LWESP_USART_DMA_RX_CLEAR_TE;
 
-    /* Write message to thread to wake-it up */
-    if (lwesp_usart_ll_mbox.tx_queue_id != TX_CLEAR_ID) {
-        void* d = (void*)1;
-        tx_queue_send(&lwesp_usart_ll_mbox, &d, TX_NO_WAIT);
+    /* Set flag to wakeup thread */
+    if (lwesp_ll_event_group.tx_event_flags_group_id != TX_CLEAR_ID) {
+        tx_event_flags_set(&lwesp_ll_event_group, LWESP_LL_FLAG_DATA, TX_OR);
     }
 }
 
