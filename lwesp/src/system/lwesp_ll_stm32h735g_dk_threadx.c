@@ -420,7 +420,7 @@ lwesp_ll_init(lwesp_ll_t* ll) {
  */
 lwespr_t
 lwesp_ll_deinit(lwesp_ll_t* ll) {
-    LL_USART_Disable(USART1);
+    LL_USART_Disable(LWESP_USART);
     tx_queue_delete(&usart_ll_mbox);
     tx_thread_delete(&read_thread);
 
@@ -433,7 +433,7 @@ lwesp_ll_deinit(lwesp_ll_t* ll) {
  * \brief           UART global interrupt handler
  */
 void
-USART1_IRQHandler(void) {
+LWESP_USART_IRQ_HANDLER(void) {
     /* Clear all potential flags */
     LL_USART_ClearFlag_IDLE(LWESP_USART);
     LL_USART_ClearFlag_PE(LWESP_USART);

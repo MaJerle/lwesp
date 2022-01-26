@@ -553,7 +553,7 @@
 /**
  * \brief           Enables `1` or disables `0` custom memory byte pool extension for ThreadX port
  *
- * When enabled, user must manually set byte pool at run-time to memory configuration feature
+ * When enabled, user must manually set byte pool at run-time, before \ref lwesp_init is called
  */
 #ifndef LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL
 #define LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL  0
@@ -563,8 +563,13 @@
  * \brief           Enables `1` or disables `0` idle thread extensions feature of ThreadX
  *
  * When enabled, user must manually configure idle thread and setup additional thread handle extension fields.
- * By default ThreadX doesn't support self-thread cleanup when memory is dynamically allocated,
+ * By default ThreadX doesn't support self-thread cleanup when thread memory is dynamically allocated & thread terminated,
  * hence another thread is mandatory to do the cleanup process instead.
+ * 
+ * This configuration does not create idle-thread, rather only sets additional TX_THREAD fields,
+ * indicating thread handle and thread stack are dynamically allocated.
+ * 
+ * Have a look at System-ThreadX port for implementation
  */
 #ifndef LWESP_CFG_THREADX_IDLE_THREAD_EXTENSION
 #define LWESP_CFG_THREADX_IDLE_THREAD_EXTENSION 0

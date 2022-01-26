@@ -34,7 +34,9 @@
 #include "lwesp/lwesp.h"
 #include "tx_api.h"
 
-/* Byte pool is fixed defined externally */
+#if !__DOXYGEN__
+
+/* Byte pool is defined externally, in the lwesp_sys_threadx.c file */
 extern TX_BYTE_POOL* lwesp_threadx_byte_pool;
 
 void*
@@ -61,3 +63,5 @@ void
 lwesp_mem_free(void* ptr) {
     (VOID)tx_byte_release(ptr);
 }
+
+#endif /* !__DOXYGEN__ */
