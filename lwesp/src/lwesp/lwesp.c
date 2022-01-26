@@ -167,6 +167,11 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
      */
     lwespi_conn_init();                         /* Init connection module */
 
+#if LWESP_CFG_KEEP_ALIVE
+    /* Register keep-alive events */
+    lwesp_timeout_add(LWESP_CFG_KEEP_ALIVE_TIMEOUT, prv_keep_alive_timeout_fn, NULL);
+#endif /* LWESP_CFG_KEEP_ALIVE */
+
 #if LWESP_CFG_RESTORE_ON_INIT
     if (esp.status.f.dev_present) {             /* In case device exists */
         lwesp_core_unlock();
@@ -183,11 +188,6 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 #endif /* LWESP_CFG_RESET_ON_INIT */
     LWESP_UNUSED(blocking);                     /* Prevent compiler warnings */
     lwesp_core_unlock();
-
-#if LWESP_CFG_KEEP_ALIVE
-    /* Register keep-alive events */
-    lwesp_timeout_add(LWESP_CFG_KEEP_ALIVE_TIMEOUT, prv_keep_alive_timeout_fn, NULL);
-#endif /* LWESP_CFG_KEEP_ALIVE */
 
     return res;
 cleanup:

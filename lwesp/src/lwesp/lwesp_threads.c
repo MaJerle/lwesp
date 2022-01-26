@@ -82,6 +82,8 @@ lwesp_thread_produce(void* const arg) {
          * if device present flag changes
          */
         if (!e->status.f.dev_present) {
+            LWESP_DEBUGF(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
+                        "[THREAD] Device is not present\r\n");
             res = lwespERRNODEVICE;
         }
 
