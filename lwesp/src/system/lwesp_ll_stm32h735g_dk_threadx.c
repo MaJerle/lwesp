@@ -59,7 +59,12 @@
 #error "LWESP_CFG_MEM_CUSTOM must be used instead. This driver does not set memory regions for LwESP."
 #endif /* !LWESP_CFG_MEM_CUSTOM */
 
-/* USART setup */
+/* 
+ * USART setup
+ *
+ * PB14 and PB15 are used together with Arduino connector
+ * and extension board with ESP32-C3 
+ */
 #define LWESP_USART                                 USART1
 #define LWESP_USART_CLK_EN                          LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1)
 #define LWESP_USART_IRQ                             USART1_IRQn
