@@ -21,6 +21,7 @@
 - ERR: Add option to get response to `ERR CODE:` message if command doesn't exist and put it to result of command execution
 - Fix min at version for ESP32 to `2.2.0`
 - Add `LWESP ` prefix for debug messages
+- Update code style with astyle
 
 ## 1.1.2-dev
 
