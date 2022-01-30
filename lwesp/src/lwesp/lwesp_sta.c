@@ -72,7 +72,7 @@ lwesp_sta_quit(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uin
  */
 lwespr_t
 lwesp_sta_join(const char* name, const char* pass, const lwesp_mac_t* mac,
-             const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+               const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("name != NULL", name != NULL);
@@ -99,7 +99,7 @@ lwesp_sta_join(const char* name, const char* pass, const lwesp_mac_t* mac,
  */
 lwespr_t
 lwesp_sta_autojoin(uint8_t en,
-                 const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -123,7 +123,7 @@ lwesp_sta_autojoin(uint8_t en,
  */
 lwespr_t
 lwesp_sta_reconnect_set_config(uint16_t interval, uint16_t rep_cnt,
-                            const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                               const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("interval <= 7200", interval <= 7200);
@@ -149,7 +149,7 @@ lwesp_sta_reconnect_set_config(uint16_t interval, uint16_t rep_cnt,
  */
 lwespr_t
 lwesp_sta_get_ap_info(lwesp_sta_info_ap_t* info,
-                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                      const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     if (!lwesp_sta_is_joined()) {
@@ -177,7 +177,7 @@ lwesp_sta_get_ap_info(lwesp_sta_info_ap_t* info,
  */
 lwespr_t
 lwesp_sta_getip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm,
-              const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -213,7 +213,7 @@ lwesp_sta_getip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm,
  */
 lwespr_t
 lwesp_sta_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm,
-              const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("ip != NULL", ip != NULL);
@@ -238,7 +238,7 @@ lwesp_sta_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm
  */
 lwespr_t
 lwesp_sta_getmac(lwesp_mac_t* mac,
-               const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                 const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -262,7 +262,7 @@ lwesp_sta_getmac(lwesp_mac_t* mac,
  */
 lwespr_t
 lwesp_sta_setmac(const lwesp_mac_t* mac,
-               const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                 const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("mac != NULL", mac != NULL);
@@ -377,7 +377,7 @@ lwesp_sta_copy_ip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, uint8_t* is_dh
  */
 lwespr_t
 lwesp_sta_list_ap(const char* ssid, lwesp_ap_t* aps, size_t apsl, size_t* apf,
-                const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                  const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     if (apf != NULL) {

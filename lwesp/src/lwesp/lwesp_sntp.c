@@ -53,7 +53,7 @@
  */
 lwespr_t
 lwesp_sntp_set_config(uint8_t en, int16_t tz, const char* h1, const char* h2, const char* h3,
-                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                      const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -71,7 +71,7 @@ lwesp_sntp_set_config(uint8_t en, int16_t tz, const char* h1, const char* h2, co
 /**
  * \brief           Set SNTP synchronization interval on Espressif device
  * SNTP must be configured using \ref lwesp_sntp_set_config before you can use this function.
- * 
+ *
  * \note            This command is not available for all Espressif devices using AT commands
  *                      and will return error when this is the case.
  * \param[in]       interval: Synchronization interval in units of seconds.
@@ -106,7 +106,7 @@ lwesp_sntp_set_interval(uint32_t interval, const lwesp_api_cmd_evt_fn evt_fn, vo
  */
 lwespr_t
 lwesp_sntp_gettime(lwesp_datetime_t* dt,
-                 const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);

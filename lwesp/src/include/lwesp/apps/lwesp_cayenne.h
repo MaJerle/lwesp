@@ -181,7 +181,7 @@ typedef struct {
         float flt;                              /*!< Single-precision floating point type, used with \ref LWESP_CAYENNE_DATA_TYPE_FLOAT format */
         double dbl;                             /*!< Double-precision floating point type, used with \ref LWESP_CAYENNE_DATA_TYPE_DOUBLE format */
         const char* str;                        /*!< String data type. It is only a pointer to string and does not provide any storage,
-                                                    used with \ref LWESP_CAYENNE_DATA_FORMAT_STRING format */ 
+                                                    used with \ref LWESP_CAYENNE_DATA_FORMAT_STRING format */
     } data;                                     /*!< Data union structure */
 } lwesp_cayenne_tx_msg_t;
 
@@ -246,7 +246,7 @@ typedef struct lwesp_cayenne {
     lwesp_cayenne_evt_fn evt_fn;                /*!< Event callback function */
 } lwesp_cayenne_t;
 
-lwespr_t    lwesp_cayenne_init(void); 
+lwespr_t    lwesp_cayenne_init(void);
 lwespr_t    lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_info, lwesp_cayenne_evt_fn evt_fn);
 lwespr_t    lwesp_cayenne_connect(lwesp_cayenne_t* c) ;
 

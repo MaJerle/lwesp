@@ -362,9 +362,9 @@ lwesp_mem_malloc(size_t size) {
     ptr = mem_calloc(1, size);                  /* Allocate memory and return pointer */
     lwesp_core_unlock();
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL,
-               "[MEM] Allocation failed: %d bytes\r\n", (int)size);
+                 "[MEM] Allocation failed: %d bytes\r\n", (int)size);
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr != NULL,
-               "[MEM] Allocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
+                 "[MEM] Allocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
     return ptr;
 }
 
@@ -383,9 +383,9 @@ lwesp_mem_realloc(void* ptr, size_t size) {
     ptr = mem_realloc(ptr, size);               /* Reallocate and return pointer */
     lwesp_core_unlock();
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL,
-               "[MEM] Reallocation failed: %d bytes\r\n", (int)size);
+                 "[MEM] Reallocation failed: %d bytes\r\n", (int)size);
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr != NULL,
-               "[MEM] Reallocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
+                 "[MEM] Reallocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
     return ptr;
 }
 
@@ -403,9 +403,9 @@ lwesp_mem_calloc(size_t num, size_t size) {
     ptr = mem_calloc(num, size);                /* Allocate memory and clear it to 0. Then return pointer */
     lwesp_core_unlock();
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL,
-               "[MEM] Callocation failed: %d bytes\r\n", (int)size * (int)num);
+                 "[MEM] Callocation failed: %d bytes\r\n", (int)size * (int)num);
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr != NULL,
-               "[MEM] Callocation OK: %d bytes, addr: %p\r\n", (int)size * (int)num, ptr);
+                 "[MEM] Callocation OK: %d bytes, addr: %p\r\n", (int)size * (int)num, ptr);
     return ptr;
 }
 
@@ -421,8 +421,8 @@ lwesp_mem_free(void* ptr) {
         return;
     }
     LWESP_DEBUGF(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE,
-               "[MEM] Free size: %d, address: %p\r\n",
-               (int)MEM_BLOCK_USER_SIZE(ptr), ptr);
+                 "[MEM] Free size: %d, address: %p\r\n",
+                 (int)MEM_BLOCK_USER_SIZE(ptr), ptr);
     lwesp_core_lock();
     mem_free(ptr);
     lwesp_core_unlock();

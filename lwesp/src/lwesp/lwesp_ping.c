@@ -48,7 +48,7 @@
  */
 lwespr_t
 lwesp_ping(const char* host, uint32_t* time,
-         const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+           const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("host != NULL", host != NULL);

@@ -65,7 +65,7 @@
 #endif /* !defined(LWESP_USART_RDR_NAME) */
 
 #define LL_QUEUE_NUM_OF_ENTRY             10
-static UCHAR        ll_queue[LL_QUEUE_NUM_OF_ENTRY * sizeof(void *)];
+static UCHAR        ll_queue[LL_QUEUE_NUM_OF_ENTRY * sizeof(void*)];
 
 /* USART memory */
 static uint8_t      usart_mem[LWESP_USART_DMA_RX_BUFF_SIZE];
@@ -283,7 +283,7 @@ configure_uart(uint32_t baudrate) {
 
     /* Create mbox and start thread */
     if (usart_ll_mbox.tx_queue_id == TX_CLEAR_ID) {
-        (VOID)tx_queue_create(&usart_ll_mbox, "ll queue", sizeof(void *) / sizeof(ULONG), ll_queue, sizeof(ll_queue));
+        (VOID)tx_queue_create(&usart_ll_mbox, "ll queue", sizeof(void*) / sizeof(ULONG), ll_queue, sizeof(ll_queue));
     }
 
     if (usart_ll_thread.tx_thread_id == TX_CLEAR_ID) {

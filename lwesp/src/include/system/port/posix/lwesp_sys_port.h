@@ -47,10 +47,10 @@ extern "C" {
 
 #if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef pthread_mutex_t *           lwesp_sys_mutex_t;
-typedef sem_t *                     lwesp_sys_sem_t;
-typedef void *                      lwesp_sys_mbox_t;
-typedef pthread_t *                 lwesp_sys_thread_t;
+typedef pthread_mutex_t*            lwesp_sys_mutex_t;
+typedef sem_t*                      lwesp_sys_sem_t;
+typedef void*                       lwesp_sys_mbox_t;
+typedef pthread_t*                  lwesp_sys_thread_t;
 typedef int                         lwesp_sys_thread_prio_t;
 
 #define LWESP_SYS_MBOX_NULL           (0)

@@ -47,7 +47,7 @@
  */
 lwespr_t
 lwesp_hostname_set(const char* hostname,
-                 const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("hostname != NULL", hostname != NULL);
@@ -71,7 +71,7 @@ lwesp_hostname_set(const char* hostname,
  */
 lwespr_t
 lwesp_hostname_get(char* hostname, size_t size,
-                 const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("hostname != NULL", hostname != NULL);

@@ -170,7 +170,7 @@ uart_thread(void* param) {
         while (com_port == NULL) {
             lwesp_sys_sem_wait(&sem, 1);
         }
-        
+
         /*
          * Try to read data from COM port
          * and send it to upper layer for processing

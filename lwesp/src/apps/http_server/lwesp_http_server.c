@@ -884,14 +884,14 @@ http_evt(lwesp_evt_t* evt) {
         /* A new connection just became active */
         case LWESP_EVT_CONN_ACTIVE: {
             LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE_WARNING, "[HTTP SERVER] Conn %d active\r\n",
-                       (int)lwesp_conn_getnum(conn));
+                         (int)lwesp_conn_getnum(conn));
             hs = lwesp_mem_calloc(1, sizeof(*hs));
             if (hs != NULL) {
                 hs->conn = conn;                /* Save connection handle */
                 lwesp_conn_set_arg(conn, hs);   /* Set argument for connection */
             } else {
                 LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE_WARNING,
-                           "[HTTP SERVER] Cannot allocate memory for http state\r\n");
+                             "[HTTP SERVER] Cannot allocate memory for http state\r\n");
                 close = 1;                      /* No memory, close the connection */
             }
             break;
@@ -1073,12 +1073,12 @@ http_evt(lwesp_evt_t* evt) {
             if (res == lwespOK && hs != NULL) {
                 len = lwesp_evt_conn_send_get_length(evt);  /* Get length */
                 LWESP_DEBUGF(LWESP_CFG_DBG_SERVER_TRACE,
-                           "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
+                             "[HTTP SERVER] data sent with %d bytes\r\n", (int)len);
                 hs->sent_total += len;          /* Increase number of bytes sent */
                 send_response(hs, 0);           /* Send more data if possible */
             } else {
                 LWESP_DEBUGW(LWESP_CFG_DBG_SERVER_TRACE_DANGER, res != lwespOK,
-                           "[HTTP SERVER] data send error. Closing connection..\r\n");
+                             "[HTTP SERVER] data send error. Closing connection..\r\n");
                 close = 1;
             }
             break;

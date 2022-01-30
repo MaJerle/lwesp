@@ -81,7 +81,7 @@ static TX_MUTEX sys_mutex;
 uint8_t
 lwesp_sys_init(void) {
     UINT status = TX_SUCCESS;
-    
+
 #if !LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL
     status = tx_byte_pool_create(&byte_pool, "lwesp_byte_pool", byte_pool_mem, LWESP_MEM_SIZE);
     if (status == TX_SUCCESS) {
@@ -175,10 +175,10 @@ lwesp_sys_sem_invalid(lwesp_sys_sem_t* p) {
 uint8_t
 lwesp_sys_mbox_create(lwesp_sys_mbox_t* b, size_t size) {
     uint8_t rt = 0;
-    ULONG queue_total_size = size * sizeof(void *);
-    void *queue_mem = lwesp_mem_malloc(queue_total_size);
+    ULONG queue_total_size = size * sizeof(void*);
+    void* queue_mem = lwesp_mem_malloc(queue_total_size);
     if (queue_mem != NULL) {
-        if (tx_queue_create(b, TX_NULL, sizeof(void *) / sizeof(ULONG), queue_mem, queue_total_size) == TX_SUCCESS) {
+        if (tx_queue_create(b, TX_NULL, sizeof(void*) / sizeof(ULONG), queue_mem, queue_total_size) == TX_SUCCESS) {
             rt = 1;
         } else {
             lwesp_mem_free(queue_mem);
@@ -232,14 +232,14 @@ lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b) {
 
 uint8_t
 lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
-    void *stack_ptr = NULL;
+    void* stack_ptr = NULL;
     lwesp_sys_thread_t* t_handle;
     uint8_t t_handle_dynamic = 0;
 
     /* First process thread object */
     if (t != NULL) {
         t_handle = t;                           /* Use static handle from parameter */
-    } else if (tx_byte_allocate(lwesp_threadx_byte_pool, (void *)&t_handle, sizeof(*t_handle), TX_NO_WAIT) == TX_SUCCESS) {
+    } else if (tx_byte_allocate(lwesp_threadx_byte_pool, (void*)&t_handle, sizeof(*t_handle), TX_NO_WAIT) == TX_SUCCESS) {
         t_handle_dynamic = 1;                   /* Handle has been dynamically allocated */
     } else {
         goto cleanup;
@@ -251,7 +251,7 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_threa
     }
 
     /* Allocate thread stack */
-    if (tx_thread_create(t_handle, (CHAR *)name, (VOID (*)(ULONG))(thread_func), (ULONG)arg,
+    if (tx_thread_create(t_handle, (CHAR*)name, (VOID (*)(ULONG))(thread_func), (ULONG)arg,
                          stack_ptr, stack_size, prio, 0, TX_NO_TIME_SLICE, TX_AUTO_START) != TX_SUCCESS) {
         goto cleanup;
     }
@@ -306,12 +306,12 @@ lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
 uint8_t
 lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
 
-typedef VOID (*threadx_entry_t)(ULONG);
+    typedef VOID (*threadx_entry_t)(ULONG);
     uint8_t rt = 0;
 
-    void *stack_mem = lwesp_mem_malloc(stack_size);
+    void* stack_mem = lwesp_mem_malloc(stack_size);
     if (stack_mem != NULL) {
-        if (tx_thread_create(t, (CHAR *)name, (VOID (*)(ULONG))(thread_func), (ULONG)arg, stack_mem, stack_size, prio, prio, TX_NO_TIME_SLICE, TX_AUTO_START) == TX_SUCCESS) {
+        if (tx_thread_create(t, (CHAR*)name, (VOID (*)(ULONG))(thread_func), (ULONG)arg, stack_mem, stack_size, prio, prio, TX_NO_TIME_SLICE, TX_AUTO_START) == TX_SUCCESS) {
             rt = 1;
         } else {
             lwesp_mem_free(stack_mem);
@@ -323,8 +323,8 @@ typedef VOID (*threadx_entry_t)(ULONG);
 uint8_t
 lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
     uint8_t rt = 0;
-    
-    /*  t == NULL means temrinate itself. 
+
+    /*  t == NULL means temrinate itself.
         Here termination of a thread requires deleting thread (free RCB) and releasing stack memory
         ThreadX does not support deleting itself, so I left this feature not supported (when t == NULL) */
 

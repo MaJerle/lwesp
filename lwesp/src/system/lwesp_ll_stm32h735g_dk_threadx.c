@@ -59,11 +59,11 @@
 #error "LWESP_CFG_MEM_CUSTOM must be used instead. This driver does not set memory regions for LwESP."
 #endif /* !LWESP_CFG_MEM_CUSTOM */
 
-/* 
+/*
  * USART setup
  *
  * PB14 and PB15 are used together with Arduino connector
- * and extension board with ESP32-C3 
+ * and extension board with ESP32-C3
  */
 #define LWESP_USART                                 USART1
 #define LWESP_USART_CLK_EN                          LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1)
@@ -151,7 +151,7 @@ prv_lwesp_read_thread_entry(ULONG arg) {
         ULONG flags;
 
         /* Wait for any flag from either DMA or UART interrupts */
-        tx_event_flags_get(&lwesp_ll_event_group, (ULONG)-1, TX_OR_CLEAR, &flags, TX_WAIT_FOREVER);
+        tx_event_flags_get(&lwesp_ll_event_group, (ULONG) - 1, TX_OR_CLEAR, &flags, TX_WAIT_FOREVER);
 
         /* Read data */
         pos = sizeof(lwesp_usart_rx_dma_buffer) - LL_DMA_GetDataLength(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM);
@@ -185,7 +185,7 @@ prv_start_tx_transfer(void) {
         lwesp_tx_len = LWESP_MIN(lwesp_tx_len, LWESP_LL_MAX_TX_LEN);
 
         /* Cleanup cache to make sure we have latest data in memory visible by DMA */
-        SCB_CleanDCache_by_Addr((void *)d, lwesp_tx_len);
+        SCB_CleanDCache_by_Addr((void*)d, lwesp_tx_len);
 
         /* Clear all DMA flags prior transfer */
         LWESP_USART_DMA_TX_CLEAR_TC;
@@ -325,9 +325,9 @@ prv_configure_uart(uint32_t baudrate) {
         /* Create mbox and read threads */
         tx_event_flags_create(&lwesp_ll_event_group, "lwesp_ll_group");
         tx_thread_create(&lwesp_read_thread, "lwesp_read_thread", prv_lwesp_read_thread_entry, 0,
-                        lwesp_read_thread_stack, sizeof(lwesp_read_thread_stack),
-                        TX_MAX_PRIORITIES / 2 - 1, TX_MAX_PRIORITIES / 2 - 1,
-                        TX_NO_TIME_SLICE, TX_AUTO_START);
+                         lwesp_read_thread_stack, sizeof(lwesp_read_thread_stack),
+                         TX_MAX_PRIORITIES / 2 - 1, TX_MAX_PRIORITIES / 2 - 1,
+                         TX_NO_TIME_SLICE, TX_AUTO_START);
 
         lwesp_is_running = 1;
     } else {
@@ -369,21 +369,21 @@ prv_send_data(const void* data, size_t len) {
     uint8_t use_dma = 1;
 
     /*
-     * When in DMA TX mode, application writes 
+     * When in DMA TX mode, application writes
      * TX data to ring buffer for which DMA certainly has access to.
-     * 
+     *
      * As it is a non-blocking TX (we don't wait for finish),
      * writing to buffer is faster than writing over UART hence
      * we need to find a mechanism to be able to still write as much as fast,
      * if such event happens.
-     * 
+     *
      * Writes to buffer are checked, and when no memory is available to write full data:
      * - Try to force transfer (if not already on-going)
      * - Yield thread and wait for next-time run
-     * 
+     *
      * In the meantime, DMA will trigger TC complete interrupt
      * and clean-up used memory, ready for next transfers.
-     * 
+     *
      * To avoid such complications, allocate > 1kB memory for buffer
      */
     if (use_dma) {
@@ -396,7 +396,7 @@ prv_send_data(const void* data, size_t len) {
             }
         } while (written < len);
         prv_start_tx_transfer();
-    } else {   
+    } else {
         for (size_t i = 0; i < len; ++i, ++d) {
             LL_USART_TransmitData8(LWESP_USART, *d);
             while (!LL_USART_IsActiveFlag_TXE(LWESP_USART)) {}

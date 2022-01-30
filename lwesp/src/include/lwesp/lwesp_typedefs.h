@@ -171,12 +171,12 @@ typedef struct {
  * \param[in]       i1,i2,i3,i4: IPv4 parts
  */
 #define lwesp_ip_set_ip4(ip_str, i1, i2, i3, i4)   do {        \
-    (ip_str)->type = LWESP_IPTYPE_V4;                       \
-    (ip_str)->addr.ip4.addr[0] = (i1);                      \
-    (ip_str)->addr.ip4.addr[1] = (i2);                      \
-    (ip_str)->addr.ip4.addr[2] = (i3);                      \
-    (ip_str)->addr.ip4.addr[3] = (i4);                      \
-} while (0)
+        (ip_str)->type = LWESP_IPTYPE_V4;                       \
+        (ip_str)->addr.ip4.addr[0] = (i1);                      \
+        (ip_str)->addr.ip4.addr[1] = (i2);                      \
+        (ip_str)->addr.ip4.addr[2] = (i3);                      \
+        (ip_str)->addr.ip4.addr[3] = (i4);                      \
+    } while (0)
 
 /**
  * \ingroup         LWESP_UTILITIES
@@ -185,16 +185,16 @@ typedef struct {
  * \param[in]       i1,i2,i3,i4,i5,i6,i7,i8: IPv6 parts
  */
 #define lwesp_ip_set_ip6(ip_str, i1, i2, i3, i4, i5, i6, i7, i8)   do {\
-    (ip_str)->type = LWESP_IPTYPE_V6;                       \
-    (ip_str)->addr.ip6.addr[0] = (i1);                      \
-    (ip_str)->addr.ip6.addr[1] = (i2);                      \
-    (ip_str)->addr.ip6.addr[2] = (i3);                      \
-    (ip_str)->addr.ip6.addr[3] = (i4);                      \
-    (ip_str)->addr.ip6.addr[4] = (i5);                      \
-    (ip_str)->addr.ip6.addr[5] = (i6);                      \
-    (ip_str)->addr.ip6.addr[6] = (i7);                      \
-    (ip_str)->addr.ip6.addr[7] = (i8);                      \
-} while (0)
+        (ip_str)->type = LWESP_IPTYPE_V6;                       \
+        (ip_str)->addr.ip6.addr[0] = (i1);                      \
+        (ip_str)->addr.ip6.addr[1] = (i2);                      \
+        (ip_str)->addr.ip6.addr[2] = (i3);                      \
+        (ip_str)->addr.ip6.addr[3] = (i4);                      \
+        (ip_str)->addr.ip6.addr[4] = (i5);                      \
+        (ip_str)->addr.ip6.addr[5] = (i6);                      \
+        (ip_str)->addr.ip6.addr[6] = (i7);                      \
+        (ip_str)->addr.ip6.addr[7] = (i8);                      \
+    } while (0)
 
 /**
  * \brief           Check if input IP structure holds valid IP address
@@ -210,9 +210,9 @@ lwesp_ip_is_valid(const lwesp_ip_t* ip) {
     /* Check address validity */
     if ((ip->type == LWESP_IPTYPE_V4 && ip->addr.ip4.addr[0] > 0)
 #if LWESP_CFG_IPV6
-            || (ip->type == LWESP_IPTYPE_V6 && ip->addr.ip6.addr[0] > 0)
+        || (ip->type == LWESP_IPTYPE_V6 && ip->addr.ip6.addr[0] > 0)
 #endif /* LWESP_CF_IPV6 */
-        ) {
+       ) {
         return 1;
     }
     return 0;
@@ -412,7 +412,7 @@ typedef enum lwesp_evt_type_t {
     LWESP_EVT_CONN_POLL,                        /*!< Poll for connection if there are any changes */
 
     LWESP_EVT_SERVER,                           /*!< Server status changed */
-    
+
     LWESP_EVT_KEEP_ALIVE,                       /*!< Generic keep-alive event type, used as periodic timeout.
                                                     Optionally enabled with \ref LWESP_CFG_KEEP_ALIVE */
 

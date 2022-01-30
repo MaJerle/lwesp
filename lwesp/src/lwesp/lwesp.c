@@ -66,7 +66,7 @@ prv_def_callback(lwesp_evt_t* evt) {
 
 /**
  * \brief           Keep-alive timeout callback function
- * \param[in]       arg: Custom user argument 
+ * \param[in]       arg: Custom user argument
  */
 static void
 prv_keep_alive_timeout_fn(void* arg) {
@@ -108,39 +108,39 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 
     if (!lwesp_sys_sem_create(&esp.sem_sync, 1)) {  /* Create sync semaphore between threads */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                   "[CORE] Cannot create sync semaphore!\r\n");
+                     "[CORE] Cannot create sync semaphore!\r\n");
         goto cleanup;
     }
 
     /* Create message queues */
     if (!lwesp_sys_mbox_create(&esp.mbox_producer, LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) {  /* Producer */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                   "[CORE] Cannot create producer mbox queue!\r\n");
+                     "[CORE] Cannot create producer mbox queue!\r\n");
         goto cleanup;
     }
     if (!lwesp_sys_mbox_create(&esp.mbox_process, LWESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {/* Process */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                   "[CORE] Cannot create process mbox queue!\r\n");
+                     "[CORE] Cannot create process mbox queue!\r\n");
         goto cleanup;
     }
 
     /*
      * Create threads
-     * 
+     *
      * Each thread receives handle of semaphore that must be released inside the thread.
      * This is to make sure threads start immediately after they are created
      */
     lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Lock semaphore */
     if (!lwesp_sys_thread_create(&esp.thread_produce, "lwesp_produce", lwesp_thread_produce, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                   "[CORE] Cannot create producing thread!\r\n");
+                     "[CORE] Cannot create producing thread!\r\n");
         lwesp_sys_sem_release(&esp.sem_sync);   /* Release semaphore and return */
         goto cleanup;
     }
     lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Wait semaphore, should be unlocked in process thread */
     if (!lwesp_sys_thread_create(&esp.thread_process, "lwesp_process", lwesp_thread_process, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                   "[CORE] Cannot create processing thread!\r\n");
+                     "[CORE] Cannot create processing thread!\r\n");
         lwesp_sys_thread_terminate(&esp.thread_produce);/* Delete produce thread */
         lwesp_sys_sem_release(&esp.sem_sync);   /* Release semaphore and return */
         goto cleanup;
@@ -228,7 +228,7 @@ lwesp_reset(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32
  */
 lwespr_t
 lwesp_reset_with_delay(uint32_t delay,
-                     const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                       const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -271,7 +271,7 @@ lwesp_restore(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint
  */
 lwespr_t
 lwesp_set_wifi_mode(lwesp_mode_t mode,
-                  const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -293,7 +293,7 @@ lwesp_set_wifi_mode(lwesp_mode_t mode,
  */
 lwespr_t
 lwesp_get_wifi_mode(lwesp_mode_t* mode,
-                  const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -314,7 +314,7 @@ lwesp_get_wifi_mode(lwesp_mode_t* mode,
  */
 lwespr_t
 lwesp_set_at_baudrate(uint32_t baud,
-                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                      const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -396,7 +396,7 @@ lwesp_core_unlock(void) {
  */
 lwespr_t
 lwesp_device_set_present(uint8_t present,
-                       const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+                         const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     lwespr_t res = lwespOK;
     lwesp_core_lock();
     present = present ? 1 : 0;

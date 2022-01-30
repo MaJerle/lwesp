@@ -535,7 +535,7 @@ lwesp_evt_sntp_time_get_result(lwesp_evt_t* cc) {
  * \param[in]       cc: Event handle
  * \return          pointer to read-only structure with datetime
  */
-const lwesp_datetime_t *
+const lwesp_datetime_t*
 lwesp_evt_sntp_time_get_datetime(lwesp_evt_t* cc) {
     return cc->evt.cip_sntp_time.dt;
 }

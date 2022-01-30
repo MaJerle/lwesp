@@ -51,9 +51,9 @@ lwesp_thread_produce(void* const arg) {
     lwesp_msg_t* msg;
     lwespr_t res;
     uint32_t time;
-    
+
     LWESP_DEBUGF(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE,
-                "[THREAD] Producer thread started\r\n");
+                 "[THREAD] Producer thread started\r\n");
 
     /*
      * Thread parameter is semaphore handle object
@@ -83,7 +83,7 @@ lwesp_thread_produce(void* const arg) {
          */
         if (!e->status.f.dev_present) {
             LWESP_DEBUGF(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
-                        "[THREAD] Device is not present\r\n");
+                         "[THREAD] Device is not present\r\n");
             res = lwespERRNODEVICE;
         }
 
@@ -126,11 +126,11 @@ lwesp_thread_produce(void* const arg) {
             }
 
             LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                       res == lwespTIMEOUT,
-                       "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
+                         res == lwespTIMEOUT,
+                         "[THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
             LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                       res != lwespOK && res != lwespTIMEOUT,
-                       "[THREAD] Could not start execution for command %d\r\n", (int)msg->cmd);
+                         res != lwespOK && res != lwespTIMEOUT,
+                         "[THREAD] Could not start execution for command %d\r\n", (int)msg->cmd);
 
             /*
              * Manually release semaphore in all cases:
@@ -199,7 +199,7 @@ lwesp_thread_process(void* const arg) {
     uint32_t time;
 
     LWESP_DEBUGF(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE,
-                "[THREAD] Process thread started\r\n");
+                 "[THREAD] Process thread started\r\n");
 
     /*
      * Thread parameter is semaphore handle object

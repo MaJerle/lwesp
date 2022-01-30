@@ -154,7 +154,7 @@ netconn_evt(lwesp_evt_t* evt) {
                     close = 1;                  /* Close this connection, invalid netconn */
                 }
 
-            /* Is the connection server type and we have known listening API? */
+                /* Is the connection server type and we have known listening API? */
             } else if (lwesp_conn_is_server(conn) && listen_api != NULL) {
                 /*
                  * Create a new netconn structure
@@ -162,7 +162,7 @@ netconn_evt(lwesp_evt_t* evt) {
                  */
                 nc = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP); /* Create new API */
                 LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
-                           nc == NULL, "[NETCONN] Cannot create new structure for incoming server connection!\r\n");
+                             nc == NULL, "[NETCONN] Cannot create new structure for incoming server connection!\r\n");
 
                 if (nc != NULL) {
                     nc->conn = conn;            /* Set connection handle */
@@ -181,7 +181,7 @@ netconn_evt(lwesp_evt_t* evt) {
                 }
             } else {
                 LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING, listen_api == NULL,
-                           "[NETCONN] Closing connection as there is no listening API in netconn!\r\n");
+                             "[NETCONN] Closing connection as there is no listening API in netconn!\r\n");
                 close = 1;                      /* Close the connection at this point */
             }
 
@@ -215,7 +215,7 @@ netconn_evt(lwesp_evt_t* evt) {
             if (nc == NULL || !lwesp_sys_mbox_isvalid(&nc->mbox_receive)
                 || !lwesp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN,
-                           "[NETCONN] Ignoring more data for receive!\r\n");
+                             "[NETCONN] Ignoring more data for receive!\r\n");
                 lwesp_pbuf_free(pbuf);          /* Free pbuf */
                 return lwespOKIGNOREMORE;       /* Return OK to free the memory and ignore further data */
             }
@@ -229,8 +229,8 @@ netconn_evt(lwesp_evt_t* evt) {
 
             ++nc->rcv_packets;                  /* Increase number of packets received */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE,
-                       "[NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
-                       (int)lwesp_pbuf_length(pbuf, 0));
+                         "[NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
+                         (int)lwesp_pbuf_length(pbuf, 0));
             break;
         }
 
@@ -304,12 +304,12 @@ lwesp_netconn_new(lwesp_netconn_type_t type) {
         a->conn_timeout = 0;                    /* Default connection timeout */
         if (!lwesp_sys_mbox_create(&a->mbox_accept, LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {  /* Allocate memory for accepting message box */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
-                       "[NETCONN] Cannot create accept MBOX\r\n");
+                         "[NETCONN] Cannot create accept MBOX\r\n");
             goto free_ret;
         }
         if (!lwesp_sys_mbox_create(&a->mbox_receive, LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {/* Allocate memory for receiving message box */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
-                       "[NETCONN] Cannot create receive MBOX\r\n");
+                         "[NETCONN] Cannot create receive MBOX\r\n");
             goto free_ret;
         }
         lwesp_core_lock();
@@ -416,7 +416,7 @@ lwesp_netconn_connect(lwesp_netconn_p nc, const char* host, lwesp_port_t port) {
  */
 lwespr_t
 lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port,
-                        uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode) {
+                         uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode) {
     lwesp_conn_start_t cs = {0};
     lwespr_t res;
 
@@ -521,8 +521,8 @@ lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_connections)
 
     /* Enable server on port and set default netconn callback */
     if ((res = lwesp_set_server(1, nc->listen_port,
-                              LWESP_U16(LWESP_MIN(max_connections, LWESP_CFG_MAX_CONNS)),
-                              nc->conn_timeout, netconn_evt, NULL, NULL, 1)) == lwespOK) {
+                                LWESP_U16(LWESP_MIN(max_connections, LWESP_CFG_MAX_CONNS)),
+                                nc->conn_timeout, netconn_evt, NULL, NULL, 1)) == lwespOK) {
         lwesp_core_lock();
         listen_api = nc;                        /* Set current main API in listening state */
         lwesp_core_unlock();

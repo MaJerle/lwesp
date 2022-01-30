@@ -41,7 +41,7 @@ extern TX_BYTE_POOL* lwesp_threadx_byte_pool;
 
 void*
 lwesp_mem_malloc(size_t size) {
-    void *pointer;
+    void* pointer;
     return tx_byte_allocate(lwesp_threadx_byte_pool, &pointer, size, TX_NO_WAIT) == TX_SUCCESS ? pointer : NULL;
 }
 
@@ -54,7 +54,7 @@ lwesp_mem_realloc(void* ptr, size_t size) {
 void*
 lwesp_mem_calloc(size_t num, size_t size) {
     size_t total = num * size;
-    void *pointer = lwesp_mem_malloc(total);
+    void* pointer = lwesp_mem_malloc(total);
     TX_MEMSET(pointer, 0, total);
     return pointer;
 }

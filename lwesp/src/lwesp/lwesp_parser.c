@@ -482,13 +482,13 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].group_cipher = (lwesp_ap_cipher_t)lwespi_parse_number(&str);    /* Group cipher */
 #else
     /* Read and ignore values */
-    lwespi_parse_number(&str);                  
-    lwespi_parse_number(&str);                  
-    lwespi_parse_number(&str);                  
-    lwespi_parse_number(&str);                  
-    lwespi_parse_number(&str);                  
-    lwespi_parse_number(&str);                  
-    lwespi_parse_number(&str);                  
+    lwespi_parse_number(&str);
+    lwespi_parse_number(&str);
+    lwespi_parse_number(&str);
+    lwespi_parse_number(&str);
+    lwespi_parse_number(&str);
+    lwespi_parse_number(&str);
+    lwespi_parse_number(&str);
 #endif /* !LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].bgn = lwespi_parse_number(&str);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].wps = lwespi_parse_number(&str);
@@ -817,7 +817,7 @@ lwespi_parse_cwdhcp(const char* str) {
  */
 uint8_t
 lwespi_parse_webserver(const char* str) {
-    
+
     esp.evt.evt.ws_status.code = lwespi_parse_number(&str);
     lwespi_send_cb(LWESP_EVT_WEBSERVER);        /* Send event function */
     return 1;

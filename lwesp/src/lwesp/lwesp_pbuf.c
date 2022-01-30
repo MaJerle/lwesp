@@ -73,9 +73,9 @@ lwesp_pbuf_new(size_t len) {
 
     p = lwesp_mem_malloc(SIZEOF_PBUF_STRUCT + sizeof(*p->payload) * len);
     LWESP_DEBUGW(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE, p == NULL,
-               "[PBUF] Failed to allocate %d bytes\r\n", (int)len);
+                 "[PBUF] Failed to allocate %d bytes\r\n", (int)len);
     LWESP_DEBUGW(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE, p != NULL,
-               "[PBUF] Allocated %d bytes on %p\r\n", (int)len, p);
+                 "[PBUF] Allocated %d bytes on %p\r\n", (int)len, p);
     if (p != NULL) {
         p->next = NULL;                         /* No next element in chain */
         p->tot_len = len;                       /* Set total length of pbuf chain */
@@ -109,7 +109,7 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
         lwesp_core_unlock();
         if (ref == 0) {                         /* Did we reach 0 and are ready to free it? */
             LWESP_DEBUGF(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE,
-                       "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
+                         "[PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", p, (int)p->len, (int)p->tot_len);
             pn = p->next;                       /* Save next entry */
             lwesp_mem_free_s((void**)&p);       /* Free memory for pbuf */
             p = pn;                             /* Restore with next entry */
@@ -561,16 +561,16 @@ void
 lwesp_pbuf_dump(lwesp_pbuf_p p, uint8_t seq) {
     if (p != NULL) {
         LWESP_DEBUGF(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE,
-                   "[PBUF] Dump start: %p\r\n", p);
+                     "[PBUF] Dump start: %p\r\n", p);
         for (; p != NULL; p = p->next) {
             LWESP_DEBUGF(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE,
-                       "[PBUF] Dump %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n",
-                       p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
+                         "[PBUF] Dump %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n",
+                         p, (int)p->ref, (int)p->len, (int)p->tot_len, p->next);
             if (!seq) {
                 break;
             }
         }
         LWESP_DEBUGF(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE,
-                   "[PBUF] Dump end\r\n");
+                     "[PBUF] Dump end\r\n");
     }
 }

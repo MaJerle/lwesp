@@ -304,7 +304,7 @@ prv_write_fixed_header(lwesp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t
     lwesp_buff_write(&client->tx_buff, &b, 1);  /* Write start of packet parameters */
 
     LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
-               "[MQTT] Writing packet type %s to output buffer\r\n", prv_mqtt_msg_type_to_str(type));
+                 "[MQTT] Writing packet type %s to output buffer\r\n", prv_mqtt_msg_type_to_str(type));
 
     do {                                        /* Encode length, we must write a len byte even if 0 */
         /*
@@ -386,11 +386,11 @@ prv_write_ack_rec_rel_resp(lwesp_mqtt_client_p client, mqtt_msg_type_t msg_type,
         prv_write_u16(client, pkt_id);          /* Write packet ID */
         prv_send_data(client);                  /* Flush data to output */
         LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
-                   "[MQTT] Response %s written to output memory\r\n", prv_mqtt_msg_type_to_str(msg_type));
+                     "[MQTT] Response %s written to output memory\r\n", prv_mqtt_msg_type_to_str(msg_type));
         return 1;
     } else {
         LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
-                   "[MQTT] No memory to write %s packet\r\n", prv_mqtt_msg_type_to_str(msg_type));
+                     "[MQTT] No memory to write %s packet\r\n", prv_mqtt_msg_type_to_str(msg_type));
     }
     return 0;
 }
@@ -429,7 +429,7 @@ prv_send_data(lwesp_mqtt_client_p client) {
             client->is_sending = 1;             /* Remember active sending flag */
         } else {
             LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE_WARNING,
-                       "[MQTT] Cannot send data with error: %d\r\n", (int)res);
+                         "[MQTT] Cannot send data with error: %d\r\n", (int)res);
         }
     } else {
         /*
@@ -476,7 +476,7 @@ prv_sub_unsub(lwesp_mqtt_client_p client, const char* topic, lwesp_mqtt_qos_t qo
     uint32_t rem_len;
     uint16_t len_topic, pkt_id;
     uint8_t ret = 0;
-    
+
     LWESP_ASSERT("client != NULL", client != NULL);
 
     if ((len_topic = LWESP_U16(strlen(topic))) == 0) {
@@ -528,7 +528,7 @@ prv_mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
 
     /* Debug message */
     LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_STATE,
-               "[MQTT] Processing packet type %s\r\n", prv_mqtt_msg_type_to_str(msg_type));
+                 "[MQTT] Processing packet type %s\r\n", prv_mqtt_msg_type_to_str(msg_type));
 
     /* Check received packet type */
     switch (msg_type) {
@@ -539,7 +539,7 @@ prv_mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
                     client->conn_state = LWESP_MQTT_CONNECTED;
                 }
                 LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
-                           "[MQTT] CONNACK received with result: %d\r\n", (int)err);
+                             "[MQTT] CONNACK received with result: %d\r\n", (int)err);
 
                 /* Notify user layer */
                 client->evt.type = LWESP_MQTT_EVT_CONNECT;
@@ -548,7 +548,7 @@ prv_mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
             } else {
                 /* Protocol violation here */
                 LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
-                           "[MQTT] Protocol violation. CONNACK received when already connected!\r\n");
+                             "[MQTT] Protocol violation. CONNACK received when already connected!\r\n");
             }
             break;
         }
@@ -574,8 +574,8 @@ prv_mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
             data_len = client->msg_rem_len - (data - client->rx_buff);  /* Calculate length of remaining data */
 
             LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
-                       "[MQTT] Publish packet received on topic %.*s; QoS: %d; pkt_id: %d; data_len: %d\r\n",
-                       (int)topic_len, (const char*)topic, (int)qos, (int)pkt_id, (int)data_len);
+                         "[MQTT] Publish packet received on topic %.*s; QoS: %d; pkt_id: %d; data_len: %d\r\n",
+                         (int)topic_len, (const char*)topic, (int)qos, (int)pkt_id, (int)data_len);
 
             /*
              * We have to send respond to command if
@@ -587,7 +587,7 @@ prv_mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
             if (qos > 0) {                      /* We have to reply on QoS > 0 */
                 mqtt_msg_type_t rlwesp_msg_type = qos == 1 ? MQTT_MSG_TYPE_PUBACK : MQTT_MSG_TYPE_PUBREC;
                 LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE, "[MQTT] Sending publish resp: %s on pkt_id: %d\r\n",
-                            prv_mqtt_msg_type_to_str(rlwesp_msg_type), (int)pkt_id);
+                             prv_mqtt_msg_type_to_str(rlwesp_msg_type), (int)pkt_id);
                 prv_write_ack_rec_rel_resp(client, rlwesp_msg_type, pkt_id, qos);
             }
 
@@ -657,7 +657,7 @@ prv_mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
                 } else {
                     /* Protocol violation at this point! */
                     LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
-                               "[MQTT] Protocol violation. Received ACK without sent packet\r\n");
+                                 "[MQTT] Protocol violation. Received ACK without sent packet\r\n");
                 }
             }
             break;
@@ -690,7 +690,7 @@ prv_mqtt_parse_incoming(lwesp_mqtt_client_p client, lwesp_pbuf_p pbuf) {
             switch (client->parser_state) {     /* Check parser state */
                 case MQTT_PARSER_STATE_INIT: {  /* We are waiting for start byte and packet type */
                     LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_STATE,
-                               "[MQTT] Parser init state, received first byte of packet 0x%02X\r\n", (unsigned)ch);
+                                 "[MQTT] Parser init state, received first byte of packet 0x%02X\r\n", (unsigned)ch);
 
                     /* Save other info about message */
                     client->msg_hdr_byte = ch;  /* Save first entry */
@@ -708,7 +708,7 @@ prv_mqtt_parse_incoming(lwesp_mqtt_client_p client, lwesp_pbuf_p pbuf) {
 
                     if (!(ch & 0x80)) {         /* Is this last entry? */
                         LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_STATE,
-                                   "[MQTT] Remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
+                                     "[MQTT] Remaining length received: %d bytes\r\n", (int)client->msg_rem_len);
 
                         if (client->msg_rem_len > 0) {
                             /*
@@ -753,12 +753,12 @@ prv_mqtt_parse_incoming(lwesp_mqtt_client_p client, lwesp_pbuf_p pbuf) {
                     if (client->msg_curr_pos == client->msg_rem_len) {
                         if (client->msg_curr_pos <= client->rx_buff_len) {  /* Check if it was possible to write all data to rx buffer */
                             LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_STATE,
-                                       "[MQTT] Packet parsed and ready for processing\r\n");
+                                         "[MQTT] Packet parsed and ready for processing\r\n");
 
                             prv_mqtt_process_incoming_message(client);  /* Process incoming packet */
                         } else {
                             LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE_WARNING,
-                                       "[MQTT] Packet too big for rx buffer. Packet discarded\r\n");
+                                         "[MQTT] Packet too big for rx buffer. Packet discarded\r\n");
                         }
                         client->parser_state = MQTT_PARSER_STATE_INIT;  /* Go to initial state and listen for next received packet */
                     }
@@ -892,7 +892,7 @@ prv_mqtt_data_sent_cb(lwesp_mqtt_client_p client, size_t sent_len, uint8_t succe
     if (!successful) {
         prv_mqtt_close(client);
         LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE_WARNING,
-                   "[MQTT] Failed to send %d bytes. Manually closing down..\r\n", (int)sent_len);
+                     "[MQTT] Failed to send %d bytes. Manually closing down..\r\n", (int)sent_len);
         return 0;
     }
     lwesp_buff_skip(&client->tx_buff, sent_len);/* Skip buffer for actual sent data */
@@ -904,7 +904,7 @@ prv_mqtt_data_sent_cb(lwesp_mqtt_client_p client, size_t sent_len, uint8_t succe
      * Requests without QoS have packet id set to 0
      */
     while ((request = prv_request_get_pending(client, 0)) != NULL
-        && client->sent_total >= request->expected_sent_len) {
+           && client->sent_total >= request->expected_sent_len) {
         void* arg = request->arg;
 
         prv_request_delete(client, request);    /* Delete request and make space for next command */
@@ -1060,8 +1060,8 @@ prv_mqtt_conn_cb(lwesp_evt_t* evt) {
         /* Data send event */
         case LWESP_EVT_CONN_SEND: {
             prv_mqtt_data_sent_cb(client,
-                              lwesp_evt_conn_send_get_length(evt),
-                              lwesp_evt_conn_send_get_result(evt) == lwespOK);
+                                  lwesp_evt_conn_send_get_length(evt),
+                                  lwesp_evt_conn_send_get_result(evt) == lwespOK);
             break;
         }
 
@@ -1074,8 +1074,8 @@ prv_mqtt_conn_cb(lwesp_evt_t* evt) {
         /* Connection closed */
         case LWESP_EVT_CONN_CLOSE: {
             prv_mqtt_closed_cb(client,
-                           lwesp_evt_conn_close_get_result(evt) == lwespOK,
-                           lwesp_evt_conn_close_is_forced(evt));
+                               lwesp_evt_conn_close_get_result(evt) == lwespOK,
+                               lwesp_evt_conn_close_is_forced(evt));
             break;
         }
         default:
@@ -1134,12 +1134,12 @@ lwesp_mqtt_client_delete(lwesp_mqtt_client_p client) {
  * \param[in]       evt_fn: Callback function for all events on this MQTT client
  * \param[in]       info: Information structure for connection.
  *                      It is used after connection is successfully established.
- *                      Variable must not be a local or changes will be lost with potential faulty operation 
+ *                      Variable must not be a local or changes will be lost with potential faulty operation
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
 lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_port_t port,
-                        lwesp_mqtt_evt_fn evt_fn, const lwesp_mqtt_client_info_t* info) {
+                          lwesp_mqtt_evt_fn evt_fn, const lwesp_mqtt_client_info_t* info) {
     lwespr_t res = lwespERR;
 
     LWESP_ASSERT("client != NULL", client != NULL); /* t input parameters */
@@ -1217,7 +1217,7 @@ lwesp_mqtt_client_unsubscribe(lwesp_mqtt_client_p client, const char* topic, voi
  */
 lwespr_t
 lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const void* payload,
-                        uint16_t payload_len, lwesp_mqtt_qos_t qos, uint8_t retain, void* arg) {
+                          uint16_t payload_len, lwesp_mqtt_qos_t qos, uint8_t retain, void* arg) {
     lwespr_t res = lwespOK;
     lwesp_mqtt_request_t* request = NULL;
     uint32_t rem_len, raw_len;
@@ -1263,7 +1263,7 @@ lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const v
             prv_request_set_pending(client, request);   /* Set request as pending waiting for server reply */
             prv_send_data(client);              /* Try to send data */
             LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE,
-                       "[MQTT] Pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos_u8, (int)pkt_id);
+                         "[MQTT] Pkt publish start. QoS: %d, pkt_id: %d\r\n", (int)qos_u8, (int)pkt_id);
         } else {
             LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE, "[MQTT] No free request available to publish message\r\n");
             res = lwespERRMEM;

@@ -86,7 +86,7 @@ void                 lwesp_netconn_set_receive_timeout(lwesp_netconn_p nc, uint3
 uint32_t             lwesp_netconn_get_receive_timeout(lwesp_netconn_p nc);
 
 lwespr_t             lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port,
-                                            uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode);
+                                              uint16_t keep_alive, const char* local_ip, lwesp_port_t local_port, uint8_t mode);
 
 /* TCP only */
 lwespr_t             lwesp_netconn_listen(lwesp_netconn_p nc);

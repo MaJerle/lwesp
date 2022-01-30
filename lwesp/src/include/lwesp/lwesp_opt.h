@@ -167,7 +167,7 @@
 
 /**
  * \brief           Enables `1` or disables `0` full data info in \ref lwesp_ap_t structure.
- * 
+ *
  * When enabled, advanced information is stored, and as a consequence, structure size is increased.
  * Information such as scan type, min scan time, max scan time, frequency offset, frequency calibration are added
  */
@@ -177,7 +177,7 @@
 
 /**
  * \brief           Enables `1` or disables `0` periodic keep-alive events to registered callbacks
- * 
+ *
  */
 #ifndef LWESP_CFG_KEEP_ALIVE
 #define LWESP_CFG_KEEP_ALIVE                        1
@@ -185,7 +185,7 @@
 
 /**
  * \brief           Timeout periodic time to trigger keep alive events to registered callbacks
- * 
+ *
  * Feature must be enabled with \ref LWESP_CFG_KEEP_ALIVE
  */
 #ifndef LWESP_CFG_KEEP_ALIVE_TIMEOUT
@@ -219,10 +219,10 @@
 
 /**
  * \brief           Enables `1` or disables `0` support for fragmented send of UDP packets.
- * 
+ *
  * When connection type is UDP and packet length longer than maximal transmission unit,
  * it can be split into multiple packets and sent over the network.
- * 
+ *
  * When this feature is disabled, max length of UDP packet is defined with
  * \ref LWESP_CFG_CONN_MAX_DATA_LEN option
  */
@@ -232,7 +232,7 @@
 
 /**
  * \brief           Maximal number of connections AT software can support on ESP device
- * 
+ *
  * \note            In case of official ESP-AT software, leave this on default value (`5`)
  */
 #ifndef LWESP_CFG_MAX_CONNS
@@ -330,7 +330,7 @@
 
 /**
  * \brief           Enables `1` or disables `0` listing all available CMDs during reset/restore operation
- * 
+ *
  */
 #ifndef LWESP_CFG_LIST_CMD
 #define LWESP_CFG_LIST_CMD                          0
@@ -565,10 +565,10 @@
  * When enabled, user must manually configure idle thread and setup additional thread handle extension fields.
  * By default ThreadX doesn't support self-thread cleanup when thread memory is dynamically allocated & thread terminated,
  * hence another thread is mandatory to do the cleanup process instead.
- * 
+ *
  * This configuration does not create idle-thread, rather only sets additional TX_THREAD fields,
  * indicating thread handle and thread stack are dynamically allocated.
- * 
+ *
  * Have a look at System-ThreadX port for implementation
  */
 #ifndef LWESP_CFG_THREADX_IDLE_THREAD_EXTENSION
@@ -689,7 +689,7 @@
 
 /**
  * \brief           Size of Cayenne messages size TX buffer in units of bytes
- * 
+ *
  */
 #ifndef LWESP_CFG_CAYENNE_TX_BUFF_SIZE
 #define LWESP_CFG_CAYENNE_TX_BUFF_SIZE              256
@@ -697,7 +697,7 @@
 
 /**
  * \brief           Size of Cayenne RX buffer size in units of bytes
- * 
+ *
  */
 #ifndef LWESP_CFG_CAYENNE_RX_BUFF_SIZE
 #define LWESP_CFG_CAYENNE_RX_BUFF_SIZE              256
