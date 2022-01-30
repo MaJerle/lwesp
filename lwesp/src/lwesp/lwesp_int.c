@@ -84,7 +84,7 @@ static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t
             (m)->msg.conn_send.fau = 0;                 \
             if ((m)->msg.conn_send.data != NULL) {      \
                 LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,   \
-                             "[CONN] Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
+                             "[LWESP CONN] Free write buffer fau: %p\r\n", (void *)(m)->msg.conn_send.data);   \
                 lwesp_mem_free_s((void **)&((m)->msg.conn_send.data));\
             }                                           \
         }                                               \
@@ -873,7 +873,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP8266;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP8266;
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                             "[GMR] Detected Espressif device is %s\r\n", "ESP8266");
+                             "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP8266");
 #endif /* LWESP_CFG_ESP8266 */
 #if LWESP_CFG_ESP32
             } else if (strstr(rcv->data, "- ESP32 -") != NULL) {
@@ -882,7 +882,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP32;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP32;
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                             "[GMR] Detected Espressif device is %s\r\n", "ESP32");
+                             "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP32");
 #endif /* LWESP_CFG_ESP32 */
 #if LWESP_CFG_ESP32_C3
             } else if (strstr(rcv->data, "- ESP32C3 -") != NULL || strstr(rcv->data, "- ESP32-C3 -") != NULL) {
@@ -891,18 +891,18 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 minor = LWESP_MIN_AT_VERSION_MINOR_ESP32_C3;
                 patch = LWESP_MIN_AT_VERSION_PATCH_ESP32_C3;
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                             "[GMR] Detected Espressif device is %s\r\n", "ESP32-C3");
+                             "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP32-C3");
 #endif /* LWESP_CFG_ESP32_C3 */
             } else {
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                             "[GMR] Could not detect connected Espressif device: %.*s\r\n", (int)rcv->len, rcv->data);
+                             "[LWESP GMR] Could not detect connected Espressif device: %.*s\r\n", (int)rcv->len, rcv->data);
                 ok = 0;
             }
             LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                         "[GMR] AT version minimum required: %d.%d.%d\r\n",
+                         "[LWESP GMR] AT version minimum required: %d.%d.%d\r\n",
                          (int)major, (int)minor, (int)patch);
             LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                         "[GMR] AT version detected on device: %d.%d.%d\r\n",
+                         "[LWESP GMR] AT version detected on device: %d.%d.%d\r\n",
                          (int)esp.m.version_at.major, (int)esp.m.version_at.minor, (int)esp.m.version_at.patch);
 
             /* Compare versions, but only if device is well detected */
@@ -918,15 +918,15 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                             ok = 1;
                         } else {
                             LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                         "[GMR] AT version comparison failed with patch version\r\n");
+                                         "[LWESP GMR] AT version comparison failed with patch version\r\n");
                         }
                     } else {
                         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                     "[GMR] AT version comparison failed with minor version\r\n");
+                                     "[LWESP GMR] AT version comparison failed with minor version\r\n");
                     }
                 } else {
                     LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                 "[GMR] AT version comparison failed with major version\r\n");
+                                 "[LWESP GMR] AT version comparison failed with major version\r\n");
                 }
             }
 
@@ -1022,7 +1022,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 /* Check if write buffer is set */
                 if (conn->buff.buff != NULL) {
                     LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
-                                 "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
+                                 "[LWESP CONN] Free write buffer: %p\r\n", conn->buff.buff);
                     lwesp_mem_free_s((void**)&conn->buff.buff);
                 }
             } else if (!esp.m.link_conn.failed && !conn->status.f.active) {
@@ -1103,7 +1103,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             /* Check if write buffer is set */
             if (conn->buff.buff != NULL) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
-                             "[CONN] Free write buffer: %p\r\n", conn->buff.buff);
+                             "[LWESP CONN] Free write buffer: %p\r\n", conn->buff.buff);
                 lwesp_mem_free_s((void**)&conn->buff.buff);
             }
         }
@@ -1228,15 +1228,15 @@ lwespi_process(const void* data, size_t data_len) {
             /* Try to read more data directly from buffer */
             len = LWESP_MIN(d_len, LWESP_MIN(esp.m.ipd.rem_len, esp.m.ipd.buff != NULL ? (esp.m.ipd.buff->len - esp.m.ipd.buff_ptr) : esp.m.ipd.rem_len));
             LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                         "[IPD] New length to read: %d bytes\r\n", (int)len);
+                         "[LWESP IPD] New length to read: %d bytes\r\n", (int)len);
             if (len > 0) {
                 if (esp.m.ipd.buff != NULL) {   /* Is buffer valid? */
                     LWESP_MEMCPY(&esp.m.ipd.buff->payload[esp.m.ipd.buff_ptr], d, len);
                     LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                 "[IPD] Bytes read: %d\r\n", (int)len);
+                                 "[LWESP IPD] Bytes read: %d\r\n", (int)len);
                 } else {                        /* Simply skip the data in buffer */
                     LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                 "[IPD] Bytes skipped: %d\r\n", (int)len);
+                                 "[LWESP IPD] Bytes skipped: %d\r\n", (int)len);
                 }
                 d_len -= len;                   /* Decrease effective length */
                 d += len;                       /* Skip remaining length */
@@ -1275,10 +1275,10 @@ lwespi_process(const void* data, size_t data_len) {
 
                     lwesp_pbuf_free(esp.m.ipd.buff);/* Free packet buffer at this point */
                     LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                 "[IPD] Free packet buffer\r\n");
+                                 "[LWESP IPD] Free packet buffer\r\n");
                     if (res == lwespOKIGNOREMORE) { /* We should ignore more data */
                         LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                     "[IPD] Ignoring more data from this IPD if available\r\n");
+                                     "[LWESP IPD] Ignoring more data from this IPD if available\r\n");
                         esp.m.ipd.buff = NULL;  /* Set to NULL to ignore more data if possibly available */
                     }
 
@@ -1292,11 +1292,11 @@ lwespi_process(const void* data, size_t data_len) {
                         size_t new_len = LWESP_MIN(esp.m.ipd.rem_len, LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE);   /* Calculate new buffer length */
 
                         LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                     "[IPD] Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
+                                     "[LWESP IPD] Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
                         esp.m.ipd.buff = lwesp_pbuf_new(new_len);   /* Allocate new packet buffer */
 
                         LWESP_DEBUGW(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
-                                     esp.m.ipd.buff == NULL, "[IPD] Buffer allocation failed for %d bytes\r\n", (int)new_len);
+                                     esp.m.ipd.buff == NULL, "[LWESP IPD] Buffer allocation failed for %d bytes\r\n", (int)new_len);
 
                         if (esp.m.ipd.buff != NULL) {
                             lwesp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip, esp.m.ipd.port);   /* Set IP and port for received data */
@@ -1384,7 +1384,7 @@ lwespi_process(const void* data, size_t data_len) {
                             lwesp_pbuf_set_length(esp.m.ipd.buff, esp.m.ipd.tot_len);   /* Set new length of buffer */
                             esp.msg->msg.ciprecvdata.buff = NULL;   /* Clear reference for this pbuf */
                             LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                         "[IPD] Data on connection %d with total size %d byte(s)\r\n",
+                                         "[LWESP IPD] Data on connection %d with total size %d byte(s)\r\n",
                                          (int)esp.m.ipd.conn->num, (int)esp.m.ipd.tot_len);
                         } else {
                             /* ERROR handling */
@@ -1401,7 +1401,7 @@ lwespi_process(const void* data, size_t data_len) {
                             if (esp.m.ipd.read) {   /* Shall we start read procedure? */
                                 size_t len;
                                 LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                             "[IPD] Data on connection %d with total size %d byte(s)\r\n",
+                                             "[LWESP IPD] Data on connection %d with total size %d byte(s)\r\n",
                                              (int)esp.m.ipd.conn->num, (int)esp.m.ipd.tot_len);
 
                                 len = LWESP_MIN(esp.m.ipd.rem_len, LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE);
@@ -1418,11 +1418,11 @@ lwespi_process(const void* data, size_t data_len) {
                                         lwesp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip, esp.m.ipd.port);   /* Set IP and port for received data */
                                     }
                                     LWESP_DEBUGW(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING, esp.m.ipd.buff == NULL,
-                                                 "[IPD] Buffer allocation failed for %d byte(s)\r\n", (int)len);
+                                                 "[LWESP IPD] Buffer allocation failed for %d byte(s)\r\n", (int)len);
                                 } else {
                                     esp.m.ipd.buff = NULL;  /* Ignore reading on closed connection */
                                     LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                                 "[IPD] Connection %d closed or in closing, skipping %d byte(s)\r\n",
+                                                 "[LWESP IPD] Connection %d closed or in closing, skipping %d byte(s)\r\n",
                                                  (int)esp.m.ipd.conn->num, (int)len);
                                 }
                                 esp.m.ipd.conn->status.f.data_received = 1; /* We have first received data */
@@ -1704,7 +1704,7 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
         if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.ciprecvdata.is_last_check == 0) {
             uint8_t set_error = 0;
             LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, *is_error,
-                         "[CONN] CIPRECVLEN returned ERROR\r\n");
+                         "[LWESP CONN] CIPRECVLEN returned ERROR\r\n");
 
             /* If command is OK */
             if (*is_ok) {

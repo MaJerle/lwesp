@@ -162,7 +162,7 @@ netconn_evt(lwesp_evt_t* evt) {
                  */
                 nc = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP); /* Create new API */
                 LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
-                             nc == NULL, "[NETCONN] Cannot create new structure for incoming server connection!\r\n");
+                             nc == NULL, "[LWESP NETCONN] Cannot create new structure for incoming server connection!\r\n");
 
                 if (nc != NULL) {
                     nc->conn = conn;            /* Set connection handle */
@@ -181,7 +181,7 @@ netconn_evt(lwesp_evt_t* evt) {
                 }
             } else {
                 LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING, listen_api == NULL,
-                             "[NETCONN] Closing connection as there is no listening API in netconn!\r\n");
+                             "[LWESP NETCONN] Closing connection as there is no listening API in netconn!\r\n");
                 close = 1;                      /* Close the connection at this point */
             }
 
@@ -215,7 +215,7 @@ netconn_evt(lwesp_evt_t* evt) {
             if (nc == NULL || !lwesp_sys_mbox_isvalid(&nc->mbox_receive)
                 || !lwesp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN,
-                             "[NETCONN] Ignoring more data for receive!\r\n");
+                             "[LWESP NETCONN] Ignoring more data for receive!\r\n");
                 lwesp_pbuf_free(pbuf);          /* Free pbuf */
                 return lwespOKIGNOREMORE;       /* Return OK to free the memory and ignore further data */
             }
@@ -229,7 +229,7 @@ netconn_evt(lwesp_evt_t* evt) {
 
             ++nc->rcv_packets;                  /* Increase number of packets received */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE,
-                         "[NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
+                         "[LWESP NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
                          (int)lwesp_pbuf_length(pbuf, 0));
             break;
         }
@@ -304,12 +304,12 @@ lwesp_netconn_new(lwesp_netconn_type_t type) {
         a->conn_timeout = 0;                    /* Default connection timeout */
         if (!lwesp_sys_mbox_create(&a->mbox_accept, LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {  /* Allocate memory for accepting message box */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
-                         "[NETCONN] Cannot create accept MBOX\r\n");
+                         "[LWESP NETCONN] Cannot create accept MBOX\r\n");
             goto free_ret;
         }
         if (!lwesp_sys_mbox_create(&a->mbox_receive, LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {/* Allocate memory for receiving message box */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
-                         "[NETCONN] Cannot create receive MBOX\r\n");
+                         "[LWESP NETCONN] Cannot create receive MBOX\r\n");
             goto free_ret;
         }
         lwesp_core_lock();

@@ -132,16 +132,16 @@ configure_uart(uint32_t baudrate) {
                 if (SetCommTimeouts(com_port, &timeouts)) {
                     GetCommTimeouts(com_port, &timeouts);
                 } else {
-                    printf("[LL] Could not set port timeout config\r\n");
+                    printf("[LWESP LL] Could not set port timeout config\r\n");
                 }
             } else {
-                printf("[LL] Could not get port timeout config\r\n");
+                printf("[LWESP LL] Could not get port timeout config\r\n");
             }
         } else {
-            printf("[LL] Could not set port config\r\n");
+            printf("[LWESP LL] Could not set port config\r\n");
         }
     } else {
-        printf("[LL] Could not get port info\r\n");
+        printf("[LWESP LL] Could not get port info\r\n");
     }
 
     /* On first function call, create a thread to read data from COM port */

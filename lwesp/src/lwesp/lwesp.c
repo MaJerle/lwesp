@@ -108,19 +108,19 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 
     if (!lwesp_sys_sem_create(&esp.sem_sync, 1)) {  /* Create sync semaphore between threads */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[CORE] Cannot create sync semaphore!\r\n");
+                     "[LWESP CORE] Cannot create sync semaphore!\r\n");
         goto cleanup;
     }
 
     /* Create message queues */
     if (!lwesp_sys_mbox_create(&esp.mbox_producer, LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) {  /* Producer */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[CORE] Cannot create producer mbox queue!\r\n");
+                     "[LWESP CORE] Cannot create producer mbox queue!\r\n");
         goto cleanup;
     }
     if (!lwesp_sys_mbox_create(&esp.mbox_process, LWESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {/* Process */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[CORE] Cannot create process mbox queue!\r\n");
+                     "[LWESP CORE] Cannot create process mbox queue!\r\n");
         goto cleanup;
     }
 
@@ -133,14 +133,14 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Lock semaphore */
     if (!lwesp_sys_thread_create(&esp.thread_produce, "lwesp_produce", lwesp_thread_produce, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[CORE] Cannot create producing thread!\r\n");
+                     "[LWESP CORE] Cannot create producing thread!\r\n");
         lwesp_sys_sem_release(&esp.sem_sync);   /* Release semaphore and return */
         goto cleanup;
     }
     lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Wait semaphore, should be unlocked in process thread */
     if (!lwesp_sys_thread_create(&esp.thread_process, "lwesp_process", lwesp_thread_process, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[CORE] Cannot create processing thread!\r\n");
+                     "[LWESP CORE] Cannot create processing thread!\r\n");
         lwesp_sys_thread_terminate(&esp.thread_produce);/* Delete produce thread */
         lwesp_sys_sem_release(&esp.sem_sync);   /* Release semaphore and return */
         goto cleanup;

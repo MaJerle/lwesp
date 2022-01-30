@@ -20,6 +20,7 @@
 - SNTP: Add synchronization interval config, available with ESP AT `2.3.0` or later (ESP32-C3 only for the moment)
 - ERR: Add option to get response to `ERR CODE:` message if command doesn't exist and put it to result of command execution
 - Fix min at version for ESP32 to `2.2.0`
+- Add `LWESP ` prefix for debug messages
 
 ## 1.1.2-dev
 
