@@ -1,4 +1,4 @@
-breathe>=4.33.1
+breathe>=4.9.1
 colorama
 docutils==0.16
 sphinx>=3.5.1
