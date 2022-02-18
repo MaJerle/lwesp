@@ -523,7 +523,7 @@ lwesp_get_current_at_fw_version(lwesp_sw_version_t* const version) {
 /**
  * \brief           Get minimal AT version required to run on Espressif device, to be well supported by LwESP library
  *                  and to ensure proper compatibility and correct operation
- * \param[out]      v: Version output, pointer to \ref lwesp_sw_version_t structure
+ * \param[out]      version: Version output, pointer to \ref lwesp_sw_version_t structure
  * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t

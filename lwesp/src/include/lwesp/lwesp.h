@@ -78,21 +78,21 @@ lwespr_t    lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version);
  */
 #define     lwesp_set_fw_version(v, major_, minor_, patch_)          do { (v)->major = (major_); (v)->minor = (minor_); (v)->patch = (patch_); } while (0)
 
-#if LWESP_CFG_ESP8266
+#if LWESP_CFG_ESP8266 || __DOXYGEN__
 uint8_t     lwesp_device_is_esp8266(void);
 #else
 define      lwesp_device_is_esp8266()                       ((uint8_t)0)
-#endif /* LWESP_CFG_ESP8266 */
-#if LWESP_CFG_ESP32
+#endif /* LWESP_CFG_ESP8266 || __DOXYGEN__ */
+#if LWESP_CFG_ESP32 || __DOXYGEN__
 uint8_t     lwesp_device_is_esp32(void);
 #else
 define      lwesp_device_is_esp32()                         ((uint8_t)0)
-#endif /* LWESP_CFG_ESP32 */
-#if LWESP_CFG_ESP32_C3
+#endif /* LWESP_CFG_ESP32 || __DOXYGEN__ */
+#if LWESP_CFG_ESP32_C3 || __DOXYGEN__
 uint8_t     lwesp_device_is_esp32_c3(void);
 #else
 define      lwesp_device_is_esp32_c3()                      ((uint8_t)0)
-#endif /* LWESP_CFG_ESP32_C3 */
+#endif /* LWESP_CFG_ESP32_C3 || __DOXYGEN__ */
 lwesp_device_t lwesp_device_get_device(void);
 
 /**

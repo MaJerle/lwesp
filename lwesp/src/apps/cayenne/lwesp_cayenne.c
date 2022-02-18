@@ -553,7 +553,6 @@ prv_mqtt_client_evt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
 
 /**
  * \brief           Global stack event callback
- * \param[in]       client: MQTT client object handle
  * \param[in]       evt: Structure with event information
  */
 static lwespr_t
@@ -667,7 +666,6 @@ lwesp_cayenne_connect(lwesp_cayenne_t* c) {
  * It writes data to TX message buffer and later tries to start transmission from it.
  * If transmission is not succesful, it will re-try from the poll event.
  * \param[in]       c: Cayenne handle object
- * \param[in]       topic: Cayenne specific topic to publish on
  * \param[in]       tx_msg: Pointer to data object to transmit
  * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */

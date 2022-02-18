@@ -178,8 +178,8 @@ typedef struct {
     union {
         uint32_t u32;                           /*!< Unsigned 32-bit integer type, used with \ref LWESP_CAYENNE_DATA_FORMAT_UINT32 format */
         int32_t i32;                            /*!< Signed 32-bit integer type, used with \ref LWESP_CAYENNE_DATA_FORMAT_INT32 format */
-        float flt;                              /*!< Single-precision floating point type, used with \ref LWESP_CAYENNE_DATA_TYPE_FLOAT format */
-        double dbl;                             /*!< Double-precision floating point type, used with \ref LWESP_CAYENNE_DATA_TYPE_DOUBLE format */
+        float flt;                              /*!< Single-precision floating point type, used with \ref LWESP_CAYENNE_DATA_FORMAT_FLOAT format */
+        double dbl;                             /*!< Double-precision floating point type, used with \ref LWESP_CAYENNE_DATA_FORMAT_DOUBLE format */
         const char* str;                        /*!< String data type. It is only a pointer to string and does not provide any storage,
                                                     used with \ref LWESP_CAYENNE_DATA_FORMAT_STRING format */
     } data;                                     /*!< Data union structure */
