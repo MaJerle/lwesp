@@ -10,13 +10,4 @@ When any of the settings shall be modified, it shall be done in dedicated applic
 	Check :ref:`getting_started` for guidelines on how to create and use configuration file.
 
 .. doxygengroup:: LWESP_OPT
-.. doxygengroup:: LWESP_OPT_CONN
-.. doxygengroup:: LWESP_OPT_DBG
-.. doxygengroup:: LWESP_OPT_OS
-.. doxygengroup:: LWESP_OPT_STD_LIB
-.. doxygengroup:: LWESP_OPT_MODULES
-.. doxygengroup:: LWESP_OPT_MODULES_NETCONN
-.. doxygengroup:: LWESP_OPT_MODULES_MQTT
-.. doxygengroup:: LWESP_OPT_MODULES_CAYENNE
-.. doxygengroup:: LWESP_OPT_APP_HTTP
-.. doxygengroup:: LWESP_OPT_MIN_AT_VERSIONS
+	:inner:
