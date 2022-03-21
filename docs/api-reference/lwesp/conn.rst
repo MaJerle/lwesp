@@ -35,7 +35,7 @@ Sending data
 ^^^^^^^^^^^^
 
 Receiving data flow is always the same. Whenever new data packet arrives, corresponding event is called to notify application layer.
-When it comes to sending data, application may decide between ``2`` options (*this is valid only for non-UDP connections):
+When it comes to sending data, application may decide between ``2`` options (*this is valid only for non-UDP connections*):
 
 * Write data to temporary transmit buffer
 * Execute *send command* for every API function call

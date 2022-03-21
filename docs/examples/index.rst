@@ -6,10 +6,10 @@ Examples and demos
 Various examples are provided for fast library evaluation on embedded systems. These are prepared and maintained for ``2`` platforms, but could be easily extended to more platforms:
 
 * WIN32 examples, prepared as `Visual Studio Community <https://visualstudio.microsoft.com/vs/community/>`_ projects
-* ARM Cortex-M examples for STM32, prepared as `STM32CubeIDE <https://www.st.com/en/development-tools/stm32cubeide.html>`_ GCC projects
+* ARM Cortex-M examples for STM32, prepared as `STM32CubeIDE <https://www.st.com/en/development-tools/stm32cubeide.html>`_ GCC projects. These are also supported in *Visual Studio Code* through *CMake* and *ninja* build system. `Dedicated tutorial <https://github.com/MaJerle/stm32-cube-cmake-vscode>`_ is available to get started in *VSCode*.
 
-.. warning::
-	Library is platform independent and can be used on any platform.
+.. note::
+	Library is platform agnostic and can be used on many different products
 
 Example architectures
 ^^^^^^^^^^^^^^^^^^^^^
@@ -92,34 +92,34 @@ Here is a list of all examples coming with this library.
 	Application needs to modify file ``/snippets/station_manager.c`` and update ``ap_list`` variable with preferred access points,
 	in order to allow *ESP* to connect to home/local network
 
-Ex. Access point
-****************
+Access point
+************
 
 *ESP* device is configured as software access point, allowing stations to connect to it.
 When station connects to access point, it will output its *MAC* and *IP* addresses.
 
-Ex. Client
-**********
+Client
+******
 
 Application tries to connect to custom server with classic, event-based API.
 It starts concurrent connections and processes data in its event callback function.
 
-Ex. Server
-**********
+Server
+******
 
 It starts server on port ``80`` in event based connection mode.
 Every client is processed in callback function.
 
 When *ESP* is successfully connected to access point, it is possible to connect to it using its assigned IP address.
 
-Ex. Domain name server
-**********************
+Domain name server
+******************
 
 *ESP* tries to get domain name from specific domain name, ``example.com`` as an example.
 It needs to be connected to access point to have access to global internet.
 
-Ex. MQTT Client
-***************
+MQTT Client
+***********
 
 This example demonstrates raw MQTT connection to mosquitto test server.
 A new application thread is started after *ESP* successfully connects to access point.
@@ -127,23 +127,23 @@ MQTT application starts by initiating a new TCP connection.
 
 This is event-based example as there is no linear code.
 
-Ex. MQTT Client API
-*******************
+MQTT Client API
+***************
 
 Similar to *MQTT Client* examples, but it uses separate thread to process
 events in blocking mode. Application does not use events to process data,
 rather it uses blocking API to receive packets
 
-Ex. Netconn client
-******************
+Netconn client
+**************
 
 Netconn client is based on sequential API.
 It starts connection to server, sends initial request and then waits to receive data.
 
 Processing is in separate thread and fully sequential, no callbacks or events.
 
-Ex. Netconn server
-******************
+Netconn server
+**************
 
 Netconn server is based on sequential API.
 It starts server on specific port (see example details) and it waits for new client in separate threads.

@@ -194,7 +194,7 @@
 
 /**
  * \defgroup        LWESP_OPT_CONN Connection settings
- * \brief           Operating system dependant configuration
+ * \brief           Connection settings
  * \{
  */
 
@@ -251,6 +251,33 @@
  */
 #ifndef LWESP_CFG_CONN_MAX_DATA_LEN
 #define LWESP_CFG_CONN_MAX_DATA_LEN                 2048
+#endif
+
+/**
+ * \brief           Poll interval for connections in units of milliseconds
+ *
+ * Value indicates interval time to call poll event on active connections.
+ *
+ * \note            Single poll interval applies for all connections
+ */
+#ifndef LWESP_CFG_CONN_POLL_INTERVAL
+#define LWESP_CFG_CONN_POLL_INTERVAL                500
+#endif
+
+/**
+ * \brief           Enables `1` or disables `0` manual `TCP` data receive from ESP device
+ *
+ * Normally ESP automatically sends received TCP data to host device
+ * in async mode. When host device is slow or if there is memory constrain,
+ * it may happen that processing cannot handle all received data.
+ *
+ * When feature is enabled, ESP will notify host device about new data
+ * available for read and then user may start read process
+ *
+ * \note            This feature is only available for `TCP` connections.
+ */
+#ifndef LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
+#define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE           1
 #endif
 
 /**
@@ -783,33 +810,6 @@
 /**
  * \}
  */
-
-/**
- * \brief           Poll interval for connections in units of milliseconds
- *
- * Value indicates interval time to call poll event on active connections.
- *
- * \note            Single poll interval applies for all connections
- */
-#ifndef LWESP_CFG_CONN_POLL_INTERVAL
-#define LWESP_CFG_CONN_POLL_INTERVAL                500
-#endif
-
-/**
- * \brief           Enables `1` or disables `0` manual `TCP` data receive from ESP device
- *
- * Normally ESP automatically sends received TCP data to host device
- * in async mode. When host device is slow or if there is memory constrain,
- * it may happen that processing cannot handle all received data.
- *
- * When feature is enabled, ESP will notify host device about new data
- * available for read and then user may start read process
- *
- * \note            This feature is only available for `TCP` connections.
- */
-#ifndef LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
-#define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE           1
-#endif
 
 /**
  * \defgroup        LWESP_OPT_STD_LIB Standard library

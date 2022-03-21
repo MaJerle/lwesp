@@ -4,3 +4,4 @@ CLI Configuration
 =================
 
 .. doxygengroup:: CLI_CONFIG
+	:inner:
