@@ -431,7 +431,7 @@ lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port
      *  - Set netconn callback function for connection management
      *  - Start connection in blocking mode
      */
-    cs.type = nc->type;
+    cs.type = (lwesp_netconn_type_t)nc->type;
     cs.remote_host = host;
     cs.remote_port = port;
     cs.local_ip = local_ip;
