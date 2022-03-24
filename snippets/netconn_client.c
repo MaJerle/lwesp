@@ -35,7 +35,12 @@ netconn_client_thread(void const* arg) {
     lwespr_t res;
     lwesp_pbuf_p pbuf;
     lwesp_netconn_p client;
-    lwesp_sys_sem_t* sem = (void*)arg;
+lwesp_sys_sem_t* sem = (void*)arg;
+
+    /* Make sure we are connected to access point first */
+    while (!lwesp_sta_has_ip()) {
+        lwesp_delay(1000);
+    }
 
     /*
      * First create a new instance of netconn
@@ -44,6 +49,7 @@ netconn_client_thread(void const* arg) {
      */
     client = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP);
     if (client != NULL) {
+
         /*
          * Connect to external server as client
          * with custom NETCONN_CONN_HOST and CONN_PORT values

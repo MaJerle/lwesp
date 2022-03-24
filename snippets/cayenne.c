@@ -56,17 +56,17 @@ prv_cayenne_evt(lwesp_cayenne_t* c, lwesp_cayenne_evt_t* evt) {
 
             /* Send device description */
             tx_msg.topic = LWESP_CAYENNE_TOPIC_SYS_MODEL;
-            tx_msg.data_type = LWESP_CAYENNE_DATA_FORMAT_STRING;
+            tx_msg.data_format = LWESP_CAYENNE_DATA_FORMAT_STRING;
             tx_msg.data.str = "My custom model";
             lwesp_cayenne_publish_ex(&cayenne, &tx_msg);
             tx_msg.topic = LWESP_CAYENNE_TOPIC_SYS_CPU_SPEED;
-            tx_msg.data_type = LWESP_CAYENNE_DATA_FORMAT_STRING;
+            tx_msg.data_format = LWESP_CAYENNE_DATA_FORMAT_STRING;
             tx_msg.data.str = "550000000";
             lwesp_cayenne_publish_ex(&cayenne, &tx_msg);
 
             /* Sensors.. */
             tx_msg.topic = LWESP_CAYENNE_TOPIC_DATA;
-            tx_msg.data_type = LWESP_CAYENNE_DATA_FORMAT_FLOAT;
+            tx_msg.data_format = LWESP_CAYENNE_DATA_FORMAT_FLOAT;
             tx_msg.data_type_unit = LWESP_CAYENNE_DATA_TYPE_TEMPERATURE_UNIT_CELSIUS;
             tx_msg.channel = 1;
             tx_msg.data.flt = 20.7;
@@ -122,7 +122,7 @@ cayenne_thread(void const* arg) {
     while (1) {
         for (size_t i = 0; i < 3; ++i) {
             tx_msg.channel = 100 + type_unit;
-            tx_msg.data_type = LWESP_CAYENNE_DATA_FORMAT_FLOAT;
+            tx_msg.data_format = LWESP_CAYENNE_DATA_FORMAT_FLOAT;
             tx_msg.data_type_unit = type_unit;
             tx_msg.data.flt = temp;
             tx_msg.topic = LWESP_CAYENNE_TOPIC_DATA;

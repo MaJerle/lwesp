@@ -313,8 +313,6 @@ lwesp_cayenne_build_topic(lwesp_cayenne_t* c, char* topic_str, size_t topic_str_
     return lwespOK;
 }
 
-#include "debug.h"
-
 /**
  * \brief           Try to send TX data to Cayenne cloud.
  * Take the data from internal TX message buffer, build topic and go to cloud
