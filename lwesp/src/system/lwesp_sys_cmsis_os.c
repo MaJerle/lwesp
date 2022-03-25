@@ -46,7 +46,7 @@ lwesp_sys_init(void) {
 
 uint32_t
 lwesp_sys_now(void) {
-    return osKernelSysTick();
+    return osKernelGetTickCount();
 }
 
 uint8_t
