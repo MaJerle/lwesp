@@ -406,26 +406,35 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name,
                         lwesp_sys_thread_fn thread_func, void* const arg,
                         size_t stack_size, lwesp_sys_thread_prio_t prio) {
 
-    *t = malloc(sizeof(pthread_t));
-    if (*t == NULL) {
+    pthread_t* new_thread = malloc(sizeof(pthread_t));
+    if (new_thread == NULL) {
         return 0;
     }
 
-    if (pthread_create(*t, NULL, (lwesp_sys_posix_thread_fn)thread_func, arg) != 0) {
+    if (pthread_create(new_thread, NULL, (lwesp_sys_posix_thread_fn)thread_func, arg) != 0) {
         free(*t);
         return 0;
     };
+
+    if (t != NULL) {
+        *t = new_thread;
+    } else {
+        free(new_thread);
+    }
 
     return 1;
 }
 
 uint8_t
 lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
-    if (pthread_cancel(**t) != 0) {
-        return 0;
+    if (t != NULL && *t != NULL) {
+        if (pthread_cancel(**t) != 0) {
+            return 0;
+        }
+
+        free(*t);
     }
 
-    free(*t);
     return 1;
 }
 

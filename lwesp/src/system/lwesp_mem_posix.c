@@ -1,10 +1,10 @@
 /**
- * \file            lwesp_opts.h
- * \brief           ESP application options
+ * \file            lwesp_mem_lwmem.c
+ * \brief           Dynamic memory manager implemented with LwMEM
  */
 
 /*
- * Copyright (c) 2022 Tilen MAJERLE
+ * Copyright (c) 2020 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -30,22 +30,41 @@
  *
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Author:          imi415 <imi415.public@gmail.com>
- * Version:         v1.1.0-dev
+ * Version:         v1.1.1-dev
  */
-#ifndef LWESP_HDR_OPTS_H
-#define LWESP_HDR_OPTS_H
+#include "lwesp/lwesp.h"
 
-/* Rename this file to "lwesp_opts.h" for your application */
+/* See lwesp_mem.c file for function documentation on parameters and return values */
+
+#if LWESP_CFG_MEM_CUSTOM && !__DOXYGEN__
 
 /*
- * Open "include/lwesp/lwesp_opt.h" and
- * copy & replace here settings you want to change values
+ * Before this driver can be used, user must:
+ *
+ *  - Configure LwMEM for thread-safety mode by enabling operating system features
+ *  - Set memory regions during start of application
  */
-#define LWESP_CFG_AT_ECHO                     1
-#define LWESP_CFG_INPUT_USE_PROCESS           1
 
-#define LWESP_CFG_SNTP                        1
+#include <stdlib.h>
 
-#define LWESP_CFG_MEM_CUSTOM                  1
+void*
+lwesp_mem_malloc(size_t size) {
+    return malloc(size);
+}
 
-#endif /* LWESP_HDR_OPTS_H */
+void*
+lwesp_mem_realloc(void* ptr, size_t size) {
+    return realloc(ptr, size);
+}
+
+void*
+lwesp_mem_calloc(size_t num, size_t size) {
+    return calloc(num, size);
+}
+
+void
+lwesp_mem_free(void* ptr) {
+    free(ptr);
+}
+
+#endif /* LWESP_CFG_MEM_CUSTOM && !__DOXYGEN__ */
