@@ -27,5 +27,6 @@
         "windows.h": "c",
         "mqtt_client_api.h": "c",
         "lwesp_cayenne_evt.h": "c"
-    }
+    },
+    "restructuredtext.confPath": "c:\\Users\\majerlet\\Github\\lwdtc\\docs"
 }
