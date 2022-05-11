@@ -539,7 +539,7 @@ lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version) {
 #endif /* LWESP_CFG_ESP8266 */
 #if LWESP_CFG_ESP32
     } else if (esp.m.device == LWESP_DEVICE_ESP32) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP8266, LWESP_MIN_AT_VERSION_MINOR_ESP32, LWESP_MIN_AT_VERSION_PATCH_ESP32);
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP32, LWESP_MIN_AT_VERSION_MINOR_ESP32, LWESP_MIN_AT_VERSION_PATCH_ESP32);
 #endif /* LWESP_CFG_ESP32 */
 #if LWESP_CFG_ESP32_C3
     } else if (esp.m.device == LWESP_DEVICE_ESP32_C3) {
