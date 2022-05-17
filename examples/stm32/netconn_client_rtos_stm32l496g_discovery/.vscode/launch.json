@@ -8,14 +8,14 @@
             "name": "Debug Microcontroller - ST-Link",
             "cwd": "${workspaceFolder}",
             "type": "cortex-debug",
-            "executable": "${command:cmake.launchTargetPath}", //or fixed file path: build/project-name.elf
+            "executable": "${command:cmake.launchTargetPath}", //or fixed file path: build/stm32h735g-dk-led.elf
             "request": "launch",                //Use "attach" to connect to target w/o elf download
             "servertype": "stlink",
-            "device": "STM32L496AG",            //MCU used
+            "device": "",                       //MCU used, ex. "STM32H735IG"
             "interface": "swd",
             "serialNumber": "",                 //Set ST-Link ID if you use multiple at the same time
             "runToMain": true,
-            "svdFile": "",                      //SVD file to see registers
+            "svdFile": "path/to/file.svd",      //Path to SVD file to see registers
             "v1": false,
             "showDevDebugOutput": true,
 
