@@ -1,32 +1,10 @@
 {
     "files.associations": {
-        "lwesp_conn.h": "c",
-        "lwesp_mem.h": "c",
-        "lwesp_private.h": "c",
-        "lwesp_typedefs.h": "c",
-        "lwesp.h": "c",
-        "lwesp_includes.h": "c",
-        "lwesp_opt.h": "c",
-        "lwesp_debug.h": "c",
-        "lwesp_parser.h": "c",
-        "lwesp_int.h": "c",
-        "lwesp_opts.h": "c",
-        "station_manager.h": "c",
-        "lwesp_ll.h": "c",
-        "array": "c",
-        "string_view": "c",
-        "initializer_list": "c",
-        "utility": "c",
-        "cayenne_async_mqtt.h": "c",
-        "lwesp_mqtt_client_api.h": "c",
-        "lwesp_timeout.h": "c",
-        "lwesp_mqtt_client.h": "c",
-        "lwesp_cayenne.h": "c",
-        "lwesp_unicode.h": "c",
-        "lwesp_buff.h": "c",
-        "windows.h": "c",
-        "mqtt_client_api.h": "c",
-        "lwesp_cayenne_evt.h": "c"
+        "lwevt_types.h": "c",
+        "lwevt_type.h": "c",
+        "lwevt.h": "c",
+        "string.h": "c",
+        "lwevt_opt.h": "c"
     },
-    "restructuredtext.confPath": "c:\\Users\\majerlet\\Github\\lwdtc\\docs"
+    "esbonio.sphinx.confDir": ""
 }
