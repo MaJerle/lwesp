@@ -58,7 +58,7 @@
  * \param[in]       arg: Timeout callback custom argument
  */
 static void
-conn_timeout_cb(void* arg) {
+prv_conn_timeout_cb(void* arg) {
     lwesp_conn_p conn = arg;                    /* Argument is actual connection */
 
     if (conn->status.f.active) {                /* Handle only active connections */
@@ -68,7 +68,7 @@ conn_timeout_cb(void* arg) {
 
         lwespi_conn_start_timeout(conn);        /* Schedule new timeout */
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
-                     "[LWESP CONN] Poll event: %p\r\n", conn);
+                     "[LWESP CONN] Poll event: %p\r\n", (void *)conn);
     }
 
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -82,7 +82,7 @@ conn_timeout_cb(void* arg) {
  */
 void
 lwespi_conn_start_timeout(lwesp_conn_p conn) {
-    lwesp_timeout_add(LWESP_CFG_CONN_POLL_INTERVAL, conn_timeout_cb, conn); /* Add connection timeout */
+    lwesp_timeout_add(LWESP_CFG_CONN_POLL_INTERVAL, prv_conn_timeout_cb, conn); /* Add connection timeout */
 }
 
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -93,8 +93,10 @@ lwespi_conn_start_timeout(lwesp_conn_p conn) {
  * \param[in]       arg: Custom user argument
  */
 static void
-manual_tcp_read_data_evt_fn(lwespr_t res, void* arg) {
+prv_manual_tcp_read_data_evt_fn(lwespr_t res, void* arg) {
     lwesp_conn_p conn = arg;
+
+    LWESP_UNUSED(res);
 
     conn->status.f.receive_is_command_queued = 0;
     lwespi_conn_manual_tcp_try_read_data(conn);
@@ -127,7 +129,7 @@ lwespi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     }
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);         /* Allocate first, will return on failure */
-    LWESP_MSG_VAR_SET_EVT(msg, manual_tcp_read_data_evt_fn, conn);  /* Set event callback function */
+    LWESP_MSG_VAR_SET_EVT(msg, prv_manual_tcp_read_data_evt_fn, conn);  /* Set event callback function */
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPRECVDATA;
     LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPRECVLEN;
     LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = 0; /* Filled after RECVLEN received */
@@ -147,7 +149,10 @@ lwespi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
  * \param[in]       arg: Custom user argument
  */
 static void
-check_available_rx_data_evt_fn(lwespr_t res, void* arg) {
+prv_check_available_rx_data_evt_fn(lwespr_t res, void* arg) {
+    LWESP_UNUSED(arg);
+    LWESP_UNUSED(res);
+
     /* Try to read data if possible */
     for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {
         lwespi_conn_manual_tcp_try_read_data(&esp.m.conns[i]);
@@ -163,7 +168,7 @@ lwespi_conn_check_available_rx_data(void) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, 0);                /* Allocate first, will return on failure */
-    LWESP_MSG_VAR_SET_EVT(msg, check_available_rx_data_evt_fn, NULL);   /* Set event callback function */
+    LWESP_MSG_VAR_SET_EVT(msg, prv_check_available_rx_data_evt_fn, NULL);   /* Set event callback function */
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPRECVLEN;
 
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
@@ -199,7 +204,7 @@ lwespi_conn_get_val_id(lwesp_conn_p conn) {
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 static lwespr_t
-conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, const void* data,
+prv_conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, const void* data,
           size_t btw, size_t* const bw, uint8_t fau, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
@@ -254,7 +259,7 @@ flush_buff(lwesp_conn_p conn) {
          * simply free the memory and stop execution
          */
         if (conn->buff.ptr > 0) {               /* Anything to send at the moment? */
-            res = conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0);
+            res = prv_conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0);
         } else {
             res = lwespERR;
         }
@@ -401,7 +406,7 @@ lwesp_conn_sendto(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t po
     LWESP_ASSERT("conn != NULL", conn != NULL);
 
     flush_buff(conn);                           /* Flush currently written memory if exists */
-    return conn_send(conn, ip, port, data, btw, bw, 0, blocking);
+    return prv_conn_send(conn, ip, port, data, btw, bw, 0, blocking);
 }
 
 /**
@@ -438,7 +443,7 @@ lwesp_conn_send(lwesp_conn_p conn, const void* data, size_t btw, size_t* const b
     lwesp_core_unlock();
     res = flush_buff(conn);                     /* Flush currently written memory if exists */
     if (btw > 0) {                              /* Check for remaining data */
-        res = conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
+        res = prv_conn_send(conn, NULL, 0, d, btw, bw, 0, blocking);
     }
     return res;
 }
@@ -687,7 +692,7 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
         /* Step 1.1 */
         if (conn->buff.ptr == conn->buff.len || flush) {
             /* Try to send to processing queue in non-blocking way */
-            if (conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != lwespOK) {
+            if (prv_conn_send(conn, NULL, 0, conn->buff.buff, conn->buff.ptr, NULL, 1, 0) != lwespOK) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                              "[LWESP CONN] Free write buffer: %p\r\n", conn->buff.buff);
                 lwesp_mem_free_s((void**)&conn->buff.buff);
@@ -702,7 +707,7 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
         buff = lwesp_mem_malloc(sizeof(*buff) * LWESP_CFG_CONN_MAX_DATA_LEN);
         if (buff != NULL) {
             LWESP_MEMCPY(buff, d, LWESP_CFG_CONN_MAX_DATA_LEN); /* Copy data to buffer */
-            if (conn_send(conn, NULL, 0, buff, LWESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != lwespOK) {
+            if (prv_conn_send(conn, NULL, 0, buff, LWESP_CFG_CONN_MAX_DATA_LEN, NULL, 1, 0) != lwespOK) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                              "[LWESP CONN] Free write buffer: %p\r\n", (void*)buff);
                 lwesp_mem_free_s((void**)&buff);

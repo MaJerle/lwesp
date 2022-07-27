@@ -64,27 +64,27 @@ cmd_commands[] = {
     { 0, "join", "<ssid> [<pwd> [<mac>]]", "Join to access point" },
     { 0, "reconn_set", "<interval> <repeat>", "Set reconnect config" },
     { 0, "quit", "", "Quit from access point" },
-    { 1, "IP management" },
+    { 1, "IP management", NULL, NULL},
     { 0, "stagetip", "", "Get station IP address" },
     { 0, "stasetip", "<ip>", "Set station IP address" },
     { 0, "apgetip", "", "Get Soft Access point IP address" },
     { 0, "apsetip", "<ip>", "Set Soft Access point IP address" },
     { 0, "setdhcp", "<enable>", "Enable or disable DHCP" },
-    { 1, "MAC management" },
+    { 1, "MAC management", NULL, NULL },
     { 0, "stagetmac", "", "Get station MAC address" },
     { 0, "stasetmac", "<mac>", "Set station MAC address" },
     { 0, "apgetmac", "", "Get Soft Access point MAC address" },
     { 0, "apsetmac", "<mac>", "Set Soft Access point MAC address" },
-    { 1, "Access point" },
+    { 1, "Access point", NULL, NULL },
     { 0, "apconfig", "<enable> [<ssid> <pass> <enc> <ch>]", "Configure Soft Access point" },
     { 0, "apliststa", "", "List stations connected to access point" },
     { 0, "apquitsta", "<mac>", "Disconnect station for Soft access point" },
-    { 1, "Hostname" },
+    { 1, "Hostname", NULL, NULL },
     { 0, "hnset", "<hostname>", "Set station hostname" },
     { 0, "hnget", "", "Get station hostname" },
-    { 1, "Misc" },
+    { 1, "Misc", NULL, NULL },
     { 0, "ping", "<host>", "Ping domain or IP address"},
-    { 1, "Separate threads" },
+    { 1, "Separate threads", NULL, NULL },
     { 0, "netconn_client", "", "Start netconn client thread"},
     { 0, "netconn_server", "", "Start netconn server thread"},
     { 0, "mqtt_client_api", "", "Start mqtt client API thread"},
@@ -155,8 +155,7 @@ static uint8_t
 parse_num_u64(char** str, uint64_t* out) {
     uint64_t r, num = 0;
     char* s = *str;
-    char c;
-    uint8_t is_quote = 0;
+    unsigned char c;
 
     *out = 0;
     for (; s != NULL && *s != '\0' && *s == ' '; ++s) {}
@@ -232,6 +231,8 @@ input_thread(void* arg) {
     const cmd_t* cmd;
 
 #define IS_LINE(s)      (strncmp(buff, (s), sizeof(s) - 1) == 0)
+
+    LWESP_UNUSED(arg);
 
     /* Notify user */
     safeprintf("Start by writing commands..\r\n");
@@ -360,6 +361,10 @@ static void
 main_thread(void* arg) {
     char hn[10];
     uint32_t ping_time;
+
+    LWESP_UNUSED(hn);
+    LWESP_UNUSED(arg);
+    LWESP_UNUSED(ping_time);
 
     /* Init ESP library */
     lwesp_init(lwesp_evt, 1);
@@ -556,62 +561,6 @@ lwesp_evt(lwesp_evt_t* evt) {
             break;
         }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
-        default: break;
-    }
-    return lwespOK;
-}
-
-static lwespr_t
-lwesp_conn_evt(lwesp_evt_t* evt) {
-    static char data[] = "test data string\r\n";
-    lwesp_conn_p conn;
-
-    conn = lwesp_conn_get_from_evt(evt);
-
-    switch (evt->type) {
-        case LWESP_EVT_CONN_ACTIVE: {
-            safeprintf("Connection active!\r\n");
-            safeprintf("Send API call: %d\r\n", (int)lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
-            safeprintf("Send API call: %d\r\n", (int)lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
-            safeprintf("Send API call: %d\r\n", (int)lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
-            safeprintf("Close API call: %d\r\n", (int)lwesp_conn_close(conn, 0));
-            safeprintf("Send API call: %d\r\n", (int)lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0));
-            safeprintf("Close API call: %d\r\n", (int)lwesp_conn_close(conn, 0));
-
-            /*
-            lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0);
-            lwesp_conn_send(conn, data, sizeof(data) - 1, NULL, 0);
-            */
-            break;
-        }
-        case LWESP_EVT_CONN_SEND: {
-            lwespr_t res = lwesp_evt_conn_send_get_result(evt);
-            if (res == lwespOK) {
-                safeprintf("Connection data sent!\r\n");
-            } else {
-                safeprintf("Connect data send error!\r\n");
-            }
-            break;
-        }
-        case LWESP_EVT_CONN_RECV: {
-            lwesp_pbuf_p pbuf = lwesp_evt_conn_recv_get_buff(evt);
-            lwesp_conn_p conn = lwesp_evt_conn_recv_get_conn(evt);
-            safeprintf("\r\nConnection data received: %d / %d bytes\r\n",
-                (int)lwesp_pbuf_length(pbuf, 1),
-                (int)lwesp_conn_get_total_recved_count(conn)
-            );
-            lwesp_conn_recved(conn, pbuf);
-            break;
-        }
-        case LWESP_EVT_CONN_CLOSE: {
-            safeprintf("Connection closed!\r\n");
-            //lwesp_conn_start(NULL, LWESP_CONN_TYPE_TCP, "majerle.eu", 80, NULL, lwesp_conn_evt, 0);
-            break;
-        }
-        case LWESP_EVT_CONN_ERROR: {
-            safeprintf("Connection error!\r\n");
-            break;
-        }
         default: break;
     }
     return lwespOK;

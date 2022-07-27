@@ -160,6 +160,8 @@ uart_thread(void* param) {
     lwesp_sys_sem_t sem;
     FILE* file = NULL;
 
+    LWESP_UNUSED(param);
+
     lwesp_sys_sem_create(&sem, 0);              /* Create semaphore for delay functions */
     while (com_port == NULL) {
         lwesp_sys_sem_wait(&sem, 1);            /* Add some delay with yield */
@@ -216,6 +218,7 @@ uart_thread(void* param) {
  */
 static uint8_t
 reset_device(uint8_t state) {
+    LWESP_UNUSED(state);
     return 0;                                   /* Hardware reset was not successful */
 }
 
@@ -260,6 +263,7 @@ lwesp_ll_init(lwesp_ll_t* ll) {
  */
 lwespr_t
 lwesp_ll_deinit(lwesp_ll_t* ll) {
+    LWESP_UNUSED(ll);
     if (thread_handle != NULL) {
         lwesp_sys_thread_terminate(&thread_handle);
         thread_handle = NULL;

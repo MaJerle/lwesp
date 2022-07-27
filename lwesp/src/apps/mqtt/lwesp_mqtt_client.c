@@ -977,6 +977,8 @@ prv_mqtt_closed_cb(lwesp_mqtt_client_p client, lwespr_t res, uint8_t forced) {
     lwesp_mqtt_state_t state = client->conn_state;
     lwesp_mqtt_request_t* request;
 
+    LWESP_UNUSED(res);
+
     /*
      * Call user function only if connection was closed
      * when we are connected or in disconnecting mode

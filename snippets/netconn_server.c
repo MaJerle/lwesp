@@ -69,6 +69,8 @@ netconn_server_thread(void const* arg) {
     lwespr_t res;
     lwesp_netconn_p server, client;
 
+    LWESP_UNUSED(arg);
+
     /*
      * First create a new instance of netconn
      * connection and initialize system message boxes

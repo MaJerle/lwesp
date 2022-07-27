@@ -20,6 +20,8 @@ netconn_server_1thread_thread(void* arg) {
     lwesp_netconn_p server, client;
     lwesp_pbuf_p p;
 
+    LWESP_UNUSED(arg);
+
     /* Create netconn for server */
     server = lwesp_netconn_new(LWESP_NETCONN_TYPE_TCP);
     if (server == NULL) {

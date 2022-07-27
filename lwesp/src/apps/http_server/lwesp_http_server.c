@@ -789,6 +789,8 @@ static void
 send_response(http_state_t* hs, uint8_t ft) {
     uint8_t close = 0;
 
+    LWESP_UNUSED(ft);
+
     if (!hs->process_resp ||                    /* Not yet ready to process response? */
         (hs->written_total > 0 && hs->written_total != hs->sent_total)) {   /* Did we wrote something but didn't send yet? */
         return;

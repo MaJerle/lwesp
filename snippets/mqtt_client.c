@@ -60,6 +60,8 @@ void
 mqtt_client_thread(void const* arg) {
     lwesp_mac_t mac;
 
+    LWESP_UNUSED(arg);
+
     /* Register new callback for general events from ESP stack */
     lwesp_evt_register(prv_mqtt_lwesp_cb);
 

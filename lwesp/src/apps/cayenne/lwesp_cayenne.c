@@ -504,8 +504,8 @@ prv_mqtt_client_evt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             size_t payload_len = lwesp_mqtt_client_evt_publish_recv_get_payload_len(client, evt);
 
             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[LWESP CAYENNE] Publish rcved\r\n");
-            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[LWESP CAYENNE] Publish rcv topic: %.*s\r\n", (int)topic_len, (const void*)topic);
-            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[LWESP CAYENNE] Publish rcv data : %.*s\r\n", (int)payload_len, (const void*)payload);
+            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[LWESP CAYENNE] Publish rcv topic: %.*s\r\n", (int)topic_len, (char*)topic);
+            LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[LWESP CAYENNE] Publish rcv data : %.*s\r\n", (int)payload_len, (char*)payload);
 
             /* Try to parse received topic and respective payload */
             if (lwesp_cayenne_parse_topic(c, topic, topic_len) == lwespOK

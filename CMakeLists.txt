@@ -31,7 +31,7 @@ target_sources(${PROJECT_NAME} PUBLIC
     # Port specific
     ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/system/lwesp_sys_win32.c
     ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/system/lwesp_ll_win32.c
-    )
+)
 
 # Add key include paths
 target_include_directories(${PROJECT_NAME} PUBLIC
@@ -41,7 +41,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
     # Port specifics
     ${CMAKE_CURRENT_LIST_DIR}/lwesp/src/include/system/port/win32
-    )
+)
 
 # Compilation definition information
 target_compile_definitions(${PROJECT_NAME} PUBLIC
@@ -49,7 +49,14 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     _DEBUG
     CONSOLE
     LWESP_DEV
-    )
+)
+
+# Compiler options
+target_compile_options(${PROJECT_NAME} PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
 
 # Add subdir with lwesp and link to the project
 add_subdirectory("lwesp")

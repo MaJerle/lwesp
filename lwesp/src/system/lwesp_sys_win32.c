@@ -34,6 +34,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "system/lwesp_sys.h"
+#include "lwesp/lwesp_private.h"
 #include "windows.h"
 
 #if !__DOXYGEN__
@@ -172,7 +173,6 @@ lwesp_sys_sem_delete(lwesp_sys_sem_t* p) {
 uint32_t
 lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
     DWORD ret;
-    uint32_t tick = osKernelSysTick();
 
     if (timeout == 0) {
         ret = WaitForSingleObject(*p, INFINITE);
@@ -339,6 +339,10 @@ uint8_t
 lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
     HANDLE h;
     DWORD id;
+
+    LWESP_UNUSED(name);
+    LWESP_UNUSED(stack_size);
+    LWESP_UNUSED(prio);
     h = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)thread_func, arg, 0, &id);
     if (t != NULL) {
         *t = h;

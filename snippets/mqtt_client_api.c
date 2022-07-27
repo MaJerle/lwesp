@@ -57,6 +57,8 @@ mqtt_client_api_thread(void const* arg) {
     lwespr_t res;
     char random_str[10];
 
+    LWESP_UNUSED(arg);
+
     /* Create new MQTT API */
     if ((client = lwesp_mqtt_client_api_new(256, 128)) == NULL) {
         goto terminate;

@@ -39,6 +39,7 @@ prv_print_ip(void) {
  */
 static void
 prv_dns_resolve_evt(lwespr_t res, void* arg) {
+    LWESP_UNUSED(arg);
     /* Check result of command */
     if (res == lwespOK) {
         /* Print actual resolved IP */

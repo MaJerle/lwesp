@@ -79,6 +79,7 @@ static prv_ap_data_t ap_async_data;             /* Asynchronous data structure *
  */
 static void
 prv_cmd_event_fn(lwespr_t status, void* arg) {
+    LWESP_UNUSED(status);
     /*
      * Command has now successfully finish
      * and callbacks have been properly processed

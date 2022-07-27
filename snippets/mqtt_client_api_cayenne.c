@@ -41,6 +41,8 @@ mqtt_client_api_cayenne_thread(void const* arg) {
     lwesp_mqtt_client_api_buf_p buf;
     lwespr_t res;
 
+    LWESP_UNUSED(arg);
+
 beg:
     while (1) {
         /* Wait IP and connected to network */

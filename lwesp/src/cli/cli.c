@@ -29,12 +29,12 @@
  * Author:          Miha CESNIK <>
  * Version:         v1.1.2-dev
  */
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 #include "cli/cli.h"
+#include "lwesp/lwesp_private.h"
 
 static cli_commands_t cli_command_table[CLI_MAX_MODULES];
 static size_t num_of_modules;
@@ -204,6 +204,9 @@ cli_help(cli_printf cliprintf, int argc, char** argv) {
 static void
 cli_list(cli_printf cliprintf, int argc, char** argv) {
     uint32_t module_index, command_index;
+
+    LWESP_UNUSED(argc);
+    LWESP_UNUSED(argv);
 
     cliprintf("%-20s%s"CLI_NL, "Command", "Description");
     cliprintf("-----------------------------------------------------------"CLI_NL);

@@ -106,6 +106,13 @@ void
 cayenne_thread(void const* arg) {
     char s[20];
     float temp = 0.1f;
+    static lwesp_cayenne_tx_msg_t tx_msg;
+    static lwesp_cayenne_data_type_unit_t type_unit = (lwesp_cayenne_data_type_unit_t)0;
+
+    LWESP_UNUSED(s);
+    LWESP_UNUSED(arg);
+    LWESP_UNUSED(tx_msg);
+    LWESP_UNUSED(type_unit);
 
     while (!lwesp_sta_has_ip()) {
         lwesp_delay(1000);
@@ -116,9 +123,6 @@ cayenne_thread(void const* arg) {
     if (lwesp_cayenne_create(&cayenne, &mqtt_client_info, prv_cayenne_evt) != lwespOK) {
         debug_printf("[CAYENNE] Cannot create cayenne instance..\r\n");
     }
-
-    static lwesp_cayenne_tx_msg_t tx_msg;
-    static lwesp_cayenne_data_type_unit_t type_unit = (lwesp_cayenne_data_type_unit_t)0;
     while (1) {
         for (size_t i = 0; i < 3; ++i) {
             tx_msg.channel = 100 + type_unit;

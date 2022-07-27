@@ -86,6 +86,7 @@ http_server_start(void) {
  */
 static lwespr_t
 http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len) {
+    LWESP_UNUSED(hs);
     printf("POST started with %d length on URI: %s\r\n", (int)content_len, uri);
     return lwespOK;
 }
@@ -98,6 +99,7 @@ http_post_start_cb(http_state_t* hs, const char* uri, uint32_t content_len) {
  */
 static lwespr_t
 http_post_data_cb(http_state_t* hs, lwesp_pbuf_p pbuf) {
+    LWESP_UNUSED(hs);
     printf("POST data received: %d bytes\r\n", (int)lwesp_pbuf_length(pbuf, 1));
     return lwespOK;
 }
@@ -109,6 +111,7 @@ http_post_data_cb(http_state_t* hs, lwesp_pbuf_p pbuf) {
  */
 static lwespr_t
 http_post_end_cb(http_state_t* hs) {
+    LWESP_UNUSED(hs);
     printf("POST finished!\r\n");
     return lwespOK;
 }

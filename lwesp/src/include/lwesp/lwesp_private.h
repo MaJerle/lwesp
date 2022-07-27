@@ -614,8 +614,8 @@ extern lwesp_t esp;
 #define LWESP_MSG_VAR_DEFINE(name)                lwesp_msg_t* name
 #define LWESP_MSG_VAR_ALLOC(name, blocking)       do {\
         (name) = lwesp_mem_malloc(sizeof(*(name)));       \
-        LWESP_DEBUGW(LWESP_CFG_DBG_VAR | LWESP_DBG_TYPE_TRACE, (name) != NULL, "[MSG VAR] Allocated %d bytes at %p\r\n", sizeof(*(name)), (name)); \
-        LWESP_DEBUGW(LWESP_CFG_DBG_VAR | LWESP_DBG_TYPE_TRACE, (name) == NULL, "[MSG VAR] Error allocating %d bytes\r\n", sizeof(*(name))); \
+        LWESP_DEBUGW(LWESP_CFG_DBG_VAR | LWESP_DBG_TYPE_TRACE, (name) != NULL, "[MSG VAR] Allocated %d bytes at %p\r\n", (int)sizeof(*(name)), (void *)(name)); \
+        LWESP_DEBUGW(LWESP_CFG_DBG_VAR | LWESP_DBG_TYPE_TRACE, (name) == NULL, "[MSG VAR] Error allocating %d bytes\r\n", (int)sizeof(*(name))); \
         if ((name) == NULL) {                           \
             return lwespERRMEM;                           \
         }                                               \
@@ -624,7 +624,7 @@ extern lwesp_t esp;
     } while (0)
 #define LWESP_MSG_VAR_REF(name)                   (*(name))
 #define LWESP_MSG_VAR_FREE(name)                  do {\
-        LWESP_DEBUGF(LWESP_CFG_DBG_VAR | LWESP_DBG_TYPE_TRACE, "[MSG VAR] Free memory: %p\r\n", (name)); \
+        LWESP_DEBUGF(LWESP_CFG_DBG_VAR | LWESP_DBG_TYPE_TRACE, "[MSG VAR] Free memory: %p\r\n", (void *)(name)); \
         if (lwesp_sys_sem_isvalid(&((name)->sem))) {      \
             lwesp_sys_sem_delete(&((name)->sem));         \
             lwesp_sys_sem_invalid(&((name)->sem));        \
