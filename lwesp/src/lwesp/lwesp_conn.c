@@ -220,7 +220,7 @@ prv_conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, 
      *
      * Limit up to maximum buffer allowed by ESP
      */
-    if (conn->type == LWESP_CONN_TYPE_UDP) {
+    if (CONN_IS_UDP_V4_OR_V6(conn->type)) {
         LWESP_ASSERT("USD: len < max_len", btw <= LWESP_CFG_CONN_MAX_DATA_LEN);
     }
 #endif /* !LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND */
@@ -346,7 +346,7 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct,
     LWESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
 
     /* Add connection type specific features */
-    if (start_struct->type != LWESP_CONN_TYPE_UDP) {
+    if (!CONN_IS_UDP_V4_OR_V6(start_struct->type)) {
         LWESP_MSG_VAR_REF(msg).msg.conn_start.tcp_ssl_keep_alive = start_struct->ext.tcp_ssl.keep_alive;
     } else {
         LWESP_MSG_VAR_REF(msg).msg.conn_start.udp_local_port = start_struct->ext.udp.local_port;

@@ -660,7 +660,18 @@ extern lwesp_t esp;
 #define CRLF                                "\r\n"
 #define CRLF_LEN                            2
 
-#define LWESP_PORT2NUM(port)                  ((uint32_t)(port))
+#define LWESP_PORT2NUM(port)                ((uint32_t)(port))
+
+/* Define macros to check if connection is any (either V4 or V6) of the type */
+#if LWESP_CFG_IPV6
+#define CONN_IS_TCP_V4_OR_V6(contype)       ((contype) == LWESP_CONN_TYPE_TCP || (contype) == LWESP_CONN_TYPE_TCPV6)
+#define CONN_IS_SSL_V4_OR_V6(contype)       ((contype) == LWESP_CONN_TYPE_SSL || (contype) == LWESP_CONN_TYPE_SSLV6)
+#define CONN_IS_UDP_V4_OR_V6(contype)       ((contype) == LWESP_CONN_TYPE_UDP || (contype) == LWESP_CONN_TYPE_UDPV6)
+#else
+#define CONN_IS_TCP_V4_OR_V6(contype)       ((contype) == LWESP_CONN_TYPE_TCP)
+#define CONN_IS_SSL_V4_OR_V6(contype)       ((contype) == LWESP_CONN_TYPE_SSL)
+#define CONN_IS_UDP_V4_OR_V6(contype)       ((contype) == LWESP_CONN_TYPE_UDP)
+#endif
 
 const char* lwespi_dbg_msg_to_string(lwesp_cmd_t cmd);
 lwespr_t    lwespi_process(const void* data, size_t len);

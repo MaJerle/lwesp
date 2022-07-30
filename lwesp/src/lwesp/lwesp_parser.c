@@ -425,20 +425,27 @@ lwespi_parse_link_conn(const char* str) {
     esp.m.link_conn.num = lwespi_parse_number(&str);
     if (!strncmp(str, "\"TCP\"", 5)) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_TCP;
+        str += 6;
     } else if (!strncmp(str, "\"UDP\"", 5)) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_UDP;
+        str += 6;
     } else if (!strncmp(str, "\"SSL\"", 5)) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_SSL;
+        str += 6;
 #if LWESP_CFG_IPV6
     } else if (!strncmp(str, "\"TCPv6\"", 7)) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_TCPV6;
+        str += 8;
+    } else if (!strncmp(str, "\"UDPv6\"", 7)) {
+        esp.m.link_conn.type = LWESP_CONN_TYPE_UDPV6;
+        str += 8;
     } else if (!strncmp(str, "\"SSLv6\"", 7)) {
         esp.m.link_conn.type = LWESP_CONN_TYPE_SSLV6;
+        str += 8;
 #endif /* LWESP_CFG_IPV6 */
     } else {
         return 0;
     }
-    str += 6;
     esp.m.link_conn.is_server = lwespi_parse_number(&str);
     lwespi_parse_ip(&str, &esp.m.link_conn.remote_ip);
     esp.m.link_conn.remote_port = lwespi_parse_port(&str);

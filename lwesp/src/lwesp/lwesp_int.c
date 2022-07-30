@@ -520,7 +520,7 @@ lwespi_tcpip_process_send_data(void) {
     lwespi_send_number(LWESP_U32(esp.msg->msg.conn_send.sent), 0, 1);   /* Send length number */
 
     /* On UDP connections, IP address and port may be included */
-    if (c->type == LWESP_CONN_TYPE_UDP
+    if (CONN_IS_UDP_V4_OR_V6(c->type)
         && esp.msg->msg.conn_send.remote_ip != NULL && esp.msg->msg.conn_send.remote_port) {
         lwespi_send_ip(esp.msg->msg.conn_send.remote_ip, 1, 1); /* Send IP address including quotes */
         lwespi_send_port(esp.msg->msg.conn_send.remote_port, 0, 1); /* Send length number */
@@ -1591,21 +1591,16 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
                  * if final result was error, decide what type
                  * of error should be returned for user
                  */
-                switch (msg->msg.sta_join.error_num) {
-                    case 1:
-                        esp.evt.evt.sta_join_ap.res = lwespERRCONNTIMEOUT;
-                        break;
-                    case 2:
-                        esp.evt.evt.sta_join_ap.res = lwespERRPASS;
-                        break;
-                    case 3:
-                        esp.evt.evt.sta_join_ap.res = lwespERRNOAP;
-                        break;
-                    case 4:
-                        esp.evt.evt.sta_join_ap.res = lwespERRCONNFAIL;
-                        break;
-                    default:
-                        esp.evt.evt.sta_join_ap.res = lwespERR;
+                if (msg->msg.sta_join.error_num == 1) {
+                    esp.evt.evt.sta_join_ap.res = lwespERRCONNTIMEOUT;
+                } else if (msg->msg.sta_join.error_num == 2) {
+                    esp.evt.evt.sta_join_ap.res = lwespERRPASS;
+                } else if (msg->msg.sta_join.error_num == 3) {
+                    esp.evt.evt.sta_join_ap.res = lwespERRNOAP;
+                } else if (msg->msg.sta_join.error_num == 4) {
+                    esp.evt.evt.sta_join_ap.res = lwespERRCONNFAIL;
+                } else {
+                    esp.evt.evt.sta_join_ap.res = lwespERR;
                 }
             }
         } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_GET)) {
@@ -1762,7 +1757,7 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
             /* This one is optional, to check for more data just at the end */
             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVLEN);/* Inquiry for latest status on data */
             msg->msg.ciprecvdata.is_last_check = 1;
-        } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.ciprecvdata.is_last_check == 0) {
+        } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.ciprecvdata.is_last_check == 1) {
             /* Do nothing */
             if (*is_error) {
                 *is_error = 0;
@@ -2248,29 +2243,33 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
 
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSTARTEX=");
-            if (msg->msg.conn_start.type == LWESP_CONN_TYPE_SSL) {
-                conn_type_str = "SSL";
-            } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCP) {
+            if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCP) {
                 conn_type_str = "TCP";
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_UDP) {
                 conn_type_str = "UDP";
+            } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_SSL) {
+                conn_type_str = "SSL";
 #if LWESP_CFG_IPV6
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCPV6) {
                 conn_type_str = "TCPV6";
+            } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_UDPV6) {
+                conn_type_str = "UDPV6";
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_SSLV6) {
                 conn_type_str = "SSLV6";
 #endif /* LWESP_CFG_IPV6 */
             } else {
-                conn_type_str = "unknonw";
+                conn_type_str = "unknown";
             }
             lwespi_send_string(conn_type_str, 0, 1, 0);
             lwespi_send_string(msg->msg.conn_start.remote_host, 0, 1, 1);
             lwespi_send_port(msg->msg.conn_start.remote_port, 0, 1);
 
             /* Connection-type specific features */
-            if (msg->msg.conn_start.type != LWESP_CONN_TYPE_UDP) {
+            if (!CONN_IS_UDP_V4_OR_V6(msg->msg.conn_start.type)) {
+                /* TCP or SSL */
                 lwespi_send_number(LWESP_U32(msg->msg.conn_start.tcp_ssl_keep_alive), 0, 1);
             } else {
+                /* UDP */
                 if (msg->msg.conn_start.udp_local_port > 0) {
                     lwespi_send_port(msg->msg.conn_start.udp_local_port, 0, 1);
                 } else {

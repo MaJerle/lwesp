@@ -6,7 +6,8 @@
         "string.h": "c",
         "lwevt_opt.h": "c",
         "cli.h": "c",
-        "windows.h": "c"
+        "windows.h": "c",
+        "lwesp_private.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

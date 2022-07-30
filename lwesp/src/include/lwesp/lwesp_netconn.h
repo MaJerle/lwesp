@@ -70,6 +70,7 @@ typedef enum {
 #if LWESP_CFG_IPV6 || __DOXYGEN__
     LWESP_NETCONN_TYPE_TCPV6 = LWESP_CONN_TYPE_TCPV6,   /*!< TCP connection over IPv6 */
     LWESP_NETCONN_TYPE_SSLV6 = LWESP_CONN_TYPE_SSLV6,   /*!< SSL connection over IPv6 */
+    LWESP_NETCONN_TYPE_UDPV6 = LWESP_CONN_TYPE_UDPV6,   /*!< UDP connection over IPv6 */
 #endif /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 } lwesp_netconn_type_t;
 

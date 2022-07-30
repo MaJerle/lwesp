@@ -49,11 +49,13 @@
 
 /* Check for IP status */
 #if LWESP_CFG_IPV6
-#define NETCONN_IS_TCP(nc)          (nc->type == LWESP_NETCONN_TYPE_TCP || nc->type == LWESP_NETCONN_TYPE_TCPV6)
-#define NETCONN_IS_SSL(nc)          (nc->type == LWESP_NETCONN_TYPE_SSL || nc->type == LWESP_NETCONN_TYPE_SSLV6)
+#define NETCONN_IS_TCP(nc)          ((nc)->type == LWESP_NETCONN_TYPE_TCP || (nc)->type == LWESP_NETCONN_TYPE_TCPV6)
+#define NETCONN_IS_SSL(nc)          ((nc)->type == LWESP_NETCONN_TYPE_SSL || (nc)->type == LWESP_NETCONN_TYPE_SSLV6)
+#define NETCONN_IS_UDP(nc)          ((nc)->type == LWESP_NETCONN_TYPE_UDP || (nc)->type == LWESP_NETCONN_TYPE_UDPV6)
 #else
-#define NETCONN_IS_TCP(nc)          (nc->type == LWESP_NETCONN_TYPE_TCP)
-#define NETCONN_IS_SSL(nc)          (nc->type == LWESP_NETCONN_TYPE_SSL)
+#define NETCONN_IS_TCP(nc)          ((nc)->type == LWESP_NETCONN_TYPE_TCP)
+#define NETCONN_IS_SSL(nc)          ((nc)->type == LWESP_NETCONN_TYPE_SSL)
+#define NETCONN_IS_UDP(nc)          ((nc)->type == LWESP_NETCONN_TYPE_UDP)
 #endif /* LWESP_CFG_IPV6 */
 
 /**
