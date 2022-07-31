@@ -69,5 +69,17 @@
             },
             "problemMatcher": []
         },
+        {
+            "label": "Build all WIN32 examples",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "build_all_examples.py"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/examples/win32"
+            },
+            "problemMatcher": []
+        }
     ]
 }
