@@ -100,13 +100,14 @@ typedef enum {
  */
 typedef enum {
     LWESP_ECN_OPEN = 0x00,                      /*!< No encryption on access point */
-    LWESP_ECN_WEP,                              /*!< WEP (Wired Equivalent Privacy) encryption */
-    LWESP_ECN_WPA_PSK,                          /*!< WPA (Wifi Protected Access) encryption */
-    LWESP_ECN_WPA2_PSK,                         /*!< WPA2 (Wifi Protected Access 2) encryption */
-    LWESP_ECN_WPA_WPA2_PSK,                     /*!< WPA/2 (Wifi Protected Access 1/2) encryption */
-    LWESP_ECN_WPA2_Enterprise,                  /*!< Enterprise encryption. \note ESP8266 is not able to connect to such device */
-    LWESP_ECN_WPA3_PSK,                         /*!< WPA3 (Wifi Protected Access 3) encryption */
-    LWESP_ECN_WPA2_WPA3_PSK,                    /*!< WPA2/3 (Wifi Protected Access 2/3) encryption, ESP32-C3 only mode */
+    LWESP_ECN_WEP = 0x01,                       /*!< WEP (Wired Equivalent Privacy) encryption */
+    LWESP_ECN_WPA_PSK = 0x02,                   /*!< WPA (Wifi Protected Access) encryption */
+    LWESP_ECN_WPA2_PSK = 0x03,                  /*!< WPA2 (Wifi Protected Access 2) encryption */
+    LWESP_ECN_WPA_WPA2_PSK = 0x04,              /*!< WPA/2 (Wifi Protected Access 1/2) encryption */
+    LWESP_ECN_WPA2_Enterprise = 0x05,           /*!< Enterprise encryption. \note ESP8266 is not able to connect to such device */
+    LWESP_ECN_WPA3_PSK = 0x06,                  /*!< WPA3 (Wifi Protected Access 3) encryption */
+    LWESP_ECN_WPA2_WPA3_PSK = 0x07,             /*!< WPA2/3 (Wifi Protected Access 2/3) encryption, ESP32-C3 only mode */
+    LWESP_ECN_WAPI_PSK = 0x08,                  /*!< WAPI PSK encryption mode */
     LWESP_ECN_END,
 } lwesp_ecn_t;
 
@@ -115,13 +116,13 @@ typedef enum {
  */
 typedef enum {
     LWESP_AP_CIPHER_NONE = 0x00,                /*!< None value */
-    LWESP_AP_CIPHER_WEP40,                      /*!< WEP40 mode */
-    LWESP_AP_CIPHER_WEP104,                     /*!< WEB104 */
-    LWESP_AP_CIPHER_TKIP,                       /*!< TKIP */
-    LWESP_AP_CIPHER_CCMP,                       /*!< CCMP */
-    LWESP_AP_CIPHER_TKIP_CCMP,                  /*!< TKIP and CCMP */
-    LWESP_AP_CIPHER_AES_CMAC_128,               /*!< AES-CMAC-128 */
-    LWESP_AP_CIPHER_UNKNOWN,                    /*!< Unknown value */
+    LWESP_AP_CIPHER_WEP40 = 0x01,               /*!< WEP40 mode */
+    LWESP_AP_CIPHER_WEP104 = 0x02,              /*!< WEB104 */
+    LWESP_AP_CIPHER_TKIP = 0x03,                /*!< TKIP */
+    LWESP_AP_CIPHER_CCMP = 0x04,                /*!< CCMP */
+    LWESP_AP_CIPHER_TKIP_CCMP = 0x05,           /*!< TKIP and CCMP */
+    LWESP_AP_CIPHER_AES_CMAC_128 = 0x06,        /*!< AES-CMAC-128 */
+    LWESP_AP_CIPHER_UNKNOWN = 0x07,             /*!< Unknown value */
     LWESP_AP_CIPHER_END,
 } lwesp_ap_cipher_t;
 
@@ -256,7 +257,7 @@ typedef struct {
 #if LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS || __DOXYGEN__
     uint8_t scan_type;                          /*!< Scan type, 0 = active, 1 = passive */
     uint16_t scan_time_min;                     /*!< Minimum active scan time per channel in units of milliseconds */
-    uint16_t scan_time_max;                     /*!< maximum active scan time per channel in units of milliseconds */
+    uint16_t scan_time_max;                     /*!< Maximum active scan time per channel in units of milliseconds */
     int16_t freq_offset;                        /*!< Frequency offset */
     int16_t freq_cal;                           /*!< Frequency calibration */
     lwesp_ap_cipher_t pairwise_cipher;          /*!< Pairwise cipher mode */
