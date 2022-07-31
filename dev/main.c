@@ -6,6 +6,7 @@
 #include "lwesp/lwesp.h"
 #include "lwesp/apps/lwesp_mqtt_client_api.h"
 #include "lwesp/apps/lwesp_cayenne.h"
+#include "examples_common_lwesp_callback_func.h"
 
 #include "mqtt_client.h"
 #include "mqtt_client_api.h"

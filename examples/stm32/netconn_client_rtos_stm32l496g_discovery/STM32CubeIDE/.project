@@ -289,6 +289,11 @@
 			<locationURI>PARENT-4-PROJECT_LOC/lwesp/src/system/lwesp_sys_cmsis_os.c</locationURI>
 		</link>
 		<link>
+			<name>lwesp_snippets/examples_common_lwesp_callback_func.c</name>
+			<type>1</type>
+			<locationURI>PARENT-4-PROJECT_LOC/snippets/examples_common_lwesp_callback_func.c</locationURI>
+		</link>
+		<link>
 			<name>lwesp_snippets/netconn_client.c</name>
 			<type>1</type>
 			<locationURI>PARENT-4-PROJECT_LOC/snippets/netconn_client.c</locationURI>

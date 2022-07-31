@@ -8,6 +8,7 @@
  * then waits for respond and expects server to close the connection accordingly.
  */
 #include "netconn_client.h"
+#include "lwesp/lwesp_netconn.h"
 #include "lwesp/lwesp.h"
 
 /**

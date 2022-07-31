@@ -9,6 +9,7 @@
 #include <stdarg.h> /* Required for printf */
 #include "lwesp/lwesp.h"
 #include "lwesp/lwesp_cli.h"
+#include "lwesp/lwesp_netconn.h"
 #include "cli/cli.h"
 #include "cli/cli_input.h"
 

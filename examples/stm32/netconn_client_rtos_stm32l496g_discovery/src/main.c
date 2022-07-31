@@ -35,14 +35,13 @@
 #include "lwesp/lwesp.h"
 #include "station_manager.h"
 #include "netconn_client.h"
+#include "examples_common_lwesp_callback_func.h"
 
 static void LL_Init(void);
 void SystemClock_Config(void);
 static void USART_Printf_Init(void);
 
 static void init_thread(void* arg);
-
-static lwespr_t lwesp_callback_func(lwesp_evt_t* evt);
 
 /**
  * \brief           Program entry point
@@ -72,9 +71,9 @@ main(void) {
  */
 static void
 init_thread(void* arg) {
-    /* Initialize ESP with default callback function */
+    /* Initialize ESP with common callback for all examples */
     printf("Initializing LwESP\r\n");
-    if (lwesp_init(lwesp_callback_func, 1) != lwespOK) {
+    if (lwesp_init(examples_common_lwesp_callback_func, 1) != lwespOK) {
         printf("Cannot initialize LwESP!\r\n");
     } else {
         printf("LwESP initialized!\r\n");
@@ -89,51 +88,13 @@ init_thread(void* arg) {
             /*
              * Connect to access point.
              *
-             * Try unlimited time until access point accepts up.
+             * Try unlimited time until access point accepts us.
              * Check for station_manager.c to define preferred access points ESP should connect to
              */
-            connect_to_preferred_access_point(1);
+            station_manager_connect_to_preferred_access_point(1);
         }
         osDelay(1000);
     }
-}
-
-/**
- * \brief           Event callback function for ESP stack
- * \param[in]       evt: Event information with data
- * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
- */
-static lwespr_t
-lwesp_callback_func(lwesp_evt_t* evt) {
-    switch (lwesp_evt_get_type(evt)) {
-        case LWESP_EVT_AT_VERSION_NOT_SUPPORTED: {
-            lwesp_sw_version_t v_min, v_curr;
-
-            lwesp_get_min_at_fw_version(&v_min);
-            lwesp_get_current_at_fw_version(&v_curr);
-
-            printf("Current ESP8266 AT version is not supported by library!\r\n");
-            printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
-            printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
-            break;
-        }
-        case LWESP_EVT_INIT_FINISH: {
-            printf("Library initialized!\r\n");
-            break;
-        }
-        case LWESP_EVT_RESET_DETECTED: {
-            printf("Device reset detected!\r\n");
-            break;
-        }
-        case LWESP_EVT_WIFI_IP_ACQUIRED: {        /* We have IP address and we are fully ready to work */
-            if (lwesp_sta_is_joined()) {          /* Check if joined on any network */
-                lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 512, LWESP_SYS_THREAD_PRIO);
-            }
-            break;
-        }
-        default: break;
-    }
-    return lwespOK;
 }
 
 /**

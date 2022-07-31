@@ -5,7 +5,6 @@ message("Entering ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
 
 # Library core sources
 set(lwesp_core_SRCS
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_cli.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_dhcp.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_dns.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_hostname.c
@@ -53,6 +52,7 @@ set(lwesp_mqtt_SRCS
 
 # CLI
 set(lwesp_cli_SRCS
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_cli.c
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/cli.c
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/cli_input.c
     )

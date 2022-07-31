@@ -8,7 +8,7 @@
  * 
  * Sequential:
  * ==========
- * Call connect_to_preferred_access_point function to connect to access point
+ * Call station_manager_connect_to_preferred_access_point function to connect to access point
  * in blocking mode until being ready to move forward.
  * 
  * Asynchronous:
@@ -87,7 +87,7 @@ prv_cmd_event_fn(lwespr_t status, void* arg) {
     ap_async_data.command_is_running = 0;
 
     if (arg == ARG_SCAN) {
-        /* Immediately try to connect to access point after successful scan*/
+        /* Immediately try to connect to access point after successful scan */
         prv_try_next_access_point();
     }
 }
@@ -223,7 +223,7 @@ station_manager_connect_to_access_point_async_init(void) {
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-connect_to_preferred_access_point(uint8_t unlimited) {
+station_manager_connect_to_preferred_access_point(uint8_t unlimited) {
     lwespr_t eres;
     uint8_t tried;
 

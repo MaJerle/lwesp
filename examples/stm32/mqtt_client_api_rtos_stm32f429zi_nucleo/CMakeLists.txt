@@ -98,6 +98,7 @@ set(src_lwesp_ll_SRCS
     ${PROJ_PATH}/../../../lwesp/src/system/lwesp_sys_cmsis_os.c)
 
 set(src_lwesp_snippets_SRCS 
+    ${PROJ_PATH}/../../../snippets/examples_common_lwesp_callback_func.c
     ${PROJ_PATH}/../../../snippets/mqtt_client_api_cayenne.c
     ${PROJ_PATH}/../../../snippets/station_manager.c
     ${PROJ_PATH}/../../../snippets/utils.c)

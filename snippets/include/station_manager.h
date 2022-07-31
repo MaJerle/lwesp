@@ -17,7 +17,7 @@ typedef struct {
 } ap_entry_t;
 
 /* Connect to preferred access point blocking mode */
-lwespr_t    connect_to_preferred_access_point(uint8_t unlimited);
+lwespr_t    station_manager_connect_to_preferred_access_point(uint8_t unlimited);
 
 /* Initialize asynchronous connection mode in background */
 lwespr_t    station_manager_connect_to_access_point_async_init(void);

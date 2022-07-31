@@ -8,6 +8,7 @@
  * introduce latency, in some cases even clearly visible in (for example) user browser 
  */
 #include "netconn_server_1thread.h"
+#include "lwesp/lwesp_netconn.h"
 #include "lwesp/lwesp.h"
 
 /**

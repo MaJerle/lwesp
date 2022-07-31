@@ -11,6 +11,7 @@
  * used at the same period of time.
  */
 #include "netconn_server.h"
+#include "lwesp/lwesp_netconn.h"
 #include "lwesp/lwesp.h"
 
 static void netconn_server_processing_thread(void* const arg);
