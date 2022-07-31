@@ -5,7 +5,7 @@ Examples and demos
 
 Various examples are provided for fast library evaluation on embedded systems. These are prepared and maintained for ``2`` platforms, but could be easily extended to more platforms:
 
-* WIN32 examples, prepared as `Visual Studio Community <https://visualstudio.microsoft.com/vs/community/>`_ projects
+* WIN32 examples, prepared as `CMake` projects, ready for `MSYS2 GCC compiler`
 * ARM Cortex-M examples for STM32, prepared as `STM32CubeIDE <https://www.st.com/en/development-tools/stm32cubeide.html>`_ GCC projects. These are also supported in *Visual Studio Code* through *CMake* and *ninja* build system. `Dedicated tutorial <https://github.com/MaJerle/stm32-cube-cmake-vscode>`_ is available to get started in *VSCode*.
 
 .. note::
@@ -20,8 +20,12 @@ Therefore it has been decided to support (for purpose of examples) ``2`` platfor
 WIN32
 *****
 
-Examples for *WIN32* are prepared as `Visual Studio Community <https://visualstudio.microsoft.com/vs/community/>`_ projects.
-You can directly open project in the IDE, compile & debug.
+Examples for *WIN32* are CMake-ready and *VSCode*-ready.
+It utilizes CMake-presets feature to let you select the example and compile it directly.
+
+* Make sure you have installed GCC compiler and is in env path (you can get it through MSYS2 packet manager)
+* Install ninja and cmake and make them available in the path (you can get all through MSYS2 packet manager)
+* Go to *examples win32* folder, open vscode there or run cmd: ``cmake --preset <project name>`` to configure cmake and later ``cmake --build --preset <project name>`` to compile the project
 
 Application opens *COM* port, set in the low-level driver.
 External USB to UART converter (FTDI-like device) is necessary in order to connect to *ESP* device.
