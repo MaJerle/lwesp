@@ -80,6 +80,7 @@ Table of contents
     api-reference/index
     examples/index
     firmware-update/index
+    changelog/index
 
 .. toctree::
     :maxdepth: 2
