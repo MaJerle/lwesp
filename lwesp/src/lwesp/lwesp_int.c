@@ -1195,7 +1195,7 @@ lwespi_process(const void* data, size_t data_len) {
     uint8_t ch;
     const uint8_t* d = data;
     size_t d_len = data_len;
-    static uint8_t ch_prev1, ch_prev2;
+    static uint8_t ch_prev1;
     static lwesp_unicode_t unicode;
 
     /* Check status if device is available */
@@ -1389,7 +1389,6 @@ lwespi_process(const void* data, size_t data_len) {
                 RECV_RESET();                   /* Invalid character in sequence */
             }
         }
-        ch_prev2 = ch_prev1;                    /* Save previous character as previous previous */
         ch_prev1 = ch;                          /* Set current as previous */
     }
     return lwespOK;
