@@ -636,7 +636,6 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     if (rcv->data[0] == '+') {
         if (!strncmp("+IPD", rcv->data, 4)) {   /* Check received network data */
             lwespi_parse_ipd(rcv->data);        /* Parse IPD statement and start receiving network data */
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
             if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPRECVDATA) && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN)) {
                 esp.msg->msg.ciprecvdata.ipd_recv = 1;  /* Command repeat, try again later */
             }
@@ -646,7 +645,6 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             lwespi_parse_ciprecvdata(rcv->data);/* Parse CIPRECVDATA statement and start receiving network data */
         } else if (!strncmp("+CIPRECVLEN", rcv->data, 11)) {
             lwespi_parse_ciprecvlen(rcv->data); /* Parse CIPRECVLEN statement */
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if LWESP_CFG_MODE_ACCESS_POINT
         } else if (!strncmp(rcv->data, "+STA_CONNECTED", 14)) {
             lwespi_parse_ap_conn_disconn_sta(&rcv->data[15], 1);/* Parse string and send to user layer */
@@ -1059,9 +1057,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 esp.evt.evt.conn_active_close.forced = conn->status.f.client;   /* Set if action was forced = if client mode */
                 lwespi_send_conn_cb(conn, NULL);/* Send event */
                 lwespi_conn_start_timeout(conn);/* Start connection timeout timer */
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
                 lwespi_conn_check_available_rx_data();
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
             }
         }
         /*
@@ -1250,7 +1246,6 @@ lwespi_process(const void* data, size_t data_len) {
 
                 /* Call user callback function with received data */
                 if (esp.m.ipd.buff != NULL) {   /* Do we have valid buffer? */
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
                     size_t pbuf_len;
 
                     pbuf_len = lwesp_pbuf_length(esp.m.ipd.buff, 1);
@@ -1258,7 +1253,6 @@ lwespi_process(const void* data, size_t data_len) {
                     if (esp.m.ipd.conn->tcp_available_bytes >= pbuf_len) {
                         esp.m.ipd.conn->tcp_available_bytes -= pbuf_len;
                     }
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
                     esp.m.ipd.conn->total_recved += esp.m.ipd.buff->tot_len;/* Increase number of bytes received */
 
@@ -1332,9 +1326,7 @@ lwespi_process(const void* data, size_t data_len) {
             }
             if (res == lwespOK) {               /* Can we process the character(s) */
                 if (unicode.t == 1) {           /* Totally 1 character? */
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
                     char* tmp_ptr;
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
                     switch (ch) {
                         case '\n':
                             RECV_ADD(ch);       /* Add character to input buffer */
@@ -1357,7 +1349,6 @@ lwespi_process(const void* data, size_t data_len) {
                         }
                     }
 
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
                     /*
                      * Check if "+CIPRECVDATA" statement is in array and now we received colon,
                      * indicating end of +CIPRECVDATA statement and start of actual data
@@ -1389,47 +1380,7 @@ lwespi_process(const void* data, size_t data_len) {
                         } else {
                             /* ERROR handling */
                         }
-                    } else
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-
-                        /*
-                         * Check if "+IPD" statement is in array and now we received colon,
-                         * indicating end of +IPD and start of actual data
-                         */
-                        if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+IPD", 4)) {
-                            lwespi_parse_received(&recv_buff);  /* Parse received string */
-                            if (esp.m.ipd.read) {   /* Shall we start read procedure? */
-                                size_t len;
-                                LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                             "[LWESP IPD] Data on connection %d with total size %d byte(s)\r\n",
-                                             (int)esp.m.ipd.conn->num, (int)esp.m.ipd.tot_len);
-
-                                len = LWESP_MIN(esp.m.ipd.rem_len, LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE);
-
-                                /*
-                                 * Read received data in case of:
-                                 *
-                                 *  - Connection is active and
-                                 *  - Connection is not in closing mode
-                                 */
-                                if (esp.m.ipd.conn->status.f.active && !esp.m.ipd.conn->status.f.in_closing) {
-                                    esp.m.ipd.buff = lwesp_pbuf_new(len);   /* Allocate new packet buffer */
-                                    if (esp.m.ipd.buff != NULL) {
-                                        lwesp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip, esp.m.ipd.port);   /* Set IP and port for received data */
-                                    }
-                                    LWESP_DEBUGW(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING, esp.m.ipd.buff == NULL,
-                                                 "[LWESP IPD] Buffer allocation failed for %d byte(s)\r\n", (int)len);
-                                } else {
-                                    esp.m.ipd.buff = NULL;  /* Ignore reading on closed connection */
-                                    LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                                 "[LWESP IPD] Connection %d closed or in closing, skipping %d byte(s)\r\n",
-                                                 (int)esp.m.ipd.conn->num, (int)len);
-                                }
-                                esp.m.ipd.conn->status.f.data_received = 1; /* We have first received data */
-                                esp.m.ipd.buff_ptr = 0; /* Reset buffer write pointer */
-                            }
-                            RECV_RESET();       /* Reset received buffer */
-                        }
+                    }
                 } else {                        /* We have sequence of unicode characters */
                     /*
                      * Unicode sequence characters are not "meta" characters
@@ -1512,11 +1463,9 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPMUX);
             break;
         case LWESP_CMD_TCPIP_CIPMUX:
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVMODE);
             break;
         case LWESP_CMD_TCPIP_CIPRECVMODE:
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if LWESP_CFG_IPV6
             SET_NEW_CMD(LWESP_CMD_WIFI_IPV6);
             break;
@@ -1694,7 +1643,6 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
             esp.evt.evt.conn_active_close.client = msg->msg.conn_close.conn->status.f.active && msg->msg.conn_close.conn->status.f.client;
             lwespi_send_conn_cb(msg->msg.conn_close.conn, NULL);
         }
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPRECVDATA)) {
         if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.ciprecvdata.is_last_check == 0) {
             uint8_t set_error = 0;
@@ -1764,7 +1712,6 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
                 *is_ok = 1;
             }
         }
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CWDHCP_SET)) {
         if (CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_SET)) {
             SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET);
@@ -2348,7 +2295,6 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
         case LWESP_CMD_TCPIP_CIPRECVMODE: {     /* Set TCP data receive mode */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPRECVMODE=1");
@@ -2369,7 +2315,6 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if LWESP_CFG_DNS
         case LWESP_CMD_TCPIP_CIPDOMAIN: {       /* DNS function */
             AT_PORT_SEND_BEGIN_AT();

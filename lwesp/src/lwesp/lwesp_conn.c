@@ -70,10 +70,7 @@ prv_conn_timeout_cb(void* arg) {
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE,
                      "[LWESP CONN] Poll event: %p\r\n", (void *)conn);
     }
-
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     lwespi_conn_manual_tcp_try_read_data(conn); /* Try to read data manually */
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 }
 
 /**
@@ -84,8 +81,6 @@ void
 lwespi_conn_start_timeout(lwesp_conn_p conn) {
     lwesp_timeout_add(LWESP_CFG_CONN_POLL_INTERVAL, prv_conn_timeout_cb, conn); /* Add connection timeout */
 }
-
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
 
 /**
  * \brief           Callback function when manual TCP receive finishes
@@ -173,7 +168,6 @@ lwespi_conn_check_available_rx_data(void) {
 
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
 }
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
 /**
  * \brief           Get connection validation ID
@@ -464,7 +458,6 @@ lwesp_conn_send(lwesp_conn_p conn, const void* data, size_t btw, size_t* const b
  */
 lwespr_t
 lwesp_conn_recved(lwesp_conn_p conn, lwesp_pbuf_p pbuf) {
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     size_t len;
     len = lwesp_pbuf_length(pbuf, 1);           /* Get length of pbuf */
     if (conn->tcp_not_ack_bytes >= len) {       /* Check length of not-acknowledged bytes */
@@ -473,10 +466,6 @@ lwesp_conn_recved(lwesp_conn_p conn, lwesp_pbuf_p pbuf) {
         /* Warning here, de-sync happened somewhere! */
     }
     lwespi_conn_manual_tcp_try_read_data(conn); /* Try to read more connection data */
-#else /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-    LWESP_UNUSED(conn);
-    LWESP_UNUSED(pbuf);
-#endif /* !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     return lwespOK;
 }
 

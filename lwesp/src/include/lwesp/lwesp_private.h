@@ -134,11 +134,9 @@ typedef enum {
     LWESP_CMD_TCPIP_CIPSERVERMAXCONN,           /*!< Sets maximal number of connections allowed for server population */
     LWESP_CMD_TCPIP_CIPMODE,                    /*!< Transmission mode, either transparent or normal one */
     LWESP_CMD_TCPIP_CIPSTO,                     /*!< Sets connection timeout */
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
     LWESP_CMD_TCPIP_CIPRECVMODE,                /*!< Sets mode for TCP data receive (manual or automatic) */
     LWESP_CMD_TCPIP_CIPRECVDATA,                /*!< Manually reads TCP data from device */
     LWESP_CMD_TCPIP_CIPRECVLEN,                 /*!< Gets number of available bytes in connection to be read */
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
     LWESP_CMD_TCPIP_CIUPDATE,                   /*!< Perform self-update */
 #if LWESP_CFG_SNTP || __DOXYGEN__
     LWESP_CMD_TCPIP_CIPSNTPCFG,                 /*!< Configure SNTP servers */
@@ -186,7 +184,6 @@ typedef struct lwesp_conn {
 
     size_t          total_recved;               /*!< Total number of bytes received */
 
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
     size_t          tcp_available_bytes;        /*!< Number of bytes in ESP ready to be read on connection.
                                                         This variable always holds last known info from ESP
                                                         device and is not decremented (or incremented) by application */
@@ -194,7 +191,6 @@ typedef struct lwesp_conn {
                                                         This variable is increased everytime new packet is
                                                         read to be sent to application and decreased
                                                         when application acknowledges it */
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
 
     union {
         struct {
@@ -204,10 +200,8 @@ typedef struct lwesp_conn {
             uint8_t in_closing: 1;              /*!< Status if connection is in closing mode.
                                                     When in closing mode, ignore any possible
                                                     received data from function */
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
             uint8_t receive_blocked: 1;         /*!< Status whether we should block manual receive for some time */
             uint8_t receive_is_command_queued: 1;   /*!< Status whether manual read command is in the queue already */
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
         } f;                                    /*!< Connection flags */
     } status;                                   /*!< Connection status union with flag bits */
 } lwesp_conn_t;
@@ -392,7 +386,6 @@ typedef struct lwesp_msg {
             size_t* bw;                         /*!< Number of bytes written so far */
             uint8_t val_id;                     /*!< Connection current validation ID when command was sent to queue */
         } conn_send;                            /*!< Structure to send data on connection */
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
         struct {
             lwesp_conn_t* conn;                 /*!< Connection handle */
             size_t len;                         /*!< Number of bytes to read */
@@ -402,7 +395,6 @@ typedef struct lwesp_msg {
             uint8_t is_last_check;              /*!< Status indicating check for data length is at the end of command.
                                                         Do nothing after successful command */
         } ciprecvdata;                          /*!< Structure to manually read TCP data */
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
         /* TCP/IP based commands */
         struct {

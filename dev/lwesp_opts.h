@@ -85,8 +85,6 @@
 
 #define LWESP_CFG_RESET_ON_INIT                 1
 
-#define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE       1
-
 #define LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS   1
 #define LWESP_CFG_LIST_CMD                      1
 

@@ -42,10 +42,6 @@
 #error LWESP_CFG_OS must be set to 1 in current revision!
 #endif /* LWESP_CFG_OS != 1 */
 
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
-//#error LWESP_CFG_CONN_MANUAL_TCP_RECEIVE must be set to 0 in current revision!
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-
 static lwesp_evt_func_t   def_evt_link;
 
 /* Global ESP structure */

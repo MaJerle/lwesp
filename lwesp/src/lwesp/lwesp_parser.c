@@ -260,7 +260,6 @@ lwespi_parse_cipstatus_cipstate(const char* str) {
     return lwespOK;
 }
 
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
 /**
  * \brief           Parse +CIPRECVDATA statement
  * \param[in]       str: Input string to parse
@@ -298,10 +297,10 @@ lwespi_parse_ciprecvdata(const char* str) {
 lwespr_t
 lwespi_parse_ciprecvlen(const char* str) {
     int32_t len;
+
     if (*str == '+') {
         str += 12;
     }
-
     for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {
         len = lwespi_parse_number(&str);
         if (len < 0) {
@@ -309,10 +308,8 @@ lwespi_parse_ciprecvlen(const char* str) {
         }
         esp.m.conns[i].tcp_available_bytes = len;
     }
-
     return lwespOK;
 }
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
 
 /**
  * \brief           Parse +IPD statement
@@ -339,55 +336,27 @@ lwespi_parse_ipd(const char* str) {
 
     /*
      * First check if this string is "notification only" or actual "data packet".
-     *
-     * Take decision based on ':' character before data. We can expect 3 types of format:
-     *
-     * +IPD,conn_num,available_bytes<CR><LF>                    : Notification only, for TCP connection
-     * +IPD,conn_num,bytes_in_packet:data                       : Data packet w/o remote ip/port,
-     *                                                              as response on manual TCP read or if AT+CIPDINFO=0
-     * +IPD,conn_num,bytes_in_packet,remote_ip,remote_port:data : Data packet w/ remote ip/port,
-     *                                                              as response on automatic read of all connection types
+     * We only expect notification hence there should be no ":" character
      */
     is_data_ipd = strchr(str, ':') != NULL;     /* Check if we have ':' in string */
 
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     /*
-     * Check if +IPD is only notification and not actual data packet
+     * +IPD should always be only
+     * notification message and never include data.
+     * 
+     * Actual data read shall be done with different command
      */
     if (!is_data_ipd) {                         /* If not data packet */
         c->tcp_available_bytes = len;           /* Set new value for number of bytes available to read from device */
-    } else
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-        /*
-         * If additional information are enabled (IP and PORT),
-         * parse them and save.
-         *
-         * Even if information is enabled, in case of manual TCP
-         * receive, these information are not present.
-         *
-         * Check for ':' character if it is end of string and determine how to proceed
-         */
-        if (*str != ':') {
-            lwespi_parse_ip(&str, &esp.m.ipd.ip);   /* Parse incoming packet IP */
-            esp.m.ipd.port = lwespi_parse_port(&str);   /* Get port on IPD data */
-
-            LWESP_MEMCPY(&esp.m.conns[conn].remote_ip, &esp.m.ipd.ip, sizeof(esp.m.ipd.ip));
-            LWESP_MEMCPY(&esp.m.conns[conn].remote_port, &esp.m.ipd.port, sizeof(esp.m.ipd.port));
-        }
-
-    /*
-     * Data read procedure may only happen in case there is
-     * data packet available, otherwise do nothing further about this information
-     *
-     * This check should be always positive when LWESP_CFG_CONN_MANUAL_TCP_RECEIVE is disabled
-     */
+    } else {
+        /* TODO: Serious error... */
+    }
     esp.m.ipd.tot_len = len;                    /* Total number of bytes in this received packet or notification message */
     esp.m.ipd.conn = c;                         /* Pointer to connection we have data for or notification message */
     if (is_data_ipd) {                          /* Shall we start IPD read procedure? */
         esp.m.ipd.read = 1;                     /* Start reading network data */
         esp.m.ipd.rem_len = len;                /* Number of remaining bytes to read */
     }
-
     return lwespOK;
 }
 

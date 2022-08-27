@@ -209,10 +209,6 @@ netconn_evt(lwesp_evt_t* evt) {
             nc = lwesp_conn_get_arg(conn);      /* Get API from connection */
             pbuf = lwesp_evt_conn_recv_get_buff(evt);   /* Get received buff */
 
-#if !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
-            lwesp_conn_recved(conn, pbuf);      /* Notify stack about received data */
-#endif /* !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
-
             lwesp_pbuf_ref(pbuf);               /* Increase reference counter */
             if (nc == NULL || !lwesp_sys_mbox_isvalid(&nc->mbox_receive)
                 || !lwesp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
@@ -222,12 +218,10 @@ netconn_evt(lwesp_evt_t* evt) {
                 return lwespOKIGNOREMORE;       /* Return OK to free the memory and ignore further data */
             }
             ++nc->mbox_receive_entries;         /* Increase number of packets in receive mbox */
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
             /* Check against 1 less to still allow potential close event to be written to queue */
             if (nc->mbox_receive_entries >= (LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN - 1)) {
                 conn->status.f.receive_blocked = 1; /* Block reading more data */
             }
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
             ++nc->rcv_packets;                  /* Increase number of packets received */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE,
@@ -756,14 +750,12 @@ lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
         *pbuf = NULL;                           /* Reset pbuf */
         return lwespCLOSED;
     }
-#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
     else {
         lwesp_core_lock();
         nc->conn->status.f.receive_blocked = 0; /* Resume reading more data */
         lwesp_conn_recved(nc->conn, *pbuf);     /* Notify stack about received data */
         lwesp_core_unlock();
     }
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     return lwespOK;                             /* We have data available */
 }
 

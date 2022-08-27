@@ -7,7 +7,14 @@
         "lwevt_opt.h": "c",
         "cli.h": "c",
         "windows.h": "c",
-        "lwesp_private.h": "c"
+        "lwesp_private.h": "c",
+        "lwesp_ll.h": "c",
+        "lwesp.h": "c",
+        "lwesp_includes.h": "c",
+        "lwesp_pbuf.h": "c",
+        "lwesp_opt.h": "c",
+        "lwesp_typedefs.h": "c",
+        "lwesp_opts.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }
