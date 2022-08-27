@@ -1327,23 +1327,19 @@ lwespi_process(const void* data, size_t data_len) {
             if (res == lwespOK) {               /* Can we process the character(s) */
                 if (unicode.t == 1) {           /* Totally 1 character? */
                     char* tmp_ptr;
-                    switch (ch) {
-                        case '\n':
-                            RECV_ADD(ch);       /* Add character to input buffer */
-                            lwespi_parse_received(&recv_buff);  /* Parse received string */
-                            RECV_RESET();       /* Reset received string */
-                            break;
-                        default:
-                            RECV_ADD(ch);       /* Any ASCII valid character */
-                            break;
+                    
+                    RECV_ADD(ch);               /* Add character to input buffer */
+                    if (ch == '\n') {
+                        lwespi_parse_received(&recv_buff);  /* Parse received string */
+                        RECV_RESET();           /* Reset received string */
                     }
 
                     /* If we are waiting for "\n> " sequence when CIPSEND command is active */
                     if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSEND)) {
-                        if (ch_prev2 == '\r' && ch_prev1 == '\n' && ch == '>') {
+                        if (ch == '>' && ch_prev1 == '\n') {
                             RECV_RESET();       /* Reset received object */
 
-                            /* Now actually send the data prepared before */
+                            /* Now actually send the data prepared for TX before */
                             AT_PORT_SEND_WITH_FLUSH(&esp.msg->msg.conn_send.data[esp.msg->msg.conn_send.ptr], esp.msg->msg.conn_send.sent);
                             esp.msg->msg.conn_send.wait_send_ok_err = 1;/* Now we are waiting for "SEND OK" or "SEND ERROR" */
                         }
@@ -1365,10 +1361,8 @@ lwespi_process(const void* data, size_t data_len) {
                         lwespi_parse_received(&recv_buff);  /* Parse received string */
                         if (esp.m.ipd.read) {   /* Shall we start read procedure? */
                             /*
-                             * We should have already allocated pbuf memory at this stage.
-                             * For manual receive, it is done prior command gets executed to be sure storage is ready to accept stream of data
-                             *
-                             * Pbuf length should not be bigger than number of received bytes
+                             * Prior to this event, buffer for RX operation was allocated
+                             * or read operation could not even start
                              */
                             esp.m.ipd.buff = esp.msg->msg.ciprecvdata.buff;
                             esp.m.ipd.conn = esp.msg->msg.ciprecvdata.conn;
@@ -1395,7 +1389,6 @@ lwespi_process(const void* data, size_t data_len) {
                 RECV_RESET();                   /* Invalid character in sequence */
             }
         }
-
         ch_prev2 = ch_prev1;                    /* Save previous character as previous previous */
         ch_prev1 = ch;                          /* Set current as previous */
     }
