@@ -22,6 +22,7 @@
 - Fix min at version for ESP32 to `2.2.0`
 - Add `LWESP ` prefix for debug messages
 - Update code style with astyle
+- Add `.clang-format` draft
 
 ## 1.1.2-dev
 
