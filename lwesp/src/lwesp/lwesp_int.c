@@ -31,11 +31,11 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
+#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_int.h"
 #include "lwesp/lwesp.h"
 #include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_parser.h"
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_unicode.h"
 #include "system/lwesp_ll.h"
 

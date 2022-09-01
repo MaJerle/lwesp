@@ -693,6 +693,17 @@ typedef struct {
     } ext;            /*!< Extended support union */
 } lwesp_conn_start_t;
 
+/**
+ * \ingroup         LWESP_UNICODE
+ * \brief           Unicode support structure
+ */
+typedef struct {
+    uint8_t ch[4]; /*!< UTF-8 max characters */
+    uint8_t t;     /*!< Total expected length in UTF-8 sequence */
+    uint8_t r;     /*!< Remaining bytes in UTF-8 sequence */
+    lwespr_t res;  /*!< Current result of processing */
+} lwesp_unicode_t;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
