@@ -48,7 +48,8 @@ extern "C" {
  * \{
  */
 
-lwespr_t    lwesp_set_webserver(uint8_t en, lwesp_port_t port, uint16_t timeout, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t lwesp_set_webserver(uint8_t en, lwesp_port_t port, uint16_t timeout, const lwesp_api_cmd_evt_fn evt_fn,
+                             void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

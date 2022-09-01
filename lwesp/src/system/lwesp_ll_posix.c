@@ -33,15 +33,15 @@
  * Version:         v1.1.2-dev
  */
 
-#include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <termios.h>
+#include <unistd.h>
 
-#include "system/lwesp_ll.h"
 #include "lwesp/lwesp.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_input.h"
+#include "lwesp/lwesp_mem.h"
+#include "system/lwesp_ll.h"
 
 #if !__DOXYGEN__
 
@@ -125,8 +125,8 @@ configure_uart(uint32_t baudrate) {
     tio.c_cflag &= ~(PARENB | PARODD);
     tio.c_cflag &= ~CSTOPB;
 
-    tio.c_cflag &= ~CRTSCTS;                    /* Without hardware flow control */
-    /* tio.c_cflag |= CRTSCTS; */               /* With hardware flow control */
+    tio.c_cflag &= ~CRTSCTS;      /* Without hardware flow control */
+    /* tio.c_cflag |= CRTSCTS; */ /* With hardware flow control */
 
     cfmakeraw(&tio);
 
@@ -184,29 +184,28 @@ lwespr_t
 lwesp_ll_init(lwesp_ll_t* ll) {
 #if !LWESP_CFG_MEM_CUSTOM
     /* Step 1: Configure memory for dynamic allocations */
-    static uint8_t memory[0x10000];             /* Create memory for dynamic allocations with specific size */
+    static uint8_t memory[0x10000]; /* Create memory for dynamic allocations with specific size */
 
     /*
      * Create memory region(s) of memory.
      * If device has internal/external memory available,
      * multiple memories may be used
      */
-    lwesp_mem_region_t mem_regions[] = {
-        { memory, sizeof(memory) }
-    };
+    lwesp_mem_region_t mem_regions[] = {{memory, sizeof(memory)}};
     if (!initialized) {
-        lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations to ESP library */
+        lwesp_mem_assignmemory(mem_regions,
+                               LWESP_ARRAYSIZE(mem_regions)); /* Assign memory for allocations to ESP library */
     }
 #endif /* !LWESP_CFG_MEM_CUSTOM */
 
     /* Step 2: Set AT port send function to use when we have data to transmit */
     if (!initialized) {
-        ll->send_fn = send_data;                /* Set callback function to send data */
+        ll->send_fn = send_data; /* Set callback function to send data */
         ll->reset_fn = reset_device;
     }
 
     /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
-    configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
+    configure_uart(ll->uart.baudrate); /* Initialize UART for communication */
     initialized = 1;
 
     return lwespOK;
@@ -221,7 +220,7 @@ lwesp_ll_deinit(lwesp_ll_t* ll) {
         lwesp_sys_thread_terminate(&uart_thread_handle);
         uart_thread_handle = NULL;
     }
-    initialized = 0;                            /* Clear initialized flag */
+    initialized = 0; /* Clear initialized flag */
     return lwespOK;
 }
 

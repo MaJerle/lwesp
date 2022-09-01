@@ -42,10 +42,9 @@
 static void cli_station_info(cli_printf cliprintf, int argc, char** argv);
 #endif /* LWESP_CFG_MODE_STATION */
 
-static const cli_command_t
-commands[] = {
+static const cli_command_t commands[] = {
 #if LWESP_CFG_MODE_STATION
-    { "station-info",       "Get current station info",                 cli_station_info },
+    {"station-info", "Get current station info", cli_station_info},
 #endif /* LWESP_CFG_MODE_STATION */
 
 };
@@ -73,14 +72,15 @@ cli_station_info(cli_printf cliprintf, int argc, char** argv) {
 
     res = lwesp_sta_get_ap_info(&info, NULL, NULL, 1);
     if (res != lwespOK) {
-        cliprintf("Error: Failed to read station info (%d)"CLI_NL, res);
+        cliprintf("Error: Failed to read station info (%d)" CLI_NL, res);
         return;
     }
 
-    cliprintf("  SSID:    %s"CLI_NL, info.ssid);
-    cliprintf("  MAC:     %02X:%02X:%02X:%02X:%02X"CLI_NL, info.mac.mac[0], info.mac.mac[1], info.mac.mac[2], info.mac.mac[3], info.mac.mac[4], info.mac.mac[5]);
-    cliprintf("  RSSI:    %d"CLI_NL, info.rssi);
-    cliprintf("  Channel: %d"CLI_NL, info.ch);
+    cliprintf("  SSID:    %s" CLI_NL, info.ssid);
+    cliprintf("  MAC:     %02X:%02X:%02X:%02X:%02X" CLI_NL, info.mac.mac[0], info.mac.mac[1], info.mac.mac[2],
+              info.mac.mac[3], info.mac.mac[4], info.mac.mac[5]);
+    cliprintf("  RSSI:    %d" CLI_NL, info.rssi);
+    cliprintf("  Channel: %d" CLI_NL, info.ch);
 
     LWESP_UNUSED(argc);
     LWESP_UNUSED(argv);

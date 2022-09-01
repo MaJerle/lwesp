@@ -66,23 +66,23 @@ typedef void cli_function(cli_printf cliprintf, int argc, char** argv);
  * \brief           CLI command structure
  */
 typedef struct {
-    const char* name;                           /*!< Command name */
-    const char* help;                           /*!< Command help */
-    cli_function* func;                         /*!< Command function */
+    const char* name;   /*!< Command name */
+    const char* help;   /*!< Command help */
+    cli_function* func; /*!< Command function */
 } cli_command_t;
 
 /**
  * \brief           List of commands
  */
 typedef struct {
-    const cli_command_t* commands;              /*!< Pointer to commands */
-    size_t num_of_commands;                     /*!< Total number of commands */
+    const cli_command_t* commands; /*!< Pointer to commands */
+    size_t num_of_commands;        /*!< Total number of commands */
 } cli_commands_t;
 
-const cli_command_t*    cli_lookup_command(char* command);
-void                    cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos, bool print_options);
-bool                    cli_register_commands(const cli_command_t* commands, size_t num_of_commands);
-void                    cli_init(void);
+const cli_command_t* cli_lookup_command(char* command);
+void cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos, bool print_options);
+bool cli_register_commands(const cli_command_t* commands, size_t num_of_commands);
+void cli_init(void);
 
 /**
  * \}
@@ -93,4 +93,3 @@ void                    cli_init(void);
 #endif /* __cplusplus */
 
 #endif /* LWESP_HDR_CLI_H */
-

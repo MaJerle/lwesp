@@ -31,10 +31,10 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_mem.h"
-#include "lwesp/lwesp_timeout.h"
+#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_threads.h"
+#include "lwesp/lwesp_timeout.h"
 #include "system/lwesp_ll.h"
 
 /* Check for configuration */
@@ -42,7 +42,7 @@
 #error LWESP_CFG_OS must be set to 1 in current revision!
 #endif /* LWESP_CFG_OS != 1 */
 
-static lwesp_evt_func_t   def_evt_link;
+static lwesp_evt_func_t def_evt_link;
 
 /* Global ESP structure */
 lwesp_t esp;
@@ -92,29 +92,29 @@ lwespr_t
 lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     lwespr_t res = lwespOK;
 
-    memset(&esp, 0x00, sizeof(esp));            /* Reset structure to all zeros */
-    esp.status.f.initialized = 0;               /* Clear possible init flag */
+    memset(&esp, 0x00, sizeof(esp)); /* Reset structure to all zeros */
+    esp.status.f.initialized = 0;    /* Clear possible init flag */
     def_evt_link.fn = evt_func != NULL ? evt_func : prv_def_callback;
-    esp.evt_func = &def_evt_link;               /* Set callback function */
-    esp.evt_server = NULL;                      /* Set default server callback function */
+    esp.evt_func = &def_evt_link; /* Set callback function */
+    esp.evt_server = NULL;        /* Set default server callback function */
 
-    if (!lwesp_sys_init()) {                    /* Init low-level system */
+    if (!lwesp_sys_init()) { /* Init low-level system */
         goto cleanup;
     }
 
-    if (!lwesp_sys_sem_create(&esp.sem_sync, 1)) {  /* Create sync semaphore between threads */
+    if (!lwesp_sys_sem_create(&esp.sem_sync, 1)) { /* Create sync semaphore between threads */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                      "[LWESP CORE] Cannot create sync semaphore!\r\n");
         goto cleanup;
     }
 
     /* Create message queues */
-    if (!lwesp_sys_mbox_create(&esp.mbox_producer, LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) {  /* Producer */
+    if (!lwesp_sys_mbox_create(&esp.mbox_producer, LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) { /* Producer */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                      "[LWESP CORE] Cannot create producer mbox queue!\r\n");
         goto cleanup;
     }
-    if (!lwesp_sys_mbox_create(&esp.mbox_process, LWESP_CFG_THREAD_PROCESS_MBOX_SIZE)) {/* Process */
+    if (!lwesp_sys_mbox_create(&esp.mbox_process, LWESP_CFG_THREAD_PROCESS_MBOX_SIZE)) { /* Process */
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                      "[LWESP CORE] Cannot create process mbox queue!\r\n");
         goto cleanup;
@@ -126,42 +126,44 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
      * Each thread receives handle of semaphore that must be released inside the thread.
      * This is to make sure threads start immediately after they are created
      */
-    lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Lock semaphore */
-    if (!lwesp_sys_thread_create(&esp.thread_produce, "lwesp_produce", lwesp_thread_produce, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
+    lwesp_sys_sem_wait(&esp.sem_sync, 0); /* Lock semaphore */
+    if (!lwesp_sys_thread_create(&esp.thread_produce, "lwesp_produce", lwesp_thread_produce, &esp.sem_sync,
+                                 LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                      "[LWESP CORE] Cannot create producing thread!\r\n");
-        lwesp_sys_sem_release(&esp.sem_sync);   /* Release semaphore and return */
+        lwesp_sys_sem_release(&esp.sem_sync); /* Release semaphore and return */
         goto cleanup;
     }
-    lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Wait semaphore, should be unlocked in process thread */
-    if (!lwesp_sys_thread_create(&esp.thread_process, "lwesp_process", lwesp_thread_process, &esp.sem_sync, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
+    lwesp_sys_sem_wait(&esp.sem_sync, 0); /* Wait semaphore, should be unlocked in process thread */
+    if (!lwesp_sys_thread_create(&esp.thread_process, "lwesp_process", lwesp_thread_process, &esp.sem_sync,
+                                 LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
         LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                      "[LWESP CORE] Cannot create processing thread!\r\n");
-        lwesp_sys_thread_terminate(&esp.thread_produce);/* Delete produce thread */
-        lwesp_sys_sem_release(&esp.sem_sync);   /* Release semaphore and return */
+        lwesp_sys_thread_terminate(&esp.thread_produce); /* Delete produce thread */
+        lwesp_sys_sem_release(&esp.sem_sync);            /* Release semaphore and return */
         goto cleanup;
     }
-    lwesp_sys_sem_wait(&esp.sem_sync, 0);       /* Wait semaphore, should be unlocked in produce thread */
-    lwesp_sys_sem_release(&esp.sem_sync);       /* Release semaphore manually */
+    lwesp_sys_sem_wait(&esp.sem_sync, 0); /* Wait semaphore, should be unlocked in produce thread */
+    lwesp_sys_sem_release(&esp.sem_sync); /* Release semaphore manually */
 
     lwesp_core_lock();
-    esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE;  /* Set default baudrate value */
-    lwesp_ll_init(&esp.ll);                     /* Init low-level communication */
+    esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE; /* Set default baudrate value */
+    lwesp_ll_init(&esp.ll);                            /* Init low-level communication */
 
 #if !LWESP_CFG_INPUT_USE_PROCESS
-    lwesp_buff_init(&esp.buff, LWESP_CFG_RCV_BUFF_SIZE);/* Init buffer for input data */
-#endif /* !LWESP_CFG_INPUT_USE_PROCESS */
+    lwesp_buff_init(&esp.buff, LWESP_CFG_RCV_BUFF_SIZE); /* Init buffer for input data */
+#endif                                                   /* !LWESP_CFG_INPUT_USE_PROCESS */
 
-    esp.status.f.initialized = 1;               /* We are initialized now */
-    esp.status.f.dev_present = 1;               /* We assume device is present at this point */
+    esp.status.f.initialized = 1; /* We are initialized now */
+    esp.status.f.dev_present = 1; /* We assume device is present at this point */
 
-    lwespi_send_cb(LWESP_EVT_INIT_FINISH);      /* Call user callback function */
+    lwespi_send_cb(LWESP_EVT_INIT_FINISH); /* Call user callback function */
 
     /*
      * Call reset command and call default
      * AT commands to prepare basic setup for device
      */
-    lwespi_conn_init();                         /* Init connection module */
+    lwespi_conn_init(); /* Init connection module */
 
 #if LWESP_CFG_KEEP_ALIVE
     /* Register keep-alive events */
@@ -169,20 +171,21 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 #endif /* LWESP_CFG_KEEP_ALIVE */
 
 #if LWESP_CFG_RESTORE_ON_INIT
-    if (esp.status.f.dev_present) {             /* In case device exists */
+    if (esp.status.f.dev_present) { /* In case device exists */
         lwesp_core_unlock();
-        res = lwesp_restore(NULL, NULL, blocking);  /* Restore device */
+        res = lwesp_restore(NULL, NULL, blocking); /* Restore device */
         lwesp_core_lock();
     }
 #endif /* LWESP_CFG_RESTORE_ON_INIT */
 #if LWESP_CFG_RESET_ON_INIT
     if (esp.status.f.dev_present) {
         lwesp_core_unlock();
-        res = lwesp_reset_with_delay(LWESP_CFG_RESET_DELAY_DEFAULT, NULL, NULL, blocking);  /* Send reset sequence with delay */
+        res = lwesp_reset_with_delay(LWESP_CFG_RESET_DELAY_DEFAULT, NULL, NULL,
+                                     blocking); /* Send reset sequence with delay */
         lwesp_core_lock();
     }
-#endif /* LWESP_CFG_RESET_ON_INIT */
-    LWESP_UNUSED(blocking);                     /* Prevent compiler warnings */
+#endif                      /* LWESP_CFG_RESET_ON_INIT */
+    LWESP_UNUSED(blocking); /* Prevent compiler warnings */
     lwesp_core_unlock();
 
     return res;
@@ -223,8 +226,8 @@ lwesp_reset(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_reset_with_delay(uint32_t delay,
-                       const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_reset_with_delay(uint32_t delay, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                       const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -266,8 +269,8 @@ lwesp_restore(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_set_wifi_mode(lwesp_mode_t mode,
-                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_set_wifi_mode(lwesp_mode_t mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                    const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -288,8 +291,8 @@ lwesp_set_wifi_mode(lwesp_mode_t mode,
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_get_wifi_mode(lwesp_mode_t* mode,
-                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_get_wifi_mode(lwesp_mode_t* mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                    const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -309,8 +312,7 @@ lwesp_get_wifi_mode(lwesp_mode_t* mode,
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_set_at_baudrate(uint32_t baud,
-                      const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_set_at_baudrate(uint32_t baud, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -391,8 +393,8 @@ lwesp_core_unlock(void) {
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_device_set_present(uint8_t present,
-                         const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_device_set_present(uint8_t present, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                         const uint32_t blocking) {
     lwespr_t res = lwespOK;
     lwesp_core_lock();
     present = present ? 1 : 0;
@@ -409,7 +411,7 @@ lwesp_device_set_present(uint8_t present,
             lwesp_core_lock();
 #endif /* LWESP_CFG_RESET_ON_DEVICE_PRESENT */
         }
-        lwespi_send_cb(LWESP_EVT_DEVICE_PRESENT);   /* Send present event */
+        lwespi_send_cb(LWESP_EVT_DEVICE_PRESENT); /* Send present event */
     }
     lwesp_core_unlock();
 
@@ -531,15 +533,18 @@ lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version) {
     if (0) {
 #if LWESP_CFG_ESP8266
     } else if (esp.m.device == LWESP_DEVICE_ESP8266) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP8266, LWESP_MIN_AT_VERSION_MINOR_ESP8266, LWESP_MIN_AT_VERSION_PATCH_ESP8266);
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP8266, LWESP_MIN_AT_VERSION_MINOR_ESP8266,
+                             LWESP_MIN_AT_VERSION_PATCH_ESP8266);
 #endif /* LWESP_CFG_ESP8266 */
 #if LWESP_CFG_ESP32
     } else if (esp.m.device == LWESP_DEVICE_ESP32) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP32, LWESP_MIN_AT_VERSION_MINOR_ESP32, LWESP_MIN_AT_VERSION_PATCH_ESP32);
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP32, LWESP_MIN_AT_VERSION_MINOR_ESP32,
+                             LWESP_MIN_AT_VERSION_PATCH_ESP32);
 #endif /* LWESP_CFG_ESP32 */
 #if LWESP_CFG_ESP32_C3
     } else if (esp.m.device == LWESP_DEVICE_ESP32_C3) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3, LWESP_MIN_AT_VERSION_MINOR_ESP32_C3, LWESP_MIN_AT_VERSION_PATCH_ESP32_C3);
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3, LWESP_MIN_AT_VERSION_MINOR_ESP32_C3,
+                             LWESP_MIN_AT_VERSION_PATCH_ESP32_C3);
 #endif /* LWESP_CFG_ESP32_C3 */
     } else {
         res = lwespERR;

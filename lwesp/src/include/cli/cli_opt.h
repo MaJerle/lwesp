@@ -51,43 +51,42 @@ extern "C" {
  * \brief           CLI promet, printed on every NL
  */
 #ifndef CLI_PROMPT
-#define CLI_PROMPT                  "> "
+#define CLI_PROMPT "> "
 #endif
 
 /**
  * \brief           CLI NL, default is NL and CR
  */
 #ifndef CLI_NL
-#define CLI_NL                      "\r\n"
+#define CLI_NL "\r\n"
 #endif
 
 /**
  * \brief           Max CLI command length
  */
 #ifndef CLI_MAX_CMD_LENGTH
-#define CLI_MAX_CMD_LENGTH          256
+#define CLI_MAX_CMD_LENGTH 256
 #endif
 
 /**
  * \brief           Max sotred CLI commands to history
  */
 #ifndef CLI_CMD_HISTORY
-#define CLI_CMD_HISTORY             10
+#define CLI_CMD_HISTORY 10
 #endif
-
 
 /**
  * \brief           Max CLI arguments in a single command
  */
 #ifndef CLI_MAX_NUM_OF_ARGS
-#define CLI_MAX_NUM_OF_ARGS         16
+#define CLI_MAX_NUM_OF_ARGS 16
 #endif
 
 /**
  * \brief           Max modules for CLI
  */
 #ifndef CLI_MAX_MODULES
-#define CLI_MAX_MODULES             16
+#define CLI_MAX_MODULES 16
 #endif
 
 /**

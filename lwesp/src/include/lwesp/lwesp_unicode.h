@@ -47,7 +47,7 @@ extern "C" {
  * \{
  */
 
-lwespr_t          lwespi_unicode_decode(lwesp_unicode_t* uni, uint8_t ch);
+lwespr_t lwespi_unicode_decode(lwesp_unicode_t* uni, uint8_t ch);
 
 /**
  * \}

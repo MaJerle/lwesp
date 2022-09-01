@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_unicode.h"
+#include "lwesp/lwesp_private.h"
 
 /**
  * \brief           Decode single character for unicode (UTF-8 only) format
@@ -44,32 +44,32 @@
  */
 lwespr_t
 lwespi_unicode_decode(lwesp_unicode_t* s, uint8_t c) {
-    if (s->r == 0) {                            /* Are we expecting a first character? */
-        s->t = 0;                               /* Reset sequence */
-        s->ch[0] = c;                           /* Save current character */
-        if (c < 0x80) {                         /* One byte only in UTF-8 representation */
-            s->r = 0;                           /* Remaining bytes */
+    if (s->r == 0) {    /* Are we expecting a first character? */
+        s->t = 0;       /* Reset sequence */
+        s->ch[0] = c;   /* Save current character */
+        if (c < 0x80) { /* One byte only in UTF-8 representation */
+            s->r = 0;   /* Remaining bytes */
             s->t = 1;
             return lwespOK;
         }
-        if ((c & 0xE0) == 0xC0) {               /* 1 additional byte in a row = 110x xxxx */
+        if ((c & 0xE0) == 0xC0) { /* 1 additional byte in a row = 110x xxxx */
             s->r = 1;
-        } else if ((c & 0xF0) == 0xE0) {        /* 2 additional bytes in a row = 1110 xxxx */
+        } else if ((c & 0xF0) == 0xE0) { /* 2 additional bytes in a row = 1110 xxxx */
             s->r = 2;
-        } else if ((c & 0xF8) == 0xF0) {        /* 3 additional bytes in a row = 1111 0xxx */
+        } else if ((c & 0xF8) == 0xF0) { /* 3 additional bytes in a row = 1111 0xxx */
             s->r = 3;
         } else {
-            return lwespERR;                    /* Error parsing unicode byte */
+            return lwespERR; /* Error parsing unicode byte */
         }
-        s->t = s->r + 1;                        /* Number of bytes is 1 byte more than remaining in sequence */
-        return lwespINPROG;                     /* Return in progress status */
-    } else if ((c & 0xC0) == 0x80) {            /* Next character in sequence */
-        --s->r;                                 /* Decrease character */
-        s->ch[s->t - s->r - 1] = c;             /* Save character to array */
-        if (s->r == 0) {                        /* Did we finish? */
-            return lwespOK;                     /* Return OK, we are ready to proceed */
+        s->t = s->r + 1;             /* Number of bytes is 1 byte more than remaining in sequence */
+        return lwespINPROG;          /* Return in progress status */
+    } else if ((c & 0xC0) == 0x80) { /* Next character in sequence */
+        --s->r;                      /* Decrease character */
+        s->ch[s->t - s->r - 1] = c;  /* Save character to array */
+        if (s->r == 0) {             /* Did we finish? */
+            return lwespOK;          /* Return OK, we are ready to proceed */
         }
-        return lwespINPROG;                     /* Still in progress */
+        return lwespINPROG; /* Still in progress */
     }
-    return lwespERR;                            /* An error, unknown UTF-8 character entered */
+    return lwespERR; /* An error, unknown UTF-8 character entered */
 }

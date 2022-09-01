@@ -32,24 +32,24 @@
  * Author:          imi415 <imi415.public@gmail.com>
  * Version:         v1.1.2-dev
  */
-#include <time.h>
 #include <errno.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <time.h>
 
 #include "system/lwesp_sys.h"
 
 #if !__DOXYGEN__
 
-typedef void* (*lwesp_sys_posix_thread_fn) (void*);
+typedef void* (*lwesp_sys_posix_thread_fn)(void*);
 
 /**
  * \brief           Custom message queue implementation for WIN32
  */
 typedef struct {
-    lwesp_sys_sem_t sem_not_empty;              /*!< Semaphore indicates not empty */
-    lwesp_sys_sem_t sem_not_full;               /*!< Semaphore indicates not full */
-    lwesp_sys_sem_t sem;                        /*!< Semaphore to lock access */
+    lwesp_sys_sem_t sem_not_empty; /*!< Semaphore indicates not empty */
+    lwesp_sys_sem_t sem_not_full;  /*!< Semaphore indicates not full */
+    lwesp_sys_sem_t sem;           /*!< Semaphore to lock access */
     size_t in, out, size;
     void* entries[1];
 } posix_mbox_t;
@@ -108,8 +108,7 @@ lwesp_sys_now(void) {
     if (clock_gettime(CLOCK_MONOTONIC, &tp) != 0) {
         return 0;
     }
-    uint32_t msec = (tp.tv_sec * 1000 + tp.tv_nsec / 1000000) \
-                    & 0xFFFFFFFFU;
+    uint32_t msec = (tp.tv_sec * 1000 + tp.tv_nsec / 1000000) & 0xFFFFFFFFU;
 
     return msec;
 }
@@ -278,7 +277,7 @@ lwesp_sys_mbox_create(lwesp_sys_mbox_t* b, size_t size) {
     mbox = malloc(sizeof(*mbox) + size * sizeof(void*));
     if (mbox != NULL) {
         memset(mbox, 0x00, sizeof(*mbox));
-        mbox->size = size + 1;                  /* Set it to 1 more as cyclic buffer has only one less than size */
+        mbox->size = size + 1; /* Set it to 1 more as cyclic buffer has only one less than size */
         lwesp_sys_sem_create(&mbox->sem, 1);
         lwesp_sys_sem_create(&mbox->sem_not_empty, 0);
         lwesp_sys_sem_create(&mbox->sem_not_full, 0);
@@ -300,9 +299,9 @@ lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b) {
 uint32_t
 lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
     posix_mbox_t* mbox = *b;
-    uint32_t time = lwesp_sys_now();            /* Get start time */
+    uint32_t time = lwesp_sys_now(); /* Get start time */
 
-    lwesp_sys_sem_wait(&mbox->sem, 0);          /* Wait for access */
+    lwesp_sys_sem_wait(&mbox->sem, 0); /* Wait for access */
 
     /*
      * Since function is blocking until ready to write something to queue,
@@ -310,16 +309,16 @@ lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
      * to process the queue before we can write new value.
      */
     while (mbox_is_full(mbox)) {
-        lwesp_sys_sem_release(&mbox->sem);      /* Release semaphore */
+        lwesp_sys_sem_release(&mbox->sem);          /* Release semaphore */
         lwesp_sys_sem_wait(&mbox->sem_not_full, 0); /* Wait for semaphore indicating not full */
-        lwesp_sys_sem_wait(&mbox->sem, 0);      /* Wait availability again */
+        lwesp_sys_sem_wait(&mbox->sem, 0);          /* Wait availability again */
     }
     mbox->entries[mbox->in] = m;
     if (++mbox->in >= mbox->size) {
         mbox->in = 0;
     }
-    lwesp_sys_sem_release(&mbox->sem_not_empty);/* Signal non-empty state */
-    lwesp_sys_sem_release(&mbox->sem);          /* Release access for other threads */
+    lwesp_sys_sem_release(&mbox->sem_not_empty); /* Signal non-empty state */
+    lwesp_sys_sem_release(&mbox->sem);           /* Release access for other threads */
     return lwesp_sys_now() - time;
 }
 
@@ -375,9 +374,9 @@ uint8_t
 lwesp_sys_mbox_getnow(lwesp_sys_mbox_t* b, void** m) {
     posix_mbox_t* mbox = *b;
 
-    lwesp_sys_sem_wait(&mbox->sem, 0);          /* Wait exclusive access */
+    lwesp_sys_sem_wait(&mbox->sem, 0); /* Wait exclusive access */
     if (mbox->in == mbox->out) {
-        lwesp_sys_sem_release(&mbox->sem);      /* Release access */
+        lwesp_sys_sem_release(&mbox->sem); /* Release access */
         return 0;
     }
 
@@ -402,8 +401,7 @@ lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b) {
 }
 
 uint8_t
-lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name,
-                        lwesp_sys_thread_fn thread_func, void* const arg,
+lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg,
                         size_t stack_size, lwesp_sys_thread_prio_t prio) {
 
     pthread_t* new_thread = malloc(sizeof(pthread_t));

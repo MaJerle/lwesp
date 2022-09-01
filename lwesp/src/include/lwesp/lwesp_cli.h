@@ -56,4 +56,3 @@ void lwesp_cli_register_commands(void);
 #endif /* __cplusplus */
 
 #endif /* LWESP_HDR_CLI_H */
-

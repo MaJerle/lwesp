@@ -49,7 +49,7 @@ static uint32_t cmd_history_full;
  * \brief           Clear the command buffer and reset the position
  */
 static void
-clear_cmd_buffer( void ) {
+clear_cmd_buffer(void) {
     memset(cmd_buffer, 0x0, sizeof(cmd_buffer));
     cmd_pos = 0;
 }
@@ -102,7 +102,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
         special_key_found = true;
         key_sequence = 0;
         switch (ch) {
-            case 'A':                           /* Up */
+            case 'A': /* Up */
                 if (cmd_history_pos < cmd_history_full) {
                     /* Clear the line */
                     memset(cmd_buffer, ' ', cmd_pos);
@@ -117,7 +117,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                     cliprintf("\a");
                 }
                 break;
-            case 'B':                           /* Down */
+            case 'B': /* Down */
                 if (cmd_history_pos > 0) {
                     /* Clear the line */
                     memset(cmd_buffer, ' ', cmd_pos);
@@ -135,7 +135,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                 }
 
                 break;
-            case 'C':                           /* Right */
+            case 'C': /* Right */
                 /* TODO not finnished
                  * need to implement a courser
                  */
@@ -146,7 +146,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
                     cliprintf("\a");
                 }
                 break;
-            case 'D':                           /* Left */
+            case 'D': /* Left */
                 /* TODO not finnished
                  * need to implement a courser
                  */
@@ -178,7 +178,7 @@ cli_special_key_check(cli_printf cliprintf, char ch) {
     /* Store the last character */
     last_ch = ch;
 
-    (void)last_ch;                              /* Prevent compiler warnings */
+    (void)last_ch; /* Prevent compiler warnings */
 
     return special_key_found;
 }
@@ -197,7 +197,7 @@ cli_parse_and_execute_command(cli_printf cliprintf, char* input) {
 
     argv[argc] = strtok(input, " ");
     while (argv[argc] != NULL) {
-        argv[++argc] = strtok (NULL, " ");
+        argv[++argc] = strtok(NULL, " ");
     }
 
     if ((command = cli_lookup_command(argv[0])) == NULL) {
@@ -263,7 +263,7 @@ cli_in_data(cli_printf cliprintf, char ch) {
                     cmd_buffer[cmd_pos++] = ch;
                 } else {
                     clear_cmd_buffer();
-                    cliprintf(CLI_NL"\aERR: Command too long"CLI_NL CLI_PROMPT);
+                    cliprintf(CLI_NL "\aERR: Command too long" CLI_NL CLI_PROMPT);
                     return;
                 }
                 cliprintf("%c", ch);
@@ -273,4 +273,3 @@ cli_in_data(cli_printf cliprintf, char ch) {
     /* Store last character for double tab detection */
     last_ch = ch;
 }
-

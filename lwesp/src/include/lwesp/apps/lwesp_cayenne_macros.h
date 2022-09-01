@@ -32,7 +32,6 @@
  * Version:         v1.1.2-dev
  */
 
-
 #if 0
 /*****************************************************************/
 /* List of different data types, constants and respective values */
@@ -102,12 +101,16 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Valve", VALVE, "valve", "Low/High", LOW_HIGH, NU
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Valve", VALVE, "valve", "Digital (0/1)", DIGITAL, "d")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Digital Sensor", DIGITAL_SENSOR, "digital_sensor", "Digital (0/1)", DIGITAL, "d")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Analog Sensor", ANALOG_SENSOR, "analog_sensor", "Analog", ANALOG, NULL)
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Absolute Humidity", ABSOLUTE_HUMIDITY, "abs_hum", "Grams per cubic meter", GRAMS_PER_METER3, "gm3")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Absolute Humidity", ABSOLUTE_HUMIDITY, "abs_hum", "Grams per cubic meter",
+                               GRAMS_PER_METER3, "gm3")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Absorbed Radiation", ABSORBED_RADIATION, "absrb_rad", "* Rad", RAD, "rad")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Absorbed Radiation", ABSORBED_RADIATION, "absrb_rad", "Gray", GRAY, "gy")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Acceleration.gx axis", ACCELERATION_GX, "gx", "Meters per second squared", METER_PER_SEC_SQ, "ms2")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Acceleration.gy axis", ACCELERATION_GY, "gy", "Meters per second squared", METER_PER_SEC_SQ, "ms2")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Acceleration.gz axis", ACCELERATION_GZ, "gz", "Meters per second squared", METER_PER_SEC_SQ, "ms2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Acceleration.gx axis", ACCELERATION_GX, "gx", "Meters per second squared",
+                               METER_PER_SEC_SQ, "ms2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Acceleration.gy axis", ACCELERATION_GY, "gy", "Meters per second squared",
+                               METER_PER_SEC_SQ, "ms2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Acceleration.gz axis", ACCELERATION_GZ, "gz", "Meters per second squared",
+                               METER_PER_SEC_SQ, "ms2")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Altitude", ALTITUDE, "alt", "* Meters above sea level", METER, "m")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Altitude", ALTITUDE, "alt", "Feet above sea level", FEET, "ft")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Amount of substance", AMOUNT_SUBSTANCE, "amount", "Mole", MOLE, "mol")
@@ -139,11 +142,13 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Conductance", CONDUCTANCE, "conduct", "Siemen", 
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Counter", COUNTER, "counter", "Analog", ANALOG, NULL)
 LWESP_CAYENNE_DATA_TYPE_DEFINE("CPU", CPU, "cpu", "% (0 to 100)", PERCENT, "p")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Current", CURRENT, "current", "Ampere", AMP, "a")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Current density", CURRENT_DENSITY, "current_density", "Ampere per squre meter", AMP_2_METER, "am2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Current density", CURRENT_DENSITY, "current_density", "Ampere per squre meter",
+                               AMP_2_METER, "am2")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Density", DENSITY, "density", "Kilograms per cubic meter", KGM3, "kgm3")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Effective Radiation", EFFECTIVE_RADATION, "eff_rad", "Roentgen", ROENTGEN, "roent")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Effective Radiation", EFFECTIVE_RADATION, "eff_rad", "Sievert", SIEVERT, "sv")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Effective Radiation", EFFECTIVE_RADATION, "eff_rad", "SieVert per Hour", SIEVERT_HOUR, "svph")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Effective Radiation", EFFECTIVE_RADATION, "eff_rad", "SieVert per Hour", SIEVERT_HOUR,
+                               "svph")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Energy", ENERGY, "energy", "Killowatts per hour", KW_PER_H, "kwh")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Frequency", FREQUENCY, "freq", "Hertz", HERTZ, "hz")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Gas", GAS, "gas", "* Pascal", PASCAL, "pa")
@@ -154,17 +159,26 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Glucose", GLUCOSE, "glucose", "* Milligrams/deci
 LWESP_CAYENNE_DATA_TYPE_DEFINE("GPS", GPS, "gps", "* Global Positioning System", GPS, "gps")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("GPS", GPS, "gps", "Universal Transverse Mercator", UTM, "utm")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.x axis", GRAVITY_X, "grav_x", "Newtons per kilogram", NEWTON_PER_KG, "nkg")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.x axis", GRAVITY_X, "grav_x", "* Meters per second squared", METER_PER_SEC_SQ, "ms2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.x axis", GRAVITY_X, "grav_x", "* Meters per second squared", METER_PER_SEC_SQ,
+                               "ms2")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.y axis", GRAVITY_Y, "grav_y", "Newtons per kilogram", NEWTON_PER_KG, "nkg")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.y axis", GRAVITY_Y, "grav_y", "* Meters per second squared", METER_PER_SEC_SQ, "ms2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.y axis", GRAVITY_Y, "grav_y", "* Meters per second squared", METER_PER_SEC_SQ,
+                               "ms2")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.z axis", GRAVITY_Z, "grav_z", "Newtons per kilogram", NEWTON_PER_KG, "nkg")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.z axis", GRAVITY_Z, "grav_z", "* Meters per second squared", METER_PER_SEC_SQ, "ms2")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around x axis", GYRO_X, "gyro_x", "* Rotation speed", ROTATION, "rot")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around x axis", GYRO_X, "gyro_x", "Meters per second squared", METER_PER_SEC_SQ, "mps2")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around y axis", GYRO_Y, "gyro_y", "* Rotation speed", ROTATION, "rot")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around y axis", GYRO_Y, "gyro_y", "Meters per second squared", METER_PER_SEC_SQ, "mps2")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around z axis", GYRO_Z, "gyro_z", "* Rotation speed", ROTATION, "rot")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around z axis", GYRO_Z, "gyro_z", "Meters per second squared", METER_PER_SEC_SQ, "mps2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gravity.z axis", GRAVITY_Z, "grav_z", "* Meters per second squared", METER_PER_SEC_SQ,
+                               "ms2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around x axis", GYRO_X, "gyro_x", "* Rotation speed",
+                               ROTATION, "rot")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around x axis", GYRO_X, "gyro_x",
+                               "Meters per second squared", METER_PER_SEC_SQ, "mps2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around y axis", GYRO_Y, "gyro_y", "* Rotation speed",
+                               ROTATION, "rot")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around y axis", GYRO_Y, "gyro_y",
+                               "Meters per second squared", METER_PER_SEC_SQ, "mps2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around z axis", GYRO_Z, "gyro_z", "* Rotation speed",
+                               ROTATION, "rot")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Gyroscope.rate of rotation around z axis", GYRO_Z, "gyro_z",
+                               "Meters per second squared", METER_PER_SEC_SQ, "mps2")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("HVAC.Humdity", HVAC_HUMIDITY, "hvac_hum", "% (0 to 100)", PERCENT, "p")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Image", IMAGE, "image", "Byte Array", BYTE_ARRAY, NULL)
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Impedance", IMPEDANCE, "imped", "Ohm", OHM, "ohm")
@@ -174,7 +188,8 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Ink Levels.Cyan", INK_CYAN, "ink_cya", "% (0 to 
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Ink Levels.Magenta", INK_MEGENTA, "ink_mag", "% (0 to 100)", PERCENT, "p")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Ink Levels.Yellow", INK_YELLOW, "ink_yel", "% (0 to 100)", PERCENT, "p")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Intrusion", INTRUSION, "intrusion", "Digital (0/1)", DIGITAL, "d")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Ionizing Radiation", IONIZING_RADIATION, "ion_rad", "* Electron Volts", ELECTRON_VOLT, "ev")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Ionizing Radiation", IONIZING_RADIATION, "ion_rad", "* Electron Volts", ELECTRON_VOLT,
+                               "ev")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Ionizing Radiation", IONIZING_RADIATION, "ion_rad", "Ergs", ERGS, "erg")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Ionizing Radiation", IONIZING_RADIATION, "ion_rad", "Joules", JOULE, "j")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Length", LENGTH, "len", "* Meter", METER, "m")
@@ -184,9 +199,12 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Lighting", LIGHTING_SENSE, "lighting_sense", "% 
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Lighting", LIGHTING_SENSE, "lighting_sense", "* Lux", LUX, "lux")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Lighting", LIGHTING_SENSE, "lighting_sense", "Volts", VOLTS, "v")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Lighting", LIGHTING_SENSE, "lighting_sense", "Ratio", RATIO, "r")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Linear Acceleration.x axis", LINEAR_ACCEL_X, "lin_acc_x", "Meters per second squared", METER_PER_SEC_SQ, "mps2")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Linear Acceleration.y axis", LINEAR_ACCEL_Y, "lin_acc_y", "Meters per second squared", METER_PER_SEC_SQ, "mps2")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Linear Acceleration.z axis", LINEAR_ACCEL_Z, "lin_acc_z", "Meters per second squared", METER_PER_SEC_SQ, "mps2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Linear Acceleration.x axis", LINEAR_ACCEL_X, "lin_acc_x", "Meters per second squared",
+                               METER_PER_SEC_SQ, "mps2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Linear Acceleration.y axis", LINEAR_ACCEL_Y, "lin_acc_y", "Meters per second squared",
+                               METER_PER_SEC_SQ, "mps2")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Linear Acceleration.z axis", LINEAR_ACCEL_Z, "lin_acc_z", "Meters per second squared",
+                               METER_PER_SEC_SQ, "mps2")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Liquid", LIQUID, "liquid", "* Liter", LITER, "l")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Liquid", LIQUID, "liquid", "Gallon", GALLON, "gal")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Liquid", LIQUID, "liquid", "Ounce", OUNCE, "oz")
@@ -197,11 +215,13 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Luminosity", LUMINOSITY, "lum", "* Lux", LUX, "l
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Luminosity", LUMINOSITY, "lum", "Volts", VOLTS, "v")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Luminosity", LUMINOSITY, "lum", "% (0 to 100)", PERCENT, "p")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Luminosity", LUMINOSITY, "lum", "Ratio", RATIO, "r")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Magnetic field strength H", MAGNETIC_STRENGTH, "mag_str", "Amperes per meter", AMP_METER, "ampm")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Magnetic field strength H", MAGNETIC_STRENGTH, "mag_str", "Amperes per meter",
+                               AMP_METER, "ampm")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Magnetic field.x axis", MAGNETIC_AXIS_X, "mag_x", "Tesla", TESLA, "tesla")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Magnetic field.y axis", MAGNETIC_AXIS_Y, "mag_y", "Tesla", TESLA, "tesla")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Magnetic field.z axis", MAGNETIC_AXIS_Z, "mag_z", "Tesla", TESLA, "tesla")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Magnetic flux density B", MAGNETIC_FLUX_DENSITY, "mag_flux", "Newton-meters per ampere", NEWTON_METERS_AMP, "nma")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Magnetic flux density B", MAGNETIC_FLUX_DENSITY, "mag_flux", "Newton-meters per ampere",
+                               NEWTON_METERS_AMP, "nma")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Mass", MASS, "mass", "Kilogram", KILOGRAM, "kg")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Memory", MEMORY, "mem", "Kilobytes", KB_BYTE, "kb")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Memory", MEMORY, "mem", "* Megabytes", MB_BYTE, "mb")
@@ -230,7 +250,8 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Proximity", PROXIMITY, "prox", "Digital (0/1)", 
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Radioactivity", RADIOACTIVITY, "rad", "Becquerel", BECQUEREL, "bq")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Radioactivity", RADIOACTIVITY, "rad", "* Curie", CURIE, "ci")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Radiation Exposure", EXPOSURE_RADIATION, "expo_rad", "* Roentgen", ROENTGEN, "roent")
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Radiation Exposure", EXPOSURE_RADIATION, "expo_rad", "Coulomb/Kilogram", COULOMB_PER_KG, "ckg")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Radiation Exposure", EXPOSURE_RADIATION, "expo_rad", "Coulomb/Kilogram", COULOMB_PER_KG,
+                               "ckg")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Rain Level", RAIN_LEVEL, "rain_level", "Centimeter", CENTIMETER, "cm")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Rain Level", RAIN_LEVEL, "rain_level", "* Millimeter", MILLIMETER, "mm")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Relative Humidity", RELATIVE_HUMIDITY, "rel_hum", "* % (0 to 100)", PERCENT, "p")
@@ -243,7 +264,8 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Rotation Vector.scalar", ROTATION_SCALAR, "rot_s
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Rotation Vector.x axis", ROTATION_X, "rot_x", "X * sin (0/2)", ROT_X, NULL)
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Rotation Vector.y axis", ROTATION_Y, "rot_y", "Y * sin (0/2)", ROT_Y, NULL)
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Rotation Vector.z axis", ROTATION_Z, "rot_z", "Z * sin (0/2)", ROT_Z, NULL)
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Seismometer", SEISMOMETER, "seis", "Microns (micrometers) /second,", MICROS_PER_SEC, "micps")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Seismometer", SEISMOMETER, "seis", "Microns (micrometers) /second,", MICROS_PER_SEC,
+                               "micps")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Seismometer", SEISMOMETER, "seis", "* Volts", VOLTS, "v")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Seismometer", SEISMOMETER, "seis", "Spectral Amplitude", CM_HERTZ, "cmhz")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Signal Noise Ratio", SNR, "snr", "Decibels", DB, "db")
@@ -253,7 +275,8 @@ LWESP_CAYENNE_DATA_TYPE_DEFINE("Smoke", SMOKE, "smoke", "Photodiode", PHOTODIODE
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Smoke", SMOKE, "smoke", "* Kiloelectron Volts", KILOELEC_VOLT, "kev")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Soil Moisture", SOIL_MOISTURE, "soil_moist", "% (0 to 100)", PERCENT, "p")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Soil pH", SOIL_PH, "soil_ph", "Analog", ANALOG, NULL)
-LWESP_CAYENNE_DATA_TYPE_DEFINE("Soil Water Tension", SOIL_WATER_TENSION, "soil_w_ten", "* Kilopascal", KILOPASCAL, "kpa")
+LWESP_CAYENNE_DATA_TYPE_DEFINE("Soil Water Tension", SOIL_WATER_TENSION, "soil_w_ten", "* Kilopascal", KILOPASCAL,
+                               "kpa")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Soil Water Tension", SOIL_WATER_TENSION, "soil_w_ten", "Pascal", PASCAL, "pa")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Solid Volume", SOLID_VOLUME, "solid_vol", "Cubic meter", CUBIC_METER, "m3")
 LWESP_CAYENNE_DATA_TYPE_DEFINE("Sound", SOUND, "sound", "Decibels per milliwatt", DBM, "dbm")

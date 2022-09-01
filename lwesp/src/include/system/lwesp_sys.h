@@ -58,26 +58,26 @@ typedef void (*lwesp_sys_thread_fn)(void*);
  *
  * It is used by middleware as base type of mutex.
  */
-typedef void*                               lwesp_sys_mutex_t;
+typedef void* lwesp_sys_mutex_t;
 
 /**
  * \brief           System semaphore type
  *
  * It is used by middleware as base type of mutex.
  */
-typedef void*                               lwesp_sys_sem_t;
+typedef void* lwesp_sys_sem_t;
 
 /**
  * \brief           System message queue type
  *
  * It is used by middleware as base type of mutex.
  */
-typedef void*                               lwesp_sys_mbox_t;
+typedef void* lwesp_sys_mbox_t;
 
 /**
  * \brief           System thread ID type
  */
-typedef void*                               lwesp_sys_thread_t;
+typedef void* lwesp_sys_thread_t;
 
 /**
  * \brief           System thread priority type
@@ -85,28 +85,28 @@ typedef void*                               lwesp_sys_thread_t;
  * It is used as priority type for system function,
  * to start new threads by middleware.
  */
-typedef int                                 lwesp_sys_thread_prio_t;
+typedef int lwesp_sys_thread_prio_t;
 
 /**
  * \brief           Mutex invalid value
  *
  * Value assigned to \ref lwesp_sys_mutex_t type when it is not valid.
  */
-#define LWESP_SYS_MUTEX_NULL                ((lwesp_sys_mutex_t)0)
+#define LWESP_SYS_MUTEX_NULL  ((lwesp_sys_mutex_t)0)
 
 /**
  * \brief           Semaphore invalid value
  *
  * Value assigned to \ref lwesp_sys_sem_t type when it is not valid.
  */
-#define LWESP_SYS_SEM_NULL                  ((lwesp_sys_sem_t)0)
+#define LWESP_SYS_SEM_NULL    ((lwesp_sys_sem_t)0)
 
 /**
  * \brief           Message box invalid value
  *
  * Value assigned to \ref lwesp_sys_mbox_t type when it is not valid.
  */
-#define LWESP_SYS_MBOX_NULL                 ((lwesp_sys_mbox_t)0)
+#define LWESP_SYS_MBOX_NULL   ((lwesp_sys_mbox_t)0)
 
 /**
  * \brief           OS timeout value
@@ -114,7 +114,7 @@ typedef int                                 lwesp_sys_thread_prio_t;
  * Value returned by operating system functions (mutex wait, sem wait, mbox wait)
  * when it returns timeout and does not give valid value to application
  */
-#define LWESP_SYS_TIMEOUT                   ((uint32_t)osWaitForever)
+#define LWESP_SYS_TIMEOUT     ((uint32_t)osWaitForever)
 
 /**
  * \brief           Default thread priority value used by middleware to start built-in threads
@@ -122,14 +122,14 @@ typedef int                                 lwesp_sys_thread_prio_t;
  * Threads can well operate with normal (default) priority and do not require
  * any special feature in terms of priority for proper operation.
  */
-#define LWESP_SYS_THREAD_PRIO               (osPriorityNormal)
+#define LWESP_SYS_THREAD_PRIO (osPriorityNormal)
 
 /**
  * \brief           Stack size in units of bytes for system threads
  *
  * It is used as default stack size for all built-in threads.
  */
-#define LWESP_SYS_THREAD_SS                 (1024)
+#define LWESP_SYS_THREAD_SS   (1024)
 #else
 /* Include system port file from portable folder */
 #include "lwesp_sys_port.h"
@@ -148,13 +148,13 @@ typedef int                                 lwesp_sys_thread_prio_t;
  *
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_init(void);
+uint8_t lwesp_sys_init(void);
 
 /**
  * \brief           Get current time in units of milliseconds
  * \return          Current time in units of milliseconds
  */
-uint32_t    lwesp_sys_now(void);
+uint32_t lwesp_sys_now(void);
 
 /**
  * \brief           Protect middleware core
@@ -166,7 +166,7 @@ uint32_t    lwesp_sys_now(void);
  * \note            Most operating systems support recursive mutexes.
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_protect(void);
+uint8_t lwesp_sys_protect(void);
 
 /**
  * \brief           Unprotect middleware core
@@ -177,7 +177,7 @@ uint8_t     lwesp_sys_protect(void);
  * \note            Most operating systems support recursive mutexes.
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_unprotect(void);
+uint8_t lwesp_sys_unprotect(void);
 
 /**
  * \}
@@ -194,42 +194,42 @@ uint8_t     lwesp_sys_unprotect(void);
  * \param[out]      p: Pointer to mutex structure to allocate
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mutex_create(lwesp_sys_mutex_t* p);
+uint8_t lwesp_sys_mutex_create(lwesp_sys_mutex_t* p);
 
 /**
  * \brief           Delete recursive mutex from system
  * \param[in]       p: Pointer to mutex structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mutex_delete(lwesp_sys_mutex_t* p);
+uint8_t lwesp_sys_mutex_delete(lwesp_sys_mutex_t* p);
 
 /**
  * \brief           Lock recursive mutex, wait forever to lock
  * \param[in]       p: Pointer to mutex structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mutex_lock(lwesp_sys_mutex_t* p);
+uint8_t lwesp_sys_mutex_lock(lwesp_sys_mutex_t* p);
 
 /**
  * \brief           Unlock recursive mutex
  * \param[in]       p: Pointer to mutex structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mutex_unlock(lwesp_sys_mutex_t* p);
+uint8_t lwesp_sys_mutex_unlock(lwesp_sys_mutex_t* p);
 
 /**
  * \brief           Check if mutex structure is valid system
  * \param[in]       p: Pointer to mutex structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mutex_isvalid(lwesp_sys_mutex_t* p);
+uint8_t lwesp_sys_mutex_isvalid(lwesp_sys_mutex_t* p);
 
 /**
  * \brief           Set recursive mutex structure as invalid
  * \param[in]       p: Pointer to mutex structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mutex_invalid(lwesp_sys_mutex_t* p);
+uint8_t lwesp_sys_mutex_invalid(lwesp_sys_mutex_t* p);
 
 /**
  * \}
@@ -249,14 +249,14 @@ uint8_t     lwesp_sys_mutex_invalid(lwesp_sys_mutex_t* p);
  *                     `1`: Keep token available
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt);
+uint8_t lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt);
 
 /**
  * \brief           Delete binary semaphore
  * \param[in]       p: Pointer to semaphore structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_sem_delete(lwesp_sys_sem_t* p);
+uint8_t lwesp_sys_sem_delete(lwesp_sys_sem_t* p);
 
 /**
  * \brief           Wait for semaphore to be available
@@ -265,28 +265,28 @@ uint8_t     lwesp_sys_sem_delete(lwesp_sys_sem_t* p);
  * \return          Number of milliseconds waited for semaphore to become available or
  *                      \ref LWESP_SYS_TIMEOUT if not available within given time
  */
-uint32_t    lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout);
+uint32_t lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout);
 
 /**
  * \brief           Release semaphore
  * \param[in]       p: Pointer to semaphore structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_sem_release(lwesp_sys_sem_t* p);
+uint8_t lwesp_sys_sem_release(lwesp_sys_sem_t* p);
 
 /**
  * \brief           Check if semaphore is valid
  * \param[in]       p: Pointer to semaphore structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_sem_isvalid(lwesp_sys_sem_t* p);
+uint8_t lwesp_sys_sem_isvalid(lwesp_sys_sem_t* p);
 
 /**
  * \brief           Invalid semaphore
  * \param[in]       p: Pointer to semaphore structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_sem_invalid(lwesp_sys_sem_t* p);
+uint8_t lwesp_sys_sem_invalid(lwesp_sys_sem_t* p);
 
 /**
  * \}
@@ -303,14 +303,14 @@ uint8_t     lwesp_sys_sem_invalid(lwesp_sys_sem_t* p);
  * \param[in]       size: Number of entries for message queue to hold
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mbox_create(lwesp_sys_mbox_t* b, size_t size);
+uint8_t lwesp_sys_mbox_create(lwesp_sys_mbox_t* b, size_t size);
 
 /**
  * \brief           Delete message queue
  * \param[in]       b: Pointer to message queue structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b);
+uint8_t lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b);
 
 /**
  * \brief           Put a new entry to message queue and wait until memory available
@@ -318,7 +318,7 @@ uint8_t     lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b);
  * \param[in]       m: Pointer to entry to insert to message queue
  * \return          Time in units of milliseconds needed to put a message to queue
  */
-uint32_t    lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m);
+uint32_t lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m);
 
 /**
  * \brief           Get a new entry from message queue with timeout
@@ -328,7 +328,7 @@ uint32_t    lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m);
  * \return          Time in units of milliseconds needed to put a message to queue
  *                      or \ref LWESP_SYS_TIMEOUT if it was not successful
  */
-uint32_t    lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout);
+uint32_t lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout);
 
 /**
  * \brief           Put a new entry to message queue without timeout (now or fail)
@@ -336,7 +336,7 @@ uint32_t    lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout);
  * \param[in]       m: Pointer to message to save to queue
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mbox_putnow(lwesp_sys_mbox_t* b, void* m);
+uint8_t lwesp_sys_mbox_putnow(lwesp_sys_mbox_t* b, void* m);
 
 /**
  * \brief           Get an entry from message queue immediately
@@ -344,21 +344,21 @@ uint8_t     lwesp_sys_mbox_putnow(lwesp_sys_mbox_t* b, void* m);
  * \param[in]       m: Pointer to pointer to result to save value from message queue to
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mbox_getnow(lwesp_sys_mbox_t* b, void** m);
+uint8_t lwesp_sys_mbox_getnow(lwesp_sys_mbox_t* b, void** m);
 
 /**
  * \brief           Check if message queue is valid
  * \param[in]       b: Pointer to message queue structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mbox_isvalid(lwesp_sys_mbox_t* b);
+uint8_t lwesp_sys_mbox_isvalid(lwesp_sys_mbox_t* b);
 
 /**
  * \brief           Invalid message queue
  * \param[in]       b: Pointer to message queue structure
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b);
+uint8_t lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b);
 
 /**
  * \}
@@ -380,7 +380,8 @@ uint8_t     lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b);
  * \param[in]       prio: Thread priority
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio);
+uint8_t lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func,
+                                void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio);
 
 /**
  * \brief           Terminate thread (shut it down and remove)
@@ -388,13 +389,13 @@ uint8_t     lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwe
  *                      If set to `NULL`, terminate current thread (thread from where function is called)
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_thread_terminate(lwesp_sys_thread_t* t);
+uint8_t lwesp_sys_thread_terminate(lwesp_sys_thread_t* t);
 
 /**
  * \brief           Yield current thread
  * \return          `1` on success, `0` otherwise
  */
-uint8_t     lwesp_sys_thread_yield(void);
+uint8_t lwesp_sys_thread_yield(void);
 
 /**
  * \}

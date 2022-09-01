@@ -37,7 +37,7 @@
 
 #if !__DOXYGEN__
 
-#include "ff.h"                                 /* Include FATFS file system file */
+#include "ff.h" /* Include FATFS file system file */
 
 /* File system object handle */
 static FATFS fs;
@@ -76,12 +76,12 @@ http_fs_open(http_fs_file_t* file, const char* path) {
      * set required parameters for file length
      */
     if (f_open(fil, fs_path, FA_READ) == FR_OK) {
-        file->arg = fil;                        /* Set user file argument to FATFS file structure */
-        file->size = f_size(fil);               /* Set file length, most important part */
+        file->arg = fil;          /* Set user file argument to FATFS file structure */
+        file->size = f_size(fil); /* Set file length, most important part */
         return 1;
     }
 
-    lwesp_mem_free(fil);                        /* We failed, free memory */
+    lwesp_mem_free(fil); /* We failed, free memory */
     return 0;
 }
 
@@ -97,8 +97,8 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
     FIL* fil;
     UINT br;
 
-    fil = file->arg;                            /* Get file argument */
-    if (fil == NULL) {                          /* Check if argument is valid */
+    fil = file->arg;   /* Get file argument */
+    if (fil == NULL) { /* Check if argument is valid */
         return 0;
     }
 
@@ -129,12 +129,12 @@ uint8_t
 http_fs_close(http_fs_file_t* file) {
     FIL* fil;
 
-    fil = file->arg;                            /* Get file argument */
-    if (fil == NULL) {                          /* Check if argument is valid */
+    fil = file->arg;   /* Get file argument */
+    if (fil == NULL) { /* Check if argument is valid */
         return 0;
     }
 
-    f_close(fil);                               /* Close file */
+    f_close(fil); /* Close file */
 
     /*
      * At this step, check if we are last opened file
@@ -143,9 +143,9 @@ http_fs_close(http_fs_file_t* file) {
     if (*file->rem_open_files == 1) {
         f_mount(NULL, "SD:", 1);
     }
-    lwesp_mem_free(fil);                        /* Free user argument */
+    lwesp_mem_free(fil); /* Free user argument */
 
-    return 1;                                   /* Close was successful */
+    return 1; /* Close was successful */
 }
 
 #endif /* !__DOXYGEN__ */

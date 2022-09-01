@@ -45,8 +45,8 @@
  * \ref LWESP_CFG_INPUT_USE_PROCESS must be enabled in `lwesp_config.h` to use this driver.
  */
 #include "lwesp/lwesp.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_input.h"
+#include "lwesp/lwesp_mem.h"
 #include "system/lwesp_ll.h"
 #include "tx_api.h"
 
@@ -57,20 +57,20 @@
 #endif /* LWESP_CFG_INPUT_USE_PROCESS */
 
 #if !defined(LWESP_USART_DMA_RX_BUFF_SIZE)
-#define LWESP_USART_DMA_RX_BUFF_SIZE      0x1000
+#define LWESP_USART_DMA_RX_BUFF_SIZE 0x1000
 #endif /* !defined(LWESP_USART_DMA_RX_BUFF_SIZE) */
 
 #if !defined(LWESP_USART_RDR_NAME)
-#define LWESP_USART_RDR_NAME              RDR
+#define LWESP_USART_RDR_NAME RDR
 #endif /* !defined(LWESP_USART_RDR_NAME) */
 
-#define LL_QUEUE_NUM_OF_ENTRY             10
-static UCHAR        ll_queue[LL_QUEUE_NUM_OF_ENTRY * sizeof(void*)];
+#define LL_QUEUE_NUM_OF_ENTRY 10
+static UCHAR ll_queue[LL_QUEUE_NUM_OF_ENTRY * sizeof(void*)];
 
 /* USART memory */
-static uint8_t      usart_mem[LWESP_USART_DMA_RX_BUFF_SIZE];
-static uint8_t      is_running, initialized;
-static size_t       old_pos;
+static uint8_t usart_mem[LWESP_USART_DMA_RX_BUFF_SIZE];
+static uint8_t is_running, initialized;
+static size_t old_pos;
 
 /* USART thread */
 static void usart_ll_thread_entry(ULONG arg);
@@ -283,11 +283,12 @@ configure_uart(uint32_t baudrate) {
 
     /* Create mbox and start thread */
     if (usart_ll_mbox.tx_queue_id == TX_CLEAR_ID) {
-        (VOID)tx_queue_create(&usart_ll_mbox, "ll queue", sizeof(void*) / sizeof(ULONG), ll_queue, sizeof(ll_queue));
+        (VOID) tx_queue_create(&usart_ll_mbox, "ll queue", sizeof(void*) / sizeof(ULONG), ll_queue, sizeof(ll_queue));
     }
 
     if (usart_ll_thread.tx_thread_id == TX_CLEAR_ID) {
-        (VOID)tx_thread_create(&usart_ll_thread, "ll thread", usart_ll_thread_entry, 0, usart_ll_thread_stack, LWESP_SYS_THREAD_SS, 0, 0, TX_NO_TIME_SLICE, TX_AUTO_START);
+        (VOID) tx_thread_create(&usart_ll_thread, "ll thread", usart_ll_thread_entry, 0, usart_ll_thread_stack,
+                                LWESP_SYS_THREAD_SS, 0, 0, TX_NO_TIME_SLICE, TX_AUTO_START);
     }
 }
 
@@ -297,7 +298,7 @@ configure_uart(uint32_t baudrate) {
  */
 static uint8_t
 reset_device(uint8_t state) {
-    if (state) {                                /* Activate reset line */
+    if (state) { /* Activate reset line */
         LL_GPIO_ResetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
     } else {
         LL_GPIO_SetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
@@ -330,13 +331,13 @@ lwespr_t
 lwesp_ll_init(lwesp_ll_t* ll) {
 
     if (!initialized) {
-        ll->send_fn = send_data;                /* Set callback function to send data */
+        ll->send_fn = send_data; /* Set callback function to send data */
 #if defined(LWESP_RESET_PIN)
-        ll->reset_fn = reset_device;            /* Set callback for hardware reset */
-#endif /* defined(LWESP_RESET_PIN) */
+        ll->reset_fn = reset_device; /* Set callback for hardware reset */
+#endif                               /* defined(LWESP_RESET_PIN) */
     }
 
-    configure_uart(ll->uart.baudrate);          /* Initialize UART for communication */
+    configure_uart(ll->uart.baudrate); /* Initialize UART for communication */
     initialized = 1;
     return lwespOK;
 }
@@ -347,8 +348,8 @@ lwesp_ll_init(lwesp_ll_t* ll) {
 lwespr_t
 lwesp_ll_deinit(lwesp_ll_t* ll) {
 
-    (VOID)tx_queue_delete(&usart_ll_mbox);
-    (VOID)tx_thread_delete(&usart_ll_thread);
+    (VOID) tx_queue_delete(&usart_ll_mbox);
+    (VOID) tx_thread_delete(&usart_ll_thread);
 
     initialized = 0;
     LWESP_UNUSED(ll);

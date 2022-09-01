@@ -47,7 +47,8 @@ extern "C" {
  * \{
  */
 
-lwespr_t    lwesp_mdns_set_config(uint8_t en, const char* host, const char* server, lwesp_port_t port, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t lwesp_mdns_set_config(uint8_t en, const char* host, const char* server, lwesp_port_t port,
+                               const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

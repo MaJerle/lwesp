@@ -37,10 +37,10 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "lwesp/lwesp_opt.h"
 #include "FreeRTOS.h"
-#include "task.h"
+#include "lwesp/lwesp_opt.h"
 #include "semphr.h"
+#include "task.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,18 +48,18 @@ extern "C" {
 
 #if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef SemaphoreHandle_t           lwesp_sys_mutex_t;
-typedef SemaphoreHandle_t           lwesp_sys_sem_t;
-typedef QueueHandle_t               lwesp_sys_mbox_t;
-typedef TaskHandle_t                lwesp_sys_thread_t;
-typedef UBaseType_t                 lwesp_sys_thread_prio_t;
+typedef SemaphoreHandle_t lwesp_sys_mutex_t;
+typedef SemaphoreHandle_t lwesp_sys_sem_t;
+typedef QueueHandle_t lwesp_sys_mbox_t;
+typedef TaskHandle_t lwesp_sys_thread_t;
+typedef UBaseType_t lwesp_sys_thread_prio_t;
 
-#define LWESP_SYS_MUTEX_NULL          ((SemaphoreHandle_t)0)
-#define LWESP_SYS_SEM_NULL            ((SemaphoreHandle_t)0)
-#define LWESP_SYS_MBOX_NULL           ((QueueHandle_t)0)
-#define LWESP_SYS_TIMEOUT             ((TickType_t)portMAX_DELAY)
-#define LWESP_SYS_THREAD_PRIO         (configMAX_PRIORITIES - 1)
-#define LWESP_SYS_THREAD_SS           (1024)
+#define LWESP_SYS_MUTEX_NULL  ((SemaphoreHandle_t)0)
+#define LWESP_SYS_SEM_NULL    ((SemaphoreHandle_t)0)
+#define LWESP_SYS_MBOX_NULL   ((QueueHandle_t)0)
+#define LWESP_SYS_TIMEOUT     ((TickType_t)portMAX_DELAY)
+#define LWESP_SYS_THREAD_PRIO (configMAX_PRIORITIES - 1)
+#define LWESP_SYS_THREAD_SS   (1024)
 
 #endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 

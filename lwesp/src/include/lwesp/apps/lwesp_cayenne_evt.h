@@ -34,8 +34,8 @@
 #ifndef LWESP_HDR_APP_CAYENNE_EVT_H
 #define LWESP_HDR_APP_CAYENNE_EVT_H
 
-#include "lwesp/lwesp.h"
 #include "lwesp/apps/lwesp_cayenne.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,8 +48,7 @@ extern "C" {
  * \{
  */
 
-lwesp_cayenne_evt_type_t    lwesp_cayenne_evt_get_type(lwesp_cayenne_evt_t* evt);
-
+lwesp_cayenne_evt_type_t lwesp_cayenne_evt_get_type(lwesp_cayenne_evt_t* evt);
 
 /**
  * \anchor          LWESP_APP_CAYENNE_EVT_DATA
@@ -59,7 +58,7 @@ lwesp_cayenne_evt_type_t    lwesp_cayenne_evt_get_type(lwesp_cayenne_evt_t* evt)
  * \note            Use these functions on \ref LWESP_CAYENNE_EVT_DATA event
  */
 
-lwesp_cayenne_msg_t*        lwesp_cayenne_evt_data_get_msg(lwesp_cayenne_evt_t* evt);
+lwesp_cayenne_msg_t* lwesp_cayenne_evt_data_get_msg(lwesp_cayenne_evt_t* evt);
 
 /**
  * \}

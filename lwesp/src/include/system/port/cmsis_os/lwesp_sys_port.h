@@ -36,8 +36,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "lwesp/lwesp_opt.h"
 #include "cmsis_os.h"
+#include "lwesp/lwesp_opt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,18 +45,18 @@ extern "C" {
 
 #if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef osMutexId_t                 lwesp_sys_mutex_t;
-typedef osSemaphoreId_t             lwesp_sys_sem_t;
-typedef osMessageQueueId_t          lwesp_sys_mbox_t;
-typedef osThreadId_t                lwesp_sys_thread_t;
-typedef osPriority_t                lwesp_sys_thread_prio_t;
+typedef osMutexId_t lwesp_sys_mutex_t;
+typedef osSemaphoreId_t lwesp_sys_sem_t;
+typedef osMessageQueueId_t lwesp_sys_mbox_t;
+typedef osThreadId_t lwesp_sys_thread_t;
+typedef osPriority_t lwesp_sys_thread_prio_t;
 
-#define LWESP_SYS_MUTEX_NULL          ((lwesp_sys_mutex_t)0)
-#define LWESP_SYS_SEM_NULL            ((lwesp_sys_sem_t)0)
-#define LWESP_SYS_MBOX_NULL           ((lwesp_sys_mbox_t)0)
-#define LWESP_SYS_TIMEOUT             ((uint32_t)osWaitForever)
-#define LWESP_SYS_THREAD_PRIO         (osPriorityNormal)
-#define LWESP_SYS_THREAD_SS           (512)
+#define LWESP_SYS_MUTEX_NULL  ((lwesp_sys_mutex_t)0)
+#define LWESP_SYS_SEM_NULL    ((lwesp_sys_sem_t)0)
+#define LWESP_SYS_MBOX_NULL   ((lwesp_sys_mbox_t)0)
+#define LWESP_SYS_TIMEOUT     ((uint32_t)osWaitForever)
+#define LWESP_SYS_THREAD_PRIO (osPriorityNormal)
+#define LWESP_SYS_THREAD_SS   (512)
 
 #endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 

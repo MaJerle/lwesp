@@ -31,21 +31,21 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_buff.h"
 #include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_private.h"
 
 /* --- Buffer unique part starts --- */
 /* Prefix for all buffer functions and typedefs */
-#define BUF_PREF(x)                     lwesp_ ## x
+#define BUF_PREF(x)     lwesp_##x
 /* --- Buffer unique part ends --- */
 
 /* Buffer utility macros */
-#define BUF_MEMSET                      LWESP_MEMSET
-#define BUF_MEMCPY                      LWESP_MEMCPY
-#define BUF_IS_VALID(b)                 ((b) != NULL && (b)->buff != NULL && (b)->size > 0)
-#define BUF_MIN(x, y)                   ((x) < (y) ? (x) : (y))
-#define BUF_MAX(x, y)                   ((x) > (y) ? (x) : (y))
+#define BUF_MEMSET      LWESP_MEMSET
+#define BUF_MEMCPY      LWESP_MEMCPY
+#define BUF_IS_VALID(b) ((b) != NULL && (b)->buff != NULL && (b)->size > 0)
+#define BUF_MIN(x, y)   ((x) < (y) ? (x) : (y))
+#define BUF_MAX(x, y)   ((x) > (y) ? (x) : (y))
 
 /**
  * \brief           Initialize buffer
@@ -54,19 +54,19 @@
  * \return          `1` on success, `0` otherwise
  */
 uint8_t
-BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size) {
+BUF_PREF(buff_init)(BUF_PREF(buff_t) * buff, size_t size) {
     if (buff == NULL || size == 0) {
         return 0;
     }
     BUF_MEMSET(buff, 0, sizeof(*buff));
 
-    buff->size = size;                          /* Set default values */
-    buff->buff = lwesp_mem_malloc(sizeof(*buff->buff) * size);  /* Allocate memory for buffer */
+    buff->size = size;                                         /* Set default values */
+    buff->buff = lwesp_mem_malloc(sizeof(*buff->buff) * size); /* Allocate memory for buffer */
 
-    if (buff->buff == NULL) {                   /* Check allocation */
+    if (buff->buff == NULL) { /* Check allocation */
         return 0;
     }
-    return 1;                                   /* Initialized OK */
+    return 1; /* Initialized OK */
 }
 
 /**
@@ -74,7 +74,7 @@ BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size) {
  * \param[in]       buff: Pointer to buffer structure
  */
 void
-BUF_PREF(buff_free)(BUF_PREF(buff_t)* buff) {
+BUF_PREF(buff_free)(BUF_PREF(buff_t) * buff) {
     if (BUF_IS_VALID(buff)) {
         lwesp_mem_free_s((void**)&buff->buff);
     }
@@ -91,7 +91,7 @@ BUF_PREF(buff_free)(BUF_PREF(buff_t)* buff) {
  *                  to copy full data array
  */
 size_t
-BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t btw) {
+BUF_PREF(buff_write)(BUF_PREF(buff_t) * buff, const void* data, size_t btw) {
     size_t tocopy, free;
     const uint8_t* d = data;
 
@@ -133,7 +133,7 @@ BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t btw) {
  * \return          Number of bytes read and copied to data array
  */
 size_t
-BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t btr) {
+BUF_PREF(buff_read)(BUF_PREF(buff_t) * buff, void* data, size_t btr) {
     size_t tocopy, full;
     uint8_t* d = data;
 
@@ -176,7 +176,7 @@ BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t btr) {
  * \return          Number of bytes peeked and written to output array
  */
 size_t
-BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_t btp) {
+BUF_PREF(buff_peek)(BUF_PREF(buff_t) * buff, size_t skip_count, void* data, size_t btp) {
     size_t full, tocopy, r;
     uint8_t* d = data;
 
@@ -223,7 +223,7 @@ BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_
  * \return          Number of free bytes in memory
  */
 size_t
-BUF_PREF(buff_get_free)(BUF_PREF(buff_t)* buff) {
+BUF_PREF(buff_get_free)(BUF_PREF(buff_t) * buff) {
     size_t size, w, r;
 
     if (!BUF_IS_VALID(buff)) {
@@ -251,7 +251,7 @@ BUF_PREF(buff_get_free)(BUF_PREF(buff_t)* buff) {
  * \return          Number of bytes ready to be read
  */
 size_t
-BUF_PREF(buff_get_full)(BUF_PREF(buff_t)* buff) {
+BUF_PREF(buff_get_full)(BUF_PREF(buff_t) * buff) {
     size_t w, r, size;
 
     if (!BUF_IS_VALID(buff)) {
@@ -276,7 +276,7 @@ BUF_PREF(buff_get_full)(BUF_PREF(buff_t)* buff) {
  * \param[in]       buff: Buffer handle
  */
 void
-BUF_PREF(buff_reset)(BUF_PREF(buff_t)* buff) {
+BUF_PREF(buff_reset)(BUF_PREF(buff_t) * buff) {
     if (BUF_IS_VALID(buff)) {
         buff->w = 0;
         buff->r = 0;
@@ -289,7 +289,7 @@ BUF_PREF(buff_reset)(BUF_PREF(buff_t)* buff) {
  * \return          Linear buffer start address
  */
 void*
-BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t)* buff) {
+BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t) * buff) {
     if (!BUF_IS_VALID(buff)) {
         return NULL;
     }
@@ -302,7 +302,7 @@ BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t)* buff) {
  * \return          Linear buffer size in units of bytes for read operation
  */
 size_t
-BUF_PREF(buff_get_linear_block_read_length)(BUF_PREF(buff_t)* buff) {
+BUF_PREF(buff_get_linear_block_read_length)(BUF_PREF(buff_t) * buff) {
     size_t w, r, len;
 
     if (!BUF_IS_VALID(buff)) {
@@ -331,16 +331,16 @@ BUF_PREF(buff_get_linear_block_read_length)(BUF_PREF(buff_t)* buff) {
  * \return          Number of bytes skipped
  */
 size_t
-BUF_PREF(buff_skip)(BUF_PREF(buff_t)* buff, size_t len) {
+BUF_PREF(buff_skip)(BUF_PREF(buff_t) * buff, size_t len) {
     size_t full;
 
     if (!BUF_IS_VALID(buff) || len == 0) {
         return 0;
     }
 
-    full = BUF_PREF(buff_get_full)(buff);       /* Get buffer used length */
-    buff->r += BUF_MIN(len, full);              /* Advance read pointer */
-    if (buff->r >= buff->size) {                /* Subtract possible overflow */
+    full = BUF_PREF(buff_get_full)(buff); /* Get buffer used length */
+    buff->r += BUF_MIN(len, full);        /* Advance read pointer */
+    if (buff->r >= buff->size) {          /* Subtract possible overflow */
         buff->r -= buff->size;
     }
     return len;
@@ -352,7 +352,7 @@ BUF_PREF(buff_skip)(BUF_PREF(buff_t)* buff, size_t len) {
  * \return          Linear buffer start address
  */
 void*
-BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t)* buff) {
+BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t) * buff) {
     if (!BUF_IS_VALID(buff)) {
         return NULL;
     }
@@ -365,7 +365,7 @@ BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t)* buff) {
  * \return          Linear buffer size in units of bytes for write operation
  */
 size_t
-BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t)* buff) {
+BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t) * buff) {
     size_t w, r, len;
 
     if (!BUF_IS_VALID(buff)) {
@@ -406,16 +406,16 @@ BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t)* buff) {
  * \return          Number of bytes advanced for write operation
  */
 size_t
-BUF_PREF(buff_advance)(BUF_PREF(buff_t)* buff, size_t len) {
+BUF_PREF(buff_advance)(BUF_PREF(buff_t) * buff, size_t len) {
     size_t free;
 
     if (!BUF_IS_VALID(buff) || len == 0) {
         return 0;
     }
 
-    free = BUF_PREF(buff_get_free)(buff);       /* Get buffer free length */
-    buff->w += BUF_MIN(len, free);              /* Advance write pointer */
-    if (buff->w >= buff->size) {                /* Subtract possible overflow */
+    free = BUF_PREF(buff_get_free)(buff); /* Get buffer free length */
+    buff->w += BUF_MIN(len, free);        /* Advance write pointer */
+    if (buff->w >= buff->size) {          /* Subtract possible overflow */
         buff->w -= buff->size;
     }
     return len;

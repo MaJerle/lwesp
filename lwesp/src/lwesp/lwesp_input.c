@@ -31,10 +31,10 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
-#include "lwesp/lwesp.h"
 #include "lwesp/lwesp_input.h"
+#include "lwesp/lwesp.h"
 #include "lwesp/lwesp_buff.h"
+#include "lwesp/lwesp_private.h"
 
 static uint32_t lwesp_recv_total_len;
 static uint32_t lwesp_recv_calls;
@@ -53,10 +53,10 @@ lwesp_input(const void* data, size_t len) {
     if (!esp.status.f.initialized || esp.buff.buff == NULL) {
         return lwespERR;
     }
-    lwesp_buff_write(&esp.buff, data, len);     /* Write data to buffer */
+    lwesp_buff_write(&esp.buff, data, len);         /* Write data to buffer */
     lwesp_sys_mbox_putnow(&esp.mbox_process, NULL); /* Write empty box, don't care if write fails */
-    lwesp_recv_total_len += len;                /* Update total number of received bytes */
-    ++lwesp_recv_calls;                         /* Update number of calls */
+    lwesp_recv_total_len += len;                    /* Update total number of received bytes */
+    ++lwesp_recv_calls;                             /* Update number of calls */
     return lwespOK;
 }
 
@@ -83,12 +83,12 @@ lwesp_input_process(const void* data, size_t len) {
         return lwespERR;
     }
 
-    lwesp_recv_total_len += len;                /* Update total number of received bytes */
-    ++lwesp_recv_calls;                         /* Update number of calls */
+    lwesp_recv_total_len += len; /* Update total number of received bytes */
+    ++lwesp_recv_calls;          /* Update number of calls */
 
     if (len > 0) {
         lwesp_core_lock();
-        res = lwespi_process(data, len);        /* Process input data */
+        res = lwespi_process(data, len); /* Process input data */
         lwesp_core_unlock();
     }
     return res;

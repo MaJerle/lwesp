@@ -31,9 +31,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_dns.h"
 #include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_private.h"
 
 #if LWESP_CFG_DNS || __DOXYGEN__
 
@@ -47,8 +47,8 @@
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_dns_gethostbyname(const char* host, lwesp_ip_t* const ip,
-                        const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_dns_gethostbyname(const char* host, lwesp_ip_t* const ip, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                        const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("host != NULL", host != NULL);
@@ -79,8 +79,8 @@ lwesp_dns_gethostbyname(const char* host, lwesp_ip_t* const ip,
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_dns_set_config(uint8_t en, const char* s1, const char* s2,
-                     const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_dns_set_config(uint8_t en, const char* s1, const char* s2, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                     const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
@@ -107,8 +107,8 @@ lwesp_dns_set_config(uint8_t en, const char* s1, const char* s2,
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_dns_get_config(lwesp_ip_t* s1, lwesp_ip_t* s2,
-                     const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_dns_get_config(lwesp_ip_t* s1, lwesp_ip_t* s2, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                     const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);

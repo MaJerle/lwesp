@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "system/lwesp_sys.h"
 #include "cmsis_os.h"
+#include "system/lwesp_sys.h"
 
 #if !__DOXYGEN__
 
@@ -112,7 +112,8 @@ lwesp_sys_sem_delete(lwesp_sys_sem_t* p) {
 uint32_t
 lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
     uint32_t tick = osKernelSysTick();
-    return (osSemaphoreAcquire(*p, timeout == 0 ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick) : LWESP_SYS_TIMEOUT;
+    return (osSemaphoreAcquire(*p, timeout == 0 ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick)
+                                                                                    : LWESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -156,7 +157,8 @@ lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
 uint32_t
 lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t tick = osKernelSysTick();
-    return (osMessageQueueGet(*b, m, NULL, timeout == 0 ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick) : LWESP_SYS_TIMEOUT;
+    return (osMessageQueueGet(*b, m, NULL, timeout == 0 ? osWaitForever : timeout) == osOK) ? (osKernelSysTick() - tick)
+                                                                                            : LWESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -181,13 +183,12 @@ lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b) {
 }
 
 uint8_t
-lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
+lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg,
+                        size_t stack_size, lwesp_sys_thread_prio_t prio) {
     lwesp_sys_thread_t id;
-    const osThreadAttr_t thread_attr = {
-        .name = (char*)name,
-        .priority = (osPriority)prio,
-        .stack_size = stack_size > 0 ? stack_size : LWESP_SYS_THREAD_SS
-    };
+    const osThreadAttr_t thread_attr = {.name = (char*)name,
+                                        .priority = (osPriority)prio,
+                                        .stack_size = stack_size > 0 ? stack_size : LWESP_SYS_THREAD_SS};
 
     id = osThreadNew(thread_func, arg, &thread_attr);
     if (t != NULL) {

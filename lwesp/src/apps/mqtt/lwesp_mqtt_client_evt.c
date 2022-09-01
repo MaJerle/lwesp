@@ -32,4 +32,3 @@
  * Version:         v1.1.2-dev
  */
 #include "lwesp/apps/lwesp_mqtt_client_evt.h"
-

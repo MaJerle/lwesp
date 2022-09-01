@@ -31,18 +31,18 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "system/lwesp_ll.h"
 #include "lwesp/lwesp.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_input.h"
+#include "lwesp/lwesp_mem.h"
+#include "system/lwesp_ll.h"
 
 #if !__DOXYGEN__
 
 volatile uint8_t lwesp_ll_win32_driver_ignore_data;
 static uint8_t initialized = 0;
 static HANDLE thread_handle;
-static volatile HANDLE com_port;                /*!< COM port handle */
-static uint8_t data_buffer[0x1000];             /*!< Received data array */
+static volatile HANDLE com_port;    /*!< COM port handle */
+static uint8_t data_buffer[0x1000]; /*!< Received data array */
 
 static void uart_thread(void* param);
 
@@ -79,18 +79,13 @@ send_data(const void* data, size_t len) {
 static uint8_t
 configure_uart(uint32_t baudrate) {
     size_t i;
-    DCB dcb = { .DCBlength = sizeof(dcb) };
+    DCB dcb = {.DCBlength = sizeof(dcb)};
 
     /*
      * List of COM ports to probe for ESP devices
      * This may be different on your computer
      */
-    static const char* com_port_names[] = {
-        "\\\\.\\COM16",
-        "\\\\.\\COM4",
-        "\\\\.\\COM9",
-        "\\\\.\\COM10"
-    };
+    static const char* com_port_names[] = {"\\\\.\\COM16", "\\\\.\\COM4", "\\\\.\\COM9", "\\\\.\\COM10"};
 
     /* Try to open one of listed COM ports */
     if (!initialized) {
@@ -162,12 +157,12 @@ uart_thread(void* param) {
 
     LWESP_UNUSED(param);
 
-    lwesp_sys_sem_create(&sem, 0);              /* Create semaphore for delay functions */
+    lwesp_sys_sem_create(&sem, 0); /* Create semaphore for delay functions */
     while (com_port == NULL) {
-        lwesp_sys_sem_wait(&sem, 1);            /* Add some delay with yield */
+        lwesp_sys_sem_wait(&sem, 1); /* Add some delay with yield */
     }
 
-    fopen_s(&file, "log_file.txt", "w+");       /* Open debug file in write mode */
+    fopen_s(&file, "log_file.txt", "w+"); /* Open debug file in write mode */
     while (1) {
         while (com_port == NULL) {
             lwesp_sys_sem_wait(&sem, 1);
@@ -196,7 +191,7 @@ uart_thread(void* param) {
                 /* Send received data to input processing module */
 #if LWESP_CFG_INPUT_USE_PROCESS
                 lwesp_input_process(data_buffer, (size_t)bytes_read);
-#else /* LWESP_CFG_INPUT_USE_PROCESS */
+#else  /* LWESP_CFG_INPUT_USE_PROCESS */
                 lwesp_input(data_buffer, (size_t)bytes_read);
 #endif /* !LWESP_CFG_INPUT_USE_PROCESS */
 
@@ -219,7 +214,7 @@ uart_thread(void* param) {
 static uint8_t
 reset_device(uint8_t state) {
     LWESP_UNUSED(state);
-    return 0;                                   /* Hardware reset was not successful */
+    return 0; /* Hardware reset was not successful */
 }
 
 /**
@@ -229,29 +224,28 @@ lwespr_t
 lwesp_ll_init(lwesp_ll_t* ll) {
 #if !LWESP_CFG_MEM_CUSTOM
     /* Step 1: Configure memory for dynamic allocations */
-    static uint8_t memory[0x10000];             /* Create memory for dynamic allocations with specific size */
+    static uint8_t memory[0x10000]; /* Create memory for dynamic allocations with specific size */
 
     /*
      * Create memory region(s) of memory.
      * If device has internal/external memory available,
      * multiple memories may be used
      */
-    lwesp_mem_region_t mem_regions[] = {
-        { memory, sizeof(memory) }
-    };
+    lwesp_mem_region_t mem_regions[] = {{memory, sizeof(memory)}};
     if (!initialized) {
-        lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations to ESP library */
+        lwesp_mem_assignmemory(mem_regions,
+                               LWESP_ARRAYSIZE(mem_regions)); /* Assign memory for allocations to ESP library */
     }
 #endif /* !LWESP_CFG_MEM_CUSTOM */
 
     /* Step 2: Set AT port send function to use when we have data to transmit */
     if (!initialized) {
-        ll->send_fn = send_data;                /* Set callback function to send data */
+        ll->send_fn = send_data; /* Set callback function to send data */
         ll->reset_fn = reset_device;
     }
 
     /* Step 3: Configure AT port to be able to send/receive data to/from ESP device */
-    if (!configure_uart(ll->uart.baudrate)) {   /* Initialize UART for communication */
+    if (!configure_uart(ll->uart.baudrate)) { /* Initialize UART for communication */
         return lwespERR;
     }
     initialized = 1;
@@ -268,7 +262,7 @@ lwesp_ll_deinit(lwesp_ll_t* ll) {
         lwesp_sys_thread_terminate(&thread_handle);
         thread_handle = NULL;
     }
-    initialized = 0;                            /* Clear initialized flag */
+    initialized = 0; /* Clear initialized flag */
     return lwespOK;
 }
 

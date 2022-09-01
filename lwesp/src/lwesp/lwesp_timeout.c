@@ -31,9 +31,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_timeout.h"
 #include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_private.h"
 
 static lwesp_timeout_t* first_timeout;
 static uint32_t last_timeout_time;
@@ -52,7 +52,7 @@ get_next_timeout_diff(void) {
     if (diff >= first_timeout->time) {          /* Are we over already? */
         return 0;                               /* We have to immediately process this timeout */
     }
-    return first_timeout->time - diff;          /* Return remaining time for sleep */
+    return first_timeout->time - diff; /* Return remaining time for sleep */
 }
 
 /**
@@ -69,7 +69,7 @@ process_next_timeout(void) {
      * to make sure we have correct timing in case
      * callback creates timeout value again
      */
-    last_timeout_time = time;                   /* Reset variable when we were last processed */
+    last_timeout_time = time; /* Reset variable when we were last processed */
 
     if (first_timeout != NULL) {
         lwesp_timeout_t* to = first_timeout;
@@ -79,8 +79,8 @@ process_next_timeout(void) {
          * to make sure we are safe in case callback function
          * adds a new timeout entry to list
          */
-        first_timeout = first_timeout->next;    /* Set next timeout on a list as first timeout */
-        to->fn(to->arg);                        /* Call user callback function */
+        first_timeout = first_timeout->next; /* Set next timeout on a list as first timeout */
+        to->fn(to->arg);                     /* Call user callback function */
         lwesp_mem_free_s((void**)&to);
     }
 }
@@ -96,13 +96,13 @@ uint32_t
 lwespi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
     uint32_t wait_time;
     do {
-        if (first_timeout == NULL) {            /* We have no timeouts ready? */
-            return lwesp_sys_mbox_get(b, m, timeout);   /* Get entry from message queue */
+        if (first_timeout == NULL) {                  /* We have no timeouts ready? */
+            return lwesp_sys_mbox_get(b, m, timeout); /* Get entry from message queue */
         }
-        wait_time = get_next_timeout_diff();    /* Get time to wait for next timeout execution */
+        wait_time = get_next_timeout_diff(); /* Get time to wait for next timeout execution */
         if (wait_time == 0 || lwesp_sys_mbox_get(b, m, wait_time) == LWESP_SYS_TIMEOUT) {
             lwesp_core_lock();
-            process_next_timeout();             /* Process with next timeout */
+            process_next_timeout(); /* Process with next timeout */
             lwesp_core_unlock();
         }
         break;
@@ -130,13 +130,13 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
     }
 
     lwesp_core_lock();
-    now = lwesp_sys_now();                      /* Get current time */
+    now = lwesp_sys_now(); /* Get current time */
     if (first_timeout != NULL) {
         /*
          * Since we want timeout value to start from NOW,
          * we have to add time when we last processed our timeouts
          */
-        time += now - last_timeout_time;        /* Add difference between now and last processed time */
+        time += now - last_timeout_time; /* Add difference between now and last processed time */
     }
     to->time = time;
     to->arg = arg;
@@ -147,21 +147,21 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
      * and align times to have correct values between timeouts
      */
     if (first_timeout == NULL) {
-        first_timeout = to;                     /* Set as first element */
-        last_timeout_time = now;                /* Reset last timeout time to current time */
-    } else {                                    /* Find where to place a new timeout */
+        first_timeout = to;      /* Set as first element */
+        last_timeout_time = now; /* Reset last timeout time to current time */
+    } else {                     /* Find where to place a new timeout */
         /*
          * First check if we have to put new timeout
          * to beginning of linked list.
          * In this case just align new value for current first element
          */
         if (first_timeout->time > to->time) {
-            first_timeout->time -= time;        /* Decrease first timeout value to match difference */
-            to->next = first_timeout;           /* Set first timeout as next of new one */
-            first_timeout = to;                 /* Set new timeout as first */
-        } else {                                /* Go somewhere in between current list */
+            first_timeout->time -= time; /* Decrease first timeout value to match difference */
+            to->next = first_timeout;    /* Set first timeout as next of new one */
+            first_timeout = to;          /* Set new timeout as first */
+        } else {                         /* Go somewhere in between current list */
             for (lwesp_timeout_t* t = first_timeout; t != NULL; t = t->next) {
-                to->time -= t->time;            /* Decrease new timeout time by time in a linked list */
+                to->time -= t->time; /* Decrease new timeout time by time in a linked list */
                 /*
                  * Enter between 2 entries on a list in case:
                  *
@@ -169,20 +169,21 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
                  * - Our time is less than diff between 2 entries in list
                  */
                 if (t->next == NULL || t->next->time > to->time) {
-                    if (t->next != NULL) {      /* Check if there is next element */
-                        t->next->time -= to->time;  /* Decrease difference time to next one */
-                    } else if (to->time > time) {   /* Overflow of time check */
+                    if (t->next != NULL) {         /* Check if there is next element */
+                        t->next->time -= to->time; /* Decrease difference time to next one */
+                    } else if (to->time > time) {  /* Overflow of time check */
                         to->time = time + first_timeout->time;
                     }
-                    to->next = t->next;         /* Change order of elements */
-                    t->next = to;               /* Add new element to linked list */
+                    to->next = t->next; /* Change order of elements */
+                    t->next = to;       /* Add new element to linked list */
                     break;
                 }
             }
         }
     }
     lwesp_core_unlock();
-    lwesp_sys_mbox_putnow(&esp.mbox_process, NULL); /* Write message to process queue to wakeup process thread and to start */
+    lwesp_sys_mbox_putnow(&esp.mbox_process,
+                          NULL); /* Write message to process queue to wakeup process thread and to start */
     return lwespOK;
 }
 
@@ -196,17 +197,17 @@ lwesp_timeout_remove(lwesp_timeout_fn fn) {
     uint8_t success = 0;
 
     lwesp_core_lock();
-    for (lwesp_timeout_t* t = first_timeout, *t_prev = NULL; t != NULL;
-         t_prev = t, t = t->next) {             /* Check all entries */
-        if (t->fn == fn) {                      /* Do we have a match from callback point of view? */
+    for (lwesp_timeout_t *t = first_timeout, *t_prev = NULL; t != NULL;
+         t_prev = t, t = t->next) { /* Check all entries */
+        if (t->fn == fn) {          /* Do we have a match from callback point of view? */
 
             /*
              * We have to first increase
              * difference time between current and next one
              * to be aligned for correct wait time
              */
-            if (t->next != NULL) {              /* Do we have next element? */
-                t->next->time += t->time;       /* Increase timeout time for next element */
+            if (t->next != NULL) {        /* Do we have next element? */
+                t->next->time += t->time; /* Increase timeout time for next element */
             }
 
             /*

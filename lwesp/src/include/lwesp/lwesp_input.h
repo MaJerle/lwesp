@@ -48,8 +48,8 @@ extern "C" {
  * \{
  */
 
-lwespr_t    lwesp_input(const void* data, size_t len);
-lwespr_t    lwesp_input_process(const void* data, size_t len);
+lwespr_t lwesp_input(const void* data, size_t len);
+lwespr_t lwesp_input_process(const void* data, size_t len);
 
 /**
  * \}

@@ -37,20 +37,20 @@
  * and full DMA support for TX and RX operation.
  */
 #include "lwesp/lwesp.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_input.h"
-#include "system/lwesp_ll.h"
+#include "lwesp/lwesp_mem.h"
 #include "lwrb/lwrb.h"
-#include "tx_api.h"
 #include "mcu.h"
+#include "system/lwesp_ll.h"
+#include "tx_api.h"
 
 #if !__DOXYGEN__
 
 #include "stm32h7xx_ll_bus.h"
-#include "stm32h7xx_ll_usart.h"
-#include "stm32h7xx_ll_gpio.h"
 #include "stm32h7xx_ll_dma.h"
+#include "stm32h7xx_ll_gpio.h"
 #include "stm32h7xx_ll_rcc.h"
+#include "stm32h7xx_ll_usart.h"
 
 #if !LWESP_CFG_INPUT_USE_PROCESS
 #error "LWESP_CFG_INPUT_USE_PROCESS must be enabled in `lwesp_opts.h` to use this driver."
@@ -65,51 +65,51 @@
  * PB14 and PB15 are used together with Arduino connector
  * and extension board with ESP32-C3
  */
-#define LWESP_USART                                 USART1
-#define LWESP_USART_CLK_EN                          LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1)
-#define LWESP_USART_IRQ                             USART1_IRQn
-#define LWESP_USART_IRQ_HANDLER                     USART1_IRQHandler
+#define LWESP_USART                    USART1
+#define LWESP_USART_CLK_EN             LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1)
+#define LWESP_USART_IRQ                USART1_IRQn
+#define LWESP_USART_IRQ_HANDLER        USART1_IRQHandler
 
 /* TX DMA */
-#define LWESP_USART_DMA_TX                          DMA1
-#define LWESP_USART_DMA_TX_STREAM                   LL_DMA_STREAM_5
-#define LWESP_USART_DMA_TX_REQUEST                  LL_DMAMUX1_REQ_USART1_TX
-#define LWESP_USART_DMA_TX_CLK_EN                   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1)
-#define LWESP_USART_DMA_TX_IRQ                      DMA1_Stream5_IRQn
-#define LWESP_USART_DMA_TX_IRQ_HANDLER              DMA1_Stream5_IRQHandler
-#define LWESP_USART_DMA_TX_IS_TC                    LL_DMA_IsActiveFlag_TC5(LWESP_USART_DMA_TX)
-#define LWESP_USART_DMA_TX_CLEAR_TC                 LL_DMA_ClearFlag_TC5(LWESP_USART_DMA_TX)
-#define LWESP_USART_DMA_TX_CLEAR_HT                 LL_DMA_ClearFlag_HT5(LWESP_USART_DMA_TX)
-#define LWESP_USART_DMA_TX_CLEAR_TE                 LL_DMA_ClearFlag_TE5(LWESP_USART_DMA_TX)
+#define LWESP_USART_DMA_TX             DMA1
+#define LWESP_USART_DMA_TX_STREAM      LL_DMA_STREAM_5
+#define LWESP_USART_DMA_TX_REQUEST     LL_DMAMUX1_REQ_USART1_TX
+#define LWESP_USART_DMA_TX_CLK_EN      LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1)
+#define LWESP_USART_DMA_TX_IRQ         DMA1_Stream5_IRQn
+#define LWESP_USART_DMA_TX_IRQ_HANDLER DMA1_Stream5_IRQHandler
+#define LWESP_USART_DMA_TX_IS_TC       LL_DMA_IsActiveFlag_TC5(LWESP_USART_DMA_TX)
+#define LWESP_USART_DMA_TX_CLEAR_TC    LL_DMA_ClearFlag_TC5(LWESP_USART_DMA_TX)
+#define LWESP_USART_DMA_TX_CLEAR_HT    LL_DMA_ClearFlag_HT5(LWESP_USART_DMA_TX)
+#define LWESP_USART_DMA_TX_CLEAR_TE    LL_DMA_ClearFlag_TE5(LWESP_USART_DMA_TX)
 
 /* RX DMA */
-#define LWESP_USART_DMA_RX                          DMA1
-#define LWESP_USART_DMA_RX_STREAM                   LL_DMA_STREAM_4
-#define LWESP_USART_DMA_RX_REQUEST                  LL_DMAMUX1_REQ_USART1_RX
-#define LWESP_USART_DMA_RX_CLK_EN                   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1)
-#define LWESP_USART_DMA_RX_IRQ                      DMA1_Stream4_IRQn
-#define LWESP_USART_DMA_RX_IRQ_HANDLER              DMA1_Stream4_IRQHandler
-#define LWESP_USART_DMA_RX_IS_TC                    LL_DMA_IsActiveFlag_TC4(LWESP_USART_DMA_RX)
-#define LWESP_USART_DMA_RX_IS_HT                    LL_DMA_IsActiveFlag_HT4(LWESP_USART_DMA_RX)
-#define LWESP_USART_DMA_RX_IS_TE                    LL_DMA_IsActiveFlag_TE4(LWESP_USART_DMA_RX)
-#define LWESP_USART_DMA_RX_CLEAR_TC                 LL_DMA_ClearFlag_TC4(LWESP_USART_DMA_RX)
-#define LWESP_USART_DMA_RX_CLEAR_HT                 LL_DMA_ClearFlag_HT4(LWESP_USART_DMA_RX)
-#define LWESP_USART_DMA_RX_CLEAR_TE                 LL_DMA_ClearFlag_TE4(LWESP_USART_DMA_RX)
+#define LWESP_USART_DMA_RX             DMA1
+#define LWESP_USART_DMA_RX_STREAM      LL_DMA_STREAM_4
+#define LWESP_USART_DMA_RX_REQUEST     LL_DMAMUX1_REQ_USART1_RX
+#define LWESP_USART_DMA_RX_CLK_EN      LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1)
+#define LWESP_USART_DMA_RX_IRQ         DMA1_Stream4_IRQn
+#define LWESP_USART_DMA_RX_IRQ_HANDLER DMA1_Stream4_IRQHandler
+#define LWESP_USART_DMA_RX_IS_TC       LL_DMA_IsActiveFlag_TC4(LWESP_USART_DMA_RX)
+#define LWESP_USART_DMA_RX_IS_HT       LL_DMA_IsActiveFlag_HT4(LWESP_USART_DMA_RX)
+#define LWESP_USART_DMA_RX_IS_TE       LL_DMA_IsActiveFlag_TE4(LWESP_USART_DMA_RX)
+#define LWESP_USART_DMA_RX_CLEAR_TC    LL_DMA_ClearFlag_TC4(LWESP_USART_DMA_RX)
+#define LWESP_USART_DMA_RX_CLEAR_HT    LL_DMA_ClearFlag_HT4(LWESP_USART_DMA_RX)
+#define LWESP_USART_DMA_RX_CLEAR_TE    LL_DMA_ClearFlag_TE4(LWESP_USART_DMA_RX)
 
 /* GPIO configuration */
-#define LWESP_USART_TX_PORT                         GPIOB
-#define LWESP_USART_TX_PIN                          LL_GPIO_PIN_14
-#define LWESP_USART_TX_PORT_CLK_EN                  LL_AHB1_GRP1_EnableClock(LL_AHB4_GRP1_PERIPH_GPIOB)
-#define LWESP_USART_TX_PIN_AF                       LL_GPIO_AF_4
-#define LWESP_USART_RX_PORT                         GPIOB
-#define LWESP_USART_RX_PIN                          LL_GPIO_PIN_15
-#define LWESP_USART_RX_PORT_CLK_EN                  LL_AHB1_GRP1_EnableClock(LL_AHB4_GRP1_PERIPH_GPIOB)
-#define LWESP_USART_RX_PIN_AF                       LL_GPIO_AF_4
+#define LWESP_USART_TX_PORT            GPIOB
+#define LWESP_USART_TX_PIN             LL_GPIO_PIN_14
+#define LWESP_USART_TX_PORT_CLK_EN     LL_AHB1_GRP1_EnableClock(LL_AHB4_GRP1_PERIPH_GPIOB)
+#define LWESP_USART_TX_PIN_AF          LL_GPIO_AF_4
+#define LWESP_USART_RX_PORT            GPIOB
+#define LWESP_USART_RX_PIN             LL_GPIO_PIN_15
+#define LWESP_USART_RX_PORT_CLK_EN     LL_AHB1_GRP1_EnableClock(LL_AHB4_GRP1_PERIPH_GPIOB)
+#define LWESP_USART_RX_PIN_AF          LL_GPIO_AF_4
 
 /* TX data buffers, must be 32-bytes aligned (cache) and in dma buffer section to make sure DMA has access to the memory region */
 ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) lwesp_tx_rb_data[2048]);
-static lwrb_t       lwesp_tx_rb;
-volatile size_t     lwesp_tx_len;
+static lwrb_t lwesp_tx_rb;
+volatile size_t lwesp_tx_len;
 
 /*
  * Max number of bytes to transmit in one DMA transfer
@@ -117,24 +117,24 @@ volatile size_t     lwesp_tx_len;
  * See https://github.com/MaJerle/stm32-usart-uart-dma-rx-tx
  * for detailed explanation about impact of this number
  */
-#define LWESP_LL_MAX_TX_LEN             64
+#define LWESP_LL_MAX_TX_LEN 64
 
 /* Raw DMA memory for UART received data */
 ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) lwesp_usart_rx_dma_buffer[256]);
 
 /* USART thread for read and data processing */
 static void prv_lwesp_read_thread_entry(ULONG arg);
-static TX_THREAD        lwesp_read_thread;
-static UCHAR            lwesp_read_thread_stack[4 * LWESP_SYS_THREAD_SS];
-static volatile size_t  lwesp_read_old_pos = 0;
+static TX_THREAD lwesp_read_thread;
+static UCHAR lwesp_read_thread_stack[4 * LWESP_SYS_THREAD_SS];
+static volatile size_t lwesp_read_old_pos = 0;
 static TX_EVENT_FLAGS_GROUP lwesp_ll_event_group;
 
 /* List of flags for read */
-#define LWESP_LL_FLAG_DATA                  ((ULONG)0x000000001)
+#define LWESP_LL_FLAG_DATA ((ULONG)0x000000001)
 
 /* Status variables */
-static uint8_t          lwesp_is_running = 0;
-static uint8_t          lwesp_initialized = 0;
+static uint8_t lwesp_is_running = 0;
+static uint8_t lwesp_initialized = 0;
 
 /**
  * \brief           USART data processing thread
@@ -151,7 +151,7 @@ prv_lwesp_read_thread_entry(ULONG arg) {
         ULONG flags;
 
         /* Wait for any flag from either DMA or UART interrupts */
-        tx_event_flags_get(&lwesp_ll_event_group, (ULONG) - 1, TX_OR_CLEAR, &flags, TX_WAIT_FOREVER);
+        tx_event_flags_get(&lwesp_ll_event_group, (ULONG)-1, TX_OR_CLEAR, &flags, TX_WAIT_FOREVER);
 
         /* Read data */
         pos = sizeof(lwesp_usart_rx_dma_buffer) - LL_DMA_GetDataLength(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM);
@@ -160,7 +160,8 @@ prv_lwesp_read_thread_entry(ULONG arg) {
             if (pos > lwesp_read_old_pos) {
                 lwesp_input_process(&lwesp_usart_rx_dma_buffer[lwesp_read_old_pos], pos - lwesp_read_old_pos);
             } else {
-                lwesp_input_process(&lwesp_usart_rx_dma_buffer[lwesp_read_old_pos], sizeof(lwesp_usart_rx_dma_buffer) - lwesp_read_old_pos);
+                lwesp_input_process(&lwesp_usart_rx_dma_buffer[lwesp_read_old_pos],
+                                    sizeof(lwesp_usart_rx_dma_buffer) - lwesp_read_old_pos);
                 if (pos > 0) {
                     lwesp_input_process(&lwesp_usart_rx_dma_buffer[0], pos);
                 }
@@ -177,8 +178,7 @@ static void
 prv_start_tx_transfer(void) {
     uint32_t primask = __get_PRIMASK();
     __disable_irq();
-    if (lwesp_tx_len == 0
-        && (lwesp_tx_len = lwrb_get_linear_block_read_length(&lwesp_tx_rb)) > 0) {
+    if (lwesp_tx_len == 0 && (lwesp_tx_len = lwrb_get_linear_block_read_length(&lwesp_tx_rb)) > 0) {
         const void* d = lwrb_get_linear_block_read_address(&lwesp_tx_rb);
 
         /* Limit tx len up to some size to optimize buffer read/write process */
@@ -246,7 +246,8 @@ prv_configure_uart(uint32_t baudrate) {
 
         /* Configure DMA */
         LL_DMA_SetPeriphRequest(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LWESP_USART_DMA_RX_REQUEST);
-        LL_DMA_SetDataTransferDirection(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+        LL_DMA_SetDataTransferDirection(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM,
+                                        LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
         LL_DMA_SetStreamPriorityLevel(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_DMA_PRIORITY_MEDIUM);
         LL_DMA_SetMode(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_DMA_MODE_CIRCULAR);
         LL_DMA_SetPeriphIncMode(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_DMA_PERIPH_NOINCREMENT);
@@ -254,7 +255,8 @@ prv_configure_uart(uint32_t baudrate) {
         LL_DMA_SetPeriphSize(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_DMA_PDATAALIGN_BYTE);
         LL_DMA_SetMemorySize(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_DMA_MDATAALIGN_BYTE);
         LL_DMA_DisableFifoMode(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM);
-        LL_DMA_SetPeriphAddress(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, LL_USART_DMA_GetRegAddr(LWESP_USART, LL_USART_DMA_REG_DATA_RECEIVE));
+        LL_DMA_SetPeriphAddress(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM,
+                                LL_USART_DMA_GetRegAddr(LWESP_USART, LL_USART_DMA_REG_DATA_RECEIVE));
         LL_DMA_SetMemoryAddress(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, (uint32_t)lwesp_usart_rx_dma_buffer);
         LL_DMA_SetDataLength(LWESP_USART_DMA_RX, LWESP_USART_DMA_RX_STREAM, sizeof(lwesp_usart_rx_dma_buffer));
 
@@ -275,7 +277,8 @@ prv_configure_uart(uint32_t baudrate) {
 
         /* Configure DMA */
         LL_DMA_SetPeriphRequest(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, LWESP_USART_DMA_TX_REQUEST);
-        LL_DMA_SetDataTransferDirection(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
+        LL_DMA_SetDataTransferDirection(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM,
+                                        LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
         LL_DMA_SetStreamPriorityLevel(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, LL_DMA_PRIORITY_MEDIUM);
         LL_DMA_SetMode(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, LL_DMA_MODE_NORMAL);
         LL_DMA_SetPeriphIncMode(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, LL_DMA_PERIPH_NOINCREMENT);
@@ -283,7 +286,8 @@ prv_configure_uart(uint32_t baudrate) {
         LL_DMA_SetPeriphSize(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, LL_DMA_PDATAALIGN_BYTE);
         LL_DMA_SetMemorySize(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, LL_DMA_MDATAALIGN_BYTE);
         LL_DMA_DisableFifoMode(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM);
-        LL_DMA_SetPeriphAddress(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM, LL_USART_DMA_GetRegAddr(LWESP_USART, LL_USART_DMA_REG_DATA_TRANSMIT));
+        LL_DMA_SetPeriphAddress(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM,
+                                LL_USART_DMA_GetRegAddr(LWESP_USART, LL_USART_DMA_REG_DATA_TRANSMIT));
 
         /* Enable DMA interrupts */
         LL_DMA_EnableIT_TC(LWESP_USART_DMA_TX, LWESP_USART_DMA_TX_STREAM);
@@ -325,9 +329,8 @@ prv_configure_uart(uint32_t baudrate) {
         /* Create mbox and read threads */
         tx_event_flags_create(&lwesp_ll_event_group, "lwesp_ll_group");
         tx_thread_create(&lwesp_read_thread, "lwesp_read_thread", prv_lwesp_read_thread_entry, 0,
-                         lwesp_read_thread_stack, sizeof(lwesp_read_thread_stack),
-                         TX_MAX_PRIORITIES / 2 - 1, TX_MAX_PRIORITIES / 2 - 1,
-                         TX_NO_TIME_SLICE, TX_AUTO_START);
+                         lwesp_read_thread_stack, sizeof(lwesp_read_thread_stack), TX_MAX_PRIORITIES / 2 - 1,
+                         TX_MAX_PRIORITIES / 2 - 1, TX_NO_TIME_SLICE, TX_AUTO_START);
 
         lwesp_is_running = 1;
     } else {
@@ -347,7 +350,7 @@ prv_configure_uart(uint32_t baudrate) {
  */
 static uint8_t
 prv_reset_device(uint8_t state) {
-    if (state) {                                /* Activate reset line */
+    if (state) { /* Activate reset line */
         //LL_GPIO_ResetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
     } else {
         //LL_GPIO_SetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
@@ -411,16 +414,16 @@ prv_send_data(const void* data, size_t len) {
 lwespr_t
 lwesp_ll_init(lwesp_ll_t* ll) {
     if (!lwesp_initialized) {
-        ll->send_fn = prv_send_data;            /* Set callback function to send data */
+        ll->send_fn = prv_send_data; /* Set callback function to send data */
 #if defined(LWESP_RST_PIN)
-        ll->reset_fn = prv_reset_device;        /* Set callback for hardware reset */
-#endif /* defined(LWESP_RST_PIN) */
+        ll->reset_fn = prv_reset_device; /* Set callback for hardware reset */
+#endif                                   /* defined(LWESP_RST_PIN) */
 
         /* Initialize buffer for TX */
         lwesp_tx_len = 0;
         lwrb_init(&lwesp_tx_rb, lwesp_tx_rb_data, sizeof(lwesp_tx_rb_data));
     }
-    prv_configure_uart(ll->uart.baudrate);      /* Initialize UART for communication */
+    prv_configure_uart(ll->uart.baudrate); /* Initialize UART for communication */
     lwesp_initialized = 1;
     return lwespOK;
 }

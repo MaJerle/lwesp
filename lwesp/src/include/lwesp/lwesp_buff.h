@@ -56,33 +56,33 @@ extern "C" {
  *
  * \note            Modification of this macro must be done in header and source file aswell
  */
-#define BUF_PREF(x)                     lwesp_ ## x
+#define BUF_PREF(x) lwesp_##x
 /* --- Buffer unique part ends --- */
 
-uint8_t     BUF_PREF(buff_init)(BUF_PREF(buff_t)* buff, size_t size);
-void        BUF_PREF(buff_free)(BUF_PREF(buff_t)* buff);
-void        BUF_PREF(buff_reset)(BUF_PREF(buff_t)* buff);
+uint8_t BUF_PREF(buff_init)(BUF_PREF(buff_t) * buff, size_t size);
+void BUF_PREF(buff_free)(BUF_PREF(buff_t) * buff);
+void BUF_PREF(buff_reset)(BUF_PREF(buff_t) * buff);
 
 /* Read/Write functions */
-size_t      BUF_PREF(buff_write)(BUF_PREF(buff_t)* buff, const void* data, size_t btw);
-size_t      BUF_PREF(buff_read)(BUF_PREF(buff_t)* buff, void* data, size_t btr);
-size_t      BUF_PREF(buff_peek)(BUF_PREF(buff_t)* buff, size_t skip_count, void* data, size_t btp);
+size_t BUF_PREF(buff_write)(BUF_PREF(buff_t) * buff, const void* data, size_t btw);
+size_t BUF_PREF(buff_read)(BUF_PREF(buff_t) * buff, void* data, size_t btr);
+size_t BUF_PREF(buff_peek)(BUF_PREF(buff_t) * buff, size_t skip_count, void* data, size_t btp);
 
 /* Buffer size information */
-size_t      BUF_PREF(buff_get_free)(BUF_PREF(buff_t)* buff);
-size_t      BUF_PREF(buff_get_full)(BUF_PREF(buff_t)* buff);
+size_t BUF_PREF(buff_get_free)(BUF_PREF(buff_t) * buff);
+size_t BUF_PREF(buff_get_full)(BUF_PREF(buff_t) * buff);
 
 /* Read data block management */
-void*       BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t)* buff);
-size_t      BUF_PREF(buff_get_linear_block_read_length)(BUF_PREF(buff_t)* buff);
-size_t      BUF_PREF(buff_skip)(BUF_PREF(buff_t)* buff, size_t len);
+void* BUF_PREF(buff_get_linear_block_read_address)(BUF_PREF(buff_t) * buff);
+size_t BUF_PREF(buff_get_linear_block_read_length)(BUF_PREF(buff_t) * buff);
+size_t BUF_PREF(buff_skip)(BUF_PREF(buff_t) * buff, size_t len);
 
 /* Write data block management */
-void*       BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t)* buff);
-size_t      BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t)* buff);
-size_t      BUF_PREF(buff_advance)(BUF_PREF(buff_t)* buff, size_t len);
+void* BUF_PREF(buff_get_linear_block_write_address)(BUF_PREF(buff_t) * buff);
+size_t BUF_PREF(buff_get_linear_block_write_length)(BUF_PREF(buff_t) * buff);
+size_t BUF_PREF(buff_advance)(BUF_PREF(buff_t) * buff, size_t len);
 
-#undef BUF_PREF                                 /* Prefix not needed anymore */
+#undef BUF_PREF /* Prefix not needed anymore */
 
 /**
  * \}

@@ -73,8 +73,8 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
     FILE* fil;
     uint32_t br;
 
-    fil = file->arg;                            /* Get file argument */
-    if (fil == NULL) {                          /* Check if argument is valid */
+    fil = file->arg;   /* Get file argument */
+    if (fil == NULL) { /* Check if argument is valid */
         return 0;
     }
 
@@ -84,11 +84,11 @@ http_fs_read(http_fs_file_t* file, void* buff, size_t btr) {
      */
     if (buff == NULL) {
         uint32_t s, e;
-        s = ftell(fil);                         /* Get current position */
-        fseek(fil, 0, SEEK_END);                /* Go to the end */
-        e = ftell(fil);                         /* Get end position */
-        fseek(fil, s, SEEK_SET);                /* Set back to current position */
-        return e - s;                           /* Return difference in positions */
+        s = ftell(fil);          /* Get current position */
+        fseek(fil, 0, SEEK_END); /* Go to the end */
+        e = ftell(fil);          /* Get end position */
+        fseek(fil, s, SEEK_SET); /* Set back to current position */
+        return e - s;            /* Return difference in positions */
     }
 
     /* Read the file and return read length */
@@ -105,19 +105,17 @@ uint8_t
 http_fs_close(http_fs_file_t* file) {
     FILE* fil;
 
-    fil = file->arg;                            /* Get file argument */
-    if (fil == NULL) {                          /* Check if argument is valid */
+    fil = file->arg;   /* Get file argument */
+    if (fil == NULL) { /* Check if argument is valid */
         return 0;
     }
 
-    fclose(fil);                                /* Close file */
+    fclose(fil); /* Close file */
 
     /*
      * At this step, check if we are last opened file
      * and unmount system if necessary
      */
-    if (*file->rem_open_files == 1) {
-
-    }
-    return 1;                                   /* Close was successful */
+    if (*file->rem_open_files == 1) {}
+    return 1; /* Close was successful */
 }

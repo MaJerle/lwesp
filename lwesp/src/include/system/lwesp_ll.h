@@ -58,14 +58,14 @@ extern "C" {
  * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
-lwespr_t    lwesp_ll_init(lwesp_ll_t* ll);
+lwespr_t lwesp_ll_init(lwesp_ll_t* ll);
 
 /**
  * \brief           Callback function to de-init low-level communication part
  * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
-lwespr_t    lwesp_ll_deinit(lwesp_ll_t* ll);
+lwespr_t lwesp_ll_deinit(lwesp_ll_t* ll);
 
 /**
  * \}

@@ -31,8 +31,8 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 #include "cli/cli.h"
 #include "lwesp/lwesp_private.h"
 
@@ -45,10 +45,9 @@ static void cli_help(cli_printf cliprintf, int argc, char** argv);
 /**
  * \brief           List of commands
  */
-static const cli_command_t
-commands[] = {
-    { "help",           "Displays helptext for given command",      cli_help },
-    { "list",           "Lists available commands",                 cli_list },
+static const cli_command_t commands[] = {
+    {"help", "Displays helptext for given command", cli_help},
+    {"list", "Lists available commands", cli_list},
 };
 
 /**
@@ -106,9 +105,9 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
                          * have multiple matches, print also the first one.
                          */
                         if (num_of_matched_commands == 1) {
-                            cliprintf(CLI_NL"%s"CLI_NL, matched_command);
+                            cliprintf(CLI_NL "%s" CLI_NL, matched_command);
                         }
-                        cliprintf("%s"CLI_NL, command->name);
+                        cliprintf("%s" CLI_NL, command->name);
                     }
 
                     /*
@@ -118,8 +117,7 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
                     uint32_t last_common_command_len = common_command_len;
                     common_command_len = 0;
                     while (matched_command[common_command_len] == command->name[common_command_len]
-                           && matched_command[common_command_len] != '\0'
-                           && command->name[common_command_len] != '\0'
+                           && matched_command[common_command_len] != '\0' && command->name[common_command_len] != '\0'
                            && common_command_len < last_common_command_len) {
                         ++common_command_len;
                     }
@@ -134,7 +132,7 @@ cli_tab_auto_complete(cli_printf cliprintf, char* cmd_buffer, uint32_t* cmd_pos,
         strncpy(cmd_buffer, matched_command, common_command_len);
         *cmd_pos = strlen(cmd_buffer);
         cmd_buffer[*cmd_pos] = '\0';
-        cliprintf("\r"CLI_PROMPT"%s", cmd_buffer);
+        cliprintf("\r" CLI_PROMPT "%s", cmd_buffer);
     }
 }
 
@@ -208,13 +206,13 @@ cli_list(cli_printf cliprintf, int argc, char** argv) {
     LWESP_UNUSED(argc);
     LWESP_UNUSED(argv);
 
-    cliprintf("%-20s%s"CLI_NL, "Command", "Description");
-    cliprintf("-----------------------------------------------------------"CLI_NL);
+    cliprintf("%-20s%s" CLI_NL, "Command", "Description");
+    cliprintf("-----------------------------------------------------------" CLI_NL);
 
     for (module_index = 0; module_index < num_of_modules; ++module_index) {
         for (command_index = 0; command_index < cli_command_table[module_index].num_of_commands; ++command_index) {
-            cliprintf("%-20s%s"CLI_NL, cli_command_table[module_index].commands[command_index].name, cli_command_table[module_index].commands[command_index].help);
+            cliprintf("%-20s%s" CLI_NL, cli_command_table[module_index].commands[command_index].name,
+                      cli_command_table[module_index].commands[command_index].help);
         }
     }
 }
-

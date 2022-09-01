@@ -54,7 +54,7 @@
  *
  */
 #ifndef LWESP_CFG_ESP8266
-#define LWESP_CFG_ESP8266                           1
+#define LWESP_CFG_ESP8266 1
 #endif
 
 /**
@@ -62,7 +62,7 @@
  *
  */
 #ifndef LWESP_CFG_ESP32
-#define LWESP_CFG_ESP32                             1
+#define LWESP_CFG_ESP32 1
 #endif
 
 /**
@@ -70,7 +70,7 @@
  *
  */
 #ifndef LWESP_CFG_ESP32_C3
-#define LWESP_CFG_ESP32_C3                          1
+#define LWESP_CFG_ESP32_C3 1
 #endif
 
 /**
@@ -82,7 +82,7 @@
  *
  */
 #ifndef LWESP_CFG_OS
-#define LWESP_CFG_OS                                1
+#define LWESP_CFG_OS 1
 #endif
 
 /**
@@ -100,7 +100,7 @@
  *                  to take care of multiple threads accessing same resource for custom allocator
  */
 #ifndef LWESP_CFG_MEM_CUSTOM
-#define LWESP_CFG_MEM_CUSTOM                        0
+#define LWESP_CFG_MEM_CUSTOM 0
 #endif
 
 /**
@@ -115,7 +115,7 @@
  * \note            This value must be power of `2`
  */
 #ifndef LWESP_CFG_MEM_ALIGNMENT
-#define LWESP_CFG_MEM_ALIGNMENT                     4
+#define LWESP_CFG_MEM_ALIGNMENT 4
 #endif
 
 /**
@@ -125,7 +125,7 @@
  * When command is executed, callback function with its parameter could be called when not set to `NULL`.
  */
 #ifndef LWESP_CFG_USE_API_FUNC_EVT
-#define LWESP_CFG_USE_API_FUNC_EVT                  1
+#define LWESP_CFG_USE_API_FUNC_EVT 1
 #endif
 
 /**
@@ -135,7 +135,7 @@
  * Trying to send the same data multiple times can raise chances for success.
  */
 #ifndef LWESP_CFG_MAX_SEND_RETRIES
-#define LWESP_CFG_MAX_SEND_RETRIES                  3
+#define LWESP_CFG_MAX_SEND_RETRIES 3
 #endif
 
 /**
@@ -144,7 +144,7 @@
  * \note            User may call API function to change to desired baudrate if necessary
  */
 #ifndef LWESP_CFG_AT_PORT_BAUDRATE
-#define LWESP_CFG_AT_PORT_BAUDRATE                  115200
+#define LWESP_CFG_AT_PORT_BAUDRATE 115200
 #endif
 
 /**
@@ -153,7 +153,7 @@
  * \note            When device is in station mode, it can connect to other access points
  */
 #ifndef LWESP_CFG_MODE_STATION
-#define LWESP_CFG_MODE_STATION                      1
+#define LWESP_CFG_MODE_STATION 1
 #endif
 
 /**
@@ -162,7 +162,7 @@
  * \note            When device is in access point mode, it can accept connections from other stations
  */
 #ifndef LWESP_CFG_MODE_ACCESS_POINT
-#define LWESP_CFG_MODE_ACCESS_POINT                 1
+#define LWESP_CFG_MODE_ACCESS_POINT 1
 #endif
 
 /**
@@ -172,7 +172,7 @@
  * Information such as scan type, min scan time, max scan time, frequency offset, frequency calibration are added
  */
 #ifndef LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS
-#define LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS   0
+#define LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS 0
 #endif
 
 /**
@@ -180,7 +180,7 @@
  *
  */
 #ifndef LWESP_CFG_KEEP_ALIVE
-#define LWESP_CFG_KEEP_ALIVE                        1
+#define LWESP_CFG_KEEP_ALIVE 1
 #endif
 
 /**
@@ -189,7 +189,7 @@
  * Feature must be enabled with \ref LWESP_CFG_KEEP_ALIVE
  */
 #ifndef LWESP_CFG_KEEP_ALIVE_TIMEOUT
-#define LWESP_CFG_KEEP_ALIVE_TIMEOUT                1000
+#define LWESP_CFG_KEEP_ALIVE_TIMEOUT 1000
 #endif
 
 /**
@@ -203,7 +203,7 @@
  *
  */
 #ifndef LWESP_CFG_IPV6
-#define LWESP_CFG_IPV6                              0
+#define LWESP_CFG_IPV6 0
 #endif
 
 /**
@@ -214,7 +214,7 @@
  *                  with option \ref LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND
  */
 #ifndef LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE
-#define LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE           1460
+#define LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE 1460
 #endif
 
 /**
@@ -227,7 +227,7 @@
  * \ref LWESP_CFG_CONN_MAX_DATA_LEN option
  */
 #ifndef LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND
-#define LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND    0
+#define LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND 0
 #endif
 
 /**
@@ -236,7 +236,7 @@
  * \note            In case of official ESP-AT software, leave this on default value (`5`)
  */
 #ifndef LWESP_CFG_MAX_CONNS
-#define LWESP_CFG_MAX_CONNS                         5
+#define LWESP_CFG_MAX_CONNS 5
 #endif
 
 /**
@@ -250,7 +250,7 @@
  *                  to optimize data transfer speed performance
  */
 #ifndef LWESP_CFG_CONN_MAX_DATA_LEN
-#define LWESP_CFG_CONN_MAX_DATA_LEN                 2048
+#define LWESP_CFG_CONN_MAX_DATA_LEN 2048
 #endif
 
 /**
@@ -261,7 +261,7 @@
  * \note            Single poll interval applies for all connections
  */
 #ifndef LWESP_CFG_CONN_POLL_INTERVAL
-#define LWESP_CFG_CONN_POLL_INTERVAL                500
+#define LWESP_CFG_CONN_POLL_INTERVAL 500
 #endif
 
 /**
@@ -280,7 +280,7 @@
  * \note            This parameter has no meaning when \ref LWESP_CFG_INPUT_USE_PROCESS is enabled
  */
 #ifndef LWESP_CFG_RCV_BUFF_SIZE
-#define LWESP_CFG_RCV_BUFF_SIZE                     0x400
+#define LWESP_CFG_RCV_BUFF_SIZE 0x400
 #endif
 
 /**
@@ -290,7 +290,7 @@
  *                  reset sequence to ESP device.
  */
 #ifndef LWESP_CFG_RESET_ON_INIT
-#define LWESP_CFG_RESET_ON_INIT                     1
+#define LWESP_CFG_RESET_ON_INIT 1
 #endif
 
 /**
@@ -300,7 +300,7 @@
  *                  restore and clear any settings stored as \em default in ESP device
  */
 #ifndef LWESP_CFG_RESTORE_ON_INIT
-#define LWESP_CFG_RESTORE_ON_INIT                   1
+#define LWESP_CFG_RESTORE_ON_INIT 1
 #endif
 
 /**
@@ -310,7 +310,7 @@
  *                  reset sequence to ESP device.
  */
 #ifndef LWESP_CFG_RESET_ON_DEVICE_PRESENT
-#define LWESP_CFG_RESET_ON_DEVICE_PRESENT           1
+#define LWESP_CFG_RESET_ON_DEVICE_PRESENT 1
 #endif
 
 /**
@@ -318,7 +318,7 @@
  *
  */
 #ifndef LWESP_CFG_RESET_DELAY_DEFAULT
-#define LWESP_CFG_RESET_DELAY_DEFAULT               1000
+#define LWESP_CFG_RESET_DELAY_DEFAULT 1000
 #endif
 
 /**
@@ -327,7 +327,7 @@
  * \note            This parameter must include trailling zero
  */
 #ifndef LWESP_CFG_MAX_SSID_LENGTH
-#define LWESP_CFG_MAX_SSID_LENGTH                   21
+#define LWESP_CFG_MAX_SSID_LENGTH 21
 #endif
 
 /**
@@ -336,7 +336,7 @@
  * \note            This parameter must include trailling zero
  */
 #ifndef LWESP_CFG_MAX_PWD_LENGTH
-#define LWESP_CFG_MAX_PWD_LENGTH                    65
+#define LWESP_CFG_MAX_PWD_LENGTH 65
 #endif
 
 /**
@@ -344,7 +344,7 @@
  *
  */
 #ifndef LWESP_CFG_LIST_CMD
-#define LWESP_CFG_LIST_CMD                          0
+#define LWESP_CFG_LIST_CMD 0
 #endif
 
 /**
@@ -361,7 +361,7 @@
  * \note            Set to \ref LWESP_DBG_OFF to globally disable all debugs
  */
 #ifndef LWESP_CFG_DBG
-#define LWESP_CFG_DBG                               LWESP_DBG_OFF
+#define LWESP_CFG_DBG LWESP_DBG_OFF
 #endif
 
 /**
@@ -370,7 +370,11 @@
  * Called with format and optional parameters for printf-like debug
  */
 #ifndef LWESP_CFG_DBG_OUT
-#define LWESP_CFG_DBG_OUT(fmt, ...)                 do { extern int printf( const char * format, ... ); printf(fmt, ## __VA_ARGS__); } while (0)
+#define LWESP_CFG_DBG_OUT(fmt, ...)                                                                                    \
+    do {                                                                                                               \
+        extern int printf(const char* format, ...);                                                                    \
+        printf(fmt, ##__VA_ARGS__);                                                                                    \
+    } while (0)
 #endif
 
 /**
@@ -379,7 +383,7 @@
  * Check \ref LWESP_DBG_LVL for possible values
  */
 #ifndef LWESP_CFG_DBG_LVL_MIN
-#define LWESP_CFG_DBG_LVL_MIN                       LWESP_DBG_LVL_ALL
+#define LWESP_CFG_DBG_LVL_MIN LWESP_DBG_LVL_ALL
 #endif
 
 /**
@@ -391,7 +395,7 @@
  * Check \ref LWESP_DBG_TYPE for possible options. Separate values with `bitwise OR` operator
  */
 #ifndef LWESP_CFG_DBG_TYPES_ON
-#define LWESP_CFG_DBG_TYPES_ON                      0
+#define LWESP_CFG_DBG_TYPES_ON 0
 #endif
 
 /**
@@ -400,7 +404,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_INIT
-#define LWESP_CFG_DBG_INIT                          LWESP_DBG_OFF
+#define LWESP_CFG_DBG_INIT LWESP_DBG_OFF
 #endif
 
 /**
@@ -409,7 +413,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_MEM
-#define LWESP_CFG_DBG_MEM                           LWESP_DBG_OFF
+#define LWESP_CFG_DBG_MEM LWESP_DBG_OFF
 #endif
 
 /**
@@ -418,7 +422,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_INPUT
-#define LWESP_CFG_DBG_INPUT                         LWESP_DBG_OFF
+#define LWESP_CFG_DBG_INPUT LWESP_DBG_OFF
 #endif
 
 /**
@@ -427,7 +431,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_THREAD
-#define LWESP_CFG_DBG_THREAD                        LWESP_DBG_OFF
+#define LWESP_CFG_DBG_THREAD LWESP_DBG_OFF
 #endif
 
 /**
@@ -436,7 +440,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_ASSERT
-#define LWESP_CFG_DBG_ASSERT                        LWESP_DBG_OFF
+#define LWESP_CFG_DBG_ASSERT LWESP_DBG_OFF
 #endif
 
 /**
@@ -445,7 +449,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_IPD
-#define LWESP_CFG_DBG_IPD                           LWESP_DBG_OFF
+#define LWESP_CFG_DBG_IPD LWESP_DBG_OFF
 #endif
 
 /**
@@ -454,7 +458,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_NETCONN
-#define LWESP_CFG_DBG_NETCONN                       LWESP_DBG_OFF
+#define LWESP_CFG_DBG_NETCONN LWESP_DBG_OFF
 #endif
 
 /**
@@ -463,7 +467,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_PBUF
-#define LWESP_CFG_DBG_PBUF                          LWESP_DBG_OFF
+#define LWESP_CFG_DBG_PBUF LWESP_DBG_OFF
 #endif
 
 /**
@@ -472,7 +476,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_CONN
-#define LWESP_CFG_DBG_CONN                          LWESP_DBG_OFF
+#define LWESP_CFG_DBG_CONN LWESP_DBG_OFF
 #endif
 
 /**
@@ -481,7 +485,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_VAR
-#define LWESP_CFG_DBG_VAR                           LWESP_DBG_OFF
+#define LWESP_CFG_DBG_VAR LWESP_DBG_OFF
 #endif
 
 /**
@@ -491,7 +495,7 @@
  * \note            This mode is useful when debugging ESP communication
  */
 #ifndef LWESP_CFG_AT_ECHO
-#define LWESP_CFG_AT_ECHO                           0
+#define LWESP_CFG_AT_ECHO 0
 #endif
 
 /**
@@ -510,7 +514,7 @@
  * Message queue is used for storing memory address to command data
  */
 #ifndef LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE
-#define LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE         16
+#define LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE 16
 #endif
 
 /**
@@ -519,7 +523,7 @@
  * Message queue is used to notify processing thread about new received data on AT port
  */
 #ifndef LWESP_CFG_THREAD_PROCESS_MBOX_SIZE
-#define LWESP_CFG_THREAD_PROCESS_MBOX_SIZE          16
+#define LWESP_CFG_THREAD_PROCESS_MBOX_SIZE 16
 #endif
 
 /**
@@ -540,7 +544,7 @@
  * \note            Best case for using this mode is if DMA receive is supported by host device
  */
 #ifndef LWESP_CFG_INPUT_USE_PROCESS
-#define LWESP_CFG_INPUT_USE_PROCESS                 0
+#define LWESP_CFG_INPUT_USE_PROCESS 0
 #endif
 
 /**
@@ -567,7 +571,7 @@
  * When enabled, user must manually set byte pool at run-time, before \ref lwesp_init is called
  */
 #ifndef LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL
-#define LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL      0
+#define LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL 0
 #endif
 
 /**
@@ -583,7 +587,7 @@
  * Have a look at System-ThreadX port for implementation
  */
 #ifndef LWESP_CFG_THREADX_IDLE_THREAD_EXTENSION
-#define LWESP_CFG_THREADX_IDLE_THREAD_EXTENSION     0
+#define LWESP_CFG_THREADX_IDLE_THREAD_EXTENSION 0
 #endif
 
 /**
@@ -609,7 +613,7 @@
  * \sa              LWESP_CFG_OS
  */
 #ifndef LWESP_CFG_NETCONN
-#define LWESP_CFG_NETCONN                           0
+#define LWESP_CFG_NETCONN 0
 #endif
 
 /**
@@ -623,7 +627,7 @@
  *                  by default time will be set to 0 which means no timeout.
  */
 #ifndef LWESP_CFG_NETCONN_RECEIVE_TIMEOUT
-#define LWESP_CFG_NETCONN_RECEIVE_TIMEOUT           1
+#define LWESP_CFG_NETCONN_RECEIVE_TIMEOUT 1
 #endif
 
 /**
@@ -632,7 +636,7 @@
  * Defines number of maximal clients waiting in accept queue of server connection
  */
 #ifndef LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN
-#define LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN          5
+#define LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN 5
 #endif
 
 /**
@@ -641,7 +645,7 @@
  * Defines maximal number of pbuf data packet references for receive
  */
 #ifndef LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN
-#define LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN         8
+#define LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN 8
 #endif
 
 /**
@@ -659,7 +663,7 @@
  *
  */
 #ifndef LWESP_CFG_MQTT_MAX_REQUESTS
-#define LWESP_CFG_MQTT_MAX_REQUESTS                 8
+#define LWESP_CFG_MQTT_MAX_REQUESTS 8
 #endif
 
 /**
@@ -667,7 +671,7 @@
  *
  */
 #ifndef LWESP_CFG_MQTT_API_MBOX_SIZE
-#define LWESP_CFG_MQTT_API_MBOX_SIZE                8
+#define LWESP_CFG_MQTT_API_MBOX_SIZE 8
 #endif
 
 /**
@@ -676,7 +680,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_MQTT
-#define LWESP_CFG_DBG_MQTT                          LWESP_DBG_OFF
+#define LWESP_CFG_DBG_MQTT LWESP_DBG_OFF
 #endif
 
 /**
@@ -685,7 +689,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_MQTT_API
-#define LWESP_CFG_DBG_MQTT_API                      LWESP_DBG_OFF
+#define LWESP_CFG_DBG_MQTT_API LWESP_DBG_OFF
 #endif
 
 /**
@@ -703,7 +707,7 @@
  *
  */
 #ifndef LWESP_CFG_CAYENNE_TX_BUFF_SIZE
-#define LWESP_CFG_CAYENNE_TX_BUFF_SIZE              256
+#define LWESP_CFG_CAYENNE_TX_BUFF_SIZE 256
 #endif
 
 /**
@@ -711,7 +715,7 @@
  *
  */
 #ifndef LWESP_CFG_CAYENNE_RX_BUFF_SIZE
-#define LWESP_CFG_CAYENNE_RX_BUFF_SIZE              256
+#define LWESP_CFG_CAYENNE_RX_BUFF_SIZE 256
 #endif
 
 /**
@@ -720,7 +724,7 @@
  * Possible values are \ref LWESP_DBG_ON or \ref LWESP_DBG_OFF
  */
 #ifndef LWESP_CFG_DBG_CAYENNE
-#define LWESP_CFG_DBG_CAYENNE                       LWESP_DBG_OFF
+#define LWESP_CFG_DBG_CAYENNE LWESP_DBG_OFF
 #endif
 
 /**
@@ -732,7 +736,7 @@
  *
  */
 #ifndef LWESP_CFG_DNS
-#define LWESP_CFG_DNS                               0
+#define LWESP_CFG_DNS 0
 #endif
 
 /**
@@ -740,7 +744,7 @@
  *
  */
 #ifndef LWESP_CFG_WPS
-#define LWESP_CFG_WPS                               0
+#define LWESP_CFG_WPS 0
 #endif
 
 /**
@@ -748,7 +752,7 @@
  *
  */
 #ifndef LWESP_CFG_SNTP
-#define LWESP_CFG_SNTP                              0
+#define LWESP_CFG_SNTP 0
 #endif
 
 /**
@@ -756,7 +760,7 @@
  *
  */
 #ifndef LWESP_CFG_HOSTNAME
-#define LWESP_CFG_HOSTNAME                          0
+#define LWESP_CFG_HOSTNAME 0
 #endif
 
 /**
@@ -764,7 +768,7 @@
  *
  */
 #ifndef LWESP_CFG_PING
-#define LWESP_CFG_PING                              0
+#define LWESP_CFG_PING 0
 #endif
 
 /**
@@ -772,7 +776,7 @@
  *
  */
 #ifndef LWESP_CFG_MDNS
-#define LWESP_CFG_MDNS                              0
+#define LWESP_CFG_MDNS 0
 #endif
 
 /**
@@ -780,7 +784,7 @@
  *
  */
 #ifndef LWESP_CFG_SMART
-#define LWESP_CFG_SMART                             0
+#define LWESP_CFG_SMART 0
 #endif
 
 /**
@@ -788,7 +792,7 @@
  *
  */
 #ifndef LWESP_CFG_WEBSERVER
-#define LWESP_CFG_WEBSERVER                         0
+#define LWESP_CFG_WEBSERVER 0
 #endif
 
 /**
@@ -822,7 +826,7 @@ void *  my_memcpy(void* dst, const void* src, size_t len);
  * \return          Destination memory start address
  */
 #ifndef LWESP_MEMCPY
-#define LWESP_MEMCPY(dst, src, len)                 memcpy(dst, src, len)
+#define LWESP_MEMCPY(dst, src, len) memcpy(dst, src, len)
 #endif
 
 /**
@@ -840,7 +844,7 @@ void *  my_memset(void* dst, int b, size_t len);
  * \return          Destination memory start address
  */
 #ifndef LWESP_MEMSET
-#define LWESP_MEMSET(dst, b, len)                   memset(dst, b, len)
+#define LWESP_MEMSET(dst, b, len) memset(dst, b, len)
 #endif
 
 /**
@@ -853,15 +857,15 @@ void *  my_memset(void* dst, int b, size_t len);
  * \{
  */
 
-#define LWESP_MIN_AT_VERSION_MAJOR_ESP8266          2   /*!< Minimal major version for ESP8266 */
-#define LWESP_MIN_AT_VERSION_MINOR_ESP8266          2   /*!< Minimal minor version for ESP8266 */
-#define LWESP_MIN_AT_VERSION_PATCH_ESP8266          1   /*!< Minimal patch version for ESP8266 */
-#define LWESP_MIN_AT_VERSION_MAJOR_ESP32            2   /*!< Minimal major version for ESP32 */
-#define LWESP_MIN_AT_VERSION_MINOR_ESP32            2   /*!< Minimal minor version for ESP32 */
-#define LWESP_MIN_AT_VERSION_PATCH_ESP32            0   /*!< Minimal patch version for ESP32 */
-#define LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3         2   /*!< Minimal major version for ESP32-C3 */
-#define LWESP_MIN_AT_VERSION_MINOR_ESP32_C3         3   /*!< Minimal minor version for ESP32-C3 */
-#define LWESP_MIN_AT_VERSION_PATCH_ESP32_C3         0   /*!< Minimal patch version for ESP32-C3 */
+#define LWESP_MIN_AT_VERSION_MAJOR_ESP8266  2 /*!< Minimal major version for ESP8266 */
+#define LWESP_MIN_AT_VERSION_MINOR_ESP8266  2 /*!< Minimal minor version for ESP8266 */
+#define LWESP_MIN_AT_VERSION_PATCH_ESP8266  1 /*!< Minimal patch version for ESP8266 */
+#define LWESP_MIN_AT_VERSION_MAJOR_ESP32    2 /*!< Minimal major version for ESP32 */
+#define LWESP_MIN_AT_VERSION_MINOR_ESP32    2 /*!< Minimal minor version for ESP32 */
+#define LWESP_MIN_AT_VERSION_PATCH_ESP32    0 /*!< Minimal patch version for ESP32 */
+#define LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3 2 /*!< Minimal major version for ESP32-C3 */
+#define LWESP_MIN_AT_VERSION_MINOR_ESP32_C3 3 /*!< Minimal minor version for ESP32-C3 */
+#define LWESP_MIN_AT_VERSION_PATCH_ESP32_C3 0 /*!< Minimal patch version for ESP32-C3 */
 
 /**
  * \}
@@ -874,11 +878,12 @@ void *  my_memset(void* dst, int b, size_t len);
 #if !__DOXYGEN__
 
 /* Define group mode value */
-#define LWESP_CFG_MODE_STATION_ACCESS_POINT   (LWESP_CFG_MODE_STATION && LWESP_CFG_MODE_ACCESS_POINT)
+#define LWESP_CFG_MODE_STATION_ACCESS_POINT (LWESP_CFG_MODE_STATION && LWESP_CFG_MODE_ACCESS_POINT)
 
 /* At least one of them must be enabled */
 #if !LWESP_CFG_MODE_STATION && !LWESP_CFG_MODE_ACCESS_POINT
-#error "Invalid ESP configuration. LWESP_CFG_MODE_STATION and LWESP_CFG_MODE_ACCESS_POINT cannot be disabled at the same time!"
+#error                                                                                                                 \
+    "Invalid ESP configuration. LWESP_CFG_MODE_STATION and LWESP_CFG_MODE_ACCESS_POINT cannot be disabled at the same time!"
 #endif
 
 /* Operating system config */

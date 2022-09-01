@@ -44,8 +44,8 @@
  * \ref LWESP_CFG_INPUT_USE_PROCESS must be enabled in `lwesp_config.h` to use this driver.
  */
 #include "lwesp/lwesp.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_input.h"
+#include "lwesp/lwesp_mem.h"
 #include "system/lwesp_ll.h"
 
 #if !__DOXYGEN__
@@ -55,21 +55,21 @@
 #endif /* LWESP_CFG_INPUT_USE_PROCESS */
 
 #if !defined(LWESP_USART_DMA_RX_BUFF_SIZE)
-#define LWESP_USART_DMA_RX_BUFF_SIZE      0x1000
+#define LWESP_USART_DMA_RX_BUFF_SIZE 0x1000
 #endif /* !defined(LWESP_USART_DMA_RX_BUFF_SIZE) */
 
 #if !defined(LWESP_MEM_SIZE)
-#define LWESP_MEM_SIZE                    0x1000
+#define LWESP_MEM_SIZE 0x1000
 #endif /* !defined(LWESP_MEM_SIZE) */
 
 #if !defined(LWESP_USART_RDR_NAME)
-#define LWESP_USART_RDR_NAME              RDR
+#define LWESP_USART_RDR_NAME RDR
 #endif /* !defined(LWESP_USART_RDR_NAME) */
 
 /* USART memory */
-static uint8_t      usart_mem[LWESP_USART_DMA_RX_BUFF_SIZE];
-static uint8_t      is_running, initialized;
-static size_t       old_pos;
+static uint8_t usart_mem[LWESP_USART_DMA_RX_BUFF_SIZE];
+static uint8_t is_running, initialized;
+static size_t old_pos;
 
 /* USART thread */
 static void usart_ll_thread(void* arg);
@@ -278,9 +278,7 @@ prv_configure_uart(uint32_t baudrate) {
         usart_ll_mbox_id = osMessageQueueNew(10, sizeof(void*), NULL);
     }
     if (usart_ll_thread_id == NULL) {
-        const osThreadAttr_t attr = {
-            .stack_size = 1024
-        };
+        const osThreadAttr_t attr = {.stack_size = 1024};
         usart_ll_thread_id = osThreadNew(usart_ll_thread, usart_ll_mbox_id, &attr);
     }
 }
@@ -291,7 +289,7 @@ prv_configure_uart(uint32_t baudrate) {
  */
 static uint8_t
 prv_reset_device(uint8_t state) {
-    if (state) {                                /* Activate reset line */
+    if (state) { /* Activate reset line */
         LL_GPIO_ResetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
     } else {
         LL_GPIO_SetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
@@ -324,24 +322,21 @@ lwespr_t
 lwesp_ll_init(lwesp_ll_t* ll) {
 #if !LWESP_CFG_MEM_CUSTOM
     static uint8_t memory[LWESP_MEM_SIZE];
-    const lwesp_mem_region_t mem_regions[] = {
-        { memory, sizeof(memory) },
-        { NULL, 0 }
-    };
+    const lwesp_mem_region_t mem_regions[] = {{memory, sizeof(memory)}, {NULL, 0}};
 
     if (!initialized) {
-        lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions));  /* Assign memory for allocations */
+        lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions)); /* Assign memory for allocations */
     }
 #endif /* !LWESP_CFG_MEM_CUSTOM */
 
     if (!initialized) {
-        ll->send_fn = prv_send_data;            /* Set callback function to send data */
+        ll->send_fn = prv_send_data; /* Set callback function to send data */
 #if defined(LWESP_RESET_PIN)
-        ll->reset_fn = prv_reset_device;        /* Set callback for hardware reset */
-#endif /* defined(LWESP_RESET_PIN) */
+        ll->reset_fn = prv_reset_device; /* Set callback for hardware reset */
+#endif                                   /* defined(LWESP_RESET_PIN) */
     }
 
-    prv_configure_uart(ll->uart.baudrate);      /* Initialize UART for communication */
+    prv_configure_uart(ll->uart.baudrate); /* Initialize UART for communication */
     initialized = 1;
     return lwespOK;
 }

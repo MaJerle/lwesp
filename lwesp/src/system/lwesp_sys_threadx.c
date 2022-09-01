@@ -30,8 +30,8 @@
  * Author:          Neo Xiong <xiongyu0523@gmail.com>
  * Version:         v1.1.2-dev
  */
-#include "system/lwesp_sys.h"
 #include "lwesp/lwesp_mem.h"
+#include "system/lwesp_sys.h"
 #include "tx_api.h"
 
 /* Custom memory ThreadX implementation must be done to use this feature */
@@ -42,16 +42,16 @@
 #if !__DOXYGEN__
 
 /* Main LwESP byte pool handle */
-TX_BYTE_POOL*       lwesp_threadx_byte_pool;
+TX_BYTE_POOL* lwesp_threadx_byte_pool;
 
 /* If user will not provide its own byte pool from app, create one here */
 #if !LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL
 
 /* ThreadX memory pool definition */
 #if !defined(LWESP_MEM_SIZE)
-#define LWESP_MEM_SIZE                    0x2000
+#define LWESP_MEM_SIZE 0x2000
 #endif
-static UCHAR        byte_pool_mem[LWESP_MEM_SIZE];
+static UCHAR byte_pool_mem[LWESP_MEM_SIZE];
 static TX_BYTE_POOL byte_pool;
 
 #else
@@ -75,8 +75,8 @@ lwesp_sys_preinit_threadx_set_bytepool_handle(TX_BYTE_POOL* bp) {
 static TX_MUTEX sys_mutex;
 
 /* Macros to convert from milliseconds to ticks and opposite */
-#define TICKS_TO_MS(ticks)              ((ticks) * (1000 / TX_TIMER_TICKS_PER_SECOND))
-#define MS_TO_TICKS(ms)                 ((ms) * TX_TIMER_TICKS_PER_SECOND / 1000)
+#define TICKS_TO_MS(ticks) ((ticks) * (1000 / TX_TIMER_TICKS_PER_SECOND))
+#define MS_TO_TICKS(ms)    ((ms)*TX_TIMER_TICKS_PER_SECOND / 1000)
 
 uint8_t
 lwesp_sys_init(void) {
@@ -88,7 +88,7 @@ lwesp_sys_init(void) {
         status = lwesp_sys_mutex_create(&sys_mutex) ? TX_SUCCESS : TX_NO_MEMORY;
     }
     lwesp_threadx_byte_pool = &byte_pool;
-#else /* LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL */
+#else  /* LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL */
     lwesp_sys_mutex_create(&sys_mutex);
 #endif /* !LWESP_CFG_THREADX_CUSTOM_MEM_BYTE_POOL */
     return status == TX_SUCCESS ? 1 : 0;
@@ -153,7 +153,9 @@ lwesp_sys_sem_delete(lwesp_sys_sem_t* p) {
 uint32_t
 lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
     ULONG start = tx_time_get();
-    return tx_semaphore_get(p, !timeout ? TX_WAIT_FOREVER : MS_TO_TICKS(timeout)) == TX_SUCCESS ? TICKS_TO_MS(tx_time_get() - start) : LWESP_SYS_TIMEOUT;
+    return tx_semaphore_get(p, !timeout ? TX_WAIT_FOREVER : MS_TO_TICKS(timeout)) == TX_SUCCESS
+               ? TICKS_TO_MS(tx_time_get() - start)
+               : LWESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -189,7 +191,7 @@ lwesp_sys_mbox_create(lwesp_sys_mbox_t* b, size_t size) {
 
 uint8_t
 lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b) {
-    (VOID)tx_queue_delete(b);
+    (VOID) tx_queue_delete(b);
     lwesp_mem_free(b->tx_queue_start);
     return 1;
 }
@@ -197,14 +199,16 @@ lwesp_sys_mbox_delete(lwesp_sys_mbox_t* b) {
 uint32_t
 lwesp_sys_mbox_put(lwesp_sys_mbox_t* b, void* m) {
     ULONG start = tx_time_get();
-    (VOID)tx_queue_send(b, &m, TX_WAIT_FOREVER);
+    (VOID) tx_queue_send(b, &m, TX_WAIT_FOREVER);
     return tx_time_get() - start;
 }
 
 uint32_t
 lwesp_sys_mbox_get(lwesp_sys_mbox_t* b, void** m, uint32_t timeout) {
     ULONG start = tx_time_get();
-    return tx_queue_receive(b, m, !timeout ? TX_WAIT_FOREVER : MS_TO_TICKS(timeout)) == TX_SUCCESS ? TICKS_TO_MS(tx_time_get() - start) : LWESP_SYS_TIMEOUT;
+    return tx_queue_receive(b, m, !timeout ? TX_WAIT_FOREVER : MS_TO_TICKS(timeout)) == TX_SUCCESS
+               ? TICKS_TO_MS(tx_time_get() - start)
+               : LWESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -231,16 +235,18 @@ lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b) {
 #if LWESP_CFG_THREADX_IDLE_THREAD_EXTENSION
 
 uint8_t
-lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
+lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg,
+                        size_t stack_size, lwesp_sys_thread_prio_t prio) {
     void* stack_ptr = NULL;
     lwesp_sys_thread_t* t_handle;
     uint8_t t_handle_dynamic = 0;
 
     /* First process thread object */
     if (t != NULL) {
-        t_handle = t;                           /* Use static handle from parameter */
-    } else if (tx_byte_allocate(lwesp_threadx_byte_pool, (void*)&t_handle, sizeof(*t_handle), TX_NO_WAIT) == TX_SUCCESS) {
-        t_handle_dynamic = 1;                   /* Handle has been dynamically allocated */
+        t_handle = t; /* Use static handle from parameter */
+    } else if (tx_byte_allocate(lwesp_threadx_byte_pool, (void*)&t_handle, sizeof(*t_handle), TX_NO_WAIT)
+               == TX_SUCCESS) {
+        t_handle_dynamic = 1; /* Handle has been dynamically allocated */
     } else {
         goto cleanup;
     }
@@ -251,8 +257,9 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_threa
     }
 
     /* Allocate thread stack */
-    if (tx_thread_create(t_handle, (CHAR*)name, (VOID (*)(ULONG))(thread_func), (ULONG)arg,
-                         stack_ptr, stack_size, prio, 0, TX_NO_TIME_SLICE, TX_AUTO_START) != TX_SUCCESS) {
+    if (tx_thread_create(t_handle, (CHAR*)name, (VOID(*)(ULONG))(thread_func), (ULONG)arg, stack_ptr, stack_size, prio,
+                         0, TX_NO_TIME_SLICE, TX_AUTO_START)
+        != TX_SUCCESS) {
         goto cleanup;
     }
 
@@ -304,14 +311,17 @@ lwesp_sys_thread_terminate(lwesp_sys_thread_t* t) {
 #else /* LWESP_CFG_THREADX_IDLE_THREAD_EXTENSION */
 
 uint8_t
-lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
+lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg,
+                        size_t stack_size, lwesp_sys_thread_prio_t prio) {
 
     typedef VOID (*threadx_entry_t)(ULONG);
     uint8_t rt = 0;
 
     void* stack_mem = lwesp_mem_malloc(stack_size);
     if (stack_mem != NULL) {
-        if (tx_thread_create(t, (CHAR*)name, (VOID (*)(ULONG))(thread_func), (ULONG)arg, stack_mem, stack_size, prio, prio, TX_NO_TIME_SLICE, TX_AUTO_START) == TX_SUCCESS) {
+        if (tx_thread_create(t, (CHAR*)name, (VOID(*)(ULONG))(thread_func), (ULONG)arg, stack_mem, stack_size, prio,
+                             prio, TX_NO_TIME_SLICE, TX_AUTO_START)
+            == TX_SUCCESS) {
             rt = 1;
         } else {
             lwesp_mem_free(stack_mem);

@@ -46,19 +46,19 @@ extern "C" {
 
 #if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef TX_MUTEX                    lwesp_sys_mutex_t;
-typedef TX_SEMAPHORE                lwesp_sys_sem_t;
-typedef TX_QUEUE                    lwesp_sys_mbox_t;
-typedef TX_THREAD                   lwesp_sys_thread_t;
-typedef UINT                        lwesp_sys_thread_prio_t;
+typedef TX_MUTEX lwesp_sys_mutex_t;
+typedef TX_SEMAPHORE lwesp_sys_sem_t;
+typedef TX_QUEUE lwesp_sys_mbox_t;
+typedef TX_THREAD lwesp_sys_thread_t;
+typedef UINT lwesp_sys_thread_prio_t;
 
-#define LWESP_SYS_TIMEOUT           TX_WAIT_FOREVER
-#define LWESP_SYS_THREAD_PRIO       (TX_MAX_PRIORITIES - 1)
-#define LWESP_SYS_THREAD_SS         1024
+#define LWESP_SYS_TIMEOUT     TX_WAIT_FOREVER
+#define LWESP_SYS_THREAD_PRIO (TX_MAX_PRIORITIES - 1)
+#define LWESP_SYS_THREAD_SS   1024
 
 #endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 
-void    lwesp_sys_preinit_threadx_set_bytepool_handle(TX_BYTE_POOL* bp);
+void lwesp_sys_preinit_threadx_set_bytepool_handle(TX_BYTE_POOL* bp);
 
 #ifdef __cplusplus
 }

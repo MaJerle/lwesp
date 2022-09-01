@@ -34,8 +34,8 @@
 #ifndef LWESP_HDR_APP_MQTT_CLIENT_API_H
 #define LWESP_HDR_APP_MQTT_CLIENT_API_H
 
-#include "lwesp/lwesp.h"
 #include "lwesp/apps/lwesp_mqtt_client.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,11 +57,11 @@ struct lwesp_mqtt_client_api;
  * \brief           MQTT API RX buffer
  */
 typedef struct lwesp_mqtt_client_api_buf {
-    char* topic;                                /*!< Topic data */
-    size_t topic_len;                           /*!< Topic length */
-    uint8_t* payload;                           /*!< Payload data */
-    size_t payload_len;                         /*!< Payload length */
-    lwesp_mqtt_qos_t qos;                       /*!< Quality of service */
+    char* topic;          /*!< Topic data */
+    size_t topic_len;     /*!< Topic length */
+    uint8_t* payload;     /*!< Payload data */
+    size_t payload_len;   /*!< Payload length */
+    lwesp_mqtt_qos_t qos; /*!< Quality of service */
 } lwesp_mqtt_client_api_buf_t;
 
 /**
@@ -75,15 +75,18 @@ typedef struct lwesp_mqtt_client_api* lwesp_mqtt_client_api_p;
 typedef struct lwesp_mqtt_client_api_buf* lwesp_mqtt_client_api_buf_p;
 
 lwesp_mqtt_client_api_p lwesp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len);
-void                    lwesp_mqtt_client_api_delete(lwesp_mqtt_client_api_p client);
-lwesp_mqtt_conn_status_t    lwesp_mqtt_client_api_connect(lwesp_mqtt_client_api_p client, const char* host, lwesp_port_t port, const lwesp_mqtt_client_info_t* info);
-lwespr_t                lwesp_mqtt_client_api_close(lwesp_mqtt_client_api_p client);
-lwespr_t                lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topic, lwesp_mqtt_qos_t qos);
-lwespr_t                lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* topic);
-lwespr_t                lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic, const void* data, size_t btw, lwesp_mqtt_qos_t qos, uint8_t retain);
-uint8_t                 lwesp_mqtt_client_api_is_connected(lwesp_mqtt_client_api_p client);
-lwespr_t                lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p, uint32_t timeout);
-void                    lwesp_mqtt_client_api_buf_free(lwesp_mqtt_client_api_buf_p p);
+void lwesp_mqtt_client_api_delete(lwesp_mqtt_client_api_p client);
+lwesp_mqtt_conn_status_t lwesp_mqtt_client_api_connect(lwesp_mqtt_client_api_p client, const char* host,
+                                                       lwesp_port_t port, const lwesp_mqtt_client_info_t* info);
+lwespr_t lwesp_mqtt_client_api_close(lwesp_mqtt_client_api_p client);
+lwespr_t lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topic, lwesp_mqtt_qos_t qos);
+lwespr_t lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* topic);
+lwespr_t lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic, const void* data, size_t btw,
+                                       lwesp_mqtt_qos_t qos, uint8_t retain);
+uint8_t lwesp_mqtt_client_api_is_connected(lwesp_mqtt_client_api_p client);
+lwespr_t lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p,
+                                       uint32_t timeout);
+void lwesp_mqtt_client_api_buf_free(lwesp_mqtt_client_api_buf_p p);
 
 /**
  * \}

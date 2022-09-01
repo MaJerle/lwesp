@@ -45,18 +45,18 @@ extern "C" {
 
 #if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef HANDLE                      lwesp_sys_mutex_t;
-typedef HANDLE                      lwesp_sys_sem_t;
-typedef HANDLE                      lwesp_sys_mbox_t;
-typedef HANDLE                      lwesp_sys_thread_t;
-typedef int                         lwesp_sys_thread_prio_t;
+typedef HANDLE lwesp_sys_mutex_t;
+typedef HANDLE lwesp_sys_sem_t;
+typedef HANDLE lwesp_sys_mbox_t;
+typedef HANDLE lwesp_sys_thread_t;
+typedef int lwesp_sys_thread_prio_t;
 
-#define LWESP_SYS_MBOX_NULL           ((HANDLE)0)
-#define LWESP_SYS_SEM_NULL            ((HANDLE)0)
-#define LWESP_SYS_MUTEX_NULL          ((HANDLE)0)
-#define LWESP_SYS_TIMEOUT             (INFINITE)
-#define LWESP_SYS_THREAD_PRIO         (0)
-#define LWESP_SYS_THREAD_SS           (1024)
+#define LWESP_SYS_MBOX_NULL   ((HANDLE)0)
+#define LWESP_SYS_SEM_NULL    ((HANDLE)0)
+#define LWESP_SYS_MUTEX_NULL  ((HANDLE)0)
+#define LWESP_SYS_TIMEOUT     (INFINITE)
+#define LWESP_SYS_THREAD_PRIO (0)
+#define LWESP_SYS_THREAD_SS   (1024)
 
 #endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 

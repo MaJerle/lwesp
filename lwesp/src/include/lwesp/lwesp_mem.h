@@ -53,18 +53,18 @@ extern "C" {
  * \brief           Single memory region descriptor
  */
 typedef struct {
-    void* start_addr;                           /*!< Start address of region */
-    size_t size;                                /*!< Size in units of bytes of region */
+    void* start_addr; /*!< Start address of region */
+    size_t size;      /*!< Size in units of bytes of region */
 } lwesp_mem_region_t;
 
 uint8_t lwesp_mem_assignmemory(const lwesp_mem_region_t* regions, size_t size);
 
 #endif /* !LWESP_CFG_MEM_CUSTOM || __DOXYGEN__ */
 
-void*   lwesp_mem_malloc(size_t size);
-void*   lwesp_mem_realloc(void* ptr, size_t size);
-void*   lwesp_mem_calloc(size_t num, size_t size);
-void    lwesp_mem_free(void* ptr);
+void* lwesp_mem_malloc(size_t size);
+void* lwesp_mem_realloc(void* ptr, size_t size);
+void* lwesp_mem_calloc(size_t num, size_t size);
+void lwesp_mem_free(void* ptr);
 uint8_t lwesp_mem_free_s(void** ptr);
 
 /**

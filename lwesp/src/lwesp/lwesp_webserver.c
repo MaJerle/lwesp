@@ -32,9 +32,9 @@
  * Author:          Neo Xiong <xiongyu0523@gmail.com>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_webserver.h"
 #include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_private.h"
 
 #if LWESP_CFG_WEBSERVER || __DOXYGEN__
 
@@ -49,7 +49,8 @@
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_set_webserver(uint8_t en, lwesp_port_t port, uint16_t timeout, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_set_webserver(uint8_t en, lwesp_port_t port, uint16_t timeout, const lwesp_api_cmd_evt_fn evt_fn,
+                    void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("port > 0", port > 0);

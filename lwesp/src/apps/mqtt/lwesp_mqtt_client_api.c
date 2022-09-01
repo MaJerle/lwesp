@@ -35,29 +35,28 @@
 #include "lwesp/lwesp_mem.h"
 
 /* Tracing debug message */
-#define LWESP_CFG_DBG_MQTT_API_TRACE              (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_TRACE)
-#define LWESP_CFG_DBG_MQTT_API_STATE              (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_STATE)
-#define LWESP_CFG_DBG_MQTT_API_TRACE_WARNING      (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING)
-#define LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE       (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE)
+#define LWESP_CFG_DBG_MQTT_API_TRACE         (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_TRACE)
+#define LWESP_CFG_DBG_MQTT_API_STATE         (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_STATE)
+#define LWESP_CFG_DBG_MQTT_API_TRACE_WARNING (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING)
+#define LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE  (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE)
 
 /**
  * \brief           MQTT API client structure
  */
 struct lwesp_mqtt_client_api {
-    lwesp_mqtt_client_p mc;                     /*!< MQTT client handle */
-    lwesp_sys_mbox_t rcv_mbox;                  /*!< Received data mbox */
-    lwesp_sys_sem_t sync_sem;                   /*!< Synchronization semaphore */
-    lwesp_sys_mutex_t mutex;                    /*!< Mutex handle */
-    uint8_t release_sem;                        /*!< Set to `1` to release semaphore */
-    lwesp_mqtt_conn_status_t connect_resp;      /*!< Response when connecting to server */
-    lwespr_t sub_pub_resp;                      /*!< Subscribe/Unsubscribe/Publish response */
+    lwesp_mqtt_client_p mc;                /*!< MQTT client handle */
+    lwesp_sys_mbox_t rcv_mbox;             /*!< Received data mbox */
+    lwesp_sys_sem_t sync_sem;              /*!< Synchronization semaphore */
+    lwesp_sys_mutex_t mutex;               /*!< Mutex handle */
+    uint8_t release_sem;                   /*!< Set to `1` to release semaphore */
+    lwesp_mqtt_conn_status_t connect_resp; /*!< Response when connecting to server */
+    lwespr_t sub_pub_resp;                 /*!< Subscribe/Unsubscribe/Publish response */
 } lwesp_mqtt_client_api_t;
 
 /**
  * \brief           Variable used as pointer for message queue when MQTT connection is closed
  */
-static uint8_t
-mqtt_closed = 0xFF;
+static uint8_t mqtt_closed = 0xFF;
 
 /**
  * \brief           Release user semaphore
@@ -84,8 +83,7 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
         case LWESP_MQTT_EVT_CONNECT: {
             lwesp_mqtt_conn_status_t status = lwesp_mqtt_client_evt_connect_get_status(client, evt);
 
-            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE,
-                         "[MQTT API] Connect event with status: %d\r\n", (int)status);
+            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Connect event with status: %d\r\n", (int)status);
 
             api_client->connect_resp = status;
 
@@ -98,9 +96,8 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
              * and release semaphore from there,
              * to make sure we are fully ready for next connection
              */
-            if (status == LWESP_MQTT_CONN_STATUS_TCP_FAILED
-                || status == LWESP_MQTT_CONN_STATUS_ACCEPTED) {
-                prv_release_sem(api_client);        /* Release semaphore */
+            if (status == LWESP_MQTT_CONN_STATUS_TCP_FAILED || status == LWESP_MQTT_CONN_STATUS_ACCEPTED) {
+                prv_release_sem(api_client); /* Release semaphore */
             }
             break;
         }
@@ -120,8 +117,8 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             lwesp_mqtt_qos_t qos = lwesp_mqtt_client_evt_publish_recv_get_qos(client, evt);
 
             /* Print debug message */
-            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE,
-                         "[MQTT API] New publish received on topic %.*s\r\n", (int)topic_len, topic);
+            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] New publish received on topic %.*s\r\n",
+                         (int)topic_len, topic);
 
             /* Calculate memory sizes */
             buf_size = LWESP_MEM_ALIGN(sizeof(*buf));
@@ -155,25 +152,22 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
         }
         case LWESP_MQTT_EVT_PUBLISH: {
             api_client->sub_pub_resp = lwesp_mqtt_client_evt_publish_get_result(client, evt);
-            prv_release_sem(api_client);        /* Release semaphore */
-            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE,
-                         "[MQTT API] Publish event with response: %d\r\n",
+            prv_release_sem(api_client); /* Release semaphore */
+            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Publish event with response: %d\r\n",
                          (int)api_client->sub_pub_resp);
             break;
         }
         case LWESP_MQTT_EVT_SUBSCRIBE: {
             api_client->sub_pub_resp = lwesp_mqtt_client_evt_subscribe_get_result(client, evt);
-            prv_release_sem(api_client);        /* Release semaphore */
-            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE,
-                         "[MQTT API] Subscribe event with response: %d\r\n",
+            prv_release_sem(api_client); /* Release semaphore */
+            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Subscribe event with response: %d\r\n",
                          (int)api_client->sub_pub_resp);
             break;
         }
         case LWESP_MQTT_EVT_UNSUBSCRIBE: {
             api_client->sub_pub_resp = lwesp_mqtt_client_evt_unsubscribe_get_result(client, evt);
-            prv_release_sem(api_client);        /* Release semaphore */
-            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE,
-                         "[MQTT API] Unsubscribe event with response: %d\r\n",
+            prv_release_sem(api_client); /* Release semaphore */
+            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Unsubscribe event with response: %d\r\n",
                          (int)api_client->sub_pub_resp);
             break;
         }
@@ -183,14 +177,13 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             //api_client->connect_resp = MQTT_CONN_STATUS_TCP_FAILED;
 
             /* Print debug message */
-            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE,
-                         "[MQTT API] Disconnect event\r\n");
+            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Disconnect event\r\n");
 
             /* Write to receive mbox to wakeup receive thread */
             if (is_accepted && lwesp_sys_mbox_isvalid(&api_client->rcv_mbox)) {
                 lwesp_sys_mbox_putnow(&api_client->rcv_mbox, &mqtt_closed);
             }
-            prv_release_sem(api_client);        /* Release semaphore */
+            prv_release_sem(api_client); /* Release semaphore */
             break;
         }
         default:
@@ -218,27 +211,22 @@ lwesp_mqtt_client_api_new(size_t tx_buff_len, size_t rx_buff_len) {
                 if (lwesp_sys_sem_create(&client->sync_sem, 1)) {
                     /* Create mutex */
                     if (lwesp_sys_mutex_create(&client->mutex)) {
-                        lwesp_mqtt_client_set_arg(client->mc, client);  /* Set client to mqtt client argument */
+                        lwesp_mqtt_client_set_arg(client->mc, client); /* Set client to mqtt client argument */
                         return client;
                     } else {
-                        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                                     "[MQTT API] Cannot allocate mutex\r\n");
+                        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE, "[MQTT API] Cannot allocate mutex\r\n");
                     }
                 } else {
-                    LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                                 "[MQTT API] Cannot allocate sync semaphore\r\n");
+                    LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE, "[MQTT API] Cannot allocate sync semaphore\r\n");
                 }
             } else {
-                LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                             "[MQTT API] Cannot allocate receive queue\r\n");
+                LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE, "[MQTT API] Cannot allocate receive queue\r\n");
             }
         } else {
-            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                         "[MQTT API] Cannot allocate MQTT client\r\n");
+            LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE, "[MQTT API] Cannot allocate MQTT client\r\n");
         }
     } else {
-        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE,
-                     "[MQTT API] Cannot allocate memory for client\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_SEVERE, "[MQTT API] Cannot allocate memory for client\r\n");
     }
     lwesp_mqtt_client_api_delete(client);
     client = NULL;
@@ -288,12 +276,10 @@ lwesp_mqtt_client_api_delete(lwesp_mqtt_client_api_p client) {
  * \return          \ref LWESP_MQTT_CONN_STATUS_ACCEPTED on success, member of \ref lwesp_mqtt_conn_status_t otherwise
  */
 lwesp_mqtt_conn_status_t
-lwesp_mqtt_client_api_connect(lwesp_mqtt_client_api_p client, const char* host,
-                              lwesp_port_t port, const lwesp_mqtt_client_info_t* info) {
-    if (client == NULL || host == NULL
-        || !port || info == NULL) {
-        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                     "[MQTT API] Invalid parameters in function\r\n");
+lwesp_mqtt_client_api_connect(lwesp_mqtt_client_api_p client, const char* host, lwesp_port_t port,
+                              const lwesp_mqtt_client_info_t* info) {
+    if (client == NULL || host == NULL || !port || info == NULL) {
+        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING, "[MQTT API] Invalid parameters in function\r\n");
         return LWESP_MQTT_CONN_STATUS_TCP_FAILED;
     }
 
@@ -304,8 +290,7 @@ lwesp_mqtt_client_api_connect(lwesp_mqtt_client_api_p client, const char* host,
     if (lwesp_mqtt_client_connect(client->mc, host, port, prv_mqtt_evt, info) == lwespOK) {
         lwesp_sys_sem_wait(&client->sync_sem, 0);
     } else {
-        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                     "[MQTT API] Cannot connect to %s\r\n", host);
+        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING, "[MQTT API] Cannot connect to %s\r\n", host);
     }
     client->release_sem = 0;
     lwesp_sys_sem_release(&client->sync_sem);
@@ -331,8 +316,7 @@ lwesp_mqtt_client_api_close(lwesp_mqtt_client_api_p client) {
         res = lwespOK;
         lwesp_sys_sem_wait(&client->sync_sem, 0);
     } else {
-        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                     "[MQTT API] Cannot close API connection\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING, "[MQTT API] Cannot close API connection\r\n");
     }
     client->release_sem = 0;
     lwesp_sys_sem_release(&client->sync_sem);
@@ -348,8 +332,7 @@ lwesp_mqtt_client_api_close(lwesp_mqtt_client_api_p client) {
  * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
-lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topic,
-                                lwesp_mqtt_qos_t qos) {
+lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topic, lwesp_mqtt_qos_t qos) {
     lwespr_t res = lwespERR;
 
     LWESP_ASSERT("client != NULL", client != NULL);
@@ -362,8 +345,7 @@ lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topi
         lwesp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     } else {
-        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                     "[MQTT API] Cannot subscribe to topic %s\r\n", topic);
+        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING, "[MQTT API] Cannot subscribe to topic %s\r\n", topic);
     }
     client->release_sem = 0;
     lwesp_sys_sem_release(&client->sync_sem);
@@ -392,8 +374,7 @@ lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* to
         lwesp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     } else {
-        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                     "[MQTT API] Cannot unsubscribe from topic %s\r\n", topic);
+        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING, "[MQTT API] Cannot unsubscribe from topic %s\r\n", topic);
     }
     client->release_sem = 0;
     lwesp_sys_sem_release(&client->sync_sem);
@@ -413,8 +394,8 @@ lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* to
  * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
  */
 lwespr_t
-lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic, const void* data,
-                              size_t btw, lwesp_mqtt_qos_t qos, uint8_t retain) {
+lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic, const void* data, size_t btw,
+                              lwesp_mqtt_qos_t qos, uint8_t retain) {
     lwespr_t res = lwespERR;
 
     LWESP_ASSERT("client != NULL", client != NULL);
@@ -429,8 +410,7 @@ lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic,
         lwesp_sys_sem_wait(&client->sync_sem, 0);
         res = client->sub_pub_resp;
     } else {
-        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                     "[MQTT API] Cannot publish new packet\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING, "[MQTT API] Cannot publish new packet\r\n");
     }
     client->release_sem = 0;
     lwesp_sys_sem_release(&client->sync_sem);
@@ -468,8 +448,7 @@ lwesp_mqtt_client_api_is_connected(lwesp_mqtt_client_api_p client) {
  * \return          \ref lwespOK on success, \ref lwespCLOSED if MQTT is closed, \ref lwespTIMEOUT on timeout
  */
 lwespr_t
-lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p,
-                              uint32_t timeout) {
+lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p, uint32_t timeout) {
     LWESP_ASSERT("client != NULL", client != NULL);
     LWESP_ASSERT("p != NULL", p != NULL);
 
@@ -486,8 +465,7 @@ lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_
 
     /* Check for MQTT closed event */
     if ((uint8_t*)(*p) == (uint8_t*)&mqtt_closed) {
-        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE,
-                     "[MQTT API] Closed event received from queue\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Closed event received from queue\r\n");
 
         *p = NULL;
         return lwespCLOSED;

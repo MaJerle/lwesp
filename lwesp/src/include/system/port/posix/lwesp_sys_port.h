@@ -35,10 +35,10 @@
 #ifndef LWESP_HDR_SYSTEM_PORT_H
 #define LWESP_HDR_SYSTEM_PORT_H
 
-#include <stdint.h>
-#include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include "lwesp/lwesp_opt.h"
 
 #ifdef __cplusplus
@@ -47,16 +47,16 @@ extern "C" {
 
 #if LWESP_CFG_OS && !__DOXYGEN__
 
-typedef pthread_mutex_t*            lwesp_sys_mutex_t;
-typedef sem_t*                      lwesp_sys_sem_t;
-typedef void*                       lwesp_sys_mbox_t;
-typedef pthread_t*                  lwesp_sys_thread_t;
-typedef int                         lwesp_sys_thread_prio_t;
+typedef pthread_mutex_t* lwesp_sys_mutex_t;
+typedef sem_t* lwesp_sys_sem_t;
+typedef void* lwesp_sys_mbox_t;
+typedef pthread_t* lwesp_sys_thread_t;
+typedef int lwesp_sys_thread_prio_t;
 
-#define LWESP_SYS_MBOX_NULL           (0)
-#define LWESP_SYS_TIMEOUT             (0xFFFFFFFF)
-#define LWESP_SYS_THREAD_PRIO         (0)
-#define LWESP_SYS_THREAD_SS           (1024)
+#define LWESP_SYS_MBOX_NULL   (0)
+#define LWESP_SYS_TIMEOUT     (0xFFFFFFFF)
+#define LWESP_SYS_THREAD_PRIO (0)
+#define LWESP_SYS_THREAD_SS   (1024)
 
 #endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 

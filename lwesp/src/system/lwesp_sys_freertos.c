@@ -30,10 +30,10 @@
  * Author:          Adrian Carpenter (FreeRTOS port)
  * Version:         v1.1.2-dev
  */
-#include "system/lwesp_sys.h"
 #include "FreeRTOS.h"
-#include "task.h"
 #include "semphr.h"
+#include "system/lwesp_sys.h"
+#include "task.h"
 
 #if !__DOXYGEN__
 
@@ -119,7 +119,9 @@ lwesp_sys_sem_delete(lwesp_sys_sem_t* p) {
 uint32_t
 lwesp_sys_sem_wait(lwesp_sys_sem_t* p, uint32_t timeout) {
     uint32_t t = xTaskGetTickCount();
-    return xSemaphoreTake(*p, !timeout ? portMAX_DELAY : pdMS_TO_TICKS(timeout)) == pdPASS ? ((xTaskGetTickCount() - t) * portTICK_PERIOD_MS) : LWESP_SYS_TIMEOUT;
+    return xSemaphoreTake(*p, !timeout ? portMAX_DELAY : pdMS_TO_TICKS(timeout)) == pdPASS
+               ? ((xTaskGetTickCount() - t) * portTICK_PERIOD_MS)
+               : LWESP_SYS_TIMEOUT;
 }
 
 uint8_t
@@ -206,7 +208,8 @@ lwesp_sys_mbox_invalid(lwesp_sys_mbox_t* b) {
 }
 
 uint8_t
-lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg, size_t stack_size, lwesp_sys_thread_prio_t prio) {
+lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_thread_fn thread_func, void* const arg,
+                        size_t stack_size, lwesp_sys_thread_prio_t prio) {
     return xTaskCreate(thread_func, name, stack_size / sizeof(portSTACK_TYPE), arg, prio, t) == pdPASS ? 1 : 0;
 }
 

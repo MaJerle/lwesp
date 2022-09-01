@@ -61,7 +61,7 @@ lwesp_mem_calloc(size_t num, size_t size) {
 
 void
 lwesp_mem_free(void* ptr) {
-    (VOID)tx_byte_release(ptr);
+    (VOID) tx_byte_release(ptr);
 }
 
 #endif /* !__DOXYGEN__ */

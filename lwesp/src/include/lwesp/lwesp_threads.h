@@ -40,8 +40,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
-void    lwesp_thread_produce(void* const arg);
-void    lwesp_thread_process(void* const arg);
+void lwesp_thread_produce(void* const arg);
+void lwesp_thread_process(void* const arg);
 
 #ifdef __cplusplus
 }

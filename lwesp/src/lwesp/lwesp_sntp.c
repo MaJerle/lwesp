@@ -31,9 +31,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_sntp.h"
 #include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_private.h"
 
 #if LWESP_CFG_SNTP || __DOXYGEN__
 
@@ -82,7 +82,8 @@ lwesp_sntp_set_config(uint8_t en, int16_t tz, const char* h1, const char* h2, co
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_sntp_set_interval(uint32_t interval, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_sntp_set_interval(uint32_t interval, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                        const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT("interval >= 15 && interval <= 4294967", interval >= 15 && interval <= 4294967);
@@ -105,8 +106,8 @@ lwesp_sntp_set_interval(uint32_t interval, const lwesp_api_cmd_evt_fn evt_fn, vo
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_sntp_gettime(lwesp_datetime_t* dt,
-                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_sntp_gettime(lwesp_datetime_t* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                   const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);

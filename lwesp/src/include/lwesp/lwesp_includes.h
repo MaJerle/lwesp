@@ -34,16 +34,16 @@
 #ifndef LWESP_HDR_INCLUDES_H
 #define LWESP_HDR_INCLUDES_H
 
-#include "lwesp/lwesp_opt.h"
-#include "lwesp/lwesp_typedefs.h"
 #include "lwesp/lwesp_buff.h"
-#include "lwesp/lwesp_input.h"
-#include "lwesp/lwesp_evt.h"
-#include "lwesp/lwesp_debug.h"
-#include "lwesp/lwesp_utils.h"
-#include "lwesp/lwesp_pbuf.h"
 #include "lwesp/lwesp_conn.h"
+#include "lwesp/lwesp_debug.h"
+#include "lwesp/lwesp_evt.h"
+#include "lwesp/lwesp_input.h"
+#include "lwesp/lwesp_opt.h"
+#include "lwesp/lwesp_pbuf.h"
 #include "lwesp/lwesp_server.h"
+#include "lwesp/lwesp_typedefs.h"
+#include "lwesp/lwesp_utils.h"
 #include "system/lwesp_sys.h"
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
@@ -78,8 +78,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-
 
 #ifdef __cplusplus
 }
