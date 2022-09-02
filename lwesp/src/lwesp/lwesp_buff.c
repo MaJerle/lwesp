@@ -32,7 +32,6 @@
  * Version:         v1.1.2-dev
  */
 #include "lwesp/lwesp_buff.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_private.h"
 
 /* --- Buffer unique part starts --- */

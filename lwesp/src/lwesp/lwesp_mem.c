@@ -32,8 +32,8 @@
  * Version:         v1.1.2-dev
  */
 #include <limits.h>
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_mem.h"
 
 #if !LWESP_CFG_MEM_CUSTOM || __DOXYGEN__
 

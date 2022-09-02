@@ -31,9 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_dhcp.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_dhcp.h"
 
 /**
  * \brief           Configure DHCP settings for station or access point (or both)

@@ -31,9 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_dns.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_dns.h"
 
 #if LWESP_CFG_DNS || __DOXYGEN__
 

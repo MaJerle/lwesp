@@ -34,12 +34,12 @@
 #ifndef LWESP_HDR_PARSER_H
 #define LWESP_HDR_PARSER_H
 
+#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_private.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "lwesp/lwesp.h"
-#include "lwesp/lwesp_private.h"
 
 int32_t lwespi_parse_number(const char** str);
 uint8_t lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim);

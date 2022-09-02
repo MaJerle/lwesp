@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_unicode.h"
 #include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_unicode.h"
 
 /**
  * \brief           Decode single character for unicode (UTF-8 only) format

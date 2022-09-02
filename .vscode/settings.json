@@ -19,7 +19,10 @@
         "lwesp_debug.h": "c",
         "lwesp_utils.h": "c",
         "stdlib.h": "c",
-        "lwesp_unicode.h": "c"
+        "lwesp_unicode.h": "c",
+        "lwesp_ping.h": "c",
+        "lwesp_threads.h": "c",
+        "lwesp_int.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

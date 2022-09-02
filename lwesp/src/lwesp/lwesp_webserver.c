@@ -32,9 +32,8 @@
  * Author:          Neo Xiong <xiongyu0523@gmail.com>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_webserver.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_webserver.h"
 
 #if LWESP_CFG_WEBSERVER || __DOXYGEN__
 

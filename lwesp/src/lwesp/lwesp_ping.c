@@ -31,9 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_ping.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_ping.h"
 
 #if LWESP_CFG_PING || __DOXYGEN__
 

@@ -31,9 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_parser.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_parser.h"
 
 /* Increase pointer if matches character value */
 #define INC_IF_CHAR_EQUAL(p, ch)                                                                                       \

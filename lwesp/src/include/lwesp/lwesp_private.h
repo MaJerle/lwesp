@@ -36,6 +36,8 @@
 
 #include "lwesp/lwesp.h"
 #include "lwesp/lwesp_debug.h"
+#include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_timeout.h"
 
 #ifdef __cplusplus
 extern "C" {

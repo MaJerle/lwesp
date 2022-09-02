@@ -32,7 +32,6 @@
  * Version:         v1.1.2-dev
  */
 #include "lwesp/lwesp_ap.h"
-#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_private.h"
 
 #if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
