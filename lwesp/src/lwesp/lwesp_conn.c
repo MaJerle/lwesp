@@ -123,9 +123,9 @@ lwespi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     LWESP_MSG_VAR_SET_EVT(msg, prv_manual_tcp_read_data_evt_fn, conn); /* Set event callback function */
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPRECVDATA;
     LWESP_MSG_VAR_REF(msg).cmd = LWESP_CMD_TCPIP_CIPRECVLEN;
-    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.len = 0;     /* Filled after RECVLEN received */
-    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.buff = NULL; /* Filled after RECVLEN received */
-    LWESP_MSG_VAR_REF(msg).msg.ciprecvdata.conn = conn;
+    LWESP_MSG_VAR_REF(msg).msg.conn_recv.len = 0;     /* Filled after RECVLEN received */
+    LWESP_MSG_VAR_REF(msg).msg.conn_recv.buff = NULL; /* Filled after RECVLEN received */
+    LWESP_MSG_VAR_REF(msg).msg.conn_recv.conn = conn;
 
     /* Try to start command */
     if ((res = lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 60000)) == lwespOK) {

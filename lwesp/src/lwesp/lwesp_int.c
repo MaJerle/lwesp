@@ -683,7 +683,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         if (!strncmp("+IPD", rcv->data, 4)) { /* Check received network data */
             lwespi_parse_ipd(rcv->data);      /* Parse IPD statement and start receiving network data */
             if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPRECVDATA) && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN)) {
-                esp.msg->msg.ciprecvdata.ipd_recv = 1; /* Command repeat, try again later */
+                esp.msg->msg.conn_recv.ipd_recv = 1; /* Command repeat, try again later */
             }
             /* IPD message notification? */
             lwespi_conn_manual_tcp_try_read_data(esp.m.ipd.conn);
@@ -1397,8 +1397,8 @@ lwespi_process(const void* data, size_t data_len) {
                             /* Now actually send the data prepared for TX before */
                             AT_PORT_SEND_WITH_FLUSH(&esp.msg->msg.conn_send.data[esp.msg->msg.conn_send.ptr],
                                                     esp.msg->msg.conn_send.sent);
-                            esp.msg->msg.conn_send.wait_send_ok_err =
-                                1; /* Now we are waiting for "SEND OK" or "SEND ERROR" */
+                            /* Now we are waiting for "SEND OK" or "SEND ERROR" */
+                            esp.msg->msg.conn_send.wait_send_ok_err = 1;
                         }
                     }
 
@@ -1422,10 +1422,10 @@ lwespi_process(const void* data, size_t data_len) {
                              * Prior to this event, buffer for RX operation was allocated
                              * or read operation could not even start
                              */
-                            esp.m.ipd.buff = esp.msg->msg.ciprecvdata.buff;
-                            esp.m.ipd.conn = esp.msg->msg.ciprecvdata.conn;
+                            esp.m.ipd.buff = esp.msg->msg.conn_recv.buff;
+                            esp.m.ipd.conn = esp.msg->msg.conn_recv.conn;
                             lwesp_pbuf_set_length(esp.m.ipd.buff, esp.m.ipd.tot_len); /* Set new length of buffer */
-                            esp.msg->msg.ciprecvdata.buff = NULL; /* Clear reference for this pbuf */
+                            esp.msg->msg.conn_recv.buff = NULL; /* Clear reference for this pbuf */
                             LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
                                          "[LWESP IPD] Data on connection %d with total size %d byte(s)\r\n",
                                          (int)esp.m.ipd.conn->num, (int)esp.m.ipd.tot_len);
@@ -1697,32 +1697,30 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
             lwespi_send_conn_cb(msg->msg.conn_close.conn, NULL);
         }
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPRECVDATA)) {
-        if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.ciprecvdata.is_last_check == 0) {
+        if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.conn_recv.is_last_check == 0) {
             uint8_t set_error = 0;
             LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, *is_error,
                          "[LWESP CONN] CIPRECVLEN returned ERROR\r\n");
 
-            /* If command is OK */
             if (*is_ok) {
                 size_t len;
 
                 /* Check if `+IPD` received during data length check */
-                if (esp.msg->msg.ciprecvdata.ipd_recv) {
-                    esp.msg->msg.ciprecvdata.ipd_recv = 0;
+                if (esp.msg->msg.conn_recv.ipd_recv) {
+                    esp.msg->msg.conn_recv.ipd_recv = 0;
                     SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVLEN);
                 } else {
                     /* Number of bytes to read */
-                    len = LWESP_MIN(LWESP_CFG_CONN_MAX_DATA_LEN, msg->msg.ciprecvdata.conn->tcp_available_bytes);
+                    len = LWESP_MIN(LWESP_CFG_CONN_MAX_DATA_LEN, msg->msg.conn_recv.conn->tcp_available_bytes);
                     if (len > 0) {
                         lwesp_pbuf_p p = NULL;
 
                         /* Try to allocate packet buffer */
                         while (p == NULL) {
-                            p = lwesp_pbuf_new(len); /* Try to allocate buffer */
-                            if (p == NULL) {         /* In case of failure */
-                                len /= 2;            /* Try with half of value on next try */
-                                if (len
-                                    < 10) { /* If not possible to allocate at least 10 bytes from first try, stop immediately */
+                            p = lwesp_pbuf_new(len);
+                            if (p == NULL) {
+                                len /= 2;
+                                if (len < 10) {
                                     break;
                                 }
                             }
@@ -1730,8 +1728,8 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
 
                         /* Start reading procedure */
                         if (p != NULL) {
-                            msg->msg.ciprecvdata.buff = p;
-                            msg->msg.ciprecvdata.len = len;
+                            msg->msg.conn_recv.buff = p;
+                            msg->msg.conn_recv.len = len;
                             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVDATA);
                         } else {
                             set_error = 1;
@@ -1750,16 +1748,16 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVDATA)) {
             /* Read failed? Handle queue len */
             if (*is_error) {
-                if (msg->msg.ciprecvdata.buff != NULL) {
-                    lwesp_pbuf_free(msg->msg.ciprecvdata.buff);
-                    msg->msg.ciprecvdata.buff = NULL;
+                if (msg->msg.conn_recv.buff != NULL) {
+                    lwesp_pbuf_free(msg->msg.conn_recv.buff);
+                    msg->msg.conn_recv.buff = NULL;
                 }
             }
 
             /* This one is optional, to check for more data just at the end */
             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVLEN); /* Inquiry for latest status on data */
-            msg->msg.ciprecvdata.is_last_check = 1;
-        } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.ciprecvdata.is_last_check == 1) {
+            msg->msg.conn_recv.is_last_check = 1;
+        } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.conn_recv.is_last_check == 1) {
             /* Do nothing */
             if (*is_error) {
                 *is_error = 0;
@@ -2359,8 +2357,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_TCPIP_CIPRECVDATA: { /* Manually read data */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPRECVDATA=");
-            lwespi_send_number(LWESP_U32(msg->msg.ciprecvdata.conn->num), 0, 0);
-            lwespi_send_number(LWESP_U32(msg->msg.ciprecvdata.len), 0, 1);
+            lwespi_send_number(LWESP_U32(msg->msg.conn_recv.conn->num), 0, 0);
+            lwespi_send_number(LWESP_U32(msg->msg.conn_recv.len), 0, 1);
             AT_PORT_SEND_END_AT();
             break;
         }

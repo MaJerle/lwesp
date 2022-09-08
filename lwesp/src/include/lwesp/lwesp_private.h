@@ -410,7 +410,7 @@ typedef struct lwesp_msg {
                                                         When this happens, we need to repeat same command */
             uint8_t is_last_check; /*!< Status indicating check for data length is at the end of command.
                                                         Do nothing after successful command */
-        } ciprecvdata;             /*!< Structure to manually read TCP data */
+        } conn_recv;               /*!< Structure to manually read TCP data */
 
         /* TCP/IP based commands */
         struct {
