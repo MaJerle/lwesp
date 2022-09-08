@@ -1061,9 +1061,8 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 esp.evt.evt.conn_active_close.conn = conn;
                 esp.evt.evt.conn_active_close.client = conn->status.f.client; /* Set if it is client or not */
                 /** @todo: Check if we really tried to close connection which was just closed */
-                esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(
-                    LWESP_CMD_TCPIP_CIPCLOSE); /* Set if action was forced = current action = close connection */
-                esp.evt.evt.conn_active_close.client = lwespOK;
+                esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(LWESP_CMD_TCPIP_CIPCLOSE);
+                esp.evt.evt.conn_active_close.client = conn->status.f.client;
                 lwespi_send_conn_cb(conn, NULL); /* Send event */
 
                 /* Check if write buffer is set */
