@@ -1873,7 +1873,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
 #endif                           /* LWESP_CFG_LIST_CMD */
         case LWESP_CMD_SYSMSG: { /* Enable system messages */
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+SYSMSG=3");
+            AT_PORT_SEND_CONST_STR("+SYSMSG=7");
             AT_PORT_SEND_END_AT();
             break;
         }
@@ -1892,11 +1892,11 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             break;
         }
         case LWESP_CMD_WIFI_CWLAPOPT: { /* Set visible data on CWLAP command */
-            AT_PORT_SEND_BEGIN_AT();
             /*
-             * Ignore remaining parameters, use default value
-             * providing us maximum result possible
+             * Ignore remaining parameters, use default value,
+             * that provides maximal result
              */
+            AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CWLAPOPT=1,0x7FF");
             AT_PORT_SEND_END_AT();
             break;
