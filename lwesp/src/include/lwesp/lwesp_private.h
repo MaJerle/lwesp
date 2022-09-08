@@ -182,10 +182,8 @@ typedef struct lwesp_conn {
                                                         and connection was closed and active
                                                         again in between. */
 
-    lwesp_linbuff_t buff; /*!< Linear buffer structure */
-
-    size_t total_recved; /*!< Total number of bytes received */
-
+    lwesp_linbuff_t buff;       /*!< Linear buffer structure */
+    size_t total_recved;        /*!< Total number of bytes received */
     size_t tcp_available_bytes; /*!< Number of bytes in ESP ready to be read on connection.
                                                         This variable always holds last known info from ESP
                                                         device and is not decremented (or incremented) by application */
