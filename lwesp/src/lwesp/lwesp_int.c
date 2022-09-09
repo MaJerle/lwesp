@@ -685,7 +685,6 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPRECVDATA) && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN)) {
                 esp.msg->msg.conn_recv.ipd_recv = 1; /* Command repeat, try again later */
             }
-            /* IPD message notification? */
             lwespi_conn_manual_tcp_try_read_data(esp.m.ipd.conn);
         } else if (!strncmp("+CIPRECVDATA", rcv->data, 12)) {
             lwespi_parse_ciprecvdata(rcv->data); /* Parse CIPRECVDATA statement and start receiving network data */
@@ -906,8 +905,8 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
              * AT version example string looks like (AT+GMR):
              *
              * ESP8266: "AT version:2.2.1.0(46d6c26 - ESP8266 - Aug  6 2021 06:50:15)"
-             * ESP32C3: "AT version:2.3.0.0(e98993f - ESP32C3 - Dec 23 2021 09:03:35)""
-             * ESP32: "AT version:2.2.0.0(c6fa6bf - ESP32 - Jul  2 2021 06:44:05)
+             * ESP32C3: "AT version:2.3.0.0(e98993f - ESP32C3 - Dec 23 2021 09:03:35)"
+             * ESP32: "AT version:2.2.0.0(c6fa6bf - ESP32 - Jul  2 2021 06:44:05)"
              */
             if (0) {
 #if LWESP_CFG_ESP8266
@@ -1027,8 +1026,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                     }
                 } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
-                    is_error = lwespi_tcpip_process_data_sent(
-                        0); /* Data were not sent due to SEND FAIL or command didn't even start */
+                    is_error = lwespi_tcpip_process_data_sent(0);
                     if (is_error && esp.msg->msg.conn_send.conn->status.f.active) {
                         CONN_SEND_DATA_SEND_EVT(esp.msg, lwespERR);
                     }
@@ -2239,8 +2237,6 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 return lwespERRNOIP;
             }
 
-            AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+CIPSTARTEX=");
             if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCP) {
                 conn_type_str = "TCP";
             } else if (msg->msg.conn_start.type == LWESP_CONN_TYPE_UDP) {
@@ -2256,8 +2252,11 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 conn_type_str = "SSLV6";
 #endif /* LWESP_CFG_IPV6 */
             } else {
-                conn_type_str = "unknown";
+                return lwespPARERR;
             }
+
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPSTARTEX=");
             lwespi_send_string(conn_type_str, 0, 1, 0);
             lwespi_send_string(msg->msg.conn_start.remote_host, 0, 1, 1);
             lwespi_send_port(msg->msg.conn_start.remote_port, 0, 1);
