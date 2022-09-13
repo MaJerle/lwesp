@@ -44,7 +44,7 @@ lwesp_evt_register(lwesp_evt_fn fn) {
     lwespr_t res = lwespOK;
     lwesp_evt_func_t *func, *new_func;
 
-    LWESP_ASSERT("fn != NULL", fn != NULL);
+    LWESP_ASSERT(fn != NULL);
 
     lwesp_core_lock();
 
@@ -87,7 +87,7 @@ lwespr_t
 lwesp_evt_unregister(lwesp_evt_fn fn) {
     lwesp_evt_func_t *func, *prev;
 
-    LWESP_ASSERT("fn != NULL", fn != NULL);
+    LWESP_ASSERT(fn != NULL);
 
     lwesp_core_lock();
     for (prev = esp.evt_func, func = esp.evt_func->next; func != NULL; prev = func, func = func->next) {

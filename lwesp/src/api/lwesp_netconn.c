@@ -341,7 +341,7 @@ free_ret:
  */
 lwespr_t
 lwesp_netconn_delete(lwesp_netconn_p nc) {
-    LWESP_ASSERT("netconn != NULL", nc != NULL);
+    LWESP_ASSERT(nc != NULL);
 
     lwesp_core_lock();
     flush_mboxes(nc, 0); /* Clear mboxes */
@@ -384,9 +384,9 @@ lwespr_t
 lwesp_netconn_connect(lwesp_netconn_p nc, const char* host, lwesp_port_t port) {
     lwespr_t res;
 
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("host != NULL", host != NULL);
-    LWESP_ASSERT("port > 0", port > 0);
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(host != NULL);
+    LWESP_ASSERT(port > 0);
 
     /*
      * Start a new connection as client and:
@@ -416,9 +416,9 @@ lwesp_netconn_connect_ex(lwesp_netconn_p nc, const char* host, lwesp_port_t port
     lwesp_conn_start_t cs = {0};
     lwespr_t res;
 
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("host != NULL", host != NULL);
-    LWESP_ASSERT("port > 0", port > 0);
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(host != NULL);
+    LWESP_ASSERT(port > 0);
 
     /*
      * Start a new connection as client and:
@@ -451,7 +451,7 @@ lwespr_t
 lwesp_netconn_bind(lwesp_netconn_p nc, lwesp_port_t port) {
     lwespr_t res = lwespOK;
 
-    LWESP_ASSERT("nc != NULL", nc != NULL);
+    LWESP_ASSERT(nc != NULL);
 
     /*
      * Protection is not needed as it is expected
@@ -477,7 +477,7 @@ lwesp_netconn_bind(lwesp_netconn_p nc, lwesp_port_t port) {
 lwespr_t
 lwesp_netconn_set_listen_conn_timeout(lwesp_netconn_p nc, uint16_t timeout) {
     lwespr_t res = lwespOK;
-    LWESP_ASSERT("nc != NULL", nc != NULL);
+    LWESP_ASSERT(nc != NULL);
 
     /*
      * Protection is not needed as it is expected
@@ -512,8 +512,8 @@ lwespr_t
 lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_connections) {
     lwespr_t res;
 
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->type must be TCP", NETCONN_IS_TCP(nc));
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(NETCONN_IS_TCP(nc));
 
     /* Enable server on port and set default netconn callback */
     if ((res = lwesp_set_server(1, nc->listen_port, LWESP_U16(LWESP_MIN(max_connections, LWESP_CFG_MAX_CONNS)),
@@ -537,10 +537,10 @@ lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client) {
     lwesp_netconn_t* tmp;
     uint32_t time;
 
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("client != NULL", client != NULL);
-    LWESP_ASSERT("nc->type must be TCP", NETCONN_IS_TCP(nc));
-    LWESP_ASSERT("nc == listen_api", nc == listen_api);
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(client != NULL);
+    LWESP_ASSERT(NETCONN_IS_TCP(nc));
+    LWESP_ASSERT(nc == listen_api);
 
     *client = NULL;
     time = lwesp_sys_mbox_get(&nc->mbox_accept, (void**)&tmp, 0);
@@ -576,9 +576,9 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
     const uint8_t* d = data;
     lwespr_t res;
 
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->type must be TCP or SSL", NETCONN_IS_TCP(nc) || NETCONN_IS_SSL(nc));
-    LWESP_ASSERT("nc->conn must be active", lwesp_conn_is_active(nc->conn));
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(NETCONN_IS_TCP(nc) || NETCONN_IS_SSL(nc));
+    LWESP_ASSERT(lwesp_conn_is_active(nc->conn));
 
     /*
      * Several steps are done in write process
@@ -654,9 +654,9 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
  */
 lwespr_t
 lwesp_netconn_flush(lwesp_netconn_p nc) {
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->type must be TCP or SSL", NETCONN_IS_TCP(nc) || NETCONN_IS_SSL(nc));
-    LWESP_ASSERT("nc->conn must be active", lwesp_conn_is_active(nc->conn));
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(NETCONN_IS_TCP(nc) || NETCONN_IS_SSL(nc));
+    LWESP_ASSERT(lwesp_conn_is_active(nc->conn));
 
     /*
      * In case we have data in write buffer,
@@ -680,9 +680,9 @@ lwesp_netconn_flush(lwesp_netconn_p nc) {
  */
 lwespr_t
 lwesp_netconn_send(lwesp_netconn_p nc, const void* data, size_t btw) {
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->type must be UDP", nc->type == LWESP_NETCONN_TYPE_UDP);
-    LWESP_ASSERT("nc->conn must be active", lwesp_conn_is_active(nc->conn));
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(nc->type == LWESP_NETCONN_TYPE_UDP);
+    LWESP_ASSERT(lwesp_conn_is_active(nc->conn));
 
     return lwesp_conn_send(nc->conn, data, btw, NULL, 1);
 }
@@ -699,9 +699,9 @@ lwesp_netconn_send(lwesp_netconn_p nc, const void* data, size_t btw) {
  */
 lwespr_t
 lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_port_t port, const void* data, size_t btw) {
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->type must be UDP", nc->type == LWESP_NETCONN_TYPE_UDP);
-    LWESP_ASSERT("nc->conn must be active", lwesp_conn_is_active(nc->conn));
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(nc->type == LWESP_NETCONN_TYPE_UDP);
+    LWESP_ASSERT(lwesp_conn_is_active(nc->conn));
 
     return lwesp_conn_sendto(nc->conn, ip, port, data, btw, NULL, 1);
 }
@@ -718,8 +718,8 @@ lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_port_t port
  */
 lwespr_t
 lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("pbuf != NULL", pbuf != NULL);
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(pbuf != NULL);
 
     *pbuf = NULL;
 #if LWESP_CFG_NETCONN_RECEIVE_TIMEOUT
@@ -767,9 +767,9 @@ lwespr_t
 lwesp_netconn_close(lwesp_netconn_p nc) {
     lwesp_conn_p conn;
 
-    LWESP_ASSERT("nc != NULL", nc != NULL);
-    LWESP_ASSERT("nc->conn != NULL", nc->conn != NULL);
-    LWESP_ASSERT("nc->conn must be active", lwesp_conn_is_active(nc->conn));
+    LWESP_ASSERT(nc != NULL);
+    LWESP_ASSERT(nc->conn != NULL);
+    LWESP_ASSERT(lwesp_conn_is_active(nc->conn));
 
     lwesp_netconn_flush(nc); /* Flush data and ignore result */
     conn = nc->conn;

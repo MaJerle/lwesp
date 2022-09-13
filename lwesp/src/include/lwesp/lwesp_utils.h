@@ -50,14 +50,13 @@ extern "C" {
 /**
  * \brief           Assert an input parameter if in valid range
  * \note            Since this is a macro, it may only be used on a functions where return status is of type \ref lwespr_t enumeration
- * \param[in]       msg: message to print to debug if test fails
  * \param[in]       c: Condition to test
  */
-#define LWESP_ASSERT(msg, c)                                                                                           \
+#define LWESP_ASSERT(c)                                                                                                \
     do {                                                                                                               \
         if (!(c)) {                                                                                                    \
-            LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT, "Wrong parameters on file %s and line %d: %s\r\n", __FILE__,            \
-                         (int)__LINE__, msg);                                                                          \
+            LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT, "Assert failed in file %s on line %d: %s\r\n", __FILE__, (int)__LINE__, \
+                         #c);                                                                                          \
             return lwespPARERR;                                                                                        \
         }                                                                                                              \
     } while (0)

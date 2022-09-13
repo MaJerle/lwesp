@@ -79,7 +79,7 @@ lwesp_ap_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm,
                void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("ip != NULL", ip != NULL);
+    LWESP_ASSERT(ip != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -127,8 +127,8 @@ lwesp_ap_setmac(const lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void*
                 const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("mac != NULL", mac != NULL);
-    LWESP_ASSERT("Bit 0 of byte 0 in AP MAC must be 0!", !(((uint8_t*)mac)[0] & 0x01));
+    LWESP_ASSERT(mac != NULL);
+    LWESP_ASSERT(!(((uint8_t*)mac)[0] & 0x01));
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -160,13 +160,12 @@ lwesp_ap_set_config(const char* ssid, const char* pwd, uint8_t ch, lwesp_ecn_t e
                     const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("ssid != NULL", ssid != NULL);
-    LWESP_ASSERT("pwd == NULL || (pwd && strlen(pwd) <= 64)", pwd == NULL || (pwd != NULL && strlen(pwd) <= 64));
-    LWESP_ASSERT("ecn == open || ecn == WPA_PSK || ecn == WPA2_PSK || ecn == WPA_WPA2_PSK",
-                 ecn == LWESP_ECN_OPEN || ecn == LWESP_ECN_WPA_PSK || ecn == LWESP_ECN_WPA2_PSK
-                     || ecn == LWESP_ECN_WPA_WPA2_PSK);
-    LWESP_ASSERT("ch <= 128", ch <= 128);
-    LWESP_ASSERT("1 <= max_sta <= 10", max_sta > 0 && max_sta <= 10);
+    LWESP_ASSERT(ssid != NULL);
+    LWESP_ASSERT(pwd == NULL || (pwd != NULL && strlen(pwd) <= 64));
+    LWESP_ASSERT(ecn == LWESP_ECN_OPEN || ecn == LWESP_ECN_WPA_PSK || ecn == LWESP_ECN_WPA2_PSK
+                 || ecn == LWESP_ECN_WPA_WPA2_PSK);
+    LWESP_ASSERT(ch <= 128);
+    LWESP_ASSERT(max_sta > 0 && max_sta <= 10);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -196,7 +195,7 @@ lwesp_ap_get_config(lwesp_ap_conf_t* ap_conf, const lwesp_api_cmd_evt_fn evt_fn,
                     const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("ap_conf != NULL", ap_conf != NULL);
+    LWESP_ASSERT(ap_conf != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -221,8 +220,8 @@ lwesp_ap_list_sta(lwesp_sta_t* sta, size_t stal, size_t* staf, const lwesp_api_c
                   const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("sta != NULL", sta != NULL);
-    LWESP_ASSERT("stal > 0", stal > 0);
+    LWESP_ASSERT(sta != NULL);
+    LWESP_ASSERT(stal > 0);
 
     if (staf != NULL) {
         *staf = 0;

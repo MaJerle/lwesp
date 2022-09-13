@@ -475,7 +475,7 @@ prv_sub_unsub(lwesp_mqtt_client_p client, const char* topic, lwesp_mqtt_qos_t qo
     uint16_t len_topic, pkt_id;
     uint8_t ret = 0;
 
-    LWESP_ASSERT("client != NULL", client != NULL);
+    LWESP_ASSERT(client != NULL);
 
     if ((len_topic = LWESP_U16(strlen(topic))) == 0) {
         return 0;
@@ -1145,10 +1145,10 @@ lwesp_mqtt_client_connect(lwesp_mqtt_client_p client, const char* host, lwesp_po
                           const lwesp_mqtt_client_info_t* info) {
     lwespr_t res = lwespERR;
 
-    LWESP_ASSERT("client != NULL", client != NULL); /* t input parameters */
-    LWESP_ASSERT("host != NULL", host != NULL);
-    LWESP_ASSERT("port > 0", port > 0);
-    LWESP_ASSERT("info != NULL", info != NULL);
+    LWESP_ASSERT(client != NULL); /* t input parameters */
+    LWESP_ASSERT(host != NULL);
+    LWESP_ASSERT(port > 0);
+    LWESP_ASSERT(info != NULL);
 
     lwesp_core_lock();
     if (lwesp_sta_is_joined() && client->conn_state == LWESP_MQTT_CONN_DISCONNECTED) {
@@ -1229,7 +1229,7 @@ lwesp_mqtt_client_publish(lwesp_mqtt_client_p client, const char* topic, const v
     uint16_t len_topic, pkt_id;
     uint8_t qos_u8 = LWESP_U8(qos);
 
-    LWESP_ASSERT("client != NULL", client != NULL);
+    LWESP_ASSERT(client != NULL);
     if ((len_topic = LWESP_U16(strlen(topic))) == 0) { /* Topic length */
         return lwespERR;
     }

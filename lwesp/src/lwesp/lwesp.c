@@ -511,7 +511,7 @@ lwesp_device_get_device(void) {
  */
 lwespr_t
 lwesp_get_current_at_fw_version(lwesp_sw_version_t* const version) {
-    LWESP_ASSERT("version != NULL", version != NULL);
+    LWESP_ASSERT(version != NULL);
     lwesp_core_lock();
     LWESP_MEMCPY(version, &esp.m.version_at, sizeof(*version));
     lwesp_core_unlock();
@@ -527,7 +527,7 @@ lwesp_get_current_at_fw_version(lwesp_sw_version_t* const version) {
 lwespr_t
 lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version) {
     uint8_t res = lwespOK;
-    LWESP_ASSERT("version != NULL", version != NULL);
+    LWESP_ASSERT(version != NULL);
 
     lwesp_core_lock();
     if (0) {

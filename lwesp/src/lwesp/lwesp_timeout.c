@@ -121,7 +121,7 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
     lwesp_timeout_t* to;
     uint32_t now;
 
-    LWESP_ASSERT("fn != NULL", fn != NULL);
+    LWESP_ASSERT(fn != NULL);
 
     /* Allocate memory for timeout structure */
     if ((to = lwesp_mem_calloc(1, sizeof(*to))) == NULL) {

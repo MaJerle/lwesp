@@ -52,7 +52,7 @@ lwesp_set_webserver(uint8_t en, lwesp_port_t port, uint16_t timeout, const lwesp
                     void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("port > 0", port > 0);
+    LWESP_ASSERT(port > 0);
 
     if (timeout < 21) {
         timeout = 21;

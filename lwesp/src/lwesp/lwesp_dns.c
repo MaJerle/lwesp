@@ -50,8 +50,8 @@ lwesp_dns_gethostbyname(const char* host, lwesp_ip_t* const ip, const lwesp_api_
                         const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("host != NULL", host != NULL);
-    LWESP_ASSERT("ip != NULL", ip != NULL);
+    LWESP_ASSERT(host != NULL);
+    LWESP_ASSERT(ip != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);

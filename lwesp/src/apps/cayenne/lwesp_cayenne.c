@@ -120,9 +120,9 @@ lwesp_cayenne_parse_topic(lwesp_cayenne_t* c, const char* topic, size_t topic_le
     lwesp_cayenne_msg_t* msg;
     size_t len;
 
-    LWESP_ASSERT("c != NULL", c != NULL);
-    LWESP_ASSERT("topic != NULL", topic != NULL);
-    LWESP_ASSERT("topic_len > 0", topic_len > 0);
+    LWESP_ASSERT(c != NULL);
+    LWESP_ASSERT(topic != NULL);
+    LWESP_ASSERT(topic_len > 0);
 
     LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[LWESP CAYENNE] Parsing received topic: %.*s\r\n", (int)topic_len,
                  topic);
@@ -205,9 +205,9 @@ static lwespr_t
 lwesp_cayenne_parse_payload(lwesp_cayenne_t* c, const char* payload, size_t payload_len) {
     lwesp_cayenne_msg_t* msg;
 
-    LWESP_ASSERT("c != NULL", c != NULL);
-    LWESP_ASSERT("payload != NULL", payload != NULL);
-    LWESP_ASSERT("payload_len > 0", payload_len > 0);
+    LWESP_ASSERT(c != NULL);
+    LWESP_ASSERT(payload != NULL);
+    LWESP_ASSERT(payload_len > 0);
 
     LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[LWESP CAYENNE] Parsing received payload: %.*s\r\n", (int)payload_len,
                  payload);
@@ -265,10 +265,10 @@ lwesp_cayenne_build_topic(lwesp_cayenne_t* c, char* topic_str, size_t topic_str_
     size_t rem_len;
     char ch_token[6];
 
-    LWESP_ASSERT("c != NULL", c != NULL);
-    LWESP_ASSERT("topic_str != NULL", topic_str != NULL);
-    LWESP_ASSERT("topic_str_len > 0", topic_str_len > 0);
-    LWESP_ASSERT("topic < LWESP_CAYENNE_TOPIC_END", topic < LWESP_CAYENNE_TOPIC_END);
+    LWESP_ASSERT(c != NULL);
+    LWESP_ASSERT(topic_str != NULL);
+    LWESP_ASSERT(topic_str_len > 0);
+    LWESP_ASSERT(topic < LWESP_CAYENNE_TOPIC_END);
 
     /*
      * Assert for basic part without topic
@@ -279,9 +279,8 @@ lwesp_cayenne_build_topic(lwesp_cayenne_t* c, char* topic_str, size_t topic_str_
      *
      * Number 11 contains: "/" + "/things/" + "/" + NULL termination
      */
-    LWESP_ASSERT("topic_str_len > min_string_length",
-                 topic_str_len
-                     > (strlen(LWESP_CAYENNE_API_VERSION) + strlen(c->info_c->user) + strlen(c->info_c->id) + 11));
+    LWESP_ASSERT(topic_str_len
+                 > (strlen(LWESP_CAYENNE_API_VERSION) + strlen(c->info_c->user) + strlen(c->info_c->id) + 11));
     topic_str[0] = 0;
 
     /* Base part */
@@ -296,8 +295,7 @@ lwesp_cayenne_build_topic(lwesp_cayenne_t* c, char* topic_str, size_t topic_str_
     /* Topic string */
     for (size_t i = 0; i < LWESP_ARRAYSIZE(topic_cmd_str_pairs); ++i) {
         if (topic == topic_cmd_str_pairs[i].topic) {
-            LWESP_ASSERT("strlen(topic_cmd_str_pairs[i].str) <= rem_len",
-                         strlen(topic_cmd_str_pairs[i].str) <= rem_len);
+            LWESP_ASSERT(strlen(topic_cmd_str_pairs[i].str) <= rem_len);
             strcat(topic_str, topic_cmd_str_pairs[i].str);
             break;
         }
@@ -307,13 +305,13 @@ lwesp_cayenne_build_topic(lwesp_cayenne_t* c, char* topic_str, size_t topic_str_
     /* Append channel if necessary */
     if (channel != LWESP_CAYENNE_NO_CHANNEL) {
         if (channel == LWESP_CAYENNE_ALL_CHANNELS) {
-            LWESP_ASSERT("rem_len >= 2", rem_len >= 2);
+            LWESP_ASSERT(rem_len >= 2);
             strcat(topic_str, "/+");
         } else {
-            LWESP_ASSERT("rem_len >= 1", rem_len >= 1);
+            LWESP_ASSERT(rem_len >= 1);
             lwesp_u16_to_str(channel, ch_token);
             strcat(topic_str, "/");
-            LWESP_ASSERT("strlen(ch_token) <= rem_len", strlen(ch_token) <= rem_len - 1);
+            LWESP_ASSERT(strlen(ch_token) <= rem_len - 1);
             strcat(topic_str, ch_token);
         }
     }
@@ -617,9 +615,9 @@ lwesp_cayenne_init(void) {
  */
 lwespr_t
 lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_info, lwesp_cayenne_evt_fn evt_fn) {
-    LWESP_ASSERT("c != NULL", c != NULL);
-    LWESP_ASSERT("client_info != NULL", client_info != NULL);
-    LWESP_ASSERT("evt_fn != NULL", evt_fn != NULL);
+    LWESP_ASSERT(c != NULL);
+    LWESP_ASSERT(client_info != NULL);
+    LWESP_ASSERT(evt_fn != NULL);
 
     c->next = NULL;
     c->info_c = client_info;
@@ -672,7 +670,7 @@ lwesp_cayenne_create(lwesp_cayenne_t* c, const lwesp_mqtt_client_info_t* client_
 lwespr_t
 lwesp_cayenne_connect(lwesp_cayenne_t* c) {
     lwespr_t res;
-    LWESP_ASSERT("c != NULL", c != NULL);
+    LWESP_ASSERT(c != NULL);
 
     lwesp_sys_protect();
     if (lwesp_mqtt_client_is_connected(c->mqtt_client)) {
@@ -697,8 +695,8 @@ lwespr_t
 lwesp_cayenne_publish_ex(lwesp_cayenne_t* c, const lwesp_cayenne_tx_msg_t* tx_msg) {
     lwespr_t res = lwespOK;
 
-    LWESP_ASSERT("c != NULL", c != NULL);
-    LWESP_ASSERT("tx_msg != NULL", tx_msg != NULL);
+    LWESP_ASSERT(c != NULL);
+    LWESP_ASSERT(tx_msg != NULL);
 
     lwesp_sys_protect();
     if (lwesp_buff_get_free(&c->tx_buff) >= sizeof(*tx_msg)) {
@@ -726,8 +724,8 @@ lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t* msg, lwe
                                const char* message) {
     lwespr_t res;
 
-    LWESP_ASSERT("c != NULL", c != NULL);
-    LWESP_ASSERT("msg != NULL && msg->seq != NULL", msg != NULL && msg->seq != NULL);
+    LWESP_ASSERT(c != NULL);
+    LWESP_ASSERT(msg != NULL && msg->seq != NULL);
 
     lwesp_sys_protect();
     if ((res = lwesp_cayenne_build_topic(c, topic_name, sizeof(topic_name), LWESP_CAYENNE_TOPIC_RESPONSE,

@@ -85,7 +85,7 @@ lwesp_sntp_set_interval(uint32_t interval, const lwesp_api_cmd_evt_fn evt_fn, vo
                         const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("interval >= 15 && interval <= 4294967", interval >= 15 && interval <= 4294967);
+    LWESP_ASSERT(interval >= 15 && interval <= 4294967);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);

@@ -100,7 +100,7 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
     lwesp_pbuf_p p, pn;
     size_t ref, cnt;
 
-    LWESP_ASSERT("pbuf != NULL", pbuf != NULL);
+    LWESP_ASSERT(pbuf != NULL);
 
     /*
      * Free all pbufs until first ->ref > 1 is reached
@@ -139,8 +139,8 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
  */
 lwespr_t
 lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail) {
-    LWESP_ASSERT("head != NULL", head != NULL);
-    LWESP_ASSERT("tail != NULL", tail != NULL);
+    LWESP_ASSERT(head != NULL);
+    LWESP_ASSERT(tail != NULL);
 
     /*
      * For all pbuf packets in head,
@@ -208,7 +208,7 @@ lwesp_pbuf_unchain(lwesp_pbuf_p head) {
  */
 lwespr_t
 lwesp_pbuf_ref(lwesp_pbuf_p pbuf) {
-    LWESP_ASSERT("pbuf != NULL", pbuf != NULL);
+    LWESP_ASSERT(pbuf != NULL);
 
     ++pbuf->ref; /* Increase reference count for pbuf */
     return lwespOK;
@@ -227,10 +227,10 @@ lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t offset) 
     const uint8_t* d = data;
     size_t copy_len;
 
-    LWESP_ASSERT("pbuf != NULL", pbuf != NULL);
-    LWESP_ASSERT("data != NULL", data != NULL);
-    LWESP_ASSERT("len > 0", len > 0);
-    LWESP_ASSERT("pbuf->tot_len >= len", pbuf->tot_len >= len);
+    LWESP_ASSERT(pbuf != NULL);
+    LWESP_ASSERT(data != NULL);
+    LWESP_ASSERT(len > 0);
+    LWESP_ASSERT(pbuf->tot_len >= len);
 
     /* Skip if necessary and check if we are in valid range */
     if (offset > 0) {

@@ -307,7 +307,7 @@ lwespr_t
 lwesp_mqtt_client_api_close(lwesp_mqtt_client_api_p client) {
     lwespr_t res = lwespERR;
 
-    LWESP_ASSERT("client != NULL", client != NULL);
+    LWESP_ASSERT(client != NULL);
 
     lwesp_sys_mutex_lock(&client->mutex);
     lwesp_sys_sem_wait(&client->sync_sem, 0);
@@ -335,8 +335,8 @@ lwespr_t
 lwesp_mqtt_client_api_subscribe(lwesp_mqtt_client_api_p client, const char* topic, lwesp_mqtt_qos_t qos) {
     lwespr_t res = lwespERR;
 
-    LWESP_ASSERT("client != NULL", client != NULL);
-    LWESP_ASSERT("topic != NULL", topic != NULL);
+    LWESP_ASSERT(client != NULL);
+    LWESP_ASSERT(topic != NULL);
 
     lwesp_sys_mutex_lock(&client->mutex);
     lwesp_sys_sem_wait(&client->sync_sem, 0);
@@ -364,8 +364,8 @@ lwespr_t
 lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const char* topic) {
     lwespr_t res = lwespERR;
 
-    LWESP_ASSERT("client != NULL", client != NULL);
-    LWESP_ASSERT("topic != NULL", topic != NULL);
+    LWESP_ASSERT(client != NULL);
+    LWESP_ASSERT(topic != NULL);
 
     lwesp_sys_mutex_lock(&client->mutex);
     lwesp_sys_sem_wait(&client->sync_sem, 0);
@@ -398,10 +398,10 @@ lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic,
                               lwesp_mqtt_qos_t qos, uint8_t retain) {
     lwespr_t res = lwespERR;
 
-    LWESP_ASSERT("client != NULL", client != NULL);
-    LWESP_ASSERT("topic != NULL", topic != NULL);
-    LWESP_ASSERT("data != NULL", data != NULL);
-    LWESP_ASSERT("btw > 0", btw > 0);
+    LWESP_ASSERT(client != NULL);
+    LWESP_ASSERT(topic != NULL);
+    LWESP_ASSERT(data != NULL);
+    LWESP_ASSERT(btw > 0);
 
     lwesp_sys_mutex_lock(&client->mutex);
     lwesp_sys_sem_wait(&client->sync_sem, 0);
@@ -449,8 +449,8 @@ lwesp_mqtt_client_api_is_connected(lwesp_mqtt_client_api_p client) {
  */
 lwespr_t
 lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p, uint32_t timeout) {
-    LWESP_ASSERT("client != NULL", client != NULL);
-    LWESP_ASSERT("p != NULL", p != NULL);
+    LWESP_ASSERT(client != NULL);
+    LWESP_ASSERT(p != NULL);
 
     *p = NULL;
 

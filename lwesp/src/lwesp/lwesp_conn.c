@@ -107,7 +107,7 @@ lwespi_conn_manual_tcp_try_read_data(lwesp_conn_p conn) {
     lwespr_t res = lwespOK;
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT(conn != NULL);
 
     /* Receive must not be blocked and other command must not be in queue to read data */
     if (conn->status.f.receive_blocked || conn->status.f.receive_is_command_queued) {
@@ -198,9 +198,9 @@ prv_conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, 
               size_t* const bw, uint8_t fau, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("conn != NULL", conn != NULL);
-    LWESP_ASSERT("data != NULL", data != NULL);
-    LWESP_ASSERT("btw > 0", btw > 0);
+    LWESP_ASSERT(conn != NULL);
+    LWESP_ASSERT(data != NULL);
+    LWESP_ASSERT(btw > 0);
 
     CONN_CHECK_CLOSED_IN_CLOSING(conn); /* Check if we can continue */
 
@@ -211,7 +211,7 @@ prv_conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, 
      * Limit up to maximum buffer allowed by ESP
      */
     if (CONN_IS_UDP_V4_OR_V6(conn->type)) {
-        LWESP_ASSERT("USD: len < max_len", btw <= LWESP_CFG_CONN_MAX_DATA_LEN);
+        LWESP_ASSERT(btw <= LWESP_CFG_CONN_MAX_DATA_LEN);
     }
 #endif /* !LWESP_CFG_CONN_ALLOW_FRAGMENTED_UDP_SEND */
 
@@ -286,9 +286,9 @@ lwesp_conn_start(lwesp_conn_p* conn, lwesp_conn_type_t type, const char* const r
                  void* const arg, lwesp_evt_fn conn_evt_fn, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("remote_host != NULL", remote_host != NULL);
-    LWESP_ASSERT("remote_port > 0", remote_port > 0);
-    LWESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
+    LWESP_ASSERT(remote_host != NULL);
+    LWESP_ASSERT(remote_port > 0);
+    LWESP_ASSERT(conn_evt_fn != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTART;
@@ -317,10 +317,10 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct, void* c
                    const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("start_struct != NULL", start_struct != NULL);
-    LWESP_ASSERT("start_struct->remote_host != NULL", start_struct->remote_host != NULL);
-    LWESP_ASSERT("start_struct->remote_port > 0", start_struct->remote_port > 0);
-    LWESP_ASSERT("conn_evt_fn != NULL", conn_evt_fn != NULL);
+    LWESP_ASSERT(start_struct != NULL);
+    LWESP_ASSERT(start_struct->remote_host != NULL);
+    LWESP_ASSERT(start_struct->remote_port > 0);
+    LWESP_ASSERT(conn_evt_fn != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSTART;
@@ -354,7 +354,7 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
     lwespr_t res;
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT(conn != NULL);
 
     CONN_CHECK_CLOSED_IN_CLOSING(conn); /* Check if we can continue */
 
@@ -391,7 +391,7 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
 lwespr_t
 lwesp_conn_sendto(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, const void* data, size_t btw,
                   size_t* bw, const uint32_t blocking) {
-    LWESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT(conn != NULL);
 
     flush_buff(conn); /* Flush currently written memory if exists */
     return prv_conn_send(conn, ip, port, data, btw, bw, 0, blocking);
@@ -412,9 +412,9 @@ lwesp_conn_send(lwesp_conn_p conn, const void* data, size_t btw, size_t* const b
     lwespr_t res;
     const uint8_t* d = data;
 
-    LWESP_ASSERT("conn != NULL", conn != NULL);
-    LWESP_ASSERT("data != NULL", data != NULL);
-    LWESP_ASSERT("btw > 0", btw > 0);
+    LWESP_ASSERT(conn != NULL);
+    LWESP_ASSERT(data != NULL);
+    LWESP_ASSERT(btw > 0);
 
     lwesp_core_lock();
     if (conn->buff.buff != NULL) { /* Check if memory available */
@@ -646,7 +646,7 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
 
     const uint8_t* d = data;
 
-    LWESP_ASSERT("conn != NULL", conn != NULL);
+    LWESP_ASSERT(conn != NULL);
 
     /*
      * Steps during write process:

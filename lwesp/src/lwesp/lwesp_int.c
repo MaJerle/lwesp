@@ -1245,7 +1245,7 @@ lwespi_process(const void* data, size_t data_len) {
     const uint8_t* d = data;
     size_t d_len = data_len;
     static uint8_t ch_prev1;
-    static lwesp_unicode_t unicode;
+    static lwesp_unicode_t unicode = {0};
 
     /* Check status if device is available */
     if (!esp.status.f.dev_present) {
@@ -1400,13 +1400,16 @@ lwespi_process(const void* data, size_t data_len) {
                     }
 
                     /*
-                     * Check if "+CIPRECVDATA" statement is in array and now we received colon,
-                     * indicating end of +CIPRECVDATA statement and start of actual data
+                     * This part handles the response of "+CIPRECVDATA",
+                     * that does not end with CRLF, rather string continues with user data.
+                     * 
+                     * We cannot rely on line processing.
                      *
-                     * Final conclusion for +CIPRECVDATA is:
                      * +CIPRECVDATA:<len>,<IP>,<port>,data...
                      *
-                     * We must wait for 3 colon characters, before conclusion of valid data
+                     * We expect 3 colon characters, only then we can move forward.
+                     * Appropriate reset commands have to be sent in order for this to work properly,
+                     * to enable IP and port information
                      */
                     if (ch == ',' && RECV_LEN() > 13 && RECV_IDX(0) == '+'
                         && !strncmp(recv_buff.data, "+CIPRECVDATA", 12)

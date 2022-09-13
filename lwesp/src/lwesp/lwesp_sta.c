@@ -74,7 +74,7 @@ lwesp_sta_join(const char* name, const char* pass, const lwesp_mac_t* mac, const
                void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("name != NULL", name != NULL);
+    LWESP_ASSERT(name != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -124,8 +124,8 @@ lwesp_sta_reconnect_set_config(uint16_t interval, uint16_t rep_cnt, const lwesp_
                                void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("interval <= 7200", interval <= 7200);
-    LWESP_ASSERT("rep_cnt <= 1000", rep_cnt <= 1000);
+    LWESP_ASSERT(interval <= 7200);
+    LWESP_ASSERT(rep_cnt <= 1000);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -153,7 +153,7 @@ lwesp_sta_get_ap_info(lwesp_sta_info_ap_t* info, const lwesp_api_cmd_evt_fn evt_
     if (!lwesp_sta_is_joined()) {
         return lwespERRWIFINOTCONNECTED;
     }
-    LWESP_ASSERT("info != NULL", info != NULL);
+    LWESP_ASSERT(info != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -214,7 +214,7 @@ lwesp_sta_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm
                 void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("ip != NULL", ip != NULL);
+    LWESP_ASSERT(ip != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
@@ -262,7 +262,7 @@ lwesp_sta_setmac(const lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void
                  const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("mac != NULL", mac != NULL);
+    LWESP_ASSERT(mac != NULL);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);

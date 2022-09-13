@@ -52,7 +52,7 @@ lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint16_t time
                  const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT("port > 0", port > 0);
+    LWESP_ASSERT(port > 0);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);

@@ -53,9 +53,9 @@ lwesp_mdns_set_config(uint8_t en, const char* host, const char* server, lwesp_po
     LWESP_MSG_VAR_DEFINE(msg);
 
     if (en) {
-        LWESP_ASSERT("host != NULL", host != NULL);
-        LWESP_ASSERT("server != NULL", server != NULL);
-        LWESP_ASSERT("port > 0", port > 0);
+        LWESP_ASSERT(host != NULL);
+        LWESP_ASSERT(server != NULL);
+        LWESP_ASSERT(port > 0);
     }
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
