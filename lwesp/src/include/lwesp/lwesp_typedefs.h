@@ -158,9 +158,9 @@ typedef struct {
 typedef struct {
     union {
         lwesp_ip4_addr_t ip4; /*!< IPv4 address */
-#if LWESP_CFG_IPV6 || __DOXGEN__
+#if LWESP_CFG_IPV6 || __DOXYGEN__
         lwesp_ip6_addr_t ip6; /*!< IPv6 address */
-#endif                        /* LWESP_CFG_IPV6  || __DOXGEN__ */
+#endif                        /* LWESP_CFG_IPV6  || __DOXYGEN__ */
     } addr;                   /*!< Actual IP address */
 
     lwesp_iptype_t type; /*!< IP type, either V4 or V6 */
