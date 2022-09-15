@@ -410,6 +410,9 @@ typedef struct lwesp_msg {
                                                         When this happens, we need to repeat same command */
             uint8_t is_last_check; /*!< Status indicating check for data length is at the end of command.
                                                         Do nothing after successful command */
+            uint8_t read;   /*!< Set to 1 when in data read mode */
+            size_t tot_len;  /*!< Total length expected for this read operation */
+            size_t buff_ptr; /*!< Buffer pointer to save data to (next character) */
         } conn_recv;               /*!< Structure to manually read TCP data */
 
         /* TCP/IP based commands */

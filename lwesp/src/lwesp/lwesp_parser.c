@@ -279,10 +279,6 @@ lwespi_parse_ciprecvdata(const char* str) {
         lwesp_ip_t ip;
         lwesp_port_t port;
 
-        esp.m.ipd.read = 1;      /* Start reading network data */
-        esp.m.ipd.tot_len = len; /* Total number of bytes in this received packet */
-        esp.m.ipd.rem_len = len; /* Number of remaining bytes to read */
-
         lwespi_parse_ip(&str, &ip);
         port = lwespi_parse_port(&str);
         lwesp_pbuf_set_ip(esp.m.ipd.buff, &ip, port);
