@@ -1,5 +1,5 @@
 /**
- * \file            lwesp_typedefs.h
+ * \file            lwesp_types.h
  * \brief           List of structures and enumerations for public usage
  */
 
@@ -46,7 +46,7 @@ extern "C" {
 
 /**
  * \ingroup         LWESP
- * \defgroup        LWESP_TYPEDEFS Structures and enumerations
+ * \defgroup        LWESP_TYPES Structures and enumerations
  * \brief           List of core structures and enumerations
  * \{
  */
@@ -56,7 +56,7 @@ extern "C" {
  */
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           Result enumeration used across application functions
  */
 typedef enum {
@@ -83,7 +83,7 @@ typedef enum {
 } lwespr_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           List of support ESP devices by firmware
  */
 typedef enum {
@@ -95,7 +95,7 @@ typedef enum {
 } lwesp_device_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           List of encryptions of access point
  */
 typedef enum {
@@ -127,7 +127,7 @@ typedef enum {
 } lwesp_ap_cipher_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           IP type
  */
 typedef enum {
@@ -136,7 +136,7 @@ typedef enum {
 } lwesp_iptype_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           IPv4 address structure
  */
 typedef struct {
@@ -144,7 +144,7 @@ typedef struct {
 } lwesp_ip4_addr_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           IPv6 address structure
  */
 typedef struct {
@@ -152,7 +152,7 @@ typedef struct {
 } lwesp_ip6_addr_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           IP structure
  */
 typedef struct {
@@ -223,13 +223,13 @@ lwesp_ip_is_valid(const lwesp_ip_t* ip) {
 }
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           Port variable
  */
 typedef uint16_t lwesp_port_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           MAC address
  */
 typedef struct {
@@ -237,7 +237,7 @@ typedef struct {
 } lwesp_mac_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           SW version in semantic versioning format
  */
 typedef struct {
@@ -304,7 +304,7 @@ typedef struct {
 } lwesp_sta_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           Date and time structure
  */
 typedef struct {
@@ -318,7 +318,7 @@ typedef struct {
 } lwesp_datetime_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           List of possible WiFi modes
  */
 typedef enum {
@@ -334,7 +334,7 @@ typedef enum {
 } lwesp_mode_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           List of possible HTTP methods
  */
 typedef enum {
@@ -652,7 +652,7 @@ typedef struct {
 } lwesp_buff_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           Linear buffer structure
  */
 typedef struct {
@@ -662,7 +662,7 @@ typedef struct {
 } lwesp_linbuff_t;
 
 /**
- * \ingroup         LWESP_TYPEDEFS
+ * \ingroup         LWESP_TYPES
  * \brief           Function declaration for API function command event callback function
  * \param[in]       res: Operation result, member of \ref lwespr_t enumeration
  * \param[in]       arg: Custom user argument

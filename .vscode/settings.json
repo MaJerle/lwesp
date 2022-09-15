@@ -13,7 +13,7 @@
         "lwesp_includes.h": "c",
         "lwesp_pbuf.h": "c",
         "lwesp_opt.h": "c",
-        "lwesp_typedefs.h": "c",
+        "LWESP_TYPES.h": "c",
         "lwesp_opts.h": "c",
         "lwesp_buff.h": "c",
         "lwesp_debug.h": "c",
@@ -22,7 +22,8 @@
         "lwesp_unicode.h": "c",
         "lwesp_ping.h": "c",
         "lwesp_threads.h": "c",
-        "lwesp_int.h": "c"
+        "lwesp_int.h": "c",
+        "lwesp_sta.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

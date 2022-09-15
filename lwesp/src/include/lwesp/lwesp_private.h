@@ -44,7 +44,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * \addtogroup      LWESP_TYPEDEFS
+ * \addtogroup      LWESP_TYPES
  * \{
  */
 

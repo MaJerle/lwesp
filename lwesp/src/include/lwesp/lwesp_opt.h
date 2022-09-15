@@ -38,6 +38,7 @@
 /* #define LWESP_IGNORE_USER_OPTS */
 
 /* Include application options */
+#include "lwesp_debug_types.h"
 #ifndef LWESP_IGNORE_USER_OPTS
 #include "lwesp_opts.h"
 #endif /* LWESP_IGNORE_USER_OPTS */

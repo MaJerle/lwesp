@@ -1,6 +1,6 @@
-.. _api_lwesp_typedefs:
+.. _api_lwesp_types:
 
 Structures and enumerations
 ===========================
 
-.. doxygengroup:: LWESP_TYPEDEFS
+.. doxygengroup:: LWESP_TYPES

@@ -35,7 +35,8 @@
 #define LWESP_HDR_INCLUDES_H
 
 #include "lwesp/lwesp_opt.h"
-#include "lwesp/lwesp_typedefs.h"
+#include "lwesp/lwesp_types.h"
+
 #include "lwesp/lwesp_debug.h"
 #include "lwesp/lwesp_buff.h"
 #include "lwesp/lwesp_conn.h"
