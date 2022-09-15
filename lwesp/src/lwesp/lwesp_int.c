@@ -2255,7 +2255,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 conn_type_str = "SSLV6";
 #endif /* LWESP_CFG_IPV6 */
             } else {
-                return lwespPARERR;
+                return lwespERRPAR;
             }
 
             AT_PORT_SEND_BEGIN_AT();

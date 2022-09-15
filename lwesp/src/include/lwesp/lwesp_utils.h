@@ -57,7 +57,7 @@ extern "C" {
         if (!(c)) {                                                                                                    \
             LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT, "Assert failed in file %s on line %d: %s\r\n", __FILE__, (int)__LINE__, \
                          #c);                                                                                          \
-            return lwespPARERR;                                                                                        \
+            return lwespERRPAR;                                                                                        \
         }                                                                                                              \
     } while (0)
 
