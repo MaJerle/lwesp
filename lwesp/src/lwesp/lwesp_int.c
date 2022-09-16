@@ -460,10 +460,10 @@ lwespi_reset_everything(uint8_t forced) {
     esp.m.sta.f.is_connected = 0;
 #endif /* LWESP_CFG_MODE_STATION */
 
-    /* Check if IPD active */
-    if (esp.m.ipd.buff != NULL) {
-        lwesp_pbuf_free(esp.m.ipd.buff);
-        esp.m.ipd.buff = NULL;
+    /* Clean receive buffer */
+    if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVDATA) && esp.msg->msg.conn_recv.buff != NULL) {
+        lwesp_pbuf_free(esp.msg->msg.conn_recv.buff);
+        esp.msg->msg.conn_recv.buff = NULL;
     }
 
     /* Invalid ESP modules */
@@ -681,13 +681,74 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     /* Read and process statements starting with '+' character */
     if (rcv->data[0] == '+') {
         if (!strncmp("+IPD", rcv->data, 4)) { /* Check received network data */
-            lwespi_parse_ipd(rcv->data);      /* Parse IPD statement and start receiving network data */
+            lwesp_conn_p c = lwespi_parse_ipd(rcv->data);      /* Parse IPD statement and start receiving network data */
+
             if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPRECVDATA) && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN)) {
                 esp.msg->msg.conn_recv.ipd_recv = 1; /* Command repeat, try again later */
             }
-            lwespi_conn_manual_tcp_try_read_data(esp.m.ipd.conn);
-        } else if (!strncmp("+CIPRECVDATA", rcv->data, 12)) {
-            lwespi_parse_ciprecvdata(rcv->data); /* Parse CIPRECVDATA statement and start receiving network data */
+            if (c != NULL) {
+                lwespi_conn_manual_tcp_try_read_data(c);
+            }
+        } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVDATA) && !strncmp("+CIPRECVDATA", rcv->data, 12)) {
+            const char* str = &rcv->data[13];
+            uint32_t len;
+
+            /* Check data length */
+            if ((len = lwespi_parse_number(&str)) > 0) {
+                lwesp_ip_t ip;
+                lwesp_port_t port;
+
+                /* Parse remaining information */
+                lwespi_parse_ip(&str, &ip);
+                port = lwespi_parse_port(&str);
+
+                /* Length to process */
+                esp.msg->msg.conn_recv.tot_len = len;
+                esp.msg->msg.conn_recv.buff_ptr = 0;
+                esp.msg->msg.conn_recv.read = 1;
+
+                /*
+                 * Read received data in case of:
+                 *
+                 *  - Connection is active and
+                 *  - Connection is not in closing mode
+                 */
+                if (esp.msg->msg.conn_recv.conn->status.f.active
+                    && !esp.msg->msg.conn_recv.conn->status.f.in_closing) {
+                    LWESP_DEBUGW(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
+                                  esp.msg->msg.conn_recv.buff == NULL,
+                                  "[LWESP IPD] No buffer allocated for %d byte(s)\r\n", (int)len);
+
+                    /* Update available data */
+                    if (esp.msg->msg.conn_recv.buff != NULL) {
+                        lwesp_pbuf_set_ip(esp.msg->msg.conn_recv.buff, &ip, port);
+                        if (esp.msg->msg.conn_recv.conn->tcp_available_bytes >= len) {
+                            esp.msg->msg.conn_recv.conn->tcp_available_bytes -= len;
+                        } else {
+                            esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
+                            esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
+                            LWESP_DEBUGF(
+                                LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
+                                "[LWESP IPD] Connection %u, setting tcp_available_bytes to zero\r\n",
+                                (unsigned)esp.msg->msg.conn_recv.conn->num);
+                        }
+                    }
+                } else {
+                    if (esp.msg->msg.conn_recv.buff != NULL) {
+                        lwesp_pbuf_free(esp.msg->msg.conn_recv.buff);
+                    }
+                    esp.msg->msg.conn_recv.buff = NULL; /* Ignore reading on closed connection */
+                    LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
+                        "[LWESP IPD] Connection %u closed or in closing. skipping %u byte(s)\r\n",
+                        (unsigned)esp.msg->msg.conn_recv.conn->num, (unsigned)len);
+                }
+                esp.msg->msg.conn_recv.conn->status.f.data_received = 1; /* We have first received data */
+            } else {
+                esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
+                LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
+                              "[LWESP IPD] Connection %u, setting tcp_available_bytes to zero\r\n",
+                              (unsigned)esp.msg->msg.conn_recv.conn->num);
+            }
         } else if (!strncmp("+CIPRECVLEN", rcv->data, 11)) {
             lwespi_parse_ciprecvlen(rcv->data); /* Parse CIPRECVLEN statement */
 #if LWESP_CFG_MODE_ACCESS_POINT
@@ -1261,24 +1322,21 @@ lwespi_process(const void* data, size_t data_len) {
          * First check if we are in IPD mode and process plain data
          * without checking for valid ASCII or unicode format
          */
-        if (esp.m.ipd.read) { /* Do we have to read incoming IPD data? */
+        if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVDATA) && esp.msg->msg.conn_recv.read) {
             size_t len;
 
-            if (esp.m.ipd.buff != NULL) {                         /* Do we have active buffer? */
-                esp.m.ipd.buff->payload[esp.m.ipd.buff_ptr] = ch; /* Save data character */
+            if (esp.msg->msg.conn_recv.buff != NULL) {                         /* Do we have active buffer? */
+                esp.msg->msg.conn_recv.buff->payload[esp.msg->msg.conn_recv.buff_ptr] = ch; /* Save data character */
             }
-            ++esp.m.ipd.buff_ptr;
-            --esp.m.ipd.rem_len;
+            ++esp.msg->msg.conn_recv.buff_ptr;
 
             /* Try to read more data directly from buffer */
-            len = LWESP_MIN(d_len, LWESP_MIN(esp.m.ipd.rem_len, esp.m.ipd.buff != NULL
-                                                                    ? (esp.m.ipd.buff->len - esp.m.ipd.buff_ptr)
-                                                                    : esp.m.ipd.rem_len));
+            len = LWESP_MIN(d_len, esp.msg->msg.conn_recv.tot_len - esp.msg->msg.conn_recv.buff_ptr);
             LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE, "[LWESP IPD] New length to read: %d bytes\r\n",
                          (int)len);
             if (len > 0) {
-                if (esp.m.ipd.buff != NULL) { /* Is buffer valid? */
-                    LWESP_MEMCPY(&esp.m.ipd.buff->payload[esp.m.ipd.buff_ptr], d, len);
+                if (esp.msg->msg.conn_recv.buff != NULL) { /* Is buffer valid? */
+                    LWESP_MEMCPY(&esp.msg->msg.conn_recv.buff->payload[esp.msg->msg.conn_recv.buff_ptr], d, len);
                     LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE, "[LWESP IPD] Bytes read: %d\r\n", (int)len);
                 } else { /* Simply skip the data in buffer */
                     LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE, "[LWESP IPD] Bytes skipped: %d\r\n",
@@ -1286,25 +1344,27 @@ lwespi_process(const void* data, size_t data_len) {
                 }
                 d_len -= len;              /* Decrease effective length */
                 d += len;                  /* Skip remaining length */
-                esp.m.ipd.buff_ptr += len; /* Forward buffer pointer */
-                esp.m.ipd.rem_len -= len;  /* Decrease remaining length */
+                esp.msg->msg.conn_recv.buff_ptr += len; /* Forward buffer pointer */
             }
 
             /* Did we reach end of buffer or no more data? */
-            if (esp.m.ipd.rem_len == 0 || (esp.m.ipd.buff != NULL && esp.m.ipd.buff_ptr == esp.m.ipd.buff->len)) {
-                lwespr_t res = lwespOK;
+            if (esp.msg->msg.conn_recv.buff_ptr == esp.msg->msg.conn_recv.tot_len) {
+                esp.msg->msg.conn_recv.read = 0; /* Stop reading data */
 
                 /* Call user callback function with received data */
-                if (esp.m.ipd.buff != NULL) { /* Do we have valid buffer? */
-                    size_t pbuf_len;
+                if (esp.msg->msg.conn_recv.buff != NULL) { /* Do we have valid buffer? */
+                    size_t pbuf_len = lwesp_pbuf_length(esp.msg->msg.conn_recv.buff, 1);
 
-                    pbuf_len = lwesp_pbuf_length(esp.m.ipd.buff, 1);
-                    esp.m.ipd.conn->tcp_not_ack_bytes += pbuf_len;
-                    if (esp.m.ipd.conn->tcp_available_bytes >= pbuf_len) {
-                        esp.m.ipd.conn->tcp_available_bytes -= pbuf_len;
+                    /* If allocated buffer is greather than total length received */
+                    if (pbuf_len > esp.msg->msg.conn_recv.tot_len) {
+                        pbuf_len = esp.msg->msg.conn_recv.tot_len;
+                        esp.msg->msg.conn_recv.buff->tot_len = pbuf_len;
+                        esp.msg->msg.conn_recv.buff->len = pbuf_len;
                     }
 
-                    esp.m.ipd.conn->total_recved += esp.m.ipd.buff->tot_len; /* Increase number of bytes received */
+                    /* Update information */
+                    esp.msg->msg.conn_recv.conn->tcp_not_ack_bytes += pbuf_len;
+                    esp.msg->msg.conn_recv.conn->total_recved += pbuf_len;
 
                     /*
                      * Send data buffer to upper layer
@@ -1313,50 +1373,11 @@ lwespi_process(const void* data, size_t data_len) {
                      * buffer and must free it manually
                      */
                     esp.evt.type = LWESP_EVT_CONN_RECV;
-                    esp.evt.evt.conn_data_recv.buff = esp.m.ipd.buff;
-                    esp.evt.evt.conn_data_recv.conn = esp.m.ipd.conn;
-                    res = lwespi_send_conn_cb(esp.m.ipd.conn, NULL);
-
-                    lwesp_pbuf_free(esp.m.ipd.buff); /* Free packet buffer at this point */
-                    LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE, "[LWESP IPD] Free packet buffer\r\n");
-                    if (res == lwespOKIGNOREMORE) { /* We should ignore more data */
-                        LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                     "[LWESP IPD] Ignoring more data from this IPD if available\r\n");
-                        esp.m.ipd.buff = NULL; /* Set to NULL to ignore more data if possibly available */
-                    }
-
-                    /*
-                     * Create new data packet if case if:
-                     *
-                     *  - Previous one was successful and more data to read and
-                     *  - Connection is not in closing state
-                     */
-                    if (esp.m.ipd.buff != NULL && esp.m.ipd.rem_len > 0 && !esp.m.ipd.conn->status.f.in_closing) {
-                        size_t new_len = LWESP_MIN(esp.m.ipd.rem_len,
-                                                   LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE); /* Calculate new buffer length */
-
-                        LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                     "[LWESP IPD] Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
-                        esp.m.ipd.buff = lwesp_pbuf_new(new_len); /* Allocate new packet buffer */
-
-                        LWESP_DEBUGW(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
-                                     esp.m.ipd.buff == NULL, "[LWESP IPD] Buffer allocation failed for %d bytes\r\n",
-                                     (int)new_len);
-
-                        if (esp.m.ipd.buff != NULL) {
-                            lwesp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip,
-                                              esp.m.ipd.port); /* Set IP and port for received data */
-                        }
-                    } else {
-                        esp.m.ipd.buff = NULL; /* Reset it */
-                    }
+                    esp.evt.evt.conn_data_recv.buff = esp.msg->msg.conn_recv.buff;
+                    esp.evt.evt.conn_data_recv.conn = esp.msg->msg.conn_recv.conn;
+                    lwespi_send_conn_cb(esp.msg->msg.conn_recv.conn, NULL);
+                    lwesp_pbuf_free(esp.msg->msg.conn_recv.buff); /* Free packet buffer at this point */
                 }
-                if (esp.m.ipd.rem_len == 0) { /* Check if we read everything */
-                    esp.m.ipd.buff = NULL;    /* Reset buffer pointer */
-                    esp.m.ipd.read = 0;       /* Stop reading data */
-                }
-                esp.m.ipd.buff_ptr = 0; /* Reset input buffer pointer */
-                RECV_RESET();           /* Reset receive data */
             }
 
             /*
@@ -1417,21 +1438,7 @@ lwespi_process(const void* data, size_t data_len) {
                         && (tmp_ptr = strchr(tmp_ptr + 1, ',')) != NULL    /* Search for second comma */
                         && (tmp_ptr = strchr(tmp_ptr + 1, ',')) != NULL) { /* Search for third comma */
                         lwespi_parse_received(&recv_buff);                 /* Parse received string */
-                        if (esp.m.ipd.read) {                              /* Shall we start read procedure? */
-                            /*
-                             * Prior to this event, buffer for RX operation was allocated
-                             * or read operation could not even start
-                             */
-                            esp.m.ipd.buff = esp.msg->msg.conn_recv.buff;
-                            esp.m.ipd.conn = esp.msg->msg.conn_recv.conn;
-                            lwesp_pbuf_set_length(esp.m.ipd.buff, esp.m.ipd.tot_len); /* Set new length of buffer */
-                            esp.msg->msg.conn_recv.buff = NULL; /* Clear reference for this pbuf */
-                            LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                         "[LWESP IPD] Data on connection %d with total size %d byte(s)\r\n",
-                                         (int)esp.m.ipd.conn->num, (int)esp.m.ipd.tot_len);
-                        } else {
-                            /* ERROR handling */
-                        }
+                        RECV_RESET();
                     }
                 } else { /* We have sequence of unicode characters */
                     /*

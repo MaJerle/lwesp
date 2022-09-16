@@ -29,7 +29,8 @@
         "lwesp_http_server.h": "c",
         "lwesp_apps.h": "c",
         "lwesp_mqtt_client.h": "c",
-        "lwesp_mqtt_client_evt.h": "c"
+        "lwesp_mqtt_client_evt.h": "c",
+        "lwesp_parser.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

@@ -262,35 +262,6 @@ lwespi_parse_cipstatus_cipstate(const char* str) {
 }
 
 /**
- * \brief           Parse +CIPRECVDATA statement
- * \param[in]       str: Input string to parse
- * \return          Member of \ref lwespr_t enumeration
- */
-lwespr_t
-lwespi_parse_ciprecvdata(const char* str) {
-    size_t len;
-
-    if (*str == '+') {
-        str += 13;
-    }
-
-    /* Check data length */
-    if ((len = lwespi_parse_number(&str)) > 0) { /* Get number of bytes to read */
-        lwesp_ip_t ip;
-        lwesp_port_t port;
-
-        esp.m.ipd.read = 1;      /* Start reading network data */
-        esp.m.ipd.tot_len = len; /* Total number of bytes in this received packet */
-        esp.m.ipd.rem_len = len; /* Number of remaining bytes to read */
-
-        lwespi_parse_ip(&str, &ip);
-        port = lwespi_parse_port(&str);
-        lwesp_pbuf_set_ip(esp.m.ipd.buff, &ip, port);
-    }
-    return lwespOK;
-}
-
-/**
  * \brief           Parse +CIPRECVLEN statement
  * \param[in]       str: Input string to parse
  * \return          Member of \ref lwespr_t enumeration
@@ -317,11 +288,11 @@ lwespi_parse_ciprecvlen(const char* str) {
  * \param[in]       str: Input string to parse
  * \return          Member of \ref lwespr_t enumeration
  */
-lwespr_t
+lwesp_conn_p
 lwespi_parse_ipd(const char* str) {
-    uint8_t conn, is_data_ipd;
-    size_t len;
     lwesp_conn_p c;
+    uint8_t conn;
+    size_t len;
 
     if (*str == '+') {
         str += 5;
@@ -331,34 +302,10 @@ lwespi_parse_ipd(const char* str) {
     len = lwespi_parse_number(&str);  /* Parse number for number of available_bytes/bytes_to_read */
 
     c = conn < LWESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL; /* Get connection handle */
-    if (c == NULL) {                                            /* Invalid connection number */
-        return lwespERR;
+    if (c != NULL) {                                            /* Invalid connection number */
+        c->tcp_available_bytes += len;  /* Set new value for number of bytes available to read from device */
     }
-
-    /*
-     * First check if this string is "notification only" or actual "data packet".
-     * We only expect notification hence there should be no ":" character
-     */
-    is_data_ipd = strchr(str, ':') != NULL; /* Check if we have ':' in string */
-
-    /*
-     * +IPD should always be only
-     * notification message and never include data.
-     * 
-     * Actual data read shall be done with different command
-     */
-    if (!is_data_ipd) {               /* If not data packet */
-        c->tcp_available_bytes = len; /* Set new value for number of bytes available to read from device */
-    } else {
-        /* TODO: Serious error... */
-    }
-    esp.m.ipd.tot_len = len;     /* Total number of bytes in this received packet or notification message */
-    esp.m.ipd.conn = c;          /* Pointer to connection we have data for or notification message */
-    if (is_data_ipd) {           /* Shall we start IPD read procedure? */
-        esp.m.ipd.read = 1;      /* Start reading network data */
-        esp.m.ipd.rem_len = len; /* Number of remaining bytes to read */
-    }
-    return lwespOK;
+    return c;
 }
 
 /**
