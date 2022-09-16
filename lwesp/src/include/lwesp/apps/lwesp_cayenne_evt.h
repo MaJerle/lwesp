@@ -35,7 +35,7 @@
 #define LWESP_HDR_APP_CAYENNE_EVT_H
 
 #include "lwesp/apps/lwesp_cayenne.h"
-#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_types.h"
 
 #ifdef __cplusplus
 extern "C" {

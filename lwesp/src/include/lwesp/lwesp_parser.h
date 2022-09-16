@@ -34,7 +34,7 @@
 #ifndef LWESP_HDR_PARSER_H
 #define LWESP_HDR_PARSER_H
 
-#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_types.h"
 #include "lwesp/lwesp_private.h"
 
 #ifdef __cplusplus

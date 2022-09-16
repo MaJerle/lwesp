@@ -34,10 +34,15 @@
 #ifndef LWESP_HDR_PRIV_H
 #define LWESP_HDR_PRIV_H
 
-#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_opt.h"
+#include "lwesp/lwesp_types.h"
 #include "lwesp/lwesp_debug.h"
+#include "lwesp/lwesp_buff.h"
 #include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp.h"
 #include "lwesp/lwesp_timeout.h"
+#include "lwesp/lwesp_utils.h"
+#include "lwesp/lwesp_includes.h"
 
 #ifdef __cplusplus
 extern "C" {

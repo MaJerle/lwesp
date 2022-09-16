@@ -34,7 +34,7 @@
 #ifndef LWESP_HDR_DNS_H
 #define LWESP_HDR_DNS_H
 
-#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_types.h"
 
 #ifdef __cplusplus
 extern "C" {

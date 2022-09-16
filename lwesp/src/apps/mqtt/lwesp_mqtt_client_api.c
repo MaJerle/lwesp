@@ -32,7 +32,7 @@
  * Version:         v1.1.2-dev
  */
 #include "lwesp/apps/lwesp_mqtt_client_api.h"
-#include "lwesp/lwesp_mem.h"
+#include "lwesp/lwesp_private.h"
 
 /* Tracing debug message */
 #define LWESP_CFG_DBG_MQTT_API_TRACE         (LWESP_CFG_DBG_MQTT_API | LWESP_DBG_TYPE_TRACE)
