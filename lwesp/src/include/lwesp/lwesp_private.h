@@ -562,7 +562,6 @@ typedef struct {
     uint32_t active_conns_last; /*!< The same as previous but status before last check */
 
     lwesp_link_conn_t link_conn;             /*!< Link connection handle */
-    lwesp_ipd_t ipd;                         /*!< Connection incoming data structure */
     lwesp_conn_t conns[LWESP_CFG_MAX_CONNS]; /*!< Array of all connection structures */
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
