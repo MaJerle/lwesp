@@ -43,6 +43,7 @@
 #include "lwesp/lwesp_evt.h"
 #include "lwesp/lwesp_input.h"
 #include "lwesp/lwesp_pbuf.h"
+#include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_server.h"
 #include "lwesp/lwesp_utils.h"
 #include "system/lwesp_sys.h"

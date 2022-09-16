@@ -34,6 +34,7 @@
 #ifndef LWESP_HDR_APPS_H
 #define LWESP_HDR_APPS_H
 
+#include "lwesp/lwesp_types.h"
 #include "lwesp/lwesp.h"
 
 #ifdef __cplusplus

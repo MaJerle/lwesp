@@ -23,7 +23,13 @@
         "lwesp_ping.h": "c",
         "lwesp_threads.h": "c",
         "lwesp_int.h": "c",
-        "lwesp_sta.h": "c"
+        "lwesp_sta.h": "c",
+        "lwesp_mqtt_client_api.h": "c",
+        "lwesp_cayenne.h": "c",
+        "lwesp_http_server.h": "c",
+        "lwesp_apps.h": "c",
+        "lwesp_mqtt_client.h": "c",
+        "lwesp_mqtt_client_evt.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

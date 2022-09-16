@@ -35,6 +35,7 @@
 #define LWESP_HDR_HTTP_SERVER_FS_H
 
 #include "lwesp/apps/lwesp_http_server.h"
+#include "lwesp/lwesp.h"
 
 #ifdef __cplusplus
 extern "C" {

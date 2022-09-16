@@ -35,7 +35,7 @@
 #define LWESP_HDR_APP_MQTT_CLIENT_H
 
 #include "lwesp/apps/lwesp_mqtt_client_evt.h"
-#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_includes.h"
 
 #ifdef __cplusplus
 extern "C" {

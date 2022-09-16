@@ -35,7 +35,7 @@
 #define LWESP_HDR_INPUT_H
 
 #include <string.h>
-#include "lwesp/lwesp.h"
+#include "lwesp/lwesp_types.h"
 
 #ifdef __cplusplus
 extern "C" {

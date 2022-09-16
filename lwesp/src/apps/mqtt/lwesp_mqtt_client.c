@@ -32,8 +32,7 @@
  * Version:         v1.1.2-dev
  */
 #include "lwesp/apps/lwesp_mqtt_client.h"
-#include "lwesp/lwesp_mem.h"
-#include "lwesp/lwesp_pbuf.h"
+#include "lwesp/lwesp.h"
 
 /**
  * \brief           MQTT client connection
