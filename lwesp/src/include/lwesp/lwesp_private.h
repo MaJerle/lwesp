@@ -409,16 +409,16 @@ typedef struct lwesp_msg {
 
         struct {
             lwesp_conn_t* conn;    /*!< Connection handle */
-            size_t len;            /*!< Number of bytes to read */
-            lwesp_pbuf_p buff;     /*!< Buffer handle */
+            size_t len;            /*!< Number of bytes to read from device */
+            lwesp_pbuf_p buff;     /*!< Buffer handle to write received data to */
             uint8_t ipd_recv;      /*!< Status indicating `+IPD` has been received during `AT+CIPRECVLEN` command.
-                                                        When this happens, we need to repeat same command */
-            uint8_t is_last_check; /*!< Status indicating check for data length is at the end of command.
-                                                        Do nothing after successful command */
-            uint8_t read;   /*!< Set to 1 when in data read mode */
-            size_t tot_len;  /*!< Total length expected for this read operation */
+                                                        When this happens, we will repeat the length reading again */
+            uint8_t is_last_check; /*!< When set to `1`, reading has been completed already
+                                    and CIPRECVLEN is read again for new status */
+            uint8_t read;          /*!< Set to 1 when in raw data read mode */
+            size_t tot_len; /*!< Total length expected for this read operation (actual data len received from device) */
             size_t buff_ptr; /*!< Buffer pointer to save data to (next character) */
-        } conn_recv;               /*!< Structure to manually read TCP data */
+        } conn_recv;         /*!< Structure to manually read TCP data */
 
         /* TCP/IP based commands */
         struct {
