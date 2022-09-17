@@ -409,8 +409,8 @@ typedef struct lwesp_msg {
 
         struct {
             lwesp_conn_t* conn;    /*!< Connection handle */
-            size_t len;            /*!< Number of bytes to read from device */
             lwesp_pbuf_p buff;     /*!< Buffer handle to write received data to */
+            size_t len;            /*!< Number of bytes to read from device */
             uint8_t ipd_recv;      /*!< Status indicating `+IPD` has been received during `AT+CIPRECVLEN` command.
                                                         When this happens, we will repeat the length reading again */
             uint8_t is_last_check; /*!< When set to `1`, reading has been completed already
