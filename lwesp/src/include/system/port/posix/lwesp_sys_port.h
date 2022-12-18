@@ -32,8 +32,8 @@
  * Author:          imi415 <imi415.public@gmail.com>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_SYSTEM_PORT_H
-#define LWESP_HDR_SYSTEM_PORT_H
+#ifndef LWESP_SYSTEM_PORT_HDR_H
+#define LWESP_SYSTEM_PORT_HDR_H
 
 #include <pthread.h>
 #include <semaphore.h>
@@ -64,4 +64,4 @@ typedef int lwesp_sys_thread_prio_t;
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_SYSTEM_PORT_H */
+#endif /* LWESP_SYSTEM_PORT_HDR_H */

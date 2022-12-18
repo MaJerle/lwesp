@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_MAIN_SYS_H
-#define LWESP_HDR_MAIN_SYS_H
+#ifndef LWESP_MAIN_SYS_HDR_H
+#define LWESP_MAIN_SYS_HDR_H
 
 #include <stdint.h>
 #include "lwesp/lwesp_opt.h"
@@ -409,4 +409,4 @@ uint8_t lwesp_sys_thread_yield(void);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_MAIN_SYS_H */
+#endif /* LWESP_MAIN_SYS_HDR_H */

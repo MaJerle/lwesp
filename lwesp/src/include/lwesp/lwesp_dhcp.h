@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_DHCP_H
-#define LWESP_HDR_DHCP_H
+#ifndef LWESP_DHCP_HDR_H
+#define LWESP_DHCP_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -58,4 +58,4 @@ lwespr_t lwesp_dhcp_set_config(uint8_t sta, uint8_t ap, uint8_t en, const lwesp_
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_DHCP_H */
+#endif /* LWESP_DHCP_HDR_H */

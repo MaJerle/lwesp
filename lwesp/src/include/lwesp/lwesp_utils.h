@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_UTILS_H
-#define LWESP_HDR_UTILS_H
+#ifndef LWESP_UTILS_HDR_H
+#define LWESP_UTILS_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -251,4 +251,4 @@ char* lwesp_i32_to_gen_str(int32_t num, char* out);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_UTILITIES_H */
+#endif /* LWESP_UTILITIES_HDR_H */

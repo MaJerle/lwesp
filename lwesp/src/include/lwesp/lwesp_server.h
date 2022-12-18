@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_SERVER_H
-#define LWESP_HDR_SERVER_H
+#ifndef LWESP_SERVER_HDR_H
+#define LWESP_SERVER_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -58,4 +58,4 @@ lwespr_t lwesp_set_server(uint8_t en, lwesp_port_t port, uint16_t max_conn, uint
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_SERVER_H */
+#endif /* LWESP_SERVER_HDR_H */

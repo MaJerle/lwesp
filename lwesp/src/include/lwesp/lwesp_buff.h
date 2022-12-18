@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_BUFF_H
-#define LWESP_HDR_BUFF_H
+#ifndef LWESP_BUFF_HDR_H
+#define LWESP_BUFF_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -92,4 +92,4 @@ size_t BUF_PREF(buff_advance)(BUF_PREF(buff_t) * buff, size_t len);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_BUFF_H */
+#endif /* LWESP_BUFF_HDR_H */

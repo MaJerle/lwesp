@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_PARSER_H
-#define LWESP_HDR_PARSER_H
+#ifndef LWESP_PARSER_HDR_H
+#define LWESP_PARSER_HDR_H
 
 #include "lwesp/lwesp_types.h"
 #include "lwesp/lwesp_private.h"
@@ -75,4 +75,4 @@ uint8_t lwespi_parse_webserver(const char* str);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_PARSER_H */
+#endif /* LWESP_PARSER_HDR_H */

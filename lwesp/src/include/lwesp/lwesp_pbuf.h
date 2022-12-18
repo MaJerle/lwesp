@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_PBUF_H
-#define LWESP_HDR_PBUF_H
+#ifndef LWESP_PBUF_HDR_H
+#define LWESP_PBUF_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -83,4 +83,4 @@ void lwesp_pbuf_dump(lwesp_pbuf_p p, uint8_t seq);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_PBUF_H */
+#endif /* LWESP_PBUF_HDR_H */

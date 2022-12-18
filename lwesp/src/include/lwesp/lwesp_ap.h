@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_AP_H
-#define LWESP_HDR_AP_H
+#ifndef LWESP_AP_HDR_H
+#define LWESP_AP_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -79,4 +79,4 @@ lwespr_t lwesp_ap_disconn_sta(const lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_AP_H */
+#endif /* LWESP_AP_HDR_H */

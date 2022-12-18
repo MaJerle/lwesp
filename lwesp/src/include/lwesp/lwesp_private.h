@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_PRIV_H
-#define LWESP_HDR_PRIV_H
+#ifndef LWESP_PRIV_HDR_H
+#define LWESP_PRIV_HDR_H
 
 #include "lwesp/lwesp_opt.h"
 #include "lwesp/lwesp_types.h"
@@ -732,4 +732,4 @@ lwesp_cmd_t lwespi_get_cipstatus_or_cipstate_cmd(void);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_PRIV_H */
+#endif /* LWESP_PRIV_HDR_H */

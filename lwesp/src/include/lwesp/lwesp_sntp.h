@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_SNTP_H
-#define LWESP_HDR_SNTP_H
+#ifndef LWESP_SNTP_HDR_H
+#define LWESP_SNTP_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -62,4 +62,4 @@ lwespr_t lwesp_sntp_gettime(lwesp_datetime_t* dt, const lwesp_api_cmd_evt_fn evt
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_SNTP_H */
+#endif /* LWESP_SNTP_HDR_H */

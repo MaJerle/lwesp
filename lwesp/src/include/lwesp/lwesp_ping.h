@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_PING_H
-#define LWESP_HDR_PING_H
+#ifndef LWESP_PING_HDR_H
+#define LWESP_PING_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -58,4 +58,4 @@ lwespr_t lwesp_ping(const char* host, uint32_t* time, const lwesp_api_cmd_evt_fn
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_PING_H */
+#endif /* LWESP_PING_HDR_H */

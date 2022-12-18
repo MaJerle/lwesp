@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_INPUT_H
-#define LWESP_HDR_INPUT_H
+#ifndef LWESP_INPUT_HDR_H
+#define LWESP_INPUT_HDR_H
 
 #include <string.h>
 #include "lwesp/lwesp_types.h"
@@ -59,4 +59,4 @@ lwespr_t lwesp_input_process(const void* data, size_t len);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_INPUT_H */
+#endif /* LWESP_INPUT_HDR_H */

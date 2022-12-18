@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_NETCONN_H
-#define LWESP_HDR_NETCONN_H
+#ifndef LWESP_NETCONN_HDR_H
+#define LWESP_NETCONN_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -110,4 +110,4 @@ lwespr_t lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_po
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_NETCONN_H */
+#endif /* LWESP_NETCONN_HDR_H */

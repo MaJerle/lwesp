@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_HTTP_SERVER_H
-#define LWESP_HDR_HTTP_SERVER_H
+#ifndef LWESP_HTTP_SERVER_HDR_H
+#define LWESP_HTTP_SERVER_HDR_H
 
 #include "lwesp/apps/lwesp_apps.h"
 #include "lwesp/lwesp.h"
@@ -396,4 +396,4 @@ size_t lwesp_http_server_write(http_state_t* hs, const void* data, size_t len);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_HTTP_SERVER_H */
+#endif /* LWESP_HTTP_SERVER_HDR_H */

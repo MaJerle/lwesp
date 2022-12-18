@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_MDNS_H
-#define LWESP_HDR_MDNS_H
+#ifndef LWESP_MDNS_HDR_H
+#define LWESP_MDNS_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -58,4 +58,4 @@ lwespr_t lwesp_mdns_set_config(uint8_t en, const char* host, const char* server,
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_MDNS_H */
+#endif /* LWESP_MDNS_HDR_H */

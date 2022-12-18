@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_DEBUG_H
-#define LWESP_HDR_DEBUG_H
+#ifndef LWESP_DEBUG_HDR_H
+#define LWESP_DEBUG_HDR_H
 
 #include <stdint.h>
 #include <string.h>
@@ -96,4 +96,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_DEBUG_H */
+#endif /* LWESP_DEBUG_HDR_H */

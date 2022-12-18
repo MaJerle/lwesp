@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_APP_MQTT_CLIENT_API_H
-#define LWESP_HDR_APP_MQTT_CLIENT_API_H
+#ifndef LWESP_APP_MQTT_CLIENT_API_HDR_H
+#define LWESP_APP_MQTT_CLIENT_API_HDR_H
 
 #include "lwesp/apps/lwesp_mqtt_client.h"
 #include "lwesp/lwesp.h"
@@ -96,4 +96,4 @@ void lwesp_mqtt_client_api_buf_free(lwesp_mqtt_client_api_buf_p p);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_APP_MQTT_CLIENT_H */
+#endif /* LWESP_APP_MQTT_CLIENT_HDR_H */

@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_EVT_H
-#define LWESP_HDR_EVT_H
+#ifndef LWESP_EVT_HDR_H
+#define LWESP_EVT_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -344,4 +344,4 @@ uint8_t lwesp_evt_server_is_enable(lwesp_evt_t* cc);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_EVT_H */
+#endif /* LWESP_EVT_HDR_H */

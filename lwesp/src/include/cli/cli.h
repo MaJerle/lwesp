@@ -29,8 +29,8 @@
  * Author:          Miha CESNIK <>
  * Version:         v1.1.2-dev
  */
-#ifndef CLI_HDR_CLI_H
-#define CLI_HDR_CLI_H
+#ifndef CLI_HDR_H
+#define CLI_HDR_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -92,4 +92,4 @@ void cli_init(void);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_CLI_H */
+#endif /* CLI_HDR_H */

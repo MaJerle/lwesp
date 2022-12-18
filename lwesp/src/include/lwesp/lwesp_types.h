@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_DEFS_H
-#define LWESP_HDR_DEFS_H
+#ifndef LWESP_DEFS_HDR_H
+#define LWESP_DEFS_HDR_H
 
 #include <stdint.h>
 #include <stdio.h>
@@ -708,4 +708,4 @@ typedef struct {
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_DEFS_H */
+#endif /* LWESP_DEFS_HDR_H */

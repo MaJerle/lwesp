@@ -32,8 +32,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_SMART_H
-#define LWESP_HDR_SMART_H
+#ifndef LWESP_SMART_HDR_H
+#define LWESP_SMART_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -59,4 +59,4 @@ lwespr_t lwesp_smart_set_config(uint8_t en, const lwesp_api_cmd_evt_fn evt_fn, v
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_SMART_H */
+#endif /* LWESP_SMART_HDR_H */

@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_STA_H
-#define LWESP_HDR_STA_H
+#ifndef LWESP_STA_HDR_H
+#define LWESP_STA_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -89,4 +89,4 @@ uint8_t lwesp_sta_has_ipv6_global(void);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_STA_H */
+#endif /* LWESP_STA_HDR_H */

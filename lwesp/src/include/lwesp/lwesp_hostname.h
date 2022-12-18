@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_HOSTNAME_H
-#define LWESP_HDR_HOSTNAME_H
+#ifndef LWESP_HOSTNAME_HDR_H
+#define LWESP_HOSTNAME_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -60,4 +60,4 @@ lwespr_t lwesp_hostname_get(char* hostname, size_t size, const lwesp_api_cmd_evt
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_HOSTNAME_H */
+#endif /* LWESP_HOSTNAME_HDR_H */

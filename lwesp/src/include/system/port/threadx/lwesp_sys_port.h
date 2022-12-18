@@ -32,8 +32,8 @@
  * Author:          Neo Xiong <xiongyu0523@gmail.com>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_SYSTEM_PORT_H
-#define LWESP_HDR_SYSTEM_PORT_H
+#ifndef LWESP_SYSTEM_PORT_HDR_H
+#define LWESP_SYSTEM_PORT_HDR_H
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -64,4 +64,4 @@ void lwesp_sys_preinit_threadx_set_bytepool_handle(TX_BYTE_POOL* bp);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_SYSTEM_PORT_H */
+#endif /* LWESP_SYSTEM_PORT_HDR_H */

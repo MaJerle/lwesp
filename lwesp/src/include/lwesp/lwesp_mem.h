@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_MEM_H
-#define LWESP_HDR_MEM_H
+#ifndef LWESP_MEM_HDR_H
+#define LWESP_MEM_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -75,4 +75,4 @@ uint8_t lwesp_mem_free_s(void** ptr);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_MEM_H */
+#endif /* LWESP_MEM_HDR_H */

@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_THREADS_H
-#define LWESP_HDR_THREADS_H
+#ifndef LWESP_THREADS_HDR_H
+#define LWESP_THREADS_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -47,4 +47,4 @@ void lwesp_thread_process(void* const arg);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_THREADS_H */
+#endif /* LWESP_THREADS_HDR_H */

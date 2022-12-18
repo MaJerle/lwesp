@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_DEFAULT_CONFIG_H
-#define LWESP_HDR_DEFAULT_CONFIG_H
+#ifndef LWESP_DEFAULT_CONFIG_HDR_H
+#define LWESP_DEFAULT_CONFIG_HDR_H
 
 /* Uncomment to ignore user options (or set macro in compiler flags) */
 /* #define LWESP_IGNORE_USER_OPTS */
@@ -908,4 +908,4 @@ void *  my_memset(void* dst, int b, size_t len);
 
 #include "lwesp/lwesp_debug.h"
 
-#endif /* LWESP_HDR_DEFAULT_CONFIG_H */
+#endif /* LWESP_DEFAULT_CONFIG_HDR_H */

@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_UNICODE_H
-#define LWESP_HDR_UNICODE_H
+#ifndef LWESP_UNICODE_HDR_H
+#define LWESP_UNICODE_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -57,4 +57,4 @@ lwespr_t lwespi_unicode_decode(lwesp_unicode_t* uni, uint8_t ch);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_UNICODE_H */
+#endif /* LWESP_UNICODE_HDR_H */

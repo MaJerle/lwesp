@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_HTTP_SERVER_FS_H
-#define LWESP_HDR_HTTP_SERVER_FS_H
+#ifndef LWESP_HTTP_SERVER_FS_HDR_H
+#define LWESP_HTTP_SERVER_FS_HDR_H
 
 #include "lwesp/apps/lwesp_http_server.h"
 #include "lwesp/lwesp.h"
@@ -60,4 +60,4 @@ uint8_t http_fs_close(http_fs_file_t* file);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_HTTP_SERVER_H */
+#endif /* LWESP_HTTP_SERVER_HDR_H */

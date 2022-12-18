@@ -32,8 +32,8 @@
  * Author:          Neo Xiong <xiongyu0523@gmail.com>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_WEBSERVER_H
-#define LWESP_HDR_WEBSERVER_H
+#ifndef LWESP_WEBSERVER_HDR_H
+#define LWESP_WEBSERVER_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -59,4 +59,4 @@ lwespr_t lwesp_set_webserver(uint8_t en, lwesp_port_t port, uint16_t timeout, co
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_WEBSERVER_H */
+#endif /* LWESP_WEBSERVER_HDR_H */

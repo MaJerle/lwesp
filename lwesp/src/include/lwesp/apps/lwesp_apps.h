@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_APPS_H
-#define LWESP_HDR_APPS_H
+#ifndef LWESP_APPS_HDR_H
+#define LWESP_APPS_HDR_H
 
 #include "lwesp/lwesp_types.h"
 #include "lwesp/lwesp.h"
@@ -55,4 +55,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_HTTP_SERVER_H */
+#endif /* LWESP_HTTP_SERVER_HDR_H */

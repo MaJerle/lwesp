@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_APP_CAYENNE_H
-#define LWESP_HDR_APP_CAYENNE_H
+#ifndef LWESP_APP_CAYENNE_HDR_H
+#define LWESP_APP_CAYENNE_HDR_H
 
 #include "lwesp/apps/lwesp_mqtt_client.h"
 #include "lwesp/lwesp.h"
@@ -267,4 +267,4 @@ lwespr_t lwesp_cayenne_publish_response(lwesp_cayenne_t* c, lwesp_cayenne_msg_t*
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_APP_CAYENNE_H */
+#endif /* LWESP_APP_CAYENNE_HDR_H */

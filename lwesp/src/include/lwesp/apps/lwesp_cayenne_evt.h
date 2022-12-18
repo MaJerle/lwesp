@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_APP_CAYENNE_EVT_H
-#define LWESP_HDR_APP_CAYENNE_EVT_H
+#ifndef LWESP_APP_CAYENNE_EVT_HDR_H
+#define LWESP_APP_CAYENNE_EVT_HDR_H
 
 #include "lwesp/apps/lwesp_cayenne.h"
 #include "lwesp/lwesp_types.h"
@@ -72,4 +72,4 @@ lwesp_cayenne_msg_t* lwesp_cayenne_evt_data_get_msg(lwesp_cayenne_evt_t* evt);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_APP_CAYENNE_EVT_H */
+#endif /* LWESP_APP_CAYENNE_EVT_HDR_H */

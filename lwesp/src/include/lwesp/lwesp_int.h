@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_INT_H
-#define LWESP_HDR_INT_H
+#ifndef LWESP_INT_HDR_H
+#define LWESP_INT_HDR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,4 +42,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_INT_H */
+#endif /* LWESP_INT_HDR_H */

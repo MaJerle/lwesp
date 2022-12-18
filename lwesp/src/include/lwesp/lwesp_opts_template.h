@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_OPTS_H
-#define LWESP_HDR_OPTS_H
+#ifndef LWESP_OPTS_HDR_H
+#define LWESP_OPTS_HDR_H
 
 /* Rename this file to "lwesp_opts.h" for your application */
 
@@ -41,4 +41,4 @@
  * copy & replace here settings you want to change values
  */
 
-#endif /* LWESP_HDR_OPTS_H */
+#endif /* LWESP_OPTS_HDR_H */

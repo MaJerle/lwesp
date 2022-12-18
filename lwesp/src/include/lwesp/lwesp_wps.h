@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_WPS_H
-#define LWESP_HDR_WPS_H
+#ifndef LWESP_WPS_HDR_H
+#define LWESP_WPS_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -58,4 +58,4 @@ lwespr_t lwesp_wps_set_config(uint8_t en, const lwesp_api_cmd_evt_fn evt_fn, voi
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_WPS_H */
+#endif /* LWESP_WPS_HDR_H */

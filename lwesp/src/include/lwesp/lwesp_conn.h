@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_CONN_H
-#define LWESP_HDR_CONN_H
+#ifndef LWESP_CONN_HDR_H
+#define LWESP_CONN_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -84,4 +84,4 @@ lwespr_t lwesp_conn_ssl_set_config(uint8_t link_id, uint8_t auth_mode, uint8_t p
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_CONN_H */
+#endif /* LWESP_CONN_HDR_H */

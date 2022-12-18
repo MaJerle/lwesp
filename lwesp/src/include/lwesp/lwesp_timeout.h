@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_TIMEOUT_H
-#define LWESP_HDR_TIMEOUT_H
+#ifndef LWESP_TIMEOUT_HDR_H
+#define LWESP_TIMEOUT_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -58,4 +58,4 @@ lwespr_t lwesp_timeout_remove(lwesp_timeout_fn fn);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_TIMEOUT_H */
+#endif /* LWESP_TIMEOUT_HDR_H */

@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_INCLUDES_H
-#define LWESP_HDR_INCLUDES_H
+#ifndef LWESP_INCLUDES_HDR_H
+#define LWESP_INCLUDES_HDR_H
 
 #include "lwesp/lwesp_opt.h"
 #include "lwesp/lwesp_types.h"
@@ -85,4 +85,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_INCLUDES_H */
+#endif /* LWESP_INCLUDES_HDR_H */

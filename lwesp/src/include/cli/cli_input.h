@@ -29,8 +29,8 @@
  * Author:          Miha CESNIK <>
  * Version:         v1.1.2-dev
  */
-#ifndef CLI_HDR_CLI_INPUT_H
-#define CLI_HDR_CLI_INPUT_H
+#ifndef LWESP_CLI_INPUT_HDR_H
+#define LWESP_CLI_INPUT_HDR_H
 
 #include "cli/cli.h"
 
@@ -57,4 +57,4 @@ void cli_in_data(cli_printf cliprintf, char ch);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_CLI_INPUT_H */
+#endif /* LWESP_CLI_INPUT_HDR_H */

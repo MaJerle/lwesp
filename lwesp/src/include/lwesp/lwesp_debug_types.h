@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_DEBUG_TYPES_H
-#define LWESP_HDR_DEBUG_TYPES_H
+#ifndef LWESP_DEBUG_TYPES_HDR_H
+#define LWESP_DEBUG_TYPES_HDR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,4 +86,4 @@ extern "C" {
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_DEBUG_TYPES_H */
+#endif /* LWESP_DEBUG_TYPES_HDR_H */

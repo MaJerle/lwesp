@@ -29,8 +29,8 @@
  * Author:          Miha CESNIK <>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_CLI_H
-#define LWESP_HDR_CLI_H
+#ifndef LWESP_CLI_HDR_H
+#define LWESP_CLI_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -55,4 +55,4 @@ void lwesp_cli_register_commands(void);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_CLI_H */
+#endif /* LWESP_CLI_HDR_H */

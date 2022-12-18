@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#ifndef LWESP_HDR_LL_H
-#define LWESP_HDR_LL_H
+#ifndef LWESP_LL_HDR_H
+#define LWESP_LL_HDR_H
 
 #include "lwesp/lwesp_types.h"
 
@@ -75,4 +75,4 @@ lwespr_t lwesp_ll_deinit(lwesp_ll_t* ll);
 }
 #endif /* __cplusplus */
 
-#endif /* LWESP_HDR_LL_H */
+#endif /* LWESP_LL_HDR_H */
