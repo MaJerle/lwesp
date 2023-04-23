@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Debug message
-message("Entering ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
-
 # Library core sources
 set(lwesp_core_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_dhcp.c
@@ -83,6 +80,3 @@ target_include_directories(lwesp_api INTERFACE ${lwesp_include_DIRS})
 add_library(lwesp_apps INTERFACE)
 target_sources(lwesp_apps PUBLIC ${lwesp_allapps_SRCS})
 target_include_directories(lwesp_apps INTERFACE ${lwesp_include_DIRS})
-
-# Debug message
-message("Exiting ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")

@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
 
-# Debug message
-message("Entering ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
-
 
 # Setup generic source files
 set(lwesp_snippets_SRCS
@@ -31,6 +28,3 @@ set(lwesp_snippets_include_DIRS
 add_library(lwesp_snippets INTERFACE)
 target_sources(lwesp_snippets PUBLIC ${lwesp_snippets_SRCS})
 target_include_directories(lwesp_snippets INTERFACE ${lwesp_snippets_include_DIRS})
-
-# Debug message
-message("Exiting ${CMAKE_CURRENT_LIST_DIR}/CMakeLists.txt")
