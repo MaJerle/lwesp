@@ -34,8 +34,8 @@
 #ifndef LWESP_PARSER_HDR_H
 #define LWESP_PARSER_HDR_H
 
-#include "lwesp/lwesp_types.h"
 #include "lwesp/lwesp_private.h"
+#include "lwesp/lwesp_types.h"
 
 #ifdef __cplusplus
 extern "C" {

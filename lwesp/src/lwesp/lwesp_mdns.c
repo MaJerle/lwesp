@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_mdns.h"
+#include "lwesp/lwesp_private.h"
 
 #if LWESP_CFG_MDNS || __DOXYGEN__
 

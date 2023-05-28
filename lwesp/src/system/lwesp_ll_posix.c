@@ -89,24 +89,12 @@ configure_uart(uint32_t baudrate) {
     /* Only common baud rates are added. */
     int tio_baudrate;
     switch (baudrate) {
-        case 9600:
-            tio_baudrate = B9600;
-            break;
-        case 38400:
-            tio_baudrate = B38400;
-            break;
-        case 57600:
-            tio_baudrate = B57600;
-            break;
-        case 115200:
-            tio_baudrate = B115200;
-            break;
-        case 921600:
-            tio_baudrate = B921600;
-            break;
-        default:
-            tio_baudrate = B115200;
-            break;
+        case 9600: tio_baudrate = B9600; break;
+        case 38400: tio_baudrate = B38400; break;
+        case 57600: tio_baudrate = B57600; break;
+        case 115200: tio_baudrate = B115200; break;
+        case 921600: tio_baudrate = B921600; break;
+        default: tio_baudrate = B115200; break;
     }
 
     cfsetispeed(&tio, tio_baudrate);

@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_conn.h"
+#include "lwesp/lwesp_private.h"
 
 /**
  * \brief           Check if connection is closed or in closing state
@@ -612,18 +612,12 @@ lwesp_conn_set_ssl_buffersize(size_t size, const uint32_t blocking) {
 lwesp_conn_p
 lwesp_conn_get_from_evt(lwesp_evt_t* evt) {
     switch (evt->type) {
-        case LWESP_EVT_CONN_ACTIVE:
-            return lwesp_evt_conn_active_get_conn(evt);
-        case LWESP_EVT_CONN_CLOSE:
-            return lwesp_evt_conn_close_get_conn(evt);
-        case LWESP_EVT_CONN_RECV:
-            return lwesp_evt_conn_recv_get_conn(evt);
-        case LWESP_EVT_CONN_SEND:
-            return lwesp_evt_conn_send_get_conn(evt);
-        case LWESP_EVT_CONN_POLL:
-            return lwesp_evt_conn_poll_get_conn(evt);
-        default:
-            return NULL;
+        case LWESP_EVT_CONN_ACTIVE: return lwesp_evt_conn_active_get_conn(evt);
+        case LWESP_EVT_CONN_CLOSE: return lwesp_evt_conn_close_get_conn(evt);
+        case LWESP_EVT_CONN_RECV: return lwesp_evt_conn_recv_get_conn(evt);
+        case LWESP_EVT_CONN_SEND: return lwesp_evt_conn_send_get_conn(evt);
+        case LWESP_EVT_CONN_POLL: return lwesp_evt_conn_poll_get_conn(evt);
+        default: return NULL;
     }
 }
 

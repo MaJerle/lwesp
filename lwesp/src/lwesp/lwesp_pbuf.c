@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_pbuf.h"
+#include "lwesp/lwesp_private.h"
 
 /* Set size of pbuf structure */
 #define SIZEOF_PBUF_STRUCT LWESP_MEM_ALIGN(sizeof(lwesp_pbuf_t))

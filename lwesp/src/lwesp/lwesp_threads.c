@@ -32,8 +32,8 @@
  * Version:         v1.1.2-dev
  */
 #include "lwesp/lwesp_threads.h"
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_int.h"
+#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_timeout.h"
 #include "system/lwesp_sys.h"
 

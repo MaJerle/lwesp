@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_hostname.h"
+#include "lwesp/lwesp_private.h"
 
 #if LWESP_CFG_HOSTNAME || __DOXYGEN__
 

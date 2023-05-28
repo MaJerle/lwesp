@@ -244,8 +244,7 @@ netconn_evt(lwesp_evt_t* evt) {
 
             break;
         }
-        default:
-            return lwespERR;
+        default: return lwespERR;
     }
     return lwespOK;
 }
@@ -269,8 +268,7 @@ lwesp_evt(lwesp_evt_t* evt) {
                 lwesp_sys_mbox_putnow(&listen_api->mbox_accept, &recv_not_present);
             }
         }
-        default:
-            break;
+        default: break;
     }
     return lwespOK;
 }

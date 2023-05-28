@@ -292,11 +292,8 @@ prv_write_fixed_header(lwesp_mqtt_client_p client, mqtt_msg_type_t type, uint8_t
             break;
         case MQTT_MSG_TYPE_PUBREL:
         case MQTT_MSG_TYPE_SUBSCRIBE:
-        case MQTT_MSG_TYPE_UNSUBSCRIBE:
-            b |= LWESP_U8(LWESP_MQTT_QOS_AT_LEAST_ONCE) << 0x01;
-            break;
-        default:
-            break;
+        case MQTT_MSG_TYPE_UNSUBSCRIBE: b |= LWESP_U8(LWESP_MQTT_QOS_AT_LEAST_ONCE) << 0x01; break;
+        default: break;
     }
     lwesp_buff_write(&client->tx_buff, &b, 1); /* Write start of packet parameters */
 
@@ -659,8 +656,7 @@ prv_mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
             }
             break;
         }
-        default:
-            return 0;
+        default: return 0;
     }
     return 1;
 }
@@ -765,8 +761,7 @@ prv_mqtt_parse_incoming(lwesp_mqtt_client_p client, lwesp_pbuf_p pbuf) {
                     }
                     break;
                 }
-                default:
-                    client->parser_state = MQTT_PARSER_STATE_INIT;
+                default: client->parser_state = MQTT_PARSER_STATE_INIT;
             }
         }
     } while (buff_len > 0);
@@ -1080,8 +1075,7 @@ prv_mqtt_conn_cb(lwesp_evt_t* evt) {
                                lwesp_evt_conn_close_is_forced(evt));
             break;
         }
-        default:
-            break;
+        default: break;
     }
     return lwespOK;
 }

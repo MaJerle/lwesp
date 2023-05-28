@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_timeout.h"
+#include "lwesp/lwesp_private.h"
 
 static lwesp_timeout_t* first_timeout;
 static uint32_t last_timeout_time;

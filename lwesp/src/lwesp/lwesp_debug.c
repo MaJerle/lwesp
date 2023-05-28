@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_debug.h"
+#include "lwesp/lwesp_private.h"
 
 #if LWESP_CFG_DBG || __DOXYGEN__
 

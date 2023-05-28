@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_parser.h"
+#include "lwesp/lwesp_private.h"
 
 /* Increase pointer if matches character value */
 #define INC_IF_CHAR_EQUAL(p, ch)                                                                                       \
@@ -303,7 +303,7 @@ lwespi_parse_ipd(const char* str) {
 
     c = conn < LWESP_CFG_MAX_CONNS ? &esp.m.conns[conn] : NULL; /* Get connection handle */
     if (c != NULL) {                                            /* Invalid connection number */
-        c->tcp_available_bytes += len;  /* Set new value for number of bytes available to read from device */
+        c->tcp_available_bytes += len; /* Set new value for number of bytes available to read from device */
     }
     return c;
 }

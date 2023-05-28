@@ -31,8 +31,8 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_evt.h"
+#include "lwesp/lwesp_private.h"
 
 /**
  * \brief           Register event function for global (non-connection based) events

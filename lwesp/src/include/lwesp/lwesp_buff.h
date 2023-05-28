@@ -56,7 +56,7 @@ extern "C" {
  *
  * \note            Modification of this macro must be done in header and source file aswell
  */
-#define BUF_PREF(x) lwesp_ ## x
+#define BUF_PREF(x) lwesp_##x
 /* --- Buffer unique part ends --- */
 
 uint8_t BUF_PREF(buff_init)(BUF_PREF(buff_t) * buff, size_t size);

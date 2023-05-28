@@ -237,9 +237,7 @@ cli_in_data(cli_printf cliprintf, char ch) {
                 }
                 break;
             /* Tab for autocomplete */
-            case '\t':
-                cli_tab_auto_complete(cliprintf, cmd_buffer, &cmd_pos, (last_ch == '\t'));
-                break;
+            case '\t': cli_tab_auto_complete(cliprintf, cmd_buffer, &cmd_pos, (last_ch == '\t')); break;
             /* New line -> new command */
             case '\n':
             case '\r':

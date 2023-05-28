@@ -31,9 +31,9 @@
  * Author:          Tilen MAJERLE <tilen@majerle.eu>
  * Version:         v1.1.2-dev
  */
-#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_int.h"
 #include "lwesp/lwesp_parser.h"
+#include "lwesp/lwesp_private.h"
 #include "lwesp/lwesp_unicode.h"
 #include "system/lwesp_ll.h"
 
@@ -1488,13 +1488,9 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
     lwesp_cmd_t n_cmd = LWESP_CMD_IDLE;
     switch (CMD_GET_CUR()) {
         case LWESP_CMD_RESET:
-        case LWESP_CMD_RESTORE:
-            SET_NEW_CMD(LWESP_CFG_AT_ECHO ? LWESP_CMD_ATE1 : LWESP_CMD_ATE0);
-            break;
+        case LWESP_CMD_RESTORE: SET_NEW_CMD(LWESP_CFG_AT_ECHO ? LWESP_CMD_ATE1 : LWESP_CMD_ATE0); break;
         case LWESP_CMD_ATE0:
-        case LWESP_CMD_ATE1:
-            SET_NEW_CMD(LWESP_CMD_GMR);
-            break;
+        case LWESP_CMD_ATE1: SET_NEW_CMD(LWESP_CMD_GMR); break;
         case LWESP_CMD_GMR:
 #if LWESP_CFG_LIST_CMD
             SET_NEW_CMD(LWESP_CMD_CMD);
@@ -1503,21 +1499,11 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
 #endif /* LWESP_CFG_LIST_CMD */
             SET_NEW_CMD(LWESP_CMD_SYSMSG);
             break;
-        case LWESP_CMD_SYSMSG:
-            SET_NEW_CMD(LWESP_CMD_SYSLOG);
-            break;
-        case LWESP_CMD_SYSLOG:
-            SET_NEW_CMD(LWESP_CMD_WIFI_CWMODE);
-            break;
-        case LWESP_CMD_WIFI_CWMODE:
-            SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET);
-            break;
-        case LWESP_CMD_WIFI_CWDHCP_GET:
-            SET_NEW_CMD(LWESP_CMD_TCPIP_CIPMUX);
-            break;
-        case LWESP_CMD_TCPIP_CIPMUX:
-            SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVMODE);
-            break;
+        case LWESP_CMD_SYSMSG: SET_NEW_CMD(LWESP_CMD_SYSLOG); break;
+        case LWESP_CMD_SYSLOG: SET_NEW_CMD(LWESP_CMD_WIFI_CWMODE); break;
+        case LWESP_CMD_WIFI_CWMODE: SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET); break;
+        case LWESP_CMD_WIFI_CWDHCP_GET: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPMUX); break;
+        case LWESP_CMD_TCPIP_CIPMUX: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVMODE); break;
         case LWESP_CMD_TCPIP_CIPRECVMODE:
 #if LWESP_CFG_IPV6
             SET_NEW_CMD(LWESP_CMD_WIFI_IPV6);
@@ -1527,26 +1513,19 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
 #if LWESP_CFG_MODE_STATION
             SET_NEW_CMD(LWESP_CMD_WIFI_CWLAPOPT);
             break; /* Set visible data for CWLAP command */
-        case LWESP_CMD_WIFI_CWLAPOPT:
-            SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATUS);
-            break; /* Get connection status */
-        case LWESP_CMD_TCPIP_CIPSTATUS:
-            SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATE);
-            break; /* Get connection status */
+        case LWESP_CMD_WIFI_CWLAPOPT: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATUS); break;  /* Get connection status */
+        case LWESP_CMD_TCPIP_CIPSTATUS: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATE); break; /* Get connection status */
         case LWESP_CMD_TCPIP_CIPSTATE:
 #endif /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
             SET_NEW_CMD(LWESP_CMD_WIFI_CIPAP_GET);
-            break; /* Get access point IP */
-        case LWESP_CMD_WIFI_CIPAP_GET:
-            SET_NEW_CMD(LWESP_CMD_WIFI_CIPAPMAC_GET);
-            break; /* Get access point MAC */
+            break;                                                                      /* Get access point IP */
+        case LWESP_CMD_WIFI_CIPAP_GET: SET_NEW_CMD(LWESP_CMD_WIFI_CIPAPMAC_GET); break; /* Get access point MAC */
         case LWESP_CMD_WIFI_CIPAPMAC_GET:
 #endif /* LWESP_CFG_MODE_STATION */
             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPDINFO);
             break; /* Set visible data on +IPD */
-        default:
-            break;
+        default: break;
     }
     LWESP_UNUSED(msg);
     LWESP_UNUSED(is_error);
@@ -2478,8 +2457,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
 #endif /* LWESP_CFG_ESP32 */
 
-        default:
-            return lwespERR; /* Invalid command */
+        default: return lwespERR; /* Invalid command */
     }
     return lwespOK; /* Valid command */
 }
@@ -2641,7 +2619,6 @@ lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err) {
         }
 #endif /* LWESP_CFG_SNTP */
 
-        default:
-            break;
+        default: break;
     }
 }

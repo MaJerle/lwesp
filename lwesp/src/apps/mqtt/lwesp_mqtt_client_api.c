@@ -186,8 +186,7 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             prv_release_sem(api_client); /* Release semaphore */
             break;
         }
-        default:
-            break;
+        default: break;
     }
 }
 

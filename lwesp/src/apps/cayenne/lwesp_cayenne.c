@@ -244,8 +244,7 @@ lwesp_cayenne_parse_payload(lwesp_cayenne_t* c, const char* payload, size_t payl
             LWESP_DEBUGF(LWESP_CFG_DBG_CAYENNE_TRACE, "[LWESP CAYENNE] Topic is analog\r\n");
             /* Here parse type,value */
         }
-        default:
-            break;
+        default: break;
     }
     return lwespOK;
 }
@@ -565,8 +564,7 @@ prv_mqtt_client_evt_cb(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
             prv_try_send_data(c); /* Try to send data */
             break;
         }
-        default:
-            break;
+        default: break;
     }
 }
 
@@ -585,8 +583,7 @@ prv_global_evt_cb(lwesp_evt_t* evt) {
             }
             break;
         }
-        default:
-            break;
+        default: break;
     }
     return lwespOK;
 }

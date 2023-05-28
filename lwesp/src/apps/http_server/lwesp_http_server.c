@@ -687,8 +687,7 @@ send_response_ssi(http_state_t* hs) {
                     }
                     break;
                 }
-                default:
-                    break;
+                default: break;
             }
 
             if (reset) {
@@ -1109,8 +1108,7 @@ http_evt(lwesp_evt_t* evt) {
             }
             break;
         }
-        default:
-            break;
+        default: break;
     }
 
     if (close) {                   /* Do we have to close a connection? */
