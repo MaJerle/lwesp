@@ -31,7 +31,16 @@
         "lwesp_mqtt_client.h": "c",
         "lwesp_mqtt_client_evt.h": "c",
         "lwesp_parser.h": "c",
-        "lwesp_debug_types.h": "c"
+        "lwesp_debug_types.h": "c",
+        "lwesp_conn.h": "c",
+        "lwesp_flash.h": "c",
+        "lwesp_mem.h": "c",
+        "http_server.h": "c",
+        "cayenne.h": "c",
+        "examples_common_lwesp_callback_func.h": "c",
+        "*.hex": "c",
+        "lwesp_netconn.h": "c",
+        "netconn_client.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

@@ -77,6 +77,10 @@ typedef enum {
     LWESP_CMD_SYSADC,
     LWESP_CMD_SYSMSG,
     LWESP_CMD_SYSLOG,
+    LWESP_CMD_SYSFLASH_WRITE, /*!< Write flash operation */
+    LWESP_CMD_SYSFLASH_READ,  /*!< Read flash operation */
+    LWESP_CMD_SYSFLASH_ERASE, /*!< Erase flash operation */
+    LWESP_CMD_SYSFLASH_GET,   /*!< Get flash partitions */
 
     /* WiFi based commands */
     LWESP_CMD_WIFI_CWMODE,         /*!< Set wifi mode */
@@ -384,6 +388,9 @@ typedef struct lwesp_msg {
             void* arg;                   /*!< Connection custom argument */
             lwesp_evt_fn evt_func;       /*!< Callback function to use on connection */
             uint8_t success;             /*!< Status if connection AT+CIPSTART succedded */
+            uint8_t ssl_auth;            /*!< SSL authentication mode */
+            uint8_t ssl_pki_num;         /*!< SSL PKI number */
+            uint8_t ssl_ca_num;          /*!< SSL CA number */
         } conn_start;                    /*!< Structure for starting new connection */
 
         struct {
@@ -501,7 +508,22 @@ typedef struct lwesp_msg {
                 pki_number; /*!< The index of cert and private key, if only one cert and private key, the value should be 0. */
             uint8_t ca_number; /*!< The index of CA, if only one CA, the value should be 0. */
         } tcpip_ssl_cfg;       /*!< SSl configuration for connection */
-    } msg;                     /*!< Group of different message contents */
+
+#if LWESP_CFG_FLASH
+        struct {
+            lwesp_flash_partition_t partition; /*!< Partition to perform on */
+            uint32_t offset;                   /*!< Offset from start of partition */
+            uint32_t length;                   /*!< Length of data */
+        } flash_erase;                         /*!< Flash erase */
+
+        struct {
+            lwesp_flash_partition_t partition; /*!< Partition to perform on */
+            uint32_t offset;                   /*!< Offset from start of partition */
+            uint32_t length;                   /*!< Length of data */
+            const void* data;                  /*!< Data pointer to write */
+        } flash_write;                         /*!< Flash write */
+#endif
+    } msg;                                     /*!< Group of different message contents */
 } lwesp_msg_t;
 
 /**

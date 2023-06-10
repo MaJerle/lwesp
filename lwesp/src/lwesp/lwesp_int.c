@@ -115,6 +115,14 @@ typedef struct {
     } while (0)
 #endif /* !__DOXYGEN__ */
 
+#if LWESP_CFG_FLASH
+/* Flash partitions */
+static const char* flash_partitions[] = {
+#define LWESP_FLASH_PARTITION(key, at_string) at_string,
+#include "lwesp/lwesp_flash_partitions.h"
+};
+#endif
+
 static lwesp_recv_t recv_buff;
 static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat);
 
@@ -1085,6 +1093,10 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                     esp.m.conns[i].status.f.active = !!(esp.m.active_conns & (1 << i));
                 }
             }
+#if LWESP_CFG_FLASH
+        } else if (CMD_IS_CUR(LWESP_CMD_SYSFLASH_WRITE)) {
+
+#endif /* LWESP_CFG_FLASH */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
             /* Do nothing, it is either OK or not OK */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSEND)) {
@@ -1420,6 +1432,15 @@ lwespi_process(const void* data, size_t data_len) {
                             /* Now we are waiting for "SEND OK" or "SEND ERROR" */
                             esp.msg->msg.conn_send.wait_send_ok_err = 1;
                         }
+#if LWESP_CFG_FLASH
+                    } else if (CMD_IS_CUR(LWESP_CMD_SYSFLASH_WRITE)) {
+                        if (ch == '>' && ch_prev1 == '\n') {
+                            RECV_RESET(); /* Reset received object */
+
+                            /* Now actually send the data prepared for TX before */
+                            AT_PORT_SEND_WITH_FLUSH(esp.msg->msg.flash_write.data, esp.msg->msg.flash_write.length);
+                        }
+#endif /* LWESP_CFG_FLASH */
                     }
 
                     /*
@@ -1506,7 +1527,14 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
 #endif /* LWESP_CFG_LIST_CMD */
             SET_NEW_CMD(LWESP_CMD_SYSMSG);
             break;
-        case LWESP_CMD_SYSMSG: SET_NEW_CMD(LWESP_CMD_SYSLOG); break;
+        case LWESP_CMD_SYSMSG:
+#if LWESP_CFG_FLASH
+            SET_NEW_CMD(LWESP_CMD_SYSFLASH_GET);
+            break;
+        case LWESP_CMD_SYSFLASH_GET:
+#endif /* LWESP_CFG_FLASH */
+            SET_NEW_CMD(LWESP_CMD_SYSLOG);
+            break;
         case LWESP_CMD_SYSLOG: SET_NEW_CMD(LWESP_CMD_WIFI_CWMODE); break;
         case LWESP_CMD_WIFI_CWMODE: SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET); break;
         case LWESP_CMD_WIFI_CWDHCP_GET: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPMUX); break;
@@ -1839,6 +1867,50 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
+#if LWESP_CFG_FLASH
+        case LWESP_CMD_SYSFLASH_GET: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SYSFLASH?");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_SYSFLASH_ERASE: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SYSFLASH=0"); /* Erase operation */
+            /* TODO: Move this to an array of strings for partitions */
+            if (msg->msg.flash_erase.partition < LWESP_FLASH_PARTITION_END) {
+                lwespi_send_string(flash_partitions[(size_t)msg->msg.flash_erase.partition], 0, 1, 1);
+            } else {
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
+                             "[SYS FLASH] Unsupported partition!\r\n");
+                return lwespERR; /* Hard error! */
+            }
+            if (msg->msg.flash_erase.offset > 0 || msg->msg.flash_erase.length > 0) {
+                lwespi_send_number(LWESP_U32(msg->msg.flash_erase.offset), 0, 1);
+                if (msg->msg.flash_erase.length > 0) {
+                    lwespi_send_number(LWESP_U32(msg->msg.flash_erase.length), 0, 1);
+                }
+            }
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_SYSFLASH_WRITE: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SYSFLASH=1"); /* Erase operation */
+            /* TODO: Move this to an array of strings for partitions */
+            if (msg->msg.flash_erase.partition < LWESP_FLASH_PARTITION_END) {
+                lwespi_send_string(flash_partitions[(size_t)msg->msg.flash_erase.partition], 0, 1, 1);
+            } else {
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
+                             "[SYS FLASH] Unsupported partition!\r\n");
+                return lwespERR; /* Hard error! */
+            }
+            lwespi_send_number(LWESP_U32(msg->msg.flash_write.offset), 0, 1);
+            lwespi_send_number(LWESP_U32(msg->msg.flash_write.length), 0, 1);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+#endif
 #if LWESP_CFG_LIST_CMD
         case LWESP_CMD_CMD: { /* Get CMD list */
             AT_PORT_SEND_BEGIN_AT();

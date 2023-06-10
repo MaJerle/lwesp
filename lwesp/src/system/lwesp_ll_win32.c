@@ -85,7 +85,7 @@ configure_uart(uint32_t baudrate) {
      * List of COM ports to probe for ESP devices
      * This may be different on your computer
      */
-    static const char* com_port_names[] = {"\\\\.\\COM17", "\\\\.\\COM4", "\\\\.\\COM8", "\\\\.\\COM9", "\\\\.\\COM10"};
+    static const char* com_port_names[] = {"\\\\.\\COM4", "\\\\.\\COM8", "\\\\.\\COM9", "\\\\.\\COM10", "\\\\.\\COM17"};
 
     /* Try to open one of listed COM ports */
     if (!initialized) {
@@ -157,7 +157,7 @@ uart_thread(void* param) {
 
     LWESP_UNUSED(param);
 
-    lwesp_sys_sem_create(&sem, 0); /* Create semaphore for delay functions */
+    lwesp_sys_sem_create(&sem, 0);   /* Create semaphore for delay functions */
     while (com_port == NULL) {
         lwesp_sys_sem_wait(&sem, 1); /* Add some delay with yield */
     }
@@ -236,7 +236,7 @@ lwesp_ll_init(lwesp_ll_t* ll) {
         lwesp_mem_assignmemory(mem_regions,
                                LWESP_ARRAYSIZE(mem_regions)); /* Assign memory for allocations to ESP library */
     }
-#endif /* !LWESP_CFG_MEM_CUSTOM */
+#endif                                                        /* !LWESP_CFG_MEM_CUSTOM */
 
     /* Step 2: Set AT port send function to use when we have data to transmit */
     if (!initialized) {

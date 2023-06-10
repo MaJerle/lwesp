@@ -10,6 +10,7 @@ set(lwesp_core_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_ap.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_buff.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_flash.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_conn.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_debug.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_evt.c

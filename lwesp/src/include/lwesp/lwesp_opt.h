@@ -775,6 +775,14 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` support for system flash with AT commands
+ *
+ */
+#ifndef LWESP_CFG_FLASH
+#define LWESP_CFG_FLASH 0
+#endif
+
+/**
  * \brief           Enables `1` or disables `0` support for ping functions
  *
  */

@@ -6,6 +6,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 void netconn_client_thread(void const* arg);
+void netconn_client_ssl_thread(void const* arg);
 
 #ifdef __cplusplus
 }

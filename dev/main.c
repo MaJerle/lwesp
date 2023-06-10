@@ -2,27 +2,27 @@
 //
 
 #include <string.h>
-#include "windows.h"
-#include "lwesp/lwesp.h"
-#include "lwesp/apps/lwesp_mqtt_client_api.h"
-#include "lwesp/apps/lwesp_cayenne.h"
 #include "examples_common_lwesp_callback_func.h"
+#include "lwesp/apps/lwesp_cayenne.h"
+#include "lwesp/apps/lwesp_mqtt_client_api.h"
+#include "lwesp/lwesp.h"
+#include "windows.h"
 
+#include "cayenne.h"
+#include "http_server.h"
+#include "lwesp/apps/lwesp_cayenne.h"
+#include "lwesp/lwesp_opt.h"
+#include "lwesp/lwesp_timeout.h"
+#include "lwmem/lwmem.h"
 #include "mqtt_client.h"
 #include "mqtt_client_api.h"
-#include "http_server.h"
-#include "station_manager.h"
 #include "netconn_client.h"
 #include "netconn_server.h"
 #include "netconn_server_1thread.h"
+#include "station_manager.h"
 #include "utils.h"
-#include "cayenne.h"
-#include "lwesp/lwesp_timeout.h"
-#include "lwmem/lwmem.h"
-#include "lwesp/lwesp_opt.h"
-#include "lwesp/apps/lwesp_cayenne.h"
 
-#define safeprintf              printf
+#define safeprintf printf
 
 static void main_thread(void* arg);
 static void input_thread(void* arg);
@@ -50,46 +50,45 @@ lwmem_region_t lwmem_regions[] = {
  * \brief           Command structure
  */
 typedef struct {
-    uint8_t del;                                /*!< Delimiter */
-    const char* cmd;                            /*!< Command text */
-    const char* help_params;                    /*!< Help parameters */
-    const char* help_text;                      /*!< Help long text */
+    uint8_t del;             /*!< Delimiter */
+    const char* cmd;         /*!< Command text */
+    const char* help_params; /*!< Help parameters */
+    const char* help_text;   /*!< Help long text */
 } cmd_t;
 
 /**
  * \brief           List of test commands
  */
-static const cmd_t
-cmd_commands[] = {
-    { 0, "help", "", "Print help for commands" },
-    { 0, "join", "<ssid> [<pwd> [<mac>]]", "Join to access point" },
-    { 0, "reconn_set", "<interval> <repeat>", "Set reconnect config" },
-    { 0, "quit", "", "Quit from access point" },
-    { 1, "IP management", NULL, NULL},
-    { 0, "stagetip", "", "Get station IP address" },
-    { 0, "stasetip", "<ip>", "Set station IP address" },
-    { 0, "apgetip", "", "Get Soft Access point IP address" },
-    { 0, "apsetip", "<ip>", "Set Soft Access point IP address" },
-    { 0, "setdhcp", "<enable>", "Enable or disable DHCP" },
-    { 1, "MAC management", NULL, NULL },
-    { 0, "stagetmac", "", "Get station MAC address" },
-    { 0, "stasetmac", "<mac>", "Set station MAC address" },
-    { 0, "apgetmac", "", "Get Soft Access point MAC address" },
-    { 0, "apsetmac", "<mac>", "Set Soft Access point MAC address" },
-    { 1, "Access point", NULL, NULL },
-    { 0, "apconfig", "<enable> [<ssid> <pass> <enc> <ch>]", "Configure Soft Access point" },
-    { 0, "apliststa", "", "List stations connected to access point" },
-    { 0, "apquitsta", "<mac>", "Disconnect station for Soft access point" },
-    { 1, "Hostname", NULL, NULL },
-    { 0, "hnset", "<hostname>", "Set station hostname" },
-    { 0, "hnget", "", "Get station hostname" },
-    { 1, "Misc", NULL, NULL },
-    { 0, "ping", "<host>", "Ping domain or IP address"},
-    { 1, "Separate threads", NULL, NULL },
-    { 0, "netconn_client", "", "Start netconn client thread"},
-    { 0, "netconn_server", "", "Start netconn server thread"},
-    { 0, "mqtt_client_api", "", "Start mqtt client API thread"},
-    { 0, "ciupdate", "", "Run ciupdate command"},
+static const cmd_t cmd_commands[] = {
+    {0, "help", "", "Print help for commands"},
+    {0, "join", "<ssid> [<pwd> [<mac>]]", "Join to access point"},
+    {0, "reconn_set", "<interval> <repeat>", "Set reconnect config"},
+    {0, "quit", "", "Quit from access point"},
+    {1, "IP management", NULL, NULL},
+    {0, "stagetip", "", "Get station IP address"},
+    {0, "stasetip", "<ip>", "Set station IP address"},
+    {0, "apgetip", "", "Get Soft Access point IP address"},
+    {0, "apsetip", "<ip>", "Set Soft Access point IP address"},
+    {0, "setdhcp", "<enable>", "Enable or disable DHCP"},
+    {1, "MAC management", NULL, NULL},
+    {0, "stagetmac", "", "Get station MAC address"},
+    {0, "stasetmac", "<mac>", "Set station MAC address"},
+    {0, "apgetmac", "", "Get Soft Access point MAC address"},
+    {0, "apsetmac", "<mac>", "Set Soft Access point MAC address"},
+    {1, "Access point", NULL, NULL},
+    {0, "apconfig", "<enable> [<ssid> <pass> <enc> <ch>]", "Configure Soft Access point"},
+    {0, "apliststa", "", "List stations connected to access point"},
+    {0, "apquitsta", "<mac>", "Disconnect station for Soft access point"},
+    {1, "Hostname", NULL, NULL},
+    {0, "hnset", "<hostname>", "Set station hostname"},
+    {0, "hnget", "", "Get station hostname"},
+    {1, "Misc", NULL, NULL},
+    {0, "ping", "<host>", "Ping domain or IP address"},
+    {1, "Separate threads", NULL, NULL},
+    {0, "netconn_client", "", "Start netconn client thread"},
+    {0, "netconn_server", "", "Start netconn server thread"},
+    {0, "mqtt_client_api", "", "Start mqtt client API thread"},
+    {0, "ciupdate", "", "Run ciupdate command"},
 };
 
 /**
@@ -135,10 +134,10 @@ parse_str(char** str, char** out) {
         } else if (*s == '\0') {
             return 0;
         }
-        *out = s;                               /* Set where we point */
+        *out = s; /* Set where we point */
         for (; s != NULL && *s >= ' ' && *s != (is_quote ? '"' : ' '); ++s) {}
         *s = '\0';
-        *str = s + 1;                           /* Set new value for str */
+        *str = s + 1; /* Set new value for str */
         return 1;
     } else {
         *out = NULL;
@@ -173,9 +172,9 @@ parse_num_u64(char** str, uint64_t* out) {
             } else if (*s <= '7') {
                 r = 8;
             } else if (*s <= ' ') {
-                return 1;                       /* Single zero */
+                return 1; /* Single zero */
             } else {
-                return 0;                       /* Wrong format */
+                return 0; /* Wrong format */
             }
         } else {
             r = 10;
@@ -231,7 +230,7 @@ input_thread(void* arg) {
     char* str;
     const cmd_t* cmd;
 
-#define IS_LINE(s)      (strncmp(buff, (s), sizeof(s) - 1) == 0)
+#define IS_LINE(s) (strncmp(buff, (s), sizeof(s) - 1) == 0)
 
     LWESP_UNUSED(arg);
 
@@ -264,7 +263,7 @@ input_thread(void* arg) {
 
         /* Process each command */
         if (IS_LINE("join")) {
-            char* ssid, *pass;
+            char *ssid, *pass;
 
             parse_str(&str, &ssid);
             parse_str(&str, &pass);
@@ -334,13 +333,16 @@ input_thread(void* arg) {
         } else if (IS_LINE("netconn_client")) {
             lwesp_sys_sem_t sem;
             lwesp_sys_sem_create(&sem, 0);
-            lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, &sem, 0, LWESP_SYS_THREAD_PRIO);
+            lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, &sem, 0,
+                                    LWESP_SYS_THREAD_PRIO);
             lwesp_sys_sem_wait(&sem, 0);
             lwesp_sys_sem_delete(&sem);
         } else if (IS_LINE("netconn_server")) {
-            lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+            lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0,
+                                    LWESP_SYS_THREAD_PRIO);
         } else if (IS_LINE("mqttthread")) {
-            lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+            lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0,
+                                    LWESP_SYS_THREAD_PRIO);
         } else if (IS_LINE("ignoreon")) {
             safeprintf("Ignoring data...\r\n");
             lwesp_ll_win32_driver_ignore_data = 1;
@@ -385,7 +387,7 @@ main_thread(void* arg) {
     } else {
         safeprintf("Unknown device...\r\n");
     }
-    
+
     /* Start thread to toggle device present */
     //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
@@ -408,23 +410,26 @@ main_thread(void* arg) {
     /* Different types of snippets to execute */
 
     /* HTTP server application example */
-    //http_server_start();
-    
+
     /* Netconn client in separate thread */
-    lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    
+    //lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+    /* Netconn client in separate thread */
+    lwesp_sys_thread_create(NULL, "netconn_client_ssl", (lwesp_sys_thread_fn)netconn_client_ssl_thread, NULL, 0,
+                            LWESP_SYS_THREAD_PRIO);
+
     /* Netconn server with multiple threads */
     //lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    
+
     /* Netconn server with single thread */
     //lwesp_sys_thread_create(NULL, "netconn_server_single", (lwesp_sys_thread_fn)netconn_server_1thread_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    
+
     /* MQTT client with asynchronous events */
     //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    
+
     /* MQTT client with API sequential mode, test application */
     //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-    
+
     /* MQTT API client with connectivity to Cayenne */
     //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
@@ -459,7 +464,7 @@ main_thread(void* arg) {
 #endif
 
     /* While loop with delay to prevent main thread termination in development environment */
-    while (1) { 
+    while (1) {
         lwesp_delay(1000);
     }
 }
@@ -500,7 +505,8 @@ lwesp_evt(lwesp_evt_t* evt) {
             lwesp_get_current_at_fw_version(&v_curr);
 
             safeprintf("Current ESP[8266/32[-C3]] AT version is not supported by library\r\n");
-            safeprintf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
+            safeprintf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor,
+                       (int)v_min.patch);
             safeprintf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
             break;
         }
@@ -524,11 +530,8 @@ lwesp_evt(lwesp_evt_t* evt) {
             break;
         }
         case LWESP_EVT_STA_INFO_AP: {
-            safeprintf("SSID: %s, ch: %d, rssi: %d\r\n",
-                lwesp_evt_sta_info_ap_get_ssid(evt),
-                (int)lwesp_evt_sta_info_ap_get_channel(evt),
-                (int)lwesp_evt_sta_info_ap_get_rssi(evt)
-            );
+            safeprintf("SSID: %s, ch: %d, rssi: %d\r\n", lwesp_evt_sta_info_ap_get_ssid(evt),
+                       (int)lwesp_evt_sta_info_ap_get_channel(evt), (int)lwesp_evt_sta_info_ap_get_rssi(evt));
             break;
         }
         case LWESP_EVT_WIFI_IP_ACQUIRED: {

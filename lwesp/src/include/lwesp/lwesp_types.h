@@ -318,6 +318,27 @@ typedef struct {
 } lwesp_datetime_t;
 
 /**
+ * \brief           List of possible flash operations
+ * 
+ * Values assigned to each enum are aligned with AT+SYSFLASH command
+ */
+typedef enum {
+    LWESP_FLASH_OP_ERASE = 0x00, /*!< Erases sector */
+    LWESP_FLASH_OP_WRITE = 0x01, /*!< Writes to sector */
+    LWESP_FLASH_OP_READ = 0x02,  /*!< Reads from sector */
+} lwesp_flash_operation_t;
+
+/**
+ * \brief           List of system flash partitions
+ */
+typedef enum {
+
+#define LWESP_FLASH_PARTITION(key, at_string) LWESP_FLASH_PARTITION_##key,
+#include "lwesp/lwesp_flash_partitions.h"
+    LWESP_FLASH_PARTITION_END,
+} lwesp_flash_partition_t;
+
+/**
  * \ingroup         LWESP_TYPES
  * \brief           List of possible WiFi modes
  */
@@ -684,8 +705,13 @@ typedef struct {
     union {
         struct {
             uint16_t keep_alive; /*!< Keep alive parameter for TCP/SSL connection in units of seconds.
-                                                    Value can be between `0 - 7200` where `0` means no keep alive */
-        } tcp_ssl;               /*!< TCP/SSL specific features */
+                                        Value can be between `0 - 7200` where `0` means no keep alive */
+#if 0
+            uint8_t auth_mode;   /*!< SSL authentication mode */
+            uint8_t pki_number;  /*!< SSL PKI number */
+            uint8_t ca_number;   /*!< SSL CA number */
+#endif
+        } tcp_ssl; /*!< TCP/SSL specific features */
 
         struct {
             lwesp_port_t local_port; /*!< Custom local port for UDP */

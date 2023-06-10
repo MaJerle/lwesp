@@ -13,6 +13,7 @@ set(lwesp_snippets_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/mqtt_client_api.c
     ${CMAKE_CURRENT_LIST_DIR}/mqtt_client_api_cayenne.c
     ${CMAKE_CURRENT_LIST_DIR}/netconn_client.c
+    ${CMAKE_CURRENT_LIST_DIR}/netconn_client_ssl.c
     ${CMAKE_CURRENT_LIST_DIR}/netconn_server.c
     ${CMAKE_CURRENT_LIST_DIR}/netconn_server_1thread.c
     ${CMAKE_CURRENT_LIST_DIR}/sntp.c

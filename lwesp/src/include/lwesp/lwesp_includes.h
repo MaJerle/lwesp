@@ -41,6 +41,7 @@
 #include "lwesp/lwesp_conn.h"
 #include "lwesp/lwesp_debug.h"
 #include "lwesp/lwesp_evt.h"
+#include "lwesp/lwesp_flash.h"
 #include "lwesp/lwesp_input.h"
 #include "lwesp/lwesp_mem.h"
 #include "lwesp/lwesp_pbuf.h"

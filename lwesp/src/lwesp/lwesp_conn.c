@@ -273,7 +273,9 @@ lwespi_conn_init(void) {}
 /**
  * \brief           Start a new connection of specific type
  * \param[out]      conn: Pointer to connection handle to set new connection reference in case of successfully connected
- * \param[in]       type: Connection type. This parameter can be a value of \ref lwesp_conn_type_t enumeration
+ * \param[in]       type: Connection type. This parameter can be a value of \ref lwesp_conn_type_t enumeration.
+ *                      Do not use this method to start SSL connection.
+ *                      Use \ref lwesp_conn_startex instead
  * \param[in]       remote_host: Connection host. In case of IP, write it as string, ex. "192.168.1.1"
  * \param[in]       remote_port: Connection port
  * \param[in]       arg: Pointer to user argument passed to connection if successfully connected
@@ -332,6 +334,13 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct, void* c
     LWESP_MSG_VAR_REF(msg).msg.conn_start.local_ip = start_struct->local_ip;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
+#if 0
+    if (start_struct->type == LWESP_CONN_TYPE_SSL || start_struct->type == LWESP_CONN_TYPE_SSLV6) {
+        LWESP_MSG_VAR_REF(msg).msg.conn_start.ssl_auth = start_struct->ext.tcp_ssl.auth_mode;
+        LWESP_MSG_VAR_REF(msg).msg.conn_start.ssl_ca_num = start_struct->ext.tcp_ssl.ca_number;
+        LWESP_MSG_VAR_REF(msg).msg.conn_start.ssl_pki_num = start_struct->ext.tcp_ssl.pki_number;
+    }
+#endif
 
     /* Add connection type specific features */
     if (!CONN_IS_UDP_V4_OR_V6(start_struct->type)) {
