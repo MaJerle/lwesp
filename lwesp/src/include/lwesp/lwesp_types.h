@@ -70,7 +70,7 @@ typedef enum {
     lwespCLOSED,       /*!< Connection just closed */
     lwespINPROG,       /*!< Operation is in progress */
 
-    lwespERRNOIP,             /*!< Station does not have IP address */
+    lwespERRNOIP,      /*!< Station does not have IP address */
     lwespERRNOFREECONN,       /*!< There is no free connection available to start */
     lwespERRCONNTIMEOUT,      /*!< Timeout received when connection to access point */
     lwespERRPASS,             /*!< Invalid password for access point */
@@ -163,7 +163,7 @@ typedef struct {
 #endif                        /* LWESP_CFG_IPV6  || __DOXYGEN__ */
     } addr;                   /*!< Actual IP address */
 
-    lwesp_iptype_t type; /*!< IP type, either V4 or V6 */
+    lwesp_iptype_t type;      /*!< IP type, either V4 or V6 */
 } lwesp_ip_t;
 
 /**
@@ -323,11 +323,11 @@ typedef struct {
  */
 typedef enum {
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
-    LWESP_MODE_STA = 1, /*!< Set WiFi mode to station only */
-#endif                  /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
+    LWESP_MODE_STA = 1,    /*!< Set WiFi mode to station only */
+#endif                     /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-    LWESP_MODE_AP = 2, /*!< Set WiFi mode to access point only */
-#endif                 /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+    LWESP_MODE_AP = 2,     /*!< Set WiFi mode to access point only */
+#endif                     /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 #if LWESP_CFG_MODE_STATION_ACCESS_POINT || __DOXYGEN__
     LWESP_MODE_STA_AP = 3, /*!< Set WiFi mode to station and access point */
 #endif                     /* (LWESP_CFG_MODE_STATION_ACCESS_POINT) || __DOXYGEN__ */
@@ -355,9 +355,9 @@ typedef enum {
  * \brief           List of possible connection types
  */
 typedef enum {
-    LWESP_CONN_TYPE_TCP, /*!< Connection type is TCP */
-    LWESP_CONN_TYPE_UDP, /*!< Connection type is UDP */
-    LWESP_CONN_TYPE_SSL, /*!< Connection type is SSL */
+    LWESP_CONN_TYPE_TCP,   /*!< Connection type is TCP */
+    LWESP_CONN_TYPE_UDP,   /*!< Connection type is UDP */
+    LWESP_CONN_TYPE_SSL,   /*!< Connection type is SSL */
 #if LWESP_CFG_IPV6 || __DOXYGEN__
     LWESP_CONN_TYPE_TCPV6, /*!< Connection type is TCP over IPv6 */
     LWESP_CONN_TYPE_UDPV6, /*!< Connection type is UDP over IPv6 */
@@ -395,37 +395,37 @@ typedef lwespr_t (*lwesp_evt_fn)(struct lwesp_evt* evt);
  * \brief           List of possible callback types received to user
  */
 typedef enum lwesp_evt_type_t {
-    LWESP_EVT_INIT_FINISH, /*!< Initialization has been finished at this point */
+    LWESP_EVT_INIT_FINISH,              /*!< Initialization has been finished at this point */
 
-    LWESP_EVT_RESET_DETECTED, /*!< Device reset detected */
-    LWESP_EVT_RESET,          /*!< Device reset operation finished */
-    LWESP_EVT_RESTORE,        /*!< Device restore operation finished */
+    LWESP_EVT_RESET_DETECTED,           /*!< Device reset detected */
+    LWESP_EVT_RESET,                    /*!< Device reset operation finished */
+    LWESP_EVT_RESTORE,                  /*!< Device restore operation finished */
 
-    LWESP_EVT_CMD_TIMEOUT, /*!< Timeout on command.
+    LWESP_EVT_CMD_TIMEOUT,              /*!< Timeout on command.
                                                         When application receives this event,
                                                         it may reset system as there was (maybe) a problem in device */
 
-    LWESP_EVT_DEVICE_PRESENT, /*!< Notification when device present status changes */
+    LWESP_EVT_DEVICE_PRESENT,           /*!< Notification when device present status changes */
 
     LWESP_EVT_AT_VERSION_NOT_SUPPORTED, /*!< Library does not support firmware version on ESP device. */
 
-    LWESP_EVT_CONN_RECV,   /*!< Connection data received */
-    LWESP_EVT_CONN_SEND,   /*!< Connection data send */
-    LWESP_EVT_CONN_ACTIVE, /*!< Connection just became active */
-    LWESP_EVT_CONN_ERROR,  /*!< Client connection start was not successful */
-    LWESP_EVT_CONN_CLOSE,  /*!< Connection close event. Check status if successful */
-    LWESP_EVT_CONN_POLL,   /*!< Poll for connection if there are any changes */
+    LWESP_EVT_CONN_RECV,                /*!< Connection data received */
+    LWESP_EVT_CONN_SEND,                /*!< Connection data send */
+    LWESP_EVT_CONN_ACTIVE,              /*!< Connection just became active */
+    LWESP_EVT_CONN_ERROR,               /*!< Client connection start was not successful */
+    LWESP_EVT_CONN_CLOSE,               /*!< Connection close event. Check status if successful */
+    LWESP_EVT_CONN_POLL,                /*!< Poll for connection if there are any changes */
 
-    LWESP_EVT_SERVER, /*!< Server status changed */
+    LWESP_EVT_SERVER,                   /*!< Server status changed */
 
-    LWESP_EVT_KEEP_ALIVE, /*!< Generic keep-alive event type, used as periodic timeout.
+    LWESP_EVT_KEEP_ALIVE,               /*!< Generic keep-alive event type, used as periodic timeout.
                                                     Optionally enabled with \ref LWESP_CFG_KEEP_ALIVE */
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
-    LWESP_EVT_WIFI_CONNECTED,    /*!< Station just connected to access point.
+    LWESP_EVT_WIFI_CONNECTED,      /*!< Station just connected to access point.
                                                     When received, station may not have yet valid IP hence new connections
                                                     cannot be started in this mode */
-    LWESP_EVT_WIFI_GOT_IP,       /*!< Station has valid IP.
+    LWESP_EVT_WIFI_GOT_IP,         /*!< Station has valid IP.
                                                     When this event is received to application, ESP has got IP from access point,
                                                     but no IP has been read from device and at this moment it is still being unknown to application.
                                                     Stack will proceed with IP read from device and will later send \ref LWESP_EVT_WIFI_IP_ACQUIRED event.
@@ -433,32 +433,32 @@ typedef enum lwesp_evt_type_t {
                                                     Note: When IPv6 is enabled, this event may be called multiple times during single connection to access point,
                                                     as device may report "got IP" several times.
                                                     Application must take care when starting new conection from this event, not to start it multiple times */
-    LWESP_EVT_WIFI_DISCONNECTED, /*!< Station just disconnected from access point */
-    LWESP_EVT_WIFI_IP_ACQUIRED,  /*!< Station IP address acquired.
+    LWESP_EVT_WIFI_DISCONNECTED,   /*!< Station just disconnected from access point */
+    LWESP_EVT_WIFI_IP_ACQUIRED,    /*!< Station IP address acquired.
                                                     At this point, valid IP address has been received from device.
                                                     Application may use \ref lwesp_sta_copy_ip function to read it */
 
-    LWESP_EVT_STA_LIST_AP, /*!< Station listed APs event */
-    LWESP_EVT_STA_JOIN_AP, /*!< Join to access point */
-    LWESP_EVT_STA_INFO_AP, /*!< Station AP info (name, mac, channel, rssi) */
-#endif                     /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
+    LWESP_EVT_STA_LIST_AP,         /*!< Station listed APs event */
+    LWESP_EVT_STA_JOIN_AP,         /*!< Join to access point */
+    LWESP_EVT_STA_INFO_AP,         /*!< Station AP info (name, mac, channel, rssi) */
+#endif                             /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
     LWESP_EVT_AP_CONNECTED_STA,    /*!< New station just connected to ESP's access point */
     LWESP_EVT_AP_DISCONNECTED_STA, /*!< New station just disconnected from ESP's access point */
     LWESP_EVT_AP_IP_STA,           /*!< New station just received IP from ESP's access point */
 #endif                             /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 #if LWESP_CFG_DNS || __DOXYGEN__
-    LWESP_EVT_DNS_HOSTBYNAME, /*!< DNS domain service finished */
-#endif                        /* LWESP_CFG_DNS || __DOXYGEN__ */
+    LWESP_EVT_DNS_HOSTBYNAME,      /*!< DNS domain service finished */
+#endif                             /* LWESP_CFG_DNS || __DOXYGEN__ */
 #if LWESP_CFG_PING || __DOXYGEN__
-    LWESP_EVT_PING, /*!< PING service finished */
-#endif              /* LWESP_CFG_PING || __DOXYGEN__ */
+    LWESP_EVT_PING,                /*!< PING service finished */
+#endif                             /* LWESP_CFG_PING || __DOXYGEN__ */
 #if LWESP_CFG_WEBSERVER || __DOXYGEN__
-    LWESP_EVT_WEBSERVER, /*!< Web server events */
-#endif                   /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
+    LWESP_EVT_WEBSERVER,           /*!< Web server events */
+#endif                             /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
 #if LWESP_CFG_SNTP || __DOXYGEN__
-    LWESP_EVT_SNTP_TIME, /*!< SNTP event with date and time */
-#endif                   /* LWESP_CFG_SNTP || __DOXYGEN__ */
+    LWESP_EVT_SNTP_TIME,           /*!< SNTP event with date and time */
+#endif                             /* LWESP_CFG_SNTP || __DOXYGEN__ */
     LWESP_CFG_END,
 } lwesp_evt_type_t;
 
@@ -588,7 +588,9 @@ typedef struct lwesp_evt {
 /**
  * \ingroup         LWESP_LL
  * \brief           Function prototype for AT output data
- * \param[in]       data: Pointer to data to send. This parameter can be set to `NULL`
+ * \param[in]       data: Pointer to data to send. This parameter can be set to `NULL`,
+ *                      indicating to the low-level that (if used) DMA could be started
+ *                      to transmit data to the device
  * \param[in]       len: Number of bytes to send. This parameter can be set to `0`
  *                      to indicate that internal buffer can be flushed to stream.
  *                      This is implementation defined and feature might be ignored

@@ -30,7 +30,8 @@
         "lwesp_apps.h": "c",
         "lwesp_mqtt_client.h": "c",
         "lwesp_mqtt_client_evt.h": "c",
-        "lwesp_parser.h": "c"
+        "lwesp_parser.h": "c",
+        "lwesp_debug_types.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

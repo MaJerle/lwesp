@@ -341,15 +341,15 @@ void
 lwespi_send_string(const char* str, uint8_t e, uint8_t q, uint8_t c) {
     char special = '\\';
 
-    AT_PORT_SEND_COMMA_COND(c); /* Send comma */
-    AT_PORT_SEND_QUOTE_COND(q); /* Send quote */
+    AT_PORT_SEND_COMMA_COND(c);                                   /* Send comma */
+    AT_PORT_SEND_QUOTE_COND(q);                                   /* Send quote */
     if (str != NULL) {
         if (e) {                                                  /* Do we have to escape string? */
             while (*str) {                                        /* Go through string */
                 if (*str == ',' || *str == '"' || *str == '\\') { /* Check for special character */
                     AT_PORT_SEND_CHR(&special);                   /* Send special character */
                 }
-                AT_PORT_SEND_CHR(str); /* Send character */
+                AT_PORT_SEND_CHR(str);                            /* Send character */
                 ++str;
             }
         } else {
@@ -389,10 +389,10 @@ lwespi_send_port(lwesp_port_t port, uint8_t q, uint8_t c) {
 
     lwesp_u16_to_str(LWESP_PORT2NUM(port), str); /* Convert digit to decimal string */
 
-    AT_PORT_SEND_COMMA_COND(c); /* Send comma */
-    AT_PORT_SEND_QUOTE_COND(q); /* Send quote */
-    AT_PORT_SEND_STR(str);      /* Send string with number */
-    AT_PORT_SEND_QUOTE_COND(q); /* Send quote */
+    AT_PORT_SEND_COMMA_COND(c);                  /* Send comma */
+    AT_PORT_SEND_QUOTE_COND(q);                  /* Send quote */
+    AT_PORT_SEND_STR(str);                       /* Send string with number */
+    AT_PORT_SEND_QUOTE_COND(q);                  /* Send quote */
 }
 
 /**
@@ -589,8 +589,8 @@ lwespi_tcpip_process_data_sent(uint8_t sent) {
             *esp.msg->msg.conn_send.bw += esp.msg->msg.conn_send.sent;
         }
         esp.msg->msg.conn_send.tries = 0;
-    } else {                            /* We were not successful */
-        ++esp.msg->msg.conn_send.tries; /* Increase number of tries */
+    } else {                                 /* We were not successful */
+        ++esp.msg->msg.conn_send.tries;      /* Increase number of tries */
         if (esp.msg->msg.conn_send.tries
             == LWESP_CFG_MAX_SEND_RETRIES) { /* In case we reached max number of retransmissions */
             return 1;                        /* Return 1 and indicate error */
@@ -600,9 +600,9 @@ lwespi_tcpip_process_data_sent(uint8_t sent) {
         if (lwespi_tcpip_process_send_data() != lwespOK) { /* Check if we can continue */
             return 1;                                      /* Finish at this point */
         }
-        return 0; /* We still have data to send */
+        return 0;                                          /* We still have data to send */
     }
-    return 1; /* Everything was sent, we can stop execution */
+    return 1;                                              /* Everything was sent, we can stop execution */
 }
 
 /**
@@ -655,7 +655,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         is_error =
             !strcmp(rcv->data, "ERROR" CRLF) || !strcmp(rcv->data, "FAIL" CRLF); /* Check if received string is error */
         if (!is_error) {
-            is_ready = !strcmp(rcv->data, "ready" CRLF); /* Check if received string is ready */
+            is_ready = !strcmp(rcv->data, "ready" CRLF);                         /* Check if received string is ready */
         }
     }
 
@@ -666,7 +666,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     if (is_ready) {
         if (CMD_IS_CUR(LWESP_CMD_RESET) || CMD_IS_CUR(LWESP_CMD_RESTORE)) { /* Did we force reset? */
             esp.evt.evt.reset_detected.forced = 1;
-        } else { /* Reset due unknown error */
+        } else {                                                            /* Reset due unknown error */
             esp.evt.evt.reset_detected.forced = 0;
             if (esp.msg != NULL) {
                 is_ok = 0;
@@ -761,8 +761,8 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         } else if (!strncmp(rcv->data, "+STA_DISCONNECTED", 17)) {
             lwespi_parse_ap_conn_disconn_sta(&rcv->data[18], 0); /* Parse string and send to user layer */
         } else if (!strncmp(rcv->data, "+DIST_STA_IP", 12)) {
-            lwespi_parse_ap_ip_sta(&rcv->data[13]); /* Parse string and send to user layer */
-#endif                                              /* LWESP_CFG_MODE_ACCESS_POINT */
+            lwespi_parse_ap_ip_sta(&rcv->data[13]);              /* Parse string and send to user layer */
+#endif                                                           /* LWESP_CFG_MODE_ACCESS_POINT */
 #if LWESP_CFG_WEBSERVER
         } else if (!strncmp(rcv->data, "+WEBSERVERRSP", 13)) {
             lwespi_parse_webserver(&rcv->data[14]); /* Parse string and send to user layer */
@@ -790,12 +790,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_GET)) {
                     LWESP_MEMCPY(&esp.m.sta.mac, &mac, 6); /* Copy to current setup */
                 }
-#endif /* LWESP_CFG_MODE_STATION */
+#endif                                                     /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
                 if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_GET)) {
-                    LWESP_MEMCPY(&esp.m.ap.mac, &mac, 6); /* Copy to current setup */
+                    LWESP_MEMCPY(&esp.m.ap.mac, &mac, 6);                            /* Copy to current setup */
                 }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+#endif                                                                               /* LWESP_CFG_MODE_ACCESS_POINT */
                 if (esp.msg->msg.sta_ap_getmac.mac != NULL && CMD_IS_CUR(CMD_GET_DEF())) {
                     LWESP_MEMCPY(esp.msg->msg.sta_ap_getmac.mac, &mac, sizeof(mac)); /* Copy to current setup */
                 }
@@ -816,12 +816,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET)) {
                     im = &esp.m.sta; /* Get IP and MAC structure first */
                 }
-#endif /* LWESP_CFG_MODE_STATION */
+#endif                               /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
                 if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET)) {
                     im = &esp.m.ap; /* Get IP and MAC structure first */
                 }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+#endif                              /* LWESP_CFG_MODE_ACCESS_POINT */
 
                 if (im != NULL) {
                     /* We expect "+CIPSTA:" or "+CIPAP:" ... */
@@ -885,7 +885,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWLAP) && !strncmp(rcv->data, "+CWLAP", 6)) {
                 lwespi_parse_cwlap(rcv->data, esp.msg); /* Parse CWLAP entry */
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP) && !strncmp(rcv->data, "+CWJAP", 6)) {
-                const char* tmp = &rcv->data[7]; /* Go to the number position */
+                const char* tmp = &rcv->data[7];        /* Go to the number position */
                 esp.msg->msg.sta_join.error_num = (uint8_t)lwespi_parse_number(&tmp);
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP_GET) && !strncmp(rcv->data, "+CWJAP", 6)) {
                 lwespi_parse_cwjap(rcv->data, esp.msg); /* Parse CWJAP */
@@ -900,7 +900,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 lwespi_parse_cipdomain(rcv->data, esp.msg); /* Parse CIPDOMAIN entry */
             } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPDNS_GET) && !strncmp(rcv->data, "+CIPDNS", 7)) {
-                const char* tmp = &rcv->data[8]; /* Go to the ip position */
+                const char* tmp = &rcv->data[8];            /* Go to the ip position */
                 lwesp_ip_t ip;
                 uint8_t index = lwespi_parse_number(&tmp);
                 esp.msg->msg.dns_getconf.dnsi = index;
@@ -925,9 +925,9 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 lwespi_parse_hostname(rcv->data, esp.msg); /* Parse HOSTNAME entry */
 #endif                                                     /* LWESP_CFG_HOSTNAME */
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_GET) && !strncmp(rcv->data, "+CWDHCP", 7)) {
-                lwespi_parse_cwdhcp(rcv->data); /* Parse CWDHCP state */
+                lwespi_parse_cwdhcp(rcv->data);            /* Parse CWDHCP state */
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWMODE_GET) && !strncmp(rcv->data, "+CWMODE", 7)) {
-                const char* tmp = &rcv->data[8]; /* Go to the number position */
+                const char* tmp = &rcv->data[8];           /* Go to the number position */
                 *esp.msg->msg.wifi_mode.mode_get = (uint8_t)lwespi_parse_number(&tmp);
             }
         }
@@ -1072,7 +1072,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 || (!strncmp(rcv->data, "+CIPSTATE", 9) && (offset = 10) > 0)) {
                 lwespi_parse_cipstatus_cipstate(rcv->data + offset); /* Parse +CIPSTATUS or +CIPSTATE response */
             } else if (is_ok) {
-                for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) { /* Set current connection statuses */
+                for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {   /* Set current connection statuses */
                     esp.m.conns[i].status.f.active = !!(esp.m.active_conns & (1 << i));
                 }
             }
@@ -1083,7 +1083,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 is_ok = 0; /* Do not reach on OK */
             }
             if (esp.msg->msg.conn_send.wait_send_ok_err) {
-                if (!strncmp("SEND OK", rcv->data, 7)) { /* Data were sent successfully */
+                if (!strncmp("SEND OK", rcv->data, 7)) {       /* Data were sent successfully */
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
                     is_ok = lwespi_tcpip_process_data_sent(1); /* Process as data were sent */
                     if (is_ok && esp.msg->msg.conn_send.conn->status.f.active) {
@@ -1141,7 +1141,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 conn->status.f.active = !esp.m.link_conn.failed; /* Check if connection active */
                 conn->val_id = ++id;                             /* Set new validation ID */
 
-                conn->type = esp.m.link_conn.type; /* Set connection type */
+                conn->type = esp.m.link_conn.type;               /* Set connection type */
                 LWESP_MEMCPY(&conn->remote_ip, &esp.m.link_conn.remote_ip, sizeof(conn->remote_ip));
                 conn->remote_port = esp.m.link_conn.remote_port;
                 conn->local_port = esp.m.link_conn.local_port;
@@ -1156,8 +1156,8 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                     conn->evt_func = esp.msg->msg.conn_start.evt_func; /* Set callback function */
                     conn->arg = esp.msg->msg.conn_start.arg;           /* Set argument for function */
                     esp.msg->msg.conn_start.success = 1;
-                } else {                             /* Server connection start */
-                    conn->evt_func = esp.evt_server; /* Set server default callback */
+                } else {                                               /* Server connection start */
+                    conn->evt_func = esp.evt_server;                   /* Set server default callback */
                     conn->arg = NULL;
                     conn->type =
                         LWESP_CONN_TYPE_TCP; /* Set connection type to TCP. @todo: Wait for ESP team to upgrade AT commands to set other type */
@@ -1183,7 +1183,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         while (tmp > rcv->data && LWESP_CHARISNUM(tmp[-1])) {
             --tmp;
         }
-        num = lwespi_parse_number(&tmp); /* Parse connection number */
+        num = lwespi_parse_number(&tmp);            /* Parse connection number */
         if (num < LWESP_CFG_MAX_CONNS) {
             lwesp_conn_t* conn = &esp.m.conns[num]; /* Parse received data */
             conn->num = num;                        /* Set connection number */
@@ -1194,7 +1194,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 esp.evt.evt.conn_active_close.conn = conn;
                 esp.evt.evt.conn_active_close.client = conn->status.f.client; /* Set if it is client or not */
                 esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(
-                    LWESP_CMD_TCPIP_CIPCLOSE); /* Set if action was forced = current action = close connection */
+                    LWESP_CMD_TCPIP_CIPCLOSE);   /* Set if action was forced = current action = close connection */
                 esp.evt.evt.conn_active_close.res = lwespOK;
                 lwespi_send_conn_cb(conn, NULL); /* Send event */
 
@@ -1237,10 +1237,10 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
      */
     if (is_ok || is_error || is_ready) {
         lwespr_t res = lwespOK;
-        if (esp.msg != NULL) { /* Do we have active message? */
+        if (esp.msg != NULL) {                /* Do we have active message? */
             res = lwespi_process_sub_cmd(esp.msg, &is_ok, &is_error, &is_ready);
-            if (res != lwespCONT) {      /* Shall we continue with next subcommand under this one? */
-                if (is_ok || is_ready) { /* Check ready or ok status */
+            if (res != lwespCONT) {           /* Shall we continue with next subcommand under this one? */
+                if (is_ok || is_ready) {      /* Check ready or ok status */
                     res = esp.msg->res = lwespOK;
                 } else {                      /* Or error status */
                     res = esp.msg->res = res; /* Set the error status */
@@ -1379,7 +1379,7 @@ lwespi_process(const void* data, size_t data_len) {
              */
         } else {
             lwespr_t res = lwespERR;
-            if (LWESP_ISVALIDASCII(ch)) { /* Manually check if valid ASCII character */
+            if (LWESP_ISVALIDASCII(ch)) {                  /* Manually check if valid ASCII character */
                 res = lwespOK;
                 unicode.t = 1;                             /* Manually set total to 1 */
                 unicode.r = 0;                             /* Reset remaining bytes */
@@ -1394,7 +1394,7 @@ lwespi_process(const void* data, size_t data_len) {
                 if (unicode.t == 1) { /* Totally 1 character? */
                     char* tmp_ptr;
 
-                    RECV_ADD(ch); /* Add character to input buffer */
+                    RECV_ADD(ch);                          /* Add character to input buffer */
                     if (ch == '\n') {
                         lwespi_parse_received(&recv_buff); /* Parse received string */
                         RECV_RESET();                      /* Reset received string */
@@ -1516,15 +1516,15 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
         case LWESP_CMD_WIFI_CWLAPOPT: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATUS); break;  /* Get connection status */
         case LWESP_CMD_TCPIP_CIPSTATUS: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTATE); break; /* Get connection status */
         case LWESP_CMD_TCPIP_CIPSTATE:
-#endif /* LWESP_CFG_MODE_STATION */
+#endif                                                                                /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
             SET_NEW_CMD(LWESP_CMD_WIFI_CIPAP_GET);
             break;                                                                      /* Get access point IP */
         case LWESP_CMD_WIFI_CIPAP_GET: SET_NEW_CMD(LWESP_CMD_WIFI_CIPAPMAC_GET); break; /* Get access point MAC */
         case LWESP_CMD_WIFI_CIPAPMAC_GET:
-#endif /* LWESP_CFG_MODE_STATION */
+#endif                                                                                  /* LWESP_CFG_MODE_STATION */
             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPDINFO);
-            break; /* Set visible data on +IPD */
+            break;                                                                      /* Set visible data on +IPD */
         default: break;
     }
     LWESP_UNUSED(msg);
@@ -1565,7 +1565,7 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
             if (*is_ok) {                               /* Did we join successfully? */
                 SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET); /* Check IP address status */
             } else {
-                esp.m.sta.f.is_connected = 0; /* Force disconnected status */
+                esp.m.sta.f.is_connected = 0;           /* Force disconnected status */
                 /*
                  * Parse received error message,
                  * if final result was error, decide what type
@@ -1584,12 +1584,12 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
                 }
             }
         } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_GET)) {
-            SET_NEW_CMD(LWESP_CMD_WIFI_CIPSTA_GET); /* Get IP address */
+            SET_NEW_CMD(LWESP_CMD_WIFI_CIPSTA_GET);     /* Get IP address */
         } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET)) {
             lwespi_send_cb(LWESP_EVT_WIFI_IP_ACQUIRED); /* Notify upper layer */
             SET_NEW_CMD(LWESP_CMD_WIFI_CIPSTAMAC_GET);  /* Go to next command to get MAC address */
         } else {
-            esp.evt.evt.sta_join_ap.res = lwespOK; /* Connected ok */
+            esp.evt.evt.sta_join_ap.res = lwespOK;      /* Connected ok */
         }
 
         /* Check command finish */
@@ -1695,15 +1695,9 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
                         lwesp_pbuf_p p = NULL;
 
                         /* Try to allocate packet buffer */
-                        while (p == NULL) {
+                        do {
                             p = lwesp_pbuf_new(len);
-                            if (p == NULL) {
-                                len /= 2;
-                                if (len < 10) {
-                                    break;
-                                }
-                            }
-                        }
+                        } while (p == NULL && (len = (len >> 1)) >= LWESP_CFG_CONN_MIN_DATA_LEN);
 
                         /* Start reading procedure */
                         if (p != NULL) {
@@ -1712,6 +1706,8 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
                             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVDATA);
                         } else {
                             set_error = 1;
+                            LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, *is_error,
+                                         "[LWESP CONN] Failed to allocate pbuf for data receive\r\n");
                         }
                     } else {
                         /* No error if buffer empty */
@@ -1806,8 +1802,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE;
                 lwesp_ll_init(&esp.ll); /* Set new baudrate */
 
-                lwesp_delay(10);    /* Wait some time */
-                esp.ll.reset_fn(0); /* Release reset */
+                lwesp_delay(10);        /* Wait some time */
+                esp.ll.reset_fn(0);     /* Release reset */
             } else {
                 AT_PORT_SEND_BEGIN_AT();
                 AT_PORT_SEND_CONST_STR("+RST");
@@ -1887,7 +1883,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_IPV6 */
+#endif                               /* LWESP_CFG_IPV6 */
 #if LWESP_CFG_MODE_STATION
         case LWESP_CMD_WIFI_CWJAP: { /* Try to join to access point */
             AT_PORT_SEND_BEGIN_AT();
@@ -1949,12 +1945,12 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
 
             if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWMODE)) { /* Is this command part of reset sequence? */
 #if LWESP_CFG_MODE_STATION_ACCESS_POINT
-                m = LWESP_MODE_STA_AP; /* Set station and access point mode */
+                m = LWESP_MODE_STA_AP;                /* Set station and access point mode */
 #elif LWESP_CFG_MODE_STATION
                 m = LWESP_MODE_STA; /* Set station mode */
-#else  /* LWESP_CFG_MODE_STATION */
+#else                                                 /* LWESP_CFG_MODE_STATION */
                 m = LWESP_MODE_AP; /* Set access point mode */
-#endif /* !LWESP_CFG_MODE_STATION_ACCESS_POINT */
+#endif                                                /* !LWESP_CFG_MODE_STATION_ACCESS_POINT */
             } else {
                 /* Use user setup */
                 m = msg->msg.wifi_mode.mode;
@@ -1977,8 +1973,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_WIFI_CIPSTA_GET: /* Get station IP address */
 #endif                                  /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
-        case LWESP_CMD_WIFI_CIPAP_GET: /* Get access point IP address */
-#endif                                 /* LWESP_CFG_MODE_ACCESS_POINT */
+        case LWESP_CMD_WIFI_CIPAP_GET:  /* Get access point IP address */
+#endif                                  /* LWESP_CFG_MODE_ACCESS_POINT */
         {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIP");
@@ -2000,8 +1996,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_WIFI_CIPSTAMAC_GET: /* Get station MAC address */
 #endif                                     /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
-        case LWESP_CMD_WIFI_CIPAPMAC_GET: /* Get access point MAC address */
-#endif                                    /* LWESP_CFG_MODE_ACCESS_POINT */
+        case LWESP_CMD_WIFI_CIPAPMAC_GET:  /* Get access point MAC address */
+#endif                                     /* LWESP_CFG_MODE_ACCESS_POINT */
         {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIP");
@@ -2023,8 +2019,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_WIFI_CIPSTA_SET: /* Set station IP address */
 #endif                                  /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
-        case LWESP_CMD_WIFI_CIPAP_SET: /* Set access point IP address */
-#endif                                 /* LWESP_CFG_MODE_ACCESS_POINT */
+        case LWESP_CMD_WIFI_CIPAP_SET:  /* Set access point IP address */
+#endif                                  /* LWESP_CFG_MODE_ACCESS_POINT */
         {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIP");
@@ -2037,7 +2033,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_SET)) {
                 AT_PORT_SEND_CONST_STR("AP");
             }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+#endif                                                                  /* LWESP_CFG_MODE_ACCESS_POINT */
             AT_PORT_SEND_CONST_STR("=");
             lwespi_send_ip(&msg->msg.sta_ap_setip.ip, 1, 0);            /* Send IP address */
             if (lwesp_ip_is_valid(&msg->msg.sta_ap_setip.gw) > 0) {     /* Is gateway set? */
@@ -2053,8 +2049,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_WIFI_CIPSTAMAC_SET: /* Set station MAC address */
 #endif                                     /* LWESP_CFG_MODE_STATION */
 #if LWESP_CFG_MODE_ACCESS_POINT
-        case LWESP_CMD_WIFI_CIPAPMAC_SET: /* Set access point MAC address */
-#endif                                    /* LWESP_CFG_MODE_ACCESS_POINT */
+        case LWESP_CMD_WIFI_CIPAPMAC_SET:  /* Set access point MAC address */
+#endif                                     /* LWESP_CFG_MODE_ACCESS_POINT */
         {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIP");
@@ -2128,7 +2124,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+#endif                             /* LWESP_CFG_MODE_ACCESS_POINT */
 #if LWESP_CFG_WPS
         case LWESP_CMD_WIFI_WPS: { /* Enable WPS function */
             AT_PORT_SEND_BEGIN_AT();
@@ -2137,7 +2133,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_WPS */
+#endif                                        /* LWESP_CFG_WPS */
 #if LWESP_CFG_HOSTNAME
         case LWESP_CMD_WIFI_CWHOSTNAME_SET: { /* List stations connected on access point */
             AT_PORT_SEND_BEGIN_AT();
@@ -2152,7 +2148,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_HOSTNAME */
+#endif                              /* LWESP_CFG_HOSTNAME */
 #if LWESP_CFG_MDNS
         case LWESP_CMD_WIFI_MDNS: { /* Set mDNS parameters */
             AT_PORT_SEND_BEGIN_AT();
@@ -2280,8 +2276,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-        case LWESP_CMD_TCPIP_CIPSEND: {              /* Send data to connection */
-            return lwespi_tcpip_process_send_data(); /* Process send data */
+        case LWESP_CMD_TCPIP_CIPSEND: {                   /* Send data to connection */
+            return lwespi_tcpip_process_send_data();      /* Process send data */
         }
         case LWESP_CMD_TCPIP_CIPSTATUS: {                 /* Get status of device and all connections */
             esp.m.active_conns_last = esp.m.active_conns; /* Save as last status */
@@ -2377,7 +2373,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_DNS */
+#endif                               /* LWESP_CFG_DNS */
 #if LWESP_CFG_PING
         case LWESP_CMD_TCPIP_PING: { /* Ping hostname or IP address */
             AT_PORT_SEND_BEGIN_AT();
@@ -2386,7 +2382,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_PING */
+#endif                                     /* LWESP_CFG_PING */
 #if LWESP_CFG_SNTP
         case LWESP_CMD_TCPIP_CIPSNTPCFG: { /* Configure SNTP */
             AT_PORT_SEND_BEGIN_AT();
@@ -2418,7 +2414,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_SNTP */
+#endif                                     /* LWESP_CFG_SNTP */
 #if LWESP_CFG_SMART
         case LWESP_CMD_WIFI_SMART_START: { /* Start smart config */
             AT_PORT_SEND_BEGIN_AT();
@@ -2432,7 +2428,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_SMART */
+#endif                              /* LWESP_CFG_SMART */
 #if LWESP_CFG_WEBSERVER
         case LWESP_CMD_WEBSERVER: { /* Start Web Server */
             AT_PORT_SEND_BEGIN_AT();
@@ -2455,11 +2451,11 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif /* LWESP_CFG_ESP32 */
+#endif                            /* LWESP_CFG_ESP32 */
 
         default: return lwespERR; /* Invalid command */
     }
-    return lwespOK; /* Valid command */
+    return lwespOK;               /* Valid command */
 }
 
 /**
@@ -2511,28 +2507,28 @@ lwespi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_
             return lwespERRMEM;
         }
     }
-    if (!msg->cmd) {             /* Set start command if not set by user */
-        msg->cmd = msg->cmd_def; /* Set it as default */
+    if (!msg->cmd) {                                           /* Set start command if not set by user */
+        msg->cmd = msg->cmd_def;                               /* Set it as default */
     }
-    msg->block_time = max_block_time; /* Set blocking status if necessary */
-    msg->fn = process_fn;             /* Save processing function to be called as callback */
+    msg->block_time = max_block_time;                          /* Set blocking status if necessary */
+    msg->fn = process_fn;                                      /* Save processing function to be called as callback */
     if (msg->is_blocking) {
-        lwesp_sys_mbox_put(&esp.mbox_producer, msg); /* Write message to producer queue and wait forever */
+        lwesp_sys_mbox_put(&esp.mbox_producer, msg);           /* Write message to producer queue and wait forever */
     } else {
         if (!lwesp_sys_mbox_putnow(&esp.mbox_producer, msg)) { /* Write message to producer queue immediately */
             LWESP_MSG_VAR_FREE(msg);                           /* Release message */
             return lwespERRMEM;
         }
     }
-    if (res == lwespOK && msg->is_blocking) { /* In case we have blocking request */
+    if (res == lwespOK && msg->is_blocking) {    /* In case we have blocking request */
         uint32_t time;
         time = lwesp_sys_sem_wait(&msg->sem, 0); /* Wait forever for semaphore */
         if (time == LWESP_SYS_TIMEOUT) {         /* If semaphore was not accessed within given time */
             res = lwespTIMEOUT;                  /* Semaphore not released in time */
         } else {
-            res = msg->res; /* Set response status from message response */
+            res = msg->res;                      /* Set response status from message response */
         }
-        LWESP_MSG_VAR_FREE(msg); /* Release message */
+        LWESP_MSG_VAR_FREE(msg);                 /* Release message */
     }
     return res;
 }

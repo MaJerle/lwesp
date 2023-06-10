@@ -255,6 +255,16 @@
 #endif
 
 /**
+ * \brief           Minimal buffer in bytes for connection receive allocation.
+ * 
+ *                  Allocation will always start with (up to) \ref LWESP_CFG_CONN_MAX_DATA_LEN
+ *                  and will continue with trial down to this setting up until allocating is successful.
+ */
+#ifndef LWESP_CFG_CONN_MIN_DATA_LEN
+#define LWESP_CFG_CONN_MIN_DATA_LEN 16
+#endif
+
+/**
  * \brief           Poll interval for connections in units of milliseconds
  *
  * Value indicates interval time to call poll event on active connections.

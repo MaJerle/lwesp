@@ -42,51 +42,50 @@
  */
 #if !__DOXYGEN__
 
-#define LWESP_CFG_IPV6                          1
+#define LWESP_CFG_IPV6                            1
 
-#define LWESP_CFG_NETCONN                       1
-#define LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN     16
+#define LWESP_CFG_NETCONN                         1
+#define LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN       16
 
-#define LWESP_CFG_DBG                           LWESP_DBG_ON
-#define LWESP_CFG_DBG_TYPES_ON                  LWESP_DBG_TYPE_TRACE | LWESP_DBG_TYPE_STATE
-#define LWESP_CFG_DBG_IPD                       LWESP_DBG_OFF
-#define LWESP_CFG_DBG_SERVER                    LWESP_DBG_OFF
-#define LWESP_CFG_DBG_MQTT                      LWESP_DBG_OFF
-#define LWESP_CFG_DBG_MEM                       LWESP_DBG_OFF
-#define LWESP_CFG_DBG_PBUF                      LWESP_DBG_OFF
-#define LWESP_CFG_DBG_CONN                      LWESP_DBG_OFF
-#define LWESP_CFG_DBG_VAR                       LWESP_DBG_OFF
-#define LWESP_CFG_DBG_CAYENNE                   LWESP_DBG_ON
-#define LWESP_CFG_RCV_BUFF_SIZE                 0x1000
+#define LWESP_CFG_DBG                             LWESP_DBG_ON
+#define LWESP_CFG_DBG_TYPES_ON                    LWESP_DBG_TYPE_TRACE | LWESP_DBG_TYPE_STATE
+#define LWESP_CFG_DBG_IPD                         LWESP_DBG_OFF
+#define LWESP_CFG_DBG_SERVER                      LWESP_DBG_OFF
+#define LWESP_CFG_DBG_MQTT                        LWESP_DBG_OFF
+#define LWESP_CFG_DBG_MEM                         LWESP_DBG_OFF
+#define LWESP_CFG_DBG_PBUF                        LWESP_DBG_OFF
+#define LWESP_CFG_DBG_CONN                        LWESP_DBG_OFF
+#define LWESP_CFG_DBG_VAR                         LWESP_DBG_OFF
+#define LWESP_CFG_DBG_CAYENNE                     LWESP_DBG_ON
+#define LWESP_CFG_RCV_BUFF_SIZE                   0x1000
 
-#define LWESP_CFG_MEM_CUSTOM                    1
+#define LWESP_CFG_MEM_CUSTOM                      1
 
-#define LWESP_CFG_REST_CLIENT                   1
+#define LWESP_CFG_REST_CLIENT                     1
 
-#define LWESP_CFG_ESP32                         1
-#define LWESP_CFG_ESP8266                       1
-#define LWESP_CFG_ESP32_C3                      1
+#define LWESP_CFG_ESP32                           1
+#define LWESP_CFG_ESP8266                         1
+#define LWESP_CFG_ESP32_C3                        1
 
-#define LWESP_CFG_IPD_MAX_BUFF_SIZE             1460
-#define LWESP_CFG_CONN_MAX_DATA_LEN             2048
-#define LWESP_CFG_INPUT_USE_PROCESS             1
-#define LWESP_CFG_AT_ECHO                       0
+#define LWESP_CFG_CONN_MAX_DATA_LEN               2048
+#define LWESP_CFG_INPUT_USE_PROCESS               1
+#define LWESP_CFG_AT_ECHO                         0
 
-#define LWESP_CFG_USE_API_FUNC_EVT              1
+#define LWESP_CFG_USE_API_FUNC_EVT                1
 
-#define LWESP_CFG_MAX_CONNS                     5
+#define LWESP_CFG_MAX_CONNS                       5
 
-#define LWESP_CFG_DNS                           1
-#define LWESP_CFG_SNTP                          1
-#define LWESP_CFG_HOSTNAME                      1
-#define LWESP_CFG_WPS                           1
-#define LWESP_CFG_MDNS                          1
-#define LWESP_CFG_PING                          1
+#define LWESP_CFG_DNS                             1
+#define LWESP_CFG_SNTP                            1
+#define LWESP_CFG_HOSTNAME                        1
+#define LWESP_CFG_WPS                             1
+#define LWESP_CFG_MDNS                            1
+#define LWESP_CFG_PING                            1
 
-#define LWESP_CFG_RESET_ON_INIT                 1
+#define LWESP_CFG_RESET_ON_INIT                   1
 
-#define LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS   1
-#define LWESP_CFG_LIST_CMD                      1
+#define LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS 1
+#define LWESP_CFG_LIST_CMD                        1
 
 #endif /* !__DOXYGEN__ */
 

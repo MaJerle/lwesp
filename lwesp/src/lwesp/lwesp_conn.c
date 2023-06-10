@@ -58,14 +58,14 @@
  */
 static void
 prv_conn_timeout_cb(void* arg) {
-    lwesp_conn_p conn = arg; /* Argument is actual connection */
+    lwesp_conn_p conn = arg;                /* Argument is actual connection */
 
     if (conn->status.f.active) {            /* Handle only active connections */
         esp.evt.type = LWESP_EVT_CONN_POLL; /* Poll connection event */
         esp.evt.evt.conn_poll.conn = conn;  /* Set connection pointer */
         lwespi_send_conn_cb(conn, NULL);    /* Send connection callback */
 
-        lwespi_conn_start_timeout(conn); /* Schedule new timeout */
+        lwespi_conn_start_timeout(conn);    /* Schedule new timeout */
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE, "[LWESP CONN] Poll event: %p\r\n", (void*)conn);
     }
     lwespi_conn_manual_tcp_try_read_data(conn); /* Try to read data manually */
@@ -364,7 +364,7 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
     LWESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
     LWESP_MSG_VAR_REF(msg).msg.conn_close.val_id = lwespi_conn_get_val_id(conn);
 
-    flush_buff(conn); /* First flush buffer */
+    flush_buff(conn);                  /* First flush buffer */
     res = lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
     if (res == lwespOK && !blocking) { /* Function succedded in non-blocking mode */
         lwesp_core_lock();
@@ -581,7 +581,7 @@ lwesp_conn_getnum(lwesp_conn_p conn) {
     int8_t res = -1;
     if (conn != NULL && lwespi_is_valid_conn_ptr(conn)) {
         /* Protection not needed as every connection has always the same number */
-        res = conn->num; /* Get number */
+        res = (int8_t)conn->num; /* Get number */
     }
     return res;
 }
@@ -628,7 +628,7 @@ lwesp_conn_get_from_evt(lwesp_evt_t* evt) {
  * \param[in]       data: Data to copy to write buffer
  * \param[in]       btw: Number of bytes to write
  * \param[in]       flush: Flush flag. Set to `1` if you want to send data immediately after copying
- * \param[out]      mem_available: Available memory size available in current write buffer.
+ * \param[out]      mem_available: Available memory size in current write buffer.
  *                  When the buffer length is reached, current one is sent and a new one is automatically created.
  *                  If function returns \ref lwespOK and `*mem_available = 0`, there was a problem
  *                  allocating a new buffer for next operation
@@ -637,7 +637,6 @@ lwesp_conn_get_from_evt(lwesp_evt_t* evt) {
 lwespr_t
 lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush, size_t* const mem_available) {
     size_t len;
-
     const uint8_t* d = data;
 
     LWESP_ASSERT(conn != NULL);
@@ -646,7 +645,7 @@ lwesp_conn_write(lwesp_conn_p conn, const void* data, size_t btw, uint8_t flush,
      * Steps during write process:
      *
      * 1. Check if we have buffer already allocated and
-     *      write data to the tail of buffer
+     *      write data to the tail of the buffer
      *   1.1. In case buffer is full, send it non-blocking,
      *      and enable freeing after it is sent
      * 2. Check how many bytes we can copy as single buffer directly and send

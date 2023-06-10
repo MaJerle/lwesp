@@ -79,44 +79,44 @@ typedef enum {
     LWESP_CMD_SYSLOG,
 
     /* WiFi based commands */
-    LWESP_CMD_WIFI_CWMODE,     /*!< Set wifi mode */
-    LWESP_CMD_WIFI_CWMODE_GET, /*!< Get wifi mode */
-    LWESP_CMD_WIFI_CWLAPOPT,   /*!< Configure what is visible on CWLAP response */
+    LWESP_CMD_WIFI_CWMODE,         /*!< Set wifi mode */
+    LWESP_CMD_WIFI_CWMODE_GET,     /*!< Get wifi mode */
+    LWESP_CMD_WIFI_CWLAPOPT,       /*!< Configure what is visible on CWLAP response */
 #if LWESP_CFG_IPV6 || __DOXYGEN__
-    LWESP_CMD_WIFI_IPV6, /*!< Configure IPv6 support */
-#endif                   /* LWESP_CFG_IPV6 || __DOXYGEN__ */
+    LWESP_CMD_WIFI_IPV6,           /*!< Configure IPv6 support */
+#endif                             /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
-    LWESP_CMD_WIFI_CWJAP,         /*!< Connect to access point */
-    LWESP_CMD_WIFI_CWRECONNCFG,   /*!< Setup reconnect interval and maximum tries */
-    LWESP_CMD_WIFI_CWJAP_GET,     /*!< Info of the connected access point */
-    LWESP_CMD_WIFI_CWQAP,         /*!< Disconnect from access point */
-    LWESP_CMD_WIFI_CWLAP,         /*!< List available access points */
-    LWESP_CMD_WIFI_CIPSTAMAC_GET, /*!< Get MAC address of ESP station */
-    LWESP_CMD_WIFI_CIPSTAMAC_SET, /*!< Set MAC address of ESP station */
-    LWESP_CMD_WIFI_CIPSTA_GET,    /*!< Get IP address of ESP station */
-    LWESP_CMD_WIFI_CIPSTA_SET,    /*!< Set IP address of ESP station */
-    LWESP_CMD_WIFI_CWAUTOCONN,    /*!< Configure auto connection to access point */
-#endif                            /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
-    LWESP_CMD_WIFI_CWDHCP_SET,    /*!< Set DHCP config */
-    LWESP_CMD_WIFI_CWDHCP_GET,    /*!< Get DHCP config */
-    LWESP_CMD_WIFI_CWDHCPS_SET,   /*!< Set DHCP SoftAP IP config */
-    LWESP_CMD_WIFI_CWDHCPS_GET,   /*!< Get DHCP SoftAP IP config */
+    LWESP_CMD_WIFI_CWJAP,          /*!< Connect to access point */
+    LWESP_CMD_WIFI_CWRECONNCFG,    /*!< Setup reconnect interval and maximum tries */
+    LWESP_CMD_WIFI_CWJAP_GET,      /*!< Info of the connected access point */
+    LWESP_CMD_WIFI_CWQAP,          /*!< Disconnect from access point */
+    LWESP_CMD_WIFI_CWLAP,          /*!< List available access points */
+    LWESP_CMD_WIFI_CIPSTAMAC_GET,  /*!< Get MAC address of ESP station */
+    LWESP_CMD_WIFI_CIPSTAMAC_SET,  /*!< Set MAC address of ESP station */
+    LWESP_CMD_WIFI_CIPSTA_GET,     /*!< Get IP address of ESP station */
+    LWESP_CMD_WIFI_CIPSTA_SET,     /*!< Set IP address of ESP station */
+    LWESP_CMD_WIFI_CWAUTOCONN,     /*!< Configure auto connection to access point */
+#endif                             /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
+    LWESP_CMD_WIFI_CWDHCP_SET,     /*!< Set DHCP config */
+    LWESP_CMD_WIFI_CWDHCP_GET,     /*!< Get DHCP config */
+    LWESP_CMD_WIFI_CWDHCPS_SET,    /*!< Set DHCP SoftAP IP config */
+    LWESP_CMD_WIFI_CWDHCPS_GET,    /*!< Get DHCP SoftAP IP config */
 #if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-    LWESP_CMD_WIFI_CWSAP_GET,    /*!< Get software access point configuration */
-    LWESP_CMD_WIFI_CWSAP_SET,    /*!< Set software access point configuration */
-    LWESP_CMD_WIFI_CIPAPMAC_GET, /*!< Get MAC address of ESP access point */
-    LWESP_CMD_WIFI_CIPAPMAC_SET, /*!< Set MAC address of ESP access point */
-    LWESP_CMD_WIFI_CIPAP_GET,    /*!< Get IP address of ESP access point */
-    LWESP_CMD_WIFI_CIPAP_SET,    /*!< Set IP address of ESP access point */
-    LWESP_CMD_WIFI_CWLIF,        /*!< Get connected stations on access point */
-    LWESP_CMD_WIFI_CWQIF,        /*!< Discnnect station from SoftAP */
-#endif                           /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
+    LWESP_CMD_WIFI_CWSAP_GET,      /*!< Get software access point configuration */
+    LWESP_CMD_WIFI_CWSAP_SET,      /*!< Set software access point configuration */
+    LWESP_CMD_WIFI_CIPAPMAC_GET,   /*!< Get MAC address of ESP access point */
+    LWESP_CMD_WIFI_CIPAPMAC_SET,   /*!< Set MAC address of ESP access point */
+    LWESP_CMD_WIFI_CIPAP_GET,      /*!< Get IP address of ESP access point */
+    LWESP_CMD_WIFI_CIPAP_SET,      /*!< Set IP address of ESP access point */
+    LWESP_CMD_WIFI_CWLIF,          /*!< Get connected stations on access point */
+    LWESP_CMD_WIFI_CWQIF,          /*!< Discnnect station from SoftAP */
+#endif                             /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if LWESP_CFG_WPS || __DOXYGEN__
-    LWESP_CMD_WIFI_WPS, /*!< Set WPS option */
-#endif                  /* LWESP_CFG_WPS || __DOXYGEN__ */
+    LWESP_CMD_WIFI_WPS,            /*!< Set WPS option */
+#endif                             /* LWESP_CFG_WPS || __DOXYGEN__ */
 #if LWESP_CFG_MDNS || __DOXYGEN__
-    LWESP_CMD_WIFI_MDNS, /*!< Configure MDNS function */
-#endif                   /* LWESP_CFG_MDNS || __DOXYGEN__ */
+    LWESP_CMD_WIFI_MDNS,           /*!< Configure MDNS function */
+#endif                             /* LWESP_CFG_MDNS || __DOXYGEN__ */
 #if LWESP_CFG_HOSTNAME || __DOXYGEN__
     LWESP_CMD_WIFI_CWHOSTNAME_SET, /*!< Set device hostname */
     LWESP_CMD_WIFI_CWHOSTNAME_GET, /*!< Get device hostname */
@@ -146,21 +146,21 @@ typedef enum {
     LWESP_CMD_TCPIP_CIPRECVLEN,       /*!< Gets number of available bytes in connection to be read */
     LWESP_CMD_TCPIP_CIUPDATE,         /*!< Perform self-update */
 #if LWESP_CFG_SNTP || __DOXYGEN__
-    LWESP_CMD_TCPIP_CIPSNTPCFG,  /*!< Configure SNTP servers */
-    LWESP_CMD_TCPIP_CIPSNTPTIME, /*!< Get current time using SNTP */
-    LWESP_CMD_TCPIP_CIPSNTPINTV, /*!< Query/Set the SNTP time synchronization interval */
-#endif                           /* LWESP_SNT || __DOXYGEN__ */
-    LWESP_CMD_TCPIP_CIPDINFO,    /*!< Configure what data are received on +IPD statement */
+    LWESP_CMD_TCPIP_CIPSNTPCFG,       /*!< Configure SNTP servers */
+    LWESP_CMD_TCPIP_CIPSNTPTIME,      /*!< Get current time using SNTP */
+    LWESP_CMD_TCPIP_CIPSNTPINTV,      /*!< Query/Set the SNTP time synchronization interval */
+#endif                                /* LWESP_SNT || __DOXYGEN__ */
+    LWESP_CMD_TCPIP_CIPDINFO,         /*!< Configure what data are received on +IPD statement */
 #if LWESP_CFG_PING || __DOXYGEN__
-    LWESP_CMD_TCPIP_PING, /*!< Ping domain */
-#endif                    /* LWESP_CFG_PING || __DOXYGEN__ */
+    LWESP_CMD_TCPIP_PING,             /*!< Ping domain */
+#endif                                /* LWESP_CFG_PING || __DOXYGEN__ */
 #if LWESP_CFG_SMART || __DOXYGEN__
-    LWESP_CMD_WIFI_SMART_START, /*!< Start smart config */
-    LWESP_CMD_WIFI_SMART_STOP,  /*!< Stop smart config */
-#endif                          /* LWESP_CFG_SMART || __DOXYGEN__ */
+    LWESP_CMD_WIFI_SMART_START,       /*!< Start smart config */
+    LWESP_CMD_WIFI_SMART_STOP,        /*!< Stop smart config */
+#endif                                /* LWESP_CFG_SMART || __DOXYGEN__ */
 #if LWESP_CFG_WEBSERVER || __DOXYGEN__
-    LWESP_CMD_WEBSERVER, /*!< Start or Stop Web Server */
-#endif                   /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
+    LWESP_CMD_WEBSERVER,              /*!< Start or Stop Web Server */
+#endif                                /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
 
 /* BLE commands, ESP32 only */
 #if LWESP_CFG_ESP32 || __DOXYGEN__
@@ -172,30 +172,30 @@ typedef enum {
  * \brief           Connection structure
  */
 typedef struct lwesp_conn {
-    lwesp_conn_type_t type;   /*!< Connection type */
-    uint8_t num;              /*!< Connection number */
-    lwesp_ip_t remote_ip;     /*!< Remote IP address */
-    lwesp_port_t remote_port; /*!< Remote port number */
-    lwesp_port_t local_port;  /*!< Local IP address */
-    lwesp_evt_fn evt_func;    /*!< Callback function for connection */
-    void* arg;                /*!< User custom argument */
+    lwesp_conn_type_t type;     /*!< Connection type */
+    uint8_t num;                /*!< Connection number */
+    lwesp_ip_t remote_ip;       /*!< Remote IP address */
+    lwesp_port_t remote_port;   /*!< Remote port number */
+    lwesp_port_t local_port;    /*!< Local IP address */
+    lwesp_evt_fn evt_func;      /*!< Callback function for connection */
+    void* arg;                  /*!< User custom argument */
 
-    uint8_t val_id; /*!< Validation ID number. It is increased each time
-                                                        a new connection is established.
-                                                        It protects sending data to wrong connection
-                                                        in case we have data in send queue,
-                                                        and connection was closed and active
-                                                        again in between. */
+    uint8_t val_id;             /*!< Validation ID number. It is increased each time
+                                    a new connection is established.
+                                    It protects sending data to wrong connection
+                                    in case we have data in send queue,
+                                    and connection was closed and active
+                                    again in between. */
 
     lwesp_linbuff_t buff;       /*!< Linear buffer structure */
     size_t total_recved;        /*!< Total number of bytes received */
     size_t tcp_available_bytes; /*!< Number of bytes in ESP ready to be read on connection.
-                                                        This variable always holds last known info from ESP
-                                                        device and is not decremented (or incremented) by application */
+                                    This variable always holds last known info from ESP
+                                    device and is not decremented (or incremented) by application */
     size_t tcp_not_ack_bytes;   /*!< Number of bytes not acknowledge by application done with processing
-                                                        This variable is increased everytime new packet is
-                                                        read to be sent to application and decreased
-                                                        when application acknowledges it */
+                                    This variable is increased everytime new packet is
+                                    read to be sent to application and decreased
+                                    when application acknowledges it */
 
     union {
         struct {
@@ -329,14 +329,14 @@ typedef struct lwesp_msg {
         } sta_list;            /*!< List for stations connected to SoftAP */
 
         struct {
-            uint8_t use_mac; /*!< Status if specific MAC is to be used */
-            lwesp_mac_t mac; /*!< MAC address to disconnect from access point */
-        } ap_disconn_sta;    /*!< Disconnect station from access point */
-#endif                       /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+            uint8_t use_mac;    /*!< Status if specific MAC is to be used */
+            lwesp_mac_t mac;    /*!< MAC address to disconnect from access point */
+        } ap_disconn_sta;       /*!< Disconnect station from access point */
+#endif                          /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
         struct {
-            lwesp_ip_t* ip; /*!< Pointer to IP variable */
-            lwesp_ip_t* gw; /*!< Pointer to gateway variable */
-            lwesp_ip_t* nm; /*!< Pointer to netmask variable */
+            lwesp_ip_t* ip;     /*!< Pointer to IP variable */
+            lwesp_ip_t* gw;     /*!< Pointer to gateway variable */
+            lwesp_ip_t* nm;     /*!< Pointer to netmask variable */
 #if LWESP_CFG_IPV6
             lwesp_ip_t* ip6_ll; /*!< Pointer to IPV6 variable local address */
             lwesp_ip_t* ip6_gl; /*!< Pointer to IPV6 variable global address */
@@ -508,9 +508,9 @@ typedef struct lwesp_msg {
  * \brief           IP and MAC structure with netmask and gateway addresses
  */
 typedef struct {
-    lwesp_ip_t ip; /*!< IP address */
-    lwesp_ip_t gw; /*!< Gateway address */
-    lwesp_ip_t nm; /*!< Netmask address */
+    lwesp_ip_t ip;     /*!< IP address */
+    lwesp_ip_t gw;     /*!< Gateway address */
+    lwesp_ip_t nm;     /*!< Netmask address */
 #if LWESP_CFG_IPV6
     lwesp_ip_t ip6_ll; /*!< Local IPV6 address */
     lwesp_ip_t ip6_gl; /*!< Global IPV6 address */
@@ -519,7 +519,7 @@ typedef struct {
     uint8_t dhcp;      /*!< Flag indicating DHCP is enabled */
 
     struct {
-        uint8_t has_ip : 1; /*!< Flag indicating IP is available */
+        uint8_t has_ip : 1;       /*!< Flag indicating IP is available */
 #if LWESP_CFG_IPV6
         uint8_t has_ipv6_ll : 1;  /*!< Flag indicating local IPv6 is available */
         uint8_t has_ipv6_gl : 1;  /*!< Flag indicating global IPv6 is available */
@@ -559,7 +559,7 @@ typedef struct {
 
     uint32_t
         active_conns; /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
-    uint32_t active_conns_last; /*!< The same as previous but status before last check */
+    uint32_t active_conns_last;              /*!< The same as previous but status before last check */
 
     lwesp_link_conn_t link_conn;             /*!< Link connection handle */
     lwesp_conn_t conns[LWESP_CFG_MAX_CONNS]; /*!< Array of all connection structures */
@@ -568,15 +568,15 @@ typedef struct {
     lwesp_ip_mac_t sta; /*!< Station IP and MAC addressed */
 #endif                  /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
 #if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-    lwesp_ip_mac_t ap; /*!< Access point IP and MAC addressed */
-#endif                 /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
+    lwesp_ip_mac_t ap;  /*!< Access point IP and MAC addressed */
+#endif                  /* LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__ */
 } lwesp_modules_t;
 
 /**
  * \brief           ESP global structure
  */
 typedef struct {
-    size_t locked_cnt; /*!< Counter how many times (recursive) stack is currently locked */
+    size_t locked_cnt;                 /*!< Counter how many times (recursive) stack is currently locked */
 
     lwesp_sys_sem_t sem_sync;          /*!< Synchronization semaphore between threads */
     lwesp_sys_mbox_t mbox_producer;    /*!< Producer message queue handle */
@@ -584,17 +584,17 @@ typedef struct {
     lwesp_sys_thread_t thread_produce; /*!< Producer thread handle */
     lwesp_sys_thread_t thread_process; /*!< Processing thread handle */
 #if !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__
-    lwesp_buff_t buff; /*!< Input processing buffer */
-#endif                 /* !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
-    lwesp_ll_t ll;     /*!< Low level functions */
+    lwesp_buff_t buff;                 /*!< Input processing buffer */
+#endif                                 /* !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
+    lwesp_ll_t ll;                     /*!< Low level functions */
 
-    lwesp_msg_t* msg; /*!< Pointer to current user message being executed */
+    lwesp_msg_t* msg;                  /*!< Pointer to current user message being executed */
 
-    lwesp_evt_t evt;            /*!< Callback processing structure */
-    lwesp_evt_func_t* evt_func; /*!< Callback function linked list */
-    lwesp_evt_fn evt_server;    /*!< Default callback function for server connections */
+    lwesp_evt_t evt;                   /*!< Callback processing structure */
+    lwesp_evt_func_t* evt_func;        /*!< Callback function linked list */
+    lwesp_evt_fn evt_server;           /*!< Default callback function for server connections */
 
-    lwesp_modules_t m; /*!< All modules. When resetting, reset structure */
+    lwesp_modules_t m;                 /*!< All modules. When resetting, reset structure */
 
     union {
         struct {
@@ -603,7 +603,7 @@ typedef struct {
         } f;                         /*!< Flags structure */
     } status;                        /*!< Status structure */
 
-    uint8_t conn_val_id; /*!< Validation ID increased each time device
+    uint8_t conn_val_id;             /*!< Validation ID increased each time device
                                                         connects to wifi network or on reset.
                                                         It is used for connections */
 } lwesp_t;
