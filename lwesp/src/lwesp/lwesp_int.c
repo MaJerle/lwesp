@@ -46,6 +46,16 @@ typedef struct {
     size_t len;     /*!< Length of valid characters */
 } lwesp_recv_t;
 
+/**
+ * \brief           Processing function status data
+ * 
+ */
+typedef struct {
+    uint8_t is_ok;    /*!< Set to `1` if OK is set from the command processing */
+    uint8_t is_error; /*!< Set to `1` if error is set from the command processing */
+    uint8_t is_ready; /*!< Set to `1` if ready is received from command processing */
+} lwesp_status_flags_t;
+
 /* Receive character macros */
 #define RECV_ADD(ch)                                                                                                   \
     do {                                                                                                               \
@@ -107,7 +117,7 @@ typedef struct {
 #endif /* !__DOXYGEN__ */
 
 static lwesp_recv_t recv_buff;
-static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t* is_ready);
+static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat);
 
 /**
  * \brief           Free connection send data memory
@@ -630,7 +640,7 @@ lwespi_send_conn_error_cb(lwesp_msg_t* msg, lwespr_t error) {
  */
 static void
 lwespi_parse_received(lwesp_recv_t* rcv) {
-    uint8_t is_ok = 0, is_error = 0, is_ready = 0;
+    lwesp_status_flags_t stat = {0};
     const char* s;
 
     /* Try to remove non-parsable strings */
@@ -650,12 +660,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     }
 
     /* Detect most common responses from device */
-    is_ok = !strcmp(rcv->data, "OK" CRLF); /* Check if received string is OK */
-    if (!is_ok) {
-        is_error =
+    stat.is_ok = !strcmp(rcv->data, "OK" CRLF); /* Check if received string is OK */
+    if (!stat.is_ok) {
+        stat.is_error =
             !strcmp(rcv->data, "ERROR" CRLF) || !strcmp(rcv->data, "FAIL" CRLF); /* Check if received string is error */
-        if (!is_error) {
-            is_ready = !strcmp(rcv->data, "ready" CRLF);                         /* Check if received string is ready */
+        if (!stat.is_error) {
+            stat.is_ready = !strcmp(rcv->data, "ready" CRLF);                    /* Check if received string is ready */
         }
     }
 
@@ -663,15 +673,15 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
      * In case ready was received, there was a reset on device,
      * either forced by command or problem on device itself
      */
-    if (is_ready) {
+    if (stat.is_ready) {
         if (CMD_IS_CUR(LWESP_CMD_RESET) || CMD_IS_CUR(LWESP_CMD_RESTORE)) { /* Did we force reset? */
             esp.evt.evt.reset_detected.forced = 1;
         } else {                                                            /* Reset due unknown error */
             esp.evt.evt.reset_detected.forced = 0;
             if (esp.msg != NULL) {
-                is_ok = 0;
-                is_error = 1;
-                is_ready = 0;
+                stat.is_ok = 0;
+                stat.is_error = 1;
+                stat.is_ready = 0;
             }
         }
         lwespi_reset_everything(esp.evt.evt.reset_detected.forced); /* Put everything to default state */
@@ -1057,8 +1067,8 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 esp.msg->res_err_code = lwespERRCMDNOTSUPPORTED;
             }
         } else if ((CMD_IS_CUR(LWESP_CMD_RESET) || CMD_IS_CUR(LWESP_CMD_RESTORE))
-                   && is_ok) {                                 /* Check for reset/restore command */
-            is_ok = 0;                                         /* We must wait for "ready", not only "OK" */
+                   && stat.is_ok) {                            /* Check for reset/restore command */
+            stat.is_ok = 0;                                    /* We must wait for "ready", not only "OK" */
             esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE; /* Save user baudrate */
             lwesp_ll_init(&esp.ll);                            /* Set new baudrate */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS) || CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATE)) {
@@ -1071,7 +1081,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 #endif                                    /* LWESP_CFG_ESP8266 || LWESP_CFG_ESP32 */
                 || (!strncmp(rcv->data, "+CIPSTATE", 9) && (offset = 10) > 0)) {
                 lwespi_parse_cipstatus_cipstate(rcv->data + offset); /* Parse +CIPSTATUS or +CIPSTATE response */
-            } else if (is_ok) {
+            } else if (stat.is_ok) {
                 for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {   /* Set current connection statuses */
                     esp.m.conns[i].status.f.active = !!(esp.m.active_conns & (1 << i));
                 }
@@ -1079,28 +1089,28 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
             /* Do nothing, it is either OK or not OK */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSEND)) {
-            if (is_ok) {   /* Check for OK and clear as we have to check for "> " statement after OK */
-                is_ok = 0; /* Do not reach on OK */
+            if (stat.is_ok) {   /* Check for OK and clear as we have to check for "> " statement after OK */
+                stat.is_ok = 0; /* Do not reach on OK */
             }
             if (esp.msg->msg.conn_send.wait_send_ok_err) {
-                if (!strncmp("SEND OK", rcv->data, 7)) {       /* Data were sent successfully */
+                if (!strncmp("SEND OK", rcv->data, 7)) {            /* Data were sent successfully */
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
-                    is_ok = lwespi_tcpip_process_data_sent(1); /* Process as data were sent */
-                    if (is_ok && esp.msg->msg.conn_send.conn->status.f.active) {
+                    stat.is_ok = lwespi_tcpip_process_data_sent(1); /* Process as data were sent */
+                    if (stat.is_ok && esp.msg->msg.conn_send.conn->status.f.active) {
                         CONN_SEND_DATA_SEND_EVT(esp.msg, lwespOK);
                     }
-                } else if (is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
+                } else if (stat.is_error || !strncmp("SEND FAIL", rcv->data, 9)) {
                     esp.msg->msg.conn_send.wait_send_ok_err = 0;
-                    is_error = lwespi_tcpip_process_data_sent(0);
-                    if (is_error && esp.msg->msg.conn_send.conn->status.f.active) {
+                    stat.is_error = lwespi_tcpip_process_data_sent(0);
+                    if (stat.is_error && esp.msg->msg.conn_send.conn->status.f.active) {
                         CONN_SEND_DATA_SEND_EVT(esp.msg, lwespERR);
                     }
                 }
-            } else if (is_error) {
+            } else if (stat.is_error) {
                 CONN_SEND_DATA_SEND_EVT(esp.msg, lwespERR);
             }
         } else if (CMD_IS_CUR(LWESP_CMD_UART)) {                   /* In case of UART command */
-            if (is_ok) {                                           /* We have valid OK result */
+            if (stat.is_ok) {                                      /* We have valid OK result */
                 esp.ll.uart.baudrate = esp.msg->msg.uart.baudrate; /* Save user baudrate */
                 lwesp_ll_init(&esp.ll);                            /* Set new baudrate */
             }
@@ -1217,7 +1227,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 lwesp_mem_free_s((void**)&conn->buff.buff);
             }
         }
-    } else if (is_error && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
+    } else if (stat.is_error && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
         /*
          * Notify user about failed connection,
          * but only if connection callback is known.
@@ -1235,15 +1245,15 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
      * In case of any of these events, simply release semaphore
      * and proceed with next command
      */
-    if (is_ok || is_error || is_ready) {
+    if (stat.is_ok || stat.is_error || stat.is_ready) {
         lwespr_t res = lwespOK;
-        if (esp.msg != NULL) {                /* Do we have active message? */
-            res = lwespi_process_sub_cmd(esp.msg, &is_ok, &is_error, &is_ready);
-            if (res != lwespCONT) {           /* Shall we continue with next subcommand under this one? */
-                if (is_ok || is_ready) {      /* Check ready or ok status */
+        if (esp.msg != NULL) {                     /* Do we have active message? */
+            res = lwespi_process_sub_cmd(esp.msg, &stat);
+            if (res != lwespCONT) {                /* Shall we continue with next subcommand under this one? */
+                if (stat.is_ok || stat.is_ready) { /* Check ready or ok status */
                     res = esp.msg->res = lwespOK;
-                } else {                      /* Or error status */
-                    res = esp.msg->res = res; /* Set the error status */
+                } else {                           /* Or error status */
+                    res = esp.msg->res = res;      /* Set the error status */
                 }
             } else {
                 ++esp.msg->i; /* Number of continue calls */
@@ -1478,13 +1488,11 @@ lwespi_process(const void* data, size_t data_len) {
 /**
  * \brief           Get next sub command for reset or restore sequence
  * \param[in]       msg: Pointer to current message
- * \param[in]       is_ok: Status whether last command result was OK
- * \param[in]       is_error: Status whether last command result was ERROR
- * \param[in]       is_ready: Status whether last command result was ready
+ * \param[in]       is_ok: Status flags from command execution
  * \return          Next command to execute
  */
 static lwesp_cmd_t
-lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t* is_ready) {
+lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
     lwesp_cmd_t n_cmd = LWESP_CMD_IDLE;
     switch (CMD_GET_CUR()) {
         case LWESP_CMD_RESET:
@@ -1528,41 +1536,37 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, ui
         default: break;
     }
     LWESP_UNUSED(msg);
-    LWESP_UNUSED(is_error);
-    LWESP_UNUSED(is_ok);
-    LWESP_UNUSED(is_ready);
+    LWESP_UNUSED(stat);
     return n_cmd;
 }
 
 /**
  * \brief           Process current command with known execution status and start another if necessary
  * \param[in]       msg: Pointer to current message
- * \param[in]       is_ok: Status whether last command result was OK
- * \param[in]       is_error: Status whether last command result was ERROR
- * \param[in]       is_ready: Status whether last command result was ready
+ * \param[in]       stat: Pointer to status flags
  * \return          lwespCONT if you sent more data and we need to process more data, or lwespOK on success, or lwespERR on error
  */
 static lwespr_t
-lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint8_t* is_ready) {
+lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
     lwesp_cmd_t n_cmd = LWESP_CMD_IDLE;
     if (CMD_IS_DEF(LWESP_CMD_RESET)) { /* Device is in reset mode */
-        n_cmd = lwespi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready);
+        n_cmd = lwespi_get_reset_sub_cmd(msg, stat);
         if (n_cmd == LWESP_CMD_IDLE) { /* Last command? */
-            RESET_SEND_EVT(msg, *is_ok ? lwespOK : lwespERR);
+            RESET_SEND_EVT(msg, stat->is_ok ? lwespOK : lwespERR);
         }
     } else if (CMD_IS_DEF(LWESP_CMD_RESTORE)) {
-        if ((CMD_IS_CUR(LWESP_CMD_RESET)) && *is_ready) {
+        if ((CMD_IS_CUR(LWESP_CMD_RESET)) && stat->is_ready) {
             SET_NEW_CMD(LWESP_CMD_RESTORE);
-        } else if ((CMD_IS_CUR(LWESP_CMD_RESTORE) && *is_ready) || !CMD_IS_CUR(LWESP_CMD_RESTORE)) {
-            SET_NEW_CMD(lwespi_get_reset_sub_cmd(msg, is_ok, is_error, is_ready));
+        } else if ((CMD_IS_CUR(LWESP_CMD_RESTORE) && stat->is_ready) || !CMD_IS_CUR(LWESP_CMD_RESTORE)) {
+            SET_NEW_CMD(lwespi_get_reset_sub_cmd(msg, stat));
         }
         if (n_cmd == LWESP_CMD_IDLE) {
-            RESTORE_SEND_EVT(msg, *is_ok ? lwespOK : lwespERR);
+            RESTORE_SEND_EVT(msg, stat->is_ok ? lwespOK : lwespERR);
         }
 #if LWESP_CFG_MODE_STATION
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP)) {      /* Is our intention to join to access point? */
         if (CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP)) {         /* Is the current command join? */
-            if (*is_ok) {                               /* Did we join successfully? */
+            if (stat->is_ok) {                          /* Did we join successfully? */
                 SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET); /* Check IP address status */
             } else {
                 esp.m.sta.f.is_connected = 0;           /* Force disconnected status */
@@ -1597,9 +1601,9 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
             STA_JOIN_AP_SEND_EVT(msg, esp.evt.evt.sta_join_ap.res);
         }
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CWLAP)) {
-        STA_LIST_AP_SEND_EVT(msg, *is_ok ? lwespOK : lwespERR);
+        STA_LIST_AP_SEND_EVT(msg, stat->is_ok ? lwespOK : lwespERR);
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP_GET)) {
-        STA_INFO_AP_SEND_EVT(msg, *is_ok ? lwespOK : lwespERR);
+        STA_INFO_AP_SEND_EVT(msg, stat->is_ok ? lwespOK : lwespERR);
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CIPSTA_SET)) {
         if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_SET)) {
             SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET);
@@ -1623,24 +1627,24 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
 #endif /* LWESP_CFG_MODE_STATION */
                    )) {
         if (CMD_IS_CUR(LWESP_CMD_WIFI_CWMODE)) {
-            SET_NEW_CMD_COND(LWESP_CMD_WIFI_CIPAP_GET, *is_ok);
+            SET_NEW_CMD_COND(LWESP_CMD_WIFI_CIPAP_GET, stat->is_ok);
         } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET)) {
-            SET_NEW_CMD_COND(LWESP_CMD_WIFI_CWDHCP_GET, *is_ok);
+            SET_NEW_CMD_COND(LWESP_CMD_WIFI_CWDHCP_GET, stat->is_ok);
         } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_GET)) {
-            SET_NEW_CMD_COND(LWESP_CMD_WIFI_CIPAPMAC_GET, *is_ok);
+            SET_NEW_CMD_COND(LWESP_CMD_WIFI_CIPAPMAC_GET, stat->is_ok);
         }
 #endif /* LWESP_CFG_MODE_ACCESS_POINT */
 #if LWESP_CFG_DNS
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPDOMAIN)) {
-        CIPDOMAIN_SEND_EVT(esp.msg, *is_ok ? lwespOK : lwespERR);
+        CIPDOMAIN_SEND_EVT(esp.msg, stat->is_ok ? lwespOK : lwespERR);
 #endif /* LWESP_CFG_DNS */
 #if LWESP_CFG_PING
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_PING)) {
-        PING_SEND_EVT(esp.msg, *is_ok ? lwespOK : lwespERR);
+        PING_SEND_EVT(esp.msg, stat->is_ok ? lwespOK : lwespERR);
 #endif /* LWESP_CFG_PING */
 #if LWESP_CFG_SNTP
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPTIME)) {
-        SNTP_TIME_SEND_EVT(esp.msg, *is_ok ? lwespOK : lwespERR);
+        SNTP_TIME_SEND_EVT(esp.msg, stat->is_ok ? lwespOK : lwespERR);
 #endif                                                 /* LWESP_CFG_SNTP */
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSTART)) { /* Is our intention to join to access point? */
         uint8_t is_status_check;
@@ -1653,19 +1657,19 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
          */
         is_status_check = CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS) || CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATE);
 
-        if (msg->i == 0 && is_status_check) {                   /* Was the current command status info? */
-            SET_NEW_CMD_COND(LWESP_CMD_TCPIP_CIPSTART, *is_ok); /* Now actually start connection */
+        if (msg->i == 0 && is_status_check) {                        /* Was the current command status info? */
+            SET_NEW_CMD_COND(LWESP_CMD_TCPIP_CIPSTART, stat->is_ok); /* Now actually start connection */
         } else if (msg->i == 1 && CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
             SET_NEW_CMD(lwespi_get_cipstatus_or_cipstate_cmd());
         } else if (msg->i == 2 && is_status_check) {
             /* Check if connect actually succeeded */
             if (!msg->msg.conn_start.success) {
-                *is_ok = 0;
-                *is_error = 1;
+                stat->is_ok = 0;
+                stat->is_error = 1;
             }
         }
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPCLOSE)) {
-        if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPCLOSE) && *is_error) {
+        if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPCLOSE) && stat->is_error) {
             /* Notify upper layer about failed close event */
             esp.evt.type = LWESP_EVT_CONN_CLOSE;
             esp.evt.evt.conn_active_close.conn = msg->msg.conn_close.conn;
@@ -1678,10 +1682,10 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
     } else if (CMD_IS_DEF(LWESP_CMD_TCPIP_CIPRECVDATA)) {
         if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.conn_recv.is_last_check == 0) {
             uint8_t set_error = 0;
-            LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, *is_error,
+            LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, stat->is_error,
                          "[LWESP CONN] CIPRECVLEN returned ERROR\r\n");
 
-            if (*is_ok) {
+            if (stat->is_ok) {
                 /* Check if `+IPD` received during data length check */
                 if (esp.msg->msg.conn_recv.ipd_recv) {
                     esp.msg->msg.conn_recv.ipd_recv = 0;
@@ -1706,8 +1710,8 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
                             SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVDATA);
                         } else {
                             set_error = 1;
-                            LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, *is_error,
-                                         "[LWESP CONN] Failed to allocate pbuf for data receive\r\n");
+                            LWESP_DEBUGW(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
+                                         stat->is_error, "[LWESP CONN] Failed to allocate pbuf for data receive\r\n");
                         }
                     } else {
                         /* No error if buffer empty */
@@ -1717,12 +1721,12 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
                 set_error = 1;
             }
             if (set_error) {
-                *is_ok = 0;
-                *is_error = 1;
+                stat->is_ok = 0;
+                stat->is_error = 1;
             }
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVDATA)) {
             /* Read failed? Handle queue len */
-            if (*is_error) {
+            if (stat->is_error) {
                 if (msg->msg.conn_recv.buff != NULL) {
                     lwesp_pbuf_free(msg->msg.conn_recv.buff);
                     msg->msg.conn_recv.buff = NULL;
@@ -1734,9 +1738,9 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
             msg->msg.conn_recv.is_last_check = 1;
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVLEN) && msg->msg.conn_recv.is_last_check == 1) {
             /* Do nothing */
-            if (*is_error) {
-                *is_error = 0;
-                *is_ok = 1;
+            if (stat->is_error) {
+                stat->is_error = 0;
+                stat->is_ok = 1;
             }
         }
     } else if (CMD_IS_DEF(LWESP_CMD_WIFI_CWDHCP_SET)) {
@@ -1752,16 +1756,16 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
                 /* Since not all AT versions support CIPSERVERMAXCONN command, ignore result */
                 SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSERVER);
             } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSERVER)) {
-                if (*is_ok) {
+                if (stat->is_ok) {
                     esp.evt_server = msg->msg.tcpip_server.cb; /* Set server callback function */
                     SET_NEW_CMD(LWESP_CMD_TCPIP_CIPSTO);
                 }
             } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTO)) {
-                *is_ok = 1; /* Force to 1 */
+                stat->is_ok = 1; /* Force to 1 */
             }
         }
         if (n_cmd == LWESP_CMD_IDLE) { /* Do we still have execution? */
-            esp.evt.evt.server.res = *is_ok ? lwespOK : lwespERR;
+            esp.evt.evt.server.res = stat->is_ok ? lwespOK : lwespERR;
             esp.evt.evt.server.en = msg->msg.tcpip_server.en;
             esp.evt.evt.server.port = msg->msg.tcpip_server.port;
             lwespi_send_cb(LWESP_EVT_SERVER); /* Send to upper layer */
@@ -1775,14 +1779,14 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, uint8_t* is_ok, uint8_t* is_error, uint
         if ((res = msg->fn(msg)) == lwespOK) {
             return lwespCONT;
         } else {
-            *is_ok = 0;
-            *is_error = 1;
+            stat->is_ok = 0;
+            stat->is_error = 1;
             return res;
         }
     } else {
         msg->cmd = LWESP_CMD_IDLE;
     }
-    return *is_ok || *is_ready ? lwespOK : (msg->res_err_code != lwespOK ? msg->res_err_code : lwespERR);
+    return stat->is_ok || stat->is_ready ? lwespOK : (msg->res_err_code != lwespOK ? msg->res_err_code : lwespERR);
 }
 
 /**
