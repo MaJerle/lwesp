@@ -95,10 +95,10 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     memset(&esp, 0x00, sizeof(esp)); /* Reset structure to all zeros */
     esp.status.f.initialized = 0;    /* Clear possible init flag */
     def_evt_link.fn = evt_func != NULL ? evt_func : prv_def_callback;
-    esp.evt_func = &def_evt_link; /* Set callback function */
-    esp.evt_server = NULL;        /* Set default server callback function */
+    esp.evt_func = &def_evt_link;    /* Set callback function */
+    esp.evt_server = NULL;           /* Set default server callback function */
 
-    if (!lwesp_sys_init()) { /* Init low-level system */
+    if (!lwesp_sys_init()) {         /* Init low-level system */
         goto cleanup;
     }
 
@@ -154,10 +154,10 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     lwesp_buff_init(&esp.buff, LWESP_CFG_RCV_BUFF_SIZE); /* Init buffer for input data */
 #endif                                                   /* !LWESP_CFG_INPUT_USE_PROCESS */
 
-    esp.status.f.initialized = 1; /* We are initialized now */
-    esp.status.f.dev_present = 1; /* We assume device is present at this point */
+    esp.status.f.initialized = 1;                        /* We are initialized now */
+    esp.status.f.dev_present = 1;                        /* We assume device is present at this point */
 
-    lwespi_send_cb(LWESP_EVT_INIT_FINISH); /* Call user callback function */
+    lwespi_send_cb(LWESP_EVT_INIT_FINISH);               /* Call user callback function */
 
     /*
      * Call reset command and call default
@@ -171,7 +171,7 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 #endif /* LWESP_CFG_KEEP_ALIVE */
 
 #if LWESP_CFG_RESTORE_ON_INIT
-    if (esp.status.f.dev_present) { /* In case device exists */
+    if (esp.status.f.dev_present) {                /* In case device exists */
         lwesp_core_unlock();
         res = lwesp_restore(NULL, NULL, blocking); /* Restore device */
         lwesp_core_lock();
@@ -409,7 +409,7 @@ lwesp_device_set_present(uint8_t present, const lwesp_api_cmd_evt_fn evt_fn, voi
             lwesp_core_unlock();
             res = lwesp_reset_with_delay(LWESP_CFG_RESET_DELAY_DEFAULT, evt_fn, evt_arg, blocking);
             lwesp_core_lock();
-#endif /* LWESP_CFG_RESET_ON_DEVICE_PRESENT */
+#endif                                            /* LWESP_CFG_RESET_ON_DEVICE_PRESENT */
         }
         lwespi_send_cb(LWESP_EVT_DEVICE_PRESENT); /* Send present event */
     }
@@ -533,18 +533,15 @@ lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version) {
     if (0) {
 #if LWESP_CFG_ESP8266
     } else if (esp.m.device == LWESP_DEVICE_ESP8266) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP8266, LWESP_MIN_AT_VERSION_MINOR_ESP8266,
-                             LWESP_MIN_AT_VERSION_PATCH_ESP8266);
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_ESP8266);
 #endif /* LWESP_CFG_ESP8266 */
 #if LWESP_CFG_ESP32
     } else if (esp.m.device == LWESP_DEVICE_ESP32) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP32, LWESP_MIN_AT_VERSION_MINOR_ESP32,
-                             LWESP_MIN_AT_VERSION_PATCH_ESP32);
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_ESP32);
 #endif /* LWESP_CFG_ESP32 */
 #if LWESP_CFG_ESP32_C3
     } else if (esp.m.device == LWESP_DEVICE_ESP32_C3) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3, LWESP_MIN_AT_VERSION_MINOR_ESP32_C3,
-                             LWESP_MIN_AT_VERSION_PATCH_ESP32_C3);
+        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_ESP32_C3);
 #endif /* LWESP_CFG_ESP32_C3 */
     } else {
         res = lwespERR;

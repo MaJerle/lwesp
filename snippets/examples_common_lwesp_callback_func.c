@@ -19,9 +19,9 @@ examples_common_lwesp_callback_func(lwesp_evt_t* evt) {
             lwesp_get_min_at_fw_version(&v_min);
             lwesp_get_current_at_fw_version(&v_curr);
 
-            printf("Current ESP[8266/32[-C3]] AT version is not supported by library\r\n");
-            printf("Minimum required AT version is: %d.%d.%d\r\n", (int)v_min.major, (int)v_min.minor, (int)v_min.patch);
-            printf("Current AT version is: %d.%d.%d\r\n", (int)v_curr.major, (int)v_curr.minor, (int)v_curr.patch);
+            printf("Current ESP[8266/32[-C3]] AT version is not supported by the library\r\n");
+            printf("Minimum required AT version is: %08X\r\n", (unsigned)v_min.version);
+            printf("Current AT version is: %08X\r\n", (unsigned)v_curr.version);
             break;
         }
         case LWESP_EVT_INIT_FINISH: {

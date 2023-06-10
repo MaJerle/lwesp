@@ -50,7 +50,7 @@ int32_t
 lwespi_parse_number(const char** str) {
     int32_t val = 0;
     uint8_t minus = 0;
-    const char* p = *str; /*  */
+    const char* p = *str;      /*  */
 
     INC_IF_CHAR_EQUAL(p, '"'); /* Skip leading quotes */
     INC_IF_CHAR_EQUAL(p, ','); /* Skip leading comma */
@@ -92,7 +92,7 @@ lwespi_parse_port(const char** str) {
 uint32_t
 lwespi_parse_hexnumber(const char** str) {
     int32_t val = 0;
-    const char* p = *str; /*  */
+    const char* p = *str;            /*  */
 
     INC_IF_CHAR_EQUAL(p, '"');       /* Skip leading quotes */
     INC_IF_CHAR_EQUAL(p, ',');       /* Skip leading comma */
@@ -161,7 +161,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     const char* p = *src;
 #if LWESP_CFG_IPV6
     char c;
-#endif /* LWESP_CFG_IPV6 */
+#endif                         /* LWESP_CFG_IPV6 */
 
     INC_IF_CHAR_EQUAL(p, '"'); /* Skip leading quotes */
 
@@ -208,7 +208,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     }
     INC_IF_CHAR_EQUAL(p, '"'); /* Skip trailing quotes */
 
-    *src = p; /* Set new pointer */
+    *src = p;                  /* Set new pointer */
     return 1;
 }
 
@@ -249,8 +249,8 @@ lwespr_t
 lwespi_parse_cipstatus_cipstate(const char* str) {
     uint8_t cn_num = 0;
 
-    cn_num = lwespi_parse_number(&str); /* Parse connection number */
-    esp.m.active_conns |= 1 << cn_num;  /* Set flag as active */
+    cn_num = lwespi_parse_number(&str);    /* Parse connection number */
+    esp.m.active_conns |= 1 << cn_num;     /* Set flag as active */
 
     lwespi_parse_string(&str, NULL, 0, 1); /* Parse string and ignore result */
     lwespi_parse_ip(&str, &esp.m.conns[cn_num].remote_ip);
@@ -316,12 +316,14 @@ lwespi_parse_ipd(const char* str) {
  */
 uint8_t
 lwespi_parse_at_sdk_version(const char* str, lwesp_sw_version_t* version_out) {
-    version_out->major = ((uint8_t)lwespi_parse_number(&str));
-    ++str;
-    version_out->minor = ((uint8_t)lwespi_parse_number(&str));
-    ++str;
-    version_out->patch = ((uint8_t)lwespi_parse_number(&str));
+    uint32_t version = 0;
 
+    version |= ((uint8_t)lwespi_parse_number(&str)) << 24;
+    ++str;
+    version |= ((uint8_t)lwespi_parse_number(&str)) << 16;
+    ++str;
+    version |= ((uint8_t)lwespi_parse_number(&str)) << 8;
+    version_out->version = version;
     return 1;
 }
 
@@ -400,15 +402,15 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
 #if LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_type = (uint8_t)lwespi_parse_number(&str); /* Scan type */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_min =
-        (uint16_t)lwespi_parse_number(&str); /* Scan time minimum */
+        (uint16_t)lwespi_parse_number(&str);                                                    /* Scan time minimum */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_max =
-        (uint16_t)lwespi_parse_number(&str); /* Scan time maximum */
+        (uint16_t)lwespi_parse_number(&str);                                                    /* Scan time maximum */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_offset = (int16_t)lwespi_parse_number(&str); /* Freq offset */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_cal = (int16_t)lwespi_parse_number(&str);    /* Freqcal value */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].pairwise_cipher =
-        (lwesp_ap_cipher_t)lwespi_parse_number(&str); /* Pairwise cipher */
+        (lwesp_ap_cipher_t)lwespi_parse_number(&str);                                             /* Pairwise cipher */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].group_cipher =
-        (lwesp_ap_cipher_t)lwespi_parse_number(&str); /* Group cipher */
+        (lwesp_ap_cipher_t)lwespi_parse_number(&str);                                             /* Group cipher */
 #else
     /* Read and ignore values */
     lwespi_parse_number(&str);

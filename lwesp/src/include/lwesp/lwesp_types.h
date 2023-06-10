@@ -238,12 +238,12 @@ typedef struct {
 
 /**
  * \ingroup         LWESP_TYPES
- * \brief           SW version in semantic versioning format
+ * \brief           SW version handle object.
+ * 
+ * Format is (major << 24 | minor << 16 | patch << 8 | 0)
  */
 typedef struct {
-    uint8_t major; /*!< Major version */
-    uint8_t minor; /*!< Minor version */
-    uint8_t patch; /*!< Patch version */
+    uint32_t version; /*!< Version in single hex format */
 } lwesp_sw_version_t;
 
 /**

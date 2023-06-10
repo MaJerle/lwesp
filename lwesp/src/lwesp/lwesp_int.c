@@ -980,7 +980,8 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         }
     } else if (CMD_IS_CUR(LWESP_CMD_GMR)) {
         if (!strncmp(rcv->data, "AT version", 10)) {
-            uint8_t ok = 1, major = 99, minor = 99, patch = 99;
+            uint32_t min_version = (uint32_t)-1;
+            uint8_t ok = 1;
             lwespi_parse_at_sdk_version(&rcv->data[11], &esp.m.version_at);
 
             /*
@@ -994,27 +995,21 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 #if LWESP_CFG_ESP8266
             } else if (strstr(rcv->data, "- ESP8266 -") != NULL) {
                 esp.m.device = LWESP_DEVICE_ESP8266;
-                major = LWESP_MIN_AT_VERSION_MAJOR_ESP8266;
-                minor = LWESP_MIN_AT_VERSION_MINOR_ESP8266;
-                patch = LWESP_MIN_AT_VERSION_PATCH_ESP8266;
+                min_version = LWESP_MIN_AT_VERSION_ESP8266;
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
                              "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP8266");
 #endif /* LWESP_CFG_ESP8266 */
 #if LWESP_CFG_ESP32
             } else if (strstr(rcv->data, "- ESP32 -") != NULL) {
                 esp.m.device = LWESP_DEVICE_ESP32;
-                major = LWESP_MIN_AT_VERSION_MAJOR_ESP32;
-                minor = LWESP_MIN_AT_VERSION_MINOR_ESP32;
-                patch = LWESP_MIN_AT_VERSION_PATCH_ESP32;
+                min_version = LWESP_MIN_AT_VERSION_ESP32;
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
                              "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP32");
 #endif /* LWESP_CFG_ESP32 */
 #if LWESP_CFG_ESP32_C3
             } else if (strstr(rcv->data, "- ESP32C3 -") != NULL || strstr(rcv->data, "- ESP32-C3 -") != NULL) {
                 esp.m.device = LWESP_DEVICE_ESP32_C3;
-                major = LWESP_MIN_AT_VERSION_MAJOR_ESP32_C3;
-                minor = LWESP_MIN_AT_VERSION_MINOR_ESP32_C3;
-                patch = LWESP_MIN_AT_VERSION_PATCH_ESP32_C3;
+                min_version = LWESP_MIN_AT_VERSION_ESP32_C3;
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
                              "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP32-C3");
 #endif /* LWESP_CFG_ESP32_C3 */
@@ -1024,34 +1019,19 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                              rcv->data);
                 ok = 0;
             }
+            LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE, "[LWESP GMR] AT version minimum required: %08X\r\n",
+                         (unsigned)min_version);
             LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                         "[LWESP GMR] AT version minimum required: %d.%d.%d\r\n", (int)major, (int)minor, (int)patch);
-            LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                         "[LWESP GMR] AT version detected on device: %d.%d.%d\r\n", (int)esp.m.version_at.major,
-                         (int)esp.m.version_at.minor, (int)esp.m.version_at.patch);
+                         "[LWESP GMR] AT version detected on device: %08X\r\n", (int)esp.m.version_at.version);
 
             /* Compare versions, but only if device is well detected */
             if (ok) {
                 ok = 0;
-                if (esp.m.version_at.major > major) {
-                    ok = 1;
-                } else if (esp.m.version_at.major == major) {
-                    if (esp.m.version_at.minor > minor) {
-                        ok = 1;
-                    } else if (esp.m.version_at.minor == minor) {
-                        if ((int8_t)esp.m.version_at.patch >= (int8_t)patch) {
-                            ok = 1;
-                        } else {
-                            LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                         "[LWESP GMR] AT version comparison failed with patch version\r\n");
-                        }
-                    } else {
-                        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                     "[LWESP GMR] AT version comparison failed with minor version\r\n");
-                    }
+                if (esp.m.version_at.version >= min_version) {
+                    ok = 1; /* OK */
                 } else {
                     LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                 "[LWESP GMR] AT version comparison failed with major version\r\n");
+                                 "[LWESP GMR] Minimum AT required is higher than AT version loaded on the device\r\n");
                 }
             }
 

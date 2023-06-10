@@ -76,16 +76,12 @@ lwespr_t lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version);
 /**
  * \brief           Set and format major, minor and patch values to firmware version
  * \param[in]       v: Version output, pointer to \ref lwesp_sw_version_t structure
- * \param[in]       major_: Major version
- * \param[in]       minor_: Minor version
- * \param[in]       patch_: Patch version
+ * \param[in]       version_: Version in 32-bit format
  * \hideinitializer
  */
-#define lwesp_set_fw_version(v, major_, minor_, patch_)                                                                \
+#define lwesp_set_fw_version(v, version_)                                                                              \
     do {                                                                                                               \
-        (v)->major = (major_);                                                                                         \
-        (v)->minor = (minor_);                                                                                         \
-        (v)->patch = (patch_);                                                                                         \
+        (v)->version = (version_);                                                                                     \
     } while (0)
 
 #if LWESP_CFG_ESP8266 || __DOXYGEN__
