@@ -48,7 +48,6 @@ typedef struct {
 
 /**
  * \brief           Processing function status data
- * 
  */
 typedef struct {
     uint8_t is_ok;    /*!< Set to `1` if OK is set from the command processing */
@@ -1303,7 +1302,7 @@ lwespi_process_buffer(void) {
              */
             lwesp_buff_skip(&esp.buff, len);
         }
-    } while (len);
+    } while (len > 0);
     return lwespOK;
 }
 #endif /* !LWESP_CFG_INPUT_USE_PROCESS || __DOXYGEN__ */
