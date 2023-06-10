@@ -66,20 +66,31 @@ lwesp_flash_erase(lwesp_flash_partition_t partition, uint32_t offset, uint32_t l
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 5000);
 }
 
+/**
+ * \brief           Write data to flash partition
+ * \param[in]       partition: Partition to write to
+ * \param[in]       offset: Offset from start of partition to start writing at
+ * \param[in]       length: Number of bytes to write
+ * \param[in]       data: Actual data to write. Must not be `NULL`
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
 lwespr_t
 lwesp_flash_write(lwesp_flash_partition_t partition, uint32_t offset, uint32_t length, const void* data,
                   const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
-    
+
     LWESP_ASSERT(length > 0);
+    LWESP_ASSERT(data != NULL);
+    LWESP_ASSERT(partition < LWESP_FLASH_PARTITION_END && partition != LWESP_FLASH_PARTITION_PKI_END);
 
     /* 
      * Check alignment if used - according to the ESP-AT commands,
-     * it is necessary to
+     * it is necessary to have 4-bytes alignment when loading PKI data
      */
-    if (partition == LWESP_FLASH_PARTITION_CLIENT_CA || partition == LWESP_FLASH_PARTITION_CLIENT_CERT
-        || partition == LWESP_FLASH_PARTITION_CLIENT_KEY) {
-        /* TODO: Do we need server too? */
+    if (partition < LWESP_FLASH_PARTITION_PKI_END) {
         LWESP_ASSERT((length & 0x03) == 0);
     }
 
