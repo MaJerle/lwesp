@@ -22,7 +22,10 @@
 - Fix min at version for ESP32 to `2.2.0`
 - Add `LWESP ` prefix for debug messages
 - Update code style with astyle
-- Add `.clang-format` draft
+- Add `.clang-format` draft - remove astyle support
+- SSL: Added experimental support
+- FileSystem: Added support for erase and write operation
+- Code improvement: Change multiple local variables to single structure
 
 ## 1.1.2-dev
 
