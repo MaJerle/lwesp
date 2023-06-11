@@ -85,7 +85,7 @@ typedef enum {
     MQTT_MSG_TYPE_CONNACK = 0x02,     /*!< Acknowledge connection request */
     MQTT_MSG_TYPE_PUBLISH = 0x03,     /*!< Publish message */
     MQTT_MSG_TYPE_PUBACK = 0x04,      /*!< Publish acknowledgement */
-    MQTT_MSG_TYPE_PUBREC = 0x05,      /*!< Public received */
+    MQTT_MSG_TYPE_PUBREC = 0x05,      /*!< Publish received */
     MQTT_MSG_TYPE_PUBREL = 0x06,      /*!< Publish release */
     MQTT_MSG_TYPE_PUBCOMP = 0x07,     /*!< Publish complete */
     MQTT_MSG_TYPE_SUBSCRIBE = 0x08,   /*!< Subscribe to topics */
@@ -580,10 +580,10 @@ prv_mqtt_process_incoming_message(lwesp_mqtt_client_p client) {
              * either PUBACK or PUBREC
              */
             if (qos > 0) { /* We have to reply on QoS > 0 */
-                mqtt_msg_type_t rlwesp_msg_type = qos == 1 ? MQTT_MSG_TYPE_PUBACK : MQTT_MSG_TYPE_PUBREC;
+                mqtt_msg_type_t resp_msg_type = qos == 1 ? MQTT_MSG_TYPE_PUBACK : MQTT_MSG_TYPE_PUBREC;
                 LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_TRACE, "[LWESP MQTT] Sending publish resp: %s on pkt_id: %d\r\n",
-                             prv_mqtt_msg_type_to_str(rlwesp_msg_type), (int)pkt_id);
-                prv_write_ack_rec_rel_resp(client, rlwesp_msg_type, pkt_id, qos);
+                             prv_mqtt_msg_type_to_str(resp_msg_type), (int)pkt_id);
+                prv_write_ack_rec_rel_resp(client, resp_msg_type, pkt_id, qos);
             }
 
             /* Notify application layer about received packet */
