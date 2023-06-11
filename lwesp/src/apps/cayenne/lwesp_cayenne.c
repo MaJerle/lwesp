@@ -90,23 +90,25 @@ typedef struct {
 /**
  * \brief           List of key-value pairs for topic type and string
  */
-static const topic_cmd_str_pair_t topic_cmd_str_pairs[] = {{LWESP_CAYENNE_TOPIC_DATA, "data"},
-                                                           {LWESP_CAYENNE_TOPIC_COMMAND, "cmd"},
-                                                           {LWESP_CAYENNE_TOPIC_CONFIG, "conf"},
-                                                           {LWESP_CAYENNE_TOPIC_RESPONSE, "response"},
-                                                           {LWESP_CAYENNE_TOPIC_SYS_MODEL, "sys/model"},
-                                                           {LWESP_CAYENNE_TOPIC_SYS_VERSION, "sys/version"},
-                                                           {LWESP_CAYENNE_TOPIC_SYS_CPU_MODEL, "sys/cpu/model"},
-                                                           {LWESP_CAYENNE_TOPIC_SYS_CPU_SPEED, "sys/cpu/speed"},
-                                                           {LWESP_CAYENNE_TOPIC_DIGITAL, "digital"},
-                                                           {LWESP_CAYENNE_TOPIC_DIGITAL_COMMAND, "digital-cmd"},
-                                                           {LWESP_CAYENNE_TOPIC_DIGITAL_CONFIG, "digital-conf"},
-                                                           {LWESP_CAYENNE_TOPIC_ANALOG, "analog"},
-                                                           {LWESP_CAYENNE_TOPIC_ANALOG_COMMAND, "analog-cmd"},
-                                                           {LWESP_CAYENNE_TOPIC_ANALOG_CONFIG, "analog-conf"}};
-static char topic_name[256];           /*!< Topic name for publish/subscribe */
-static char payload_data[128];         /*!< Payload data */
-static lwesp_cayenne_t* first_cayenne; /*!< Linked list of all cayenne objects */
+static const topic_cmd_str_pair_t topic_cmd_str_pairs[] = {
+    {LWESP_CAYENNE_TOPIC_DATA, "data"},
+    {LWESP_CAYENNE_TOPIC_COMMAND, "cmd"},
+    {LWESP_CAYENNE_TOPIC_CONFIG, "conf"},
+    {LWESP_CAYENNE_TOPIC_RESPONSE, "response"},
+    {LWESP_CAYENNE_TOPIC_SYS_MODEL, "sys/model"},
+    {LWESP_CAYENNE_TOPIC_SYS_VERSION, "sys/version"},
+    {LWESP_CAYENNE_TOPIC_SYS_CPU_MODEL, "sys/cpu/model"},
+    {LWESP_CAYENNE_TOPIC_SYS_CPU_SPEED, "sys/cpu/speed"},
+    {LWESP_CAYENNE_TOPIC_DIGITAL, "digital"},
+    {LWESP_CAYENNE_TOPIC_DIGITAL_COMMAND, "digital-cmd"},
+    {LWESP_CAYENNE_TOPIC_DIGITAL_CONFIG, "digital-conf"},
+    {LWESP_CAYENNE_TOPIC_ANALOG, "analog"},
+    {LWESP_CAYENNE_TOPIC_ANALOG_COMMAND, "analog-cmd"},
+    {LWESP_CAYENNE_TOPIC_ANALOG_CONFIG, "analog-conf"},
+};
+static char topic_name[256];                    /*!< Topic name for publish/subscribe */
+static char payload_data[128];                  /*!< Payload data */
+static lwesp_cayenne_t* volatile first_cayenne; /*!< Linked list of all cayenne objects */
 
 /**
  * \brief           Parse received topic string and verify if received string format is expected by the application
