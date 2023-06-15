@@ -55,9 +55,9 @@ All combined, steps to establish SSL connection is to:
 Example
 *******
 
-Below is the up-to-date netconn API example using SSL connection.
+Below is the up-to-date netconn API example using SSL connection. Example file is located in ``snippets/netconn_client_ssl.c``
 
-.. literalinclude:: ../../../snippets/netconn_client_ssl.c
+.. literalinclude:: ../../snippets/netconn_client_ssl.c
     :language: c
     :linenos:
     :caption: Netconn example with SSL
