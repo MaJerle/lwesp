@@ -478,9 +478,9 @@ typedef struct lwesp_msg {
         } tcpip_sntp_intv;     /*!< SNTP interval configuration */
 
         struct {
-            lwesp_datetime_t* dt; /*!< Pointer to datetime structure */
-        } tcpip_sntp_time;        /*!< SNTP get time */
-#endif                            /* LWESP_CFG_SNTP || __DOXYGEN__ */
+            struct tm* dt; /*!< Pointer to datetime structure */
+        } tcpip_sntp_time; /*!< SNTP get time */
+#endif                     /* LWESP_CFG_SNTP || __DOXYGEN__ */
 #if LWESP_CFG_WPS || __DOXYGEN__
         struct {
             uint8_t en; /*!< Status if WPS is enabled or not */

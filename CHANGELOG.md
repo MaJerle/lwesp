@@ -26,6 +26,7 @@
 - SSL: Added experimental support
 - FileSystem: Added support for erase and write operation
 - Code improvement: Change multiple local variables to single structure
+- Delete `lwesp_datetime_t` and use generic `struct tm` instead
 
 ## 1.1.2-dev
 

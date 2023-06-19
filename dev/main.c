@@ -19,6 +19,7 @@
 #include "netconn_client.h"
 #include "netconn_server.h"
 #include "netconn_server_1thread.h"
+#include "sntp.h"
 #include "station_manager.h"
 #include "utils.h"
 
@@ -411,12 +412,15 @@ main_thread(void* arg) {
 
     /* HTTP server application example */
 
+    /* SNTP example */
+    sntp_gettime();
+
     /* Netconn client in separate thread */
     //lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Netconn client in separate thread */
-    lwesp_sys_thread_create(NULL, "netconn_client_ssl", (lwesp_sys_thread_fn)netconn_client_ssl_thread, NULL, 0,
-                            LWESP_SYS_THREAD_PRIO);
+    //lwesp_sys_thread_create(NULL, "netconn_client_ssl", (lwesp_sys_thread_fn)netconn_client_ssl_thread, NULL, 0,
+    //                        LWESP_SYS_THREAD_PRIO);
 
     /* Netconn server with multiple threads */
     //lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);

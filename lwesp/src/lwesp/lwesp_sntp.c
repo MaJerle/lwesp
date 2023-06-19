@@ -98,15 +98,14 @@ lwesp_sntp_set_interval(uint32_t interval, const lwesp_api_cmd_evt_fn evt_fn, vo
 /**
  * \brief           Get time from SNTP servers
  * SNTP must be configured using \ref lwesp_sntp_set_config before you can use this function
- * \param[out]      dt: Pointer to \ref lwesp_datetime_t structure to fill with date and time values
+ * \param[out]      dt: Pointer to struct tm structure to fill with date and time values
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_sntp_gettime(lwesp_datetime_t* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
-                   const uint32_t blocking) {
+lwesp_sntp_gettime(struct tm* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);

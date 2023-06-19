@@ -60,7 +60,7 @@ netconn_client_ssl_thread(void const* arg) {
      */
     client = lwesp_netconn_new(LWESP_NETCONN_TYPE_SSL);
     if (client != NULL) {
-        lwesp_datetime_t dt;
+        struct tm dt;
 
         /* First erase all client SSL settings */
         lwesp_flash_erase(LWESP_FLASH_PARTITION_CLIENT_CA, 0, 0, NULL, NULL, 1);
@@ -81,7 +81,7 @@ netconn_client_ssl_thread(void const* arg) {
         lwesp_sntp_set_config(1, 2, NULL, NULL, NULL, NULL, NULL, 1);
         do {
             lwesp_sntp_gettime(&dt, NULL, NULL, 1);
-            if (dt.year > 2000) {
+            if (dt.tm_year > 100) {
                 break;
             }
         } while (1);
@@ -97,9 +97,9 @@ netconn_client_ssl_thread(void const* arg) {
             printf("Connected to " NETCONN_HOST "\r\n");
             res = lwesp_netconn_write(client, request_header, sizeof(request_header) - 1); /* Send data to server */
             if (res == lwespOK) {
-                res = lwesp_netconn_flush(client); /* Flush data to output */
+                res = lwesp_netconn_flush(client);                                         /* Flush data to output */
             }
-            if (res == lwespOK) { /* Were data sent? */
+            if (res == lwespOK) {                                                          /* Were data sent? */
                 printf("Data were successfully sent to server\r\n");
 
                 /*

@@ -40,7 +40,9 @@
         "examples_common_lwesp_callback_func.h": "c",
         "*.hex": "c",
         "lwesp_netconn.h": "c",
-        "netconn_client.h": "c"
+        "netconn_client.h": "c",
+        "lwesp_sntp.h": "c",
+        "utils.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

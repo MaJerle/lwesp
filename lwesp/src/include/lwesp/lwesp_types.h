@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "lwesp/lwesp_opt.h"
 
 #ifdef __cplusplus
@@ -591,10 +592,10 @@ typedef struct lwesp_evt {
 #endif                        /* LWESP_CFG_PING || __DOXYGEN__ */
 #if LWESP_CFG_SNTP || __DOXYGEN__
         struct {
-            lwespr_t res;               /*!< Result of command */
-            const lwesp_datetime_t* dt; /*!< Pointer to datetime structure */
-        } cip_sntp_time;                /*!< SNTP time finished. Use with \ref LWESP_EVT_SNTP_TIME event */
-#endif                                  /* LWESP_CFG_SNTP || __DOXYGEN__ */
+            lwespr_t res;        /*!< Result of command */
+            const struct tm* dt; /*!< Pointer to datetime structure */
+        } cip_sntp_time;         /*!< SNTP time finished. Use with \ref LWESP_EVT_SNTP_TIME event */
+#endif                           /* LWESP_CFG_SNTP || __DOXYGEN__ */
 
 #if LWESP_CFG_WEBSERVER || __DOXYGEN__
         struct {

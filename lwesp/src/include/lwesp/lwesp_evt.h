@@ -302,7 +302,7 @@ uint32_t lwesp_evt_ping_get_time(lwesp_evt_t* cc);
  */
 
 lwespr_t lwesp_evt_sntp_time_get_result(lwesp_evt_t* cc);
-const lwesp_datetime_t* lwesp_evt_sntp_time_get_datetime(lwesp_evt_t* cc);
+const struct tm* lwesp_evt_sntp_time_get_datetime(lwesp_evt_t* cc);
 
 /**
  * \}

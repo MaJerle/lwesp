@@ -623,61 +623,61 @@ lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
 
     /* Scan for day in a week */
     if (!strncmp(str, "Mon", 3)) {
-        msg->msg.tcpip_sntp_time.dt->day = 1;
+        msg->msg.tcpip_sntp_time.dt->tm_mday = 0;
     } else if (!strncmp(str, "Tue", 3)) {
-        msg->msg.tcpip_sntp_time.dt->day = 2;
+        msg->msg.tcpip_sntp_time.dt->tm_mday = 1;
     } else if (!strncmp(str, "Wed", 3)) {
-        msg->msg.tcpip_sntp_time.dt->day = 3;
+        msg->msg.tcpip_sntp_time.dt->tm_mday = 2;
     } else if (!strncmp(str, "Thu", 3)) {
-        msg->msg.tcpip_sntp_time.dt->day = 4;
+        msg->msg.tcpip_sntp_time.dt->tm_mday = 3;
     } else if (!strncmp(str, "Fri", 3)) {
-        msg->msg.tcpip_sntp_time.dt->day = 5;
+        msg->msg.tcpip_sntp_time.dt->tm_mday = 4;
     } else if (!strncmp(str, "Sat", 3)) {
-        msg->msg.tcpip_sntp_time.dt->day = 6;
+        msg->msg.tcpip_sntp_time.dt->tm_mday = 5;
     } else if (!strncmp(str, "Sun", 3)) {
-        msg->msg.tcpip_sntp_time.dt->day = 7;
+        msg->msg.tcpip_sntp_time.dt->tm_mday = 6;
     }
     str += 4;
 
     /* Scan for month in a year */
     if (!strncmp(str, "Jan", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 1;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 0;
     } else if (!strncmp(str, "Feb", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 2;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 1;
     } else if (!strncmp(str, "Mar", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 3;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 2;
     } else if (!strncmp(str, "Apr", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 4;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 3;
     } else if (!strncmp(str, "May", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 5;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 4;
     } else if (!strncmp(str, "Jun", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 6;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 5;
     } else if (!strncmp(str, "Jul", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 7;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 6;
     } else if (!strncmp(str, "Aug", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 8;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 7;
     } else if (!strncmp(str, "Sep", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 9;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 8;
     } else if (!strncmp(str, "Oct", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 10;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 9;
     } else if (!strncmp(str, "Nov", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 11;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 10;
     } else if (!strncmp(str, "Dec", 3)) {
-        msg->msg.tcpip_sntp_time.dt->month = 12;
+        msg->msg.tcpip_sntp_time.dt->tm_mon = 11;
     }
     str += 4;
     if (*str == ' ') { /* Numbers < 10 could have one more space */
         ++str;
     }
-    msg->msg.tcpip_sntp_time.dt->date = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_mday = lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->hours = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_hour = lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->minutes = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_min = lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->seconds = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_sec = lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->year = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_year = lwespi_parse_number(&str) - 1900;
     return 1;
 }
 
