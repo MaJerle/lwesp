@@ -28,15 +28,18 @@
 static void main_thread(void* arg);
 static void input_thread(void* arg);
 
-lwesp_ap_t aps[10];
-size_t aps_count;
+static lwesp_ap_t aps[10];
+static size_t aps_count;
 
 static lwespr_t lwesp_evt(lwesp_evt_t* evt);
 
-lwesp_sta_info_ap_t connected_ap_info;
+static lwesp_sta_info_ap_t connected_ap_info;
 extern volatile uint8_t lwesp_ll_win32_driver_ignore_data;
+static lwesp_cayenne_t cayenne;
 
-lwesp_cayenne_t cayenne;
+static uint8_t parse_str(char** str, char** out);
+static uint8_t parse_num_u64(char** str, uint64_t* out);
+static uint8_t parse_num(char** str, uint32_t* out);
 
 /**
  * \brief           LwMEM memory config
@@ -90,6 +93,8 @@ static const cmd_t cmd_commands[] = {
     {0, "netconn_server", "", "Start netconn server thread"},
     {0, "mqtt_client_api", "", "Start mqtt client API thread"},
     {0, "ciupdate", "", "Run ciupdate command"},
+    {0, "dhcpenable", "", "Enable DHCP"},
+    {0, "dhcpdisable", "", "Disable DHCP"},
 };
 
 /**
@@ -116,110 +121,118 @@ main() {
 }
 
 /**
- * \brief           Parse string and move pointer after parse
- * \param[in,out]   str: Pointer to pointer to input string
- * \param[out]      out: Output variable to set beg of pointer
- * \return          `1` on success, `0` otherwise
+ * \brief           Main thread for init purposes
  */
-static uint8_t
-parse_str(char** str, char** out) {
-    char* s = *str;
-    uint8_t is_quote = 0;
+static void
+main_thread(void* arg) {
+    char hn[10];
+    uint32_t ping_time;
 
-    *out = NULL;
-    for (; s != NULL && *s != '\0' && *s == ' '; ++s) {}
-    if (s != NULL && *s >= ' ') {
-        if (*s == '"') {
-            is_quote = 1;
-            ++s;
-        } else if (*s == '\0') {
-            return 0;
-        }
-        *out = s; /* Set where we point */
-        for (; s != NULL && *s >= ' ' && *s != (is_quote ? '"' : ' '); ++s) {}
-        *s = '\0';
-        *str = s + 1; /* Set new value for str */
-        return 1;
+    LWESP_UNUSED(hn);
+    LWESP_UNUSED(arg);
+    LWESP_UNUSED(ping_time);
+
+    /* Init ESP library */
+    lwesp_init(lwesp_evt, 1);
+    if (0) {
+#if LWESP_CFG_ESP32
+    } else if (lwesp_device_is_esp32()) {
+        safeprintf("Device is ESP32\r\n");
+#endif
+#if LWESP_CFG_ESP8266
+    } else if (lwesp_device_is_esp8266()) {
+        safeprintf("Device is ESP8266\r\n");
+#endif
+#if LWESP_CFG_ESP32_C3
+    } else if (lwesp_device_is_esp32_c3()) {
+        safeprintf("Device is ESP32-C3\r\n");
+#endif
     } else {
-        *out = NULL;
-        return 0;
+        safeprintf("Unknown device...\r\n");
     }
-}
 
-/**
- * \brief           Parse number in dec, oct, hex or bin format
- * \param[in,out]   str: Pointer to pointer to input string
- * \param[out]      out: Output variable to write value
- * \return          `1` on success, `0` otherwise
- */
-static uint8_t
-parse_num_u64(char** str, uint64_t* out) {
-    uint64_t r, num = 0;
-    char* s = *str;
-    unsigned char c;
+    /* Start thread to toggle device present */
+    //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
-    *out = 0;
-    for (; s != NULL && *s != '\0' && *s == ' '; ++s) {}
-    if (s != NULL && *s >= '0' && *s <= '9') {
-        /* Check for hex/bin/octal */
-        if (*s == '0') {
-            ++s;
-            if (*s == 'x' || *s == 'X') {
-                r = 16;
-                ++s;
-            } else if (*s == 'b' || *s == 'B') {
-                r = 2;
-                ++s;
-            } else if (*s <= '7') {
-                r = 8;
-            } else if (*s <= ' ') {
-                return 1; /* Single zero */
-            } else {
-                return 0; /* Wrong format */
-            }
-        } else {
-            r = 10;
+    /*
+     * Try to connect to preferred access point
+     *
+     * Follow function implementation for more info
+     * on how to setup preferred access points for fast connection
+     */
+    lwesp_sta_autojoin(0, NULL, NULL, 1);
+
+    /*
+     * Initialize and start asynchronous connection to preferred acces point
+     *
+     * Will immediately return and will not block the application.
+     * All events are done asynchronously
+     */
+    station_manager_connect_to_access_point_async_init();
+
+    /* Different types of snippets to execute */
+
+    /* HTTP server application example */
+
+    /* SNTP example */
+    sntp_gettime();
+
+    /* Netconn client in separate thread */
+    //lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+    /* Netconn client in separate thread */
+    //lwesp_sys_thread_create(NULL, "netconn_client_ssl", (lwesp_sys_thread_fn)netconn_client_ssl_thread, NULL, 0,
+    //                        LWESP_SYS_THREAD_PRIO);
+
+    /* Netconn server with multiple threads */
+    //lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+    /* Netconn server with single thread */
+    //lwesp_sys_thread_create(NULL, "netconn_server_single", (lwesp_sys_thread_fn)netconn_server_1thread_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+    /* MQTT client with asynchronous events */
+    //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+    /* MQTT client with API sequential mode, test application */
+    //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+    /* MQTT API client with connectivity to Cayenne */
+    //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+    /* LwESP built-in Cayenne protocol implementation thread demo */
+    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
+
+#if 0
+    /* Asynchronous push-only cayenne demo with buffer used to fill the data */
+    cayenne_async_mqtt_init();
+
+    /* Demo to fill cayenne async data */
+    while (1) {
+        static cayenne_async_data_t data;
+        static float temp = 0.03;
+        static uint32_t channel = 103;
+
+        /* Setup value */
+        data.type = CAYENNE_DATA_TYPE_TEMP;
+        data.channel = channel;
+        data.data.flt = temp;
+        if (lwesp_buff_get_free(&cayenne_async_data_buff) > sizeof(data)) {
+            lwesp_buff_write(&cayenne_async_data_buff, &data, sizeof(data));
         }
 
-        num = 0;
-        for (c = *s; c > ' '; ++s, c = *s) {
-            if (c > 'a') {
-                c -= 0x20;
-            }
-            c -= '0';
-            if (c > 17) {
-                c -= 7;
-                if (c <= 9) {
-                    return 0;
-                }
-            }
-            if (c >= r) {
-                return 0;
-            }
-            num = num * r + c;
+        /* Set new value for next round */
+        if (channel++ > 113) {
+            channel = 103;
         }
-        *out = num;
-        *str = s;
-        return 1;
+        temp *= 1.01;
+        lwesp_delay(3000);
     }
-    return 0;
-}
+#endif
 
-/**
- * \brief           Parse number in dec, oct, hex or bin format
- * \param[in,out]   str: Pointer to pointer to input string
- * \param[out]      out: Output variable to write value
- * \return          `1` on success, `0` otherwise
- */
-static uint8_t
-parse_num(char** str, uint32_t* out) {
-    uint64_t num;
-    uint8_t s;
-
-    s = parse_num_u64(str, &num);
-    *out = (uint32_t)num;
-
-    return s;
+    /* While loop with delay to prevent main thread termination in development environment */
+    while (1) {
+        lwesp_delay(1000);
+    }
 }
 
 /**
@@ -359,121 +372,6 @@ input_thread(void* arg) {
 }
 
 /**
- * \brief           Main thread for init purposes
- */
-static void
-main_thread(void* arg) {
-    char hn[10];
-    uint32_t ping_time;
-
-    LWESP_UNUSED(hn);
-    LWESP_UNUSED(arg);
-    LWESP_UNUSED(ping_time);
-
-    /* Init ESP library */
-    lwesp_init(lwesp_evt, 1);
-    if (0) {
-#if LWESP_CFG_ESP32
-    } else if (lwesp_device_is_esp32()) {
-        safeprintf("Device is ESP32\r\n");
-#endif
-#if LWESP_CFG_ESP8266
-    } else if (lwesp_device_is_esp8266()) {
-        safeprintf("Device is ESP8266\r\n");
-#endif
-#if LWESP_CFG_ESP32_C3
-    } else if (lwesp_device_is_esp32_c3()) {
-        safeprintf("Device is ESP32-C3\r\n");
-#endif
-    } else {
-        safeprintf("Unknown device...\r\n");
-    }
-
-    /* Start thread to toggle device present */
-    //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /*
-     * Try to connect to preferred access point
-     *
-     * Follow function implementation for more info
-     * on how to setup preferred access points for fast connection
-     */
-    lwesp_sta_autojoin(0, NULL, NULL, 1);
-
-    /*
-     * Initialize and start asynchronous connection to preferred acces point
-     *
-     * Will immediately return and will not block the application.
-     * All events are done asynchronously
-     */
-    station_manager_connect_to_access_point_async_init();
-
-    /* Different types of snippets to execute */
-
-    /* HTTP server application example */
-
-    /* SNTP example */
-    sntp_gettime();
-
-    /* Netconn client in separate thread */
-    //lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /* Netconn client in separate thread */
-    //lwesp_sys_thread_create(NULL, "netconn_client_ssl", (lwesp_sys_thread_fn)netconn_client_ssl_thread, NULL, 0,
-    //                        LWESP_SYS_THREAD_PRIO);
-
-    /* Netconn server with multiple threads */
-    //lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /* Netconn server with single thread */
-    //lwesp_sys_thread_create(NULL, "netconn_server_single", (lwesp_sys_thread_fn)netconn_server_1thread_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /* MQTT client with asynchronous events */
-    //lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /* MQTT client with API sequential mode, test application */
-    //lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /* MQTT API client with connectivity to Cayenne */
-    //lwesp_sys_thread_create(NULL, "mqtt_client_api_cayenne", (lwesp_sys_thread_fn)mqtt_client_api_cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-    /* LwESP built-in Cayenne protocol implementation thread demo */
-    //lwesp_sys_thread_create(NULL, "cayenne", (lwesp_sys_thread_fn)cayenne_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
-
-#if 0
-    /* Asynchronous push-only cayenne demo with buffer used to fill the data */
-    cayenne_async_mqtt_init();
-
-    /* Demo to fill cayenne async data */
-    while (1) {
-        static cayenne_async_data_t data;
-        static float temp = 0.03;
-        static uint32_t channel = 103;
-
-        /* Setup value */
-        data.type = CAYENNE_DATA_TYPE_TEMP;
-        data.channel = channel;
-        data.data.flt = temp;
-        if (lwesp_buff_get_free(&cayenne_async_data_buff) > sizeof(data)) {
-            lwesp_buff_write(&cayenne_async_data_buff, &data, sizeof(data));
-        }
-
-        /* Set new value for next round */
-        if (channel++ > 113) {
-            channel = 103;
-        }
-        temp *= 1.01;
-        lwesp_delay(3000);
-    }
-#endif
-
-    /* While loop with delay to prevent main thread termination in development environment */
-    while (1) {
-        lwesp_delay(1000);
-    }
-}
-
-/**
  * \brief           Global ESP event function callback
  * \param[in]       evt: Event information
  * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
@@ -571,4 +469,111 @@ lwesp_evt(lwesp_evt_t* evt) {
         default: break;
     }
     return lwespOK;
+}
+
+/**
+ * \brief           Parse string and move pointer after parse
+ * \param[in,out]   str: Pointer to pointer to input string
+ * \param[out]      out: Output variable to set beg of pointer
+ * \return          `1` on success, `0` otherwise
+ */
+static uint8_t
+parse_str(char** str, char** out) {
+    char* s = *str;
+    uint8_t is_quote = 0;
+
+    *out = NULL;
+    for (; s != NULL && *s != '\0' && *s == ' '; ++s) {}
+    if (s != NULL && *s >= ' ') {
+        if (*s == '"') {
+            is_quote = 1;
+            ++s;
+        } else if (*s == '\0') {
+            return 0;
+        }
+        *out = s; /* Set where we point */
+        for (; s != NULL && *s >= ' ' && *s != (is_quote ? '"' : ' '); ++s) {}
+        *s = '\0';
+        *str = s + 1; /* Set new value for str */
+        return 1;
+    } else {
+        *out = NULL;
+        return 0;
+    }
+}
+
+/**
+ * \brief           Parse number in dec, oct, hex or bin format
+ * \param[in,out]   str: Pointer to pointer to input string
+ * \param[out]      out: Output variable to write value
+ * \return          `1` on success, `0` otherwise
+ */
+static uint8_t
+parse_num_u64(char** str, uint64_t* out) {
+    uint64_t r, num = 0;
+    char* s = *str;
+    unsigned char c;
+
+    *out = 0;
+    for (; s != NULL && *s != '\0' && *s == ' '; ++s) {}
+    if (s != NULL && *s >= '0' && *s <= '9') {
+        /* Check for hex/bin/octal */
+        if (*s == '0') {
+            ++s;
+            if (*s == 'x' || *s == 'X') {
+                r = 16;
+                ++s;
+            } else if (*s == 'b' || *s == 'B') {
+                r = 2;
+                ++s;
+            } else if (*s <= '7') {
+                r = 8;
+            } else if (*s <= ' ') {
+                return 1; /* Single zero */
+            } else {
+                return 0; /* Wrong format */
+            }
+        } else {
+            r = 10;
+        }
+
+        num = 0;
+        for (c = *s; c > ' '; ++s, c = *s) {
+            if (c > 'a') {
+                c -= 0x20;
+            }
+            c -= '0';
+            if (c > 17) {
+                c -= 7;
+                if (c <= 9) {
+                    return 0;
+                }
+            }
+            if (c >= r) {
+                return 0;
+            }
+            num = num * r + c;
+        }
+        *out = num;
+        *str = s;
+        return 1;
+    }
+    return 0;
+}
+
+/**
+ * \brief           Parse number in dec, oct, hex or bin format
+ * \param[in,out]   str: Pointer to pointer to input string
+ * \param[out]      out: Output variable to write value
+ * \return          `1` on success, `0` otherwise
+ */
+static uint8_t
+parse_num(char** str, uint32_t* out) {
+    uint64_t num;
+    uint8_t s;
+
+    s = parse_num_u64(str, &num);
+    *out = (uint32_t)num;
+
+    return s;
 }
