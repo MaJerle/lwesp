@@ -236,7 +236,7 @@ prv_configure_uart(uint32_t baudrate) {
         LL_DMA_Init(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM, &dma_init);
 #else
         LL_DMA_Init(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH, &dma_init);
-#endif /* defined(LWESP_USART_DMA_RX_STREAM) */
+#endif  /* defined(LWESP_USART_DMA_RX_STREAM) */
 
         /* Enable DMA interrupts */
 #if defined(LWESP_USART_DMA_RX_STREAM)
@@ -322,15 +322,15 @@ lwespr_t
 lwesp_ll_init(lwesp_ll_t* ll) {
 #if !LWESP_CFG_MEM_CUSTOM
     static uint8_t memory[LWESP_MEM_SIZE];
-    const lwesp_mem_region_t mem_regions[] = {{memory, sizeof(memory)}, {NULL, 0}};
+    const lwesp_mem_region_t mem_regions[] = {{memory, sizeof(memory)}};
 
     if (!initialized) {
         lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions)); /* Assign memory for allocations */
     }
-#endif /* !LWESP_CFG_MEM_CUSTOM */
+#endif                                                                     /* !LWESP_CFG_MEM_CUSTOM */
 
     if (!initialized) {
-        ll->send_fn = prv_send_data; /* Set callback function to send data */
+        ll->send_fn = prv_send_data;     /* Set callback function to send data */
 #if defined(LWESP_RESET_PIN)
         ll->reset_fn = prv_reset_device; /* Set callback for hardware reset */
 #endif                                   /* defined(LWESP_RESET_PIN) */
