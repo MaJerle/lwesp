@@ -95,7 +95,7 @@ static const cmd_t cmd_commands[] = {
     {0, "ciupdate", "", "Run ciupdate command"},
     {0, "dhcpenable", "", "Enable DHCP"},
     {0, "dhcpdisable", "", "Disable DHCP"},
-};
+    {0, "wifidisable", "", "Disable WIFI mode completely"}};
 
 /**
  * \brief           Program entry point
@@ -181,8 +181,8 @@ main_thread(void* arg) {
     //lwesp_sys_thread_create(NULL, "netconn_client", (lwesp_sys_thread_fn)netconn_client_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
 
     /* Netconn client in separate thread */
-    //lwesp_sys_thread_create(NULL, "netconn_client_ssl", (lwesp_sys_thread_fn)netconn_client_ssl_thread, NULL, 0,
-    //                        LWESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "netconn_client_ssl", (lwesp_sys_thread_fn)netconn_client_ssl_thread, NULL, 0,
+                            LWESP_SYS_THREAD_PRIO);
 
     /* Netconn server with multiple threads */
     //lwesp_sys_thread_create(NULL, "netconn_server", (lwesp_sys_thread_fn)netconn_server_thread, NULL, 0, LWESP_SYS_THREAD_PRIO);
@@ -313,6 +313,8 @@ input_thread(void* arg) {
             lwesp_ap_set_config("ESP8266_SSID", "its private", 13, LWESP_ECN_WPA2_PSK, 5, 0, NULL, NULL, 1);
         } else if (IS_LINE("apdisable")) {
             lwesp_set_wifi_mode(LWESP_MODE_STA, NULL, NULL, 1);
+        } else if (IS_LINE("wifidisable")) {
+            lwesp_set_wifi_mode(LWESP_MODE_NONE, NULL, NULL, 1);
         } else if (IS_LINE("apliststa")) {
             lwesp_sta_t stas[10];
             size_t stat;

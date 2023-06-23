@@ -7,7 +7,6 @@
 - Implement BT feature
 - Transfer Cayenne MQTT app to be based on non-blocking API instead
 - Add DNS for IPv6 support (Optional)
-- Add support for WIFI GOT IP to parse IPv6
 - Add `AT+CWJEAP` for WPA2 connections
 - Implement single callback when station is connected and IP is received (so far STA_GOT_IP may be called several times in a row, when IP v4 and v6 are received)
    - Implement new type of event instead, that is called only once per connection
