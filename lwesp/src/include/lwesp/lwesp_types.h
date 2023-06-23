@@ -344,6 +344,7 @@ typedef enum {
  * \brief           List of possible WiFi modes
  */
 typedef enum {
+    LWESP_MODE_NONE = 0,   /*!< Wifi RF IP disabled */
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
     LWESP_MODE_STA = 1,    /*!< Set WiFi mode to station only */
 #endif                     /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
@@ -386,6 +387,15 @@ typedef enum {
     LWESP_CONN_TYPE_SSLV6, /*!< Connection type is SSL over IPv6 */
 #endif                     /* LWESP_CFG_IPV6 || __DOXYGEN__ */
 } lwesp_conn_type_t;
+
+/**
+ * \ingroup         LWESP_TYPES
+ * \brief           API calls blocking or non-blocking type
+ */
+typedef enum {
+    LWESP_NON_BLOCKING = 0, /*!< Blocking call */
+    LWESP_BLOCKING = 1,     /*!< Non-blocking call */
+} lwesp_blocking_t;
 
 /* Forward declarations */
 struct lwesp_evt;
