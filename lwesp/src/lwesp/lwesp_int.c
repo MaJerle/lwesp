@@ -1658,11 +1658,11 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
             SET_NEW_CMD(LWESP_CMD_SYSMSG);
             break;
         case LWESP_CMD_SYSMSG:
-#if LWESP_CFG_FLASH
+#if LWESP_CFG_FLASH && defined(LWESP_DEV)
             SET_NEW_CMD(LWESP_CMD_SYSFLASH_GET);
             break;
         case LWESP_CMD_SYSFLASH_GET:
-#endif /* LWESP_CFG_FLASH */
+#endif /* LWESP_CFG_FLASH && defined(LWESP_DEV) */
             SET_NEW_CMD(LWESP_CMD_SYSLOG);
             break;
         case LWESP_CMD_SYSLOG: SET_NEW_CMD(LWESP_CMD_WIFI_CWMODE); break;
