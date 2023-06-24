@@ -255,10 +255,28 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` manual `TCP` data receive from ESP device
+ *
+ * Normally ESP automatically sends received TCP data to host device
+ * in async mode. When host device is slow or if there is memory constrain,
+ * it may happen that processing cannot handle all received data.
+ *
+ * When feature is enabled, ESP will notify host device about new data
+ * available for read and then user may start read process
+ *
+ * \note            This feature is only available for `TCP/SSL` connections.
+ */
+#ifndef LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
+#define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE 1
+#endif
+
+/**
  * \brief           Minimal buffer in bytes for connection receive allocation.
  * 
  *                  Allocation will always start with (up to) \ref LWESP_CFG_CONN_MAX_DATA_LEN
  *                  and will continue with trial down to this setting up until allocating is successful.
+ * 
+ * \note            This feature is used together with \ref LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
  */
 #ifndef LWESP_CFG_CONN_MIN_DATA_LEN
 #define LWESP_CFG_CONN_MIN_DATA_LEN 16

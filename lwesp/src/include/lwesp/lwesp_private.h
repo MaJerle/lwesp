@@ -193,9 +193,11 @@ typedef struct lwesp_conn {
 
     lwesp_linbuff_t buff;       /*!< Linear buffer structure */
     size_t total_recved;        /*!< Total number of bytes received */
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
     size_t tcp_available_bytes; /*!< Number of bytes in ESP ready to be read on connection.
                                     This variable always holds last known info from ESP
                                     device and is not decremented (or incremented) by application */
+#endif                          /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
     size_t tcp_not_ack_bytes;   /*!< Number of bytes not acknowledge by application done with processing
                                     This variable is increased everytime new packet is
                                     read to be sent to application and decreased
@@ -203,14 +205,16 @@ typedef struct lwesp_conn {
 
     union {
         struct {
-            uint8_t active                    : 1; /*!< Status whether connection is active */
-            uint8_t client                    : 1; /*!< Status whether connection is in client mode */
-            uint8_t data_received             : 1; /*!< Status whether first data were received on connection */
-            uint8_t in_closing                : 1; /*!< Status if connection is in closing mode.
+            uint8_t active        : 1;             /*!< Status whether connection is active */
+            uint8_t client        : 1;             /*!< Status whether connection is in client mode */
+            uint8_t data_received : 1;             /*!< Status whether first data were received on connection */
+            uint8_t in_closing    : 1;             /*!< Status if connection is in closing mode.
                                                     When in closing mode, ignore any possible
                                                     received data from function */
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__
             uint8_t receive_blocked           : 1; /*!< Status whether we should block manual receive for some time */
             uint8_t receive_is_command_queued : 1; /*!< Status whether manual read command is in the queue already */
+#endif                                             /* #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
         } f;                                       /*!< Connection flags */
     } status;                                      /*!< Connection status union with flag bits */
 } lwesp_conn_t;
@@ -242,8 +246,8 @@ typedef struct {
     lwesp_port_t port; /*!< Remote port on IPD data */
 
     size_t buff_ptr;   /*!< Buffer pointer to save data to.
-                                                        When set to `NULL` while `read = 1`,
-                                                        reading should ignore incoming data */
+                            When set to `NULL` while `read = 1`,
+                            reading should ignore incoming data */
     lwesp_pbuf_p buff; /*!< Pointer to data buffer used for receiving data */
 } lwesp_ipd_t;
 
@@ -414,6 +418,7 @@ typedef struct lwesp_msg {
             uint8_t val_id;              /*!< Connection current validation ID when command was sent to queue */
         } conn_send;                     /*!< Structure to send data on connection */
 
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
         struct {
             lwesp_conn_t* conn;    /*!< Connection handle */
             lwesp_pbuf_p buff;     /*!< Buffer handle to write received data to */
@@ -426,6 +431,7 @@ typedef struct lwesp_msg {
             size_t tot_len; /*!< Total length expected for this read operation (actual data len received from device) */
             size_t buff_ptr; /*!< Buffer pointer to save data to (next character) */
         } conn_recv;         /*!< Structure to manually read TCP data */
+#endif                       /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
         /* TCP/IP based commands */
         struct {
@@ -584,6 +590,7 @@ typedef struct {
     uint32_t active_conns_last;              /*!< The same as previous but status before last check */
 
     lwesp_link_conn_t link_conn;             /*!< Link connection handle */
+    lwesp_ipd_t ipd;                         /*!< Connection incoming data structure */
     lwesp_conn_t conns[LWESP_CFG_MAX_CONNS]; /*!< Array of all connection structures */
 
 #if LWESP_CFG_MODE_STATION || __DOXYGEN__
