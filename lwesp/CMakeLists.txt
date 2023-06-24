@@ -67,6 +67,11 @@ set(lwesp_include_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/src/include
     )
 
+if (DEFINED LWESP_SYS_PORT)
+set(lwesp_core_SRCS ${lwesp_core_SRCS} ${CMAKE_CURRENT_LIST_DIR}/src/system/lwesp_sys_${LWESP_SYS_PORT}.c)
+set(lwesp_include_DIRS ${lwesp_include_DIRS} ${CMAKE_CURRENT_LIST_DIR}/src/include/system/port/${LWESP_SYS_PORT})
+endif()
+
 # Register core library to the system
 add_library(lwesp INTERFACE)
 target_sources(lwesp PUBLIC ${lwesp_core_SRCS})
