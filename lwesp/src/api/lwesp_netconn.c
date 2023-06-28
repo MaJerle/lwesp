@@ -651,6 +651,30 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
 }
 
 /**
+ * \brief           Extended version of \ref lwesp_netconn_write with additional
+ *                  option to set custom flags.
+ * 
+ * \note            It is recommended to use this for full features support 
+ * 
+ * \param[in]       nc: Netconn handle used to write data to
+ * \param[in]       data: Pointer to data to write
+ * \param[in]       btw: Number of bytes to write
+ * \param           flags: Bitwise-ORed set of flags for netconn.
+ *                      Flags start with \ref LWESP_NETCONN_FLAG_xxx
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
+lwespr_t
+lwesp_netconn_write_ex(lwesp_netconn_p nc, const void* data, size_t btw, uint16_t flags) {
+    lwespr_t res = lwesp_netconn_write(nc, data, btw);
+    if (res == lwespOK) {
+        if (flags & LWESP_NETCONN_FLAG_FLUSH) {
+            res = lwesp_netconn_flush(nc);
+        }
+    }
+    return res;
+}
+
+/**
  * \brief           Flush buffered data on netconn TCP/SSL connection
  * \note            This function may only be used on TCP/SSL connection
  * \param[in]       nc: Netconn handle to flush data

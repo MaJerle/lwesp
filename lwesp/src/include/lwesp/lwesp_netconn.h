@@ -60,13 +60,15 @@ typedef struct lwesp_netconn* lwesp_netconn_p;
  */
 #define LWESP_NETCONN_RECEIVE_NO_WAIT 0xFFFFFFFF
 
+#define LWESP_NETCONN_FLAG_FLUSH      ((uint16_t)0x0001) /*!< Immediate flush for TCP write */
+
 /**
  * \brief           Netconn connection type
  */
 typedef enum {
-    LWESP_NETCONN_TYPE_TCP = LWESP_CONN_TYPE_TCP, /*!< TCP connection */
-    LWESP_NETCONN_TYPE_SSL = LWESP_CONN_TYPE_SSL, /*!< SSL connection */
-    LWESP_NETCONN_TYPE_UDP = LWESP_CONN_TYPE_UDP, /*!< UDP connection */
+    LWESP_NETCONN_TYPE_TCP = LWESP_CONN_TYPE_TCP,     /*!< TCP connection */
+    LWESP_NETCONN_TYPE_SSL = LWESP_CONN_TYPE_SSL,     /*!< SSL connection */
+    LWESP_NETCONN_TYPE_UDP = LWESP_CONN_TYPE_UDP,     /*!< UDP connection */
 #if LWESP_CFG_IPV6 || __DOXYGEN__
     LWESP_NETCONN_TYPE_TCPV6 = LWESP_CONN_TYPE_TCPV6, /*!< TCP connection over IPv6 */
     LWESP_NETCONN_TYPE_SSLV6 = LWESP_CONN_TYPE_SSLV6, /*!< SSL connection over IPv6 */
@@ -95,6 +97,7 @@ lwespr_t lwesp_netconn_listen_with_max_conn(lwesp_netconn_p nc, uint16_t max_con
 lwespr_t lwesp_netconn_set_listen_conn_timeout(lwesp_netconn_p nc, uint16_t timeout);
 lwespr_t lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client);
 lwespr_t lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw);
+lwespr_t lwesp_netconn_write_ex(lwesp_netconn_p nc, const void* data, size_t btw, uint16_t flags);
 lwespr_t lwesp_netconn_flush(lwesp_netconn_p nc);
 
 /* UDP only */

@@ -149,8 +149,8 @@ lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail) {
     for (; head->next != NULL; head = head->next) {
         head->tot_len += tail->tot_len; /* Increase total length of packet */
     }
-    head->tot_len += tail->tot_len; /* Increase total length of last packet in chain */
-    head->next = tail;              /* Set next packet buffer as next one */
+    head->tot_len += tail->tot_len;     /* Increase total length of last packet in chain */
+    head->next = tail;                  /* Set next packet buffer as next one */
 
     return lwespOK;
 }
@@ -195,8 +195,8 @@ lwesp_pbuf_unchain(lwesp_pbuf_p head) {
     if (head != NULL && head->next != NULL) { /* Check for valid pbuf */
         r = head->next;                       /* Set return value as next pbuf */
 
-        head->next = NULL;         /* Clear next pbuf */
-        head->tot_len = head->len; /* Set new length of head pbuf */
+        head->next = NULL;                    /* Clear next pbuf */
+        head->tot_len = head->len;            /* Set new length of head pbuf */
     }
     return r;
 }
