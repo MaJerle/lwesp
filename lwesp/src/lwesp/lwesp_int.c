@@ -1126,7 +1126,6 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     if (rcv->len > 20 && (s = strstr(rcv->data, "+LINK_CONN:")) != NULL) {
         /* Parse only valid connections, discard others */
         if (lwespi_parse_link_conn(s) && esp.m.link_conn.num < LWESP_CFG_MAX_CONNS) {
-            uint8_t id;
             lwesp_conn_t* conn = &esp.m.conns[esp.m.link_conn.num]; /* Get connection pointer */
             if (esp.m.link_conn.failed && conn->status.f.active) {  /* Connection failed and now closed? */
                 conn->status.f.active = 0;                          /* Connection was just closed */
