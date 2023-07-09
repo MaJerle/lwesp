@@ -172,21 +172,6 @@ lwespi_conn_check_available_rx_data(void) {
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE || __DOXYGEN__ */
 
 /**
- * \brief           Get connection validation ID
- * \param[in]       conn: Connection handle
- * \return          Connection current validation ID
- */
-uint16_t
-lwespi_conn_get_val_id(lwesp_conn_p conn) {
-    uint16_t val_id;
-    lwesp_core_lock();
-    val_id = conn->val_id;
-    lwesp_core_unlock();
-
-    return val_id;
-}
-
-/**
  * \brief           Send data on already active connection of type UDP to specific remote IP and port
  * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP too)
  * \param[in]       conn: Pointer to connection to send data
@@ -235,7 +220,7 @@ prv_conn_send(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t port, 
     LWESP_MSG_VAR_REF(msg).msg.conn_send.remote_ip = ip;
     LWESP_MSG_VAR_REF(msg).msg.conn_send.remote_port = port;
     LWESP_MSG_VAR_REF(msg).msg.conn_send.fau = fau;
-    LWESP_MSG_VAR_REF(msg).msg.conn_send.val_id = lwespi_conn_get_val_id(conn);
+    LWESP_MSG_VAR_REF(msg).msg.conn_send.val_id = conn->val_id;
 
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 60000);
 }
@@ -377,7 +362,7 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPCLOSE;
     LWESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
-    LWESP_MSG_VAR_REF(msg).msg.conn_close.val_id = lwespi_conn_get_val_id(conn);
+    LWESP_MSG_VAR_REF(msg).msg.conn_close.val_id = conn->val_id;
 
     flush_buff(conn);                  /* First flush buffer */
     res = lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
