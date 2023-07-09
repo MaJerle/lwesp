@@ -176,9 +176,9 @@ lwespi_conn_check_available_rx_data(void) {
  * \param[in]       conn: Connection handle
  * \return          Connection current validation ID
  */
-uint8_t
+uint16_t
 lwespi_conn_get_val_id(lwesp_conn_p conn) {
-    uint8_t val_id;
+    uint16_t val_id;
     lwesp_core_lock();
     val_id = conn->val_id;
     lwesp_core_unlock();

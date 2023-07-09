@@ -184,7 +184,7 @@ typedef struct lwesp_conn {
     lwesp_evt_fn evt_func;      /*!< Callback function for connection */
     void* arg;                  /*!< User custom argument */
 
-    uint8_t val_id;             /*!< Validation ID number. It is increased each time
+    uint16_t val_id;            /*!< Validation ID number. It is increased each time
                                     a new connection is established.
                                     It protects sending data to wrong connection
                                     in case we have data in send queue,
@@ -399,7 +399,7 @@ typedef struct lwesp_msg {
 
         struct {
             lwesp_conn_t* conn; /*!< Pointer to connection to close */
-            uint8_t val_id;     /*!< Connection current validation ID when command was sent to queue */
+            uint16_t val_id;     /*!< Connection current validation ID when command was sent to queue */
         } conn_close;           /*!< Close connection */
 
         struct {
@@ -415,7 +415,7 @@ typedef struct lwesp_msg {
             lwesp_port_t remote_port;    /*!< Remote port address for UDP connection */
             uint8_t fau;                 /*!< Free after use flag to free memory after data are sent (or not) */
             size_t* bw;                  /*!< Number of bytes written so far */
-            uint8_t val_id;              /*!< Connection current validation ID when command was sent to queue */
+            uint16_t val_id;             /*!< Connection current validation ID when command was sent to queue */
         } conn_send;                     /*!< Structure to send data on connection */
 
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE

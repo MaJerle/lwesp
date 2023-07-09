@@ -27,6 +27,7 @@
 - FileSystem: Added support for erase and write operation
 - Code improvement: Change multiple local variables to single structure
 - Delete `lwesp_datetime_t` and use generic `struct tm` instead
+- Conn and netconn: Add validation counter to ensure netconn object matches connection object and that there was no connection close/re-open in between 
 
 ## 1.1.2-dev
 

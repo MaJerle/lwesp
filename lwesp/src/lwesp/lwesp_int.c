@@ -123,6 +123,7 @@ static const char* flash_partitions[] = {
 };
 #endif
 
+static uint16_t conn_val_id;
 static lwesp_recv_t recv_buff;
 static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat);
 
@@ -1145,13 +1146,15 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                     lwesp_mem_free_s((void**)&conn->buff.buff);
                 }
             } else if (!esp.m.link_conn.failed && !conn->status.f.active) {
-                id = conn->val_id;
                 LWESP_MEMSET(conn, 0x00, sizeof(*conn));         /* Reset connection parameters */
                 conn->num = esp.m.link_conn.num;                 /* Set connection number */
                 conn->status.f.active = !esp.m.link_conn.failed; /* Check if connection active */
-                conn->val_id = ++id;                             /* Set new validation ID */
+                conn->val_id = ++conn_val_id;                    /* Set new validation ID */
+                if (conn->val_id == 0) {                         /* Conn ID == 0 is invalid */
+                    conn->val_id = ++conn_val_id;
+                }
 
-                conn->type = esp.m.link_conn.type;               /* Set connection type */
+                conn->type = esp.m.link_conn.type; /* Set connection type */
                 LWESP_MEMCPY(&conn->remote_ip, &esp.m.link_conn.remote_ip, sizeof(conn->remote_ip));
                 conn->remote_port = esp.m.link_conn.remote_port;
                 conn->local_port = esp.m.link_conn.local_port;

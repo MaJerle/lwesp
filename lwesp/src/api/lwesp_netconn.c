@@ -62,13 +62,14 @@
  * \brief           Sequential API structure
  */
 typedef struct lwesp_netconn {
-    struct lwesp_netconn* next;    /*!< Linked list entry */
+    struct lwesp_netconn* next; /*!< Linked list entry */
 
-    lwesp_netconn_type_t type;     /*!< Netconn type */
-    lwesp_port_t listen_port;      /*!< Port on which we are listening */
+    lwesp_netconn_type_t type;  /*!< Netconn type */
+    lwesp_port_t listen_port;   /*!< Port on which we are listening */
 
-    size_t rcv_packets;            /*!< Number of received packets so far on this connection */
-    lwesp_conn_p conn;             /*!< Pointer to actual connection */
+    size_t rcv_packets;         /*!< Number of received packets so far on this connection */
+    lwesp_conn_p conn;          /*!< Pointer to actual connection */
+    uint16_t conn_val_id; /*!< Connection validation ID that changes between every connection active/closed operation */
 
     lwesp_sys_mbox_t mbox_accept;  /*!< List of active connections waiting to be processed */
     lwesp_sys_mbox_t mbox_receive; /*!< Message queue for receive mbox */
@@ -146,13 +147,14 @@ netconn_evt(lwesp_evt_t* evt) {
          * A new connection has been active
          * and should be handled by netconn API
          */
-        case LWESP_EVT_CONN_ACTIVE: {          /* A new connection active is active */
-            if (lwesp_conn_is_client(conn)) {  /* Was connection started by us? */
-                nc = lwesp_conn_get_arg(conn); /* Argument should be already set */
+        case LWESP_EVT_CONN_ACTIVE: {               /* A new connection active is active */
+            if (lwesp_conn_is_client(conn)) {       /* Was connection started by us? */
+                nc = lwesp_conn_get_arg(conn);      /* Argument should be already set */
                 if (nc != NULL) {
-                    nc->conn = conn;           /* Save actual connection */
+                    nc->conn = conn;                /* Save actual connection */
+                    nc->conn_val_id = conn->val_id; /* Get value ID */
                 } else {
-                    close = 1;                 /* Close this connection, invalid netconn */
+                    close = 1;                      /* Close this connection, invalid netconn */
                 }
 
                 /* Is the connection server type and we have known listening API? */
@@ -167,6 +169,7 @@ netconn_evt(lwesp_evt_t* evt) {
 
                 if (nc != NULL) {
                     nc->conn = conn;              /* Set connection handle */
+                    nc->conn_val_id = conn->val_id;
                     lwesp_conn_set_arg(conn, nc); /* Set argument for connection */
 
                     /*
@@ -213,7 +216,7 @@ netconn_evt(lwesp_evt_t* evt) {
 #endif                                     /* !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
             lwesp_pbuf_ref(pbuf);          /* Increase reference counter */
-            if (nc == NULL || !lwesp_sys_mbox_isvalid(&nc->mbox_receive)
+            if (nc == NULL || nc->conn_val_id != conn->val_id || !lwesp_sys_mbox_isvalid(&nc->mbox_receive)
                 || !lwesp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN, "[LWESP NETCONN] Ignoring more data for receive!\r\n");
                 lwesp_pbuf_free(pbuf);    /* Free pbuf */
@@ -242,7 +245,7 @@ netconn_evt(lwesp_evt_t* evt) {
              * In case we have a netconn available,
              * simply write pointer to received variable to indicate closed state
              */
-            if (nc != NULL && lwesp_sys_mbox_isvalid(&nc->mbox_receive)) {
+            if (nc != NULL && nc->conn_val_id == conn->val_id && lwesp_sys_mbox_isvalid(&nc->mbox_receive)) {
                 if (lwesp_sys_mbox_putnow(&nc->mbox_receive, (void*)&recv_closed)) {
                     ++nc->mbox_receive_entries;
                 }
@@ -369,6 +372,17 @@ lwesp_netconn_delete(lwesp_netconn_p nc) {
                 break;
             }
         }
+    }
+    if (nc->conn != NULL) {
+        /*
+         * First delete the connection argument,
+         * then close the connection.
+         */
+        lwesp_conn_set_arg(nc->conn, NULL);
+        if (lwesp_conn_is_active(nc->conn)) {
+            lwesp_conn_close(nc->conn, 1);
+        }
+        nc->conn = NULL;
     }
     lwesp_core_unlock();
 
