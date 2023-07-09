@@ -109,6 +109,8 @@ flush_mboxes(lwesp_netconn_t* nc, uint8_t protect) {
                 --nc->mbox_receive_entries;
             }
             if (pbuf != NULL && (uint8_t*)pbuf != (uint8_t*)&recv_closed) {
+                LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
+                             "[LWESP NETCONN] flush mboxes. Clearing pbuf 0x%p\r\n", (void*)pbuf);
                 lwesp_pbuf_free(pbuf); /* Free received data buffers */
             }
         }
@@ -178,6 +180,8 @@ netconn_evt(lwesp_evt_t* evt) {
                      */
                     if (!lwesp_sys_mbox_isvalid(&listen_api->mbox_accept)
                         || !lwesp_sys_mbox_putnow(&listen_api->mbox_accept, nc)) {
+                        LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
+                                     "[LWESP NETCONN] Accept MBOX is invalid or it cannot insert new nc!\r\n");
                         close = 1;
                     }
                 } else {
@@ -216,9 +220,16 @@ netconn_evt(lwesp_evt_t* evt) {
 #endif                                     /* !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
             lwesp_pbuf_ref(pbuf);          /* Increase reference counter */
+            LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE, nc == NULL,
+                         "[LWESP NETCONN] Data receive -> netconn is NULL!\r\n");
+            LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE, nc->conn_val_id != conn->val_id,
+                         "[LWESP NETCONN] Connection validation ID does not match connection val_id!\r\n");
+            LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE, !lwesp_sys_mbox_isvalid(&nc->mbox_receive),
+                         "[LWESP NETCONN] Receive mbox is not valid!\r\n");
             if (nc == NULL || nc->conn_val_id != conn->val_id || !lwesp_sys_mbox_isvalid(&nc->mbox_receive)
                 || !lwesp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
-                LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN, "[LWESP NETCONN] Ignoring more data for receive!\r\n");
+                LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN,
+                             "[LWESP NETCONN] Could not put receive packet. Ignoring more data for receive!\r\n");
                 lwesp_pbuf_free(pbuf);    /* Free pbuf */
                 return lwespOKIGNOREMORE; /* Return OK to free the memory and ignore further data */
             }
@@ -298,30 +309,23 @@ lwesp_netconn_new(lwesp_netconn_type_t type) {
         lwesp_evt_register(lwesp_evt); /* Register global event function */
     }
     lwesp_core_unlock();
-    a = lwesp_mem_calloc(1, sizeof(*a));                                /* Allocate memory for core object */
+    a = lwesp_mem_calloc(1, sizeof(*a)); /* Allocate memory for core object */
     if (a != NULL) {
-        a->type = type;                                                 /* Save netconn type */
-        a->conn_timeout = 0;                                            /* Default connection timeout */
-        if (!lwesp_sys_mbox_create(
-                &a->mbox_accept, LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) { /* Allocate memory for accepting message box */
+        a->type = type;                  /* Save netconn type */
+        a->conn_timeout = 0;             /* Default connection timeout */
+        if (!lwesp_sys_mbox_create(&a->mbox_accept, LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
                          "[LWESP NETCONN] Cannot create accept MBOX\r\n");
             goto free_ret;
         }
-        if (!lwesp_sys_mbox_create(
-                &a->mbox_receive,
-                LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) { /* Allocate memory for receiving message box */
+        if (!lwesp_sys_mbox_create(&a->mbox_receive, LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
                          "[LWESP NETCONN] Cannot create receive MBOX\r\n");
             goto free_ret;
         }
         lwesp_core_lock();
-        if (netconn_list == NULL) { /* Add new netconn to the existing list */
-            netconn_list = a;
-        } else {
-            a->next = netconn_list; /* Add it to beginning of the list */
-            netconn_list = a;
-        }
+        a->next = netconn_list; /* Add it to beginning of the list */
+        netconn_list = a;
         lwesp_core_unlock();
     }
     return a;
@@ -350,6 +354,10 @@ lwesp_netconn_delete(lwesp_netconn_p nc) {
     LWESP_ASSERT(nc != NULL);
 
     lwesp_core_lock();
+    if (nc->conn != NULL) {
+        /* No NC for any incoming connections or anything else... */
+        lwesp_conn_set_arg(nc->conn, NULL);
+    }
     flush_mboxes(nc, 0); /* Clear mboxes */
 
     /* Stop listening on netconn */
@@ -378,7 +386,6 @@ lwesp_netconn_delete(lwesp_netconn_p nc) {
          * First delete the connection argument,
          * then close the connection.
          */
-        lwesp_conn_set_arg(nc->conn, NULL);
         if (lwesp_conn_is_active(nc->conn)) {
             lwesp_conn_close(nc->conn, 1);
         }
@@ -789,6 +796,8 @@ lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
     /* Check if connection closed */
     if ((uint8_t*)(*pbuf) == (uint8_t*)&recv_closed) {
         *pbuf = NULL; /* Reset pbuf */
+        LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
+                     "[LWESP NETCONN] netcon_receive: Got object handle for close event\r\n");
         return lwespCLOSED;
     }
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -798,7 +807,10 @@ lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
         lwesp_conn_recved(nc->conn, *pbuf);     /* Notify stack about received data */
         lwesp_core_unlock();
     }
-#endif              /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+    LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
+                 "[LWESP NETCONN] netcon_receive: Got pbuf object handle at 0x%p. Len/Tot_len: %u/%u\r\n", (void*)*pbuf,
+                 (unsigned)lwesp_pbuf_length(*pbuf, 0), (unsigned)lwesp_pbuf_length(*pbuf, 1));
     return lwespOK; /* We have data available */
 }
 
