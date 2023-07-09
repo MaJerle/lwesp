@@ -249,8 +249,17 @@ lwespr_t
 lwespi_parse_cipstatus_cipstate(const char* str) {
     uint8_t cn_num = 0;
 
-    cn_num = lwespi_parse_number(&str);    /* Parse connection number */
-    esp.m.active_conns |= 1 << cn_num;     /* Set flag as active */
+    cn_num = lwespi_parse_number(&str); /* Parse connection number */
+    esp.m.active_conns |= 1 << cn_num;  /* Set flag as active */
+
+    /*
+     * If connection looks "alive" in the 
+     * cipstatus result, but not alive in internal
+     * structure, then force connection close ASAP
+     */
+    if (!esp.m.conns[cn_num].status.f.active) {
+        lwesp_conn_close(&esp.m.conns[cn_num], 0);
+    }
 
     lwespi_parse_string(&str, NULL, 0, 1); /* Parse string and ignore result */
     lwespi_parse_ip(&str, &esp.m.conns[cn_num].remote_ip);

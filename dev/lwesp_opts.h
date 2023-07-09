@@ -67,7 +67,7 @@
 #define LWESP_CFG_ESP8266                         1
 #define LWESP_CFG_ESP32_C3                        1
 
-#define LWESP_CFG_CONN_MAX_DATA_LEN               2048
+#define LWESP_CFG_CONN_MAX_DATA_LEN               8192
 #define LWESP_CFG_INPUT_USE_PROCESS               1
 #define LWESP_CFG_AT_ECHO                         0
 
@@ -84,7 +84,8 @@
 #define LWESP_CFG_FLASH                           1
 
 #define LWESP_CFG_RESET_ON_INIT                   1
-#define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE         0
+#define LWESP_CFG_RESTORE_ON_INIT                 0
+#define LWESP_CFG_CONN_MANUAL_TCP_RECEIVE         1
 
 #define LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS 1
 #define LWESP_CFG_LIST_CMD                        1

@@ -247,7 +247,6 @@ netconn_evt(lwesp_evt_t* evt) {
                     ++nc->mbox_receive_entries;
                 }
             }
-
             break;
         }
         default: return lwespERR;

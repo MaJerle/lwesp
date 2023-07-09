@@ -59,7 +59,7 @@
 #endif /* !defined(LWESP_USART_DMA_RX_BUFF_SIZE) */
 
 #if !defined(LWESP_MEM_SIZE)
-#define LWESP_MEM_SIZE 0x1000
+#define LWESP_MEM_SIZE 0x4000
 #endif /* !defined(LWESP_MEM_SIZE) */
 
 #if !defined(LWESP_USART_RDR_NAME)
@@ -217,7 +217,7 @@ prv_configure_uart(uint32_t baudrate) {
         is_running = 0;
 #if defined(LWESP_USART_DMA_RX_STREAM)
         LL_DMA_DeInit(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
-        dma_init.Channel = LWESP_USART_DMA_RX_CH;
+        dma_init.PeriphRequest = LWESP_USART_DMA_RX_REQ_NUM;
 #else
         LL_DMA_DeInit(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH);
         dma_init.PeriphRequest = LWESP_USART_DMA_RX_REQ_NUM;
@@ -278,7 +278,7 @@ prv_configure_uart(uint32_t baudrate) {
         usart_ll_mbox_id = osMessageQueueNew(10, sizeof(void*), NULL);
     }
     if (usart_ll_thread_id == NULL) {
-        const osThreadAttr_t attr = {.stack_size = 1024};
+        const osThreadAttr_t attr = {.stack_size = 1536};
         usart_ll_thread_id = osThreadNew(usart_ll_thread, usart_ll_mbox_id, &attr);
     }
 }

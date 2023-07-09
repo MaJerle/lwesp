@@ -56,7 +56,7 @@ typedef osPriority_t lwesp_sys_thread_prio_t;
 #define LWESP_SYS_MBOX_NULL   ((lwesp_sys_mbox_t)0)
 #define LWESP_SYS_TIMEOUT     ((uint32_t)osWaitForever)
 #define LWESP_SYS_THREAD_PRIO (osPriorityNormal)
-#define LWESP_SYS_THREAD_SS   (512)
+#define LWESP_SYS_THREAD_SS   (1536)
 
 #endif /* LWESP_CFG_OS && !__DOXYGEN__ */
 

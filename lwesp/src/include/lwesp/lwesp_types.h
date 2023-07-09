@@ -296,6 +296,21 @@ typedef struct {
 } lwesp_ap_conf_t;
 
 /**
+ * \ingroup         LWESP_TYPES        
+ * \brief           Simple helper structure for application purpose
+ * 
+ * User can define array of structure objects and set its
+ * preferred WIFI options, then trying to iterate through
+ * all and connect to first available
+ * 
+ * \note            This structure is not used by the LwESP library
+ */
+typedef struct {
+    const char* ssid; /*!< SSID to connect to */
+    const char* pass; /*!< Password for SSID */
+} lwesp_sta_ssid_pass_pair_t;
+
+/**
  * \ingroup         LWESP_STA
  * \brief           Station data structure
  */
@@ -303,20 +318,6 @@ typedef struct {
     lwesp_ip_t ip;   /*!< IP address of connected station */
     lwesp_mac_t mac; /*!< MAC address of connected station */
 } lwesp_sta_t;
-
-/**
- * \ingroup         LWESP_TYPES
- * \brief           Date and time structure
- */
-typedef struct {
-    uint8_t date;    /*!< Day in a month, from 1 to up to 31 */
-    uint8_t month;   /*!< Month in a year, from 1 to 12 */
-    uint16_t year;   /*!< Year */
-    uint8_t day;     /*!< Day in a week, from 1 to 7 */
-    uint8_t hours;   /*!< Hours in a day, from 0 to 23 */
-    uint8_t minutes; /*!< Minutes in a hour, from 0 to 59 */
-    uint8_t seconds; /*!< Seconds in a minute, from 0 to 59 */
-} lwesp_datetime_t;
 
 /**
  * \brief           List of possible flash operations

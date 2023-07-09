@@ -1726,7 +1726,12 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
             if (stat->is_ok) {                          /* Did we join successfully? */
                 SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET); /* Check IP address status */
             } else {
+                esp.m.sta.f.has_ip = 0;                 /* Has NO IP */
                 esp.m.sta.f.is_connected = 0;           /* Force disconnected status */
+#if LWESP_CFG_IPV6
+                esp.m.sta.f.has_ipv6_ll = 0;
+                esp.m.sta.f.has_ipv6_gl = 0;
+#endif /* LWESP_CFG_IPV6 */
                 /*
                  * Parse received error message,
                  * if final result was error, decide what type
