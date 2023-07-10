@@ -490,6 +490,8 @@ typedef enum lwesp_evt_type_t {
     LWESP_EVT_WEBSERVER,           /*!< Web server events */
 #endif                             /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
 #if LWESP_CFG_SNTP || __DOXYGEN__
+    LWESP_EVT_SNTP_TIME_UPDATED,   /*!< SNTP core inside ESP device has updated the time.
+                                        \ref lwesp_sntp_* can be used to read this new time */
     LWESP_EVT_SNTP_TIME,           /*!< SNTP event with date and time */
 #endif                             /* LWESP_CFG_SNTP || __DOXYGEN__ */
     LWESP_CFG_END,

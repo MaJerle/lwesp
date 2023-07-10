@@ -790,6 +790,10 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         } else if (!strncmp(rcv->data, "+DIST_STA_IP", 12)) {
             lwespi_parse_ap_ip_sta(&rcv->data[13]);              /* Parse string and send to user layer */
 #endif                                                           /* LWESP_CFG_MODE_ACCESS_POINT */
+#if LWESP_CFG_SNTP
+        } else if (!strncmp(rcv->data, "+TIME_UPDATED", 13)) {
+            lwespi_send_cb(LWESP_EVT_SNTP_TIME_UPDATED);
+#endif /* LWESP_CFG_SNTP */
 #if LWESP_CFG_WEBSERVER
         } else if (!strncmp(rcv->data, "+WEBSERVERRSP", 13)) {
             lwespi_parse_webserver(&rcv->data[14]); /* Parse string and send to user layer */
@@ -1667,7 +1671,8 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
 #endif /* LWESP_CFG_FLASH && defined(LWESP_DEV) */
             SET_NEW_CMD(LWESP_CMD_SYSLOG);
             break;
-        case LWESP_CMD_SYSLOG: SET_NEW_CMD(LWESP_CMD_WIFI_CWMODE); break;
+        case LWESP_CMD_SYSLOG: SET_NEW_CMD(LWESP_CMD_RFPOWER); break;
+        case LWESP_CMD_RFPOWER: SET_NEW_CMD(LWESP_CMD_WIFI_CWMODE); break;
         case LWESP_CMD_WIFI_CWMODE: SET_NEW_CMD(LWESP_CMD_WIFI_CWDHCP_GET); break;
         case LWESP_CMD_WIFI_CWDHCP_GET: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPMUX); break;
         case LWESP_CMD_TCPIP_CIPMUX: SET_NEW_CMD(LWESP_CMD_TCPIP_CIPRECVMODE); break;
@@ -2003,6 +2008,12 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_GMR: { /* Get AT version */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+GMR");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_RFPOWER: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+RFPOWER=40");
             AT_PORT_SEND_END_AT();
             break;
         }
@@ -2676,7 +2687,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
 
         default: return lwespERR; /* Invalid command */
     }
-    return lwespOK;               /* Valid command */
+    lwesp_delay(10);
+    return lwespOK; /* Valid command */
 }
 
 /**
