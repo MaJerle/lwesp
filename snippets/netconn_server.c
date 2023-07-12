@@ -11,55 +11,52 @@
  * used at the same period of time.
  */
 #include "netconn_server.h"
-#include "lwesp/lwesp_netconn.h"
 #include "lwesp/lwesp.h"
+#include "lwesp/lwesp_netconn.h"
 
 static void netconn_server_processing_thread(void* const arg);
 
 /**
  * \brief           Main page response file
  */
-static const uint8_t
-rlwesp_data_mainpage_top[] = ""
-                           "HTTP/1.1 200 OK\r\n"
-                           "Content-Type: text/html\r\n"
-                           "\r\n"
-                           "<html>"
-                           "   <head>"
-                           "       <link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\" />"
-                           "       <meta http-equiv=\"refresh\" content=\"1\" />"
-                           "   </head>"
-                           "   <body>"
-                           "       <p>Netconn driven website!</p>"
-                           "       <p>Total system up time: <b>";
+static const uint8_t rlwesp_data_mainpage_top[] =
+    ""
+    "HTTP/1.1 200 OK\r\n"
+    "Content-Type: text/html\r\n"
+    "\r\n"
+    "<html>"
+    "   <head>"
+    "       <link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\" />"
+    "       <meta http-equiv=\"refresh\" content=\"1\" />"
+    "   </head>"
+    "   <body>"
+    "       <p>Netconn driven website!</p>"
+    "       <p>Total system up time: <b>";
 
 /**
  * \brief           Bottom part of main page
  */
-static const uint8_t
-rlwesp_data_mainpage_bottom[] = ""
-                              "       </b></p>"
-                              "   </body>"
-                              "</html>";
+static const uint8_t rlwesp_data_mainpage_bottom[] = ""
+                                                     "       </b></p>"
+                                                     "   </body>"
+                                                     "</html>";
 
 /**
  * \brief           Style file response
  */
-static const uint8_t
-rlwesp_data_style[] = ""
-                    "HTTP/1.1 200 OK\r\n"
-                    "Content-Type: text/css\r\n"
-                    "\r\n"
-                    "body { color: red; font-family: Tahoma, Arial; };";
+static const uint8_t rlwesp_data_style[] = ""
+                                           "HTTP/1.1 200 OK\r\n"
+                                           "Content-Type: text/css\r\n"
+                                           "\r\n"
+                                           "body { color: red; font-family: Tahoma, Arial; };";
 
 /**
  * \brief           404 error response
  */
-static const uint8_t
-rlwesp_error_404[] = ""
-                   "HTTP/1.1 404 Not Found\r\n"
-                   "\r\n"
-                   "Error 404";
+static const uint8_t rlwesp_error_404[] = ""
+                                          "HTTP/1.1 404 Not Found\r\n"
+                                          "\r\n"
+                                          "Error 404";
 
 /**
  * \brief           Netconn server thread implementation
@@ -107,7 +104,8 @@ netconn_server_thread(void const* arg) {
                      * Read and write back data to user in separated thread
                      * to allow processing of multiple requests at the same time
                      */
-                    if (lwesp_sys_thread_create(NULL, "client", (lwesp_sys_thread_fn)netconn_server_processing_thread, client, 512, LWESP_SYS_THREAD_PRIO)) {
+                    if (lwesp_sys_thread_create(NULL, "client", (lwesp_sys_thread_fn)netconn_server_processing_thread,
+                                                client, 512, LWESP_SYS_THREAD_PRIO)) {
                         printf("Netconn client thread created\r\n");
                     } else {
                         printf("Netconn client thread creation failed!\r\n");
@@ -129,8 +127,8 @@ netconn_server_thread(void const* arg) {
     }
 
     printf("Terminating thread\r\n");
-    lwesp_netconn_delete(server);                 /* Delete netconn structure */
-    lwesp_sys_thread_terminate(NULL);             /* Terminate current thread */
+    lwesp_netconn_delete(server);     /* Delete netconn structure */
+    lwesp_sys_thread_terminate(NULL); /* Terminate current thread */
 }
 
 /**
@@ -144,7 +142,7 @@ netconn_server_processing_thread(void* const arg) {
     lwespr_t res;
     char strt[20];
 
-    printf("A new connection accepted!\r\n");   /* Print simple message */
+    printf("A new connection accepted!\r\n"); /* Print simple message */
 
     do {
         /*
@@ -159,9 +157,9 @@ netconn_server_processing_thread(void* const arg) {
             printf("Netconn data received, %d bytes\r\n", (int)lwesp_pbuf_length(pbuf, 1));
             /* Check reception of all header bytes */
             if (p == NULL) {
-                p = pbuf;                       /* Set as first buffer */
+                p = pbuf; /* Set as first buffer */
             } else {
-                lwesp_pbuf_cat(p, pbuf);        /* Concatenate buffers together */
+                lwesp_pbuf_cat(p, pbuf); /* Concatenate buffers together */
             }
             /*
              * Search for end of request section, that is supposed
@@ -171,7 +169,7 @@ netconn_server_processing_thread(void* const arg) {
                 if (lwesp_pbuf_strfind(pbuf, "GET / ", 0) != LWESP_SIZET_MAX) {
                     uint32_t now;
                     printf("Main page request\r\n");
-                    now = lwesp_sys_now();      /* Get current time */
+                    now = lwesp_sys_now(); /* Get current time */
                     sprintf(strt, "%u ms; %d s", (unsigned)now, (unsigned)(now / 1000));
                     lwesp_netconn_write(client, rlwesp_data_mainpage_top, sizeof(rlwesp_data_mainpage_top) - 1);
                     lwesp_netconn_write(client, strt, strlen(strt));
@@ -183,18 +181,16 @@ netconn_server_processing_thread(void* const arg) {
                     printf("404 error not found\r\n");
                     lwesp_netconn_write(client, rlwesp_error_404, sizeof(rlwesp_error_404) - 1);
                 }
-                lwesp_netconn_close(client);    /* Close netconn connection */
-                lwesp_pbuf_free(p);             /* Do not forget to free memory after usage! */
-                p = NULL;
+                lwesp_netconn_close(client); /* Close netconn connection */
+                lwesp_pbuf_free_s(&p);       /* Do not forget to free memory after usage! */
                 break;
             }
         }
     } while (res == lwespOK);
 
-    if (p != NULL) {                            /* Free received data */
-        lwesp_pbuf_free(p);
-        p = NULL;
-    }                                           
-    lwesp_netconn_delete(client);               /* Destroy client memory */
-    lwesp_sys_thread_terminate(NULL);           /* Terminate this thread */
+    if (p != NULL) { /* Free received data */
+        lwesp_pbuf_free_s(&p);
+    }
+    lwesp_netconn_delete(client);     /* Destroy client memory */
+    lwesp_sys_thread_terminate(NULL); /* Terminate this thread */
 }

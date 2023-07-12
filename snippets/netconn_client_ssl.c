@@ -97,9 +97,9 @@ netconn_client_ssl_thread(void const* arg) {
             printf("Connected to " NETCONN_HOST "\r\n");
             res = lwesp_netconn_write(client, request_header, sizeof(request_header) - 1); /* Send data to server */
             if (res == lwespOK) {
-                res = lwesp_netconn_flush(client);                                         /* Flush data to output */
+                res = lwesp_netconn_flush(client); /* Flush data to output */
             }
-            if (res == lwespOK) {                                                          /* Were data sent? */
+            if (res == lwespOK) { /* Were data sent? */
                 printf("Data were successfully sent to server\r\n");
 
                 /*
@@ -137,8 +137,7 @@ netconn_client_ssl_thread(void const* arg) {
                          * you free the memory, or memory leaks will appear
                          */
                         printf("Received new data packet of %d bytes\r\n", (int)lwesp_pbuf_length(pbuf, 1));
-                        lwesp_pbuf_free(pbuf); /* Free the memory after usage */
-                        pbuf = NULL;
+                        lwesp_pbuf_free_s(&pbuf); /* Free the memory after usage */
                     }
                 } while (1);
             } else {

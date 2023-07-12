@@ -8,8 +8,8 @@
  * then waits for respond and expects server to close the connection accordingly.
  */
 #include "netconn_client.h"
-#include "lwesp/lwesp_netconn.h"
 #include "lwesp/lwesp.h"
+#include "lwesp/lwesp_netconn.h"
 
 /**
  * \brief           Host and port settings
@@ -101,8 +101,7 @@ netconn_client_thread(void const* arg) {
                          * you free the memory, or memory leaks will appear
                          */
                         printf("Received new data packet of %d bytes\r\n", (int)lwesp_pbuf_length(pbuf, 1));
-                        lwesp_pbuf_free(pbuf); /* Free the memory after usage */
-                        pbuf = NULL;
+                        lwesp_pbuf_free_s(&pbuf); /* Free the memory after usage */
                     }
                 } while (1);
             } else {

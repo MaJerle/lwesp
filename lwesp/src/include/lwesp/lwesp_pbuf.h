@@ -49,6 +49,7 @@ extern "C" {
 
 lwesp_pbuf_p lwesp_pbuf_new(size_t len);
 size_t lwesp_pbuf_free(lwesp_pbuf_p pbuf);
+size_t lwesp_pbuf_free_s(lwesp_pbuf_p* pbuf);
 void* lwesp_pbuf_data(const lwesp_pbuf_p pbuf);
 size_t lwesp_pbuf_length(const lwesp_pbuf_p pbuf, uint8_t tot);
 uint8_t lwesp_pbuf_set_length(lwesp_pbuf_p pbuf, size_t new_len);
@@ -56,6 +57,7 @@ lwespr_t lwesp_pbuf_take(lwesp_pbuf_p pbuf, const void* data, size_t len, size_t
 size_t lwesp_pbuf_copy(lwesp_pbuf_p pbuf, void* data, size_t len, size_t offset);
 
 lwespr_t lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail);
+lwespr_t lwesp_pbuf_cat_s(lwesp_pbuf_p head, lwesp_pbuf_p* tail);
 lwespr_t lwesp_pbuf_chain(lwesp_pbuf_p head, lwesp_pbuf_p tail);
 lwesp_pbuf_p lwesp_pbuf_unchain(lwesp_pbuf_p head);
 lwespr_t lwesp_pbuf_ref(lwesp_pbuf_p pbuf);

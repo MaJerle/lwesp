@@ -55,7 +55,7 @@ netconn_server_1thread_thread(void* arg) {
             res = lwesp_netconn_receive(client, &p);
             if (res == lwespOK) {
                 printf("Data received!\r\n");
-                lwesp_pbuf_free(p);
+                lwesp_pbuf_free_s(&p);
             } else {
                 printf("Netconn receive returned: %d\r\n", (int)res);
                 if (res == lwespCLOSED) {

@@ -76,10 +76,10 @@ lwesp_pbuf_new(size_t len) {
     lwesp_pbuf_p p;
 
     p = lwesp_mem_malloc(SIZEOF_PBUF_STRUCT + sizeof(*p->payload) * len);
-    LWESP_DEBUGW(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE, p == NULL, "[LWESP PBUF] Failed to allocate %d bytes\r\n",
-                 (int)len);
-    LWESP_DEBUGW(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE, p != NULL, "[LWESP PBUF] Allocated %d bytes on %p\r\n",
-                 (int)len, (void*)p);
+    LWESP_DEBUGW(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE, p == NULL, "[LWESP PBUF] Failed to allocate %u bytes\r\n",
+                 (unsigned)len);
+    LWESP_DEBUGW(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE, p != NULL, "[LWESP PBUF] Allocated %u bytes on %p\r\n",
+                 (unsigned)len, (void*)p);
     if (p != NULL) {
         p->next = NULL;                                        /* No next element in chain */
         p->tot_len = len;                                      /* Set total length of pbuf chain */
@@ -92,15 +92,21 @@ lwesp_pbuf_new(size_t len) {
 
 /**
  * \brief           Free previously allocated packet buffer
+ * \note            Application must not use reference to pbuf after the call to this function.
+ *                  It is advised to immediately set pointer to `NULL` or to call.
+ *                  Alternatively, call \ref lwesp_pbuf_free_s, which will reset the pointer
+ *                  after free operation has been completed
+ *                  
  * \param[in]       pbuf: Packet buffer to free
  * \return          Number of freed pbufs from head
+ * \sa              lwesp_pbuf_free_s
  */
 size_t
 lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
     lwesp_pbuf_p p, pn;
     size_t ref, cnt;
 
-    LWESP_ASSERT(pbuf != NULL);
+    LWESP_ASSERT0(pbuf != NULL);
 
     /*
      * Free all pbufs until first ->ref > 1 is reached
@@ -113,8 +119,8 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
         lwesp_core_unlock();
         if (ref == 0) { /* Did we reach 0 and are ready to free it? */
             LWESP_DEBUGF(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE,
-                         "[LWESP PBUF] Deallocating %p with len/tot_len: %d/%d\r\n", (void*)p, (int)p->len,
-                         (int)p->tot_len);
+                         "[LWESP PBUF] Deallocating %p with len/tot_len: %u/%u\r\n", (void*)p, (unsigned)p->len,
+                         (unsigned)p->tot_len);
             pn = p->next;                 /* Save next entry */
             lwesp_mem_free_s((void**)&p); /* Free memory for pbuf */
             p = pn;                       /* Restore with next entry */
@@ -122,6 +128,27 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
         } else {
             break;
         }
+    }
+    return cnt;
+}
+
+/**
+ * \brief           Free previously allocated packet buffer in safe way.
+ *                  Function accepts pointer to pointer and will set the pointer to `NULL`
+ *                  after the successful allocation
+ * 
+ * \param[in,out]   pbuf_ptr: Pointer to pointer to packet buffer
+ * \return          Number of packet buffers freed in the chain
+ */
+size_t
+lwesp_pbuf_free_s(lwesp_pbuf_p* pbuf_ptr) {
+    size_t cnt = 0;
+
+    LWESP_ASSERT0(pbuf_ptr != NULL);
+
+    if (*pbuf_ptr != NULL) {
+        cnt = lwesp_pbuf_free(*pbuf_ptr);
+        *pbuf_ptr = NULL;
     }
     return cnt;
 }
@@ -135,6 +162,7 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ * \sa              lwesp_pbuf_cat_s
  * \sa              lwesp_pbuf_chain
  */
 lwespr_t
@@ -149,10 +177,34 @@ lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail) {
     for (; head->next != NULL; head = head->next) {
         head->tot_len += tail->tot_len; /* Increase total length of packet */
     }
-    head->tot_len += tail->tot_len;     /* Increase total length of last packet in chain */
-    head->next = tail;                  /* Set next packet buffer as next one */
+    head->tot_len += tail->tot_len; /* Increase total length of last packet in chain */
+    head->next = tail;              /* Set next packet buffer as next one */
 
     return lwespOK;
+}
+
+/**
+ * \brief           Concatenate `2` packet buffers together to one big packet with safe pointer management
+ * \note            After `tail` pbuf has been added to `head` pbuf chain,
+ *                  `tail` pointer will be set to `NULL`
+ * \param[in]       head: Head packet buffer to append new pbuf to
+ * \param[in]       tail: Pointer to pointer to tail packet buffer to append to head pbuf.
+ *                      Pointed memory will be set to `NULL` after successful concatenation
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ * \sa              lwesp_pbuf_cat
+ * \sa              lwesp_pbuf_chain
+ */
+lwespr_t
+lwesp_pbuf_cat_s(lwesp_pbuf_p head, lwesp_pbuf_p* tail) {
+    lwespr_t res = lwespOK;
+
+    LWESP_ASSERT(head != NULL);
+    LWESP_ASSERT(tail != NULL);
+
+    if (*tail != NULL && (res = lwesp_pbuf_cat(head, *tail)) == lwespOK) {
+        *tail = NULL;
+    }
+    return res;
 }
 
 /**
@@ -164,10 +216,15 @@ lwesp_pbuf_cat(lwesp_pbuf_p head, const lwesp_pbuf_p tail) {
  * \param[in]       tail: Tail packet buffer to append to head pbuf
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  * \sa              lwesp_pbuf_cat
+ * \sa              lwesp_pbuf_cat_s
+ * \sa              lwesp_pbuf_chain_s
  */
 lwespr_t
 lwesp_pbuf_chain(lwesp_pbuf_p head, lwesp_pbuf_p tail) {
     lwespr_t res;
+
+    LWESP_ASSERT(head != NULL);
+    LWESP_ASSERT(tail != NULL);
 
     /*
      * To prevent issues with multi-thread access,
@@ -195,8 +252,8 @@ lwesp_pbuf_unchain(lwesp_pbuf_p head) {
     if (head != NULL && head->next != NULL) { /* Check for valid pbuf */
         r = head->next;                       /* Set return value as next pbuf */
 
-        head->next = NULL;                    /* Clear next pbuf */
-        head->tot_len = head->len;            /* Set new length of head pbuf */
+        head->next = NULL;         /* Clear next pbuf */
+        head->tot_len = head->len; /* Set new length of head pbuf */
     }
     return r;
 }
@@ -568,8 +625,8 @@ lwesp_pbuf_dump(lwesp_pbuf_p p, uint8_t seq) {
         LWESP_DEBUGF(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE, "[LWESP PBUF] Dump start: %p\r\n", (void*)p);
         for (; p != NULL; p = p->next) {
             LWESP_DEBUGF(LWESP_CFG_DBG_PBUF | LWESP_DBG_TYPE_TRACE,
-                         "[LWESP PBUF] Dump %p; ref: %d; len: %d; tot_len: %d, next: %p\r\n", (void*)p, (int)p->ref,
-                         (int)p->len, (int)p->tot_len, (void*)p->next);
+                         "[LWESP PBUF] Dump %p; ref: %u; len: %u; tot_len: %u, next: %p\r\n", (void*)p,
+                         (unsigned)p->ref, (unsigned)p->len, (unsigned)p->tot_len, (void*)p->next);
             if (!seq) {
                 break;
             }

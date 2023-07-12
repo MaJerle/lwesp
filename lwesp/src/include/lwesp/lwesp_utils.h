@@ -62,6 +62,20 @@ extern "C" {
     } while (0)
 
 /**
+ * \brief           Assert an input parameter if in valid range, return 0 from function on failure
+ * \note            Since this is a macro, it may only be used on a functions where return status is of type \ref lwespr_t enumeration
+ * \param[in]       c: Condition to test
+ */
+#define LWESP_ASSERT0(c)                                                                                               \
+    do {                                                                                                               \
+        if (!(c)) {                                                                                                    \
+            LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT, "Assert failed in file %s on line %d: %s\r\n", __FILE__, (int)__LINE__, \
+                         #c);                                                                                          \
+            return 0;                                                                                                  \
+        }                                                                                                              \
+    } while (0)
+
+/**
  * \brief           Align `x` value to specific number of bytes, provided by \ref LWESP_CFG_MEM_ALIGNMENT configuration
  * \param[in]       x: Input value to align
  * \return          Input value aligned to specific number of bytes

@@ -1083,8 +1083,7 @@ http_evt(lwesp_evt_t* evt) {
                 }
 #endif /* HTTP_SUPPORT_POST */
                 if (hs->p != NULL) {
-                    lwesp_pbuf_free(hs->p); /* Free packet buffer */
-                    hs->p = NULL;
+                    lwesp_pbuf_free_s(&hs->p); /* Free packet buffer */
                 }
                 if (hs->rlwesp_file_opened) { /* Is file opened? */
                     uint8_t is_static = hs->rlwesp_file.is_static;
