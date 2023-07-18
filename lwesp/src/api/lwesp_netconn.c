@@ -64,20 +64,20 @@
 typedef struct lwesp_netconn {
     struct lwesp_netconn* next; /*!< Linked list entry */
 
-    lwesp_netconn_type_t type; /*!< Netconn type */
-    lwesp_port_t listen_port;  /*!< Port on which we are listening */
+    lwesp_netconn_type_t type;  /*!< Netconn type */
+    lwesp_port_t listen_port;   /*!< Port on which we are listening */
 
-    size_t rcv_packets;   /*!< Number of received packets so far on this connection */
-    lwesp_conn_p conn;    /*!< Pointer to actual connection */
+    size_t rcv_packets;         /*!< Number of received packets so far on this connection */
+    lwesp_conn_p conn;          /*!< Pointer to actual connection */
     uint16_t conn_val_id; /*!< Connection validation ID that changes between every connection active/closed operation */
 
     lwesp_sys_mbox_t mbox_accept;  /*!< List of active connections waiting to be processed */
     lwesp_sys_mbox_t mbox_receive; /*!< Message queue for receive mbox */
     size_t mbox_receive_entries;   /*!< Number of entries written to receive mbox */
 
-    lwesp_linbuff_t buff; /*!< Linear buffer structure */
+    lwesp_linbuff_t buff;          /*!< Linear buffer structure */
 
-    uint16_t conn_timeout; /*!< Connection timeout in units of seconds when
+    uint16_t conn_timeout;         /*!< Connection timeout in units of seconds when
                                                     netconn is in server (listen) mode.
                                                     Connection will be automatically closed if there is no
                                                     data exchange in time. Set to `0` when timeout feature is disabled. */
@@ -149,14 +149,14 @@ netconn_evt(lwesp_evt_t* evt) {
          * A new connection has been active
          * and should be handled by netconn API
          */
-        case LWESP_EVT_CONN_ACTIVE: {          /* A new connection active is active */
-            if (lwesp_conn_is_client(conn)) {  /* Was connection started by us? */
-                nc = lwesp_conn_get_arg(conn); /* Argument should be already set */
+        case LWESP_EVT_CONN_ACTIVE: {               /* A new connection active is active */
+            if (lwesp_conn_is_client(conn)) {       /* Was connection started by us? */
+                nc = lwesp_conn_get_arg(conn);      /* Argument should be already set */
                 if (nc != NULL) {
                     nc->conn = conn;                /* Save actual connection */
                     nc->conn_val_id = conn->val_id; /* Get value ID */
                 } else {
-                    close = 1; /* Close this connection, invalid netconn */
+                    close = 1;                      /* Close this connection, invalid netconn */
                 }
 
                 /* Is the connection server type and we have known listening API? */
@@ -170,7 +170,7 @@ netconn_evt(lwesp_evt_t* evt) {
                              "[LWESP NETCONN] Cannot create new structure for incoming server connection!\r\n");
 
                 if (nc != NULL) {
-                    nc->conn = conn; /* Set connection handle */
+                    nc->conn = conn;              /* Set connection handle */
                     nc->conn_val_id = conn->val_id;
                     lwesp_conn_set_arg(conn, nc); /* Set argument for connection */
 
@@ -199,7 +199,7 @@ netconn_evt(lwesp_evt_t* evt) {
                     lwesp_conn_set_arg(conn, NULL); /* Reset argument */
                     lwesp_netconn_delete(nc);       /* Free memory for API */
                 }
-                lwesp_conn_close(conn, 0); /* Close the connection */
+                lwesp_conn_close(conn, 0);          /* Close the connection */
                 close = 0;
             }
             break;
@@ -219,7 +219,7 @@ netconn_evt(lwesp_evt_t* evt) {
             lwesp_conn_recved(conn, pbuf); /* Notify stack about received data */
 #endif                                     /* !LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
-            lwesp_pbuf_ref(pbuf); /* Increase reference counter */
+            lwesp_pbuf_ref(pbuf);          /* Increase reference counter */
             LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE, nc == NULL,
                          "[LWESP NETCONN] Data receive -> netconn is NULL!\r\n");
             LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE, nc->conn_val_id != conn->val_id,
@@ -233,15 +233,15 @@ netconn_evt(lwesp_evt_t* evt) {
                 lwesp_pbuf_free_s(&pbuf); /* Free pbuf */
                 return lwespOKIGNOREMORE; /* Return OK to free the memory and ignore further data */
             }
-            ++nc->mbox_receive_entries; /* Increase number of packets in receive mbox */
+            ++nc->mbox_receive_entries;   /* Increase number of packets in receive mbox */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
             /* Check against 1 less to still allow potential close event to be written to queue */
             if (nc->mbox_receive_entries >= (LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN - 1)) {
                 conn->status.f.receive_blocked = 1; /* Block reading more data */
             }
-#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#endif                                              /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 
-            ++nc->rcv_packets; /* Increase number of packets received */
+            ++nc->rcv_packets;                      /* Increase number of packets received */
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE,
                          "[LWESP NETCONN] Received pbuf contains %d bytes. Handle written to receive mbox\r\n",
                          (int)lwesp_pbuf_length(pbuf, 0));
@@ -311,8 +311,8 @@ lwesp_netconn_new(lwesp_netconn_type_t type) {
     lwesp_core_unlock();
     a = lwesp_mem_calloc(1, sizeof(*a)); /* Allocate memory for core object */
     if (a != NULL) {
-        a->type = type;      /* Save netconn type */
-        a->conn_timeout = 0; /* Default connection timeout */
+        a->type = type;                  /* Save netconn type */
+        a->conn_timeout = 0;             /* Default connection timeout */
         if (!lwesp_sys_mbox_create(&a->mbox_accept, LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {
             LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
                          "[LWESP NETCONN] Cannot create accept MBOX\r\n");
@@ -573,17 +573,17 @@ lwesp_netconn_accept(lwesp_netconn_p nc, lwesp_netconn_p* client) {
     }
     if ((uint8_t*)tmp == (uint8_t*)&recv_closed) {
         lwesp_core_lock();
-        listen_api = NULL; /* Disable listening at this point */
+        listen_api = NULL;               /* Disable listening at this point */
         lwesp_core_unlock();
         return lwespERRWIFINOTCONNECTED; /* Wifi disconnected */
     } else if ((uint8_t*)tmp == (uint8_t*)&recv_not_present) {
         lwesp_core_lock();
-        listen_api = NULL; /* Disable listening at this point */
+        listen_api = NULL;       /* Disable listening at this point */
         lwesp_core_unlock();
         return lwespERRNODEVICE; /* Device not present */
     }
-    *client = tmp;  /* Set new pointer */
-    return lwespOK; /* We have a new connection */
+    *client = tmp;               /* Set new pointer */
+    return lwespOK;              /* We have a new connection */
 }
 
 /**
@@ -654,15 +654,15 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
     }
 
     /* Step 3 */
-    if (nc->buff.buff == NULL) { /* Check if we should allocate a new buffer */
+    if (nc->buff.buff == NULL) {                    /* Check if we should allocate a new buffer */
         nc->buff.buff = lwesp_mem_malloc(sizeof(*nc->buff.buff) * LWESP_CFG_CONN_MAX_DATA_LEN);
         nc->buff.len = LWESP_CFG_CONN_MAX_DATA_LEN; /* Save buffer length */
         nc->buff.ptr = 0;                           /* Save buffer pointer */
     }
 
     /* Step 4 */
-    if (nc->buff.buff != NULL) {                            /* Memory available? */
-        LWESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], d, btw); /* Copy data to buffer */
+    if (nc->buff.buff != NULL) {                              /* Memory available? */
+        LWESP_MEMCPY(&nc->buff.buff[nc->buff.ptr], d, btw);   /* Copy data to buffer */
         nc->buff.ptr += btw;
     } else {                                                  /* Still no memory available? */
         return lwesp_conn_send(nc->conn, data, btw, NULL, 1); /* Simply send directly blocking */
@@ -856,11 +856,11 @@ lwesp_netconn_get_connnum(lwesp_netconn_p nc) {
  * \brief           Set timeout value for receiving data.
  *
  * When enabled, \ref lwesp_netconn_receive will only block for up to
- * `timeout` value and will return if no new data within this time
+ * \e timeout value and will return if no new data within this time
  *
  * \param[in]       nc: Netconn handle
  * \param[in]       timeout: Timeout in units of milliseconds.
- *                      Set to `0` to disable timeout feature
+ *                      Set to `0` to disable timeout feature. Function blocks until data receive or connection closed
  *                      Set to `> 0` to set maximum milliseconds to wait before timeout
  *                      Set to \ref LWESP_NETCONN_RECEIVE_NO_WAIT to enable non-blocking receive
  */

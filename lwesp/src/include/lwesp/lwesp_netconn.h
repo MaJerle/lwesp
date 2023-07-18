@@ -60,7 +60,8 @@ typedef struct lwesp_netconn* lwesp_netconn_p;
  */
 #define LWESP_NETCONN_RECEIVE_NO_WAIT 0xFFFFFFFF
 
-#define LWESP_NETCONN_FLAG_FLUSH      ((uint16_t)0x0001) /*!< Immediate flush for TCP write */
+/* Immediate flush for TCP write. Used with \ref lwesp_netconn_write_ex*/
+#define LWESP_NETCONN_FLAG_FLUSH      ((uint16_t)0x0001) /*!< Immediate flush after netconn write */
 
 /**
  * \brief           Netconn connection type
