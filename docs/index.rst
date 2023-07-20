@@ -92,7 +92,7 @@ Table of contents
     LwESP - ESP-AT library <https://github.com/MaJerle/lwesp>
     LwEVT - Event manager <https://github.com/MaJerle/lwevt>
     LwGPS - GPS NMEA parser <https://github.com/MaJerle/lwgps>
-    LwGSM - GSM-AT library <https://github.com/MaJerle/lwgsm>
+    LwCELL - Cellular modem host AT library <https://github.com/MaJerle/lwcell>
     LwJSON - JSON parser <https://github.com/MaJerle/lwjson>
     LwMEM - Memory manager <https://github.com/MaJerle/lwmem>
     LwOW - OneWire with UART <https://github.com/MaJerle/lwow>

@@ -3,7 +3,7 @@
 Porting guide
 =============
 
-High level of *ESP-AT* library is platform independent, written in ANSI C99,
+High level of *ESP-AT* library is platform independent, written in C (C11),
 however there is an important part where middleware needs to communicate with target *ESP* device
 and it must work under different optional operating systems selected by final customer.
 
