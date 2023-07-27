@@ -368,7 +368,7 @@ lwesp_mem_malloc(size_t size) {
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL, "[LWESP MEM] Allocation failed: %d bytes\r\n",
                  (int)size);
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr != NULL,
-                 "[LWESP MEM] Allocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
+                 "[LWESP MEM] Allocation OK: %d bytes, addr: %p\r\n", (int)MEM_BLOCK_USER_SIZE(ptr), ptr);
     return ptr;
 }
 
@@ -389,7 +389,7 @@ lwesp_mem_realloc(void* ptr, size_t size) {
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr == NULL, "[LWESP MEM] Reallocation failed: %d bytes\r\n",
                  (int)size);
     LWESP_DEBUGW(LWESP_CFG_DBG_MEM | LWESP_DBG_TYPE_TRACE, ptr != NULL,
-                 "[LWESP MEM] Reallocation OK: %d bytes, addr: %p\r\n", (int)size, ptr);
+                 "[LWESP MEM] Reallocation OK: %d bytes, addr: %p\r\n", (int)MEM_BLOCK_USER_SIZE(ptr), ptr);
     return ptr;
 }
 
