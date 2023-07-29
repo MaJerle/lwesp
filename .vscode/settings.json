@@ -42,7 +42,8 @@
         "lwesp_netconn.h": "c",
         "netconn_client.h": "c",
         "lwesp_sntp.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "lwesp_flash_partitions.h": "c"
     },
     "esbonio.sphinx.confDir": ""
 }

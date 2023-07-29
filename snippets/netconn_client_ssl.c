@@ -62,15 +62,13 @@ netconn_client_ssl_thread(void const* arg) {
     if (client != NULL) {
         struct tm dt;
 
-        /* First erase all client SSL settings */
-        lwesp_flash_erase(LWESP_FLASH_PARTITION_CLIENT_CA, 0, 0, NULL, NULL, 1);
-        lwesp_flash_erase(LWESP_FLASH_PARTITION_CLIENT_CERT, 0, 0, NULL, NULL, 1);
-        lwesp_flash_erase(LWESP_FLASH_PARTITION_CLIENT_KEY, 0, 0, NULL, NULL, 1);
-
-        /* Load new SSL config values to flash partition */
-        lwesp_flash_write(LWESP_FLASH_PARTITION_CLIENT_CA, 0, sizeof(client_ca), client_ca, NULL, NULL, 1);
-        lwesp_flash_write(LWESP_FLASH_PARTITION_CLIENT_CERT, 0, sizeof(client_cert), client_cert, NULL, NULL, 1);
-        lwesp_flash_write(LWESP_FLASH_PARTITION_CLIENT_KEY, 0, sizeof(client_key), client_key, NULL, NULL, 1);
+        /* Write data to coresponding manuf NVS */
+        res = lwesp_mfg_write(LWESP_MFG_NAMESPACE_CLIENT_CA, "client_ca.0", LWESP_MFG_VALTYPE_BLOB, client_ca,
+                              sizeof(client_ca), NULL, NULL, 1);
+        res = lwesp_mfg_write(LWESP_MFG_NAMESPACE_CLIENT_CERT, "client_cert.0", LWESP_MFG_VALTYPE_BLOB, client_cert,
+                              sizeof(client_cert), NULL, NULL, 1);
+        res = lwesp_mfg_write(LWESP_MFG_NAMESPACE_CLIENT_KEY, "client_key.0", LWESP_MFG_VALTYPE_BLOB, client_key,
+                              sizeof(client_key), NULL, NULL, 1);
 
         /* Configure SSL for all connections */
         for (size_t i = 0; i < LWESP_CFG_MAX_CONNS; ++i) {
@@ -84,6 +82,7 @@ netconn_client_ssl_thread(void const* arg) {
             if (dt.tm_year > 100) {
                 break;
             }
+            lwesp_delay(1000);
         } while (1);
 
         /*

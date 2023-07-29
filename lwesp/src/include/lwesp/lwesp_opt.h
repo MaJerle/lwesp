@@ -785,6 +785,21 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` automatic time read from the device when time gets updated
+ * 
+ * Latest version of ESP-AT, starting from `v3.0` supports, when enabled,
+ * to receive `+TIME_UPDATED` notification, when ESP device got new time via SNTP protocol.
+ * 
+ * When this option is enabled, command will be send to 
+ * the ESP device requesting new time for each new `TIME UPDATED` event.
+ * 
+ * \note            \ref LWESP_CFG_SNTP shall be enabled and SNTP configured on ESP device
+ */
+#ifndef LWESP_CFG_SNTP_AUTO_READ_TIME_ON_UPDATE
+#define LWESP_CFG_SNTP_AUTO_READ_TIME_ON_UPDATE 0
+#endif
+
+/**
  * \brief           Enables `1` or disables `0` support for hostname with AT commands
  *
  */
@@ -897,8 +912,8 @@ void *  my_memset(void* dst, int b, size_t len);
 /* Define minimum versions required for each of device */
 /* Format is (major << 24 | minor << 16 | patch << 8)*/
 #define LWESP_MIN_AT_VERSION_ESP8266  (2 << 24 | 2 << 16 | 1 << 8)
-#define LWESP_MIN_AT_VERSION_ESP32    (2 << 24 | 2 << 16 | 0 << 8)
-#define LWESP_MIN_AT_VERSION_ESP32_C3 (2 << 24 | 3 << 16 | 0 << 8)
+#define LWESP_MIN_AT_VERSION_ESP32    (3 << 24 | 2 << 16 | 0 << 8)
+#define LWESP_MIN_AT_VERSION_ESP32_C3 (3 << 24 | 2 << 16 | 0 << 8)
 
 /**
  * \}

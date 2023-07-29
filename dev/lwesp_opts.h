@@ -77,6 +77,7 @@
 
 #define LWESP_CFG_DNS                             1
 #define LWESP_CFG_SNTP                            1
+#define LWESP_CFG_SNTP_AUTO_READ_TIME_ON_UPDATE   1
 #define LWESP_CFG_HOSTNAME                        1
 #define LWESP_CFG_WPS                             1
 #define LWESP_CFG_MDNS                            1

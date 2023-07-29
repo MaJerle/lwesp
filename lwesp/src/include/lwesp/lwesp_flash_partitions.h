@@ -33,26 +33,28 @@
  */
 
 /*
- * Define LWESP_FLASH_PARTITION before you include the file
+ * Define LWESP_FLASH_PARTITION and LWESP_MFG_NAMESPACE before you include the file
  *
  * #define LWESP_FLASH_PARTITION(enum_type, at_string)
+ * #define LWESP_MFG_NAMESPACE(enum_type, at_string)
  */
 
-LWESP_FLASH_PARTITION(SERVER_CERT, "server_cert")
-LWESP_FLASH_PARTITION(SERVER_KEY, "server_key")
-LWESP_FLASH_PARTITION(SERVER_CA, "server_ca")
-LWESP_FLASH_PARTITION(CLIENT_CERT, "client_cert")
-LWESP_FLASH_PARTITION(CLIENT_KEY, "client_key")
-LWESP_FLASH_PARTITION(CLIENT_CA, "client_ca")
-LWESP_FLASH_PARTITION(WPA2_CERT, "wpa2_cert")
-LWESP_FLASH_PARTITION(WPA2_KEY, "wpa2_key")
-LWESP_FLASH_PARTITION(WPA2_CA, "wpa2_ca")
-LWESP_FLASH_PARTITION(MQTT_CERT, "mqtt_cert")
-LWESP_FLASH_PARTITION(MQTT_KEY, "mqtt_key")
-LWESP_FLASH_PARTITION(MQTT_CA, "mqtt_ca")
-LWESP_FLASH_PARTITION(PKI_END, "") /* Special case -> PKI part ends here */
+/* Factory related device partitions */
+LWESP_FLASH_PARTITION(MFG_NVS, "mfg_nvs")
 LWESP_FLASH_PARTITION(FATFS, "fatfs")
-LWESP_FLASH_PARTITION(BLE_DATA, "ble_data")
-LWESP_FLASH_PARTITION(FACTORY_PARAM, "factory_param")
+
+/* Default user non-volatile storage sections, part of mfg_nvs */
+LWESP_MFG_NAMESPACE(SERVER_CERT, "server_cert")
+LWESP_MFG_NAMESPACE(SERVER_KEY, "server_key")
+LWESP_MFG_NAMESPACE(SERVER_CA, "server_ca")
+LWESP_MFG_NAMESPACE(CLIENT_CERT, "client_cert")
+LWESP_MFG_NAMESPACE(CLIENT_KEY, "client_key")
+LWESP_MFG_NAMESPACE(CLIENT_CA, "client_ca")
+LWESP_MFG_NAMESPACE(MQTT_CERT, "mqtt_cert")
+LWESP_MFG_NAMESPACE(MQTT_KEY, "mqtt_key")
+LWESP_MFG_NAMESPACE(MQTT_CA, "mqtt_ca")
+LWESP_MFG_NAMESPACE(BLE_DATA, "ble_data")
+LWESP_MFG_NAMESPACE(FACTORY_PARAM, "factory_param")
 
 #undef LWESP_FLASH_PARTITION
+#undef LWESP_MFG_NAMESPACE

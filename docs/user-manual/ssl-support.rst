@@ -9,8 +9,12 @@ TCP connection SSL support
 ESP-AT binary, running on Espressif chips, supports SLL connection types.
 Such connections, to work properly, require client or server certificates to be loaded to Espressif device.
 
-With the recent update, *June 10th, 2023*, library has been updated to support AT commands for flash operation,
+With the recent update, *July 29th, 2023*, library has been updated to support AT commands for flash and MFG operations,
 allowing host microcontroller to load required certificates to the Espressif device.
+
+.. note::
+    Minimum required ESP-AT library running on ESP device is now ``v3.2.0``, which supports new *AT+SYSMFG* command,
+    that is required to load custom data to the device.
 
 .. note::
     SSL connections mentioned on this page are secure from Espressif device towards network.
@@ -28,23 +32,16 @@ ESP device shall have up to ``3`` certificates loaded in its own system flash. T
 
 ESP-AT website includes some test certificates, that could be used for test purposes: `Description of all slots <https://docs.espressif.com/projects/esp-at/en/latest/esp32/Compile_and_Develop/How_to_update_pki_config.html>`_
 
-Now that we have our certificates, it is necessary to convert them to a format, that can be loaded to Espressif device running AT commands binary.
-Espressif provides `atpki.py` python script, which can accept the input file and generate output from it. For each file, run the commands:
+LwESP repository contains aforementioned certificates in the *certificates* folder. There are *2* files for each certificate:
 
-* Client ca: ``python atpki.py generate_bin -b client_ca_output.bin ca client_ca.pem``
-* Client cert: ``python atpki.py generate_bin -b client_cert_output.bin cert client_cert.pem``
-* Client key: ``python atpki.py generate_bin -b client_key_output.bin key client_key.pem``
-
-``3 .bin`` files have been successfully generated. It is now time to load them to ESP device. 
-
-.. note::
-    LwESP comes with ``certificates`` folder with original and processed files. ``atpki.py`` file is included in ``scripts/`` folder
+* Original *.crt* or *.key* file
+* Original *.crt* or *.key* file converted to *.hex* array for easier include in the C project.
 
 Load to ESP device
 ******************
 
 Loading can be done as part of custom AT firmware build, or by using AT commands.
-LwESP library added the support for system flash operation, that will essentially be required for certificate load.
+LwESP library has the support for system flash and manufacturing NVS data operation, that is required for certificate load.
 
 All combined, steps to establish SSL connection is to:
 

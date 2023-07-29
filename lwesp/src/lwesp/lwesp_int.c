@@ -119,9 +119,16 @@ typedef struct {
 /* Flash partitions */
 static const char* flash_partitions[] = {
 #define LWESP_FLASH_PARTITION(key, at_string) at_string,
+#define LWESP_MFG_NAMESPACE(key, at_string)
 #include "lwesp/lwesp_flash_partitions.h"
 };
-#endif
+/* Manufactiring NVS partitions */
+static const char* mfg_namespaces[] = {
+#define LWESP_FLASH_PARTITION(key, at_string)
+#define LWESP_MFG_NAMESPACE(key, at_string) at_string,
+#include "lwesp/lwesp_flash_partitions.h"
+};
+#endif /* LWESP_CFG_FLASH */
 
 static uint16_t conn_val_id;
 static lwesp_recv_t recv_buff;
@@ -790,6 +797,9 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 #if LWESP_CFG_SNTP
         } else if (!strncmp(rcv->data, "+TIME_UPDATED", 13)) {
             lwespi_send_cb(LWESP_EVT_SNTP_TIME_UPDATED);
+#if LWESP_CFG_SNTP_AUTO_READ_TIME_ON_UPDATE
+            lwesp_sntp_gettime(&esp.m.sntp_dt, NULL, NULL, 0);
+#endif /* LWESP_CFG_SNTP_AUTO_READ_TIME_ON_UPDATE */
 #endif /* LWESP_CFG_SNTP */
 #if LWESP_CFG_WEBSERVER
         } else if (!strncmp(rcv->data, "+WEBSERVERRSP", 13)) {
@@ -1086,7 +1096,18 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             }
 #if LWESP_CFG_FLASH
         } else if (CMD_IS_CUR(LWESP_CMD_SYSFLASH_WRITE)) {
-
+        } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_WRITE)) {
+            /* Primitive types are written in single shot */
+            if (!LWESP_MFG_VALTYPE_IS_PRIM(esp.msg->msg.mfg_write.valtype)) {
+                /* Non-primitive types will follow with ">" afterwards */
+                if (stat.is_ok) {
+                    /* We react on second OK */
+                    if (!esp.msg->msg.mfg_write.wait_second_ok) {
+                        esp.msg->msg.mfg_write.wait_second_ok = 1;
+                        stat.is_ok = 0;
+                    }
+                }
+            }
 #endif /* LWESP_CFG_FLASH */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
             /* Do nothing, it is either OK or not OK */
@@ -1530,9 +1551,14 @@ lwespi_process(const void* data, size_t data_len) {
                     } else if (CMD_IS_CUR(LWESP_CMD_SYSFLASH_WRITE)) {
                         if (ch == '>' && ch_prev1 == '\n') {
                             RECV_RESET(); /* Reset received object */
-
-                            /* Now actually send the data prepared for TX before */
                             AT_PORT_SEND_WITH_FLUSH(esp.msg->msg.flash_write.data, esp.msg->msg.flash_write.length);
+                        }
+                    } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_WRITE)) {
+                        /* Only non-primitive types are written from here */
+                        if (!LWESP_MFG_VALTYPE_IS_PRIM(esp.msg->msg.mfg_write.valtype) && ch == '>'
+                            && ch_prev1 == '\n') {
+                            RECV_RESET(); /* Reset received object */
+                            AT_PORT_SEND_WITH_FLUSH(esp.msg->msg.mfg_write.data_ptr, esp.msg->msg.mfg_write.length);
                         }
 #endif /* LWESP_CFG_FLASH */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -1664,7 +1690,8 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
 #if LWESP_CFG_FLASH && defined(LWESP_DEV)
             SET_NEW_CMD(LWESP_CMD_SYSFLASH_GET);
             break;
-        case LWESP_CMD_SYSFLASH_GET:
+        case LWESP_CMD_SYSFLASH_GET: SET_NEW_CMD(LWESP_CMD_SYSMFG_GET); break;
+        case LWESP_CMD_SYSMFG_GET:
 #endif /* LWESP_CFG_FLASH && defined(LWESP_DEV) */
             SET_NEW_CMD(LWESP_CMD_SYSLOG);
             break;
@@ -2023,7 +2050,6 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_SYSFLASH_ERASE: {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+SYSFLASH=0"); /* Erase operation */
-            /* TODO: Move this to an array of strings for partitions */
             if (msg->msg.flash_erase.partition < LWESP_FLASH_PARTITION_END) {
                 lwespi_send_string(flash_partitions[(size_t)msg->msg.flash_erase.partition], 0, 1, 1);
             } else {
@@ -2042,10 +2068,9 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
         case LWESP_CMD_SYSFLASH_WRITE: {
             AT_PORT_SEND_BEGIN_AT();
-            AT_PORT_SEND_CONST_STR("+SYSFLASH=1"); /* Erase operation */
-            /* TODO: Move this to an array of strings for partitions */
-            if (msg->msg.flash_erase.partition < LWESP_FLASH_PARTITION_END) {
-                lwespi_send_string(flash_partitions[(size_t)msg->msg.flash_erase.partition], 0, 1, 1);
+            AT_PORT_SEND_CONST_STR("+SYSFLASH=1"); /* Write operation */
+            if (msg->msg.flash_write.partition < LWESP_FLASH_PARTITION_END) {
+                lwespi_send_string(flash_partitions[(size_t)msg->msg.flash_write.partition], 0, 1, 1);
             } else {
                 LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                              "[SYS FLASH] Unsupported partition!\r\n");
@@ -2053,6 +2078,55 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             }
             lwespi_send_number(LWESP_U32(msg->msg.flash_write.offset), 0, 1);
             lwespi_send_number(LWESP_U32(msg->msg.flash_write.length), 0, 1);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_SYSMFG_GET: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SYSMFG?");
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_SYSMFG_WRITE: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SYSMFG=2"); /* Write operation */
+            if (msg->msg.mfg_write.namespace < LWESP_MFG_NAMESPACE_END) {
+                lwespi_send_string(mfg_namespaces[(size_t)msg->msg.mfg_write.namespace], 0, 1, 1);
+            } else {
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
+                             "[SYS MFG] Unsupported namespace!\r\n");
+                return lwespERR; /* Hard error! */
+            }
+            lwespi_send_string(msg->msg.mfg_write.key, 0, 1, 1);
+            lwespi_send_number(LWESP_U32(msg->msg.mfg_write.valtype), 0, 1);
+            if (LWESP_MFG_VALTYPE_IS_PRIM(msg->msg.mfg_write.valtype)) {
+                switch (msg->msg.mfg_write.valtype) {
+                    case LWESP_MFG_VALTYPE_U8:
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.u8), 0, 1);
+                        break;
+                    case LWESP_MFG_VALTYPE_I8:
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.i8), 0, 1);
+                        break;
+                    case LWESP_MFG_VALTYPE_U16:
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.u16), 0, 1);
+                        break;
+                    case LWESP_MFG_VALTYPE_I16:
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.i16), 0, 1);
+                        break;
+                    case LWESP_MFG_VALTYPE_U32:
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.u32), 0, 1);
+                        break;
+                    case LWESP_MFG_VALTYPE_I32:
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.i32), 0, 1);
+                        break;
+                    default:
+                        LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
+                                     "[SYS MFG] Unsupported primitive value type!\r\n");
+                }
+            } else {
+                /* Send length, data is sent later */
+                lwespi_send_number(LWESP_U32(msg->msg.mfg_write.length), 0, 1);
+            }
             AT_PORT_SEND_END_AT();
             break;
         }

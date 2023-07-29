@@ -49,8 +49,14 @@ extern "C" {
 
 lwespr_t lwesp_flash_erase(lwesp_flash_partition_t partition, uint32_t offset, uint32_t length,
                            const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t lwesp_flash_write(lwesp_flash_partition_t partition, uint32_t offset, uint32_t length, const void* data,
+lwespr_t lwesp_flash_write(lwesp_flash_partition_t partition, uint32_t offset, const void* data, uint32_t length,
                            const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+
+lwespr_t lwesp_mfg_erase(lwesp_mfg_namespace_t namespace, const char* key, uint32_t offset, uint32_t length,
+                         const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valtype_t valtype,
+                         const void* data, uint32_t length, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                         const uint32_t blocking);
 
 /**
  * \}

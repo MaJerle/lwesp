@@ -27,7 +27,9 @@
 - FileSystem: Added support for erase and write operation
 - Code improvement: Change multiple local variables to single structure
 - Delete `lwesp_datetime_t` and use generic `struct tm` instead
-- Conn and netconn: Add validation counter to ensure netconn object matches connection object and that there was no connection close/re-open in between 
+- Conn and netconn: Add validation counter to ensure netconn object matches connection object and that there was no connection close/re-open in between
+- Minimum supported AT version is now `v3.2.0 (ESP32, ESP32-C3)` to support new MFG write operations
+- SYSFLASH: Split System flash and Manufacturing data to separate commands, following new breaking changes for ESP-AT firmware
 
 ## 1.1.2-dev
 
