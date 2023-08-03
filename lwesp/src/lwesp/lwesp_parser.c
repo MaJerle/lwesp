@@ -670,7 +670,7 @@ lwespi_parse_cipdomain(const char* str, lwesp_msg_t* msg) {
 
 /**
  * \brief           Parse received message for SNTP configuration
- * \param[in]       str: Pointer to input string starting with +CWLAP
+ * \param[in]       str: Pointer to input string starting with +CIPSNTPCFG
  * \param[in]       msg: Pointer to message
  * \return          `1` on success, `0` otherwise
  */
@@ -681,7 +681,7 @@ lwespi_parse_sntp_cfg(const char* str, lwesp_msg_t* msg) {
         return 0;
     }
     if (*str == '+') { /* Check input string */
-        str += 13;
+        str += 12;
     }
     num = lwespi_parse_number(&str);
     if (msg->msg.tcpip_sntp_cfg_get.en != NULL) {
@@ -696,8 +696,30 @@ lwespi_parse_sntp_cfg(const char* str, lwesp_msg_t* msg) {
 }
 
 /**
+ * \brief           Parse received message for SNTP sync interval
+ * \param[in]       str: Pointer to input string starting with +CIPSNTPINTV
+ * \param[in]       msg: Pointer to message
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+lwespi_parse_cipsntpintv(const char* str, lwesp_msg_t* msg) {
+    int32_t num;
+    if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPINTV_GET)) {
+        return 0;
+    }
+    if (*str == '+') { /* Check input string */
+        str += 13;
+    }
+    num = lwespi_parse_number(&str);
+    if (msg->msg.tcpip_sntp_intv_get.interval != NULL) {
+        *msg->msg.tcpip_sntp_intv_get.interval = (uint32_t)num;
+    }
+    return 1;
+}
+
+/**
  * \brief           Parse received message for SNTP time
- * \param[in]       str: Pointer to input string starting with +CWLAP
+ * \param[in]       str: Pointer to input string starting with +CIPSNTPTIME
  * \param[in]       msg: Pointer to message
  * \return          `1` on success, `0` otherwise
  */

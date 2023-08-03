@@ -158,12 +158,13 @@ typedef enum {
     LWESP_CMD_TCPIP_CIPRECVLEN,       /*!< Gets number of available bytes in connection to be read */
     LWESP_CMD_TCPIP_CIUPDATE,         /*!< Perform self-update */
 #if LWESP_CFG_SNTP || __DOXYGEN__
-    LWESP_CMD_TCPIP_CIPSNTPCFG,     /*!< Configure SNTP servers */
-    LWESP_CMD_TCPIP_CIPSNTPCFG_GET, /*!< Get SNTP config */
-    LWESP_CMD_TCPIP_CIPSNTPTIME,    /*!< Get current time using SNTP */
-    LWESP_CMD_TCPIP_CIPSNTPINTV,    /*!< Query/Set the SNTP time synchronization interval */
-#endif                              /* LWESP_SNT || __DOXYGEN__ */
-    LWESP_CMD_TCPIP_CIPDINFO,       /*!< Configure what data are received on +IPD statement */
+    LWESP_CMD_TCPIP_CIPSNTPCFG,      /*!< Configure SNTP servers */
+    LWESP_CMD_TCPIP_CIPSNTPCFG_GET,  /*!< Get SNTP config */
+    LWESP_CMD_TCPIP_CIPSNTPTIME,     /*!< Get current time using SNTP */
+    LWESP_CMD_TCPIP_CIPSNTPINTV,     /*!< Set the SNTP time synchronization interval */
+    LWESP_CMD_TCPIP_CIPSNTPINTV_GET, /*!< Query the SNTP time synchronization interval */
+#endif                               /* LWESP_SNT || __DOXYGEN__ */
+    LWESP_CMD_TCPIP_CIPDINFO,        /*!< Configure what data are received on +IPD statement */
 #if LWESP_CFG_PING || __DOXYGEN__
     LWESP_CMD_TCPIP_PING, /*!< Ping domain */
 #endif                    /* LWESP_CFG_PING || __DOXYGEN__ */
@@ -499,6 +500,10 @@ typedef struct lwesp_msg {
         struct {
             uint32_t interval; /*!< Time in units of seconds */
         } tcpip_sntp_intv;     /*!< SNTP interval configuration */
+
+        struct {
+            uint32_t* interval; /*!< Pointer to write time to */
+        } tcpip_sntp_intv_get;  /*!< SNTP interval configuration */
 
         struct {
             struct tm* dt; /*!< Pointer to datetime structure */

@@ -53,6 +53,8 @@ lwespr_t lwesp_sntp_get_config(uint8_t* en, int16_t* tz, char* h1, char* h2, cha
                                const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t lwesp_sntp_set_interval(uint32_t interval, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
                                  const uint32_t blocking);
+lwespr_t lwesp_sntp_get_interval(uint32_t* interval, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
+                                 const uint32_t blocking);
 lwespr_t lwesp_sntp_gettime(struct tm* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
                             const uint32_t blocking);
 

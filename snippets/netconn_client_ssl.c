@@ -61,7 +61,8 @@ netconn_client_ssl_thread(void const* arg) {
     client = lwesp_netconn_new(LWESP_NETCONN_TYPE_SSL);
     if (client != NULL) {
         struct tm dt;
-        uint8_t sntp_en;
+        uint32_t sntp_interval = 0;
+        uint8_t sntp_en = 0;
 
         /* Write data to coresponding manuf NVS */
         res = lwesp_mfg_write(LWESP_MFG_NAMESPACE_CLIENT_CA, "client_ca.0", LWESP_MFG_VALTYPE_BLOB, client_ca,
@@ -81,6 +82,8 @@ netconn_client_ssl_thread(void const* arg) {
             if (!sntp_en) {
                 lwesp_sntp_set_config(1, 2, NULL, NULL, NULL, NULL, NULL, 1);
             }
+            lwesp_sntp_get_interval(&sntp_interval, NULL, NULL, 1);
+            printf("SNTP interval: %u seconds\r\n", (unsigned)sntp_interval);
             do {
                 lwesp_sntp_gettime(&dt, NULL, NULL, 1);
                 if (dt.tm_year > 100) {

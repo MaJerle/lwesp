@@ -959,7 +959,9 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 lwespi_parse_cipsntptime(rcv->data, esp.msg); /* Parse CIPSNTPTIME entry */
             } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSNTPCFG_GET) && !strncmp(rcv->data, "+CIPSNTPCFG", 11)) {
                 lwespi_parse_sntp_cfg(rcv->data, esp.msg); /* Parse CIPSNTPTIME entry */
-#endif                                                     /* LWESP_CFG_SNTP */
+            } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSNTPINTV_GET) && !strncmp(rcv->data, "+CIPSNTPINTV", 12)) {
+                lwespi_parse_cipsntpintv(rcv->data, esp.msg); /* Parse CIPSNTPINTV entry */
+#endif                                                        /* LWESP_CFG_SNTP */
 #if LWESP_CFG_HOSTNAME
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWHOSTNAME_GET) && !strncmp(rcv->data, "+CWHOSTNAME", 11)) {
                 lwespi_parse_hostname(rcv->data, esp.msg); /* Parse HOSTNAME entry */
@@ -2711,7 +2713,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-        case LWESP_CMD_TCPIP_CIPSNTPTIME: { /* Get time over SNTP */
+        case LWESP_CMD_TCPIP_CIPSNTPTIME: { /* Query time over SNTP */
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSNTPTIME?");
             AT_PORT_SEND_END_AT();
@@ -2721,6 +2723,12 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+CIPSNTPINTV=");
             lwespi_send_number(LWESP_U32(msg->msg.tcpip_sntp_intv.interval), 0, 0);
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_TCPIP_CIPSNTPINTV_GET: { /* Query SNTP sync interval */
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+CIPSNTPINTV?");
             AT_PORT_SEND_END_AT();
             break;
         }
