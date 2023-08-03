@@ -61,6 +61,7 @@ netconn_client_ssl_thread(void const* arg) {
     client = lwesp_netconn_new(LWESP_NETCONN_TYPE_SSL);
     if (client != NULL) {
         struct tm dt;
+        uint8_t sntp_en;
 
         /* Write data to coresponding manuf NVS */
         res = lwesp_mfg_write(LWESP_MFG_NAMESPACE_CLIENT_CA, "client_ca.0", LWESP_MFG_VALTYPE_BLOB, client_ca,
@@ -76,14 +77,18 @@ netconn_client_ssl_thread(void const* arg) {
         }
 
         /* Ensure SNTP is enabled, time is required for SSL */
-        lwesp_sntp_set_config(1, 2, NULL, NULL, NULL, NULL, NULL, 1);
-        do {
-            lwesp_sntp_gettime(&dt, NULL, NULL, 1);
-            if (dt.tm_year > 100) {
-                break;
+        if (lwesp_sntp_get_config(&sntp_en, NULL, NULL, NULL, NULL, NULL, NULL, 1) == lwespOK) {
+            if (!sntp_en) {
+                lwesp_sntp_set_config(1, 2, NULL, NULL, NULL, NULL, NULL, 1);
             }
-            lwesp_delay(1000);
-        } while (1);
+            do {
+                lwesp_sntp_gettime(&dt, NULL, NULL, 1);
+                if (dt.tm_year > 100) {
+                    break;
+                }
+                lwesp_delay(1000);
+            } while (1);
+        }
 
         /*
          * Connect to external server as client

@@ -18,6 +18,8 @@
 - SNTP: Improve module comments, change timezone variable to `int16_t`
 - SNTP: Implement global callback when command is to obtain current time
 - SNTP: Add synchronization interval config, available with ESP AT `2.3.0` or later (ESP32-C3 only for the moment)
+- SNTP: Add option for readin current SNTP configuration
+- SNTP: Add option to automatically read SNTP data on `+TIME_UPDATED` event (requires ESP-AT v3.x or newer)
 - ERR: Add option to get response to `ERR CODE:` message if command doesn't exist and put it to result of command execution
 - Fix min at version for ESP32 to `2.2.0`
 - Add `LWESP ` prefix for debug messages

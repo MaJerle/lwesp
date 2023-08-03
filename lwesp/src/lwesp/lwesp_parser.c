@@ -50,7 +50,7 @@ int32_t
 lwespi_parse_number(const char** str) {
     int32_t val = 0;
     uint8_t minus = 0;
-    const char* p = *str;      /*  */
+    const char* p = *str; /*  */
 
     INC_IF_CHAR_EQUAL(p, '"'); /* Skip leading quotes */
     INC_IF_CHAR_EQUAL(p, ','); /* Skip leading comma */
@@ -92,7 +92,7 @@ lwespi_parse_port(const char** str) {
 uint32_t
 lwespi_parse_hexnumber(const char** str) {
     int32_t val = 0;
-    const char* p = *str;            /*  */
+    const char* p = *str; /*  */
 
     INC_IF_CHAR_EQUAL(p, '"');       /* Skip leading quotes */
     INC_IF_CHAR_EQUAL(p, ',');       /* Skip leading comma */
@@ -161,7 +161,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     const char* p = *src;
 #if LWESP_CFG_IPV6
     char c;
-#endif                         /* LWESP_CFG_IPV6 */
+#endif /* LWESP_CFG_IPV6 */
 
     INC_IF_CHAR_EQUAL(p, '"'); /* Skip leading quotes */
 
@@ -208,7 +208,7 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     }
     INC_IF_CHAR_EQUAL(p, '"'); /* Skip trailing quotes */
 
-    *src = p;                  /* Set new pointer */
+    *src = p; /* Set new pointer */
     return 1;
 }
 
@@ -464,15 +464,15 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
 #if LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_type = (uint8_t)lwespi_parse_number(&str); /* Scan type */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_min =
-        (uint16_t)lwespi_parse_number(&str);                                                    /* Scan time minimum */
+        (uint16_t)lwespi_parse_number(&str); /* Scan time minimum */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_max =
-        (uint16_t)lwespi_parse_number(&str);                                                    /* Scan time maximum */
+        (uint16_t)lwespi_parse_number(&str); /* Scan time maximum */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_offset = (int16_t)lwespi_parse_number(&str); /* Freq offset */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_cal = (int16_t)lwespi_parse_number(&str);    /* Freqcal value */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].pairwise_cipher =
-        (lwesp_ap_cipher_t)lwespi_parse_number(&str);                                             /* Pairwise cipher */
+        (lwesp_ap_cipher_t)lwespi_parse_number(&str); /* Pairwise cipher */
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].group_cipher =
-        (lwesp_ap_cipher_t)lwespi_parse_number(&str);                                             /* Group cipher */
+        (lwesp_ap_cipher_t)lwespi_parse_number(&str); /* Group cipher */
 #else
     /* Read and ignore values */
     lwespi_parse_number(&str);
@@ -669,6 +669,33 @@ lwespi_parse_cipdomain(const char* str, lwesp_msg_t* msg) {
 #if LWESP_CFG_SNTP || __DOXYGEN__
 
 /**
+ * \brief           Parse received message for SNTP configuration
+ * \param[in]       str: Pointer to input string starting with +CWLAP
+ * \param[in]       msg: Pointer to message
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+lwespi_parse_sntp_cfg(const char* str, lwesp_msg_t* msg) {
+    int32_t num;
+    if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPCFG_GET)) {
+        return 0;
+    }
+    if (*str == '+') { /* Check input string */
+        str += 13;
+    }
+    num = lwespi_parse_number(&str);
+    if (msg->msg.tcpip_sntp_cfg_get.en != NULL) {
+        *msg->msg.tcpip_sntp_cfg_get.en = num;
+    }
+    num = lwespi_parse_number(&str);
+    if (msg->msg.tcpip_sntp_cfg_get.tz != NULL) {
+        *msg->msg.tcpip_sntp_cfg_get.tz = (int16_t)num;
+    }
+    /* TODO: Parse hostnames... */
+    return 1;
+}
+
+/**
  * \brief           Parse received message for SNTP time
  * \param[in]       str: Pointer to input string starting with +CWLAP
  * \param[in]       msg: Pointer to message
@@ -676,6 +703,9 @@ lwespi_parse_cipdomain(const char* str, lwesp_msg_t* msg) {
  */
 uint8_t
 lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
+    const char* days[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+    const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
     if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPTIME)) {
         return 0;
     }
@@ -684,48 +714,20 @@ lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
     }
 
     /* Scan for day in a week */
-    if (!strncmp(str, "Mon", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mday = 0;
-    } else if (!strncmp(str, "Tue", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mday = 1;
-    } else if (!strncmp(str, "Wed", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mday = 2;
-    } else if (!strncmp(str, "Thu", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mday = 3;
-    } else if (!strncmp(str, "Fri", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mday = 4;
-    } else if (!strncmp(str, "Sat", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mday = 5;
-    } else if (!strncmp(str, "Sun", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mday = 6;
+    for (size_t i = 0; i < LWESP_ARRAYSIZE(days); ++i) {
+        if (!strncmp(str, days[i], 3)) {
+            msg->msg.tcpip_sntp_time.dt->tm_mday = (int)i;
+            break;
+        }
     }
     str += 4;
 
     /* Scan for month in a year */
-    if (!strncmp(str, "Jan", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 0;
-    } else if (!strncmp(str, "Feb", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 1;
-    } else if (!strncmp(str, "Mar", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 2;
-    } else if (!strncmp(str, "Apr", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 3;
-    } else if (!strncmp(str, "May", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 4;
-    } else if (!strncmp(str, "Jun", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 5;
-    } else if (!strncmp(str, "Jul", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 6;
-    } else if (!strncmp(str, "Aug", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 7;
-    } else if (!strncmp(str, "Sep", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 8;
-    } else if (!strncmp(str, "Oct", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 9;
-    } else if (!strncmp(str, "Nov", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 10;
-    } else if (!strncmp(str, "Dec", 3)) {
-        msg->msg.tcpip_sntp_time.dt->tm_mon = 11;
+    for (size_t i = 0; i < LWESP_ARRAYSIZE(months); ++i) {
+        if (!strncmp(str, months[i], 3)) {
+            msg->msg.tcpip_sntp_time.dt->tm_mon = (int)i;
+            break;
+        }
     }
     str += 4;
     if (*str == ' ') { /* Numbers < 10 could have one more space */

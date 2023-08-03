@@ -57,6 +57,7 @@ uint8_t lwespi_parse_cwjap(const char* str, lwesp_msg_t* msg);
 uint8_t lwespi_parse_cwlif(const char* str, lwesp_msg_t* msg);
 uint8_t lwespi_parse_cipdomain(const char* src, lwesp_msg_t* msg);
 uint8_t lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg);
+uint8_t lwespi_parse_sntp_cfg(const char* str, lwesp_msg_t* msg);
 uint8_t lwespi_parse_ping_time(const char* str, lwesp_msg_t* msg);
 uint8_t lwespi_parse_hostname(const char* str, lwesp_msg_t* msg);
 uint8_t lwespi_parse_link_conn(const char* str);

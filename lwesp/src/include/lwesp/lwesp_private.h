@@ -158,11 +158,12 @@ typedef enum {
     LWESP_CMD_TCPIP_CIPRECVLEN,       /*!< Gets number of available bytes in connection to be read */
     LWESP_CMD_TCPIP_CIUPDATE,         /*!< Perform self-update */
 #if LWESP_CFG_SNTP || __DOXYGEN__
-    LWESP_CMD_TCPIP_CIPSNTPCFG,  /*!< Configure SNTP servers */
-    LWESP_CMD_TCPIP_CIPSNTPTIME, /*!< Get current time using SNTP */
-    LWESP_CMD_TCPIP_CIPSNTPINTV, /*!< Query/Set the SNTP time synchronization interval */
-#endif                           /* LWESP_SNT || __DOXYGEN__ */
-    LWESP_CMD_TCPIP_CIPDINFO,    /*!< Configure what data are received on +IPD statement */
+    LWESP_CMD_TCPIP_CIPSNTPCFG,     /*!< Configure SNTP servers */
+    LWESP_CMD_TCPIP_CIPSNTPCFG_GET, /*!< Get SNTP config */
+    LWESP_CMD_TCPIP_CIPSNTPTIME,    /*!< Get current time using SNTP */
+    LWESP_CMD_TCPIP_CIPSNTPINTV,    /*!< Query/Set the SNTP time synchronization interval */
+#endif                              /* LWESP_SNT || __DOXYGEN__ */
+    LWESP_CMD_TCPIP_CIPDINFO,       /*!< Configure what data are received on +IPD statement */
 #if LWESP_CFG_PING || __DOXYGEN__
     LWESP_CMD_TCPIP_PING, /*!< Ping domain */
 #endif                    /* LWESP_CFG_PING || __DOXYGEN__ */
@@ -481,11 +482,19 @@ typedef struct lwesp_msg {
 #if LWESP_CFG_SNTP || __DOXYGEN__
         struct {
             uint8_t en;     /*!< Status if SNTP is enabled or not */
-            int8_t tz;      /*!< Timezone setup */
+            int16_t tz;     /*!< Timezone setup */
             const char* h1; /*!< Optional server 1 */
             const char* h2; /*!< Optional server 2 */
             const char* h3; /*!< Optional server 3 */
         } tcpip_sntp_cfg;   /*!< SNTP configuration */
+
+        struct {
+            uint8_t* en;      /*!< Status if SNTP is enabled or not */
+            int16_t* tz;      /*!< Timezone setup */
+            char* h1;         /*!< Optional server 1 */
+            char* h2;         /*!< Optional server 2 */
+            char* h3;         /*!< Optional server 3 */
+        } tcpip_sntp_cfg_get; /*!< SNTP configuration read */
 
         struct {
             uint32_t interval; /*!< Time in units of seconds */

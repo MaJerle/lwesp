@@ -68,6 +68,40 @@ lwesp_sntp_set_config(uint8_t en, int16_t tz, const char* h1, const char* h2, co
 }
 
 /**
+ * \brief           Get current SNTP configuration.
+ * \todo            Parse response for hostnames, which is not done at the moment
+ * 
+ * \param[in]       en: Pointer to status variable
+ * \param[in]       tz: Pointer to timezone
+ * \param[in]       h1: Optional first SNTP server for time. Set to `NULL` if not used,
+ *                      otherwise value is copied into the pointer. Must be sufficient enough
+ * \param[in]       h2: Optional second SNTP server for time. Set to `NULL` if not used
+ *                      otherwise value is copied into the pointer. Must be sufficient enough
+ * \param[in]       h3: Optional third SNTP server for time. Set to `NULL` if not used
+ *                      otherwise value is copied into the pointer. Must be sufficient enough
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
+lwespr_t
+lwesp_sntp_get_config(uint8_t* en, int16_t* tz, char* h1, char* h2, char* h3, const lwesp_api_cmd_evt_fn evt_fn,
+                      void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
+
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_TCPIP_CIPSNTPCFG_GET;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg_get.en = en;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg_get.tz = tz;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg_get.h1 = h1;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg_get.h2 = h2;
+    LWESP_MSG_VAR_REF(msg).msg.tcpip_sntp_cfg_get.h3 = h3;
+
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
+}
+
+/**
  * \brief           Set SNTP synchronization interval on Espressif device
  * SNTP must be configured using \ref lwesp_sntp_set_config before you can use this function.
  *
