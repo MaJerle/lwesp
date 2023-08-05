@@ -150,6 +150,73 @@ lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
     return 1;
 }
 
+#if LWESP_CFG_IPV6
+
+/**
+ * \brief           Parses IP V6 only, w/o possibility to append IP v4 to it.
+ * 
+ * \param           ip_str_iterator: Pointer to pointer to string
+ * \param           ip: IP structure
+ * \return          `1` if IP well parsed, `0` otherwise
+ */
+uint8_t
+lwespi_parse_ipv6(const char** ip_str_iterator, lwesp_ip_t* ip) {
+    int8_t index_with_zeros = -1; /* Not found! */
+    uint8_t index;
+
+    memset(ip, 0x00, sizeof(*ip));
+    for (index = 0; index < 8 && !(**ip_str_iterator == '\0' || **ip_str_iterator == '"'); ++index) {
+        const char* ip_str_before = *ip_str_iterator;
+        uint16_t seg_value = lwespi_parse_hexnumber(ip_str_iterator);
+        const char* ip_str_after = *ip_str_iterator;
+
+        if (**ip_str_iterator == ':') {
+            ++(*ip_str_iterator);
+        }
+
+        /* If these are equal, a 0 break was detected */
+        if (ip_str_before == ip_str_after) {
+            /* We cannot have more than 1 separator */
+            if (index_with_zeros >= 0) {
+                return 0;
+            } else {
+                /* Save where break was detected */
+                index_with_zeros = (int8_t)index;
+            }
+            if (index == 0) {
+                ++(*ip_str_iterator);
+            }
+        } else {
+            ip->addr.ip6.addr[index] = seg_value;
+        }
+    }
+
+    /*
+     * Did we find zeros separator?
+     * Now we need to find where it was and compare to
+     * number of processed tokens.
+     *
+     * All is to be shifted, if segment is at the beginning or in the middle
+     */
+    if (index_with_zeros >= 0) {
+        uint8_t segments_to_move = index - (uint8_t)index_with_zeros - 1;
+        uint8_t index_start = (uint8_t)index_with_zeros + 1;
+        uint8_t index_end = (uint8_t)8 - segments_to_move;
+
+        if (segments_to_move > 0) {
+            memmove(&ip->addr.ip6.addr[index_end],                    /* TO */
+                    &ip->addr.ip6.addr[index_start],                  /* FROM */
+                    (segments_to_move) * sizeof(ip->addr.ip6.addr[0]) /* Count */
+            );
+            memset(&ip->addr.ip6.addr[index_with_zeros + 1], 0x00,
+                   (index_end - index_start) * sizeof(ip->addr.ip6.addr[0]));
+        }
+    }
+    return 1;
+}
+
+#endif /* LWESP_CFG_IPV6 */
+
 /**
  * \brief           Parse string as IP address
  * \param[in,out]   src: Pointer to pointer to string to parse from
@@ -182,20 +249,9 @@ lwespi_parse_ip(const char** src, lwesp_ip_t* ip) {
     } else if (c == ':') {
         ip->type = LWESP_IPTYPE_V6;
 
-        /*
-         * Reset structure first.
-         *
-         * IPv6 IP can have omitted zeros to the end
-         * so it is important to cleanup structure first,
-         * not to keep wrong address
-         */
+        /* Parse IP address as separate function  */
         memset(&ip->addr, 0x00, sizeof(ip->addr));
-        for (size_t i = 0; i < LWESP_ARRAYSIZE(ip->addr.ip6.addr); ++i, ++p) {
-            ip->addr.ip6.addr[i] = (uint16_t)lwespi_parse_hexnumber(&p);
-            if (*p != ':') {
-                break;
-            }
-        }
+        lwespi_parse_ipv6(&p, ip);
 #endif /* LWESP_CFG_IPV6 */
     } else {
         ip->type = LWESP_IPTYPE_V4;
