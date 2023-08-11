@@ -1783,6 +1783,7 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
                 } else {
                     esp.evt.evt.sta_join_ap.res = lwespERR;
                 }
+                msg->res_err_code = esp.evt.evt.sta_join_ap.res;
             }
         } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWDHCP_GET)) {
             SET_NEW_CMD(LWESP_CMD_WIFI_CIPSTA_GET); /* Get IP address */
