@@ -80,7 +80,8 @@ typedef enum {
     lwespERRWIFINOTCONNECTED, /*!< Wifi not connected to access point */
     lwespERRNODEVICE,         /*!< Device is not present */
     lwespERRBLOCKING,         /*!< Blocking mode command is not allowed */
-    lwespERRCMDNOTSUPPORTED,  /*!< Command is not supported error received by device */
+    lwespERRCMDNOTSUPPORTED,  /*!< Command is not supported error received by device,
+                                or when command is not supported in the stack itself */
 } lwespr_t;
 
 /**

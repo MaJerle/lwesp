@@ -2505,15 +2505,18 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#if LWESP_CFG_MODE_STATION
-        case LWESP_CMD_TCPIP_CIPSTART: { /* Start a new connection */
-            const char* conn_type_str;
+        case LWESP_CMD_TCPIP_CIPSTART: { /* Start a new connection */ const char* conn_type_str;
 
-            /* Do we have wifi connection? */
+#if LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP
+            /* 
+             * Do not check IP status if starting a connection is allowed
+             * without being connected to access point.
+             * This allows ESP to act as a access point and get connected another station to it.
+             */
             if (!lwesp_sta_has_ip()) {
-                lwespi_send_conn_error_cb(msg, lwespERRNOIP);
                 return lwespERRNOIP;
             }
+#endif /* LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP */
 
             if (msg->msg.conn_start.type == LWESP_CONN_TYPE_TCP) {
                 conn_type_str = "TCP";
@@ -2558,7 +2561,6 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-#endif                                   /* LWESP_CFG_MODE_STATION */
         case LWESP_CMD_TCPIP_CIPCLOSE: { /* Close the connection */
             lwesp_conn_p c = msg->msg.conn_close.conn;
             if (c != NULL &&

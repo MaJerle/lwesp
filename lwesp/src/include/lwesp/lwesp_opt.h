@@ -294,6 +294,20 @@
 #endif
 
 /**
+ * \brief           Enables (`1`) or disabled (`1`) option to start connection event
+ *                  if station does not have valid IP address (is not connected to another access point)
+ * 
+ * When enabled, starting a connection as a client can be successful even, if ESP-AT station isn't connected to another access point.
+ * This feature is only used if ESP is in access point mode and another station connects to it.
+ *  
+ * \note            Value is set to `0` to keep backward compatibility.
+ * 
+ */
+#ifndef LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP
+#define LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP 0
+#endif
+
+/**
  * \}
  */
 
