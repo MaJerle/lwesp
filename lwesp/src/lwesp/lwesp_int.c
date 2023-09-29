@@ -2505,8 +2505,8 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_END_AT();
             break;
         }
-        case LWESP_CMD_TCPIP_CIPSTART: { /* Start a new connection */ const char* conn_type_str;
-
+        case LWESP_CMD_TCPIP_CIPSTART: {
+            const char* conn_type_str;
 #if LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP
             /* 
              * Do not check IP status if starting a connection is allowed
