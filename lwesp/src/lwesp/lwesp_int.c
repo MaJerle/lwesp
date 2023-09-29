@@ -2772,7 +2772,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         }
 #endif /* LWESP_CFG_ESP32 */
 
-        default: return lwespERR; /* Invalid command */
+        default: return lwespERRCMDNOTSUPPORTED; /* Invalid command */
     }
     lwesp_delay(10);
     return lwespOK; /* Valid command */
