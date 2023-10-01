@@ -217,7 +217,11 @@ prv_configure_uart(uint32_t baudrate) {
         is_running = 0;
 #if defined(LWESP_USART_DMA_RX_STREAM)
         LL_DMA_DeInit(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM);
+#if defined(LWESP_USART_DMA_RX_CH)
+        dma_init.Channel = LWESP_USART_DMA_RX_CH;
+#else
         dma_init.PeriphRequest = LWESP_USART_DMA_RX_REQ_NUM;
+#endif /* !defined(STM32F4xx) && !defined(STM32F7xx) && !defined(STM32F2xx) */
 #else
         LL_DMA_DeInit(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH);
         dma_init.PeriphRequest = LWESP_USART_DMA_RX_REQ_NUM;
@@ -236,7 +240,7 @@ prv_configure_uart(uint32_t baudrate) {
         LL_DMA_Init(LWESP_USART_DMA, LWESP_USART_DMA_RX_STREAM, &dma_init);
 #else
         LL_DMA_Init(LWESP_USART_DMA, LWESP_USART_DMA_RX_CH, &dma_init);
-#endif  /* defined(LWESP_USART_DMA_RX_STREAM) */
+#endif /* defined(LWESP_USART_DMA_RX_STREAM) */
 
         /* Enable DMA interrupts */
 #if defined(LWESP_USART_DMA_RX_STREAM)
@@ -327,10 +331,10 @@ lwesp_ll_init(lwesp_ll_t* ll) {
     if (!initialized) {
         lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions)); /* Assign memory for allocations */
     }
-#endif                                                                     /* !LWESP_CFG_MEM_CUSTOM */
+#endif /* !LWESP_CFG_MEM_CUSTOM */
 
     if (!initialized) {
-        ll->send_fn = prv_send_data;     /* Set callback function to send data */
+        ll->send_fn = prv_send_data; /* Set callback function to send data */
 #if defined(LWESP_RESET_PIN)
         ll->reset_fn = prv_reset_device; /* Set callback for hardware reset */
 #endif                                   /* defined(LWESP_RESET_PIN) */
