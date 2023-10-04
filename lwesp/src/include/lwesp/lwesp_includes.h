@@ -76,6 +76,12 @@
 #if LWESP_CFG_SMART || __DOXYGEN__
 #include "lwesp/lwesp_smart.h"
 #endif /* LWESP_CFG_SMART || __DOXYGEN__ */
+#if LWESP_CFG_BLE || __DOXYGEN__
+#include "lwesp/lwesp_ble.h"
+#endif /* LWESP_CFG_BLE || __DOXYGEN__ */
+#if LWESP_CFG_BT || __DOXYGEN__
+#include "lwesp/lwesp_bt.h"
+#endif /* LWESP_CFG_BT || __DOXYGEN__ */
 #include "lwesp/lwesp_dhcp.h"
 
 #ifdef __cplusplus

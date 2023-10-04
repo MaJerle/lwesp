@@ -862,6 +862,46 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` support for Bluetooth Low Energy
+ * 
+ * \note            This feature only works for some of Espressif devices,
+ *                  that support AT BLE commands 
+ */
+#ifndef LWESP_CFG_BLE
+#define LWESP_CFG_BLE 0
+#endif
+
+/**
+ * \brief           Enables `1` or disables `0` support for Bluetooth Classic
+ * 
+ * \note            This feature only works for some of Espressif devices,
+ *                  that support AT BT commands 
+ */
+#ifndef LWESP_CFG_BT
+#define LWESP_CFG_BT 0
+#endif
+
+/**
+ * \}
+ */
+
+/**
+ * \defgroup        LWESP_OPT_BLE Bluetooth Low Energy
+ * \brief           Configuration of Bluetooth Low Energy
+ * \{
+ */
+
+/**
+ * \}
+ */
+
+/**
+ * \defgroup        LWESP_OPT_BT Bluetooth Classic
+ * \brief           Configuration of Bluetooth Classic
+ * \{
+ */
+
+/**
  * \}
  */
 

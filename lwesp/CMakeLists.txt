@@ -2,31 +2,36 @@ cmake_minimum_required(VERSION 3.22)
 
 # Library core sources
 set(lwesp_core_SRCS
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_dhcp.c
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_dns.c
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_hostname.c
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_ping.c
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_utils.c
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_ap.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_ble.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_bt.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_buff.c
-    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_flash.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_cli.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_conn.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_debug.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_dhcp.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_dns.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_evt.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_flash.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_hostname.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_input.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_int.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_mdns.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_mem.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_parser.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_pbuf.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_ping.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_server.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_smart.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_sntp.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_sta.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_threads.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_timeout.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_unicode.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_utils.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_webserver.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_wps.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp.c
     )
     
 # API sources
