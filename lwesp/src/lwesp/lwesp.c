@@ -95,10 +95,10 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     memset(&esp, 0x00, sizeof(esp)); /* Reset structure to all zeros */
     esp.status.f.initialized = 0;    /* Clear possible init flag */
     def_evt_link.fn = evt_func != NULL ? evt_func : prv_def_callback;
-    esp.evt_func = &def_evt_link;    /* Set callback function */
-    esp.evt_server = NULL;           /* Set default server callback function */
+    esp.evt_func = &def_evt_link; /* Set callback function */
+    esp.evt_server = NULL;        /* Set default server callback function */
 
-    if (!lwesp_sys_init()) {         /* Init low-level system */
+    if (!lwesp_sys_init()) { /* Init low-level system */
         goto cleanup;
     }
 
@@ -154,10 +154,10 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     lwesp_buff_init(&esp.buff, LWESP_CFG_RCV_BUFF_SIZE); /* Init buffer for input data */
 #endif                                                   /* !LWESP_CFG_INPUT_USE_PROCESS */
 
-    esp.status.f.initialized = 1;                        /* We are initialized now */
-    esp.status.f.dev_present = 1;                        /* We assume device is present at this point */
+    esp.status.f.initialized = 1; /* We are initialized now */
+    esp.status.f.dev_present = 1; /* We assume device is present at this point */
 
-    lwespi_send_cb(LWESP_EVT_INIT_FINISH);               /* Call user callback function */
+    lwespi_send_cb(LWESP_EVT_INIT_FINISH); /* Call user callback function */
 
     /*
      * Call reset command and call default
@@ -171,7 +171,7 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 #endif /* LWESP_CFG_KEEP_ALIVE */
 
 #if LWESP_CFG_RESTORE_ON_INIT
-    if (esp.status.f.dev_present) {                /* In case device exists */
+    if (esp.status.f.dev_present) { /* In case device exists */
         lwesp_core_unlock();
         res = lwesp_restore(NULL, NULL, blocking); /* Restore device */
         lwesp_core_lock();
@@ -409,7 +409,7 @@ lwesp_device_set_present(uint8_t present, const lwesp_api_cmd_evt_fn evt_fn, voi
             lwesp_core_unlock();
             res = lwesp_reset_with_delay(LWESP_CFG_RESET_DELAY_DEFAULT, evt_fn, evt_arg, blocking);
             lwesp_core_lock();
-#endif                                            /* LWESP_CFG_RESET_ON_DEVICE_PRESENT */
+#endif /* LWESP_CFG_RESET_ON_DEVICE_PRESENT */
         }
         lwespi_send_cb(LWESP_EVT_DEVICE_PRESENT); /* Send present event */
     }
@@ -441,14 +441,11 @@ lwesp_device_is_present(void) {
  * \brief           Check if modem device is ESP8266
  * \note            Function is only available if \ref LWESP_CFG_ESP8266 is enabled, otherwise it is defined as macro and evaluated to `0`
  * \return          `1` on success, `0` otherwise
+ * \deprecated      Use \ref lwesp_device_is_device instead
  */
 uint8_t
 lwesp_device_is_esp8266(void) {
-    uint8_t res;
-    lwesp_core_lock();
-    res = esp.status.f.dev_present && esp.m.device == LWESP_DEVICE_ESP8266;
-    lwesp_core_unlock();
-    return res;
+    return lwesp_device_is_device(LWESP_DEVICE_ESP8266);
 }
 
 #endif /* LWESP_CFG_ESP8266 || __DOXYGEN__ */
@@ -459,14 +456,11 @@ lwesp_device_is_esp8266(void) {
  * \brief           Check if modem device is ESP32
  * \note            Function is only available if \ref LWESP_CFG_ESP32 is enabled, otherwise it is defined as macro and evaluated to `0`
  * \return          `1` on success, `0` otherwise
+ * \deprecated      Use \ref lwesp_device_is_device instead
  */
 uint8_t
 lwesp_device_is_esp32(void) {
-    uint8_t res;
-    lwesp_core_lock();
-    res = esp.status.f.dev_present && esp.m.device == LWESP_DEVICE_ESP32;
-    lwesp_core_unlock();
-    return res;
+    return lwesp_device_is_device(LWESP_DEVICE_ESP32);
 }
 
 #endif /* LWESP_CFG_ESP32 || __DOXYGEN__ */
@@ -477,14 +471,11 @@ lwesp_device_is_esp32(void) {
  * \brief           Check if modem device is ESP32-C3
  * \note            Function is only available if \ref LWESP_CFG_ESP32_C3 is enabled, otherwise it is defined as macro and evaluated to `0`
  * \return          `1` on success, `0` otherwise
+ * \deprecated      Use \ref lwesp_device_is_device instead
  */
 uint8_t
 lwesp_device_is_esp32_c3(void) {
-    uint8_t res;
-    lwesp_core_lock();
-    res = esp.status.f.dev_present && esp.m.device == LWESP_DEVICE_ESP32_C3;
-    lwesp_core_unlock();
-    return res;
+    return lwesp_device_is_device(LWESP_DEVICE_ESP32_C3);
 }
 
 #endif /* LWESP_CFG_ESP32_C3 || __DOXYGEN__ */
@@ -500,6 +491,22 @@ lwesp_device_get_device(void) {
     dev = esp.m.device;
     lwesp_core_unlock();
     return dev;
+}
+
+/**
+ * \brief           Checks if connected device to the AT host is the one
+ *                  as requested as parameter check.
+ * 
+ * \param           device: Device type to check against
+ * \return          `1` on success, `0` otherwise
+ */
+uint8_t
+lwesp_device_is_device(lwesp_device_t device) {
+    lwesp_device_t dev;
+    lwesp_core_lock();
+    dev = esp.m.device;
+    lwesp_core_unlock();
+    return dev == device;
 }
 
 /**
@@ -527,26 +534,19 @@ lwesp_get_current_at_fw_version(lwesp_sw_version_t* const version) {
 lwespr_t
 lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version) {
     uint8_t res = lwespOK;
+    const lwesp_esp_device_desc_t* desc;
     LWESP_ASSERT(version != NULL);
 
     lwesp_core_lock();
-    if (0) {
-#if LWESP_CFG_ESP8266
-    } else if (esp.m.device == LWESP_DEVICE_ESP8266) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_ESP8266);
-#endif /* LWESP_CFG_ESP8266 */
-#if LWESP_CFG_ESP32
-    } else if (esp.m.device == LWESP_DEVICE_ESP32) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_ESP32);
-#endif /* LWESP_CFG_ESP32 */
-#if LWESP_CFG_ESP32_C3
-    } else if (esp.m.device == LWESP_DEVICE_ESP32_C3) {
-        lwesp_set_fw_version(version, LWESP_MIN_AT_VERSION_ESP32_C3);
-#endif /* LWESP_CFG_ESP32_C3 */
+    desc = lwespi_get_device_desc_for_device(esp.m.device);
+    lwesp_core_unlock();
+
+    /* It returns pointer to const object, so it is OK to unlock earlier */
+    if (desc != NULL) {
+        lwesp_set_fw_version(version, desc->min_at_version);
     } else {
         res = lwespERR;
     }
-    lwesp_core_unlock();
     return res;
 }
 

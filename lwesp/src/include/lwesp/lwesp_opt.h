@@ -67,11 +67,27 @@
 #endif
 
 /**
+ * \brief           Enables `1` or disables `0` support for ESP32-C2 AT commands
+ *
+ */
+#ifndef LWESP_CFG_ESP32_C2
+#define LWESP_CFG_ESP32_C2 1
+#endif
+
+/**
  * \brief           Enables `1` or disables `0` support for ESP32-C3 AT commands
  *
  */
 #ifndef LWESP_CFG_ESP32_C3
 #define LWESP_CFG_ESP32_C3 1
+#endif
+
+/**
+ * \brief           Enables `1` or disables `0` support for ESP32-C6 AT commands
+ *
+ */
+#ifndef LWESP_CFG_ESP32_C6
+#define LWESP_CFG_ESP32_C6 1
 #endif
 
 /**
@@ -967,7 +983,9 @@ void *  my_memset(void* dst, int b, size_t len);
 /* Format is (major << 24 | minor << 16 | patch << 8)*/
 #define LWESP_MIN_AT_VERSION_ESP8266  (2 << 24 | 2 << 16 | 1 << 8)
 #define LWESP_MIN_AT_VERSION_ESP32    (3 << 24 | 2 << 16 | 0 << 8)
+#define LWESP_MIN_AT_VERSION_ESP32_C2 (3 << 24 | 2 << 16 | 0 << 8)
 #define LWESP_MIN_AT_VERSION_ESP32_C3 (3 << 24 | 2 << 16 | 0 << 8)
+#define LWESP_MIN_AT_VERSION_ESP32_C6 (3 << 24 | 2 << 16 | 0 << 8)
 
 /**
  * \}

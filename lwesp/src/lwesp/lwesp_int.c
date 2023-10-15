@@ -134,6 +134,49 @@ static uint16_t conn_val_id;
 static lwesp_recv_t recv_buff;
 static lwespr_t lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat);
 
+/* List of supported ESP32 devices by this lib, and its corresponding data info */
+static const lwesp_esp_device_desc_t esp_device_descriptors[] = {
+#if LWESP_CFG_ESP8266
+    {
+        .device = LWESP_DEVICE_ESP8266,
+        .gmr_strid_1 = "- ESP8266 -",
+        .min_at_version = LWESP_MIN_AT_VERSION_ESP8266,
+    },
+#endif /* LWESP_CFG_ESP8266 */
+#if LWESP_CFG_ESP32
+    {
+        .device = LWESP_DEVICE_ESP32,
+        .gmr_strid_1 = "- ESP32 -",
+        .gmr_strid_2 = NULL,
+        .min_at_version = LWESP_MIN_AT_VERSION_ESP32,
+    },
+#endif /* LWESP_CFG_ESP32 */
+#if LWESP_CFG_ESP32_C2
+    {
+        .device = LWESP_DEVICE_ESP32_C2,
+        .gmr_strid_1 = "- ESP32C2 -",
+        .gmr_strid_2 = "- ESP32-C2 -",
+        .min_at_version = LWESP_MIN_AT_VERSION_ESP32_C2,
+    },
+#endif /* LWESP_CFG_ESP32_C2 */
+#if LWESP_CFG_ESP32_C3
+    {
+        .device = LWESP_DEVICE_ESP32_C3,
+        .gmr_strid_1 = "- ESP32C3 -",
+        .gmr_strid_2 = "- ESP32-C3 -",
+        .min_at_version = LWESP_MIN_AT_VERSION_ESP32_C3,
+    },
+#endif /* LWESP_CFG_ESP32_C3 */
+#if LWESP_CFG_ESP32_C6
+    {
+        .device = LWESP_DEVICE_ESP32_C6,
+        .gmr_strid_1 = "- ESP32C6 -",
+        .gmr_strid_2 = "- ESP32-C6 -",
+        .min_at_version = LWESP_MIN_AT_VERSION_ESP32_C6,
+    },
+#endif /* LWESP_CFG_ESP32_C6 */
+};
+
 /**
  * \brief           Free connection send data memory
  * \param[in]       m: Send data message type
@@ -1006,43 +1049,28 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     } else if (CMD_IS_CUR(LWESP_CMD_GMR)) {
         if (!strncmp(rcv->data, "AT version", 10)) {
             uint32_t min_version = (uint32_t)-1;
-            uint8_t ok = 1;
+            uint8_t ok = 0;
             lwespi_parse_at_sdk_version(&rcv->data[11], &esp.m.version_at);
 
-            /*
-             * AT version example string looks like (AT+GMR):
-             *
-             * ESP8266: "AT version:2.2.1.0(46d6c26 - ESP8266 - Aug  6 2021 06:50:15)"
-             * ESP32C3: "AT version:2.3.0.0(e98993f - ESP32C3 - Dec 23 2021 09:03:35)"
-             * ESP32: "AT version:2.2.0.0(c6fa6bf - ESP32 - Jul  2 2021 06:44:05)"
-             */
-            if (0) {
-#if LWESP_CFG_ESP8266
-            } else if (strstr(rcv->data, "- ESP8266 -") != NULL) {
-                esp.m.device = LWESP_DEVICE_ESP8266;
-                min_version = LWESP_MIN_AT_VERSION_ESP8266;
-                LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                             "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP8266");
-#endif /* LWESP_CFG_ESP8266 */
-#if LWESP_CFG_ESP32
-            } else if (strstr(rcv->data, "- ESP32 -") != NULL) {
-                esp.m.device = LWESP_DEVICE_ESP32;
-                min_version = LWESP_MIN_AT_VERSION_ESP32;
-                LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                             "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP32");
-#endif /* LWESP_CFG_ESP32 */
-#if LWESP_CFG_ESP32_C3
-            } else if (strstr(rcv->data, "- ESP32C3 -") != NULL || strstr(rcv->data, "- ESP32-C3 -") != NULL) {
-                esp.m.device = LWESP_DEVICE_ESP32_C3;
-                min_version = LWESP_MIN_AT_VERSION_ESP32_C3;
-                LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
-                             "[LWESP GMR] Detected Espressif device is %s\r\n", "ESP32-C3");
-#endif /* LWESP_CFG_ESP32_C3 */
-            } else {
+            /* Parse all objects */
+            for (size_t i = 0; i < sizeof(esp_device_descriptors) / sizeof(esp_device_descriptors[0]); ++i) {
+                const lwesp_esp_device_desc_t* desc = &esp_device_descriptors[i];
+
+                if ((desc->gmr_strid_1 && strstr(rcv->data, desc->gmr_strid_1) != NULL)
+                    || (desc->gmr_strid_2 && strstr(rcv->data, desc->gmr_strid_2) != NULL)) {
+                    esp.m.device = desc->device;
+                    min_version = desc->min_at_version;
+                    LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
+                                 "[LWESP GMR] Detected Espressif device is %s\r\n", desc->gmr_strid_1);
+                    ok = 1;
+                    break;
+                }
+            }
+
+            if (!ok) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
                              "[LWESP GMR] Could not detect connected Espressif device: %.*s\r\n", (int)rcv->len,
                              rcv->data);
-                ok = 0;
             }
             LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE, "[LWESP GMR] AT version minimum required: %08X\r\n",
                          (unsigned)min_version);
@@ -1051,12 +1079,11 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 
             /* Compare versions, but only if device is well detected */
             if (ok) {
-                ok = 0;
-                if (esp.m.version_at.version >= min_version) {
-                    ok = 1; /* OK */
-                } else {
-                    LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                                 "[LWESP GMR] Minimum AT required is higher than AT version loaded on the device\r\n");
+                if (esp.m.version_at.version < min_version) {
+                    LWESP_DEBUGF(
+                        LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
+                        "[LWESP GMR] Minimum AT required is higher than the AT version running on the device\r\n");
+                    ok = 0;
                 }
             }
 
@@ -2942,4 +2969,20 @@ lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err) {
 
         default: break;
     }
+}
+
+/**
+ * \brief           Get internal ESP device descriptor information
+ * 
+ * \param           device: Required device ID
+ * \return          Pointer to device descriptor, or NULL if not device available 
+ */
+const lwesp_esp_device_desc_t*
+lwespi_get_device_desc_for_device(lwesp_device_t device) {
+    for (size_t i = 0; i < sizeof(esp_device_descriptors) / sizeof(esp_device_descriptors[0]); ++i) {
+        if (esp_device_descriptors[i].device == device) {
+            return &esp_device_descriptors[i];
+        }
+    }
+    return NULL;
 }

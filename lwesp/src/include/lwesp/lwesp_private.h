@@ -690,6 +690,18 @@ typedef struct {
 } lwesp_t;
 
 /**
+ * \brief           Physical device descriptor data
+ * 
+ * This is used for library internal reasons
+ */
+typedef struct {
+    lwesp_device_t device;   /*!< Device identification */
+    const char* gmr_strid_1; /*!< AT+GMR string identification option 1 */
+    const char* gmr_strid_2; /*!< AT+GMR string identification option 2 */
+    uint32_t min_at_version; /*!< Minimum Espressif official AT version for the module */
+} lwesp_esp_device_desc_t;
+
+/**
  * \}
  */
 
@@ -802,6 +814,7 @@ void lwespi_reset_everything(uint8_t forced);
 void lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err);
 
 lwesp_cmd_t lwespi_get_cipstatus_or_cipstate_cmd(void);
+const lwesp_esp_device_desc_t* lwespi_get_device_desc_for_device(lwesp_device_t device);
 
 /**
  * \}

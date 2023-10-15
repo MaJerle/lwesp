@@ -84,6 +84,10 @@ lwespr_t lwesp_get_min_at_fw_version(lwesp_sw_version_t* const version);
         (v)->version = (version_);                                                                                     \
     } while (0)
 
+lwesp_device_t lwesp_device_get_device(void);
+uint8_t lwesp_device_is_device(lwesp_device_t device);
+
+/* Deprecated and will be removed soon */
 #if LWESP_CFG_ESP8266 || __DOXYGEN__
 uint8_t lwesp_device_is_esp8266(void);
 #else
@@ -99,7 +103,6 @@ uint8_t lwesp_device_is_esp32_c3(void);
 #else
 #define lwesp_device_is_esp32_c3() ((uint8_t)0)
 #endif /* LWESP_CFG_ESP32_C3 || __DOXYGEN__ */
-lwesp_device_t lwesp_device_get_device(void);
 
 /**
  * \}
