@@ -2430,6 +2430,9 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+WPS=");
             lwespi_send_number(LWESP_U32(!!msg->msg.wps_cfg.en), 0, 0);
+            if (msg->msg.wps_cfg.en) {
+                lwespi_send_number(LWESP_U32(msg->msg.wps_cfg.min_ecn), 0, 1);
+            }
             AT_PORT_SEND_END_AT();
             break;
         }

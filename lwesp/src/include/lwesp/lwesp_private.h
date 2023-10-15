@@ -511,9 +511,10 @@ typedef struct lwesp_msg {
 #endif                     /* LWESP_CFG_SNTP || __DOXYGEN__ */
 #if LWESP_CFG_WPS || __DOXYGEN__
         struct {
-            uint8_t en; /*!< Status if WPS is enabled or not */
-        } wps_cfg;      /*!< WPS configuration */
-#endif                  /* LWESP_CFG_WPS || __DOXYGEN__ */
+            uint8_t en;          /*!< Status if WPS is enabled or not */
+            lwesp_ecn_t min_ecn; /*!< Minimum ECN level WPS will look for */
+        } wps_cfg;               /*!< WPS configuration */
+#endif                           /* LWESP_CFG_WPS || __DOXYGEN__ */
 #if LWESP_CFG_MDNS || __DOXYGEN__
         struct {
             uint8_t en;         /*!< Set to 1 to enable or 0 to disable */

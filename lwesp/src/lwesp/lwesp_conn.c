@@ -58,14 +58,14 @@
  */
 static void
 prv_conn_timeout_cb(void* arg) {
-    lwesp_conn_p conn = arg;                /* Argument is actual connection */
+    lwesp_conn_p conn = arg; /* Argument is actual connection */
 
     if (conn->status.f.active) {            /* Handle only active connections */
         esp.evt.type = LWESP_EVT_CONN_POLL; /* Poll connection event */
         esp.evt.evt.conn_poll.conn = conn;  /* Set connection pointer */
         lwespi_send_conn_cb(conn, NULL);    /* Send connection callback */
 
-        lwespi_conn_start_timeout(conn);    /* Schedule new timeout */
+        lwespi_conn_start_timeout(conn); /* Schedule new timeout */
         LWESP_DEBUGF(LWESP_CFG_DBG_CONN | LWESP_DBG_TYPE_TRACE, "[LWESP CONN] Poll event: %p\r\n", (void*)conn);
     }
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -325,6 +325,7 @@ lwesp_conn_startex(lwesp_conn_p* conn, lwesp_conn_start_t* start_struct, void* c
     LWESP_MSG_VAR_REF(msg).msg.conn_start.local_ip = start_struct->local_ip;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.evt_func = conn_evt_fn;
     LWESP_MSG_VAR_REF(msg).msg.conn_start.arg = arg;
+
 #if 0
     if (start_struct->type == LWESP_CONN_TYPE_SSL || start_struct->type == LWESP_CONN_TYPE_SSLV6) {
         LWESP_MSG_VAR_REF(msg).msg.conn_start.ssl_auth = start_struct->ext.tcp_ssl.auth_mode;
@@ -364,7 +365,7 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
     LWESP_MSG_VAR_REF(msg).msg.conn_close.conn = conn;
     LWESP_MSG_VAR_REF(msg).msg.conn_close.val_id = conn->val_id;
 
-    flush_buff(conn);                  /* First flush buffer */
+    flush_buff(conn); /* First flush buffer */
     res = lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 1000);
     if (res == lwespOK && !blocking) { /* Function succedded in non-blocking mode */
         lwesp_core_lock();
@@ -463,7 +464,7 @@ lwesp_conn_recved(lwesp_conn_p conn, lwesp_pbuf_p pbuf) {
 #else
     LWESP_UNUSED(conn);
     LWESP_UNUSED(pbuf);
-#endif                                          /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
     return lwespOK;
 }
 
