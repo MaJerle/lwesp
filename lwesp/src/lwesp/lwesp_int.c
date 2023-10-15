@@ -1056,8 +1056,8 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             for (size_t i = 0; i < sizeof(esp_device_descriptors) / sizeof(esp_device_descriptors[0]); ++i) {
                 const lwesp_esp_device_desc_t* desc = &esp_device_descriptors[i];
 
-                if ((desc->gmr_strid_1 && strstr(rcv->data, desc->gmr_strid_1) != NULL)
-                    || (desc->gmr_strid_2 && strstr(rcv->data, desc->gmr_strid_2) != NULL)) {
+                if ((desc->gmr_strid_1 != NULL && strstr(rcv->data, desc->gmr_strid_1) != NULL)
+                    || (desc->gmr_strid_2 != NULL && strstr(rcv->data, desc->gmr_strid_2) != NULL)) {
                     esp.m.device = desc->device;
                     min_version = desc->min_at_version;
                     LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE,
