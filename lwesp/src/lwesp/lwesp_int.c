@@ -1878,7 +1878,7 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
          * Check if current command is to get device connection status information.
          *
          * ESP8266 & ESP32 uses CIPSTATUS command
-         * ESP32-C3 has CIPSTATE already implemented (CIPSTATUS is deprecated)
+         * ESP32-C2/C3/C6 has CIPSTATE already implemented (CIPSTATUS is deprecated)
          */
         is_status_check = CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATUS) || CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTATE);
 

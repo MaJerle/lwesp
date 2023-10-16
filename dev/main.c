@@ -136,17 +136,25 @@ main_thread(void* arg) {
     lwesp_init(lwesp_evt, 1);
     if (0) {
 #if LWESP_CFG_ESP32
-    } else if (lwesp_device_is_esp32()) {
+    } else if (lwesp_device_is_device(LWESP_DEVICE_ESP32)) {
         safeprintf("Device is ESP32\r\n");
-#endif
+#endif /* LWESP_CFG_ESP32 */
 #if LWESP_CFG_ESP8266
-    } else if (lwesp_device_is_esp8266()) {
+    } else if (lwesp_device_is_device(LWESP_DEVICE_ESP8266)) {
         safeprintf("Device is ESP8266\r\n");
-#endif
+#endif /* LWESP_CFG_ESP8266 */
+#if LWESP_CFG_ESP32_C2
+    } else if (lwesp_device_is_device(LWESP_DEVICE_ESP32_C2)) {
+        safeprintf("Device is ESP32-C2\r\n");
+#endif /* LWESP_CFG_ESP32_C2 */
 #if LWESP_CFG_ESP32_C3
-    } else if (lwesp_device_is_esp32_c3()) {
+    } else if (lwesp_device_is_device(LWESP_DEVICE_ESP32_C3)) {
         safeprintf("Device is ESP32-C3\r\n");
-#endif
+#endif /* LWESP_CFG_ESP32_C3 */
+#if LWESP_CFG_ESP32_C6
+    } else if (lwesp_device_is_device(LWESP_DEVICE_ESP32_C6)) {
+        safeprintf("Device is ESP32-C6\r\n");
+#endif /* LWESP_CFG_ESP32_C6 */
     } else {
         safeprintf("Unknown device...\r\n");
     }

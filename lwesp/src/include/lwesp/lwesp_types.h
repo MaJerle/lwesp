@@ -110,9 +110,10 @@ typedef enum {
     LWESP_ECN_WPA_WPA2_PSK = 0x04,    /*!< WPA/2 (Wifi Protected Access 1/2) encryption */
     LWESP_ECN_WPA2_Enterprise = 0x05, /*!< Enterprise encryption. \note ESP8266 is not able to connect to such device */
     LWESP_ECN_WPA3_PSK = 0x06,        /*!< WPA3 (Wifi Protected Access 3) encryption */
-    LWESP_ECN_WPA2_WPA3_PSK = 0x07,   /*!< WPA2/3 (Wifi Protected Access 2/3) encryption, ESP32-C3 only mode */
+    LWESP_ECN_WPA2_WPA3_PSK = 0x07,   /*!< WPA2/3 (Wifi Protected Access 2/3) encryption */
     LWESP_ECN_WAPI_PSK = 0x08,        /*!< WAPI PSK encryption mode */
-    LWESP_ECN_END,
+    LWESP_ECN_OWE = 0x08,             /*!< Opportunistic Wifi Encryption for end-to-end encryption */
+    LWESP_ECN_END,                    /*!< Last entry */
 } lwesp_ecn_t;
 
 /**

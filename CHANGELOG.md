@@ -26,12 +26,14 @@
 - Update code style with astyle
 - Add `.clang-format` draft - remove astyle support
 - SSL: Added experimental support
-- FileSystem: Added support for erase and write operation
+- FS: Added support for erase and write operation
 - Code improvement: Change multiple local variables to single structure
-- Delete `lwesp_datetime_t` and use generic `struct tm` instead
-- Conn and netconn: Add validation counter to ensure netconn object matches connection object and that there was no connection close/re-open in between
+- Date&Time `lwesp_datetime_t` and use generic `struct tm` instead
+- CONN: Add validation counter to ensure netconn object matches connection object and that there was no connection close/re-open in between
 - Minimum supported AT version is now `v3.2.0 (ESP32, ESP32-C3)` to support new MFG write operations
+- Added support for `ESP32-C2` and `ESP32-C6` AT commands
 - SYSFLASH: Split System flash and Manufacturing data to separate commands, following new breaking changes for ESP-AT firmware
+- WPS: Break API compatibility to configure the feature, by adding minimum security level parameter in the `lwesp_wps_set_config` function
 
 ## 1.1.2-dev
 
