@@ -2572,7 +2572,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_TCPIP_CIPSTART: {
             const char* conn_type_str;
 #if LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP
-            /*
+            /* 
              * Do not check IP status if starting a connection is allowed
              * without being connected to access point.
              * This allows ESP to act as a access point and get connected another station to it.
