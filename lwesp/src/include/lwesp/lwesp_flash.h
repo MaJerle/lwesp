@@ -57,6 +57,8 @@ lwespr_t lwesp_mfg_erase(lwesp_mfg_namespace_t namespace, const char* key, uint3
 lwespr_t lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valtype_t valtype,
                          const void* data, uint32_t length, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
                          const uint32_t blocking);
+lwespr_t lwesp_mfg_read(lwesp_mfg_namespace_t namespace, const char* key, const void* data, uint32_t len,
+                const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

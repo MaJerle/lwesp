@@ -99,10 +99,10 @@ lwesp_flash_write(lwesp_flash_partition_t partition, uint32_t offset, const void
 
 /**
  * \brief           Write key-value pair into user MFG area.
- * 
+ *
  * \note            When writing into this section, no need to previously erase the data
  *                  System is smart enough to do this for us, if absolutely necessary
- * 
+ *
  * \param           namespace: User namespace option
  * \param           key: Key to write
  * \param           valtype: Value type to follow
@@ -139,23 +139,56 @@ lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valt
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_SYSMFG_WRITE;
-    LWESP_MSG_VAR_REF(msg).msg.mfg_write.namespace = namespace;
-    LWESP_MSG_VAR_REF(msg).msg.mfg_write.key = key;
-    LWESP_MSG_VAR_REF(msg).msg.mfg_write.valtype = valtype;
-    LWESP_MSG_VAR_REF(msg).msg.mfg_write.length = length;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.namespace = namespace;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.key = key;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.valtype = valtype;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.length = length;
     if (LWESP_MFG_VALTYPE_IS_PRIM(valtype)) {
         switch (valtype) {
-            case LWESP_MFG_VALTYPE_U8: LWESP_MSG_VAR_REF(msg).msg.mfg_write.data_prim.u8 = *(uint8_t*)data; break;
-            case LWESP_MFG_VALTYPE_I8: LWESP_MSG_VAR_REF(msg).msg.mfg_write.data_prim.i8 = *(int8_t*)data; break;
-            case LWESP_MFG_VALTYPE_U16: LWESP_MSG_VAR_REF(msg).msg.mfg_write.data_prim.u16 = *(uint16_t*)data; break;
-            case LWESP_MFG_VALTYPE_I16: LWESP_MSG_VAR_REF(msg).msg.mfg_write.data_prim.i16 = *(int16_t*)data; break;
-            case LWESP_MFG_VALTYPE_U32: LWESP_MSG_VAR_REF(msg).msg.mfg_write.data_prim.u32 = *(uint32_t*)data; break;
-            case LWESP_MFG_VALTYPE_I32: LWESP_MSG_VAR_REF(msg).msg.mfg_write.data_prim.i32 = *(int32_t*)data; break;
+            case LWESP_MFG_VALTYPE_U8: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.u8 = *(uint8_t*)data; break;
+            case LWESP_MFG_VALTYPE_I8: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.i8 = *(int8_t*)data; break;
+            case LWESP_MFG_VALTYPE_U16: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.u16 = *(uint16_t*)data; break;
+            case LWESP_MFG_VALTYPE_I16: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.i16 = *(int16_t*)data; break;
+            case LWESP_MFG_VALTYPE_U32: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.u32 = *(uint32_t*)data; break;
+            case LWESP_MFG_VALTYPE_I32: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.i32 = *(int32_t*)data; break;
             default: break; /* Length as-is */
         }
     } else {
-        LWESP_MSG_VAR_REF(msg).msg.mfg_write.data_ptr = data;
+        LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_ptr = data;
     }
+
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 5000);
+}
+
+/**
+ * \brief           Read key-value pair from user MFG area.
+ *
+ *
+ * \param           namespace: User namespace option
+ * \param           key: Key to read
+ * \param           data: Pointer to buffer to write data to.
+ * \param           len: Size of data buffer
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
+lwespr_t
+lwesp_mfg_read(lwesp_mfg_namespace_t namespace, const char* key, const void* data, uint32_t len,
+                const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
+
+    LWESP_ASSERT(namespace < LWESP_MFG_NAMESPACE_END);
+    LWESP_ASSERT(data != NULL);
+
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_SYSMFG_READ;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.namespace = namespace;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.key = key;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_ptr = data;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.length = len;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.wait_second_ok = 0;
 
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 5000);
 }

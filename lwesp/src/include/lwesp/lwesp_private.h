@@ -574,7 +574,7 @@ typedef struct lwesp_msg {
                 uint32_t u32;
                 int32_t i32;
             } data_prim;
-        } mfg_write; /*!< Flash write */
+        } mfg_write_read; /*!< Flash write */
 #endif
     } msg; /*!< Group of different message contents */
 } lwesp_msg_t;
@@ -691,7 +691,7 @@ typedef struct {
 
 /**
  * \brief           Physical device descriptor data
- * 
+ *
  * This is used for library internal reasons
  */
 typedef struct {

@@ -1129,16 +1129,36 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
         } else if (CMD_IS_CUR(LWESP_CMD_SYSFLASH_WRITE)) {
         } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_WRITE)) {
             /* Primitive types are written in single shot */
-            if (!LWESP_MFG_VALTYPE_IS_PRIM(esp.msg->msg.mfg_write.valtype)) {
+            if (!LWESP_MFG_VALTYPE_IS_PRIM(esp.msg->msg.mfg_write_read.valtype)) {
                 /* Non-primitive types will follow with ">" afterwards */
                 if (stat.is_ok) {
                     /* We react on second OK */
-                    if (!esp.msg->msg.mfg_write.wait_second_ok) {
-                        esp.msg->msg.mfg_write.wait_second_ok = 1;
+                    if (!esp.msg->msg.mfg_write_read.wait_second_ok) {
+                        esp.msg->msg.mfg_write_read.wait_second_ok = 1;
                         stat.is_ok = 0;
                     }
                 }
             }
+        } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_READ)) {
+        	if(!strncmp(rcv->data, "+SYSMFG:", 8)){
+				char *ptrBeginCert = strstr(rcv->data, "-----BEGIN CERTIFICATE-----\n");
+				if(ptrBeginCert != NULL && esp.msg->msg.mfg_write_read.data_ptr != NULL){
+					uint32_t len = strlen("-----BEGIN CERTIFICATE-----\n");
+					LWESP_MEMCPY(esp.msg->msg.mfg_write_read.data_ptr, ptrBeginCert, len);
+					esp.msg->msg.mfg_write_read.data_ptr += len;
+					esp.msg->msg.mfg_write_read.length -= len;
+					esp.msg->msg.mfg_write_read.wait_second_ok = 1;
+				}
+        	}else if(esp.msg->msg.mfg_write_read.wait_second_ok){
+        		LWESP_MEMCPY(esp.msg->msg.mfg_write_read.data_ptr, rcv->data, rcv->len);
+        		esp.msg->msg.mfg_write_read.data_ptr += rcv->len;
+        		esp.msg->msg.mfg_write_read.length -= rcv->len;
+        		if(esp.msg->msg.mfg_write_read.length == 0){
+        			esp.msg->res = lwespOK;
+        		}else{
+        			esp.msg->res = lwespERR;
+        		}
+        	}
 #endif /* LWESP_CFG_FLASH */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
             /* Do nothing, it is either OK or not OK */
@@ -1392,7 +1412,7 @@ lwespi_process(const void* data, size_t data_len) {
         /*
          * This is auto read for UDP connections,
          * or if random connection sends data out w/o manual request!
-         * 
+         *
          * It is critual to support automatic mode too
          */
         if (esp.m.ipd.read) {
@@ -1586,17 +1606,17 @@ lwespi_process(const void* data, size_t data_len) {
                         }
                     } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_WRITE)) {
                         /* Only non-primitive types are written from here */
-                        if (!LWESP_MFG_VALTYPE_IS_PRIM(esp.msg->msg.mfg_write.valtype) && ch == '>'
+                        if (!LWESP_MFG_VALTYPE_IS_PRIM(esp.msg->msg.mfg_write_read.valtype) && ch == '>'
                             && ch_prev1 == '\n') {
                             RECV_RESET(); /* Reset received object */
-                            AT_PORT_SEND_WITH_FLUSH(esp.msg->msg.mfg_write.data_ptr, esp.msg->msg.mfg_write.length);
+                            AT_PORT_SEND_WITH_FLUSH(esp.msg->msg.mfg_write_read.data_ptr, esp.msg->msg.mfg_write_read.length);
                         }
 #endif /* LWESP_CFG_FLASH */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
                         /*
                          * This part handles the response of "+CIPRECVDATA",
                          * that does not end with CRLF, rather string continues with user data.
-                         * 
+                         *
                          * We cannot rely on line processing.
                          *
                          * +CIPRECVDATA:<len>,<IP>,<port>,data...
@@ -2122,34 +2142,34 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_SYSMFG_WRITE: {
             AT_PORT_SEND_BEGIN_AT();
             AT_PORT_SEND_CONST_STR("+SYSMFG=2"); /* Write operation */
-            if (msg->msg.mfg_write.namespace < LWESP_MFG_NAMESPACE_END) {
-                lwespi_send_string(mfg_namespaces[(size_t)msg->msg.mfg_write.namespace], 0, 1, 1);
+            if (msg->msg.mfg_write_read.namespace < LWESP_MFG_NAMESPACE_END) {
+                lwespi_send_string(mfg_namespaces[(size_t)msg->msg.mfg_write_read.namespace], 0, 1, 1);
             } else {
                 LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
                              "[SYS MFG] Unsupported namespace!\r\n");
                 return lwespERR; /* Hard error! */
             }
-            lwespi_send_string(msg->msg.mfg_write.key, 0, 1, 1);
-            lwespi_send_number(LWESP_U32(msg->msg.mfg_write.valtype), 0, 1);
-            if (LWESP_MFG_VALTYPE_IS_PRIM(msg->msg.mfg_write.valtype)) {
-                switch (msg->msg.mfg_write.valtype) {
+            lwespi_send_string(msg->msg.mfg_write_read.key, 0, 1, 1);
+            lwespi_send_number(LWESP_U32(msg->msg.mfg_write_read.valtype), 0, 1);
+            if (LWESP_MFG_VALTYPE_IS_PRIM(msg->msg.mfg_write_read.valtype)) {
+                switch (msg->msg.mfg_write_read.valtype) {
                     case LWESP_MFG_VALTYPE_U8:
-                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.u8), 0, 1);
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write_read.data_prim.u8), 0, 1);
                         break;
                     case LWESP_MFG_VALTYPE_I8:
-                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.i8), 0, 1);
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write_read.data_prim.i8), 0, 1);
                         break;
                     case LWESP_MFG_VALTYPE_U16:
-                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.u16), 0, 1);
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write_read.data_prim.u16), 0, 1);
                         break;
                     case LWESP_MFG_VALTYPE_I16:
-                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.i16), 0, 1);
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write_read.data_prim.i16), 0, 1);
                         break;
                     case LWESP_MFG_VALTYPE_U32:
-                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.u32), 0, 1);
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write_read.data_prim.u32), 0, 1);
                         break;
                     case LWESP_MFG_VALTYPE_I32:
-                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.i32), 0, 1);
+                        lwespi_send_number(LWESP_U32(msg->msg.mfg_write_read.data_prim.i32), 0, 1);
                         break;
                     default:
                         LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
@@ -2157,8 +2177,22 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 }
             } else {
                 /* Send length, data is sent later */
-                lwespi_send_number(LWESP_U32(msg->msg.mfg_write.length), 0, 1);
+                lwespi_send_number(LWESP_U32(msg->msg.mfg_write_read.length), 0, 1);
             }
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_SYSMFG_READ: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SYSMFG=1"); /* Write operation */
+            if (msg->msg.mfg_write_read.namespace < LWESP_MFG_NAMESPACE_END) {
+                lwespi_send_string(mfg_namespaces[(size_t)msg->msg.mfg_write_read.namespace], 0, 1, 1);
+            } else {
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
+                             "[SYS MFG] Unsupported namespace!\r\n");
+                return lwespERR; /* Hard error! */
+            }
+            lwespi_send_string(msg->msg.mfg_write_read.key, 0, 1, 1);
             AT_PORT_SEND_END_AT();
             break;
         }
