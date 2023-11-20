@@ -1616,7 +1616,7 @@ lwespi_process(const void* data, size_t data_len) {
                         /*
                          * This part handles the response of "+CIPRECVDATA",
                          * that does not end with CRLF, rather string continues with user data.
-                         *
+                         * 
                          * We cannot rely on line processing.
                          *
                          * +CIPRECVDATA:<len>,<IP>,<port>,data...
