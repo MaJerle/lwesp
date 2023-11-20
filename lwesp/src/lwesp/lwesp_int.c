@@ -2572,7 +2572,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_TCPIP_CIPSTART: {
             const char* conn_type_str;
 #if LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP
-            /* 
+            /*
              * Do not check IP status if starting a connection is allowed
              * without being connected to access point.
              * This allows ESP to act as a access point and get connected another station to it.
@@ -3007,9 +3007,9 @@ lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err) {
 
 /**
  * \brief           Get internal ESP device descriptor information
- * 
+ *
  * \param           device: Required device ID
- * \return          Pointer to device descriptor, or NULL if not device available 
+ * \return          Pointer to device descriptor, or NULL if not device available
  */
 const lwesp_esp_device_desc_t*
 lwespi_get_device_desc_for_device(lwesp_device_t device) {

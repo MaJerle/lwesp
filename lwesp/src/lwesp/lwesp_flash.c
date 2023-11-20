@@ -99,10 +99,10 @@ lwesp_flash_write(lwesp_flash_partition_t partition, uint32_t offset, const void
 
 /**
  * \brief           Write key-value pair into user MFG area.
- *
+ * 
  * \note            When writing into this section, no need to previously erase the data
  *                  System is smart enough to do this for us, if absolutely necessary
- *
+ * 
  * \param           namespace: User namespace option
  * \param           key: Key to write
  * \param           valtype: Value type to follow

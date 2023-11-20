@@ -691,7 +691,7 @@ typedef struct {
 
 /**
  * \brief           Physical device descriptor data
- *
+ * 
  * This is used for library internal reasons
  */
 typedef struct {
