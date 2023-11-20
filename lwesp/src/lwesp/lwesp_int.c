@@ -1412,7 +1412,7 @@ lwespi_process(const void* data, size_t data_len) {
         /*
          * This is auto read for UDP connections,
          * or if random connection sends data out w/o manual request!
-         *
+         * 
          * It is critual to support automatic mode too
          */
         if (esp.m.ipd.read) {
@@ -3007,9 +3007,9 @@ lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err) {
 
 /**
  * \brief           Get internal ESP device descriptor information
- *
+ * 
  * \param           device: Required device ID
- * \return          Pointer to device descriptor, or NULL if not device available
+ * \return          Pointer to device descriptor, or NULL if not device available 
  */
 const lwesp_esp_device_desc_t*
 lwespi_get_device_desc_for_device(lwesp_device_t device) {
