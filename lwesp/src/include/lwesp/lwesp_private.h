@@ -563,7 +563,7 @@ typedef struct lwesp_msg {
             const char* key;                 /*!< Key to write */
             lwesp_mfg_valtype_t valtype;     /*!< Value type */
             uint32_t length;                 /*!< Length of data */
-            const void* data_ptr;            /*!< Data pointer to write. Used for non-primitive types */
+            void* data_ptr;                  /*!< Data pointer to write. Used for non-primitive types */
             uint8_t wait_second_ok;          /*!< Set to `1` to wait for second OK */
 
             union {
