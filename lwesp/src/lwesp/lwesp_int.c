@@ -1140,25 +1140,25 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 }
             }
         } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_READ)) {
-        	if(!strncmp(rcv->data, "+SYSMFG:", 8)){
-				char *ptrBeginCert = strstr(rcv->data, "-----BEGIN CERTIFICATE-----\n");
-				if(ptrBeginCert != NULL && esp.msg->msg.mfg_write_read.data_ptr != NULL){
-					uint32_t len = strlen("-----BEGIN CERTIFICATE-----\n");
-					LWESP_MEMCPY(esp.msg->msg.mfg_write_read.data_ptr, ptrBeginCert, len);
-					esp.msg->msg.mfg_write_read.data_ptr += len;
-					esp.msg->msg.mfg_write_read.length -= len;
-					esp.msg->msg.mfg_write_read.wait_second_ok = 1;
-				}
-        	}else if(esp.msg->msg.mfg_write_read.wait_second_ok){
-        		LWESP_MEMCPY(esp.msg->msg.mfg_write_read.data_ptr, rcv->data, rcv->len);
-        		esp.msg->msg.mfg_write_read.data_ptr += rcv->len;
-        		esp.msg->msg.mfg_write_read.length -= rcv->len;
-        		if(esp.msg->msg.mfg_write_read.length == 0){
-        			esp.msg->res = lwespOK;
-        		}else{
-        			esp.msg->res = lwespERR;
-        		}
-        	}
+            if (!strncmp(rcv->data, "+SYSMFG:", 8)) {
+                char* ptrBeginCert = strstr(rcv->data, "-----BEGIN CERTIFICATE-----\n");
+                if (ptrBeginCert != NULL && esp.msg->msg.mfg_write_read.data_ptr != NULL) {
+                    uint32_t len = strlen("-----BEGIN CERTIFICATE-----\n");
+                    LWESP_MEMCPY(esp.msg->msg.mfg_write_read.data_ptr, ptrBeginCert, len);
+                    esp.msg->msg.mfg_write_read.data_ptr += len;
+                    esp.msg->msg.mfg_write_read.length -= len;
+                    esp.msg->msg.mfg_write_read.wait_second_ok = 1;
+                }
+            } else if (esp.msg->msg.mfg_write_read.wait_second_ok) {
+                LWESP_MEMCPY(esp.msg->msg.mfg_write_read.data_ptr, rcv->data, rcv->len);
+                esp.msg->msg.mfg_write_read.data_ptr += rcv->len;
+                esp.msg->msg.mfg_write_read.length -= rcv->len;
+                if (esp.msg->msg.mfg_write_read.length == 0) {
+                    esp.msg->res = lwespOK;
+                } else {
+                    esp.msg->res = lwespERR;
+                }
+            }
 #endif /* LWESP_CFG_FLASH */
         } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSTART)) {
             /* Do nothing, it is either OK or not OK */
@@ -1609,7 +1609,8 @@ lwespi_process(const void* data, size_t data_len) {
                         if (!LWESP_MFG_VALTYPE_IS_PRIM(esp.msg->msg.mfg_write_read.valtype) && ch == '>'
                             && ch_prev1 == '\n') {
                             RECV_RESET(); /* Reset received object */
-                            AT_PORT_SEND_WITH_FLUSH(esp.msg->msg.mfg_write_read.data_ptr, esp.msg->msg.mfg_write_read.length);
+                            AT_PORT_SEND_WITH_FLUSH(esp.msg->msg.mfg_write_read.data_ptr,
+                                                    esp.msg->msg.mfg_write_read.length);
                         }
 #endif /* LWESP_CFG_FLASH */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE

@@ -147,10 +147,18 @@ lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valt
         switch (valtype) {
             case LWESP_MFG_VALTYPE_U8: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.u8 = *(uint8_t*)data; break;
             case LWESP_MFG_VALTYPE_I8: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.i8 = *(int8_t*)data; break;
-            case LWESP_MFG_VALTYPE_U16: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.u16 = *(uint16_t*)data; break;
-            case LWESP_MFG_VALTYPE_I16: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.i16 = *(int16_t*)data; break;
-            case LWESP_MFG_VALTYPE_U32: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.u32 = *(uint32_t*)data; break;
-            case LWESP_MFG_VALTYPE_I32: LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.i32 = *(int32_t*)data; break;
+            case LWESP_MFG_VALTYPE_U16:
+                LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.u16 = *(uint16_t*)data;
+                break;
+            case LWESP_MFG_VALTYPE_I16:
+                LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.i16 = *(int16_t*)data;
+                break;
+            case LWESP_MFG_VALTYPE_U32:
+                LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.u32 = *(uint32_t*)data;
+                break;
+            case LWESP_MFG_VALTYPE_I32:
+                LWESP_MSG_VAR_REF(msg).msg.mfg_write_read.data_prim.i32 = *(int32_t*)data;
+                break;
             default: break; /* Length as-is */
         }
     } else {
@@ -163,11 +171,10 @@ lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valt
 /**
  * \brief           Read key-value pair from user MFG area.
  *
- *
  * \param           namespace: User namespace option
  * \param           key: Key to read
  * \param           data: Pointer to buffer to write data to.
- * \param           len: Size of data buffer
+ * \param           len: Size of data buffer. Must be same size as stored certificate in MFG area.
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
@@ -175,7 +182,7 @@ lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valt
  */
 lwespr_t
 lwesp_mfg_read(lwesp_mfg_namespace_t namespace, const char* key, const void* data, uint32_t len,
-                const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+               const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
     LWESP_ASSERT(namespace < LWESP_MFG_NAMESPACE_END);
