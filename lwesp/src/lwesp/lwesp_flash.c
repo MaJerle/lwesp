@@ -160,4 +160,43 @@ lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valt
     return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 5000);
 }
 
+/**
+ * \brief           Read key-value pair into user MFG area.
+ * 
+ * \note            When writing into this section, no need to previously erase the data
+ *                  System is smart enough to do this for us, if absolutely necessary
+ * 
+ * \param[in]       namespace: User namespace option
+ * \param[in]       key: Key to ead
+ * \param[in]       data: Pointer to data to write received data to
+ * \param[in]       btr: Number of bytes to read
+ * \param[in]       offset: Offset from partition start to read data from
+ * \param[out]      br: Pointer to output variable to write number of bytes read
+ * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
+ * \param[in]       evt_arg: Custom argument for event callback function
+ * \param[in]       blocking: Status whether command should be blocking or not
+ * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
+ */
+lwespr_t
+lwesp_mfg_read(lwesp_mfg_namespace_t namespace, const char* key, void* data, uint32_t btr, uint32_t offset,
+               uint32_t* br, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+    LWESP_MSG_VAR_DEFINE(msg);
+
+    LWESP_ASSERT(namespace < LWESP_MFG_NAMESPACE_END);
+    LWESP_ASSERT(data != NULL);
+    LWESP_ASSERT(btr > 0);
+
+    LWESP_MSG_VAR_ALLOC(msg, blocking);
+    LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
+    LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_SYSMFG_READ;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_read.namespace = namespace;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_read.key = key;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_read.offset = offset;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_read.btr = btr;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_read.br = br;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_read.data_ptr = data;
+
+    return lwespi_send_msg_to_producer_mbox(&LWESP_MSG_VAR_REF(msg), lwespi_initiate_cmd, 5000);
+}
+
 #endif /* LWESP_CFG_FLASH || __DOXYGEN__ */

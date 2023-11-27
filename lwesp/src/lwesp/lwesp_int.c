@@ -1014,6 +1014,16 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWMODE_GET) && !strncmp(rcv->data, "+CWMODE", 7)) {
                 const char* tmp = &rcv->data[8]; /* Go to the number position */
                 *esp.msg->msg.wifi_mode.mode_get = (uint8_t)lwespi_parse_number(&tmp);
+            } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_READ) && !strncmp(rcv->data, "+SYSMFG", 7)) {
+                const char* tmp = &rcv->data[8];
+                uint32_t length;
+
+                lwespi_parse_string(&tmp, NULL, 0, 1);
+                lwespi_parse_string(&tmp, NULL, 0, 1);
+                lwespi_parse_number(&tmp);
+                length = (uint32_t)lwespi_parse_number(&tmp);
+                esp.msg->msg.mfg_read.btr = length;
+                esp.msg->msg.mfg_read.read_mode = 1; /* Go into read mode */
             }
         }
 #if LWESP_CFG_MODE_STATION
@@ -1544,6 +1554,14 @@ lwespi_process(const void* data, size_t data_len) {
              * Simply check for ASCII and unicode format and process data accordingly
              */
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+        } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_READ) && esp.msg->msg.mfg_read.read_mode) {
+            esp.msg->msg.mfg_read.data_ptr[esp.msg->msg.mfg_read.buff_ptr++] = ch;
+            if (esp.msg->msg.mfg_read.buff_ptr == esp.msg->msg.mfg_read.btr) {
+                esp.msg->msg.mfg_read.read_mode = 0;
+                if (esp.msg->msg.mfg_read.br != NULL) {
+                    *esp.msg->msg.mfg_read.br = esp.msg->msg.mfg_read.btr;
+                }
+            }
         } else {
             lwespr_t res = lwespERR;
             if (LWESP_ISVALIDASCII(ch)) { /* Manually check if valid ASCII character */
@@ -1590,6 +1608,15 @@ lwespi_process(const void* data, size_t data_len) {
                             && ch_prev1 == '\n') {
                             RECV_RESET(); /* Reset received object */
                             AT_PORT_SEND_WITH_FLUSH(esp.msg->msg.mfg_write.data_ptr, esp.msg->msg.mfg_write.length);
+                        }
+                    } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_READ)) {
+                        if (ch == ',' && RECV_LEN() > 7 && RECV_IDX(0) == '+' && !strncmp(recv_buff.data, "+SYSMFG", 7)
+                            && (tmp_ptr = strchr(recv_buff.data, ',')) != NULL /* Search for first comma */
+                            && (tmp_ptr = strchr(tmp_ptr + 1, ',')) != NULL    /* Search for second comma */
+                            && (tmp_ptr = strchr(tmp_ptr + 1, ',')) != NULL    /* Search for third comma */
+                            && (tmp_ptr = strchr(tmp_ptr + 1, ',')) != NULL /* Search for 4th comma */) {
+                            lwespi_parse_received(&recv_buff);
+                            RECV_RESET();
                         }
 #endif /* LWESP_CFG_FLASH */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -2159,6 +2186,22 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                 /* Send length, data is sent later */
                 lwespi_send_number(LWESP_U32(msg->msg.mfg_write.length), 0, 1);
             }
+            AT_PORT_SEND_END_AT();
+            break;
+        }
+        case LWESP_CMD_SYSMFG_READ: {
+            AT_PORT_SEND_BEGIN_AT();
+            AT_PORT_SEND_CONST_STR("+SYSMFG=1"); /* Read operation */
+            if (msg->msg.mfg_read.namespace < LWESP_MFG_NAMESPACE_END) {
+                lwespi_send_string(mfg_namespaces[(size_t)msg->msg.mfg_read.namespace], 0, 1, 1);
+            } else {
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
+                             "[SYS MFG] Unsupported namespace!\r\n");
+                return lwespERR; /* Hard error! */
+            }
+            lwespi_send_string(msg->msg.mfg_read.key, 1, 1, 1);
+            lwespi_send_number(msg->msg.mfg_read.offset, 0, 1);
+            lwespi_send_number(msg->msg.mfg_read.btr, 0, 1);
             AT_PORT_SEND_END_AT();
             break;
         }

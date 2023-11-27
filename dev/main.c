@@ -159,6 +159,17 @@ main_thread(void* arg) {
         safeprintf("Unknown device...\r\n");
     }
 
+#if 0
+    uint8_t read_data_buffer[1024];
+    uint32_t read_data_length;
+    lwesp_mfg_read(LWESP_MFG_NAMESPACE_SERVER_CERT, "server_cert", read_data_buffer, sizeof(read_data_buffer), 0,
+                   &read_data_length, NULL, NULL, 1);
+    printf("Len: %u\r\n", (unsigned)read_data_length);
+    lwesp_mfg_read(LWESP_MFG_NAMESPACE_SERVER_CERT, "server_cert", read_data_buffer, 15, 20, &read_data_length, NULL,
+                   NULL, 1);
+    printf("Len: %u\r\n", (unsigned)read_data_length);
+#endif
+
     /* Start thread to toggle device present */
     //lwesp_sys_thread_create(NULL, "device_present", (lwesp_sys_thread_fn)lwesp_device_present_toggle, NULL, 0, LWESP_SYS_THREAD_PRIO);
 

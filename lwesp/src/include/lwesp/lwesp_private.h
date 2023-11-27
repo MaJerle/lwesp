@@ -574,7 +574,19 @@ typedef struct lwesp_msg {
                 uint32_t u32;
                 int32_t i32;
             } data_prim;
-        } mfg_write; /*!< Flash write */
+        } mfg_write; /*!< MFG write */
+
+        struct {
+            lwesp_mfg_namespace_t namespace; /*!< Partition to perform on */
+            const char* key;                 /*!< Key to write */
+            lwesp_mfg_valtype_t valtype;     /*!< Value type */
+            uint32_t offset;                 /*!< Offset from start to read data */
+            uint32_t btr;                    /*!< Number of bytes to read */
+            uint32_t* br;                    /*!< Number of bytes read */
+            uint8_t* data_ptr;               /*!< Data pointer to write. Used for non-primitive types */
+            uint8_t read_mode;               /*!< Set to `1` when in data read mode */
+            uint32_t buff_ptr;               /*!< Next write pointer into buffer */
+        } mfg_read;                          /*!< MFG read */
 #endif
     } msg; /*!< Group of different message contents */
 } lwesp_msg_t;
