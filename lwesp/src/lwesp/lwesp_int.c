@@ -1014,6 +1014,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWMODE_GET) && !strncmp(rcv->data, "+CWMODE", 7)) {
                 const char* tmp = &rcv->data[8]; /* Go to the number position */
                 *esp.msg->msg.wifi_mode.mode_get = (uint8_t)lwespi_parse_number(&tmp);
+#if LWESP_CFG_FLASH
             } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_READ) && !strncmp(rcv->data, "+SYSMFG", 7)) {
                 const char* tmp = &rcv->data[8];
                 uint32_t length;
@@ -1024,6 +1025,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 length = (uint32_t)lwespi_parse_number(&tmp);
                 esp.msg->msg.mfg_read.btr = length;
                 esp.msg->msg.mfg_read.read_mode = 1; /* Go into read mode */
+#endif                                               /* LWESP_CFG_FLASH */
             }
         }
 #if LWESP_CFG_MODE_STATION
@@ -1554,6 +1556,7 @@ lwespi_process(const void* data, size_t data_len) {
              * Simply check for ASCII and unicode format and process data accordingly
              */
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
+#if LWESP_CFG_FLASH
         } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_READ) && esp.msg->msg.mfg_read.read_mode) {
             esp.msg->msg.mfg_read.data_ptr[esp.msg->msg.mfg_read.buff_ptr++] = ch;
             if (esp.msg->msg.mfg_read.buff_ptr == esp.msg->msg.mfg_read.btr) {
@@ -1562,6 +1565,7 @@ lwespi_process(const void* data, size_t data_len) {
                     *esp.msg->msg.mfg_read.br = esp.msg->msg.mfg_read.btr;
                 }
             }
+#endif /* LWESP_CFG_FLASH */
         } else {
             lwespr_t res = lwespERR;
             if (LWESP_ISVALIDASCII(ch)) { /* Manually check if valid ASCII character */
