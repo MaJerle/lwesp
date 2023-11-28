@@ -781,7 +781,7 @@ lwespi_parse_cipsntpintv(const char* str, lwesp_msg_t* msg) {
  */
 uint8_t
 lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
-    const char* days[] = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+    const char* days[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     const char* months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     if (!CMD_IS_DEF(LWESP_CMD_TCPIP_CIPSNTPTIME)) {
@@ -794,7 +794,7 @@ lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
     /* Scan for day in a week */
     for (size_t i = 0; i < LWESP_ARRAYSIZE(days); ++i) {
         if (!strncmp(str, days[i], 3)) {
-            msg->msg.tcpip_sntp_time.dt->tm_mday = (int)i;
+            msg->msg.tcpip_sntp_time.dt->tm_wday = (int)i;
             break;
         }
     }
