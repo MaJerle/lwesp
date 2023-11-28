@@ -23,8 +23,8 @@
  * Ordered by "most preferred" at the lower array index.
  */
 #include "station_manager.h"
-#include "utils.h"
 #include "lwesp/lwesp.h"
+#include "utils.h"
 
 /**
  * \brief           Private access-point and station management system
@@ -32,15 +32,15 @@
  * This is used for asynchronous connection to access point
  */
 typedef struct {
-    size_t index_preferred_list;                /*!< Current index position of preferred array */
-    size_t index_scanned_list;                  /*!< Current index position in array of scanned APs */
+    size_t index_preferred_list; /*!< Current index position of preferred array */
+    size_t index_scanned_list;   /*!< Current index position in array of scanned APs */
 
-    uint8_t command_is_running;                 /*!< Indicating if command is currently in progress */
+    uint8_t command_is_running; /*!< Indicating if command is currently in progress */
 } prv_ap_data_t;
 
 /* Arguments for callback function */
-#define ARG_SCAN                (void*)1
-#define ARG_CONNECT             (void*)2
+#define ARG_SCAN    (void*)1
+#define ARG_CONNECT (void*)2
 
 /* Function declaration */
 static void prv_cmd_event_fn(lwespr_t status, void* arg);
@@ -55,22 +55,28 @@ static void prv_try_next_access_point(void);
  */
 static const ap_entry_t ap_list_preferred[] = {
     //{ .ssid = "SSID name", .pass = "SSID password" },
-    { .ssid = "TilenM_ST", .pass = "its private" },
-    { .ssid = "Kaja", .pass = "ginkaja2021" },
-    { .ssid = "Majerle WIFI", .pass = "majerle_internet_private" },
-    { .ssid = "Majerle AMIS", .pass = "majerle_internet_private" },
+    {.ssid = "TilenM_ST", .pass = "its private"},
+    {.ssid = "404WiFiNotFound", .pass = "its private"},
+    {.ssid = "Majerle WIFI", .pass = "majerle_internet_private"},
+    {.ssid = "Majerle AMIS", .pass = "majerle_internet_private"},
 };
-static lwesp_ap_t ap_list_scanned[100];         /* Scanned access points information */
-static size_t ap_list_scanned_len = 0;          /* Number of scanned access points */
-static prv_ap_data_t ap_async_data;             /* Asynchronous data structure */
+static lwesp_ap_t ap_list_scanned[100]; /* Scanned access points information */
+static size_t ap_list_scanned_len = 0;  /* Number of scanned access points */
+static prv_ap_data_t ap_async_data;     /* Asynchronous data structure */
 
 /* Command to execute to start scanning access points */
-#define prv_scan_ap_command_ex(blocking)        lwesp_sta_list_ap(NULL, ap_list_scanned, LWESP_ARRAYSIZE(ap_list_scanned), &ap_list_scanned_len, NULL, NULL, (blocking))
-#define prv_scan_ap_command()                   do {\
-    if (!ap_async_data.command_is_running) {    \
-        ap_async_data.command_is_running = lwesp_sta_list_ap(NULL, ap_list_scanned, LWESP_ARRAYSIZE(ap_list_scanned), &ap_list_scanned_len, prv_cmd_event_fn, ARG_SCAN, 0) == lwespOK;   \
-    }       \
-} while (0)
+#define prv_scan_ap_command_ex(blocking)                                                                               \
+    lwesp_sta_list_ap(NULL, ap_list_scanned, LWESP_ARRAYSIZE(ap_list_scanned), &ap_list_scanned_len, NULL, NULL,       \
+                      (blocking))
+#define prv_scan_ap_command()                                                                                          \
+    do {                                                                                                               \
+        if (!ap_async_data.command_is_running) {                                                                       \
+            ap_async_data.command_is_running =                                                                         \
+                lwesp_sta_list_ap(NULL, ap_list_scanned, LWESP_ARRAYSIZE(ap_list_scanned), &ap_list_scanned_len,       \
+                                  prv_cmd_event_fn, ARG_SCAN, 0)                                                       \
+                == lwespOK;                                                                                            \
+        }                                                                                                              \
+    } while (0)
 
 /**
  * \brief           Every internal command execution callback
@@ -100,8 +106,7 @@ prv_try_next_access_point(void) {
     uint8_t tried = 0;
 
     /* No action to be done if command is currently in progress or already connected to network */
-    if (ap_async_data.command_is_running
-        || lwesp_sta_has_ip()) {
+    if (ap_async_data.command_is_running || lwesp_sta_has_ip()) {
         return;
     }
 
@@ -114,7 +119,7 @@ prv_try_next_access_point(void) {
 
     /* List all preferred access points */
     for (; ap_async_data.index_preferred_list < LWESP_ARRAYSIZE(ap_list_preferred);
-            ap_async_data.index_preferred_list++, ap_async_data.index_scanned_list = 0) {
+         ap_async_data.index_preferred_list++, ap_async_data.index_scanned_list = 0) {
 
         /* List all scanned access points */
         for (; ap_async_data.index_scanned_list < ap_list_scanned_len; ap_async_data.index_scanned_list++) {
@@ -122,13 +127,15 @@ prv_try_next_access_point(void) {
             /* Find a match if available */
             if (strncmp(ap_list_scanned[ap_async_data.index_scanned_list].ssid,
                         ap_list_preferred[ap_async_data.index_preferred_list].ssid,
-                        strlen(ap_list_preferred[ap_async_data.index_preferred_list].ssid)) == 0) {
+                        strlen(ap_list_preferred[ap_async_data.index_preferred_list].ssid))
+                == 0) {
 
                 /* Try to connect to the network */
                 if (!ap_async_data.command_is_running
                     && lwesp_sta_join(ap_list_preferred[ap_async_data.index_preferred_list].ssid,
-                                    ap_list_preferred[ap_async_data.index_preferred_list].pass,
-                                    NULL, prv_cmd_event_fn, ARG_CONNECT, 0) == lwespOK) {
+                                      ap_list_preferred[ap_async_data.index_preferred_list].pass, NULL,
+                                      prv_cmd_event_fn, ARG_CONNECT, 0)
+                           == lwespOK) {
                     ap_async_data.command_is_running = 1;
 
                     /* Go to next index for sub-for loop and exit */
@@ -244,7 +251,8 @@ station_manager_connect_to_preferred_access_point(uint8_t unlimited) {
 
             /* Print all access points found by ESP */
             for (size_t i = 0; i < ap_list_scanned_len; i++) {
-                printf("AP found: %s, CH: %d, RSSI: %d\r\n", ap_list_scanned[i].ssid, ap_list_scanned[i].ch, ap_list_scanned[i].rssi);
+                printf("AP found: %s, CH: %d, RSSI: %d\r\n", ap_list_scanned[i].ssid, ap_list_scanned[i].ch,
+                       ap_list_scanned[i].rssi);
             }
 
             /* Process array of preferred access points with array of found points */
@@ -254,12 +262,15 @@ station_manager_connect_to_preferred_access_point(uint8_t unlimited) {
                 for (size_t i = 0; i < ap_list_scanned_len; i++) {
 
                     /* Try to find a match between preferred and scanned */
-                    if (strncmp(ap_list_scanned[i].ssid, ap_list_preferred[j].ssid, strlen(ap_list_scanned[i].ssid)) == 0) {
+                    if (strncmp(ap_list_scanned[i].ssid, ap_list_preferred[j].ssid, strlen(ap_list_scanned[i].ssid))
+                        == 0) {
                         tried = 1;
                         printf("Connecting to \"%s\" network...\r\n", ap_list_preferred[j].ssid);
 
                         /* Try to join to access point */
-                        if ((eres = lwesp_sta_join(ap_list_preferred[j].ssid, ap_list_preferred[j].pass, NULL, NULL, NULL, 1)) == lwespOK) {
+                        if ((eres = lwesp_sta_join(ap_list_preferred[j].ssid, ap_list_preferred[j].pass, NULL, NULL,
+                                                   NULL, 1))
+                            == lwespOK) {
                             lwesp_ip_t ip;
                             uint8_t is_dhcp;
 
@@ -276,7 +287,8 @@ station_manager_connect_to_preferred_access_point(uint8_t unlimited) {
                 }
             }
             if (!tried) {
-                printf("No access points available with preferred SSID!\r\nPlease check station_manager.c file and edit preferred SSID access points!\r\n");
+                printf("No access points available with preferred SSID!\r\nPlease check station_manager.c file and "
+                       "edit preferred SSID access points!\r\n");
             }
         } else if (eres == lwespERRNODEVICE) {
             printf("Device is not present!\r\n");
