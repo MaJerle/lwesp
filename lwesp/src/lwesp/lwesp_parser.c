@@ -811,15 +811,15 @@ lwespi_parse_cipsntptime(const char* str, lwesp_msg_t* msg) {
     if (*str == ' ') { /* Numbers < 10 could have one more space */
         ++str;
     }
-    msg->msg.tcpip_sntp_time.dt->tm_mday = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_mday = (int)lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->tm_hour = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_hour = (int)lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->tm_min = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_min = (int)lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->tm_sec = lwespi_parse_number(&str);
+    msg->msg.tcpip_sntp_time.dt->tm_sec = (int)lwespi_parse_number(&str);
     ++str;
-    msg->msg.tcpip_sntp_time.dt->tm_year = lwespi_parse_number(&str) - 1900;
+    msg->msg.tcpip_sntp_time.dt->tm_year = (int)lwespi_parse_number(&str) - 1900;
     return 1;
 }
 
@@ -848,7 +848,7 @@ lwespi_parse_hostname(const char* str, lwesp_msg_t* msg) {
         for (; i < (msg->msg.wifi_hostname.length - 1) && *str && *str != '\r'; ++i, ++str) {
             msg->msg.wifi_hostname.hostname_get[i] = *str;
         }
-        msg->msg.wifi_hostname.hostname_get[i] = 0;
+        msg->msg.wifi_hostname.hostname_get[i] = '\0';
     }
     return 1;
 }

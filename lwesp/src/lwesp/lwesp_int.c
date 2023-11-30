@@ -1396,10 +1396,10 @@ lwespi_process(const void* data, size_t data_len) {
         return lwespERRNODEVICE;
     }
 
-    while (d_len > 0) { /* Read entire set of characters from buffer */
-        ch = *d;        /* Get next character */
-        ++d;            /* Go to next character, must be here as it is used later on */
-        --d_len;        /* Decrease remaining length, must be here as it is decreased later too */
+    while (d_len > 0) {
+        ch = *d;
+        ++d;
+        --d_len;
 
         /*
          * This is auto read for UDP connections,
@@ -1558,7 +1558,21 @@ lwespi_process(const void* data, size_t data_len) {
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if LWESP_CFG_FLASH
         } else if (CMD_IS_CUR(LWESP_CMD_SYSMFG_READ) && esp.msg->msg.mfg_read.read_mode) {
+            size_t len;
+
+            /* Save current character */
             esp.msg->msg.mfg_read.data_ptr[esp.msg->msg.mfg_read.buff_ptr++] = ch;
+
+            /* Try to do more in a loop */
+            len = LWESP_MIN(d_len, esp.msg->msg.mfg_read.btr - esp.msg->msg.mfg_read.buff_ptr);
+            if (len > 0) {
+                LWESP_MEMCPY(&esp.msg->msg.mfg_read.data_ptr[esp.msg->msg.mfg_read.buff_ptr], d, len);
+                d_len -= len;                          /* Decrease effective length */
+                d += len;                              /* Skip remaining length */
+                esp.msg->msg.mfg_read.buff_ptr += len; /* Forward buffer pointer */
+            }
+
+            /* Check for end of data */
             if (esp.msg->msg.mfg_read.buff_ptr == esp.msg->msg.mfg_read.btr) {
                 esp.msg->msg.mfg_read.read_mode = 0;
                 if (esp.msg->msg.mfg_read.br != NULL) {
@@ -1581,7 +1595,9 @@ lwespi_process(const void* data, size_t data_len) {
             }
             if (res == lwespOK) {     /* Can we process the character(s) */
                 if (unicode.t == 1) { /* Totally 1 character? */
-                    char* tmp_ptr;
+                    char* tmp_ptr = NULL;
+
+                    LWESP_UNUSED(tmp_ptr); /* May be unused */
 
                     RECV_ADD(ch); /* Add character to input buffer */
                     if (ch == '\n') {
@@ -1643,9 +1659,6 @@ lwespi_process(const void* data, size_t data_len) {
                                && (tmp_ptr = strchr(tmp_ptr + 1, ',')) != NULL) { /* Search for third comma */
                         lwespi_parse_received(&recv_buff);                        /* Parse received string */
                         RECV_RESET();
-
-#else
-                        LWESP_UNUSED(tmp_ptr);
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
                     } else if (ch == ':' && RECV_LEN() > 4 && RECV_IDX(0) == '+'
                                && strncmp(recv_buff.data, "+IPD", 4) == 0) {
@@ -1667,8 +1680,8 @@ lwespi_process(const void* data, size_t data_len) {
                             if (esp.m.ipd.conn->status.f.active && !esp.m.ipd.conn->status.f.in_closing) {
                                 esp.m.ipd.buff = lwesp_pbuf_new(len); /* Allocate new packet buffer */
                                 if (esp.m.ipd.buff != NULL) {
-                                    lwesp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip,
-                                                      esp.m.ipd.port); /* Set IP and port for received data */
+                                    /* Set IP and port for received data */
+                                    lwesp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip, esp.m.ipd.port);
                                 }
                                 LWESP_DEBUGW(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
                                              esp.m.ipd.buff == NULL,
