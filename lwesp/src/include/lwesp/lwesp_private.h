@@ -91,55 +91,41 @@ typedef enum {
     LWESP_CMD_SYSMFG_GET,   /*!< Get manufacturing user partitions */
 
     /* WiFi based commands */
-    LWESP_CMD_WIFI_CWMODE,     /*!< Set wifi mode */
-    LWESP_CMD_WIFI_CWMODE_GET, /*!< Get wifi mode */
-    LWESP_CMD_WIFI_CWLAPOPT,   /*!< Configure what is visible on CWLAP response */
-#if LWESP_CFG_IPV6 || __DOXYGEN__
-    LWESP_CMD_WIFI_IPV6, /*!< Configure IPv6 support */
-#endif                   /* LWESP_CFG_IPV6 || __DOXYGEN__ */
-#if LWESP_CFG_MODE_STATION || __DOXYGEN__
-    LWESP_CMD_WIFI_CWJAP,         /*!< Connect to access point */
-    LWESP_CMD_WIFI_CWRECONNCFG,   /*!< Setup reconnect interval and maximum tries */
-    LWESP_CMD_WIFI_CWJAP_GET,     /*!< Info of the connected access point */
-    LWESP_CMD_WIFI_CWQAP,         /*!< Disconnect from access point */
-    LWESP_CMD_WIFI_CWLAP,         /*!< List available access points */
-    LWESP_CMD_WIFI_CIPSTAMAC_GET, /*!< Get MAC address of ESP station */
-    LWESP_CMD_WIFI_CIPSTAMAC_SET, /*!< Set MAC address of ESP station */
-    LWESP_CMD_WIFI_CIPSTA_GET,    /*!< Get IP address of ESP station */
-    LWESP_CMD_WIFI_CIPSTA_SET,    /*!< Set IP address of ESP station */
-    LWESP_CMD_WIFI_CWAUTOCONN,    /*!< Configure auto connection to access point */
-#endif                            /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
-    LWESP_CMD_WIFI_CWDHCP_SET,    /*!< Set DHCP config */
-    LWESP_CMD_WIFI_CWDHCP_GET,    /*!< Get DHCP config */
-    LWESP_CMD_WIFI_CWDHCPS_SET,   /*!< Set DHCP SoftAP IP config */
-    LWESP_CMD_WIFI_CWDHCPS_GET,   /*!< Get DHCP SoftAP IP config */
-#if LWESP_CFG_MODE_ACCESS_POINT || __DOXYGEN__
-    LWESP_CMD_WIFI_CWSAP_GET,    /*!< Get software access point configuration */
-    LWESP_CMD_WIFI_CWSAP_SET,    /*!< Set software access point configuration */
-    LWESP_CMD_WIFI_CIPAPMAC_GET, /*!< Get MAC address of ESP access point */
-    LWESP_CMD_WIFI_CIPAPMAC_SET, /*!< Set MAC address of ESP access point */
-    LWESP_CMD_WIFI_CIPAP_GET,    /*!< Get IP address of ESP access point */
-    LWESP_CMD_WIFI_CIPAP_SET,    /*!< Set IP address of ESP access point */
-    LWESP_CMD_WIFI_CWLIF,        /*!< Get connected stations on access point */
-    LWESP_CMD_WIFI_CWQIF,        /*!< Discnnect station from SoftAP */
-#endif                           /* LWESP_CFG_MODE_STATION || __DOXYGEN__ */
-#if LWESP_CFG_WPS || __DOXYGEN__
-    LWESP_CMD_WIFI_WPS, /*!< Set WPS option */
-#endif                  /* LWESP_CFG_WPS || __DOXYGEN__ */
-#if LWESP_CFG_MDNS || __DOXYGEN__
-    LWESP_CMD_WIFI_MDNS, /*!< Configure MDNS function */
-#endif                   /* LWESP_CFG_MDNS || __DOXYGEN__ */
-#if LWESP_CFG_HOSTNAME || __DOXYGEN__
+    LWESP_CMD_WIFI_CWMODE,         /*!< Set wifi mode */
+    LWESP_CMD_WIFI_CWMODE_GET,     /*!< Get wifi mode */
+    LWESP_CMD_WIFI_CWLAPOPT,       /*!< Configure what is visible on CWLAP response */
+    LWESP_CMD_WIFI_IPV6,           /*!< Configure IPv6 support */
+    LWESP_CMD_WIFI_CWJAP,          /*!< Connect to access point */
+    LWESP_CMD_WIFI_CWRECONNCFG,    /*!< Setup reconnect interval and maximum tries */
+    LWESP_CMD_WIFI_CWJAP_GET,      /*!< Info of the connected access point */
+    LWESP_CMD_WIFI_CWQAP,          /*!< Disconnect from access point */
+    LWESP_CMD_WIFI_CWLAP,          /*!< List available access points */
+    LWESP_CMD_WIFI_CIPSTAMAC_GET,  /*!< Get MAC address of ESP station */
+    LWESP_CMD_WIFI_CIPSTAMAC_SET,  /*!< Set MAC address of ESP station */
+    LWESP_CMD_WIFI_CIPSTA_GET,     /*!< Get IP address of ESP station */
+    LWESP_CMD_WIFI_CIPSTA_SET,     /*!< Set IP address of ESP station */
+    LWESP_CMD_WIFI_CWAUTOCONN,     /*!< Configure auto connection to access point */
+    LWESP_CMD_WIFI_CWDHCP_SET,     /*!< Set DHCP config */
+    LWESP_CMD_WIFI_CWDHCP_GET,     /*!< Get DHCP config */
+    LWESP_CMD_WIFI_CWDHCPS_SET,    /*!< Set DHCP SoftAP IP config */
+    LWESP_CMD_WIFI_CWDHCPS_GET,    /*!< Get DHCP SoftAP IP config */
+    LWESP_CMD_WIFI_CWSAP_GET,      /*!< Get software access point configuration */
+    LWESP_CMD_WIFI_CWSAP_SET,      /*!< Set software access point configuration */
+    LWESP_CMD_WIFI_CIPAPMAC_GET,   /*!< Get MAC address of ESP access point */
+    LWESP_CMD_WIFI_CIPAPMAC_SET,   /*!< Set MAC address of ESP access point */
+    LWESP_CMD_WIFI_CIPAP_GET,      /*!< Get IP address of ESP access point */
+    LWESP_CMD_WIFI_CIPAP_SET,      /*!< Set IP address of ESP access point */
+    LWESP_CMD_WIFI_CWLIF,          /*!< Get connected stations on access point */
+    LWESP_CMD_WIFI_CWQIF,          /*!< Discnnect station from SoftAP */
+    LWESP_CMD_WIFI_WPS,            /*!< Set WPS option */
+    LWESP_CMD_WIFI_MDNS,           /*!< Configure MDNS function */
     LWESP_CMD_WIFI_CWHOSTNAME_SET, /*!< Set device hostname */
     LWESP_CMD_WIFI_CWHOSTNAME_GET, /*!< Get device hostname */
-#endif                             /* LWESP_CFG_HOSTNAME || __DOXYGEN__ */
 
-/* TCP/IP related commands */
-#if LWESP_CFG_DNS || __DOXYGEN__
+    /* TCP/IP related commands */
     LWESP_CMD_TCPIP_CIPDOMAIN,        /*!< Get IP address from domain name = DNS function */
     LWESP_CMD_TCPIP_CIPDNS_SET,       /*!< Configure user specific DNS servers */
     LWESP_CMD_TCPIP_CIPDNS_GET,       /*!< Get DNS configuration */
-#endif                                /* LWESP_CFG_DNS || __DOXYGEN__ */
     LWESP_CMD_TCPIP_CIPSTATUS,        /*!< Get status of connections (deprecated, used on ESP8266 devices) */
     LWESP_CMD_TCPIP_CIPSTATE,         /*!< Obtain connection state and information */
     LWESP_CMD_TCPIP_CIPSTART,         /*!< Start client connection */
@@ -157,29 +143,19 @@ typedef enum {
     LWESP_CMD_TCPIP_CIPRECVDATA,      /*!< Manually reads TCP data from device */
     LWESP_CMD_TCPIP_CIPRECVLEN,       /*!< Gets number of available bytes in connection to be read */
     LWESP_CMD_TCPIP_CIUPDATE,         /*!< Perform self-update */
-#if LWESP_CFG_SNTP || __DOXYGEN__
-    LWESP_CMD_TCPIP_CIPSNTPCFG,      /*!< Configure SNTP servers */
-    LWESP_CMD_TCPIP_CIPSNTPCFG_GET,  /*!< Get SNTP config */
-    LWESP_CMD_TCPIP_CIPSNTPTIME,     /*!< Get current time using SNTP */
-    LWESP_CMD_TCPIP_CIPSNTPINTV,     /*!< Set the SNTP time synchronization interval */
-    LWESP_CMD_TCPIP_CIPSNTPINTV_GET, /*!< Query the SNTP time synchronization interval */
-#endif                               /* LWESP_SNT || __DOXYGEN__ */
-    LWESP_CMD_TCPIP_CIPDINFO,        /*!< Configure what data are received on +IPD statement */
-#if LWESP_CFG_PING || __DOXYGEN__
-    LWESP_CMD_TCPIP_PING, /*!< Ping domain */
-#endif                    /* LWESP_CFG_PING || __DOXYGEN__ */
-#if LWESP_CFG_SMART || __DOXYGEN__
-    LWESP_CMD_WIFI_SMART_START, /*!< Start smart config */
-    LWESP_CMD_WIFI_SMART_STOP,  /*!< Stop smart config */
-#endif                          /* LWESP_CFG_SMART || __DOXYGEN__ */
-#if LWESP_CFG_WEBSERVER || __DOXYGEN__
-    LWESP_CMD_WEBSERVER, /*!< Start or Stop Web Server */
-#endif                   /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
+    LWESP_CMD_TCPIP_CIPSNTPCFG,       /*!< Configure SNTP servers */
+    LWESP_CMD_TCPIP_CIPSNTPCFG_GET,   /*!< Get SNTP config */
+    LWESP_CMD_TCPIP_CIPSNTPTIME,      /*!< Get current time using SNTP */
+    LWESP_CMD_TCPIP_CIPSNTPINTV,      /*!< Set the SNTP time synchronization interval */
+    LWESP_CMD_TCPIP_CIPSNTPINTV_GET,  /*!< Query the SNTP time synchronization interval */
+    LWESP_CMD_TCPIP_CIPDINFO,         /*!< Configure what data are received on +IPD statement */
+    LWESP_CMD_TCPIP_PING,             /*!< Ping domain */
+    LWESP_CMD_WIFI_SMART_START,       /*!< Start smart config */
+    LWESP_CMD_WIFI_SMART_STOP,        /*!< Stop smart config */
+    LWESP_CMD_WEBSERVER,              /*!< Start or Stop Web Server */
 
-/* BLE commands, ESP32 only */
-#if LWESP_CFG_ESP32 || __DOXYGEN__
+    /* BLE commands, ESP32 only */
     LWESP_CMD_BLEINIT_GET, /*!< Get BLE status */
-#endif                     /* LWESP_CFG_ESP32 || __DOXYGEN__ */
 } lwesp_cmd_t;
 
 /**

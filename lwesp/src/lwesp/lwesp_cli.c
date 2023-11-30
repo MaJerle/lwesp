@@ -46,7 +46,6 @@ static const cli_command_t commands[] = {
 #if LWESP_CFG_MODE_STATION
     {"station-info", "Get current station info", cli_station_info},
 #endif /* LWESP_CFG_MODE_STATION */
-
 };
 
 /**

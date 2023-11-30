@@ -764,68 +764,6 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             /* TODO: Here we set buffer to send data in non-manual mode */
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
-        } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVDATA) && !strncmp("+CIPRECVDATA", rcv->data, 12)) {
-            const char* str = &rcv->data[13];
-            uint32_t len;
-
-            /* Check data length */
-            if ((len = lwespi_parse_number(&str)) > 0) {
-                lwesp_ip_t ip;
-                lwesp_port_t port;
-
-                /* Parse remaining information */
-                lwespi_parse_ip(&str, &ip);
-                port = lwespi_parse_port(&str);
-
-                /* Go to read mode */
-                esp.msg->msg.conn_recv.read = 1;
-                esp.msg->msg.conn_recv.tot_len = len;
-                esp.msg->msg.conn_recv.buff_ptr = 0;
-
-                /*
-                 * Read received data in case of:
-                 *
-                 *  - Connection is active and
-                 *  - Connection is not in closing mode
-                 */
-                if (esp.msg->msg.conn_recv.conn->status.f.active && !esp.msg->msg.conn_recv.conn->status.f.in_closing) {
-                    LWESP_DEBUGW(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
-                                 esp.msg->msg.conn_recv.buff == NULL,
-                                 "[LWESP IPD] No buffer allocated for %d byte(s)\r\n", (int)len);
-
-                    /* Update available data */
-                    if (esp.msg->msg.conn_recv.buff != NULL) {
-                        /* Adjust length of buffer for user */
-                        if (lwesp_pbuf_length(esp.msg->msg.conn_recv.buff, 1) > len) {
-                            esp.msg->msg.conn_recv.buff->tot_len = len;
-                            esp.msg->msg.conn_recv.buff->len = len;
-                        }
-                        lwesp_pbuf_set_ip(esp.msg->msg.conn_recv.buff, &ip, port);
-                        if (esp.msg->msg.conn_recv.conn->tcp_available_bytes >= len) {
-                            esp.msg->msg.conn_recv.conn->tcp_available_bytes -= len;
-                        } else {
-                            esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
-                            esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
-                            LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                         "[LWESP IPD] Connection %u, setting tcp_available_bytes to zero. Actual len "
-                                         "is less than it was requested to read\r\n",
-                                         (unsigned)esp.msg->msg.conn_recv.conn->num);
-                        }
-                    }
-                } else {
-                    /* Ignore reading on closed connection */
-                    lwesp_pbuf_free_s(&esp.msg->msg.conn_recv.buff);
-                    LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                 "[LWESP IPD] Connection %u closed or in closing. skipping %u byte(s)\r\n",
-                                 (unsigned)esp.msg->msg.conn_recv.conn->num, (unsigned)len);
-                }
-                esp.msg->msg.conn_recv.conn->status.f.data_received = 1; /* We have first received data */
-            } else {
-                esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
-                LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                             "[LWESP IPD] Connection %u, setting tcp_available_bytes to zero\r\n",
-                             (unsigned)esp.msg->msg.conn_recv.conn->num);
-            }
         } else if (!strncmp("+CIPRECVLEN", rcv->data, 11)) {
             lwespi_parse_ciprecvlen(rcv->data); /* Parse CIPRECVLEN statement */
 #endif                                          /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
@@ -849,119 +787,73 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             lwespi_parse_webserver(&rcv->data[14]); /* Parse string and send to user layer */
 #endif                                              /* LWESP_CFG_WEBSERVER */
         } else if (esp.msg != NULL) {
-            if (0
-#if LWESP_CFG_MODE_STATION
-                || (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_GET) && !strncmp(rcv->data, "+CIPSTAMAC", 10))
-#endif /* LWESP_CFG_MODE_STATION */
-#if LWESP_CFG_MODE_ACCESS_POINT
-                || (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_GET) && !strncmp(rcv->data, "+CIPAPMAC", 9))
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
-            ) {
-                const char* tmp;
-                lwesp_mac_t mac;
+            if (0) {
+#if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
+            } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPRECVDATA) && !strncmp("+CIPRECVDATA", rcv->data, 12)) {
+                const char* str = &rcv->data[13];
+                uint32_t len;
 
-                if (rcv->data[9] == ':') {
-                    tmp = &rcv->data[10];
-                } else if (rcv->data[10] == ':') {
-                    tmp = &rcv->data[11];
-                }
+                /* Check data length */
+                if ((len = lwespi_parse_number(&str)) > 0) {
+                    lwesp_ip_t ip;
+                    lwesp_port_t port;
 
-                lwespi_parse_mac(&tmp, &mac); /* Save as current MAC address */
-#if LWESP_CFG_MODE_STATION
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_GET)) {
-                    LWESP_MEMCPY(&esp.m.sta.mac, &mac, 6); /* Copy to current setup */
-                }
-#endif /* LWESP_CFG_MODE_STATION */
-#if LWESP_CFG_MODE_ACCESS_POINT
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_GET)) {
-                    LWESP_MEMCPY(&esp.m.ap.mac, &mac, 6); /* Copy to current setup */
-                }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
-                if (esp.msg->msg.sta_ap_getmac.mac != NULL && CMD_IS_CUR(CMD_GET_DEF())) {
-                    LWESP_MEMCPY(esp.msg->msg.sta_ap_getmac.mac, &mac, sizeof(mac)); /* Copy to current setup */
-                }
-            } else if (0
-#if LWESP_CFG_MODE_STATION
-                       || (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET) && !strncmp(rcv->data, "+CIPSTA", 7))
-#endif /* LWESP_CFG_MODE_STATION */
-#if LWESP_CFG_MODE_ACCESS_POINT
-                       || (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET) && !strncmp(rcv->data, "+CIPAP", 6))
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
-            ) {
-                const char *tmp = NULL, *ch_p2;
-                lwesp_ip_t ip, *a = NULL, *b = NULL;
-                lwesp_ip_mac_t* im;
-                uint8_t ch = 0;
+                    /* Parse remaining information */
+                    lwespi_parse_ip(&str, &ip);
+                    port = lwespi_parse_port(&str);
 
-#if LWESP_CFG_MODE_STATION
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET)) {
-                    im = &esp.m.sta; /* Get IP and MAC structure first */
-                }
-#endif /* LWESP_CFG_MODE_STATION */
-#if LWESP_CFG_MODE_ACCESS_POINT
-                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET)) {
-                    im = &esp.m.ap; /* Get IP and MAC structure first */
-                }
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+                    /* Go to read mode */
+                    esp.msg->msg.conn_recv.read = 1;
+                    esp.msg->msg.conn_recv.tot_len = len;
+                    esp.msg->msg.conn_recv.buff_ptr = 0;
 
-                if (im != NULL) {
-                    /* We expect "+CIPSTA:" or "+CIPAP:" ... */
-                    if (rcv->data[6] == ':') {
-                        ch = rcv->data[7];
-                        ch_p2 = &rcv->data[9];
-                    } else if (rcv->data[7] == ':') {
-                        ch = rcv->data[8];
-                        ch_p2 = &rcv->data[10];
-                    }
-                    switch (ch) {
-                        case 'i':
-                            if (0) {
-#if LWESP_CFG_IPV6
-                                /* Check local IPv6 address */
-                            } else if (*ch_p2 == '6' && *(ch_p2 + 1) == 'l') {
-                                tmp = &rcv->data[13];
-                                a = &im->ip6_ll;
-                                b = esp.msg->msg.sta_ap_getip.ip6_ll;
-                                /* Check global IPv6 address */
-                            } else if (*ch_p2 == '6' && *(ch_p2 + 1) == 'g') {
-                                tmp = &rcv->data[13];
-                                a = &im->ip6_gl;
-                                b = esp.msg->msg.sta_ap_getip.ip6_gl;
-#endif /* LWESP_CFG_IPV6 */
-                            } else {
-                                LWESP_UNUSED(ch_p2);
-                                tmp = &rcv->data[10];
-                                a = &im->ip;
-                                b = esp.msg->msg.sta_ap_getip.ip;
+                    /*
+                     * Read received data in case of:
+                     *
+                     *  - Connection is active and
+                     *  - Connection is not in closing mode
+                     */
+                    if (esp.msg->msg.conn_recv.conn->status.f.active
+                        && !esp.msg->msg.conn_recv.conn->status.f.in_closing) {
+                        LWESP_DEBUGW(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
+                                     esp.msg->msg.conn_recv.buff == NULL,
+                                     "[LWESP IPD] No buffer allocated for %d byte(s)\r\n", (int)len);
+
+                        /* Update available data */
+                        if (esp.msg->msg.conn_recv.buff != NULL) {
+                            /* Adjust length of buffer for user */
+                            if (lwesp_pbuf_length(esp.msg->msg.conn_recv.buff, 1) > len) {
+                                esp.msg->msg.conn_recv.buff->tot_len = len;
+                                esp.msg->msg.conn_recv.buff->len = len;
                             }
-                            break;
-                        case 'g':
-                            tmp = &rcv->data[15];
-                            a = &im->gw;
-                            b = esp.msg->msg.sta_ap_getip.gw;
-                            break;
-                        case 'n':
-                            tmp = &rcv->data[15];
-                            a = &im->nm;
-                            b = esp.msg->msg.sta_ap_getip.nm;
-                            break;
-                        default:
-                            tmp = NULL;
-                            a = NULL;
-                            b = NULL;
-                            break;
-                    }
-                    if (tmp != NULL) { /* Do we have temporary string? */
-                        if (*tmp == ':' || *tmp == ',') {
-                            ++tmp;
+                            lwesp_pbuf_set_ip(esp.msg->msg.conn_recv.buff, &ip, port);
+                            if (esp.msg->msg.conn_recv.conn->tcp_available_bytes >= len) {
+                                esp.msg->msg.conn_recv.conn->tcp_available_bytes -= len;
+                            } else {
+                                esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
+                                esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
+                                LWESP_DEBUGF(
+                                    LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
+                                    "[LWESP IPD] Connection %u, setting tcp_available_bytes to zero. Actual len "
+                                    "is less than it was requested to read\r\n",
+                                    (unsigned)esp.msg->msg.conn_recv.conn->num);
+                            }
                         }
-                        lwespi_parse_ip(&tmp, &ip);                   /* Parse IP address */
-                        LWESP_MEMCPY(a, &ip, sizeof(ip));             /* Copy to current setup */
-                        if (b != NULL && CMD_IS_CUR(CMD_GET_DEF())) { /* Is current command the same as default one? */
-                            LWESP_MEMCPY(b, &ip, sizeof(ip));         /* Copy to user variable */
-                        }
+                    } else {
+                        /* Ignore reading on closed connection */
+                        lwesp_pbuf_free_s(&esp.msg->msg.conn_recv.buff);
+                        LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
+                                     "[LWESP IPD] Connection %u closed or in closing. skipping %u byte(s)\r\n",
+                                     (unsigned)esp.msg->msg.conn_recv.conn->num, (unsigned)len);
                     }
+                    esp.msg->msg.conn_recv.conn->status.f.data_received = 1; /* We have first received data */
+                } else {
+                    esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
+                    LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
+                                 "[LWESP IPD] Connection %u, setting tcp_available_bytes to zero\r\n",
+                                 (unsigned)esp.msg->msg.conn_recv.conn->num);
                 }
+#endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
 #if LWESP_CFG_MODE_STATION
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWLAP) && !strncmp(rcv->data, "+CWLAP", 6)) {
                 lwespi_parse_cwlap(rcv->data, esp.msg); /* Parse CWLAP entry */
@@ -971,12 +863,6 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWJAP_GET) && !strncmp(rcv->data, "+CWJAP", 6)) {
                 lwespi_parse_cwjap(rcv->data, esp.msg); /* Parse CWJAP */
 #endif                                                  /* LWESP_CFG_MODE_STATION */
-#if LWESP_CFG_MODE_ACCESS_POINT
-            } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWLIF) && !strncmp(rcv->data, "+CWLIF", 6)) {
-                lwespi_parse_cwlif(rcv->data, esp.msg); /* Parse CWLIF entry */
-            } else if (CMD_IS_CUR(LWESP_CMD_WIFI_CWSAP_GET) && !strncmp(rcv->data, "+CWSAP", 6)) {
-                lwespi_parse_cwsap(rcv->data, esp.msg);
-#endif /* LWESP_CFG_MODE_ACCESS_POINT */
 #if LWESP_CFG_DNS
             } else if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPDOMAIN) && !strncmp(rcv->data, "+CIPDOMAIN", 10)) {
                 lwespi_parse_cipdomain(rcv->data, esp.msg); /* Parse CIPDOMAIN entry */
@@ -1026,6 +912,111 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 esp.msg->msg.mfg_read.btr = length;
                 esp.msg->msg.mfg_read.read_mode = 1; /* Go into read mode */
 #endif                                               /* LWESP_CFG_FLASH */
+            } else if ((LWESP_CFG_MODE_STATION && CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_GET)
+                        && !strncmp(rcv->data, "+CIPSTAMAC", 10))
+                       || (LWESP_CFG_MODE_ACCESS_POINT && CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_GET)
+                           && !strncmp(rcv->data, "+CIPAPMAC", 9))) {
+                const char* tmp;
+                lwesp_mac_t mac;
+
+                if (rcv->data[9] == ':') {
+                    tmp = &rcv->data[10];
+                } else if (rcv->data[10] == ':') {
+                    tmp = &rcv->data[11];
+                }
+
+                lwespi_parse_mac(&tmp, &mac); /* Save as current MAC address */
+#if LWESP_CFG_MODE_STATION
+                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTAMAC_GET)) {
+                    LWESP_MEMCPY(&esp.m.sta.mac, &mac, 6); /* Copy to current setup */
+                }
+#endif /* LWESP_CFG_MODE_STATION */
+#if LWESP_CFG_MODE_ACCESS_POINT
+                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAPMAC_GET)) {
+                    LWESP_MEMCPY(&esp.m.ap.mac, &mac, 6); /* Copy to current setup */
+                }
+#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+                if (esp.msg->msg.sta_ap_getmac.mac != NULL && CMD_IS_CUR(CMD_GET_DEF())) {
+                    LWESP_MEMCPY(esp.msg->msg.sta_ap_getmac.mac, &mac, sizeof(mac)); /* Copy to current setup */
+                }
+            } else if ((LWESP_CFG_MODE_STATION && CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET)
+                        && !strncmp(rcv->data, "+CIPSTA", 7))
+                       || (LWESP_CFG_MODE_ACCESS_POINT && CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET)
+                           && !strncmp(rcv->data, "+CIPAP", 6))) {
+                const char *tmp = NULL, *ch_p2;
+                lwesp_ip_t ip, *a = NULL, *b = NULL;
+                lwesp_ip_mac_t* im;
+                uint8_t ch = 0;
+
+#if LWESP_CFG_MODE_STATION
+                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPSTA_GET)) {
+                    im = &esp.m.sta; /* Get IP and MAC structure first */
+                }
+#endif /* LWESP_CFG_MODE_STATION */
+#if LWESP_CFG_MODE_ACCESS_POINT
+                if (CMD_IS_CUR(LWESP_CMD_WIFI_CIPAP_GET)) {
+                    im = &esp.m.ap; /* Get IP and MAC structure first */
+                }
+#endif /* LWESP_CFG_MODE_ACCESS_POINT */
+
+                if (im != NULL) {
+                    /* We expect "+CIPSTA:" or "+CIPAP:" ... */
+                    if (rcv->data[6] == ':') {
+                        ch = rcv->data[7];
+                        ch_p2 = &rcv->data[9];
+                    } else if (rcv->data[7] == ':') {
+                        ch = rcv->data[8];
+                        ch_p2 = &rcv->data[10];
+                    }
+                    switch (ch) {
+                        case 'i':
+                            if (0) {
+#if LWESP_CFG_IPV6
+                                /* Check local IPv6 address */
+                            } else if (ch_p2[0] == '6' && ch_p2[1] == 'l') {
+                                tmp = &rcv->data[13];
+                                a = &im->ip6_ll;
+                                b = esp.msg->msg.sta_ap_getip.ip6_ll;
+                                /* Check global IPv6 address */
+                            } else if (ch_p2[0] == '6' && ch_p2[1] == 'g') {
+                                tmp = &rcv->data[13];
+                                a = &im->ip6_gl;
+                                b = esp.msg->msg.sta_ap_getip.ip6_gl;
+#endif /* LWESP_CFG_IPV6 */
+                            } else {
+                                tmp = &rcv->data[10];
+                                a = &im->ip;
+                                b = esp.msg->msg.sta_ap_getip.ip;
+                            }
+                            LWESP_UNUSED(ch_p2); /* May be unused */
+                            break;
+                        case 'g':
+                            tmp = &rcv->data[15];
+                            a = &im->gw;
+                            b = esp.msg->msg.sta_ap_getip.gw;
+                            break;
+                        case 'n':
+                            tmp = &rcv->data[15];
+                            a = &im->nm;
+                            b = esp.msg->msg.sta_ap_getip.nm;
+                            break;
+                        default:
+                            tmp = NULL;
+                            a = NULL;
+                            b = NULL;
+                            break;
+                    }
+                    if (tmp != NULL) { /* Do we have temporary string? */
+                        if (*tmp == ':' || *tmp == ',') {
+                            ++tmp;
+                        }
+                        lwespi_parse_ip(&tmp, &ip);                   /* Parse IP address */
+                        LWESP_MEMCPY(a, &ip, sizeof(ip));             /* Copy to current setup */
+                        if (b != NULL && CMD_IS_CUR(CMD_GET_DEF())) { /* Is current command the same as default one? */
+                            LWESP_MEMCPY(b, &ip, sizeof(ip));         /* Copy to user variable */
+                        }
+                    }
+                }
             }
         }
 #if LWESP_CFG_MODE_STATION
@@ -1047,7 +1038,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             } else if (!strncmp(&rcv->data[11], "v6 LL", 5)) {
                 esp.m.sta.f.has_ipv6_ll = 1;
             } else if (!strncmp(&rcv->data[11], "v6 GL", 5)) {
-                esp.m.sta.f.has_ipv6_gl = 0;
+                esp.m.sta.f.has_ipv6_gl = 1;
 #endif /* LWESP_CFG_IPV6 */
             } else {
                 /* IP is for V4 (\todo: Add specific status) */
@@ -1109,7 +1100,10 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 #endif /* LWESP_CFG_MODE_STATION */
     }
 
-    /* Start processing received data */
+    /* 
+     * Process other received data, which may or may not
+     * start with the `+` sign -> command specific
+     */
     if (esp.msg != NULL) { /* Do we have valid message? */
         /* Start with received error code */
         if (strncmp(rcv->data, "ERR CODE:", 9) == 0) {
