@@ -70,7 +70,7 @@ Configuration file
 ^^^^^^^^^^^^^^^^^^
 
 Configuration file is used to overwrite default settings defined for the essential use case.
-Library comes with template config file, which can be modified according to needs.
+Library comes with template config file, which can be modified according to the application needs.
 and it should be copied (or simply renamed in-place) and named ``lwesp_opts.h``
 
 .. note::
