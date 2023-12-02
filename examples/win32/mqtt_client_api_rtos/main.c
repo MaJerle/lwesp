@@ -60,7 +60,7 @@ main(void) {
     station_manager_connect_to_preferred_access_point(1);
 
     /* Start MQTT API thread */
-    lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)mqtt_client_api_thread, NULL, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "mqtt_client_api", (lwesp_sys_thread_fn)lwesp_mqtt_client_api_thread, NULL, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO);
 
     /*
      * Do not stop program here.
