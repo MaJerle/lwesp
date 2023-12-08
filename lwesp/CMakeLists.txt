@@ -32,18 +32,18 @@ set(lwesp_core_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_webserver.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_wps.c
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp.c
-    )
-    
+)
+
 # API sources
 set(lwesp_api_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/api/lwesp_netconn.c
-    )
+)
 
 # HTTP server
 set(lwesp_httpsrv_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/apps/http_server/lwesp_http_server.c
     ${CMAKE_CURRENT_LIST_DIR}/src/apps/http_server/lwesp_http_server_fs.c
-    )
+)
 
 # MQTT
 set(lwesp_mqtt_SRCS
@@ -51,29 +51,29 @@ set(lwesp_mqtt_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/apps/mqtt/lwesp_mqtt_client_api.c
     ${CMAKE_CURRENT_LIST_DIR}/src/apps/cayenne/lwesp_cayenne.c
     ${CMAKE_CURRENT_LIST_DIR}/src/apps/cayenne/lwesp_cayenne_evt.c
-    )
+)
 
 # CLI
 set(lwesp_cli_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/src/lwesp/lwesp_cli.c
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/cli.c
     ${CMAKE_CURRENT_LIST_DIR}/src/cli/cli_input.c
-    )
+)
 
 # All apps source files
 set(lwesp_allapps_SRCS
     ${lwesp_mqtt_SRCS}
     ${lwesp_httpsrv_SRCS}
     ${lwesp_cli_SRCS}
-    )
+)
 
 # Setup include directories
 set(lwesp_include_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/src/include
-    )
+)
 
 # Add system port to core if user defined
-if (DEFINED LWESP_SYS_PORT)
+if(DEFINED LWESP_SYS_PORT)
     set(lwesp_core_SRCS ${lwesp_core_SRCS} ${CMAKE_CURRENT_LIST_DIR}/src/system/lwesp_sys_${LWESP_SYS_PORT}.c)
     set(lwesp_include_DIRS ${lwesp_include_DIRS} ${CMAKE_CURRENT_LIST_DIR}/src/include/system/port/${LWESP_SYS_PORT})
 endif()
@@ -92,3 +92,8 @@ target_include_directories(lwesp_api INTERFACE ${lwesp_include_DIRS})
 add_library(lwesp_apps INTERFACE)
 target_sources(lwesp_apps PUBLIC ${lwesp_allapps_SRCS})
 target_include_directories(lwesp_apps INTERFACE ${lwesp_include_DIRS})
+
+# Create config file
+if(DEFINED LWESP_OPTS_DIR AND NOT EXISTS ${LWESP_OPTS_DIR}/lwesp_opts.h)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/src/include/lwesp/lwesp_opts_template.h ${LWESP_OPTS_DIR}/lwesp_opts.h COPYONLY)
+endif()
