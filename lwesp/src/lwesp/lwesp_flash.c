@@ -103,14 +103,14 @@ lwesp_flash_write(lwesp_flash_partition_t partition, uint32_t offset, const void
  * \note            When writing into this section, no need to previously erase the data
  *                  System is smart enough to do this for us, if absolutely necessary
  * 
- * \param           namespace: User namespace option
- * \param           key: Key to write
- * \param           valtype: Value type to follow
- * \param           data: Pointer to data to write. If value type is primitive type,
+ * \param[in]       mfgns: User namespace option
+ * \param[in]       key: Key to write
+ * \param[in]       valtype: Value type to follow
+ * \param[in]       data: Pointer to data to write. If value type is primitive type,
  *                      then pointer is copied to the local structure. This means
  *                      even for non-blocking calls, user can safely use local variables for
  *                      data pointers.
- * \param           length: Length of data to write. It only makes sense for string and binary data types,
+ * \param[in]       length: Length of data to write. It only makes sense for string and binary data types,
  *                      otherwise it is derived from value type parameter and can be set to `0` by user
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
@@ -118,11 +118,11 @@ lwesp_flash_write(lwesp_flash_partition_t partition, uint32_t offset, const void
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valtype_t valtype, const void* data,
+lwesp_mfg_write(lwesp_mfg_namespace_t mfgns, const char* key, lwesp_mfg_valtype_t valtype, const void* data,
                 uint32_t length, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT(namespace < LWESP_MFG_NAMESPACE_END);
+    LWESP_ASSERT(mfgns < LWESP_MFG_NAMESPACE_END);
     LWESP_ASSERT(data != NULL);
     LWESP_ASSERT(valtype != LWESP_MFG_VALTYPE_INVAL && valtype < LWESP_MFG_VALTYPE_END);
     switch (valtype) {
@@ -139,7 +139,7 @@ lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valt
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_SYSMFG_WRITE;
-    LWESP_MSG_VAR_REF(msg).msg.mfg_write.namespace = namespace;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_write.namespace = mfgns;
     LWESP_MSG_VAR_REF(msg).msg.mfg_write.key = key;
     LWESP_MSG_VAR_REF(msg).msg.mfg_write.valtype = valtype;
     LWESP_MSG_VAR_REF(msg).msg.mfg_write.length = length;
@@ -166,7 +166,7 @@ lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valt
  * \note            When writing into this section, no need to previously erase the data
  *                  System is smart enough to do this for us, if absolutely necessary
  * 
- * \param[in]       namespace: User namespace option
+ * \param[in]       mfgns: User namespace option
  * \param[in]       key: Key to ead
  * \param[in]       data: Pointer to data to write received data to
  * \param[in]       btr: Number of bytes to read
@@ -178,18 +178,18 @@ lwesp_mfg_write(lwesp_mfg_namespace_t namespace, const char* key, lwesp_mfg_valt
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
 lwespr_t
-lwesp_mfg_read(lwesp_mfg_namespace_t namespace, const char* key, void* data, uint32_t btr, uint32_t offset,
-               uint32_t* br, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
+lwesp_mfg_read(lwesp_mfg_namespace_t mfgns, const char* key, void* data, uint32_t btr, uint32_t offset, uint32_t* br,
+               const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking) {
     LWESP_MSG_VAR_DEFINE(msg);
 
-    LWESP_ASSERT(namespace < LWESP_MFG_NAMESPACE_END);
+    LWESP_ASSERT(mfgns < LWESP_MFG_NAMESPACE_END);
     LWESP_ASSERT(data != NULL);
     LWESP_ASSERT(btr > 0);
 
     LWESP_MSG_VAR_ALLOC(msg, blocking);
     LWESP_MSG_VAR_SET_EVT(msg, evt_fn, evt_arg);
     LWESP_MSG_VAR_REF(msg).cmd_def = LWESP_CMD_SYSMFG_READ;
-    LWESP_MSG_VAR_REF(msg).msg.mfg_read.namespace = namespace;
+    LWESP_MSG_VAR_REF(msg).msg.mfg_read.namespace = mfgns;
     LWESP_MSG_VAR_REF(msg).msg.mfg_read.key = key;
     LWESP_MSG_VAR_REF(msg).msg.mfg_read.offset = offset;
     LWESP_MSG_VAR_REF(msg).msg.mfg_read.btr = btr;

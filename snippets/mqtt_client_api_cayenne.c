@@ -35,7 +35,7 @@ mqtt_client_data[256];
  * \brief           MQTT thread
  */
 void
-mqtt_client_api_cayenne_thread(void const* arg) {
+lwesp_mqtt_client_api_cayenne_thread(void const* arg) {
     lwesp_mqtt_client_api_p client = NULL;
     lwesp_mqtt_conn_status_t status;
     lwesp_mqtt_client_api_buf_p buf;

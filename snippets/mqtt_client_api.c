@@ -11,15 +11,14 @@
  * test.mosquitto.org server and subscribe to publishing topic
  */
 
-#include "lwesp/apps/lwesp_mqtt_client_api.h"
 #include "mqtt_client_api.h"
+#include "lwesp/apps/lwesp_mqtt_client_api.h"
 #include "lwesp/lwesp_mem.h"
 
 /**
  * \brief           Connection information for MQTT CONNECT packet
  */
-static const lwesp_mqtt_client_info_t
-mqtt_client_info = {
+static const lwesp_mqtt_client_info_t mqtt_client_info = {
     .keep_alive = 10,
 
     /* Server login data */
@@ -30,15 +29,15 @@ mqtt_client_info = {
     .id = "869f5a20-af9c-11e9-b01f-db5cf74e7fb7",
 };
 
-static char mqtt_topic_str[256];                /*!< Topic string */
-static char mqtt_topic_data[256];               /*!< Data string */
+static char mqtt_topic_str[256];  /*!< Topic string */
+static char mqtt_topic_data[256]; /*!< Data string */
 
 /**
  * \brief           Generate random number and write it to string
  * It utilizes simple pseudo random generator, super simple one
  * \param[out]      str: Output string with new number
  */
-void
+static void
 prv_generate_random(char* str) {
     static uint32_t random_beg = 0x8916;
     random_beg = random_beg * 0x00123455 + 0x85654321;
@@ -50,7 +49,7 @@ prv_generate_random(char* str) {
  * \param[in]       arg: User argument
  */
 void
-mqtt_client_api_thread(void const* arg) {
+lwesp_mqtt_client_api_thread(void const* arg) {
     lwesp_mqtt_client_api_p client;
     lwesp_mqtt_conn_status_t conn_status;
     lwesp_mqtt_client_api_buf_p buf;
@@ -106,7 +105,8 @@ mqtt_client_api_thread(void const* arg) {
                 prv_generate_random(random_str);
                 sprintf(mqtt_topic_str, "v1/%s/things/%s/data/1", mqtt_client_info.user, mqtt_client_info.id);
                 sprintf(mqtt_topic_data, "temp,c=%s", random_str);
-                lwesp_mqtt_client_api_publish(client, mqtt_topic_str, mqtt_topic_data, strlen(mqtt_topic_data), LWESP_MQTT_QOS_AT_LEAST_ONCE, 0);
+                lwesp_mqtt_client_api_publish(client, mqtt_topic_str, mqtt_topic_data, strlen(mqtt_topic_data),
+                                              LWESP_MQTT_QOS_AT_LEAST_ONCE, 0);
             }
         }
         //goto terminate;
