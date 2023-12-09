@@ -81,6 +81,7 @@ Table of contents
     examples/index
     firmware-update/index
     changelog/index
+    authors/index
 
 .. toctree::
     :maxdepth: 2
