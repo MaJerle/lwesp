@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2023 Tilen MAJERLE
+ * Copyright (c) 2024 Tilen MAJERLE
  * Copyright (c) 2020 Seeed Technology
  *
  * Permission is hereby granted, free of charge, to any person
