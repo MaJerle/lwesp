@@ -90,7 +90,7 @@ and it should be copied (or simply renamed in-place) and named ``lwesp_opts.h``
 
 .. tip::
     If you are using *CMake* build system, define the variable ``LWESP_OPTS_FILE`` before adding library's directory to the *CMake* project.
-    Variable must contain the path to the user options file. If not provided, one will be generated in the build directory.
+    Variable must contain the path to the user options file. If not provided and to avoid build error, one will be generated in the build directory.
 
 Configuration options list is available available in the :ref:`api_lwesp_opt` section.
 If any option is about to be modified, it should be done in configuration file
