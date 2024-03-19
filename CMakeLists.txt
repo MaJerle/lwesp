@@ -48,7 +48,7 @@ else()
     )
 
     # Add subdir with lwesp and link to the project
-    set(LWESP_OPTS_DIR ${CMAKE_CURRENT_LIST_DIR}/dev)
+    set(LWESP_OPTS_FILE ${CMAKE_CURRENT_LIST_DIR}/dev/lwesp_opts.h)
     set(LWESP_SYS_PORT "win32")
     add_subdirectory(lwesp)
     target_link_libraries(${PROJECT_NAME} lwesp)

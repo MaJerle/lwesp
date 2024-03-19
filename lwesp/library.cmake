@@ -1,14 +1,19 @@
 # 
+# LIB_PREFIX: LWESP
+#
 # This file provides set of variables for end user
 # and also generates one (or more) libraries, that can be added to the project using target_link_libraries(...)
 #
 # Before this file is included to the root CMakeLists file (using include() function), user can set some variables:
 #
 # LWESP_SYS_PORT: If defined, it will include port source file from the library, and include the necessary header file.
-# LWESP_OPTS_DIR: If defined, it should set the folder path where options file shall be generated.
+# LWESP_OPTS_FILE: If defined, it is the path to the user options file. If not defined, one will be generated for you automatically
 # LWESP_COMPILE_OPTIONS: If defined, it provide compiler options for generated library.
 # LWESP_COMPILE_DEFINITIONS: If defined, it provides "-D" definitions to the library build
 #
+
+# Custom include directory
+set(LWESP_CUSTOM_INC_DIR ${CMAKE_CURRENT_BINARY_DIR}/lib_inc)
 
 # Library core sources
 set(lwesp_core_SRCS
@@ -80,6 +85,7 @@ set(lwesp_allapps_SRCS
 # Setup include directories
 set(lwesp_include_DIRS
     ${CMAKE_CURRENT_LIST_DIR}/src/include
+    ${LWESP_CUSTOM_INC_DIR}
 )
 
 # Add system port to core if user defined
@@ -109,7 +115,11 @@ target_include_directories(lwesp_apps INTERFACE ${lwesp_include_DIRS})
 target_compile_options(lwesp_apps PRIVATE ${LWESP_COMPILE_OPTIONS})
 target_compile_definitions(lwesp_apps PRIVATE ${LWESP_COMPILE_DEFINITIONS})
 
-# Create config file
-if(DEFINED LWESP_OPTS_DIR AND NOT EXISTS ${LWESP_OPTS_DIR}/lwesp_opts.h)
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/src/include/lwesp/lwesp_opts_template.h ${LWESP_OPTS_DIR}/lwesp_opts.h COPYONLY)
+# Create config file if user didn't provide one info himself
+if(NOT LWESP_OPTS_FILE)
+    message(STATUS "Using default lwesp_opts.h file")
+    set(LWESP_OPTS_FILE ${CMAKE_CURRENT_LIST_DIR}/src/include/lwesp/lwesp_opts_template.h)
+else()
+    message(STATUS "Using custom lwesp_opts.h file from ${LWESP_OPTS_FILE}")
 endif()
+configure_file(${LWESP_OPTS_FILE} ${LWESP_CUSTOM_INC_DIR}/lwesp_opts.h COPYONLY)
