@@ -222,10 +222,12 @@ netconn_evt(lwesp_evt_t* evt) {
             lwesp_pbuf_ref(pbuf);          /* Increase reference counter */
             LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE, nc == NULL,
                          "[LWESP NETCONN] Data receive -> netconn is NULL!\r\n");
+            if (nc != NULL) {
             LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE, nc->conn_val_id != conn->val_id,
                          "[LWESP NETCONN] Connection validation ID does not match connection val_id!\r\n");
             LWESP_DEBUGW(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE, !lwesp_sys_mbox_isvalid(&nc->mbox_receive),
                          "[LWESP NETCONN] Receive mbox is not valid!\r\n");
+            }
             if (nc == NULL || nc->conn_val_id != conn->val_id || !lwesp_sys_mbox_isvalid(&nc->mbox_receive)
                 || !lwesp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
                 LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN,
