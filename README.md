@@ -7,7 +7,7 @@ Espressif module runs official [AT Commands (esp-at)](https://github.com/espress
 
 Follow documentation for more information on implementation and details.
 
-<h3>Read first: <a href="https://docs.majerle.eu/projects/lwesp/">Documentation</a></h3>
+[Open documentation](https://docs.majerle.eu/projects/lwesp/)
 
 ## Features
 
