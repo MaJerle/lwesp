@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -140,8 +140,8 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
 
                 /* Write to receive queue */
                 if (!lwesp_sys_mbox_putnow(&api_client->rcv_mbox, buf)) {
-                    LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING,
-                                 "[MQTT API] Cannot put new received MQTT publish to queue\r\n");
+                    LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE_WARNING, "[MQTT API] Cannot put new received MQTT "
+                                                                       "publish to queue\r\n");
                     lwesp_mem_free_s((void**)&buf);
                 }
             } else {
@@ -174,7 +174,7 @@ prv_mqtt_evt(lwesp_mqtt_client_p client, lwesp_mqtt_evt_t* evt) {
         case LWESP_MQTT_EVT_DISCONNECT: {
             uint8_t is_accepted = lwesp_mqtt_client_evt_disconnect_is_accepted(client, evt);
             /* Disconnect event happened */
-            //api_client->connect_resp = MQTT_CONN_STATUS_TCP_FAILED;
+            // api_client->connect_resp = MQTT_CONN_STATUS_TCP_FAILED;
 
             /* Print debug message */
             LWESP_DEBUGF(LWESP_CFG_DBG_MQTT_API_TRACE, "[MQTT API] Disconnect event\r\n");

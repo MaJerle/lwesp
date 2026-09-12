@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -181,8 +181,8 @@ lwesp_ll_init(lwesp_ll_t* ll) {
      */
     lwesp_mem_region_t mem_regions[] = {{memory, sizeof(memory)}};
     if (!initialized) {
-        lwesp_mem_assignmemory(mem_regions,
-                               LWESP_ARRAYSIZE(mem_regions)); /* Assign memory for allocations to ESP library */
+        lwesp_mem_assignmemory(mem_regions, LWESP_ARRAYSIZE(mem_regions)); /* Assign memory for allocations to ESP
+                                                                              library */
     }
 #endif /* !LWESP_CFG_MEM_CUSTOM */
 

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -55,16 +55,16 @@ lwespr_t lwesp_ap_getip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, const lw
                         void* const evt_arg, const uint32_t blocking);
 lwespr_t lwesp_ap_setip(const lwesp_ip_t* ip, const lwesp_ip_t* gw, const lwesp_ip_t* nm,
                         const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t lwesp_ap_getmac(lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
-                         const uint32_t blocking);
+lwespr_t
+lwesp_ap_getmac(lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t lwesp_ap_setmac(const lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
                          const uint32_t blocking);
 
 lwespr_t lwesp_ap_get_config(lwesp_ap_conf_t* ap_conf, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
                              const uint32_t blocking);
-lwespr_t lwesp_ap_set_config(const char* ssid, const char* pwd, uint8_t ch, lwesp_ecn_t ecn, uint8_t max_sta,
-                             uint8_t hid, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
-                             const uint32_t blocking);
+lwespr_t
+lwesp_ap_set_config(const char* ssid, const char* pwd, uint8_t ch, lwesp_ecn_t ecn, uint8_t max_sta, uint8_t hid,
+                    const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 lwespr_t lwesp_ap_list_sta(lwesp_sta_t* sta, size_t stal, size_t* staf, const lwesp_api_cmd_evt_fn evt_fn,
                            void* const evt_arg, const uint32_t blocking);

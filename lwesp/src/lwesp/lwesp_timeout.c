@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -181,8 +181,8 @@ lwesp_timeout_add(uint32_t time, lwesp_timeout_fn fn, void* arg) {
         }
     }
     lwesp_core_unlock();
-    lwesp_sys_mbox_putnow(&esp.mbox_process,
-                          NULL); /* Write message to process queue to wakeup process thread and to start */
+    lwesp_sys_mbox_putnow(&esp.mbox_process, NULL); /* Write message to process queue to wakeup process thread and to
+                                                       start */
     return lwespOK;
 }
 
@@ -196,9 +196,9 @@ lwesp_timeout_remove(lwesp_timeout_fn fn) {
     uint8_t success = 0;
 
     lwesp_core_lock();
-    for (lwesp_timeout_t *t = first_timeout, *t_prev = NULL; t != NULL;
-         t_prev = t, t = t->next) { /* Check all entries */
-        if (t->fn == fn) {          /* Do we have a match from callback point of view? */
+    for (lwesp_timeout_t *t = first_timeout, *t_prev = NULL; t != NULL; t_prev = t, t = t->next) { /* Check all entries
+                                                                                                    */
+        if (t->fn == fn) { /* Do we have a match from callback point of view? */
 
             /*
              * We have to first increase

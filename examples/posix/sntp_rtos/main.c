@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,10 +31,10 @@
  * Before you start using POSIX implementation with USB-TTL or native serial device,
  * check lwesp_ll_posix.c implementation and choose your serial port!
  */
-#include "lwesp/lwesp.h"
-#include "station_manager.h"
-#include "sntp.h"
 #include "examples_common_lwesp_callback_func.h"
+#include "lwesp/lwesp.h"
+#include "sntp.h"
+#include "station_manager.h"
 
 /**
  * \brief           Program entry point

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -64,7 +64,8 @@ http_fs_open(http_fs_file_t* file, const char* path) {
 /**
  * \brief           Read a file content
  * \param[in]       file: File handle to read
- * \param[out]      buff: Buffer to read data to. When set to NULL, function should return remaining available data to read
+ * \param[out]      buff: Buffer to read data to. When set to NULL, function should return remaining available data to
+ * read
  * \param[in]       btr: Number of bytes to read. Has no meaning when buff = NULL
  * \return          Number of bytes read or number of bytes available to read
  */

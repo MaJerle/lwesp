@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -62,7 +62,8 @@ extern "C" {
  */
 typedef enum {
     lwespOK = 0,       /*!< Function succeeded */
-    lwespOKIGNOREMORE, /*!< Function succedded, should continue as lwespOK but ignore sending more data. This result is possible on connection data receive callback */
+    lwespOKIGNOREMORE, /*!< Function succedded, should continue as lwespOK but ignore sending more data. This result is
+                          possible on connection data receive callback */
     lwespERR,          /*!< General error */
     lwespERRPAR,       /*!< Wrong parameters on function call */
     lwespERRMEM,       /*!< Memory error occurred */
@@ -244,7 +245,7 @@ typedef struct {
 /**
  * \ingroup         LWESP_TYPES
  * \brief           SW version handle object.
- * 
+ *
  * Format is (major << 24 | minor << 16 | patch << 8 | 0)
  */
 typedef struct {
@@ -300,13 +301,13 @@ typedef struct {
 } lwesp_ap_conf_t;
 
 /**
- * \ingroup         LWESP_TYPES        
+ * \ingroup         LWESP_TYPES
  * \brief           Simple helper structure for application purpose
- * 
+ *
  * User can define array of structure objects and set its
  * preferred WIFI options, then trying to iterate through
  * all and connect to first available
- * 
+ *
  * \note            This structure is not used by the LwESP library
  */
 typedef struct {
@@ -325,7 +326,7 @@ typedef struct {
 
 /**
  * \brief           List of possible flash operations
- * 
+ *
  * Values assigned to each enum are aligned with AT+SYSFLASH command
  */
 typedef enum {
@@ -500,13 +501,15 @@ typedef enum lwesp_evt_type_t {
                                                     When received, station may not have yet valid IP hence new connections
                                                     cannot be started in this mode */
     LWESP_EVT_WIFI_GOT_IP,       /*!< Station has valid IP.
-                                                    When this event is received to application, ESP has got IP from access point,
-                                                    but no IP has been read from device and at this moment it is still being unknown to application.
-                                                    Stack will proceed with IP read from device and will later send \ref LWESP_EVT_WIFI_IP_ACQUIRED event.
-
-                                                    Note: When IPv6 is enabled, this event may be called multiple times during single connection to access point,
-                                                    as device may report "got IP" several times.
-                                                    Application must take care when starting new conection from this event, not to start it multiple times */
+                                                    When this event is received to application, ESP has got IP from access
+                                    point, but no IP has been read from device and at this moment it is still being unknown to
+                                    application. Stack will proceed with IP read from device and will later send \ref
+                                    LWESP_EVT_WIFI_IP_ACQUIRED event.
+      
+                                                    Note: When IPv6 is enabled, this event may be called multiple times during
+                                    single connection to access point, as device may report "got IP" several times.
+                                                    Application must take care when starting new conection from this event,
+                                    not to start it multiple times */
     LWESP_EVT_WIFI_DISCONNECTED, /*!< Station just disconnected from access point */
     LWESP_EVT_WIFI_IP_ACQUIRED,  /*!< Station IP address acquired.
                                                     At this point, valid IP address has been received from device.
@@ -773,10 +776,10 @@ typedef struct {
 
         struct {
             lwesp_port_t local_port; /*!< Custom local port for UDP */
-            uint8_t
-                mode; /*!< UDP mode. Set to `0` by default. Check ESP AT commands instruction set for more info when needed */
-        } udp;        /*!< UDP specific features */
-    } ext;            /*!< Extended support union */
+            uint8_t mode; /*!< UDP mode. Set to `0` by default. Check ESP AT commands instruction set for more info when
+                             needed */
+        } udp;            /*!< UDP specific features */
+    } ext;                /*!< Extended support union */
 } lwesp_conn_start_t;
 
 /**

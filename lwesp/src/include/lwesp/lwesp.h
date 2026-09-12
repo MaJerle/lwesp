@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -48,14 +48,14 @@ extern "C" {
 
 lwespr_t lwesp_init(lwesp_evt_fn cb_func, const uint32_t blocking);
 lwespr_t lwesp_reset(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t lwesp_reset_with_delay(uint32_t delay, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
-                                const uint32_t blocking);
+lwespr_t
+lwesp_reset_with_delay(uint32_t delay, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 lwespr_t lwesp_restore(const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
-lwespr_t lwesp_set_at_baudrate(uint32_t baud, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
-                               const uint32_t blocking);
-lwespr_t lwesp_set_wifi_mode(lwesp_mode_t mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
-                             const uint32_t blocking);
+lwespr_t
+lwesp_set_at_baudrate(uint32_t baud, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
+lwespr_t
+lwesp_set_wifi_mode(lwesp_mode_t mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 lwespr_t lwesp_get_wifi_mode(lwesp_mode_t* mode, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
                              const uint32_t blocking);
 

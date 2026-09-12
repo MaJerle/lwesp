@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -41,66 +41,73 @@ extern uint16_t http_fs_opened_files_cnt;
 /**
  * \brief           Default index.html file including response headers
  */
-static const uint8_t responseData[] =
-    ""
-    "HTTP/1.1 200 OK\r\n"
-    "Server: " HTTP_SERVER_NAME "\r\n"
-    "Content-Type: text/html\r\n"
-    "\r\n"
-    "<html>\n"
-    "   <head>\n"
-    "       <title><!--#title--></title>\n"
-    "       <meta http-equiv=\"Refresh\" content=\"1\" />\n"
-    "       <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></script>\n"
-    "       <script src=\"/js/js.js\" type=\"text/javascript\"></script>\n"
-    "       <link rel=\"stylesheet\" "
-    "href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css\" "
-    "integrity=\"sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb\" crossorigin=\"anonymous\" "
-    "/>\n"
-    "       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style.css\" />\n"
-    "   </head>\n"
-    "   <body>\n"
-    "       <div class=\"container\">\n"
-    "           <h1>Welcome to web server hosted by ESP8266 Wi-Fi module!</h1>\n"
-    "       </div>\n"
-    "       <div id=\"maindiv\"></div>"
-    "       <footer>\n"
-    "           <div class=\"container\">\n"
-    "               Copyright &copy; 2017. All rights reserved. Webserver is hosted on ESP8266.\n"
-    "           </div>\n"
-    "       </footer>\n"
-    "   </body>\n"
-    "</html>\n";
+static const uint8_t responseData[] = ""
+                                      "HTTP/1.1 200 OK\r\n"
+                                      "Server: " HTTP_SERVER_NAME "\r\n"
+                                      "Content-Type: text/html\r\n"
+                                      "\r\n"
+                                      "<html>\n"
+                                      "   <head>\n"
+                                      "       <title><!--#title--></title>\n"
+                                      "       <meta http-equiv=\"Refresh\" content=\"1\" />\n"
+                                      "       <script "
+                                      "src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js\"></"
+                                      "script>\n"
+                                      "       <script src=\"/js/js.js\" type=\"text/javascript\"></script>\n"
+                                      "       <link rel=\"stylesheet\" "
+                                      "href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/"
+                                      "bootstrap.min.css\" "
+                                      "integrity=\"sha384-"
+                                      "PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb\" "
+                                      "crossorigin=\"anonymous\" "
+                                      "/>\n"
+                                      "       <link rel=\"stylesheet\" type=\"text/css\" href=\"/css/style.css\" />\n"
+                                      "   </head>\n"
+                                      "   <body>\n"
+                                      "       <div class=\"container\">\n"
+                                      "           <h1>Welcome to web server hosted by ESP8266 Wi-Fi module!</h1>\n"
+                                      "       </div>\n"
+                                      "       <div id=\"maindiv\"></div>"
+                                      "       <footer>\n"
+                                      "           <div class=\"container\">\n"
+                                      "               Copyright &copy; 2017. All rights reserved. Webserver is hosted "
+                                      "on ESP8266.\n"
+                                      "           </div>\n"
+                                      "       </footer>\n"
+                                      "   </body>\n"
+                                      "</html>\n";
 
 /**
  * \brief           Default CSS response besides bootstrap response
  */
-static const uint8_t responseData_css[] =
-    ""
-    "HTTP/1.1 200 OK\r\n"
-    "Server: " HTTP_SERVER_NAME "\r\n"
-    "Content-Type: text/css\r\n"
-    "\r\n"
-    "html, body { margin: 0; padding: 0; color: blue; font-family: Arial, Tahoma; }\r\n"
-    "h1 { font-size: 22px; }\n"
-    "footer .container { width: 1000px; padding: 6px 3px; border: 1px solid #000000; font-size: 11px; }\n"
-    "footer { position: fixed; bottom: 0; width: 100%; background: brown; color: #DDDDDD; }\n"
-    "";
+static const uint8_t responseData_css[] = ""
+                                          "HTTP/1.1 200 OK\r\n"
+                                          "Server: " HTTP_SERVER_NAME "\r\n"
+                                          "Content-Type: text/css\r\n"
+                                          "\r\n"
+                                          "html, body { margin: 0; padding: 0; color: blue; font-family: Arial, "
+                                          "Tahoma; }\r\n"
+                                          "h1 { font-size: 22px; }\n"
+                                          "footer .container { width: 1000px; padding: 6px 3px; border: 1px solid "
+                                          "#000000; font-size: 11px; }\n"
+                                          "footer { position: fixed; bottom: 0; width: 100%; background: brown; color: "
+                                          "#DDDDDD; }\n"
+                                          "";
 
 /**
  * \brief           Default static javascript file
  *
  *                  Script will write a paragraph using jQuery to main div
  */
-static const uint8_t responseData_js1[] =
-    ""
-    "HTTP/1.1 200 OK\r\n"
-    "Server: " HTTP_SERVER_NAME "\r\n"
-    "Content-Type: text/javascript\r\n"
-    "\r\n"
-    "jQuery(document).ready(function() {\n"
-    "   jQuery(\"#maindiv\").append(\"<p>This paragraphs was written using jQuery</p>\");\n"
-    "})\n";
+static const uint8_t responseData_js1[] = ""
+                                          "HTTP/1.1 200 OK\r\n"
+                                          "Server: " HTTP_SERVER_NAME "\r\n"
+                                          "Content-Type: text/javascript\r\n"
+                                          "\r\n"
+                                          "jQuery(document).ready(function() {\n"
+                                          "   jQuery(\"#maindiv\").append(\"<p>This paragraphs was written using "
+                                          "jQuery</p>\");\n"
+                                          "})\n";
 #endif /* HTTP_USE_DEFAULT_STATIC_FILES */
 
 /**

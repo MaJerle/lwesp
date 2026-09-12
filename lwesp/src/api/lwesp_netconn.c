@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -229,8 +229,8 @@ netconn_evt(lwesp_evt_t* evt) {
             }
             if (nc == NULL || nc->conn_val_id != conn->val_id || !lwesp_sys_mbox_isvalid(&nc->mbox_receive)
                 || !lwesp_sys_mbox_putnow(&nc->mbox_receive, pbuf)) {
-                LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN,
-                             "[LWESP NETCONN] Could not put receive packet. Ignoring more data for receive!\r\n");
+                LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN, "[LWESP NETCONN] Could not put receive packet. Ignoring more data "
+                                                    "for receive!\r\n");
                 lwesp_pbuf_free_s(&pbuf); /* Free pbuf */
                 return lwespOKIGNOREMORE; /* Return OK to free the memory and ignore further data */
             }
@@ -315,13 +315,14 @@ lwesp_netconn_new(lwesp_netconn_type_t type) {
         a->type = type;      /* Save netconn type */
         a->conn_timeout = 0; /* Default connection timeout */
         if (!lwesp_sys_mbox_create(&a->mbox_accept, LWESP_CFG_NETCONN_ACCEPT_QUEUE_LEN)) {
-            LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
-                         "[LWESP NETCONN] Cannot create accept MBOX\r\n");
+            LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER, "[LWESP NETCONN] Cannot "
+                                                                                              "create accept MBOX\r\n");
             goto free_ret;
         }
         if (!lwesp_sys_mbox_create(&a->mbox_receive, LWESP_CFG_NETCONN_RECEIVE_QUEUE_LEN)) {
-            LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER,
-                         "[LWESP NETCONN] Cannot create receive MBOX\r\n");
+            LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_DANGER, "[LWESP NETCONN] Cannot "
+                                                                                              "create receive "
+                                                                                              "MBOX\r\n");
             goto free_ret;
         }
         lwesp_core_lock();
@@ -674,9 +675,9 @@ lwesp_netconn_write(lwesp_netconn_p nc, const void* data, size_t btw) {
 /**
  * \brief           Extended version of \ref lwesp_netconn_write with additional
  *                  option to set custom flags.
- * 
- * \note            It is recommended to use this for full features support 
- * 
+ *
+ * \note            It is recommended to use this for full features support
+ *
  * \param[in]       nc: Netconn handle used to write data to
  * \param[in]       data: Pointer to data to write
  * \param[in]       btw: Number of bytes to write
@@ -797,8 +798,10 @@ lwesp_netconn_receive(lwesp_netconn_p nc, lwesp_pbuf_p* pbuf) {
     /* Check if connection closed */
     if ((uint8_t*)(*pbuf) == (uint8_t*)&recv_closed) {
         *pbuf = NULL; /* Reset pbuf */
-        LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
-                     "[LWESP NETCONN] netcon_receive: Got object handle for close event\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_NETCONN | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING, "[LWESP NETCONN] "
+                                                                                           "netcon_receive: Got object "
+                                                                                           "handle for close "
+                                                                                           "event\r\n");
         return lwespCLOSED;
     }
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE

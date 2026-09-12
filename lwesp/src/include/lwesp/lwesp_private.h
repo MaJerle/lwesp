@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -507,12 +507,12 @@ typedef struct lwesp_msg {
         } web_server;          /*!< Web Server configuration */
 #endif                         /* LWESP_CFG_WEBSERVER || __DOXYGEN__ */
         struct {
-            uint8_t link_id;   /*!< Link ID of connection to set SSL configuration for */
-            uint8_t auth_mode; /*!< Timezone setup */
-            uint8_t
-                pki_number; /*!< The index of cert and private key, if only one cert and private key, the value should be 0. */
-            uint8_t ca_number; /*!< The index of CA, if only one CA, the value should be 0. */
-        } tcpip_ssl_cfg;       /*!< SSl configuration for connection */
+            uint8_t link_id;    /*!< Link ID of connection to set SSL configuration for */
+            uint8_t auth_mode;  /*!< Timezone setup */
+            uint8_t pki_number; /*!< The index of cert and private key, if only one cert and private key, the value
+                                   should be 0. */
+            uint8_t ca_number;  /*!< The index of CA, if only one CA, the value should be 0. */
+        } tcpip_ssl_cfg;        /*!< SSl configuration for connection */
 
 #if LWESP_CFG_FLASH
         struct {
@@ -620,8 +620,8 @@ typedef struct {
     lwesp_sw_version_t version_at;  /*!< Version of AT command software on ESP device */
     lwesp_sw_version_t version_sdk; /*!< Version of SDK used to build AT software */
 
-    uint32_t
-        active_conns; /*!< Bit field of currently active connections, @todo: In case user has more than 32 connections, single variable is not enough */
+    uint32_t active_conns;      /*!< Bit field of currently active connections, @todo: In case user has more than 32
+                                   connections, single variable is not enough */
     uint32_t active_conns_last; /*!< The same as previous but status before last check */
 
     lwesp_link_conn_t link_conn;             /*!< Link connection handle */
@@ -679,7 +679,7 @@ typedef struct {
 
 /**
  * \brief           Physical device descriptor data
- * 
+ *
  * This is used for library internal reasons
  */
 typedef struct {
@@ -794,8 +794,8 @@ void lwespi_conn_init(void);
 void lwespi_conn_start_timeout(lwesp_conn_p conn);
 lwespr_t lwespi_conn_check_available_rx_data(void);
 lwespr_t lwespi_conn_manual_tcp_try_read_data(lwesp_conn_p conn);
-lwespr_t lwespi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_msg_t*),
-                                          uint32_t max_block_time);
+lwespr_t
+lwespi_send_msg_to_producer_mbox(lwesp_msg_t* msg, lwespr_t (*process_fn)(lwesp_msg_t*), uint32_t max_block_time);
 uint32_t lwespi_get_from_mbox_with_timeout_checks(lwesp_sys_mbox_t* b, void** m, uint32_t timeout);
 
 void lwespi_reset_everything(uint8_t forced);

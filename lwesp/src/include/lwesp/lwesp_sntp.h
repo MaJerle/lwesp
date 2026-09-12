@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -55,8 +55,8 @@ lwespr_t lwesp_sntp_set_interval(uint32_t interval, const lwesp_api_cmd_evt_fn e
                                  const uint32_t blocking);
 lwespr_t lwesp_sntp_get_interval(uint32_t* interval, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
                                  const uint32_t blocking);
-lwespr_t lwesp_sntp_gettime(struct tm* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg,
-                            const uint32_t blocking);
+lwespr_t
+lwesp_sntp_gettime(struct tm* dt, const lwesp_api_cmd_evt_fn evt_fn, void* const evt_arg, const uint32_t blocking);
 
 /**
  * \}

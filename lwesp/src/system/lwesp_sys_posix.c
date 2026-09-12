@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -190,9 +190,9 @@ lwesp_sys_sem_create(lwesp_sys_sem_t* p, uint8_t cnt) {
     }
 
     /* sem_init returns 0 on success
-    * This function assumes a binary semaphore
-    * should be created in some ports.
-    */
+     * This function assumes a binary semaphore
+     * should be created in some ports.
+     */
     if (sem_init(*p, 0, !!cnt) != 0) {
         free(*p);
         return 0;

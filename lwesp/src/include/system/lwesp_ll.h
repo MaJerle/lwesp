@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -53,7 +53,8 @@ extern "C" {
  *                  It is important that every configuration except AT baudrate is configured only once!
  *
  * \note            This function may be called from different threads in ESP stack when using OS.
- *                  When \ref LWESP_CFG_INPUT_USE_PROCESS is set to `1`, this function may be called from user UART thread.
+ *                  When \ref LWESP_CFG_INPUT_USE_PROCESS is set to `1`, this function may be called from user UART
+ * thread.
  *
  * \param[in,out]   ll: Pointer to \ref lwesp_ll_t structure to fill data for communication functions
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -173,7 +173,8 @@ lwespi_conn_check_available_rx_data(void) {
 
 /**
  * \brief           Send data on already active connection of type UDP to specific remote IP and port
- * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP too)
+ * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP
+ * too)
  * \param[in]       conn: Pointer to connection to send data
  * \param[in]       ip: Remote IP address for UDP connection
  * \param[in]       port: Remote port connection
@@ -379,7 +380,8 @@ lwesp_conn_close(lwesp_conn_p conn, const uint32_t blocking) {
 
 /**
  * \brief           Send data on active connection of type UDP to specific remote IP and port
- * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP too)
+ * \note            In case IP and port values are not set, it will behave as normal send function (suitable for TCP
+ * too)
  * \param[in]       conn: Connection handle to send data
  * \param[in]       ip: Remote IP address for UDP connection
  * \param[in]       port: Remote port connection
@@ -404,7 +406,8 @@ lwesp_conn_sendto(lwesp_conn_p conn, const lwesp_ip_t* const ip, lwesp_port_t po
  * \param[in]       data: Data to send
  * \param[in]       btw: Number of bytes to send
  * \param[out]      bw: Pointer to output variable to save number of sent data when successfully sent.
- *                      Parameter value might not be accurate if you combine \ref lwesp_conn_write and \ref lwesp_conn_send functions
+ *                      Parameter value might not be accurate if you combine \ref lwesp_conn_write and \ref
+ * lwesp_conn_send functions
  * \param[in]       blocking: Status whether command should be blocking or not
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise
  */
@@ -805,14 +808,15 @@ lwesp_conn_get_local_port(lwesp_conn_p conn) {
 
 /**
  * \brief           Configure SSL parameters
- * \param[in]       link_id: ID of the connection (0~max), for multiple connections, if the value is max, it means all connections.
- *                      By default, max is \ref LWESP_CFG_MAX_CONNS.
+ * \param[in]       link_id: ID of the connection (0~max), for multiple connections, if the value is max, it means all
+ * connections. By default, max is \ref LWESP_CFG_MAX_CONNS.
  * \param[in]       auth_mode: Authentication mode
  *                      `0`: no authorization
  *                      `1`: load cert and private key for server authorization
  *                      `2`: load CA for client authorize server cert and private key
  *                      `3`: both authorization
- * \param[in]       pki_number:  The index of cert and private key, if only one cert and private key, the value should be `0`.
+ * \param[in]       pki_number:  The index of cert and private key, if only one cert and private key, the value should
+ * be `0`.
  * \param[in]       ca_number: The index of CA, if only one CA, the value should be 0.
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function

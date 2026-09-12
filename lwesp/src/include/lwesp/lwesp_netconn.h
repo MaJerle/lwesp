@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -67,9 +67,9 @@ typedef struct lwesp_netconn* lwesp_netconn_p;
  * \brief           Netconn connection type
  */
 typedef enum {
-    LWESP_NETCONN_TYPE_TCP = LWESP_CONN_TYPE_TCP,     /*!< TCP connection */
-    LWESP_NETCONN_TYPE_SSL = LWESP_CONN_TYPE_SSL,     /*!< SSL connection */
-    LWESP_NETCONN_TYPE_UDP = LWESP_CONN_TYPE_UDP,     /*!< UDP connection */
+    LWESP_NETCONN_TYPE_TCP = LWESP_CONN_TYPE_TCP, /*!< TCP connection */
+    LWESP_NETCONN_TYPE_SSL = LWESP_CONN_TYPE_SSL, /*!< SSL connection */
+    LWESP_NETCONN_TYPE_UDP = LWESP_CONN_TYPE_UDP, /*!< UDP connection */
 #if LWESP_CFG_IPV6 || __DOXYGEN__
     LWESP_NETCONN_TYPE_TCPV6 = LWESP_CONN_TYPE_TCPV6, /*!< TCP connection over IPv6 */
     LWESP_NETCONN_TYPE_SSLV6 = LWESP_CONN_TYPE_SSLV6, /*!< SSL connection over IPv6 */
@@ -103,8 +103,8 @@ lwespr_t lwesp_netconn_flush(lwesp_netconn_p nc);
 
 /* UDP only */
 lwespr_t lwesp_netconn_send(lwesp_netconn_p nc, const void* data, size_t btw);
-lwespr_t lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_port_t port, const void* data,
-                              size_t btw);
+lwespr_t
+lwesp_netconn_sendto(lwesp_netconn_p nc, const lwesp_ip_t* ip, lwesp_port_t port, const void* data, size_t btw);
 
 /**
  * \}

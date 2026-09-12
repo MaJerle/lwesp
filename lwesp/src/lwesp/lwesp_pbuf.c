@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -96,7 +96,7 @@ lwesp_pbuf_new(size_t len) {
  *                  It is advised to immediately set pointer to `NULL` or to call.
  *                  Alternatively, call \ref lwesp_pbuf_free_s, which will reset the pointer
  *                  after free operation has been completed
- *                  
+ *
  * \param[in]       pbuf: Packet buffer to free
  * \return          Number of freed pbufs from head
  * \sa              lwesp_pbuf_free_s
@@ -136,7 +136,7 @@ lwesp_pbuf_free(lwesp_pbuf_p pbuf) {
  * \brief           Free previously allocated packet buffer in safe way.
  *                  Function accepts pointer to pointer and will set the pointer to `NULL`
  *                  after the successful allocation
- * 
+ *
  * \param[in,out]   pbuf_ptr: Pointer to pointer to packet buffer
  * \return          Number of packet buffers freed in the chain
  */
@@ -157,8 +157,8 @@ lwesp_pbuf_free_s(lwesp_pbuf_p* pbuf_ptr) {
  * \brief           Concatenate `2` packet buffers together to one big packet
  * \note            After `tail` pbuf has been added to `head` pbuf chain,
  *                  it must not be referenced by user anymore as it is now completely controlled by `head` pbuf.
- *                  In simple words, when user calls this function, it should not call \ref lwesp_pbuf_free function anymore,
- *                  as it might make memory undefined for `head` pbuf.
+ *                  In simple words, when user calls this function, it should not call \ref lwesp_pbuf_free function
+ * anymore, as it might make memory undefined for `head` pbuf.
  * \param[in]       head: Head packet buffer to append new pbuf to
  * \param[in]       tail: Tail packet buffer to append to head pbuf
  * \return          \ref lwespOK on success, member of \ref lwespr_t enumeration otherwise

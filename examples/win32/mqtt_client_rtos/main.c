@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,10 +31,10 @@
  * Before you start using WIN32 implementation with USB and VCP,
  * check lwesp_ll_win32.c implementation and choose your COM port!
  */
-#include "lwesp/lwesp.h"
-#include "station_manager.h"
-#include "mqtt_client.h"
 #include "examples_common_lwesp_callback_func.h"
+#include "lwesp/lwesp.h"
+#include "mqtt_client.h"
+#include "station_manager.h"
 
 /**
  * \brief           Program entry point
@@ -60,7 +60,8 @@ main(void) {
     station_manager_connect_to_preferred_access_point(1);
 
     /* Start a new thread for MQTT client */
-    lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO);
+    lwesp_sys_thread_create(NULL, "mqtt_client", (lwesp_sys_thread_fn)mqtt_client_thread, NULL, LWESP_SYS_THREAD_SS,
+                            LWESP_SYS_THREAD_PRIO);
 
     while (1) {
         lwesp_delay(1000);

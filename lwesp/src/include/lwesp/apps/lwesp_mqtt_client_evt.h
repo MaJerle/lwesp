@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -240,12 +240,12 @@ extern "C" {
 #define lwesp_mqtt_client_evt_publish_get_argument(client, evt)         ((void*)(evt)->evt.publish.arg)
 
 /**
-* \brief           Get result of publish event
-* \param[in]       client: MQTT client
-* \param[in]       evt: Event handle
-* \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
-* \hideinitializer
-*/
+ * \brief           Get result of publish event
+ * \param[in]       client: MQTT client
+ * \param[in]       evt: Event handle
+ * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
+ * \hideinitializer
+ */
 #define lwesp_mqtt_client_evt_publish_get_result(client, evt)           ((lwespr_t)(evt)->evt.publish.res)
 
 /**

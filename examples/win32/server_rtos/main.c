@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,10 +31,10 @@
  * Before you start using WIN32 implementation with USB and VCP,
  * check lwesp_ll_win32.c implementation and choose your COM port!
  */
-#include "lwesp/lwesp.h"
-#include "station_manager.h"
-#include "netconn_client.h"
 #include "examples_common_lwesp_callback_func.h"
+#include "lwesp/lwesp.h"
+#include "netconn_client.h"
+#include "station_manager.h"
 
 /* Callback for server operations */
 static lwespr_t lwesp_server_callback_func(lwesp_evt_t* evt);
@@ -85,23 +85,23 @@ static lwespr_t
 lwesp_server_callback_func(lwesp_evt_t* evt) {
     lwesp_conn_p conn;
 
-    conn = lwesp_conn_get_from_evt(evt);          /* Get connection handle from event */
+    conn = lwesp_conn_get_from_evt(evt); /* Get connection handle from event */
     switch (lwesp_evt_get_type(evt)) {
-        case LWESP_EVT_CONN_ACTIVE: {             /* Connection just active */
+        case LWESP_EVT_CONN_ACTIVE: { /* Connection just active */
             printf("Connection %d active as server!\r\n", (int)lwesp_conn_getnum(conn));
             break;
         }
-        case LWESP_EVT_CONN_RECV: {               /* Connection data received */
+        case LWESP_EVT_CONN_RECV: { /* Connection data received */
             lwesp_pbuf_p p;
-            p = lwesp_evt_conn_recv_get_buff(evt);/* Get received buffer */
+            p = lwesp_evt_conn_recv_get_buff(evt); /* Get received buffer */
             if (p != NULL) {
-                printf("Server connection %d data received with %d bytes\r\n",
-                    (int)lwesp_conn_getnum(conn), (int)lwesp_pbuf_length(p, 1));
+                printf("Server connection %d data received with %d bytes\r\n", (int)lwesp_conn_getnum(conn),
+                       (int)lwesp_pbuf_length(p, 1));
             }
-            lwesp_conn_close(conn, 0);            /* Close connection */
+            lwesp_conn_close(conn, 0); /* Close connection */
             break;
         }
-        case LWESP_EVT_CONN_CLOSE: {              /* Connection closed */
+        case LWESP_EVT_CONN_CLOSE: { /* Connection closed */
             printf("Server connection %d closed!\r\n", (int)lwesp_conn_getnum(conn));
             break;
         }

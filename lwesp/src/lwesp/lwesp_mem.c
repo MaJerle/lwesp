@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -94,10 +94,9 @@ mem_insertfreeblock(mem_block_t* nb) {
         if (ptr->next == end_block) { /* Does it points to the end? */
             nb->next = end_block;     /* Set end block pointer */
         } else {
-            nb->size +=
-                ptr->next
-                    ->size; /* Expand of current block for size of next free block which is right behind new block */
-            nb->next = ptr->next->next; /* Next free is pointed to the next one of previous next */
+            nb->size += ptr->next->size; /* Expand of current block for size of next free block which is right behind
+                                            new block */
+            nb->next = ptr->next->next;  /* Next free is pointed to the next one of previous next */
         }
     } else {
         nb->next = ptr->next; /* Our next element is now from pointer next element */
@@ -257,12 +256,11 @@ mem_alloc(size_t size) {
          * then split big block by 2 blocks (one used, second available)
          * There should be available memory for at least 2 metadata block size = 8 bytes of useful memory
          */
-        if ((curr->size - size)
-            > (2
-               * MEMBLOCK_METASIZE)) { /* There is more available memory then required = split memory to one free block */
-            next = (mem_block_t*)(((uint8_t*)curr) + size); /* Create next memory block which is still free */
-            next->size = curr->size - size;                 /* Set new block size for remaining of before and used */
-            curr->size = size;                              /* Set block size for used block */
+        if ((curr->size - size) > (2 * MEMBLOCK_METASIZE)) { /* There is more available memory then required = split
+                                                                memory to one free block */
+            next = (mem_block_t*)(((uint8_t*)curr) + size);  /* Create next memory block which is still free */
+            next->size = curr->size - size;                  /* Set new block size for remaining of before and used */
+            curr->size = size;                               /* Set block size for used block */
 
             /*
              * Add virtual block to list of free blocks.

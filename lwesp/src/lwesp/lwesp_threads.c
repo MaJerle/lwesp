@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -78,8 +78,8 @@ lwesp_thread_produce(void* const arg) {
          * if device present flag changes
          */
         if (!e->status.f.dev_present) {
-            LWESP_DEBUGF(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING,
-                         "[LWESP THREAD] Device is not present\r\n");
+            LWESP_DEBUGF(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_WARNING, "[LWESP THREAD] Device "
+                                                                                              "is not present\r\n");
             res = lwespERRNODEVICE;
         }
 
@@ -109,9 +109,9 @@ lwesp_thread_produce(void* const arg) {
             time = ~LWESP_SYS_TIMEOUT; /* Reset time */
             if (res == lwespOK) {      /* We have valid data and data were sent */
                 lwesp_core_unlock();
-                time = lwesp_sys_sem_wait(
-                    &e->sem_sync,
-                    msg->block_time); /* Second call; Wait for synchronization semaphore from processing thread or timeout */
+                time = lwesp_sys_sem_wait(&e->sem_sync, msg->block_time); /* Second call; Wait for synchronization
+                                                                             semaphore from processing thread or timeout
+                                                                           */
                 lwesp_core_lock();
                 if (time == LWESP_SYS_TIMEOUT) { /* Sync timeout occurred? */
                     res = lwespTIMEOUT;          /* Timeout on command */
@@ -123,9 +123,9 @@ lwesp_thread_produce(void* const arg) {
                 lwespi_send_cb(LWESP_EVT_CMD_TIMEOUT);
             }
 
-            LWESP_DEBUGW(
-                LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, res == lwespTIMEOUT,
-                "[LWESP THREAD] Timeout in produce thread waiting for command to finish in process thread\r\n");
+            LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, res == lwespTIMEOUT,
+                         "[LWESP THREAD] Timeout in produce thread waiting for command to finish in process "
+                         "thread\r\n");
             LWESP_DEBUGW(LWESP_CFG_DBG_THREAD | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
                          res != lwespOK && res != lwespTIMEOUT,
                          "[LWESP THREAD] Could not start execution for command %d\r\n", (int)msg->cmd);

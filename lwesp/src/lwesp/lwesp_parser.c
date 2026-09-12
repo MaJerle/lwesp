@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -154,7 +154,7 @@ lwespi_parse_string(const char** src, char* dst, size_t dst_len, uint8_t trim) {
 
 /**
  * \brief           Parses IP V6 only, w/o possibility to append IP v4 to it.
- * 
+ *
  * \param           ip_str_iterator: Pointer to pointer to string
  * \param           ip: IP structure
  * \return          `1` if IP well parsed, `0` otherwise
@@ -309,7 +309,7 @@ lwespi_parse_cipstatus_cipstate(const char* str) {
     esp.m.active_conns |= 1 << cn_num;  /* Set flag as active */
 
     /*
-     * If connection looks "alive" in the 
+     * If connection looks "alive" in the
      * cipstatus result, but not alive in internal
      * structure, then force connection close ASAP
      */
@@ -383,19 +383,20 @@ lwespi_parse_ipd(const char* str) {
      * +IPD,conn_num,bytes_in_packet:data                       : Data packet w/o remote ip/port,
      *                                                              as response on manual TCP read or if AT+CIPDINFO=0
      * +IPD,conn_num,bytes_in_packet,remote_ip,remote_port:data : Data packet w/ remote ip/port,
-     *                                                              as response on automatic read of all connection types
+     *                                                              as response on automatic read of all connection
+     * types
      */
     is_data_ipd = strchr(str, ':') != NULL; /* Check if we have ':' in string */
 
     if (0) {
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
         /*
-     * Check if +IPD is only notification and not actual data packet
-     * +IPD should always be only
-     * notification message and never include data.
-     * 
-     * Actual data read shall be done with different command
-     */
+         * Check if +IPD is only notification and not actual data packet
+         * +IPD should always be only
+         * notification message and never include data.
+         *
+         * Actual data read shall be done with different command
+         */
     } else if (!is_data_ipd) {        /* If not data packet */
         c->tcp_available_bytes = len; /* Set new value for number of bytes available to read from device */
 #endif                                /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
@@ -518,17 +519,19 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
     lwespi_parse_mac(&str, &msg->msg.ap_list.aps[msg->msg.ap_list.apsi].mac);
     msg->msg.ap_list.aps[msg->msg.ap_list.apsi].ch = (uint8_t)lwespi_parse_number(&str);
 #if LWESP_CFG_ACCESS_POINT_STRUCT_FULL_FIELDS
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_type = (uint8_t)lwespi_parse_number(&str); /* Scan type */
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_min =
-        (uint16_t)lwespi_parse_number(&str); /* Scan time minimum */
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_max =
-        (uint16_t)lwespi_parse_number(&str); /* Scan time maximum */
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_offset = (int16_t)lwespi_parse_number(&str); /* Freq offset */
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_cal = (int16_t)lwespi_parse_number(&str);    /* Freqcal value */
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].pairwise_cipher =
-        (lwesp_ap_cipher_t)lwespi_parse_number(&str); /* Pairwise cipher */
-    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].group_cipher =
-        (lwesp_ap_cipher_t)lwespi_parse_number(&str); /* Group cipher */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_type = (uint8_t)lwespi_parse_number(&str);      /* Scan type */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_min = (uint16_t)lwespi_parse_number(&str); /* Scan time
+                                                                                                        minimum */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].scan_time_max = (uint16_t)lwespi_parse_number(&str); /* Scan time
+                                                                                                        maximum */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_offset = (int16_t)lwespi_parse_number(&str);    /* Freq offset */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].freq_cal = (int16_t)lwespi_parse_number(&str);       /* Freqcal value */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].pairwise_cipher = (lwesp_ap_cipher_t)lwespi_parse_number(&str); /* Pairwise
+                                                                                                                   cipher
+                                                                                                                 */
+    msg->msg.ap_list.aps[msg->msg.ap_list.apsi].group_cipher = (lwesp_ap_cipher_t)lwespi_parse_number(&str);    /* Group
+                                                                                                                   cipher
+                                                                                                                 */
 #else
     /* Read and ignore values */
     lwespi_parse_number(&str);
@@ -558,8 +561,8 @@ lwespi_parse_cwlap(const char* str, lwesp_msg_t* msg) {
  */
 uint8_t
 lwespi_parse_cwjap(const char* str, lwesp_msg_t* msg) {
-    if (!CMD_IS_DEF(
-            LWESP_CMD_WIFI_CWJAP_GET)) { /* Do we have valid message here and enough memory to save everything? */
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWJAP_GET)) { /* Do we have valid message here and enough memory to save everything?
+                                                  */
         return 0;
     }
     if (*str == '+') { /* Does string contain '+' as first character */
@@ -652,8 +655,8 @@ lwespi_parse_ap_ip_sta(const char* str) {
  */
 uint8_t
 lwespi_parse_cwsap(const char* str, lwesp_msg_t* msg) {
-    if (!CMD_IS_DEF(
-            LWESP_CMD_WIFI_CWSAP_GET)) { /* Do we have valid message here and enough memory to save everything? */
+    if (!CMD_IS_DEF(LWESP_CMD_WIFI_CWSAP_GET)) { /* Do we have valid message here and enough memory to save everything?
+                                                  */
         return 0;
     }
     if (*str == '+') { /* Does string contain '+' as first character */

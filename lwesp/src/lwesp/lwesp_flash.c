@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -99,10 +99,10 @@ lwesp_flash_write(lwesp_flash_partition_t partition, uint32_t offset, const void
 
 /**
  * \brief           Write key-value pair into user MFG area.
- * 
+ *
  * \note            When writing into this section, no need to previously erase the data
  *                  System is smart enough to do this for us, if absolutely necessary
- * 
+ *
  * \param[in]       mfgns: User namespace option
  * \param[in]       key: Key to write
  * \param[in]       valtype: Value type to follow
@@ -162,10 +162,10 @@ lwesp_mfg_write(lwesp_mfg_namespace_t mfgns, const char* key, lwesp_mfg_valtype_
 
 /**
  * \brief           Read key-value pair into user MFG area.
- * 
+ *
  * \note            When writing into this section, no need to previously erase the data
  *                  System is smart enough to do this for us, if absolutely necessary
- * 
+ *
  * \param[in]       mfgns: User namespace option
  * \param[in]       key: Key to ead
  * \param[in]       data: Pointer to data to write received data to

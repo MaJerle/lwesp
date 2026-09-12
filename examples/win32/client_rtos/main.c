@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -31,11 +31,11 @@
  * Before you start using WIN32 implementation with USB and VCP,
  * check lwesp_ll_win32.c implementation and choose your COM port!
  */
-#include "lwesp/lwesp.h"
-#include "station_manager.h"
-#include "netconn_client.h"
 #include "client.h"
 #include "examples_common_lwesp_callback_func.h"
+#include "lwesp/lwesp.h"
+#include "netconn_client.h"
+#include "station_manager.h"
 
 /**
  * \brief           Program entry point

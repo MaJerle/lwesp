@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,10 +32,10 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "lwesp/lwesp.h"
-#include "station_manager.h"
-#include "netconn_client.h"
 #include "examples_common_lwesp_callback_func.h"
+#include "lwesp/lwesp.h"
+#include "netconn_client.h"
+#include "station_manager.h"
 
 static void LL_Init(void);
 void SystemClock_Config(void);
@@ -48,17 +48,15 @@ static void init_thread(void* arg);
  */
 int
 main(void) {
-    LL_Init();                                  /* Reset of all peripherals, initializes the Flash interface and the Systick. */
-    SystemClock_Config();                       /* Configure the system clock */
-    USART_Printf_Init();                        /* Init USART for printf */
+    LL_Init();            /* Reset of all peripherals, initializes the Flash interface and the Systick. */
+    SystemClock_Config(); /* Configure the system clock */
+    USART_Printf_Init();  /* Init USART for printf */
 
     printf("Application running on STM32L496G-Discovery!\r\n");
 
     /* Initialize, create first thread and start kernel */
     osKernelInitialize();
-    const osThreadAttr_t attr = {
-            .stack_size = 512
-    };
+    const osThreadAttr_t attr = {.stack_size = 512};
     osThreadNew(init_thread, NULL, &attr);
     osKernelStart();
 
@@ -199,8 +197,8 @@ USART_Printf_Init(void) {
     USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
     LL_USART_Init(USART2, &USART_InitStruct);
 
-    LL_USART_ConfigAsyncMode(USART2);           /* Configure USART in async mode */
-    LL_USART_Enable(USART2);                    /* Enable USART */
+    LL_USART_ConfigAsyncMode(USART2); /* Configure USART in async mode */
+    LL_USART_Enable(USART2);          /* Enable USART */
 }
 
 /**
@@ -210,9 +208,11 @@ USART_Printf_Init(void) {
  * \return          Written character
  */
 #ifdef __GNUC__
-int __io_putchar(int ch) {
+int
+__io_putchar(int ch) {
 #else
-int fputc(int ch, FILE* fil) {
+int
+fputc(int ch, FILE* fil) {
 #endif
     LL_USART_TransmitData8(USART2, (uint8_t)ch);
     while (!LL_USART_IsActiveFlag_TXE(USART2)) {}

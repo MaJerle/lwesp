@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -288,10 +288,10 @@
 
 /**
  * \brief           Minimal buffer in bytes for connection receive allocation.
- * 
+ *
  *                  Allocation will always start with (up to) \ref LWESP_CFG_CONN_MAX_DATA_LEN
  *                  and will continue with trial down to this setting up until allocating is successful.
- * 
+ *
  * \note            This feature is used together with \ref LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
  */
 #ifndef LWESP_CFG_CONN_MIN_DATA_LEN
@@ -312,12 +312,12 @@
 /**
  * \brief           Enables (`1`) or disabled (`1`) option to start connection event
  *                  if station does not have valid IP address (is not connected to another access point)
- * 
- * When enabled, starting a connection as a client can be successful even, if ESP-AT station isn't connected to another access point.
- * This feature is only used if ESP is in access point mode and another station connects to it.
- *  
+ *
+ * When enabled, starting a connection as a client can be successful even, if ESP-AT station isn't connected to another
+ * access point. This feature is only used if ESP is in access point mode and another station connects to it.
+ *
  * \note            Value is set to `0` to keep backward compatibility.
- * 
+ *
  */
 #ifndef LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP
 #define LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP 0
@@ -637,8 +637,8 @@
  * \brief           Enables `1` or disables `0` idle thread extensions feature of ThreadX
  *
  * When enabled, user must manually configure idle thread and setup additional thread handle extension fields.
- * By default ThreadX doesn't support self-thread cleanup when thread memory is dynamically allocated & thread terminated,
- * hence another thread is mandatory to do the cleanup process instead.
+ * By default ThreadX doesn't support self-thread cleanup when thread memory is dynamically allocated & thread
+ * terminated, hence another thread is mandatory to do the cleanup process instead.
  *
  * This configuration does not create idle-thread, rather only sets additional TX_THREAD fields,
  * indicating thread handle and thread stack are dynamically allocated.
@@ -781,13 +781,13 @@
 
 /**
  * \brief           Enables `1` or disables `0` automatic time read from the device when time gets updated
- * 
+ *
  * Latest version of ESP-AT, starting from `v3.0` supports, when enabled,
  * to receive `+TIME_UPDATED` notification, when ESP device got new time via SNTP protocol.
- * 
- * When this option is enabled, command will be send to 
+ *
+ * When this option is enabled, command will be send to
  * the ESP device requesting new time for each new `TIME UPDATED` event.
- * 
+ *
  * \note            \ref LWESP_CFG_SNTP shall be enabled and SNTP configured on ESP device
  */
 #ifndef LWESP_CFG_SNTP_AUTO_READ_TIME_ON_UPDATE
@@ -844,9 +844,9 @@
 
 /**
  * \brief           Enables `1` or disables `0` support for Bluetooth Low Energy
- * 
+ *
  * \note            This feature only works for some of Espressif devices,
- *                  that support AT BLE commands 
+ *                  that support AT BLE commands
  */
 #ifndef LWESP_CFG_BLE
 #define LWESP_CFG_BLE 0
@@ -854,9 +854,9 @@
 
 /**
  * \brief           Enables `1` or disables `0` support for Bluetooth Classic
- * 
+ *
  * \note            This feature only works for some of Espressif devices,
- *                  that support AT BT commands 
+ *                  that support AT BT commands
  */
 #ifndef LWESP_CFG_BT
 #define LWESP_CFG_BT 0

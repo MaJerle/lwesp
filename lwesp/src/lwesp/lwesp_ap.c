@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -143,7 +143,8 @@ lwesp_ap_setmac(const lwesp_mac_t* mac, const lwesp_api_cmd_evt_fn evt_fn, void*
  *
  * Configuration changes will be saved in the NVS area of ESP device.
  *
- * \note            Before you can configure access point, ESP device must be in AP mode. Check \ref lwesp_set_wifi_mode for more information
+ * \note            Before you can configure access point, ESP device must be in AP mode. Check \ref lwesp_set_wifi_mode
+ * for more information
  * \param[in]       ssid: SSID name of access point
  * \param[in]       pwd: Password for network. Either set it to `NULL` or less than `64` characters
  * \param[in]       ch: Wifi RF channel
@@ -183,7 +184,8 @@ lwesp_ap_set_config(const char* ssid, const char* pwd, uint8_t ch, lwesp_ecn_t e
 /**
  * \brief           Get configuration of Soft Access Point
  *
- * \note            Before you can get configuration access point, ESP device must be in AP mode. Check \ref lwesp_set_wifi_mode for more information
+ * \note            Before you can get configuration access point, ESP device must be in AP mode. Check \ref
+ * lwesp_set_wifi_mode for more information
  * \param[out]      ap_conf: soft access point configuration
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function

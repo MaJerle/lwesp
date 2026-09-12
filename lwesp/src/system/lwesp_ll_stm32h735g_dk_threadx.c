@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -106,7 +106,8 @@
 #define LWESP_USART_RX_PORT_CLK_EN     LL_AHB1_GRP1_EnableClock(LL_AHB4_GRP1_PERIPH_GPIOB)
 #define LWESP_USART_RX_PIN_AF          LL_GPIO_AF_4
 
-/* TX data buffers, must be 32-bytes aligned (cache) and in dma buffer section to make sure DMA has access to the memory region */
+/* TX data buffers, must be 32-bytes aligned (cache) and in dma buffer section to make sure DMA has access to the memory
+ * region */
 ALIGN_32BYTES(static uint8_t __attribute__((section(".dma_buffer"))) lwesp_tx_rb_data[2048]);
 static lwrb_t lwesp_tx_rb;
 volatile size_t lwesp_tx_len;
@@ -334,11 +335,11 @@ prv_configure_uart(uint32_t baudrate) {
 
         lwesp_is_running = 1;
     } else {
-        //tx_thread_sleep(10);
-        //LL_USART_Disable(LWESP_USART);
-        //usart_init.BaudRate = baudrate;
-        //LL_USART_Init(LWESP_USART, &usart_init);
-        //LL_USART_Enable(LWESP_USART);
+        // tx_thread_sleep(10);
+        // LL_USART_Disable(LWESP_USART);
+        // usart_init.BaudRate = baudrate;
+        // LL_USART_Init(LWESP_USART, &usart_init);
+        // LL_USART_Enable(LWESP_USART);
     }
 }
 
@@ -351,9 +352,9 @@ prv_configure_uart(uint32_t baudrate) {
 static uint8_t
 prv_reset_device(uint8_t state) {
     if (state) { /* Activate reset line */
-        //LL_GPIO_ResetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
+        // LL_GPIO_ResetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
     } else {
-        //LL_GPIO_SetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
+        // LL_GPIO_SetOutputPin(LWESP_RESET_PORT, LWESP_RESET_PIN);
     }
     return 1;
 }

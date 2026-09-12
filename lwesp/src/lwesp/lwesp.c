@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -103,20 +103,20 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     }
 
     if (!lwesp_sys_sem_create(&esp.sem_sync, 1)) { /* Create sync semaphore between threads */
-        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[LWESP CORE] Cannot create sync semaphore!\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[LWESP CORE] Cannot create "
+                                                                                       "sync semaphore!\r\n");
         goto cleanup;
     }
 
     /* Create message queues */
     if (!lwesp_sys_mbox_create(&esp.mbox_producer, LWESP_CFG_THREAD_PRODUCER_MBOX_SIZE)) { /* Producer */
-        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[LWESP CORE] Cannot create producer mbox queue!\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[LWESP CORE] Cannot create "
+                                                                                       "producer mbox queue!\r\n");
         goto cleanup;
     }
     if (!lwesp_sys_mbox_create(&esp.mbox_process, LWESP_CFG_THREAD_PROCESS_MBOX_SIZE)) { /* Process */
-        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[LWESP CORE] Cannot create process mbox queue!\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[LWESP CORE] Cannot create "
+                                                                                       "process mbox queue!\r\n");
         goto cleanup;
     }
 
@@ -129,16 +129,16 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
     lwesp_sys_sem_wait(&esp.sem_sync, 0); /* Lock semaphore */
     if (!lwesp_sys_thread_create(&esp.thread_produce, "lwesp_produce", lwesp_thread_produce, &esp.sem_sync,
                                  LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
-        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[LWESP CORE] Cannot create producing thread!\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[LWESP CORE] Cannot create "
+                                                                                       "producing thread!\r\n");
         lwesp_sys_sem_release(&esp.sem_sync); /* Release semaphore and return */
         goto cleanup;
     }
     lwesp_sys_sem_wait(&esp.sem_sync, 0); /* Wait semaphore, should be unlocked in process thread */
     if (!lwesp_sys_thread_create(&esp.thread_process, "lwesp_process", lwesp_thread_process, &esp.sem_sync,
                                  LWESP_SYS_THREAD_SS, LWESP_SYS_THREAD_PRIO)) {
-        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                     "[LWESP CORE] Cannot create processing thread!\r\n");
+        LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[LWESP CORE] Cannot create "
+                                                                                       "processing thread!\r\n");
         lwesp_sys_thread_terminate(&esp.thread_produce); /* Delete produce thread */
         lwesp_sys_sem_release(&esp.sem_sync);            /* Release semaphore and return */
         goto cleanup;
@@ -180,8 +180,8 @@ lwesp_init(lwesp_evt_fn evt_func, const uint32_t blocking) {
 #if LWESP_CFG_RESET_ON_INIT
     if (esp.status.f.dev_present) {
         lwesp_core_unlock();
-        res = lwesp_reset_with_delay(LWESP_CFG_RESET_DELAY_DEFAULT, NULL, NULL,
-                                     blocking); /* Send reset sequence with delay */
+        res = lwesp_reset_with_delay(LWESP_CFG_RESET_DELAY_DEFAULT, NULL, NULL, blocking); /* Send reset sequence with
+                                                                                              delay */
         lwesp_core_lock();
     }
 #endif                      /* LWESP_CFG_RESET_ON_INIT */
@@ -284,7 +284,8 @@ lwesp_set_wifi_mode(lwesp_mode_t mode, const lwesp_api_cmd_evt_fn evt_fn, void* 
 /**
  * \brief           Gets WiFi mode of either station only, access point only or both
  *
- * \param[in]       mode: point to space of Mode to get. This parameter can be a pointer of \ref lwesp_mode_t enumeration
+ * \param[in]       mode: point to space of Mode to get. This parameter can be a pointer of \ref lwesp_mode_t
+ * enumeration
  * \param[in]       evt_fn: Callback function called when command has finished. Set to `NULL` when not used
  * \param[in]       evt_arg: Custom argument for event callback function
  * \param[in]       blocking: Status whether command should be blocking or not
@@ -439,7 +440,8 @@ lwesp_device_is_present(void) {
 
 /**
  * \brief           Check if modem device is ESP8266
- * \note            Function is only available if \ref LWESP_CFG_ESP8266 is enabled, otherwise it is defined as macro and evaluated to `0`
+ * \note            Function is only available if \ref LWESP_CFG_ESP8266 is enabled, otherwise it is defined as macro
+ * and evaluated to `0`
  * \return          `1` on success, `0` otherwise
  * \deprecated      Use \ref lwesp_device_is_device instead
  */
@@ -454,7 +456,8 @@ lwesp_device_is_esp8266(void) {
 
 /**
  * \brief           Check if modem device is ESP32
- * \note            Function is only available if \ref LWESP_CFG_ESP32 is enabled, otherwise it is defined as macro and evaluated to `0`
+ * \note            Function is only available if \ref LWESP_CFG_ESP32 is enabled, otherwise it is defined as macro and
+ * evaluated to `0`
  * \return          `1` on success, `0` otherwise
  * \deprecated      Use \ref lwesp_device_is_device instead
  */
@@ -469,7 +472,8 @@ lwesp_device_is_esp32(void) {
 
 /**
  * \brief           Check if modem device is ESP32-C3
- * \note            Function is only available if \ref LWESP_CFG_ESP32_C3 is enabled, otherwise it is defined as macro and evaluated to `0`
+ * \note            Function is only available if \ref LWESP_CFG_ESP32_C3 is enabled, otherwise it is defined as macro
+ * and evaluated to `0`
  * \return          `1` on success, `0` otherwise
  * \deprecated      Use \ref lwesp_device_is_device instead
  */
@@ -496,7 +500,7 @@ lwesp_device_get_device(void) {
 /**
  * \brief           Checks if connected device to the AT host is the one
  *                  as requested as parameter check.
- * 
+ *
  * \param           device: Device type to check against
  * \return          `1` on success, `0` otherwise
  */

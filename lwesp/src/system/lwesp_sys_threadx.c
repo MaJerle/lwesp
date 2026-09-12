@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -76,7 +76,7 @@ static TX_MUTEX sys_mutex;
 
 /* Macros to convert from milliseconds to ticks and opposite */
 #define TICKS_TO_MS(ticks) ((ticks) * (1000 / TX_TIMER_TICKS_PER_SECOND))
-#define MS_TO_TICKS(ms)    ((ms)*TX_TIMER_TICKS_PER_SECOND / 1000)
+#define MS_TO_TICKS(ms)    ((ms) * TX_TIMER_TICKS_PER_SECOND / 1000)
 
 uint8_t
 lwesp_sys_init(void) {
@@ -257,7 +257,7 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_threa
     }
 
     /* Allocate thread stack */
-    if (tx_thread_create(t_handle, (CHAR*)name, (VOID(*)(ULONG))(thread_func), (ULONG)arg, stack_ptr, stack_size, prio,
+    if (tx_thread_create(t_handle, (CHAR*)name, (VOID (*)(ULONG))(thread_func), (ULONG)arg, stack_ptr, stack_size, prio,
                          0, TX_NO_TIME_SLICE, TX_AUTO_START)
         != TX_SUCCESS) {
         goto cleanup;
@@ -319,7 +319,7 @@ lwesp_sys_thread_create(lwesp_sys_thread_t* t, const char* name, lwesp_sys_threa
 
     void* stack_mem = lwesp_mem_malloc(stack_size);
     if (stack_mem != NULL) {
-        if (tx_thread_create(t, (CHAR*)name, (VOID(*)(ULONG))(thread_func), (ULONG)arg, stack_mem, stack_size, prio,
+        if (tx_thread_create(t, (CHAR*)name, (VOID (*)(ULONG))(thread_func), (ULONG)arg, stack_mem, stack_size, prio,
                              prio, TX_NO_TIME_SLICE, TX_AUTO_START)
             == TX_SUCCESS) {
             rt = 1;

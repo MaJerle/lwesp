@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -52,12 +52,12 @@ extern "C" {
  * \brief           Quality of service enumeration
  */
 typedef enum {
-    LWESP_MQTT_QOS_AT_MOST_ONCE =
-        0x00, /*!< Delivery is not guaranteed to arrive, but can arrive `up to 1 time` = non-critical packets where losses are allowed */
-    LWESP_MQTT_QOS_AT_LEAST_ONCE =
-        0x01, /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple times with the same content */
-    LWESP_MQTT_QOS_EXACTLY_ONCE =
-        0x02, /*!< Delivery is quaranteed `exactly once` = very critical packets such as billing informations or similar */
+    LWESP_MQTT_QOS_AT_MOST_ONCE = 0x00,  /*!< Delivery is not guaranteed to arrive, but can arrive `up to 1 time` =
+                                            non-critical packets where losses are allowed */
+    LWESP_MQTT_QOS_AT_LEAST_ONCE = 0x01, /*!< Delivery is quaranteed `at least once`, but it may be delivered multiple
+                                            times with the same content */
+    LWESP_MQTT_QOS_EXACTLY_ONCE = 0x02,  /*!< Delivery is quaranteed `exactly once` = very critical packets such as
+                                            billing informations or similar */
 } lwesp_mqtt_qos_t;
 
 struct lwesp_mqtt_client;
@@ -119,9 +119,10 @@ typedef enum {
     LWESP_MQTT_EVT_SUBSCRIBE,    /*!< MQTT client subscribed to specific topic */
     LWESP_MQTT_EVT_UNSUBSCRIBE,  /*!< MQTT client unsubscribed from specific topic */
     LWESP_MQTT_EVT_PUBLISH,      /*!< MQTT client publish message to server event.
-                                        \note   When publishing packet with quality of service \ref LWESP_MQTT_QOS_AT_MOST_ONCE,
-                                        you may not receive event, even if packet was successfully sent,
-                                        thus do not rely on this event for packet with `qos = LWESP_MQTT_QOS_AT_MOST_ONCE` */
+                                        \note   When publishing packet with quality of service \ref
+                                    LWESP_MQTT_QOS_AT_MOST_ONCE, you may not receive event, even if packet was successfully
+                                    sent, thus do not rely on this event for packet with `qos = LWESP_MQTT_QOS_AT_MOST_ONCE`
+                                  */
     LWESP_MQTT_EVT_PUBLISH_RECV, /*!< MQTT client received a publish message from server */
     LWESP_MQTT_EVT_DISCONNECT,   /*!< MQTT client disconnected from MQTT server */
     LWESP_MQTT_EVT_KEEP_ALIVE,   /*!< MQTT keep-alive event.

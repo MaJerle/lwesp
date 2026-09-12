@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -49,7 +49,8 @@ extern "C" {
 
 /**
  * \brief           Assert an input parameter if in valid range
- * \note            Since this is a macro, it may only be used on a functions where return status is of type \ref lwespr_t enumeration
+ * \note            Since this is a macro, it may only be used on a functions where return status is of type \ref
+ * lwespr_t enumeration
  * \param[in]       c: Condition to test
  */
 #define LWESP_ASSERT(c)                                                                                                \
@@ -63,7 +64,8 @@ extern "C" {
 
 /**
  * \brief           Assert an input parameter if in valid range, return 0 from function on failure
- * \note            Since this is a macro, it may only be used on a functions where return status is of type \ref lwespr_t enumeration
+ * \note            Since this is a macro, it may only be used on a functions where return status is of type \ref
+ * lwespr_t enumeration
  * \param[in]       c: Condition to test
  */
 #define LWESP_ASSERT0(c)                                                                                               \

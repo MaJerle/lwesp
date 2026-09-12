@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -231,10 +231,10 @@ static const lwesp_esp_device_desc_t esp_device_descriptors[] = {
     } while (0)
 
 /**
-* \brief           Send ping event to user
-* \param[in]       m: Command message
-* \param[in]       err: Error of type \ref lwespr_t
-*/
+ * \brief           Send ping event to user
+ * \param[in]       m: Command message
+ * \param[in]       err: Error of type \ref lwespr_t
+ */
 #define PING_SEND_EVT(m, err)                                                                                          \
     do {                                                                                                               \
         esp.evt.evt.ping.res = err;                                                                                    \
@@ -658,11 +658,11 @@ lwespi_tcpip_process_data_sent(uint8_t sent) {
             *esp.msg->msg.conn_send.bw += esp.msg->msg.conn_send.sent;
         }
         esp.msg->msg.conn_send.tries = 0;
-    } else {                            /* We were not successful */
-        ++esp.msg->msg.conn_send.tries; /* Increase number of tries */
-        if (esp.msg->msg.conn_send.tries
-            == LWESP_CFG_MAX_SEND_RETRIES) { /* In case we reached max number of retransmissions */
-            return 1;                        /* Return 1 and indicate error */
+    } else {                                                              /* We were not successful */
+        ++esp.msg->msg.conn_send.tries;                                   /* Increase number of tries */
+        if (esp.msg->msg.conn_send.tries == LWESP_CFG_MAX_SEND_RETRIES) { /* In case we reached max number of
+                                                                             retransmissions */
+            return 1;                                                     /* Return 1 and indicate error */
         }
     }
     if (esp.msg->msg.conn_send.btw > 0) {                  /* Do we still have data to send? */
@@ -721,8 +721,8 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
     /* Detect most common responses from device */
     stat.is_ok = !strcmp(rcv->data, "OK" CRLF); /* Check if received string is OK */
     if (!stat.is_ok) {
-        stat.is_error =
-            !strcmp(rcv->data, "ERROR" CRLF) || !strcmp(rcv->data, "FAIL" CRLF); /* Check if received string is error */
+        stat.is_error = !strcmp(rcv->data, "ERROR" CRLF) || !strcmp(rcv->data, "FAIL" CRLF); /* Check if received string
+                                                                                                is error */
         if (!stat.is_error) {
             stat.is_ready = !strcmp(rcv->data, "ready" CRLF); /* Check if received string is ready */
         }
@@ -832,11 +832,11 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                             } else {
                                 esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
                                 esp.msg->msg.conn_recv.conn->tcp_available_bytes = 0;
-                                LWESP_DEBUGF(
-                                    LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                    "[LWESP IPD] Connection %u, setting tcp_available_bytes to zero. Actual len "
-                                    "is less than it was requested to read\r\n",
-                                    (unsigned)esp.msg->msg.conn_recv.conn->num);
+                                LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
+                                             "[LWESP IPD] Connection %u, setting tcp_available_bytes to zero. Actual "
+                                             "len "
+                                             "is less than it was requested to read\r\n",
+                                             (unsigned)esp.msg->msg.conn_recv.conn->num);
                             }
                         }
                     } else {
@@ -1083,9 +1083,12 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             /* Compare versions, but only if device is well detected */
             if (ok) {
                 if (esp.m.version_at.version < min_version) {
-                    LWESP_DEBUGF(
-                        LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE,
-                        "[LWESP GMR] Minimum AT required is higher than the AT version running on the device\r\n");
+                    LWESP_DEBUGF(LWESP_CFG_DBG_INIT | LWESP_DBG_TYPE_TRACE | LWESP_DBG_LVL_SEVERE, "[LWESP GMR] "
+                                                                                                   "Minimum AT "
+                                                                                                   "required is higher "
+                                                                                                   "than the AT "
+                                                                                                   "version running on "
+                                                                                                   "the device\r\n");
                     ok = 0;
                 }
             }
@@ -1100,7 +1103,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 #endif /* LWESP_CFG_MODE_STATION */
     }
 
-    /* 
+    /*
      * Process other received data, which may or may not
      * start with the `+` sign -> command specific
      */
@@ -1111,8 +1114,9 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
             if (strncmp(&rcv->data[9], "0x01090000", 10) == 0) {
                 esp.msg->res_err_code = lwespERRCMDNOTSUPPORTED;
             }
-        } else if ((CMD_IS_CUR(LWESP_CMD_RESET) || CMD_IS_CUR(LWESP_CMD_RESTORE))
-                   && stat.is_ok) {                            /* Check for reset/restore command */
+        } else if ((CMD_IS_CUR(LWESP_CMD_RESET) || CMD_IS_CUR(LWESP_CMD_RESTORE)) && stat.is_ok) { /* Check for
+                                                                                                      reset/restore
+                                                                                                      command */
             stat.is_ok = 0;                                    /* We must wait for "ready", not only "OK" */
             esp.ll.uart.baudrate = LWESP_CFG_AT_PORT_BAUDRATE; /* Save user baudrate */
             lwesp_ll_init(&esp.ll);                            /* Set new baudrate */
@@ -1121,9 +1125,9 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
 
             if (0
 #if LWESP_CFG_ESP8266 || LWESP_CFG_ESP32
-                || (!strncmp(rcv->data, "+CIPSTATUS", 10)
-                    && (offset = 11) > 0) /* This is to check string and get offset in one shot */
-#endif                                    /* LWESP_CFG_ESP8266 || LWESP_CFG_ESP32 */
+                || (!strncmp(rcv->data, "+CIPSTATUS", 10) && (offset = 11) > 0) /* This is to check string and get
+                                                                                   offset in one shot */
+#endif /* LWESP_CFG_ESP8266 || LWESP_CFG_ESP32 */
                 || (!strncmp(rcv->data, "+CIPSTATE", 9) && (offset = 10) > 0)) {
                 lwespi_parse_cipstatus_cipstate(rcv->data + offset); /* Parse +CIPSTATUS or +CIPSTATE response */
             } else if (stat.is_ok) {
@@ -1230,17 +1234,17 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 } else {                             /* Server connection start */
                     conn->evt_func = esp.evt_server; /* Set server default callback */
                     conn->arg = NULL;
-                    conn->type =
-                        LWESP_CONN_TYPE_TCP; /* Set connection type to TCP. @todo: Wait for ESP team to upgrade AT commands to set other type */
+                    conn->type = LWESP_CONN_TYPE_TCP; /* Set connection type to TCP. @todo: Wait for ESP team to upgrade
+                                                         AT commands to set other type */
                 }
 
                 esp.evt.type = LWESP_EVT_CONN_ACTIVE;                         /* Connection just active */
                 esp.evt.evt.conn_active_close.conn = conn;                    /* Set connection */
                 esp.evt.evt.conn_active_close.client = conn->status.f.client; /* Set if it is client or not */
-                esp.evt.evt.conn_active_close.forced =
-                    conn->status.f.client;       /* Set if action was forced = if client mode */
-                lwespi_send_conn_cb(conn, NULL); /* Send event */
-                lwespi_conn_start_timeout(conn); /* Start connection timeout timer */
+                esp.evt.evt.conn_active_close.forced = conn->status.f.client; /* Set if action was forced = if client
+                                                                                 mode */
+                lwespi_send_conn_cb(conn, NULL);                              /* Send event */
+                lwespi_conn_start_timeout(conn);                              /* Start connection timeout timer */
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
                 lwespi_conn_check_available_rx_data();
 #endif /* LWESP_CFG_CONN_MANUAL_TCP_RECEIVE */
@@ -1266,8 +1270,9 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 esp.evt.type = LWESP_EVT_CONN_CLOSE;
                 esp.evt.evt.conn_active_close.conn = conn;
                 esp.evt.evt.conn_active_close.client = conn->status.f.client; /* Set if it is client or not */
-                esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(
-                    LWESP_CMD_TCPIP_CIPCLOSE); /* Set if action was forced = current action = close connection */
+                esp.evt.evt.conn_active_close.forced = CMD_IS_CUR(LWESP_CMD_TCPIP_CIPCLOSE); /* Set if action was forced
+                                                                                                = current action = close
+                                                                                                connection */
                 esp.evt.evt.conn_active_close.res = lwespOK;
                 lwespi_send_conn_cb(conn, NULL); /* Send event */
 
@@ -1278,7 +1283,7 @@ lwespi_parse_received(lwesp_recv_t* rcv) {
                 if (CMD_IS_CUR(LWESP_CMD_TCPIP_CIPSEND)) {
                     if (esp.msg->msg.conn_send.conn == conn) {
                         /** \todo: Find better idea to handle what to do in this case */
-                        //is_error = 1;         /* Set as error to stop processing or waiting for connection */
+                        // is_error = 1;         /* Set as error to stop processing or waiting for connection */
                     }
                 }
             }
@@ -1398,7 +1403,7 @@ lwespi_process(const void* data, size_t data_len) {
         /*
          * This is auto read for UDP connections,
          * or if random connection sends data out w/o manual request!
-         * 
+         *
          * It is critual to support automatic mode too
          */
         if (esp.m.ipd.read) {
@@ -1455,8 +1460,8 @@ lwespi_process(const void* data, size_t data_len) {
                     lwesp_pbuf_free(esp.m.ipd.buff); /* Free packet buffer at this point */
                     LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE, "[LWESP IPD] Free packet buffer\r\n");
                     if (res == lwespOKIGNOREMORE) { /* We should ignore more data */
-                        LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
-                                     "[LWESP IPD] Ignoring more data from this IPD if available\r\n");
+                        LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE, "[LWESP IPD] Ignoring more data from "
+                                                                               "this IPD if available\r\n");
                         esp.m.ipd.buff = NULL; /* Set to NULL to ignore more data if possibly available */
                     }
 
@@ -1467,8 +1472,9 @@ lwespi_process(const void* data, size_t data_len) {
                      *  - Connection is not in closing state
                      */
                     if (esp.m.ipd.buff != NULL && esp.m.ipd.rem_len > 0 && !esp.m.ipd.conn->status.f.in_closing) {
-                        size_t new_len = LWESP_MIN(esp.m.ipd.rem_len,
-                                                   LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE); /* Calculate new buffer length */
+                        size_t new_len = LWESP_MIN(esp.m.ipd.rem_len, LWESP_CFG_CONN_MAX_RECV_BUFF_SIZE); /* Calculate
+                                                                                                             new buffer
+                                                                                                             length */
 
                         LWESP_DEBUGF(LWESP_CFG_DBG_IPD | LWESP_DBG_TYPE_TRACE,
                                      "[LWESP IPD] Allocating new packet buffer of size: %d bytes\r\n", (int)new_len);
@@ -1479,8 +1485,8 @@ lwespi_process(const void* data, size_t data_len) {
                                      (int)new_len);
 
                         if (esp.m.ipd.buff != NULL) {
-                            lwesp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip,
-                                              esp.m.ipd.port); /* Set IP and port for received data */
+                            lwesp_pbuf_set_ip(esp.m.ipd.buff, &esp.m.ipd.ip, esp.m.ipd.port); /* Set IP and port for
+                                                                                                 received data */
                         }
                     } else {
                         esp.m.ipd.buff = NULL; /* Reset it */
@@ -1637,7 +1643,7 @@ lwespi_process(const void* data, size_t data_len) {
                         /*
                          * This part handles the response of "+CIPRECVDATA",
                          * that does not end with CRLF, rather string continues with user data.
-                         * 
+                         *
                          * We cannot rely on line processing.
                          *
                          * +CIPRECVDATA:<len>,<IP>,<port>,data...
@@ -1801,7 +1807,8 @@ lwespi_get_reset_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
  * \brief           Process current command with known execution status and start another if necessary
  * \param[in]       msg: Pointer to current message
  * \param[in]       stat: Pointer to status flags
- * \return          lwespCONT if you sent more data and we need to process more data, or lwespOK on success, or lwespERR on error
+ * \return          lwespCONT if you sent more data and we need to process more data, or lwespOK on success, or lwespERR
+ * on error
  */
 static lwespr_t
 lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
@@ -1938,8 +1945,8 @@ lwespi_process_sub_cmd(lwesp_msg_t* msg, lwesp_status_flags_t* stat) {
             esp.evt.evt.conn_active_close.conn = msg->msg.conn_close.conn;
             esp.evt.evt.conn_active_close.forced = 1;
             esp.evt.evt.conn_active_close.res = lwespERR;
-            esp.evt.evt.conn_active_close.client =
-                msg->msg.conn_close.conn->status.f.active && msg->msg.conn_close.conn->status.f.client;
+            esp.evt.evt.conn_active_close.client = msg->msg.conn_close.conn->status.f.active
+                                                   && msg->msg.conn_close.conn->status.f.client;
             lwespi_send_conn_cb(msg->msg.conn_close.conn, NULL);
         }
 #if LWESP_CFG_CONN_MANUAL_TCP_RECEIVE
@@ -2123,8 +2130,9 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             if (msg->msg.flash_erase.partition < LWESP_FLASH_PARTITION_END) {
                 lwespi_send_string(flash_partitions[(size_t)msg->msg.flash_erase.partition], 0, 1, 1);
             } else {
-                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                             "[SYS FLASH] Unsupported partition!\r\n");
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[SYS FLASH] "
+                                                                                                 "Unsupported "
+                                                                                                 "partition!\r\n");
                 return lwespERR; /* Hard error! */
             }
             if (msg->msg.flash_erase.offset > 0 || msg->msg.flash_erase.length > 0) {
@@ -2142,8 +2150,9 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             if (msg->msg.flash_write.partition < LWESP_FLASH_PARTITION_END) {
                 lwespi_send_string(flash_partitions[(size_t)msg->msg.flash_write.partition], 0, 1, 1);
             } else {
-                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                             "[SYS FLASH] Unsupported partition!\r\n");
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[SYS FLASH] "
+                                                                                                 "Unsupported "
+                                                                                                 "partition!\r\n");
                 return lwespERR; /* Hard error! */
             }
             lwespi_send_number(LWESP_U32(msg->msg.flash_write.offset), 0, 1);
@@ -2163,8 +2172,9 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             if (msg->msg.mfg_write.namespace < LWESP_MFG_NAMESPACE_END) {
                 lwespi_send_string(mfg_namespaces[(size_t)msg->msg.mfg_write.namespace], 0, 1, 1);
             } else {
-                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                             "[SYS MFG] Unsupported namespace!\r\n");
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[SYS MFG] "
+                                                                                                 "Unsupported "
+                                                                                                 "namespace!\r\n");
                 return lwespERR; /* Hard error! */
             }
             lwespi_send_string(msg->msg.mfg_write.key, 0, 1, 1);
@@ -2190,8 +2200,11 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
                         lwespi_send_number(LWESP_U32(msg->msg.mfg_write.data_prim.i32), 0, 1);
                         break;
                     default:
-                        LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                                     "[SYS MFG] Unsupported primitive value type!\r\n");
+                        LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[SYS MFG] "
+                                                                                                         "Unsupported "
+                                                                                                         "primitive "
+                                                                                                         "value "
+                                                                                                         "type!\r\n");
                 }
             } else {
                 /* Send length, data is sent later */
@@ -2206,8 +2219,9 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
             if (msg->msg.mfg_read.namespace < LWESP_MFG_NAMESPACE_END) {
                 lwespi_send_string(mfg_namespaces[(size_t)msg->msg.mfg_read.namespace], 0, 1, 1);
             } else {
-                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE,
-                             "[SYS MFG] Unsupported namespace!\r\n");
+                LWESP_DEBUGF(LWESP_CFG_DBG_ASSERT | LWESP_DBG_LVL_SEVERE | LWESP_DBG_TYPE_TRACE, "[SYS MFG] "
+                                                                                                 "Unsupported "
+                                                                                                 "namespace!\r\n");
                 return lwespERR; /* Hard error! */
             }
             lwespi_send_string(msg->msg.mfg_read.key, 1, 1, 1);
@@ -2592,7 +2606,7 @@ lwespi_initiate_cmd(lwesp_msg_t* msg) {
         case LWESP_CMD_TCPIP_CIPSTART: {
             const char* conn_type_str;
 #if LWESP_CFG_CONN_ALLOW_START_STATION_NO_IP
-            /* 
+            /*
              * Do not check IP status if starting a connection is allowed
              * without being connected to access point.
              * This allows ESP to act as a access point and get connected another station to it.
@@ -3027,9 +3041,9 @@ lwespi_process_events_for_timeout_or_error(lwesp_msg_t* msg, lwespr_t err) {
 
 /**
  * \brief           Get internal ESP device descriptor information
- * 
+ *
  * \param           device: Required device ID
- * \return          Pointer to device descriptor, or NULL if not device available 
+ * \return          Pointer to device descriptor, or NULL if not device available
  */
 const lwesp_esp_device_desc_t*
 lwespi_get_device_desc_for_device(lwesp_device_t device) {

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -84,8 +84,8 @@ lwespr_t lwesp_mqtt_client_api_unsubscribe(lwesp_mqtt_client_api_p client, const
 lwespr_t lwesp_mqtt_client_api_publish(lwesp_mqtt_client_api_p client, const char* topic, const void* data, size_t btw,
                                        lwesp_mqtt_qos_t qos, uint8_t retain);
 uint8_t lwesp_mqtt_client_api_is_connected(lwesp_mqtt_client_api_p client);
-lwespr_t lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p,
-                                       uint32_t timeout);
+lwespr_t
+lwesp_mqtt_client_api_receive(lwesp_mqtt_client_api_p client, lwesp_mqtt_client_api_buf_p* p, uint32_t timeout);
 void lwesp_mqtt_client_api_buf_free(lwesp_mqtt_client_api_buf_p p);
 
 /**

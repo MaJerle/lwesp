@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -70,7 +70,7 @@ lwesp_sntp_set_config(uint8_t en, int16_t tz, const char* h1, const char* h2, co
 /**
  * \brief           Get current SNTP configuration.
  * \todo            Parse response for hostnames, which is not done at the moment
- * 
+ *
  * \param[in]       en: Pointer to status variable
  * \param[in]       tz: Pointer to timezone
  * \param[in]       h1: Optional first SNTP server for time. Set to `NULL` if not used,

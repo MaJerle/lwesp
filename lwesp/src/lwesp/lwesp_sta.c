@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -110,7 +110,8 @@ lwesp_sta_autojoin(uint8_t en, const lwesp_api_cmd_evt_fn evt_fn, void* const ev
 
 /**
  * \brief           Set reconnect interval and maximum tries when connection drops
- * \param[in]       interval: Interval in units of seconds. Valid numbers are `1-7200` or `0` to disable reconnect feature
+ * \param[in]       interval: Interval in units of seconds. Valid numbers are `1-7200` or `0` to disable reconnect
+ * feature
  * \param[in]       rep_cnt: Repeat counter. Number of maximum tries for reconnect.
  *                      Valid entries are `1-1000` or `0` to always try.
  *                      This parameter is only valid if interval is not `0`
@@ -340,8 +341,8 @@ lwesp_sta_is_joined(void) {
 lwespr_t
 lwesp_sta_copy_ip(lwesp_ip_t* ip, lwesp_ip_t* gw, lwesp_ip_t* nm, uint8_t* is_dhcp) {
     lwespr_t res = lwespERR;
-    if ((ip != NULL || gw != NULL || nm != NULL || is_dhcp != NULL)
-        && lwesp_sta_has_ip()) { /* Do we have a valid IP address? */
+    if ((ip != NULL || gw != NULL || nm != NULL || is_dhcp != NULL) && lwesp_sta_has_ip()) { /* Do we have a valid IP
+                                                                                                address? */
         lwesp_core_lock();
         if (ip != NULL) {
             LWESP_MEMCPY(ip, &esp.m.sta.ip, sizeof(esp.m.sta.ip));

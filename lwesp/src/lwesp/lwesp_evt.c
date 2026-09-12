@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -576,10 +576,10 @@ lwesp_evt_server_get_port(lwesp_evt_t* cc) {
 }
 
 /**
-* \brief           Check if operation was to enable or disable server
-* \param[in]       cc: Event handle
-* \return          `1` if enable, `0` otherwise
-*/
+ * \brief           Check if operation was to enable or disable server
+ * \param[in]       cc: Event handle
+ * \return          `1` if enable, `0` otherwise
+ */
 uint8_t
 lwesp_evt_server_is_enable(lwesp_evt_t* cc) {
     return cc->evt.server.en;

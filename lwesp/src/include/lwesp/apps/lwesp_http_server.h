@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -206,7 +206,8 @@ typedef lwespr_t (*http_post_start_fn)(struct http_state* hs, const char* uri, u
 
 /**
  * \brief           Post data received on request function prototype
- * \note            This function may be called multiple time until content_length from \ref http_post_start_fn callback is not reached
+ * \note            This function may be called multiple time until content_length from \ref http_post_start_fn callback
+ * is not reached
  * \param[in]       hs: HTTP state
  * \param[in]       pbuf: Packet buffer wit reciveed data
  * \return          \ref lwespOK on success, member of \ref lwespr_t otherwise
@@ -234,7 +235,8 @@ typedef size_t (*http_ssi_fn)(struct http_state* hs, const char* tag_name, size_
 
 /**
  * \brief           File system open file function
- *                  Function is called when user file system (FAT or similar) should be invoked to open a file from specific path
+ *                  Function is called when user file system (FAT or similar) should be invoked to open a file from
+ * specific path
  * \param[in]       file: Pointer to file where user has to set length of file if opening was successful
  * \param[in]       path: Path of file to open
  * \return          1 if file is opened, 0 otherwise
@@ -243,9 +245,11 @@ typedef uint8_t (*http_fs_open_fn)(struct http_fs_file* file, const char* path);
 
 /**
  * \brief           File system read file function
- *                  Function may be called for `2` purposes. First is to read data and second to get remaining length of file to read
+ *                  Function may be called for `2` purposes. First is to read data and second to get remaining length of
+ * file to read
  * \param[in]       file: File pointer to read content
- * \param[in]       buff: Buffer to read data to. When parameter is set to NULL, number of remaining bytes available to read should be returned
+ * \param[in]       buff: Buffer to read data to. When parameter is set to NULL, number of remaining bytes available to
+ * read should be returned
  * \param[in]       btr: Number of bytes to read from file. This parameter has no meaning when buff is NULL
  * \return          Number of bytes read or number of bytes available to read
  */
@@ -323,7 +327,8 @@ typedef struct http_fs_file {
     uint32_t fptr; /*!< File pointer to indicate next read position */
 
     const uint16_t* rem_open_files; /*!< Pointer to number of remaining open files.
-                                                        User can use value on this pointer to get number of other opened files */
+                                                        User can use value on this pointer to get number of other opened
+                                       files */
     void* arg;                      /*!< User custom argument, may be used for user specific file system object */
 } http_fs_file_t;
 
@@ -367,8 +372,9 @@ typedef struct http_state {
     /* SSI tag parsing */
     uint8_t is_ssi;             /*!< Flag if current request is SSI enabled */
     http_ssi_state_t ssi_state; /*!< Current SSI state when parsing SSI tags */
-    char ssi_tag_buff[HTTP_SSI_TAG_START_LEN + HTTP_SSI_TAG_END_LEN + HTTP_SSI_TAG_MAX_LEN
-                      + 1];      /*!< Temporary buffer for SSI tag storing */
+    char ssi_tag_buff[HTTP_SSI_TAG_START_LEN + HTTP_SSI_TAG_END_LEN + HTTP_SSI_TAG_MAX_LEN + 1]; /*!< Temporary buffer
+                                                                                                    for SSI tag storing
+                                                                                                  */
     size_t ssi_tag_buff_ptr;     /*!< Current write pointer */
     size_t ssi_tag_buff_written; /*!< Number of bytes written so far to output buffer in case tag is not valid */
     size_t ssi_tag_len;          /*!< Length of SSI tag */

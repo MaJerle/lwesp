@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (c) 2024 Tilen MAJERLE
+ * Copyright (c) 2026 Tilen MAJERLE
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -40,7 +40,7 @@
  * Open "include/lwesp/lwesp_opt.h" and
  * copy & replace here settings you want to change values
  */
-#define LWESP_CFG_AT_ECHO                     1
-#define LWESP_CFG_INPUT_USE_PROCESS           1
+#define LWESP_CFG_AT_ECHO           1
+#define LWESP_CFG_INPUT_USE_PROCESS 1
 
 #endif /* LWESP_HDR_OPTS_H */
