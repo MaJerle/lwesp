@@ -17,8 +17,9 @@ Its objective is to run on master system, while Espressif device runs official A
 Features
 ^^^^^^^^
 
+* Written in C (C11), compatible with ``stdint.h`` data types
 * Supports latest ESP32, ESP32-C2, ESP32-C3, ESP32-C6 & ESP8266 AT software from Espressif system
-* Platform independent and easy to port, written in C99
+* Platform independent and easy to port
 
   * Library is developed under Win32 platform
   * Provided examples for ARM Cortex-M or Win32 platforms
